@@ -7,14 +7,17 @@
 %% first check the Python version
 pyversion
 % a different Python version can be selected by specifying the Python
-% executable, e.g. pyversion /Users/Henry/miniconda3/bin/python
+% executable 
+% on OS X: pyversion /Users/Henry/miniconda3/bin/python
+% on Windows: pyversion 3.6
 
 %% enter username and password for openBIS
-username = 'hluetcke';
+username = ''; % enter user name
 pw = passwordEntryDialog('CheckPasswordLength',0);
 
 %% connect to openBIS
-obi = py.pybis.Openbis('https://limb.ethz.ch/openbis:8443', pyargs('verify_certificates', 0));
+url = 'https://XYZ.ethz.ch/openbis:8443'; % replace with correct URL
+obi = py.pybis.Openbis(url, pyargs('verify_certificates', 0));
 obi.login(username, pw, pyargs('save_token', 1));
 clear pw
 obi
@@ -28,7 +31,7 @@ datasets
 ds_id = '20101105142049776-6512';
 ds = obi.get_dataset(ds_id);
 % download
-data_dir = '/Users/Henry/Data/Projects/MatlabOpenbis/data';
+data_dir = '~/Data/Projects/MatlabOpenbis/data';
 ds.download(pyargs('destination', data_dir, 'wait_until_finished', false));
 
 %% list files / directories in dataset
