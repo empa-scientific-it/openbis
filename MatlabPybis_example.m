@@ -1,7 +1,7 @@
 % demo script for accessing openBIS from Matlab using Pybis
 % we use Matlab's capability to call Python libraries
 % Pybis documentation is available here:
-% https://sissource.ethz.ch/sispub/pybis/blob/master/src/python/PyBis/README.md
+% https://sissource.ethz.ch/sispub/openbis/blob/master/pybis/src/python/README.md
 
 
 %% first check the Python version
@@ -12,7 +12,7 @@ pyversion
 % on Windows: pyversion 3.6
 
 %% enter username and password for openBIS
-username = ''; % enter user name
+username = 'XYZ'; % enter user name
 pw = passwordEntryDialog('CheckPasswordLength',0);
 
 %% connect to openBIS
@@ -31,7 +31,7 @@ datasets
 ds_id = '20101105142049776-6512';
 ds = obi.get_dataset(ds_id);
 % download
-data_dir = '~/Data/Projects/MatlabOpenbis/data';
+data_dir = 'data';
 ds.download(pyargs('destination', data_dir, 'wait_until_finished', false));
 
 %% list files / directories in dataset
