@@ -10,4 +10,3 @@ ds.download(pyargs('destination', data_dir, 'wait_until_finished', false));
 file_list = cell(ds.get_file_list);
 
 end
-

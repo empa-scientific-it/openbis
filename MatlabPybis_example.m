@@ -7,16 +7,25 @@
 %% first check the Python version
 pyversion
 % a different Python version can be selected by specifying the Python
-% executable 
+% executable
 % on OS X: pyversion /Users/Henry/miniconda3/bin/python
 % on Windows: pyversion 3.6
 
-%% enter username and password for openBIS
-username = 'XYZ'; % enter user name
+%% connection details for openBIS
+% connection details can be stored in the file user_data.json or entered manually
+try
+    user_data = jsondecode(fileread('user_data.json'));
+    username = user_data.User;
+    url = user_data.URL;
+catch
+    username = ''; % enter valid user name
+    url = 'https://XYZ.ethz.ch/openbis:8443'; % replace with correct URL
+end
+% specify openBIS password
 pw = passwordEntryDialog('CheckPasswordLength',0);
 
+
 %% connect to openBIS
-url = 'https://XYZ.ethz.ch/openbis:8443'; % replace with correct URL
 obi = py.pybis.Openbis(url, pyargs('verify_certificates', 0));
 obi.login(username, pw, pyargs('save_token', 1));
 clear pw
