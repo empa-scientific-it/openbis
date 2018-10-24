@@ -5,5 +5,5 @@ function [datasets] = get_datasets(ds_type)
 global obi
 
 datasets = obi.get_datasets(pyargs('type',ds_type));
-datasets = df_to_cell(datasets.df);
+datasets = df_to_table(datasets.df);
 end
