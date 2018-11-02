@@ -4,10 +4,10 @@ classdef OpenBis
     % and provides methods for interacting with the Python (pyBIS) Openbis object.
     %
     % Usage:
-    % Construct the MATLAB OpenBis object like this: 
+    % Construct the MATLAB OpenBis object like this:
     % obi = OpenBis()
-    % This will ask for URL, user name and password to connect to openBIS server. 
-    % These can also be provided as optional input arguments. 
+    % This will ask for URL, user name and password to connect to openBIS server.
+    % These can also be provided as optional input arguments.
     %
     % Methods are generally called like this:
     % spaces = obi.get_spaces()
@@ -186,6 +186,96 @@ classdef OpenBis
             project.save();
         end
         
+        %% Dataset methods
+        % this section defines following Matlab methods:
+        % get_datasets
+        % get_dataset
+        % get_dataset_files
+        % dataset_download
+        
+        function datasets = get_datasets(obj, varargin)
+            % Return table of matching datasets.
+            % Optional input arguments:
+            % code, type, experiment, project, tags
+            
+            defaultCode = '';
+            defaultType = '';
+            defaultExp = '';
+            defaultProj = '';
+            defaultTags = '';
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addParameter(p, 'code', defaultCode, @ischar);
+            addParameter(p, 'type', defaultType, @ischar);
+            addParameter(p, 'experiment', defaultExp, @ischar);
+            addParameter(p, 'project', defaultProj, @ischar);
+            addParameter(p, 'tags', defaultTags, @ischar);
+            parse(p, obj, varargin{:});
+            a = p.Results;
+            
+            datasets = obj.pybis.get_datasets(pyargs('code', a.code, 'type', a.type, 'experiment', a.experiment, ...
+                'project', a.project, 'tags', a.tags));
+            datasets = df_to_table(datasets.df);
+        end
+        
+        function dataset = get_dataset(obj, permid, varargin)
+            
+            only_data = false;
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addRequired(p, 'permid', @ischar);
+            addOptional(p, 'only_data', only_data, @islogical);
+            parse(p, obj, permid, varargin{:});
+            a = p.Results;
+            
+            dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
+            
+        end
+        
+        
+        function files = get_dataset_files(obj, dataset, varargin)
+            
+            start_folder = '/';
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addRequired(p, 'dataset');
+            addOptional(p, 'start_folder', start_folder, @ischar);
+            parse(p, obj, dataset, varargin{:});
+            a = p.Results;
+            
+            files = dataset.get_files(pyargs('start_folder', a.start_folder));
+            
+            files = df_to_table(files);
+            
+        end
+        
+        
+        function path_to_file = dataset_download(obj, dataset, files, varargin)
+            % provide files as cell array of files
+            
+            destination = 'data';
+            wait_until_finished = true;
+            workers = 10;
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addRequired(p, 'dataset');
+            addRequired(p, 'files', @iscellstr);
+            addParameter(p, 'destination', destination, @ischar);
+            addParameter(p, 'wait_until_finished', wait_until_finished, @islogical);
+            addParameter(p, 'workers', workers, @isscalar);
+            
+            parse(p, obj, dataset, files, varargin{:});
+            a = p.Results;
+            
+            dataset.download(pyargs('files', a.files, 'destination', a.destination, 'wait_until_finished', a.wait_until_finished, 'workers', int16(a.workers)));
+            
+            path_to_file = fullfile(a.destination, dataset.char, a.files);
+            
+        end
         
     end
     
