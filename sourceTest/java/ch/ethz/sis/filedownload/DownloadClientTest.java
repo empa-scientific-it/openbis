@@ -47,9 +47,9 @@ public class DownloadClientTest
 
     private static final Path TEST_STORE_PATH = Paths.get("targets/test-store");
 
-    private static final TestDownloadItemId TEST_ITEM_1_ID = new TestDownloadItemId("targets/test-files/testFile1.txt");
+    private static final TestDownloadItemId TEST_ITEM_1_ID = new TestDownloadItemId("sourceTest/test-files/testFile1.txt");
 
-    private static final TestDownloadItemId TEST_ITEM_2_ID = new TestDownloadItemId("targets/test-files/testFile2.txt");
+    private static final TestDownloadItemId TEST_ITEM_2_ID = new TestDownloadItemId("sourceTest/test-files/testFile2.txt");
 
     private TestLogger logger;
 
