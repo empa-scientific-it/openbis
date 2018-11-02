@@ -1,0 +1,314 @@
+apply plugin: 'java'
+apply plugin: 'project-report'
+
+evaluationDependsOnChildren()
+
+configurations {
+    tests  { 
+         extendsFrom testRuntime 
+     }
+}
+
+configurations {
+	ecj
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'hours'
+    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+    distributionUrl = "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/3.5/gradle-3.5-all.zip"
+}
+
+sourceCompatibility='1.8'
+targetCompatibility='1.8'
+
+sourceSets { 
+    main {
+        java {
+            srcDirs = ['source/java']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['sourceTest/java']
+        }
+        resources {
+            srcDirs = ['sourceTest/java']
+        }
+    }
+    examples {
+        java {
+            srcDirs = ['sourceExamples/java']
+        }
+    }
+}
+
+buildDir = 'targets/gradle'
+
+buildscript {
+    apply from: './repository.gradle'
+    
+    repositories repositoryConfig
+}
+
+repositories repositoryConfig
+
+def execute(command, arguments) {
+    new ByteArrayOutputStream().withStream { os ->
+        print "execute: ${command}"
+        arguments.collect({print " ${it}"})
+        println ''
+        def result = exec {
+            executable = command
+            args = arguments
+            standardOutput = os
+        }
+        return os.toString().split('\n')
+    }
+}
+
+ext.executeFunction = {
+  command, arguments -> execute(command, arguments)
+}
+
+def execute_working_dir(command, arguments, working_dir) {
+    new ByteArrayOutputStream().withStream { os ->
+        print "execute: ${command}"
+        arguments.collect({print " ${it}"})
+        println ''
+        def result = exec {
+            executable = command
+            args = arguments
+            standardOutput = os
+        }
+        return os.toString().split('\n')
+    }
+}
+
+def isGitProject() {
+   return new java.io.File(projectDir, ".git").isDirectory() || new java.io.File(projectDir, "../.git").isDirectory() 
+}
+
+def calculateCleanFlag() {
+    if (isGitProject()) {
+        def output = execute_working_dir('git', ['status', '--porcelain'], '../' + project.name)
+        return (output.length == 0 || (output.length ==1 && output[0].length() == 0)) ? 'clean' : 'dirty'
+    } else {
+    	return 'dirty'
+    }
+}
+
+def findMaximum(lines, key) {
+    return lines.findAll({ it.startsWith(key)}).collect({element -> element.split(':')[1].toInteger()}).max()
+}
+
+def calculateBuildInfo() {
+    if (isGitProject()) {
+        def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at-%H'], '../' + project.name)
+        def rev = gitlogoutput[0].split("-")
+        project.ext.revisionNumber = Integer.parseInt(rev[0])
+        def commitHash = rev[1]
+        def date = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date(revisionNumber * 1000L))
+        project.ext.revisionInfo = "${commitHash} [${date}]"
+        def tag = 'git tag -l --points-at HEAD'.execute().text.trim()
+        if (tag == null || tag.isEmpty()) {
+            project.ext.versionNumber = 'SNAPSHOT'
+        } else if (tag.contains('pybis')) {
+           throw new GradleException("project must contain a readme file")
+        } else {
+           project.ext.versionNumber = tag
+        }
+    } else {
+        project.ext.revisionInfo = '?'
+        project.ext.revisionNumber = 1
+        project.ext.versionNumber = 'SNAPSHOT'
+    }
+
+    version = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${project.ext.revisionNumber}" : project.ext.versionNumber
+    project.ext.revisionForPublication = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${project.ext.revisionNumber}" : project.ext.versionNumber
+    project.ext.cleanFlag = calculateCleanFlag()
+    def buildInfo = "${project.ext.versionNumber}::${project.ext.revisionInfo}::${project.ext.cleanFlag}"
+    println "BUILD INFO for $project: $buildInfo"
+    def targetsDist = 'targets/dist'
+    def distFolder = new File("${project.projectDir}/$targetsDist")
+    distFolder.deleteDir()
+    distFolder.mkdirs()
+    file("${project.projectDir}/$targetsDist/BUILD-${project.name}.INFO") << buildInfo
+}
+
+calculateBuildInfo()
+
+group='cisd'
+
+task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
+    doFirst {
+        def cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+        def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDir]
+        if (sourceSets.test.output.classesDir.exists()) {
+            cmd.add(sourceSets.test.output.classesDir)
+        }
+        cmd.add('-cp')
+        cmd.add(sourceSets.main.output.classesDir)
+        if (sourceSets.test.output.classesDir.exists()) {
+            cmd.add(sourceSets.test.output.classesDir)
+        }
+        cmd.add(configurations.testCompile.asPath)
+        commandLine cmd
+    }
+}
+
+def deleteSymbolicLinksRecursively(file) {
+    def absolutePath = file.getAbsolutePath()
+    def canonicalPath = file.getCanonicalPath()
+    if (absolutePath.equals(canonicalPath) == false) {
+        file.delete();
+    } else if (file.isDirectory()) {
+        File[] files = file.listFiles()
+        for (File child : files) {
+            deleteSymbolicLinksRecursively(child)
+        }
+    }
+}
+
+task deleteSymLinks {
+    doFirst {
+        println "DELETE SYM LINKS in $buildDir"
+        deleteSymbolicLinksRecursively buildDir
+    }
+}
+
+clean.dependsOn deleteSymLinks
+
+test {
+    useTestNG()
+    options.suites('sourceTest/java/tests.xml')    
+
+    systemProperty "ant.project.name", project.name
+
+    maxHeapSize = "8192m"
+    jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+    
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+}
+test.dependsOn checkRestrictions
+
+dependencies {
+    ecj "eclipse:ecj:+"
+}
+
+compileJava {
+    options.encoding = 'utf-8'
+    options.fork = true
+    doFirst {
+        options.forkOptions.with {
+            executable = 'java'
+            jvmArgs = createJvmArgs()
+        }
+    }
+}
+
+def createJvmArgs() {
+    def args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
+    return args
+}
+
+processTestResources {
+    fileMode=0666
+}
+
+apply plugin: 'eclipse'
+
+eclipse {
+    classpath {
+        downloadSources=true
+        defaultOutputDir = file('targets/classes')
+    }
+}
+
+eclipse.classpath.file {
+    whenMerged{ classpath ->
+        def projectRefs = classpath.entries.findAll{entry -> entry.kind =='src' && entry.path.startsWith('/')}
+        classpath.entries.removeAll(projectRefs)
+        classpath.entries.addAll(projectRefs)   
+    }
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+compileJava.dependsOn sourcesJar
+
+artifacts {
+    tests testJar
+}
+
+artifacts {
+	archives sourcesJar
+}
+
+task compileDependencies(type: Copy) {
+    into "$buildDir/output/compile-dependencies"
+    from configurations.compile
+}
+
+task runtimeDependencies(type: Copy) {
+    into "$buildDir/output/runtime-dependencies"
+    from configurations.runtime
+}
+
+task testCompileDependencies(type: Copy) {
+    into "$buildDir/output/testCompile-dependencies"
+    from configurations.testCompile
+}
+
+task testRuntimeDependencies(type: Copy) {
+    into "$buildDir/output/testRuntime-dependencies"
+    from configurations.testRuntime
+}
+
+task checkDependencies(dependsOn: classes) << {
+	ant.taskdef(name: 'dependencychecker', classname: 'classycle.ant.DependencyCheckingTask', classpath: configurations.testRuntime.asPath)
+    ant.dependencychecker(
+                definitionFile: 'resource/dependency-structure.ddf', 
+                failOnUnwantedDependencies: 'true',
+                mergeInnerClasses: 'true') {
+        fileset(dir: "${buildDir}", includes: "**/*.class")
+    }
+}
+
+apply plugin: 'ivy-publish'
+if (hasProperty('ivyRepository') == false || ''.equals(project.ivyRepository))
+{
+    project.ext.ivyRepository = "${project.projectDir}/../ivy-repository"
+}
+publishing {
+
+    repositories {
+        ivy {
+            ivyPattern "file://${project.ivyRepository}/[organisation]/[module]/[revision]/ivy.xml"
+            artifactPattern "file://${project.ivyRepository}/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        }
+    }
+}
+
+publish {
+    dependsOn build
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}

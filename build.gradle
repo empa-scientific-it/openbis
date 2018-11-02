@@ -1,0 +1,11 @@
+apply from: './javaproject.gradle'
+
+dependencies {
+
+	compile 	'apache:commons-io:2.6',
+			'apache:commons-lang:2.4'
+		
+
+	testCompile 'testng:testng:6.8-CISD' 
+
+}
