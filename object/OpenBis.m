@@ -186,6 +186,16 @@ classdef OpenBis
             project.save();
         end
         
+        %% Object methods
+        function sample_object = new_object(obj, type, space, code)
+            % Create a new object (sample) of specific type in a space
+            % Return the object object
+            
+            sample_object = obj.pybis.new_sample(pyargs('type', type, 'space', space, 'code', code));
+            sample_object.save();
+            
+        end
+        
         %% Dataset methods
         % this section defines following Matlab methods:
         % get_datasets
