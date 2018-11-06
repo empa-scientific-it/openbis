@@ -193,6 +193,7 @@ classdef OpenBis
         % get_objects
         % new_object
         % delete_object
+        
         function object = get_object(obj, id)
             % Return object (sample) corresponding to the id
             % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
@@ -227,6 +228,30 @@ classdef OpenBis
             % Delete object (sample) specifying a reason
             % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
             object.delete(reason)
+        end
+        
+        
+        %% Experiment methods
+        % this section defines the following Matlab methods:
+        % get_experiments
+        
+        function experiments = get_experiments(obj, varargin)
+            space = '';
+            type = '';
+            project = '';
+            %tag = '*'; % currently only 1 tag can be specified
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addParameter(p, 'space', space, @ischar);
+            addParameter(p, 'type', type, @ischar);
+            addParameter(p, 'project', project, @ischar);
+%             addParameter(p, 'tag', tag);
+            parse(p, obj, varargin{:});
+            a = p.Results;
+            
+            experiments = obj.pybis.get_experiments(pyargs('space', a.space, 'type', a.type, 'project', a.project));
+            experiments = df_to_table(experiments.df);
         end
         
         
