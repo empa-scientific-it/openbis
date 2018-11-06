@@ -186,15 +186,49 @@ classdef OpenBis
             project.save();
         end
         
+        
         %% Object methods
-        function sample_object = new_object(obj, type, space, code)
-            % Create a new object (sample) of specific type in a space
-            % Return the object object
-            
-            sample_object = obj.pybis.new_sample(pyargs('type', type, 'space', space, 'code', code));
-            sample_object.save();
-            
+        % this section defines following Matlab methods related to openBIS objects / samples:
+        % get_object
+        % get_objects
+        % new_object
+        % delete_object
+        function object = get_object(obj, id)
+            % Return object (sample) corresponding to the id
+            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
+            object = obj.pybis.get_object(id);
         end
+        
+        function objects = get_objects(obj, varargin)
+            defaultSpace = '';
+            defaultType = '';
+            defaultTag = ''; % currently only 1 tag can be specified
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addParameter(p, 'space', defaultSpace, @ischar);
+            addParameter(p, 'type', defaultType, @ischar);
+            addParameter(p, 'tag', defaultTag);
+            parse(p, obj, varargin{:});
+            a = p.Results;
+            
+            objects = obj.pybis.get_objects(pyargs('space', a.space, 'type', a.type, 'tag', a.tag));
+            objects = df_to_table(objects.df);
+        end
+        
+        function object = new_object(obj, type, space, code)
+            % Create a new object (sample) of specific type in a space
+            % Return the object
+            object = obj.pybis.new_object(pyargs('type', type, 'space', space, 'code', code));
+            object.save();
+        end
+        
+        function object = delete_object(obj, object, reason)
+            % Delete object (sample) specifying a reason
+            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
+            object.delete(reason)
+        end
+        
         
         %% Dataset methods
         % this section defines following Matlab methods:
