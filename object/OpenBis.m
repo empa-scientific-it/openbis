@@ -233,20 +233,25 @@ classdef OpenBis
         
         %% Experiment methods
         % this section defines the following Matlab methods:
+        % get_experiment
         % get_experiments
+        
+        function experiment = get_experiment(obj, id)
+            % Return experiment corresponding to the id
+            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
+            experiment = obj.pybis.get_experiment(id);
+        end
         
         function experiments = get_experiments(obj, varargin)
             space = '';
             type = '';
             project = '';
-            %tag = '*'; % currently only 1 tag can be specified
             
             p = inputParser;
             addRequired(p, 'obj');
             addParameter(p, 'space', space, @ischar);
             addParameter(p, 'type', type, @ischar);
             addParameter(p, 'project', project, @ischar);
-%             addParameter(p, 'tag', tag);
             parse(p, obj, varargin{:});
             a = p.Results;
             
@@ -254,6 +259,14 @@ classdef OpenBis
             experiments = df_to_table(experiments.df);
         end
         
+        function experiment = new_experiment(obj, type, space, project)
+            % Todo: make this work in Python first
+            % Create a new experiment of specific type in a defined space and project
+            % Return the object
+            experiment = obj.pybis.new_experiment(pyargs('type', type, 'space', space, 'project', project));
+            experiment.save();
+            
+        end
         
         %% Dataset methods
         % this section defines following Matlab methods:
