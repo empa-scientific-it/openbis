@@ -195,7 +195,6 @@ test {
     testLogging.showStandardStreams = true
     ignoreFailures = true
 }
-test.dependsOn checkRestrictions
 
 dependencies {
     ecj "eclipse:ecj:+"
