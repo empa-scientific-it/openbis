@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -25,6 +24,6 @@ import java.io.InputStream;
 public interface IChunkSerializer
 {
 
-    public InputStream serialize(Chunk chunk) throws IOException;
+    public InputStream serialize(Chunk chunk) throws DownloadException;
 
 }

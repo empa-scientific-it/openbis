@@ -25,6 +25,6 @@ import java.util.Map;
 public interface IChunkProvider
 {
 
-    public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds);
+    public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds) throws DownloadException;
 
 }

@@ -24,21 +24,21 @@ public class DownloadException extends Exception
 
     private static final long serialVersionUID = 1L;
 
-    private boolean retriable;
+    private Boolean retriable;
 
-    public DownloadException(String message, boolean retriable)
+    public DownloadException(String message, Boolean retriable)
     {
         super(message);
         this.retriable = retriable;
     }
 
-    public DownloadException(String message, Throwable throwable, boolean retriable)
+    public DownloadException(String message, Throwable throwable, Boolean retriable)
     {
         super(message, throwable);
         this.retriable = retriable;
     }
 
-    public boolean isRetriable()
+    public Boolean isRetriable()
     {
         return retriable;
     }

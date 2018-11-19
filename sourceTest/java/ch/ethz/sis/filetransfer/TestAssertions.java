@@ -16,6 +16,10 @@
 
 package ch.ethz.sis.filetransfer;
 
+import static org.testng.Assert.fail;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +44,21 @@ public class TestAssertions
 
     public void assertOK()
     {
-        
+        if (false == problems.isEmpty())
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (Throwable problem : problems)
+            {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                PrintStream ps = new PrintStream(os, true);
+                problem.printStackTrace(ps);
+                ps.close();
+                sb.append("\n" + new String(os.toByteArray()));
+            }
+
+            fail("Unexpected problems: " + sb);
+        }
     }
 
     public interface IAssertion

@@ -16,12 +16,14 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author pkupczyk
  */
 public interface IDownloadItemIdSerializer
 {
 
-    public byte[] serialize(IDownloadItemId itemId);
+    public ByteBuffer serialize(IDownloadItemId itemId) throws DownloadException;
 
 }

@@ -16,121 +16,25 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import ch.ethz.sis.filetransfer.Chunk;
-import ch.ethz.sis.filetransfer.IChunkProvider;
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.ILogger;
-import ch.ethz.sis.filetransfer.LogLevel;
 
 /**
  * @author pkupczyk
  */
-public class TestChunkProvider implements IChunkProvider
+public class TestChunkProvider extends FileSystemChunkProvider
 {
 
-    private static final long CHUNK_SIZE = 5;
-
-    private ILogger logger;
-
-    public TestChunkProvider(ILogger logger)
+    public TestChunkProvider(ILogger logger, long chunkSize)
     {
-        this.logger = logger;
+        super(logger, chunkSize);
     }
 
     @Override
-    public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds)
+    public Path getItemPath(IDownloadItemId itemId)
     {
-        Map<IDownloadItemId, List<Chunk>> result = new HashMap<IDownloadItemId, List<Chunk>>();
-        AtomicInteger sequenceNumber = new AtomicInteger(0);
-
-        for (IDownloadItemId itemId : itemIds)
-        {
-            List<Chunk> chunks = getChunks(sequenceNumber, itemId);
-            result.put(itemId, chunks);
-        }
-
-        return result;
-    }
-
-    private List<Chunk> getChunks(AtomicInteger sequenceNumber, IDownloadItemId itemId)
-    {
-        try
-        {
-            final TestDownloadItemId filePathId = (TestDownloadItemId) itemId;
-            final Path filePath = Paths.get(filePathId.getFilePath());
-            final long fileSize = Files.size(filePath);
-            long fileOffset = 0;
-
-            List<Chunk> chunks = new LinkedList<Chunk>();
-
-            do
-            {
-                final long theFileOffset = fileOffset;
-
-                int payloadLength = (int) (Math.min(theFileOffset + CHUNK_SIZE, fileSize) - theFileOffset);
-
-                chunks.add(new Chunk(sequenceNumber.getAndIncrement(), itemId, filePathId.getFilePath(), fileOffset, payloadLength)
-                    {
-                        @Override
-                        public InputStream getPayload() throws IOException
-                        {
-                            FileChannel fileChannel = FileChannel.open(filePath, StandardOpenOption.READ);
-                            fileChannel.position(theFileOffset);
-                            InputStream fileStream = Channels.newInputStream(fileChannel);
-
-                            return new InputStream()
-                                {
-                                    int counter = 0;
-
-                                    @Override
-                                    public int read() throws IOException
-                                    {
-                                        if (counter < CHUNK_SIZE)
-                                        {
-                                            counter++;
-                                            return fileStream.read();
-                                        } else
-                                        {
-                                            return -1;
-                                        }
-                                    }
-
-                                    @Override
-                                    public void close() throws IOException
-                                    {
-                                        if (logger.isEnabled(LogLevel.DEBUG))
-                                        {
-                                            logger.log(TestChunkProvider.class, LogLevel.DEBUG,
-                                                    "Closing input stream for chunk " + getSequenceNumber());
-                                        }
-                                        fileStream.close();
-                                    }
-                                };
-                        }
-                    });
-
-                fileOffset += CHUNK_SIZE;
-            } while (fileOffset < fileSize);
-
-            return chunks;
-        } catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        TestDownloadItemId filePathId = (TestDownloadItemId) itemId;
+        return Paths.get(filePathId.getFilePath());
     }
 
 }

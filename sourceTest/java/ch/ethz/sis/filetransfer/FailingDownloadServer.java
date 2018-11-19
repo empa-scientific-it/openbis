@@ -20,25 +20,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import ch.ethz.sis.filetransfer.DownloadException;
-import ch.ethz.sis.filetransfer.DownloadItemNotFoundException;
-import ch.ethz.sis.filetransfer.DownloadPreferences;
-import ch.ethz.sis.filetransfer.DownloadRange;
-import ch.ethz.sis.filetransfer.DownloadSession;
-import ch.ethz.sis.filetransfer.DownloadSessionId;
-import ch.ethz.sis.filetransfer.DownloadStreamId;
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.IDownloadServer;
-import ch.ethz.sis.filetransfer.IUserSessionId;
-import ch.ethz.sis.filetransfer.InvalidDownloadSessionException;
-import ch.ethz.sis.filetransfer.InvalidDownloadStreamException;
-import ch.ethz.sis.filetransfer.InvalidUserSessionException;
-
 /**
  * @author pkupczyk
  */
 public class FailingDownloadServer implements IDownloadServer
 {
+
+    public static final String OPERATION_START_DOWNLOAD_SESSION = "IDownloadServer.startDownloadSession";
+
+    public static final String OPERATION_QUEUE = "IDownloadServer.queue";
+
+    public static final String OPERATION_DOWNLOAD = "IDownloadServer.download";
+
+    public static final String OPERATION_DOWNLOAD_READ = "IDownloadServer.download.read";
+
+    public static final String OPERATION_FINISH_DOWNLOAD_SESSION = "IDownloadServer.finishDownloadSession";
 
     private IDownloadServer server;
 
@@ -54,15 +50,23 @@ public class FailingDownloadServer implements IDownloadServer
     public DownloadSession startDownloadSession(IUserSessionId userSessionId, List<IDownloadItemId> itemIds, DownloadPreferences preferences)
             throws DownloadItemNotFoundException, InvalidUserSessionException, DownloadException
     {
-        generator.maybeFail("IDownloadServer.startDownloadSession");
+        generator.maybeFail(OPERATION_START_DOWNLOAD_SESSION);
         return server.startDownloadSession(userSessionId, itemIds, preferences);
+    }
+
+    @Override
+    public void queue(DownloadSessionId downloadSessionId, List<DownloadRange> ranges)
+            throws InvalidUserSessionException, InvalidDownloadSessionException, DownloadException
+    {
+        generator.maybeFail(OPERATION_QUEUE);
+        server.queue(downloadSessionId, ranges);
     }
 
     @Override
     public InputStream download(DownloadSessionId downloadSessionId, DownloadStreamId streamId, Integer numberOfChunksOrNull)
             throws InvalidUserSessionException, InvalidDownloadSessionException, InvalidDownloadStreamException, DownloadException
     {
-        generator.maybeFail("IDownloadServer.download");
+        generator.maybeFail(OPERATION_DOWNLOAD);
         InputStream stream = server.download(downloadSessionId, streamId, null);
         return new InputStream()
             {
@@ -72,7 +76,7 @@ public class FailingDownloadServer implements IDownloadServer
                     int b = stream.read();
                     try
                     {
-                        generator.maybeFail("IDownloadServer.download.read");
+                        generator.maybeFail(OPERATION_DOWNLOAD_READ);
                     } catch (DownloadException e)
                     {
                         throw new RuntimeException(e);
@@ -83,17 +87,9 @@ public class FailingDownloadServer implements IDownloadServer
     }
 
     @Override
-    public void queue(DownloadSessionId downloadSessionId, List<DownloadRange> ranges)
-            throws InvalidUserSessionException, InvalidDownloadSessionException, DownloadException
-    {
-        generator.maybeFail("IDownloadServer.requeue");
-        server.queue(downloadSessionId, ranges);
-    }
-
-    @Override
     public void finishDownloadSession(DownloadSessionId downloadSessionId) throws DownloadException
     {
-        generator.maybeFail("IDownloadServer.finishDownloadSession");
+        generator.maybeFail(OPERATION_FINISH_DOWNLOAD_SESSION);
         server.finishDownloadSession(downloadSessionId);
     }
 

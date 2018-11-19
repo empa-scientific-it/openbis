@@ -56,8 +56,8 @@ class DownloadServerDownload
 
     private Map<DownloadStreamId, DownloadInputStream> streams = new HashMap<DownloadStreamId, DownloadInputStream>();
 
-    public DownloadServerDownload(DownloadServerConfig config, IUserSessionId userSessionId, List<IDownloadItemId> itemIds, Integer wishedNumberOfStreams,
-            int allowedNumberOfStreams)
+    public DownloadServerDownload(DownloadServerConfig config, IUserSessionId userSessionId, List<IDownloadItemId> itemIds,
+            Integer wishedNumberOfStreams, int allowedNumberOfStreams) throws DownloadException
     {
         this.config = config;
         this.userSessionId = userSessionId;
@@ -77,6 +77,7 @@ class DownloadServerDownload
     }
 
     private static Map<IDownloadItemId, List<Chunk>> initChunksByItemId(List<IDownloadItemId> itemIds, IChunkProvider chunksProvider)
+            throws DownloadException
     {
         Map<IDownloadItemId, List<Chunk>> chunksByItemId = chunksProvider.getChunks(itemIds);
 
@@ -221,6 +222,11 @@ class DownloadServerDownload
             stream = new DownloadInputStream(config.getLogger(), queue, config.getSerializerProvider().createChunkSerializer(), numberOfChunksOrNull);
             streams.put(streamId, stream);
 
+            if (config.getLogger().isEnabled(LogLevel.DEBUG))
+            {
+                config.getLogger().log(getClass(), LogLevel.DEBUG, "Returning input stream with queue: " + queue);
+            }
+
             return stream;
         }
     }
@@ -236,14 +242,17 @@ class DownloadServerDownload
         {
             for (InputStream stream : streams.values())
             {
-                try
+                if (stream != null)
                 {
-                    stream.close();
-                } catch (IOException e)
-                {
-                    if (config.getLogger().isEnabled(LogLevel.WARN))
+                    try
                     {
-                        config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't close a download stream", e);
+                        stream.close();
+                    } catch (IOException e)
+                    {
+                        if (config.getLogger().isEnabled(LogLevel.WARN))
+                        {
+                            config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't close a download stream", e);
+                        }
                     }
                 }
             }
@@ -294,6 +303,12 @@ class DownloadServerDownload
                     }
                 }
             }
+        }
+
+        @Override
+        public synchronized String toString()
+        {
+            return queueList.toString();
         }
 
     }

@@ -22,6 +22,6 @@ package ch.ethz.sis.filetransfer;
 public interface IDeserializerProvider
 {
 
-    public IChunkDeserializer createChunkDeserializer();
+    public IChunkDeserializer createChunkDeserializer() throws DownloadException;
 
 }

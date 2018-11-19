@@ -16,8 +16,7 @@
 
 package ch.ethz.sis.filetransfer;
 
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.IDownloadItemIdDeserializer;
+import java.nio.ByteBuffer;
 
 /**
  * @author pkupczyk
@@ -26,9 +25,9 @@ public class TestDownloadItemIdDeserializer implements IDownloadItemIdDeserializ
 {
 
     @Override
-    public IDownloadItemId deserialize(byte[] bytes)
+    public IDownloadItemId deserialize(ByteBuffer buffer)
     {
-        return new TestDownloadItemId(new String(bytes));
+        return new TestDownloadItemId(new String(buffer.array(), buffer.position(), buffer.limit()));
     }
 
 }

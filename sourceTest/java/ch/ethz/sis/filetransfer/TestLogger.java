@@ -27,25 +27,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import ch.ethz.sis.filetransfer.ILogger;
-import ch.ethz.sis.filetransfer.LogLevel;
-
 /**
  * @author pkupczyk
  */
 public class TestLogger implements ILogger
 {
 
-    private static final int TIMEOUT = 1000;
-
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss:SSS");
+
+    private static final LogLevel LOG_LEVEL = LogLevel.INFO;
 
     private List<Entry> entries = new ArrayList<Entry>();
 
     @Override
     public boolean isEnabled(LogLevel level)
     {
-        return level.ordinal() >= LogLevel.DEBUG.ordinal();
+        return level.ordinal() >= LOG_LEVEL.ordinal();
     }
 
     @Override
@@ -57,44 +54,84 @@ public class TestLogger implements ILogger
     @Override
     public synchronized void log(Class<?> clazz, LogLevel level, String message, Throwable throwable)
     {
-        Entry entry = new Entry(clazz, level, message, throwable);
-        System.out.println(entry.toString());
-        entries.add(entry);
-        notifyAll();
+        if (isEnabled(level))
+        {
+            Entry entry = new Entry(clazz, level, message, throwable);
+            System.out.println(entry.toString());
+            entries.add(entry);
+            notifyAll();
+        }
     }
 
-    public synchronized void awaitLogs(String... logs)
+    public synchronized void awaitLogs(int timeout, String... logs)
     {
         try
         {
-            long timeoutTime = System.currentTimeMillis() + TIMEOUT;
+            long timeoutTime = System.currentTimeMillis() + timeout;
 
-            while (false == containsLogs(logs))
+            while (true)
             {
-                long timeLeft = timeoutTime - System.currentTimeMillis();
-
-                if (timeLeft > 0)
+                if (containsLogs(logs))
                 {
-                    wait(timeLeft);
+                    return;
                 } else
                 {
+                    long timeLeft = timeoutTime - System.currentTimeMillis();
+
+                    if (timeLeft > 0)
+                    {
+                        wait(timeLeft);
+                    } else
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        for (Entry entry : entries)
+                        {
+                            sb.append(">>> " + entry.getLog() + "\n");
+                        }
+                        fail("Expected to contain logs: " + Arrays.toString(logs) + ", but the logs were:\n" + sb.toString());
+                    }
+                }
+            }
+
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public synchronized void assertLogsWithLevels(LogLevel... logLevels)
+    {
+        for (LogLevel logLevel : logLevels)
+        {
+            boolean found = false;
+
+            for (Entry entry : entries)
+            {
+                if (logLevel.equals(entry.getLevel()))
+                {
+                    found = true;
                     break;
                 }
             }
 
-            if (false == containsLogs(logs))
+            if (false == found)
             {
-                StringBuilder sb = new StringBuilder();
-                for (Entry entry : entries)
-                {
-                    sb.append(">>> " + entry.getLog() + "\n");
-                }
-                fail("Expected to contain logs: " + Arrays.toString(logs) + ", but the logs were:\n" + sb.toString());
+                fail("Expected to find logs with level: " + logLevel);
             }
+        }
+    }
 
-        } catch (Throwable e)
+    public synchronized void assertNoLogsWithLevels(LogLevel... logLevels)
+    {
+        for (LogLevel logLevel : logLevels)
         {
-            throw new RuntimeException(e);
+            for (Entry entry : entries)
+            {
+                if (logLevel.equals(entry.getLevel()))
+                {
+                    fail("Unexpected log found with level: " + logLevel);
+                }
+            }
         }
     }
 

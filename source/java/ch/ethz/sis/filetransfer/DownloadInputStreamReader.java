@@ -39,29 +39,35 @@ class DownloadInputStreamReader
         this.chunkDeserializer = chunkDeserializer;
     }
 
-    public Chunk read() throws IOException
+    public Chunk read() throws DownloadException
     {
-        int b = downloadStream.read();
-
-        if (b == -1)
+        try
         {
-            return null;
-        } else
-        {
-            downloadStream.unread(b);
-        }
+            int b = downloadStream.read();
 
-        Chunk chunk = chunkDeserializer.deserialize(downloadStream);
-
-        if (chunk != null)
-        {
-            if (logger.isEnabled(LogLevel.INFO))
+            if (b == -1)
             {
-                logger.log(getClass(), LogLevel.INFO, "Read chunk " + chunk.getSequenceNumber());
+                return null;
+            } else
+            {
+                downloadStream.unread(b);
             }
-        }
 
-        return chunk;
+            Chunk chunk = chunkDeserializer.deserialize(downloadStream);
+
+            if (chunk != null)
+            {
+                if (logger.isEnabled(LogLevel.INFO))
+                {
+                    logger.log(getClass(), LogLevel.INFO, "Read chunk " + chunk.getSequenceNumber());
+                }
+            }
+
+            return chunk;
+        } catch (IOException e)
+        {
+            throw new DownloadException("Couldn't read chunk", e, true);
+        }
     }
 
     public void close() throws IOException

@@ -16,19 +16,26 @@
 
 package ch.ethz.sis.filetransfer;
 
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.IDownloadItemIdSerializer;
-
 /**
  * @author pkupczyk
  */
-public class TestDownloadItemSerializer implements IDownloadItemIdSerializer
+public class DefaultSerializerProvider implements ISerializerProvider
 {
 
-    @Override
-    public byte[] serialize(IDownloadItemId itemId)
+    private ILogger logger;
+
+    private IDownloadItemIdSerializer itemIdSerializer;
+
+    public DefaultSerializerProvider(ILogger logger, IDownloadItemIdSerializer itemIdSerializer)
     {
-        return ((TestDownloadItemId) itemId).getFilePath().getBytes();
+        this.logger = logger;
+        this.itemIdSerializer = itemIdSerializer;
+    }
+
+    @Override
+    public IChunkSerializer createChunkSerializer()
+    {
+        return new DefaultChunkSerializer(logger, itemIdSerializer);
     }
 
 }

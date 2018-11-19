@@ -70,7 +70,14 @@ class DownloadInputStream extends InputStream
                 {
                     logger.log(getClass(), LogLevel.INFO, "Starting to read chunk " + chunk.getSequenceNumber());
                 }
-                chunkStream = chunkSerializer.serialize(chunk);
+
+                try
+                {
+                    chunkStream = chunkSerializer.serialize(chunk);
+                } catch (DownloadException e)
+                {
+                    throw new IOException("Couldn't serialize a chunk", e);
+                }
             }
         }
 

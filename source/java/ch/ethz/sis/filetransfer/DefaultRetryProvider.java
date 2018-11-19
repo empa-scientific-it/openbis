@@ -107,7 +107,10 @@ public class DefaultRetryProvider implements IRetryProvider
                         {
                             if (logger.isEnabled(LogLevel.WARN))
                             {
-                                logger.log(getClass(), LogLevel.WARN, "Call failed - will NOT retry", e);
+                                logger.log(getClass(), LogLevel.WARN,
+                                        "Call failed - will NOT retry (maximum number of " + maximumNumberOfRetries
+                                                + " reties has been already reached)",
+                                        e);
                             }
                             throw e;
                         }
@@ -136,7 +139,14 @@ public class DefaultRetryProvider implements IRetryProvider
 
         protected boolean isRetriable(Exception e)
         {
-            return (e instanceof DownloadException) && ((DownloadException) e).isRetriable();
+            if (e instanceof DownloadException)
+            {
+                DownloadException de = (DownloadException) e;
+                return de.isRetriable() != null && de.isRetriable();
+            } else
+            {
+                return false;
+            }
         }
 
     }

@@ -31,6 +31,10 @@ import ch.ethz.sis.filetransfer.IUserSessionId;
 public class FailingDownloadStore implements IDownloadStore
 {
 
+    public static final String OPERATION_GET_ITEM_PATH = "IDownloadStore.getItemPath";
+
+    public static final String OPERATION_STORE_CHUNK = "IDownloadStore.storeChunk";
+
     private IDownloadStore store;
 
     private FailureGenerator generator;
@@ -44,14 +48,14 @@ public class FailingDownloadStore implements IDownloadStore
     @Override
     public Path getItemPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
     {
-        generator.maybeFail("IDownloadStore.getItemPath");
+        generator.maybeFail(OPERATION_GET_ITEM_PATH);
         return store.getItemPath(userSessionId, downloadSessionId, itemId);
     }
 
     @Override
     public void storeChunk(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException
     {
-        generator.maybeFail("IDownloadStore.storeChunk");
+        generator.maybeFail(OPERATION_STORE_CHUNK);
         store.storeChunk(userSessionId, downloadSessionId, chunk);
     }
 

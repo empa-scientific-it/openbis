@@ -36,6 +36,12 @@ public class TestDownloadItemId implements IDownloadItemId
         this.filePath = filePath;
     }
 
+    @Override
+    public String getId()
+    {
+        return getFilePath();
+    }
+
     public String getFilePath()
     {
         return filePath;

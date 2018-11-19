@@ -20,20 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import ch.ethz.sis.filetransfer.DownloadException;
-import ch.ethz.sis.filetransfer.DownloadItemNotFoundException;
-import ch.ethz.sis.filetransfer.DownloadPreferences;
-import ch.ethz.sis.filetransfer.DownloadRange;
-import ch.ethz.sis.filetransfer.DownloadSession;
-import ch.ethz.sis.filetransfer.DownloadSessionId;
-import ch.ethz.sis.filetransfer.DownloadStreamId;
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.IDownloadServer;
-import ch.ethz.sis.filetransfer.IUserSessionId;
-import ch.ethz.sis.filetransfer.InvalidDownloadSessionException;
-import ch.ethz.sis.filetransfer.InvalidDownloadStreamException;
-import ch.ethz.sis.filetransfer.InvalidUserSessionException;
-
 /**
  * @author pkupczyk
  */
@@ -42,11 +28,11 @@ public class InconsistentCRCDownloadServer implements IDownloadServer
 
     private IDownloadServer server;
 
-    private int downloadIndex;
+    private ThreadLocal<Integer> downloadIndex = new ThreadLocal<Integer>();
 
-    private int downloadIndexToFail;
+    private final int downloadIndexToFail;
 
-    private int byteIndexToFail;
+    private final int byteIndexToFail;
 
     public InconsistentCRCDownloadServer(IDownloadServer server, int downloadIndexToFail, int byteIndexToFail)
     {
@@ -75,8 +61,16 @@ public class InconsistentCRCDownloadServer implements IDownloadServer
     {
         InputStream stream = server.download(downloadSessionId, streamId, numberOfChunksOrNull);
 
-        if (downloadIndex++ == downloadIndexToFail)
+        Integer downloadIndexValue = downloadIndex.get();
+        if (downloadIndexValue == null)
         {
+            downloadIndexValue = 0;
+        }
+
+        if (downloadIndexValue == downloadIndexToFail)
+        {
+            downloadIndex.set(++downloadIndexValue);
+
             return new InputStream()
                 {
                     private int byteIndex;

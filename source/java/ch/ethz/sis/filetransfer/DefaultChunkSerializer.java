@@ -38,7 +38,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
     }
 
     @Override
-    public InputStream serialize(Chunk chunk) throws IOException
+    public InputStream serialize(Chunk chunk) throws DownloadException
     {
         return new ChunkInputStream(chunk);
     }
@@ -52,7 +52,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
 
         private PayloadInputStream payload;
 
-        public ChunkInputStream(Chunk chunk) throws IOException
+        public ChunkInputStream(Chunk chunk) throws DownloadException
         {
             this.chunk = chunk;
             this.header = new HeaderInputStream();
@@ -86,7 +86,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
 
             private ByteBuffer crcBuffer;
 
-            public HeaderInputStream()
+            public HeaderInputStream() throws DownloadException
             {
                 // Format:
                 // - sequenceNumber (Integer 4 bytes)
@@ -98,10 +98,10 @@ public class DefaultChunkSerializer implements IChunkSerializer
                 // - filePath (byte[] variable length)
                 // - checksum (Long 8 bytes)
 
-                byte[] downloadItemIdBytes = itemIdSerializer.serialize(chunk.getDownloadItemId());
+                ByteBuffer downloadItemIdBytes = itemIdSerializer.serialize(chunk.getDownloadItemId());
                 byte[] filePathBytes = chunk.getFilePath().getBytes();
 
-                if (downloadItemIdBytes.length > Short.MAX_VALUE)
+                if (downloadItemIdBytes.remaining() > Short.MAX_VALUE)
                 {
                     throw new RuntimeException("Download item id too long too serialize");
                 }
@@ -111,9 +111,9 @@ public class DefaultChunkSerializer implements IChunkSerializer
                     throw new RuntimeException("File path too long to serialize");
                 }
 
-                fieldsBuffer = ByteBuffer.allocate(20 + downloadItemIdBytes.length + filePathBytes.length)
+                fieldsBuffer = ByteBuffer.allocate(20 + downloadItemIdBytes.remaining() + filePathBytes.length)
                         .putInt(chunk.getSequenceNumber())
-                        .putShort((short) downloadItemIdBytes.length)
+                        .putShort((short) downloadItemIdBytes.remaining())
                         .putShort((short) filePathBytes.length)
                         .putLong(chunk.getFileOffset())
                         .putInt(chunk.getPayloadLength())
@@ -158,11 +158,13 @@ public class DefaultChunkSerializer implements IChunkSerializer
 
             private InputStream payload;
 
+            private int length;
+
             private CRC32 crc;
 
             private ByteBuffer crcBuffer;
 
-            public PayloadInputStream() throws IOException
+            public PayloadInputStream() throws DownloadException
             {
                 this.payload = chunk.getPayload();
                 this.crc = new CRC32();
@@ -180,6 +182,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
                 if (b != -1)
                 {
                     crc.update(b);
+                    length++;
                     return b;
                 } else
                 {
@@ -190,6 +193,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
 
                         if (logger.isEnabled(LogLevel.DEBUG))
                         {
+                            logger.log(getClass(), LogLevel.DEBUG, "Payload length (server): " + length);
                             logger.log(getClass(), LogLevel.DEBUG, "Payload CRC (server): " + Long.toHexString(crc.getValue()));
                         }
                     }

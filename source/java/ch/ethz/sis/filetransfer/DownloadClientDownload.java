@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.time.StopWatch;
+
 /**
  * @author pkupczyk
  */
@@ -52,11 +54,13 @@ public class DownloadClientDownload
 
     private Map<IDownloadItemId, Set<Integer>> chunksToDownload = new HashMap<IDownloadItemId, Set<Integer>>();
 
+    private Map<IDownloadItemId, Set<Integer>> chunksDownloaded = new HashMap<IDownloadItemId, Set<Integer>>();
+
     private List<DownloadThread> downloadThreads = new LinkedList<DownloadThread>();
 
     private List<IDownloadListener> listeners = new ArrayList<IDownloadListener>();
 
-    private LinkedBlockingQueue<Runnable> listenersQueue = new LinkedBlockingQueue<Runnable>();
+    private LinkedBlockingQueue<IListenerExecution> listenersQueue = new LinkedBlockingQueue<IListenerExecution>();
 
     private ListenersThread listenersThread;
 
@@ -144,16 +148,103 @@ public class DownloadClientDownload
         return status;
     }
 
+    private synchronized void setStatus(DownloadStatus newStatus, Collection<Exception> exceptions)
+    {
+        if (newStatus.equals(DownloadStatus.STARTED))
+        {
+            if (status.equals(DownloadStatus.NEW))
+            {
+                status = DownloadStatus.STARTED;
+                notifyDownloadStarted();
+                if (config.getLogger().isEnabled(LogLevel.INFO))
+                {
+                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
+                }
+            }
+        } else if (newStatus.equals(DownloadStatus.FINISHED))
+        {
+            if (status.equals(DownloadStatus.STARTED))
+            {
+                status = DownloadStatus.FINISHED;
+                finishDownloadSession();
+                notifyDownloadFinished();
+                finishDownloadThreads();
+                finishListenersThread();
+                if (config.getLogger().isEnabled(LogLevel.INFO))
+                {
+                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
+                }
+            }
+        } else if (newStatus.equals(DownloadStatus.FAILED))
+        {
+            if (status.equals(DownloadStatus.NEW) || status.equals(DownloadStatus.STARTED))
+            {
+                status = DownloadStatus.FAILED;
+                finishDownloadSession();
+                notifyDownloadFailed(exceptions);
+                finishDownloadThreads();
+                finishListenersThread();
+                if (config.getLogger().isEnabled(LogLevel.INFO))
+                {
+                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
+                }
+            }
+        }
+    }
+
+    private synchronized void refreshStatus()
+    {
+        Collection<DownloadStatus> threadStatuses = new HashSet<DownloadStatus>();
+        Collection<Exception> threadExceptions = new LinkedList<Exception>();
+
+        for (DownloadThread downloadThread : downloadThreads)
+        {
+            threadStatuses.add(downloadThread.getStatus());
+            threadExceptions.add(downloadThread.getException());
+        }
+
+        if (threadStatuses.contains(DownloadStatus.STARTED))
+        {
+            setStatus(DownloadStatus.STARTED, null);
+        }
+
+        if (threadStatuses.contains(DownloadStatus.FINISHED) && false == threadStatuses.contains(DownloadStatus.NEW)
+                && false == threadStatuses.contains(DownloadStatus.STARTED))
+        {
+            setStatus(DownloadStatus.FINISHED, null);
+        }
+
+        if (threadStatuses.equals(Collections.singleton(DownloadStatus.FAILED)))
+        {
+            setStatus(DownloadStatus.FAILED, threadExceptions);
+        }
+    }
+
     public void start() throws DownloadException
     {
-        if (false == status.equals(DownloadStatus.NEW))
+        if (status.equals(DownloadStatus.NEW))
+        {
+            setStatus(DownloadStatus.STARTED, null);
+        } else
         {
             throw new IllegalStateException("Download has been already started.");
         }
 
-        startDownloadSession();
-        startListenersThread();
-        startDownloadThreads();
+        try
+        {
+            startDownloadSession();
+            startListenersThread();
+            startDownloadThreads();
+
+        } catch (Exception e)
+        {
+            if (config.getLogger().isEnabled(LogLevel.ERROR))
+            {
+                config.getLogger().log(getClass(), LogLevel.ERROR, "Couldn't start download", e);
+            }
+            setStatus(DownloadStatus.FAILED, Collections.singleton(e));
+            throw new DownloadException("Couldn't start a download", e, false);
+        }
     }
 
     private void startListenersThread()
@@ -194,6 +285,29 @@ public class DownloadClientDownload
                     return null;
                 }
             });
+
+        if (downloadSession.getRanges() != null)
+        {
+            for (Map.Entry<IDownloadItemId, DownloadRange> entry : downloadSession.getRanges().entrySet())
+            {
+                IDownloadItemId itemId = entry.getKey();
+                DownloadRange itemRange = entry.getValue();
+
+                Set<Integer> itemChunksToDownload = new LinkedHashSet<Integer>();
+                for (int i = itemRange.getStart(); i <= itemRange.getEnd(); i++)
+                {
+                    itemChunksToDownload.add(i);
+                }
+
+                chunksToDownload.put(itemId, itemChunksToDownload);
+            }
+
+            if (config.getLogger().isEnabled(LogLevel.DEBUG))
+            {
+                config.getLogger().log(getClass(), LogLevel.DEBUG, "Item ids to download: " + itemIdsToDownload);
+                config.getLogger().log(getClass(), LogLevel.DEBUG, "Chunks to download: " + chunksToDownload);
+            }
+        }
     }
 
     private void startDownloadThreads()
@@ -213,6 +327,11 @@ public class DownloadClientDownload
 
     private void finishDownloadSession()
     {
+        if (downloadSession == null)
+        {
+            return;
+        }
+
         try
         {
             config.getRetryProvider().executeWithRetry(new IRetryAction<Void>()
@@ -235,55 +354,24 @@ public class DownloadClientDownload
 
     private void finishListenersThread()
     {
-        listenersThread.addFinishMarker();
+        if (listenersThread != null)
+        {
+            listenersThread.addFinishMarker();
+        }
     }
 
-    private synchronized void updateStatus()
+    private void finishDownloadThreads()
     {
-        Collection<DownloadStatus> statuses = new HashSet<DownloadStatus>();
-        Collection<Exception> exceptions = new LinkedList<Exception>();
-
-        for (DownloadThread downloadThread : downloadThreads)
+        for (DownloadThread thread : downloadThreads)
         {
-            statuses.add(downloadThread.getStatus());
-            exceptions.add(downloadThread.getException());
-        }
-
-        if (statuses.contains(DownloadStatus.STARTED))
-        {
-            if (status.equals(DownloadStatus.NEW))
+            try
             {
-                status = DownloadStatus.STARTED;
-                notifyDownloadStarted();
-                if (config.getLogger().isEnabled(LogLevel.INFO))
-                {
-                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
-                }
-            }
-        } else if (statuses.equals(Collections.singleton(DownloadStatus.FAILED)))
-        {
-            if (status.equals(DownloadStatus.STARTED))
+                thread.interrupt();
+            } catch (Exception e)
             {
-                status = DownloadStatus.FAILED;
-                finishDownloadSession();
-                notifyDownloadFailed(exceptions);
-                finishListenersThread();
-                if (config.getLogger().isEnabled(LogLevel.INFO))
+                if (config.getLogger().isEnabled(LogLevel.WARN))
                 {
-                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
-                }
-            }
-        } else if (statuses.equals(Collections.singleton(DownloadStatus.FINISHED)))
-        {
-            if (status.equals(DownloadStatus.STARTED))
-            {
-                status = DownloadStatus.FINISHED;
-                finishDownloadSession();
-                notifyDownloadFinished();
-                finishListenersThread();
-                if (config.getLogger().isEnabled(LogLevel.INFO))
-                {
-                    config.getLogger().log(getClass(), LogLevel.INFO, "Download state changed to: " + status);
+                    config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't interrupt a download thread", e);
                 }
             }
         }
@@ -291,10 +379,17 @@ public class DownloadClientDownload
 
     private void notifyDownloadStarted()
     {
-        listenersQueue.add(new Runnable()
+        notify(new IListenerExecution()
             {
+
                 @Override
-                public void run()
+                public String getDescription()
+                {
+                    return "Download started";
+                }
+
+                @Override
+                public void execute()
                 {
                     for (IDownloadListener listener : listeners)
                     {
@@ -306,10 +401,16 @@ public class DownloadClientDownload
 
     private void notifyDownloadFinished()
     {
-        listenersQueue.add(new Runnable()
+        notify(new IListenerExecution()
             {
                 @Override
-                public void run()
+                public String getDescription()
+                {
+                    return "Download finished";
+                }
+
+                @Override
+                public void execute()
                 {
                     try
                     {
@@ -346,10 +447,16 @@ public class DownloadClientDownload
 
     private void notifyDownloadFailed(Collection<Exception> e)
     {
-        listenersQueue.add(new Runnable()
+        notify(new IListenerExecution()
             {
                 @Override
-                public void run()
+                public String getDescription()
+                {
+                    return "Download failed";
+                }
+
+                @Override
+                public void execute()
                 {
                     for (IDownloadListener listener : listeners)
                     {
@@ -361,9 +468,15 @@ public class DownloadClientDownload
 
     private void notifyItemStarted(IDownloadItemId itemId)
     {
-        listenersQueue.add(new Runnable()
+        notify(new IListenerExecution()
             {
-                public void run()
+                @Override
+                public String getDescription()
+                {
+                    return "Item started " + itemId;
+                }
+
+                public void execute()
                 {
                     for (IDownloadListener listener : listeners)
                     {
@@ -375,10 +488,16 @@ public class DownloadClientDownload
 
     private void notifyItemFinished(IDownloadItemId itemId)
     {
-        listenersQueue.add(new Runnable()
+        notify(new IListenerExecution()
             {
                 @Override
-                public void run()
+                public String getDescription()
+                {
+                    return "Item finished " + itemId;
+                }
+
+                @Override
+                public void execute()
                 {
                     try
                     {
@@ -399,11 +518,31 @@ public class DownloadClientDownload
                     {
                         if (config.getLogger().isEnabled(LogLevel.WARN))
                         {
-                            config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't notify listeners about a finished item", e);
+                            config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't notify listeners about finished item " + itemId, e);
                         }
                     }
                 }
             });
+    }
+
+    private void notify(IListenerExecution listenerExecution)
+    {
+        if (listenersThread != null)
+        {
+            listenersQueue.add(listenerExecution);
+        } else
+        {
+            try
+            {
+                listenerExecution.execute();
+            } catch (Exception e)
+            {
+                if (config.getLogger().isEnabled(LogLevel.WARN))
+                {
+                    config.getLogger().log(getClass(), LogLevel.WARN, "Listener has thrown an exception", e);
+                }
+            }
+        }
     }
 
     private class ListenersThread extends Thread
@@ -418,7 +557,7 @@ public class DownloadClientDownload
         @Override
         public void run()
         {
-            Runnable listener = null;
+            IListenerExecution listener = null;
 
             while (false == isFinishMarker(listener))
             {
@@ -428,7 +567,17 @@ public class DownloadClientDownload
 
                     if (listener != null)
                     {
-                        listener.run();
+                        StopWatch watch = new StopWatch();
+                        watch.start();
+
+                        listener.execute();
+
+                        watch.stop();
+                        if (config.getLogger().isEnabled(LogLevel.DEBUG))
+                        {
+                            config.getLogger().log(getClass(), LogLevel.DEBUG,
+                                    "Took " + watch + " to execute listener '" + listener.getDescription() + "'");
+                        }
                     }
                 } catch (Exception e)
                 {
@@ -445,19 +594,34 @@ public class DownloadClientDownload
             listenersQueue.add(new FinishMarker());
         }
 
-        private boolean isFinishMarker(Runnable listener)
+        private boolean isFinishMarker(IListenerExecution listener)
         {
             return listener instanceof FinishMarker;
         }
 
-        private class FinishMarker implements Runnable
+        private class FinishMarker implements IListenerExecution
         {
 
             @Override
-            public void run()
+            public String getDescription()
+            {
+                return "Finish marker";
+            }
+
+            @Override
+            public void execute()
             {
             }
         }
+
+    }
+
+    private interface IListenerExecution
+    {
+
+        public String getDescription();
+
+        public void execute();
 
     }
 
@@ -466,7 +630,7 @@ public class DownloadClientDownload
 
         private DownloadStreamId streamId;
 
-        private DownloadStatus status = DownloadStatus.NEW;
+        private DownloadStatus status = DownloadStatus.STARTED;
 
         private Exception exception;
 
@@ -480,26 +644,39 @@ public class DownloadClientDownload
         @Override
         public void run()
         {
-            setStatus(DownloadStatus.STARTED);
-
             try
             {
-                while (false == itemIdsToDownload.equals(itemIdsDownloaded))
+                while (false == isInterrupted() && false == itemIdsToDownload.equals(itemIdsDownloaded))
                 {
                     config.getRetryProvider().executeWithRetry(new IRetryAction<Void>()
                         {
                             @Override
                             public Void execute() throws DownloadException
                             {
-                                DownloadInputStreamReader reader = getChunkReader();
-                                Chunk chunk = null;
+                                DownloadInputStreamReader reader = null;
 
-                                while ((chunk = readChunk(reader)) != null)
+                                try
                                 {
-                                    storeChunk(chunk);
+                                    reader = getChunkReader();
+                                    Chunk chunk = null;
+
+                                    while ((chunk = readChunk(reader)) != null)
+                                    {
+                                        storeChunk(chunk);
+                                    }
+
+                                    if (config.getLogger().isEnabled(LogLevel.DEBUG))
+                                    {
+                                        config.getLogger().log(getClass(), LogLevel.DEBUG, "Input stream finished");
+                                    }
+                                } finally
+                                {
+                                    if (reader != null)
+                                    {
+                                        closeChunkReader(reader);
+                                    }
                                 }
 
-                                closeChunkReader(reader);
                                 requeueChunks();
 
                                 return null;
@@ -513,7 +690,7 @@ public class DownloadClientDownload
             {
                 if (config.getLogger().isEnabled(LogLevel.ERROR))
                 {
-                    config.getLogger().log(getClass(), LogLevel.ERROR, "Download failed", e);
+                    config.getLogger().log(getClass(), LogLevel.ERROR, "Download thread failed", e);
                 }
                 setStatus(DownloadStatus.FAILED);
                 setException(e);
@@ -528,7 +705,7 @@ public class DownloadClientDownload
         private void setStatus(DownloadStatus status)
         {
             this.status = status;
-            DownloadClientDownload.this.updateStatus();
+            DownloadClientDownload.this.refreshStatus();
         }
 
         private void setException(Exception exception)
@@ -554,6 +731,17 @@ public class DownloadClientDownload
                 });
         }
 
+        private Chunk readChunk(DownloadInputStreamReader reader) throws DownloadException
+        {
+            try
+            {
+                return reader.read();
+            } catch (Exception e)
+            {
+                throw new DownloadException("Couldn't read a chunk", e, true);
+            }
+        }
+
         private void closeChunkReader(DownloadInputStreamReader reader)
         {
             try
@@ -565,17 +753,6 @@ public class DownloadClientDownload
                 {
                     config.getLogger().log(getClass(), LogLevel.WARN, "Couldn't close a download stream reader", e);
                 }
-            }
-        }
-
-        private Chunk readChunk(DownloadInputStreamReader reader) throws DownloadException
-        {
-            try
-            {
-                return reader.read();
-            } catch (Exception e)
-            {
-                throw new DownloadException("Couldn't read a chunk", e, true);
             }
         }
 
@@ -596,22 +773,17 @@ public class DownloadClientDownload
                 if (false == itemIdsDownloaded.contains(chunk.getDownloadItemId()))
                 {
                     Set<Integer> itemChunksToDownload = chunksToDownload.get(chunk.getDownloadItemId());
+                    Set<Integer> itemChunksDownloaded = chunksDownloaded.get(chunk.getDownloadItemId());
 
-                    if (itemChunksToDownload == null)
+                    if (itemChunksDownloaded == null)
                     {
-                        DownloadRange itemRange = downloadSession.getRanges().get(chunk.getDownloadItemId());
-
-                        itemChunksToDownload = new LinkedHashSet<Integer>();
-                        for (int i = itemRange.getStart(); i <= itemRange.getEnd(); i++)
-                        {
-                            itemChunksToDownload.add(i);
-                        }
-
-                        chunksToDownload.put(chunk.getDownloadItemId(), itemChunksToDownload);
+                        itemChunksDownloaded = new LinkedHashSet<Integer>();
+                        chunksDownloaded.put(chunk.getDownloadItemId(), itemChunksDownloaded);
                         notifyItemStarted(chunk.getDownloadItemId());
                     }
 
                     itemChunksToDownload.remove(chunk.getSequenceNumber());
+                    itemChunksDownloaded.add(chunk.getSequenceNumber());
 
                     if (itemChunksToDownload.isEmpty())
                     {
@@ -619,6 +791,14 @@ public class DownloadClientDownload
                         chunksToDownload.remove(chunk.getDownloadItemId());
                         notifyItemFinished(chunk.getDownloadItemId());
                     }
+                }
+
+                if (config.getLogger().isEnabled(LogLevel.DEBUG))
+                {
+                    config.getLogger().log(getClass(), LogLevel.DEBUG, "Item ids to download: " + itemIdsToDownload);
+                    config.getLogger().log(getClass(), LogLevel.DEBUG, "Item ids downloaded: " + itemIdsDownloaded);
+                    config.getLogger().log(getClass(), LogLevel.DEBUG, "Chunks to download: " + chunksToDownload);
+                    config.getLogger().log(getClass(), LogLevel.DEBUG, "Chunks downloaded: " + chunksDownloaded);
                 }
             }
         }

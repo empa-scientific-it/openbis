@@ -21,8 +21,6 @@ import java.io.Serializable;
 public interface IDownloadItemId extends Serializable
 {
 
-    int hashCode();
-
-    boolean equals(Object obj);
+    public String getId();
 
 }

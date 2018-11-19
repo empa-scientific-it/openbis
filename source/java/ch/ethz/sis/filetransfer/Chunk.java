@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -64,7 +63,7 @@ public abstract class Chunk
         return fileOffset;
     }
 
-    public abstract InputStream getPayload() throws IOException;
+    public abstract InputStream getPayload() throws DownloadException;
 
     public int getPayloadLength()
     {

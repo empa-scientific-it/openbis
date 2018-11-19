@@ -1,0 +1,90 @@
+/*
+ * Copyright 2018 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.ethz.sis.filetransfer;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+import org.apache.commons.io.FileUtils;
+
+/**
+ * @author pkupczyk
+ */
+public abstract class FileSystemDownloadStore implements IDownloadStore
+{
+
+    private ILogger logger;
+
+    private Path storePath;
+
+    public FileSystemDownloadStore(ILogger logger, Path storePath)
+    {
+        this.logger = logger;
+        this.storePath = storePath;
+    }
+
+    public abstract Path getItemPath(IDownloadItemId itemId);
+
+    @Override
+    public Path getItemPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
+    {
+        Path path = getItemPath(itemId);
+        return storePath.resolve(userSessionId.toString()).resolve(downloadSessionId.getUuid().toString()).resolve(path);
+    }
+
+    @Override
+    public void storeChunk(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException
+    {
+        Path path = getItemPath(userSessionId, downloadSessionId, chunk.getDownloadItemId());
+        File folder = path.getParent().toFile();
+
+        if (false == folder.exists())
+        {
+            folder.mkdirs();
+        }
+
+        ByteBuffer buffer = ByteBuffer.allocate((int) FileUtils.ONE_MB);
+        int size = 0;
+
+        try (
+                ReadableByteChannel chunkChannel = Channels.newChannel(chunk.getPayload());
+                FileChannel fileChannel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
+        {
+            fileChannel.position(chunk.getFileOffset());
+
+            while (chunkChannel.read(buffer) != -1)
+            {
+                buffer.flip();
+                size += fileChannel.write(buffer);
+                buffer.clear();
+            }
+
+            logger.log(getClass(), LogLevel.INFO, "Chunk " + chunk.getSequenceNumber() + " successfully stored (size: " + size + ")");
+
+        } catch (IOException e)
+        {
+            throw new DownloadException("Chunk " + chunk.getSequenceNumber() + " couldn't be stored", e, true);
+        }
+    }
+
+}

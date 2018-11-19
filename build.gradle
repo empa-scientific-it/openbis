@@ -6,6 +6,9 @@ dependencies {
 			'apache:commons-lang:2.4'
 		
 
-	testCompile 'testng:testng:6.8-CISD' 
+	testCompile 'testng:testng:6.8-CISD',
+				'eclipse:jetty-server:9.4.9.v20180320',
+				'eclipse:jetty-client:9.4.9.v20180320',
+				'javax:servlet-api:3.1.0'
 
 }

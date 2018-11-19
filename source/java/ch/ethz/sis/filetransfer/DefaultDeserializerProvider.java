@@ -16,14 +16,26 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.nio.ByteBuffer;
-
 /**
  * @author pkupczyk
  */
-public interface IDownloadItemIdDeserializer
+public class DefaultDeserializerProvider implements IDeserializerProvider
 {
 
-    public IDownloadItemId deserialize(ByteBuffer buffer) throws DownloadException;
+    private ILogger logger;
+
+    private IDownloadItemIdDeserializer itemIdDeserializer;
+
+    public DefaultDeserializerProvider(ILogger logger, IDownloadItemIdDeserializer itemIdDeserializer)
+    {
+        this.logger = logger;
+        this.itemIdDeserializer = itemIdDeserializer;
+    }
+
+    @Override
+    public IChunkDeserializer createChunkDeserializer() throws DownloadException
+    {
+        return new DefaultChunkDeserializer(logger, itemIdDeserializer);
+    }
 
 }

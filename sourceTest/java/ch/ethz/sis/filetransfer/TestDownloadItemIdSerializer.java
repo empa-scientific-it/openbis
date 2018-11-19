@@ -21,9 +21,14 @@ import java.nio.ByteBuffer;
 /**
  * @author pkupczyk
  */
-public interface IDownloadItemIdDeserializer
+public class TestDownloadItemIdSerializer implements IDownloadItemIdSerializer
 {
 
-    public IDownloadItemId deserialize(ByteBuffer buffer) throws DownloadException;
+    @Override
+    public ByteBuffer serialize(IDownloadItemId itemId)
+    {
+        byte[] bytes = ((TestDownloadItemId) itemId).getFilePath().getBytes();
+        return ByteBuffer.wrap(bytes);
+    }
 
 }

@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.util.UUID;
+
 import ch.ethz.sis.filetransfer.IUserSessionId;
 
 /**
@@ -26,10 +28,18 @@ public class TestUserSession implements IUserSessionId
 
     private static final long serialVersionUID = 1L;
 
+    private String id = UUID.randomUUID().toString();
+
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
     @Override
     public String toString()
     {
-        return "TestUserSession";
+        return id;
     }
 
 }

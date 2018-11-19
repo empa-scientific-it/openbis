@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.filetransfer;
 
-import ch.ethz.sis.filetransfer.DownloadException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author pkupczyk
@@ -24,27 +26,52 @@ import ch.ethz.sis.filetransfer.DownloadException;
 public class FailureGenerator
 {
 
-    private String operation;
+    private Collection<String> operations;
 
     private int failures;
 
+    private int successes;
+
     private boolean retriable;
 
-    private int counter;
+    // keep a separate counters for each download thread
+    private ThreadLocal<Map<String, Integer>> counter = new ThreadLocal<Map<String, Integer>>();
 
-    public FailureGenerator(String operation, int failures, boolean retriable)
+    public FailureGenerator(Collection<String> operations, int failures, int successes, boolean retriable)
     {
-        this.operation = operation;
+        this.operations = operations;
         this.failures = failures;
+        this.successes = successes;
         this.retriable = retriable;
     }
 
     public synchronized void maybeFail(String operation) throws DownloadException
     {
-        if (counter < failures && operation.equals(this.operation))
+        if (operations.contains(operation))
         {
-            counter++;
-            throw new DownloadException("Intentional failure for testing purposes", retriable);
+            Map<String, Integer> values = counter.get();
+
+            if (values == null)
+            {
+                values = new HashMap<String, Integer>();
+                counter.set(values);
+            }
+
+            Integer value = values.get(operation);
+
+            if (value == null)
+            {
+                value = -1;
+            }
+
+            values.put(operation, ++value);
+
+            // failures first then successes then again and again...
+
+            if (value % (failures + successes) < failures)
+            {
+                throw new DownloadException("Intentional failure for testing purposes", retriable);
+            }
         }
     }
 

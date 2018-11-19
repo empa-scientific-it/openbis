@@ -27,6 +27,6 @@ public interface IConcurrencyProvider
 
     public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedNumberOfStreams,
             Map<IUserSessionId, List<Integer>> allowedNumberOfStreamsMap,
-            Map<IUserSessionId, List<Integer>> currentNumberOfStreamsMap);
+            Map<IUserSessionId, List<Integer>> currentNumberOfStreamsMap) throws DownloadException;
 
 }

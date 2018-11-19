@@ -63,7 +63,7 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
     }
 
     @Override
-    public Chunk deserialize(InputStream stream) throws IOException
+    public Chunk deserialize(InputStream stream) throws DownloadException
     {
         calculatedHeaderChecksum.reset();
         calculatedPayloadChecksum.reset();
@@ -85,11 +85,11 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
 
         downloadItemIdBuffer = reuseOrExtendBuffer(downloadItemIdBuffer, downloadItemIdLength);
         putToBuffer(stream, downloadItemIdBuffer, "downloadItemId", downloadItemIdLength, calculatedHeaderChecksum);
-        IDownloadItemId downloadItemId = itemIdDeserializer.deserialize(downloadItemIdBuffer.array());
+        IDownloadItemId downloadItemId = itemIdDeserializer.deserialize(downloadItemIdBuffer);
 
         filePathBuffer = reuseOrExtendBuffer(filePathBuffer, filePathLength);
         putToBuffer(stream, filePathBuffer, "filePath", filePathLength, calculatedHeaderChecksum);
-        String filePath = new String(filePathBuffer.array());
+        String filePath = new String(filePathBuffer.array(), filePathBuffer.position(), filePathBuffer.limit());
 
         putToBuffer(stream, sentHeaderChecksumBuffer, "headerChecksum", sentHeaderChecksumBuffer.capacity(), null);
         long sentHeaderChecksum = sentHeaderChecksumBuffer.getLong();
@@ -101,9 +101,10 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
 
         if (calculatedHeaderChecksum.getValue() != sentHeaderChecksum)
         {
-            throw new IOException(
+            throw new DownloadException(
                     "Error in header data detected. Calculated checksum: " + calculatedHeaderChecksum.getValue() + ". Sent checksum: "
-                            + sentHeaderChecksum);
+                            + sentHeaderChecksum,
+                    true);
         }
 
         payloadBuffer = reuseOrExtendBuffer(payloadBuffer, payloadLength);
@@ -115,21 +116,21 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
 
         if (logger.isEnabled(LogLevel.DEBUG))
         {
-            logger.log(getClass(), LogLevel.DEBUG, "Payload: '" + new String(payload) + "', length: " + payloadLength);
             logger.log(getClass(), LogLevel.DEBUG, "Payload CRC (client): " + Long.toHexString(calculatedPayloadChecksum.getValue()));
         }
 
         if (calculatedPayloadChecksum.getValue() != sentPayloadChecksum)
         {
-            throw new IOException(
+            throw new DownloadException(
                     "Error in payload data detected. Calculated checksum: " + calculatedPayloadChecksum.getValue() + ". Sent checksum: "
-                            + sentPayloadChecksum);
+                            + sentPayloadChecksum,
+                    true);
         }
 
         return new Chunk(sequenceNumber, downloadItemId, filePath, fileOffset, payloadLength)
             {
                 @Override
-                public InputStream getPayload() throws IOException
+                public InputStream getPayload() throws DownloadException
                 {
                     return new ByteArrayInputStream(payload, 0, payloadLength);
                 }
@@ -147,29 +148,39 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
         }
     }
 
-    private void putToBuffer(InputStream stream, ByteBuffer buffer, String name, int length, CRC32 checksum) throws IOException
+    private void putToBuffer(InputStream stream, ByteBuffer buffer, String name, int length, CRC32 checksum) throws DownloadException
     {
         buffer.clear();
 
         int i = 0;
 
-        while (i < length)
+        try
         {
-            int b = stream.read();
-            buffer.put((byte) b);
-            if (checksum != null)
+            while (i < length)
             {
-                checksum.update(b);
+                int b = stream.read();
+
+                if (b == -1)
+                {
+                    throw new DownloadException("Unexpected finish of '" + name + "' field. Actual length: " + i + ". Expected length: " + length,
+                            true);
+                }
+
+                buffer.put((byte) b);
+
+                if (checksum != null)
+                {
+                    checksum.update(b);
+                }
+
+                i++;
             }
-            i++;
-        }
-
-        if (i > 0 && buffer.get(i - 1) == -1)
+        } catch (IOException e)
         {
-            throw new IOException("Unexpected finish of '" + name + "' field");
+            throw new DownloadException("Couldn't read a byte", true);
         }
 
-        buffer.rewind();
+        buffer.flip();
     }
 
 }
