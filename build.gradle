@@ -10,5 +10,24 @@ dependencies {
 				'eclipse:jetty-server:9.4.9.v20180320',
 				'eclipse:jetty-client:9.4.9.v20180320',
 				'javax:servlet-api:3.1.0'
-
+				
 }
+
+task dist(type: Zip, dependsOn: jar) {
+
+    from 'dist'
+
+    into 'file-transfer'
+    
+    from (jar.outputs.getFiles()) {
+        into 'lib'
+    }
+    from (configurations.compile.files) {
+        into 'lib'
+    }
+
+    rename 'file-transfer-.*', 'file-transfer.jar'
+    rename 'commons-lang-.*', 'commons-lang.jar'
+    rename 'commons-io.*', 'commons-io.jar'
+}
+
