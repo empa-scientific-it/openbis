@@ -31,3 +31,4 @@ task dist(type: Zip, dependsOn: jar) {
     rename 'commons-io.*', 'commons-io.jar'
 }
 
+build.dependsOn dist
