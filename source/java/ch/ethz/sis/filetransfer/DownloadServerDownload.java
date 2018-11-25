@@ -166,35 +166,25 @@ class DownloadServerDownload
         }
     }
 
-    public Integer getWishedNumberOfStreams()
+    public DownloadState getState()
     {
-        return wishedNumberOfStreams;
-    }
+        int currentNumberOfStreams = 0;
 
-    public int getAllowedNumberOfStreams()
-    {
-        return allowedNumberOfStreams;
-    }
-
-    public int getCurrentNumberOfStreams()
-    {
         synchronized (streams)
         {
-            int counter = 0;
-
             for (DownloadInputStream stream : streams.values())
             {
                 if (stream != null)
                 {
-                    counter++;
+                    currentNumberOfStreams++;
                 }
             }
-
-            return counter;
         }
+
+        return new DownloadState(userSessionId, downloadSessionId, itemIds, wishedNumberOfStreams, allowedNumberOfStreams, currentNumberOfStreams);
     }
 
-    public InputStream download(DownloadStreamId streamId, Integer numberOfChunksOrNull) throws InvalidDownloadStreamException
+    public InputStream download(DownloadStreamId streamId, Integer numberOfChunksOrNull) throws InvalidDownloadStreamException, DownloadException
     {
         synchronized (streams)
         {

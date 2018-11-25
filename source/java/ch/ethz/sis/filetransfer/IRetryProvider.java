@@ -17,11 +17,20 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * A retry provider interface. A retry provider is responsible for retrying actions if they fail. Depending on a use case actual implementations may
+ * decide to retry for different kinds of failures, allow different number of attempts before a final failure or use different waiting times between
+ * each retry.
+ * 
  * @author pkupczyk
  */
 public interface IRetryProvider
 {
 
+    /**
+     * Executes a given action with potential retry logic in case of failure.
+     * 
+     * @throws DownloadException In case of any problems
+     */
     public <T> T executeWithRetry(IRetryAction<T> action) throws DownloadException;
 
 }

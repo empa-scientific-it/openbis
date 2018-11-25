@@ -35,6 +35,18 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.time.StopWatch;
 
 /**
+ * A download. It can be created using {@link DownloadClient#createDownload(IUserSessionId)} method. Once created, items to be downloaded have to be
+ * specified with {@link #addItem(IDownloadItemId)} and {@link #addItems(java.util.Collection)} methods. Downloads are asynchronous (i.e. run in the
+ * background and do not block the current thread). Therefore, to handle download results or be notified about a failed download a listener has to be
+ * registered (see {@link #addListener(IDownloadListener)}. A list of events a download listener can notify about is defined in
+ * {@link IDownloadListener} interface. Once the items to be downloaded and the listener are specified we can finally start the actual download
+ * process using {@link #start()} method. At this point a new download session is created at the download server and a user's session is validated.
+ * Depending on the preferences (see {@link #setPreferences(DownloadPreferences)} method) the download is single-threaded or multi-threaded (in either
+ * case it does not block the current thread). Increasing the number of threads i.e. increasing the number of wished download streams (via
+ * {@link DownloadPreferences}) can improve the overall performance of the download, still will consume more resources at both download client and
+ * download server sides. In case a download server is under a heavy load it may reject the wished number of streams and reduce the allowed
+ * concurrency. All this happens automatically under the hood without a need of any reaction from the user of the download client.
+ * 
  * @author pkupczyk
  */
 public class DownloadClientDownload

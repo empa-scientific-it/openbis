@@ -17,15 +17,28 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * A logger interface. Depending on a use case an actual implementation may log messages using a standard logging library (e.g. log4j) or may use some
+ * other logging solution.
+ * 
  * @author pkupczyk
  */
 public interface ILogger
 {
 
+    /**
+     * Returns true if a given log level is enabled. Returns false otherwise. This method can be used to improve performance and avoid creation of
+     * complex log messages in case a given log level is disabled and the message won't be used anyway.
+     */
     public boolean isEnabled(LogLevel level);
 
+    /**
+     * Logs a message in a context of a given class using the specified log level.
+     */
     public void log(Class<?> clazz, LogLevel level, String message);
 
+    /**
+     * Logs a message together with an exception in a context of a given class using the specified log level.
+     */
     public void log(Class<?> clazz, LogLevel level, String message, Throwable throwable);
 
 }

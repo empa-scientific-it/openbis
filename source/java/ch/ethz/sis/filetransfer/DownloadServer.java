@@ -1,8 +1,7 @@
 package ch.ethz.sis.filetransfer;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 /**
+ * A download server implementation. Please check {@link IDownloadServer} interface for more details on the download server concept.
+ * 
  * @author pkupczyk
  */
 public class DownloadServer implements IDownloadServer
@@ -68,6 +69,7 @@ public class DownloadServer implements IDownloadServer
         this.config = config;
     }
 
+    @Override
     public DownloadSession startDownloadSession(IUserSessionId userSessionId, List<IDownloadItemId> itemIds,
             DownloadPreferences preferences) throws DownloadItemNotFoundException, InvalidUserSessionException, DownloadException
     {
@@ -105,38 +107,21 @@ public class DownloadServer implements IDownloadServer
             throw new IllegalArgumentException("Wished number of streams cannot be <= 0");
         }
 
-        config.getSessionManager().checkSessionId(userSessionId);
+        config.getSessionManager().validateBeforeDownload(userSessionId);
 
-        Map<IUserSessionId, List<Integer>> allowedNumberOfStreamsMap = new HashMap<IUserSessionId, List<Integer>>();
-        Map<IUserSessionId, List<Integer>> currentNumberOfStreamsMap = new HashMap<IUserSessionId, List<Integer>>();
-
+        List<DownloadState> states = new ArrayList<DownloadState>();
         for (DownloadServerDownload download : downloads.values())
         {
-            List<Integer> userAllowedNumberOfStreams = allowedNumberOfStreamsMap.get(download.getUserSessionId());
-            List<Integer> userCurrentNumberOfStreams = currentNumberOfStreamsMap.get(download.getUserSessionId());
-
-            if (userAllowedNumberOfStreams == null)
-            {
-                userAllowedNumberOfStreams = new LinkedList<Integer>();
-                allowedNumberOfStreamsMap.put(download.getUserSessionId(), userAllowedNumberOfStreams);
-            }
-
-            if (userCurrentNumberOfStreams == null)
-            {
-                userCurrentNumberOfStreams = new LinkedList<Integer>();
-                currentNumberOfStreamsMap.put(download.getUserSessionId(), userCurrentNumberOfStreams);
-            }
-
-            userAllowedNumberOfStreams.add(download.getAllowedNumberOfStreams());
-            userCurrentNumberOfStreams.add(download.getCurrentNumberOfStreams());
+            states.add(download.getState());
         }
 
-        int allowedNumberOfStreams = config.getConcurrencyProvider().getAllowedNumberOfStreams(userSessionId, preferences.getWishedNumberOfStreams(),
-                allowedNumberOfStreamsMap, currentNumberOfStreamsMap);
+        int allowedNumberOfStreams =
+                config.getConcurrencyProvider().getAllowedNumberOfStreams(userSessionId, preferences.getWishedNumberOfStreams(), states);
 
         if (allowedNumberOfStreams <= 0)
         {
-            throw new IllegalArgumentException("Allowed number of streams cannot be <= 0");
+            throw new DownloadException(
+                    "Download server cannot provide any download streams at the moment. Please try again later.", true);
         }
 
         DownloadServerDownload download =
@@ -146,7 +131,7 @@ public class DownloadServer implements IDownloadServer
         if (config.getLogger().isEnabled(LogLevel.INFO))
         {
             config.getLogger().log(getClass(), LogLevel.INFO, "startDownloadSession - downloadSessionId: " + download.getDownloadSessionId()
-                    + ", ranges: " + download.getRanges() + ", allowedNumberOfStreams: " + download.getAllowedNumberOfStreams());
+                    + ", ranges: " + download.getRanges() + ", allowedNumberOfStreams: " + allowedNumberOfStreams);
         }
 
         return new DownloadSession(download.getDownloadSessionId(), download.getRanges(), download.getStreamIds());
@@ -186,11 +171,12 @@ public class DownloadServer implements IDownloadServer
             throw new InvalidDownloadSessionException(downloadSessionId);
         }
 
-        config.getSessionManager().checkSessionId(download.getUserSessionId());
+        config.getSessionManager().validateDuringDownload(download.getUserSessionId());
 
         download.queue(ranges);
     }
 
+    @Override
     public InputStream download(DownloadSessionId downloadSessionId, DownloadStreamId streamId, Integer numberOfChunksOrNull)
             throws InvalidUserSessionException, InvalidDownloadSessionException, InvalidDownloadStreamException, DownloadException
     {
@@ -216,7 +202,7 @@ public class DownloadServer implements IDownloadServer
             throw new InvalidDownloadSessionException(downloadSessionId);
         }
 
-        config.getSessionManager().checkSessionId(download.getUserSessionId());
+        config.getSessionManager().validateDuringDownload(download.getUserSessionId());
 
         return download.download(streamId, numberOfChunksOrNull);
     }

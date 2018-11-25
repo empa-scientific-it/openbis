@@ -19,6 +19,10 @@ import java.io.Serializable;
  */
 
 /**
+ * Additional download preferences, e.g. can be used to specify a wished number of download streams. Increasing the number of download streams usually
+ * increases the overall download performance, still it requires additional resources at both download client and download server sides. Therefore, a
+ * server may ignore a wish and permit fewer streams than requested (e.g. in case it is under a heavy load).
+ * 
  * @author pkupczyk
  */
 public class DownloadPreferences implements Serializable

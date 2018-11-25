@@ -17,6 +17,8 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * Download server configuration. Can be used to customize a download server behavior.
+ * 
  * @author pkupczyk
  */
 public class DownloadServerConfig

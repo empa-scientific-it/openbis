@@ -20,11 +20,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * A chunk provider interface. A chunk provider is responsible for providing chunks of items to be downloaded. Depending on a use case an actual
+ * implementation may support different download item ids, use different chunk sizes and retrieve chunks from different locations.
+ * 
  * @author pkupczyk
  */
 public interface IChunkProvider
 {
 
-    public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds) throws DownloadException;
+    /**
+     * Creates chunks for the specified download item ids. Chunks that constitute one download item must have consecutive sequence numbers.
+     * 
+     * @throws DownloadItemNotFoundException In case no item can be found for a given item id
+     */
+    public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds) throws DownloadItemNotFoundException, DownloadException;
 
 }

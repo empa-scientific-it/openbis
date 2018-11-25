@@ -17,11 +17,20 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * A serializer interface. A serializer is responsible for converting objects to be downloaded from a download stream into byte streams. Depending on
+ * a use case actual implementations may decide to serialize downloaded data differently. A default implementation is provided by
+ * {@link DefaultSerializerProvider} class.
+ * 
  * @author pkupczyk
  */
 public interface ISerializerProvider
 {
 
-    public IChunkSerializer createChunkSerializer();
+    /**
+     * Creates a chunk serializer.
+     * 
+     * @throws DownloadException In case of any problems
+     */
+    public IChunkSerializer createChunkSerializer() throws DownloadException;
 
 }

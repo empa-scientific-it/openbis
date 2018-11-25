@@ -18,6 +18,11 @@ import java.io.Serializable;
  * limitations under the License.
  */
 
+/**
+ * Id of an item to be downloaded. Depending on a use case an item may represent a single file, a document with files, a project etc.
+ * 
+ * @author pkupczyk
+ */
 public interface IDownloadItemId extends Serializable
 {
 

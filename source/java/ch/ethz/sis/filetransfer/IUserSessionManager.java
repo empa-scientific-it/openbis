@@ -17,11 +17,24 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * A user session manager interface. A session manager is responsible for keeping track of user sessions. Depending on a use case an actual
+ * implementation may dispatch the user session management tasks to some other already existing user session management mechanism or may store and
+ * manage the user sessions itself. What user session ids are supported also depends on the actual user session manager implementation.
+ * 
  * @author pkupczyk
  */
 public interface IUserSessionManager
 {
 
-    public void checkSessionId(IUserSessionId userSessionId) throws InvalidUserSessionException;
+    /**
+     * Validates a user's session right before a download is started. If the session is invalid throws {@link InvalidUserSessionException}.
+     */
+    public void validateBeforeDownload(IUserSessionId userSessionId) throws InvalidUserSessionException;
+
+    /**
+     * Validates a user's session during a download. Thanks to this method we can decide if a long-running download may continue even if the user's
+     * session timed out. If the session is invalid throws {@link InvalidUserSessionException}.
+     */
+    public void validateDuringDownload(IUserSessionId userSessionId) throws InvalidUserSessionException;
 
 }

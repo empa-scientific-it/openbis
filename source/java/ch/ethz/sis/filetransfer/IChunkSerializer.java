@@ -19,6 +19,9 @@ package ch.ethz.sis.filetransfer;
 import java.io.InputStream;
 
 /**
+ * A chunk serializer interface. A chunk serializer is responsible for converting a chunk (both a chunk metadata and a chunk payload) into byte
+ * stream.
+ * 
  * @author pkupczyk
  */
 public interface IChunkSerializer

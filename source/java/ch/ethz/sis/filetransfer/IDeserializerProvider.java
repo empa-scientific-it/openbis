@@ -17,11 +17,20 @@
 package ch.ethz.sis.filetransfer;
 
 /**
+ * A deserializer interface. A deserializer is responsible for converting byte streams returned by a download server back into objects on the client
+ * side. A deserializer is closely coupled with a corresponding serializer that created the byte streams (both have to use the same format of data). A
+ * default implementation is provided by {@link DefaultDeserializerProvider} class.
+ * 
  * @author pkupczyk
  */
 public interface IDeserializerProvider
 {
 
+    /**
+     * Creates a chunk deserializer.
+     * 
+     * @throws DownloadException In case of any problems
+     */
     public IChunkDeserializer createChunkDeserializer() throws DownloadException;
 
 }

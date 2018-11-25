@@ -17,10 +17,6 @@
 package ch.ethz.sis.filetransfer;
 
 import java.util.List;
-import java.util.Map;
-
-import ch.ethz.sis.filetransfer.IConcurrencyProvider;
-import ch.ethz.sis.filetransfer.IUserSessionId;
 
 /**
  * @author pkupczyk
@@ -29,10 +25,10 @@ public class TestConcurrencyProvider implements IConcurrencyProvider
 {
 
     @Override
-    public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedConcurrency, Map<IUserSessionId, List<Integer>> allowedConcurrencies,
-            Map<IUserSessionId, List<Integer>> currentConcurrencies)
+    public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedNumberOfStreams, List<DownloadState> downloadStates)
+            throws DownloadException
     {
-        return wishedConcurrency != null ? wishedConcurrency : 1;
+        return wishedNumberOfStreams != null ? wishedNumberOfStreams : 1;
     }
 
 }

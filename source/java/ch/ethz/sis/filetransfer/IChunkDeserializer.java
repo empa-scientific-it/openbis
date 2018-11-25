@@ -19,6 +19,8 @@ package ch.ethz.sis.filetransfer;
 import java.io.InputStream;
 
 /**
+ * A chunk deserializer interface. A chunk deserializer is responsible for converting a byte stream back into a chunk object.
+ * 
  * @author pkupczyk
  */
 public interface IChunkDeserializer

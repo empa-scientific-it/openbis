@@ -27,7 +27,12 @@ public class TestUserSessionManager implements IUserSessionManager
 {
 
     @Override
-    public void checkSessionId(IUserSessionId userSessionId) throws InvalidUserSessionException
+    public void validateBeforeDownload(IUserSessionId userSessionId) throws InvalidUserSessionException
+    {
+    }
+
+    @Override
+    public void validateDuringDownload(IUserSessionId userSessionId) throws InvalidUserSessionException
     {
     }
 

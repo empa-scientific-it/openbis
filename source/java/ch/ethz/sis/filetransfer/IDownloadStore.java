@@ -19,13 +19,25 @@ package ch.ethz.sis.filetransfer;
 import java.nio.file.Path;
 
 /**
+ * A download store interface. A download store is responsible for storing downloaded chunks and putting them together into files. Depending on a use
+ * case an actual implementation may store files on a local file system, network drive or some other location. A store may also offer additional
+ * functionality like a high-water-mark checking, automatic space recovery and more.
+ * 
  * @author pkupczyk
  */
 public interface IDownloadStore
 {
 
+    /**
+     * Returns a path to a given downloaded item.
+     */
     public Path getItemPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException;
 
+    /**
+     * Stores a chunk downloaded by a given user within the specified download session.
+     * 
+     * @throws DownloadException In case of any problems
+     */
     public void storeChunk(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException;
 
 }
