@@ -13,7 +13,7 @@ dependencies {
 				
 }
 
-task dist(type: Zip, dependsOn: jar) {
+task dist(type: Zip, dependsOn: [jar, javadoc]) {
 
     from 'dist'
 
@@ -24,6 +24,9 @@ task dist(type: Zip, dependsOn: jar) {
     }
     from (configurations.compile.files) {
         into 'lib'
+    }
+    from (javadoc.outputs.getFiles()) {
+        into 'doc'
     }
 
     rename 'file-transfer-.*', 'file-transfer.jar'
