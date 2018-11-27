@@ -58,6 +58,10 @@ public class DownloadClientTest
 
     private static final int INVOCATION_COUNT = 10;
 
+    private static final int TIMEOUT = 2000;
+
+    private static final int TIMEOUT_LONG = 30000;
+
     private static final Collection<String> OPERATIONS =
             Arrays.asList(OPERATION_START_DOWNLOAD_SESSION, OPERATION_QUEUE, OPERATION_DOWNLOAD, OPERATION_DOWNLOAD_READ,
                     OPERATION_FINISH_DOWNLOAD_SESSION, OPERATION_GET_ITEM_PATH, OPERATION_STORE_CHUNK);
@@ -244,7 +248,7 @@ public class DownloadClientTest
         download1.start();
         download2.start();
 
-        logger.awaitLogs(10000, "testOnDownloadFinished", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT_LONG, "testOnDownloadFinished", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -375,7 +379,7 @@ public class DownloadClientTest
 
         afterStartAction.apply(download);
 
-        logger.awaitLogs(1000, "testDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "testDownloadFinished");
         assertEquals(download.getStatus(), DownloadStatus.FINISHED);
         assertion.assertOK();
     }
@@ -493,7 +497,7 @@ public class DownloadClientTest
         download2.start();
         download3.start();
 
-        logger.awaitLogs(10000, "testOnDownloadFinished", "testOnDownloadFinished", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT_LONG, "testOnDownloadFinished", "testOnDownloadFinished", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR);
         assertion.assertOK();
     }
@@ -548,7 +552,7 @@ public class DownloadClientTest
                 }
             });
         download.start();
-        logger.awaitLogs(1000, "testOnDownloadStarted", "testOnItemFinished", "testOnItemFinished", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "testOnDownloadStarted", "testOnItemFinished", "testOnItemFinished", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -595,7 +599,7 @@ public class DownloadClientTest
             });
 
         download.start();
-        logger.awaitLogs(60000, "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT_LONG, "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -636,7 +640,7 @@ public class DownloadClientTest
             });
 
         download.start();
-        logger.awaitLogs(1000000, "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -695,7 +699,7 @@ public class DownloadClientTest
                 }
             });
         download.start();
-        logger.awaitLogs(1000, "testOnDownloadStarted", "testOnItemStarted", "testOnItemFinished", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "testOnDownloadStarted", "testOnItemStarted", "testOnItemFinished", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -734,7 +738,7 @@ public class DownloadClientTest
             });
 
         download.start();
-        logger.awaitLogs(10000, "Call failed - will retry", "Call failed - will retry", "Call failed - will retry", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "Call failed - will retry", "Call failed - will retry", "Call failed - will retry", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR);
         assertion.assertOK();
     }
@@ -791,30 +795,30 @@ public class DownloadClientTest
         if (operationName.equals(OPERATION_START_DOWNLOAD_SESSION) || operationName.equals(OPERATION_QUEUE))
         {
             // DownloadException is thrown from the start method and listeners get executed
-            logger.awaitLogs(1000, "Intentional failure for testing purposes", "testOnDownloadFailed");
+            logger.awaitLogs(TIMEOUT, "Intentional failure for testing purposes", "testOnDownloadFailed");
             logger.assertLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception.getClass(), DownloadException.class);
         } else if (operationName.equals(OPERATION_DOWNLOAD_READ))
         {
             // IOException thrown from InputStream.read method is always retried
-            logger.awaitLogs(1000, "Call failed - will retry", "Call failed - will retry", "Call failed - will retry", "testOnDownloadFinished");
+            logger.awaitLogs(TIMEOUT, "Call failed - will retry", "Call failed - will retry", "Call failed - will retry", "testOnDownloadFinished");
             logger.assertNoLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception, null);
         } else if (operationName.equals(OPERATION_GET_ITEM_PATH))
         {
             // getItemPath is only used when executing the listeners and its failure does not influence the download itself
-            logger.awaitLogs(1000, "Intentional failure for testing purposes", "testOnDownloadFinished");
+            logger.awaitLogs(TIMEOUT, "Intentional failure for testing purposes", "testOnDownloadFinished");
             logger.assertNoLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception, null);
         } else if (operationName.equals(OPERATION_FINISH_DOWNLOAD_SESSION))
         {
             // Failing to finish a download session does not make the download fail
-            logger.awaitLogs(1000, "Intentional failure for testing purposes", "testOnDownloadFinished");
+            logger.awaitLogs(TIMEOUT, "Intentional failure for testing purposes", "testOnDownloadFinished");
             logger.assertNoLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception, null);
         } else
         {
-            logger.awaitLogs(1000, "Intentional failure for testing purposes", "testOnDownloadFailed");
+            logger.awaitLogs(TIMEOUT, "Intentional failure for testing purposes", "testOnDownloadFailed");
             logger.assertLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception, null);
         }
@@ -865,7 +869,7 @@ public class DownloadClientTest
             });
 
         download.start();
-        logger.awaitLogs(1000, expectedErrorMessage, "Retrying (1/1)", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, expectedErrorMessage, "Retrying (1/1)", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR);
         assertion.assertOK();
     }
