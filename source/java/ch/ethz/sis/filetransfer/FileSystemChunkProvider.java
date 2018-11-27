@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * An abstract chunk provider that creates chunks from a file system. The provider can handle files as well as directories. If an item is a directory
+ * then the provider returns chunks for the directory itself as well as all its contents (recursively).
+ * 
  * @author pkupczyk
  */
 public abstract class FileSystemChunkProvider implements IChunkProvider
@@ -47,6 +50,11 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
         this.chunkSize = chunkSize;
     }
 
+    /**
+     * An abstract method to be implemented in an actual store. The method must return a location of an item in a file system. WARNING: The actual
+     * implementation of the provider should make sure not to introduce an uncontrolled access to the whole file system, e.g. by simply taking a file
+     * path from the item id without any further validation.
+     */
     protected abstract Path getFilePath(IDownloadItemId itemId);
 
     @Override

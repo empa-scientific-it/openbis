@@ -28,6 +28,29 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 
 /**
+ * An abstract download store that stores chunks in a file system in a given directory. The store can handle chunks that represent files as well as
+ * directories. The store has the following directory structure:
+ * 
+ * <pre>
+ * [user-session-1-uuid]
+ *      [download-session-11-uuid]
+ *          [item-111-uuid]
+ *              file
+ *          [item-112-uuid]
+ *              folder
+ *                  folder
+ *                      file
+ *                  file
+ *      [download-session-12-uuid]
+ *          [item-121-uuid]
+ *              folder
+ *                  file
+ * [user-session-2-uuid]
+ *      [download-session-21-uuid]
+ *          [item-211-uuid]
+ *              file
+ * </pre>
+ * 
  * @author pkupczyk
  */
 public abstract class FileSystemDownloadStore implements IDownloadStore
@@ -43,6 +66,11 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
         this.storePath = storePath;
     }
 
+    /**
+     * An abstract method to be implemented in an actual store. The method must return a relative location of an item in a file system. Given the
+     * location the store will recreate a corresponding directory structure in the item folder. The store checks if the final location still belongs
+     * to the store directory.
+     */
     protected abstract Path getFilePath(IDownloadItemId itemId);
 
     private Path getItemDirectory(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
@@ -59,12 +87,26 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
     {
         Path itemDirectory = getItemDirectory(userSessionId, downloadSessionId, itemId);
         Path filePath = getFilePath(itemId);
-        return itemDirectory.resolve(filePath);
+        Path itemPath = itemDirectory.resolve(filePath);
+
+        if (false == belongsToStore(itemPath))
+        {
+            throw new DownloadException("Item path does not belong to the store. Item path: " + itemPath + ", store path: " + storePath, false);
+        }
+
+        return itemPath;
     }
 
     private Path getChunkPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException
     {
-        return getItemDirectory(userSessionId, downloadSessionId, chunk.getDownloadItemId()).resolve(chunk.getFilePath());
+        Path chunkPath = getItemDirectory(userSessionId, downloadSessionId, chunk.getDownloadItemId()).resolve(chunk.getFilePath());
+
+        if (false == belongsToStore(chunkPath))
+        {
+            throw new DownloadException("Chunk path does not belong to the store. Chunk path: " + chunkPath + ", store path: " + storePath, false);
+        }
+
+        return chunkPath;
     }
 
     @Override
@@ -102,6 +144,22 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
                 throw new DownloadException("Chunk " + chunk.getSequenceNumber() + " couldn't be stored", e, true);
             }
         }
+    }
+
+    private boolean belongsToStore(Path path)
+    {
+        while (path != null)
+        {
+            if (path.equals(storePath))
+            {
+                return true;
+            } else
+            {
+                path = path.getParent();
+            }
+        }
+
+        return false;
     }
 
 }
