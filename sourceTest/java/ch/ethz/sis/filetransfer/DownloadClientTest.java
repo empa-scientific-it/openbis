@@ -70,9 +70,11 @@ public class DownloadClientTest
 
     private static final Path TEST_TEMP_PATH = Paths.get("targets/temp-files");
 
-    private static final TestDownloadItemId TEST_ITEM_1_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFile1.txt").toString());
+    private static final TestDownloadItemId TEST_ITEM_1_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFile1.txt"));
 
-    private static final TestDownloadItemId TEST_ITEM_2_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFile2.txt").toString());
+    private static final TestDownloadItemId TEST_ITEM_2_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFile2.txt"));
+
+    private static final TestDownloadItemId TEST_FOLDER_ITEM_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFolder"));
 
     private TestLogger logger;
 
@@ -135,9 +137,9 @@ public class DownloadClientTest
         DownloadClient client = new DownloadClient(new TestDownloadClientConfig());
 
         IUserSessionId userSession = new TestUserSession();
-        IDownloadItemId item1 = new TestDownloadItemId("testPath1");
-        IDownloadItemId item2 = new TestDownloadItemId("testPath2");
-        IDownloadItemId item3 = new TestDownloadItemId("testPath3");
+        IDownloadItemId item1 = new TestDownloadItemId(Paths.get("testPath1"));
+        IDownloadItemId item2 = new TestDownloadItemId(Paths.get("testPath2"));
+        IDownloadItemId item3 = new TestDownloadItemId(Paths.get("testPath3"));
 
         DownloadClientDownload download = client.createDownload(userSession);
         download.addItem(item1);
@@ -174,12 +176,12 @@ public class DownloadClientTest
         createRandomFile(path3, FileUtils.ONE_MB * 2);
         createRandomFile(path4, FileUtils.ONE_MB);
 
-        TestDownloadItemId item1 = new TestDownloadItemId(path1.toString());
-        TestDownloadItemId item2 = new TestDownloadItemId(path2.toString());
-        TestDownloadItemId item3 = new TestDownloadItemId(path3.toString());
-        TestDownloadItemId item4 = new TestDownloadItemId(path1.toString());
-        TestDownloadItemId item5 = new TestDownloadItemId(path3.toString());
-        TestDownloadItemId item6 = new TestDownloadItemId(path4.toString());
+        TestDownloadItemId item1 = new TestDownloadItemId(path1);
+        TestDownloadItemId item2 = new TestDownloadItemId(path2);
+        TestDownloadItemId item3 = new TestDownloadItemId(path3);
+        TestDownloadItemId item4 = new TestDownloadItemId(path1);
+        TestDownloadItemId item5 = new TestDownloadItemId(path3);
+        TestDownloadItemId item6 = new TestDownloadItemId(path4);
 
         TestDownloadServerConfig serverConfig = new TestDownloadServerConfig();
         serverConfig.setChunkProvider(new TestChunkProvider(logger, FileUtils.ONE_MB / 50));
@@ -205,9 +207,9 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 3);
-                                assertDownloadedFile(item1, itemPaths.get(item1));
-                                assertDownloadedFile(item2, itemPaths.get(item2));
-                                assertDownloadedFile(item3, itemPaths.get(item3));
+                                assertFilesEqual(item1.getFilePath(), itemPaths.get(item1));
+                                assertFilesEqual(item2.getFilePath(), itemPaths.get(item2));
+                                assertFilesEqual(item3.getFilePath(), itemPaths.get(item3));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -230,9 +232,9 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 3);
-                                assertDownloadedFile(item4, itemPaths.get(item4));
-                                assertDownloadedFile(item5, itemPaths.get(item5));
-                                assertDownloadedFile(item6, itemPaths.get(item6));
+                                assertFilesEqual(item4.getFilePath(), itemPaths.get(item4));
+                                assertFilesEqual(item5.getFilePath(), itemPaths.get(item5));
+                                assertFilesEqual(item6.getFilePath(), itemPaths.get(item6));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -360,7 +362,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testDownloadFinished");
@@ -396,12 +398,12 @@ public class DownloadClientTest
         createRandomFile(path3, FileUtils.ONE_MB * 2);
         createRandomFile(path4, FileUtils.ONE_MB);
 
-        TestDownloadItemId item1 = new TestDownloadItemId(path1.toString());
-        TestDownloadItemId item2 = new TestDownloadItemId(path2.toString());
-        TestDownloadItemId item3 = new TestDownloadItemId(path3.toString());
-        TestDownloadItemId item4 = new TestDownloadItemId(path1.toString());
-        TestDownloadItemId item5 = new TestDownloadItemId(path3.toString());
-        TestDownloadItemId item6 = new TestDownloadItemId(path4.toString());
+        TestDownloadItemId item1 = new TestDownloadItemId(path1);
+        TestDownloadItemId item2 = new TestDownloadItemId(path2);
+        TestDownloadItemId item3 = new TestDownloadItemId(path3);
+        TestDownloadItemId item4 = new TestDownloadItemId(path1);
+        TestDownloadItemId item5 = new TestDownloadItemId(path3);
+        TestDownloadItemId item6 = new TestDownloadItemId(path4);
 
         FailureGenerator generator = new FailureGenerator(OPERATIONS, 3, Integer.MAX_VALUE, true);
 
@@ -433,8 +435,8 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 2);
-                                assertDownloadedFile(item1, itemPaths.get(item1));
-                                assertDownloadedFile(item2, itemPaths.get(item2));
+                                assertFilesEqual(item1.getFilePath(), itemPaths.get(item1));
+                                assertFilesEqual(item2.getFilePath(), itemPaths.get(item2));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -455,7 +457,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(item3, itemPaths.get(item3));
+                                assertFilesEqual(item3.getFilePath(), itemPaths.get(item3));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -478,9 +480,9 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 3);
-                                assertDownloadedFile(item4, itemPaths.get(item4));
-                                assertDownloadedFile(item5, itemPaths.get(item5));
-                                assertDownloadedFile(item6, itemPaths.get(item6));
+                                assertFilesEqual(item4.getFilePath(), itemPaths.get(item4));
+                                assertFilesEqual(item5.getFilePath(), itemPaths.get(item5));
+                                assertFilesEqual(item6.getFilePath(), itemPaths.get(item6));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -522,7 +524,8 @@ public class DownloadClientTest
                             @Override
                             public void execute() throws Exception
                             {
-                                assertDownloadedFile(itemId, itemPath);
+                                TestDownloadItemId testItemId = (TestDownloadItemId) itemId;
+                                assertFilesEqual(testItemId.getFilePath(), itemPath);
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnItemFinished");
@@ -537,8 +540,8 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 2);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
-                                assertDownloadedFile(TEST_ITEM_2_ID, itemPaths.get(TEST_ITEM_2_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_2_ID.getFilePath(), itemPaths.get(TEST_ITEM_2_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -555,11 +558,11 @@ public class DownloadClientTest
     {
         TestAssertions assertion = new TestAssertions();
 
-        TestDownloadItemId item1 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile1").toString());
-        TestDownloadItemId item2 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile2").toString());
+        TestDownloadItemId item1 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile1"));
+        TestDownloadItemId item2 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile2"));
 
-        createRandomFile(Paths.get(item1.getFilePath()), FileUtils.ONE_MB * 100);
-        createRandomFile(Paths.get(item2.getFilePath()), FileUtils.ONE_MB * 50);
+        createRandomFile(item1.getFilePath(), FileUtils.ONE_MB * 100);
+        createRandomFile(item2.getFilePath(), FileUtils.ONE_MB * 50);
 
         TestDownloadServerConfig serverConfig = new TestDownloadServerConfig();
         serverConfig.setChunkProvider(new TestChunkProvider(logger, FileUtils.ONE_MB));
@@ -583,8 +586,8 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 2);
-                                assertDownloadedFile(item1, itemPaths.get(item1));
-                                assertDownloadedFile(item2, itemPaths.get(item2));
+                                assertFilesEqual(item1.getFilePath(), itemPaths.get(item1));
+                                assertFilesEqual(item2.getFilePath(), itemPaths.get(item2));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -593,6 +596,47 @@ public class DownloadClientTest
 
         download.start();
         logger.awaitLogs(60000, "testOnDownloadFinished");
+        logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
+        assertion.assertOK();
+    }
+
+    @Test
+    public void testDownloadWithFolderItem() throws Exception
+    {
+        TestAssertions assertion = new TestAssertions();
+
+        DownloadClient client = new DownloadClient(new TestDownloadClientConfig());
+        DownloadClientDownload download = client.createDownload(new TestUserSession());
+        download.addItem(TEST_FOLDER_ITEM_ID);
+        download.setPreferences(new DownloadPreferences(3));
+        download.addListener(new DownloadListenerAdapter()
+            {
+                @Override
+                public void onDownloadFinished(Map<IDownloadItemId, Path> itemPaths)
+                {
+                    assertion.executeAssertion(new IAssertion()
+                        {
+                            @Override
+                            public void execute() throws Exception
+                            {
+                                assertEquals(itemPaths.size(), 1);
+
+                                Path downloadedFolder = itemPaths.values().iterator().next();
+
+                                assertFilesEqual(TEST_FOLDER_ITEM_ID.getFilePath().resolve("testFile3.txt"),
+                                        downloadedFolder.resolve("testFile3.txt"));
+                                assertFilesEqual(TEST_FOLDER_ITEM_ID.getFilePath().resolve("testFile4.txt"),
+                                        downloadedFolder.resolve("testFile4.txt"));
+                                assertFilesEqual(TEST_FOLDER_ITEM_ID.getFilePath().resolve("testFolder2/testFile5.txt"),
+                                        downloadedFolder.resolve("testFolder2/testFile5.txt"));
+                            }
+                        });
+                    logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
+                }
+            });
+
+        download.start();
+        logger.awaitLogs(1000000, "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
@@ -629,7 +673,7 @@ public class DownloadClientTest
                             @Override
                             public void execute() throws Exception
                             {
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPath);
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPath);
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnItemFinished");
@@ -644,7 +688,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -682,7 +726,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -727,7 +771,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -813,7 +857,7 @@ public class DownloadClientTest
                             public void execute() throws Exception
                             {
                                 assertEquals(itemPaths.size(), 1);
-                                assertDownloadedFile(TEST_ITEM_1_ID, itemPaths.get(TEST_ITEM_1_ID));
+                                assertFilesEqual(TEST_ITEM_1_ID.getFilePath(), itemPaths.get(TEST_ITEM_1_ID));
                             }
                         });
                     logger.log(getClass(), LogLevel.INFO, "testOnDownloadFinished");
@@ -854,17 +898,15 @@ public class DownloadClientTest
 
     }
 
-    private void assertDownloadedFile(IDownloadItemId itemId, Path downloadedFilePath) throws Exception
+    private void assertFilesEqual(Path sourceFilePath, Path downloadedFilePath) throws Exception
     {
         assertTrue(downloadedFilePath.startsWith(TEST_STORE_PATH));
-
-        TestDownloadItemId testItemId = (TestDownloadItemId) itemId;
 
         ByteBuffer testFileBuffer = ByteBuffer.allocate((int) FileUtils.ONE_MB);
         ByteBuffer downloadedFileBuffer = ByteBuffer.allocate((int) FileUtils.ONE_MB);
 
         try (
-                FileChannel testFileChannel = FileChannel.open(Paths.get(testItemId.getFilePath()), StandardOpenOption.READ);
+                FileChannel testFileChannel = FileChannel.open(sourceFilePath, StandardOpenOption.READ);
                 FileChannel downloadedFileChannel = FileChannel.open(downloadedFilePath, StandardOpenOption.READ))
         {
 
@@ -875,7 +917,8 @@ public class DownloadClientTest
 
                 if (testFileCount != downloadedFileCount)
                 {
-                    fail("Downloaded file contents was different from the source file contents. Item id: " + itemId + ". Downloaded file path: "
+                    fail("Downloaded file contents was different from the source file contents. Source file path: " + sourceFilePath
+                            + ". Downloaded file path: "
                             + downloadedFilePath);
                 } else if (testFileCount == -1 && downloadedFileCount == -1)
                 {
@@ -892,7 +935,8 @@ public class DownloadClientTest
 
                     if (testFileByte != downloadedFileByte)
                     {
-                        fail("Downloaded file contents was different from the source file contents. Item id: " + itemId + ". Downloaded file path: "
+                        fail("Downloaded file contents was different from the source file contents. Source file path: " + sourceFilePath
+                                + ". Downloaded file path: "
                                 + downloadedFilePath);
                     }
                 }

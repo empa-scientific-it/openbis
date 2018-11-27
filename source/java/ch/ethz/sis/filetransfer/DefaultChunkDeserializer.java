@@ -36,6 +36,8 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
 
     private ByteBuffer downloadItemIdLengthBuffer = ByteBuffer.allocate(2);
 
+    private ByteBuffer isDirectoryBuffer = ByteBuffer.allocate(1);
+
     private ByteBuffer filePathLengthBuffer = ByteBuffer.allocate(2);
 
     private ByteBuffer fileOffsetBuffer = ByteBuffer.allocate(8);
@@ -73,6 +75,9 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
 
         putToBuffer(stream, downloadItemIdLengthBuffer, "downloadItemIdLength", downloadItemIdLengthBuffer.capacity(), calculatedHeaderChecksum);
         short downloadItemIdLength = downloadItemIdLengthBuffer.getShort();
+
+        putToBuffer(stream, isDirectoryBuffer, "isDirectory", isDirectoryBuffer.capacity(), calculatedHeaderChecksum);
+        boolean isDirectory = isDirectoryBuffer.get() > 0;
 
         putToBuffer(stream, filePathLengthBuffer, "filePathLength", filePathLengthBuffer.capacity(), calculatedHeaderChecksum);
         short filePathLength = filePathLengthBuffer.getShort();
@@ -127,7 +132,7 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
                     true);
         }
 
-        return new Chunk(sequenceNumber, downloadItemId, filePath, fileOffset, payloadLength)
+        return new Chunk(sequenceNumber, downloadItemId, isDirectory, filePath, fileOffset, payloadLength)
             {
                 @Override
                 public InputStream getPayload() throws DownloadException

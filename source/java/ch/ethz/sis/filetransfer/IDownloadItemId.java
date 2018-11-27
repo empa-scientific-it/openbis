@@ -19,13 +19,17 @@ import java.io.Serializable;
  */
 
 /**
- * Id of an item to be downloaded. Depending on a use case an item may represent a single file, a document with files, a project etc.
+ * Id of an item to be downloaded. Depending on a use case an item may represent a single file, a folder, a document with files, a collection of
+ * documents etc.
  * 
  * @author pkupczyk
  */
 public interface IDownloadItemId extends Serializable
 {
 
+    /**
+     * Unique item identifier
+     */
     public String getId();
 
 }

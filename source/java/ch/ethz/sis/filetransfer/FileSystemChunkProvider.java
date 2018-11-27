@@ -16,12 +16,14 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -45,7 +47,7 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
         this.chunkSize = chunkSize;
     }
 
-    public abstract Path getItemPath(IDownloadItemId itemId);
+    protected abstract Path getFilePath(IDownloadItemId itemId);
 
     @Override
     public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds) throws DownloadException
@@ -55,82 +57,122 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
 
         for (IDownloadItemId itemId : itemIds)
         {
-            List<Chunk> chunks = getChunks(sequenceNumber, itemId);
+            List<Chunk> chunks = getChunks(sequenceNumber, itemId, getFilePath(itemId));
             result.put(itemId, chunks);
         }
 
         return result;
     }
 
-    private List<Chunk> getChunks(AtomicInteger sequenceNumber, IDownloadItemId itemId) throws DownloadException
+    private List<Chunk> getChunks(AtomicInteger sequenceNumber, IDownloadItemId itemId, Path filePath) throws DownloadException
     {
+        List<Chunk> chunks = new LinkedList<Chunk>();
+
         try
         {
-            final Path filePath = getItemPath(itemId);
-            final long fileSize = Files.size(filePath);
-            long fileOffset = 0;
-
-            List<Chunk> chunks = new LinkedList<Chunk>();
-
-            do
+            if (filePath.toFile().isDirectory())
             {
-                final long theFileOffset = fileOffset;
+                chunks.add(new DirectoryChunk(sequenceNumber.getAndIncrement(), itemId, filePath.toString()));
 
-                int payloadLength = (int) (Math.min(theFileOffset + chunkSize, fileSize) - theFileOffset);
+                for (File file : filePath.toFile().listFiles())
+                {
+                    chunks.addAll(getChunks(sequenceNumber, itemId, file.toPath()));
+                }
+            } else
+            {
+                long fileSize = Files.size(filePath);
+                long fileOffset = 0;
 
-                chunks.add(new Chunk(sequenceNumber.getAndIncrement(), itemId, filePath.toString(), fileOffset, payloadLength)
-                    {
-                        @Override
-                        public InputStream getPayload() throws DownloadException
-                        {
-                            final ByteBuffer buffer;
+                do
+                {
+                    int payloadLength = (int) (Math.min(fileOffset + chunkSize, fileSize) - fileOffset);
 
-                            try (FileChannel fileChannel = FileChannel.open(filePath, StandardOpenOption.READ))
-                            {
-                                buffer = ByteBuffer.allocate((int) chunkSize);
-                                fileChannel.position(theFileOffset);
-                                fileChannel.read(buffer);
-                                buffer.flip();
-                            } catch (IOException e)
-                            {
-                                throw new DownloadException("Couldn't get payload", e, true);
-                            }
+                    chunks.add(new FileChunk(sequenceNumber.getAndIncrement(), itemId, filePath.toString(), fileOffset, payloadLength));
 
-                            return new InputStream()
-                                {
-                                    @Override
-                                    public int read() throws IOException
-                                    {
-                                        if (buffer.hasRemaining())
-                                        {
-                                            return 0xff & buffer.get();
-                                        } else
-                                        {
-                                            return -1;
-                                        }
-                                    }
-
-                                    @Override
-                                    public void close() throws IOException
-                                    {
-                                        if (logger.isEnabled(LogLevel.DEBUG))
-                                        {
-                                            logger.log(FileSystemChunkProvider.class, LogLevel.DEBUG,
-                                                    "Closing input stream for chunk " + getSequenceNumber());
-                                        }
-                                    }
-                                };
-                        }
-                    });
-
-                fileOffset += chunkSize;
-            } while (fileOffset < fileSize);
-
-            return chunks;
+                    fileOffset += chunkSize;
+                } while (fileOffset < fileSize);
+            }
         } catch (IOException e)
         {
-            throw new DownloadException("Couldn't get chunk", e, true);
+            throw new DownloadException("Couldn't get chunk for file path: " + filePath, e, true);
         }
+
+        return chunks;
+    }
+
+    private class DirectoryChunk extends Chunk
+    {
+
+        public DirectoryChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath)
+        {
+            super(sequenceNumber, downloadItemId, true, filePath, 0, 0);
+        }
+
+        @Override
+        public InputStream getPayload() throws DownloadException
+        {
+            return new InputStream()
+                {
+                    @Override
+                    public int read() throws IOException
+                    {
+                        return -1;
+                    }
+                };
+        }
+
+    }
+
+    private class FileChunk extends Chunk
+    {
+
+        public FileChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath, long fileOffset, int payloadLength)
+        {
+            super(sequenceNumber, downloadItemId, false, filePath, fileOffset, payloadLength);
+        }
+
+        @Override
+        public InputStream getPayload() throws DownloadException
+        {
+            final ByteBuffer buffer;
+
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(getFilePath()), StandardOpenOption.READ))
+            {
+                buffer = ByteBuffer.allocate(getPayloadLength());
+                fileChannel.position(getFileOffset());
+                fileChannel.read(buffer);
+                buffer.flip();
+            } catch (IOException e)
+            {
+                throw new DownloadException("Couldn't get payload", e, true);
+            }
+
+            return new InputStream()
+                {
+                    @Override
+                    public int read() throws IOException
+                    {
+                        if (buffer.hasRemaining())
+                        {
+                            return 0xff & buffer.get();
+                        } else
+                        {
+                            return -1;
+                        }
+                    }
+
+                    @Override
+                    public void close() throws IOException
+                    {
+                        if (logger.isEnabled(LogLevel.DEBUG))
+                        {
+                            logger.log(FileSystemChunkProvider.class, LogLevel.DEBUG,
+                                    "Closing input stream for chunk " + getSequenceNumber());
+                        }
+                    }
+                };
+        }
+
     }
 
 }

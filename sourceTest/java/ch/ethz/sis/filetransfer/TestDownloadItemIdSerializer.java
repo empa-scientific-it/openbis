@@ -27,7 +27,7 @@ public class TestDownloadItemIdSerializer implements IDownloadItemIdSerializer
     @Override
     public ByteBuffer serialize(IDownloadItemId itemId)
     {
-        byte[] bytes = ((TestDownloadItemId) itemId).getFilePath().getBytes();
+        byte[] bytes = ((TestDownloadItemId) itemId).getFilePath().toString().getBytes();
         return ByteBuffer.wrap(bytes);
     }
 

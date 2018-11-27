@@ -30,22 +30,22 @@ public class DownloadSessionId implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private UUID uuid;
+    private String id;
 
     public DownloadSessionId()
     {
-        this.uuid = UUID.randomUUID();
+        this.id = UUID.randomUUID().toString();
     }
 
-    public UUID getUuid()
+    public String getId()
     {
-        return uuid;
+        return id;
     }
 
     @Override
     public int hashCode()
     {
-        return new HashCodeBuilder().append(uuid).toHashCode();
+        return new HashCodeBuilder().append(id).toHashCode();
     }
 
     @Override
@@ -65,13 +65,13 @@ public class DownloadSessionId implements Serializable
         }
 
         DownloadSessionId other = (DownloadSessionId) obj;
-        return new EqualsBuilder().append(uuid, other.uuid).isEquals();
+        return new EqualsBuilder().append(id, other.id).isEquals();
     }
 
     @Override
     public String toString()
     {
-        return new ToString(this).append("uuid", uuid).toString();
+        return new ToString(this).append("id", id).toString();
     }
 
 }

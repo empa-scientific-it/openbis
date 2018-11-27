@@ -648,7 +648,7 @@ public class DownloadClientDownload
 
         public DownloadThread(int threadIndex, DownloadStreamId streamId)
         {
-            super("download-" + downloadSession.getDownloadSessionId().getUuid() + "-" + (threadIndex + 1));
+            super("download-" + downloadSession.getDownloadSessionId().getId() + "-" + (threadIndex + 1));
             setDaemon(true);
             this.streamId = streamId;
         }

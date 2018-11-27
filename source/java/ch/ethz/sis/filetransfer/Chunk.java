@@ -28,16 +28,19 @@ public abstract class Chunk
 
     private IDownloadItemId downloadItemId;
 
+    private boolean isDirectory;
+
     private String filePath;
 
     private long fileOffset;
 
     private int payloadLength;
 
-    public Chunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath, long fileOffset, int payloadLength)
+    public Chunk(int sequenceNumber, IDownloadItemId downloadItemId, boolean isDirectory, String filePath, long fileOffset, int payloadLength)
     {
         this.sequenceNumber = sequenceNumber;
         this.downloadItemId = downloadItemId;
+        this.isDirectory = isDirectory;
         this.filePath = filePath;
         this.fileOffset = fileOffset;
         this.payloadLength = payloadLength;
@@ -51,6 +54,11 @@ public abstract class Chunk
     public IDownloadItemId getDownloadItemId()
     {
         return downloadItemId;
+    }
+
+    public boolean isDirectory()
+    {
+        return isDirectory;
     }
 
     public String getFilePath()

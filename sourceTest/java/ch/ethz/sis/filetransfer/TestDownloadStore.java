@@ -17,7 +17,6 @@
 package ch.ethz.sis.filetransfer;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author pkupczyk
@@ -31,10 +30,9 @@ public class TestDownloadStore extends FileSystemDownloadStore
     }
 
     @Override
-    public Path getItemPath(IDownloadItemId itemId)
+    protected Path getFilePath(IDownloadItemId itemId)
     {
-        TestDownloadItemId filePathId = (TestDownloadItemId) itemId;
-        return Paths.get(filePathId.getFilePath());
+        return ((TestDownloadItemId) itemId).getFilePath();
     }
 
 }

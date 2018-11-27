@@ -17,6 +17,7 @@
 package ch.ethz.sis.filetransfer;
 
 import java.nio.ByteBuffer;
+import java.nio.file.Paths;
 
 /**
  * @author pkupczyk
@@ -27,7 +28,7 @@ public class TestDownloadItemIdDeserializer implements IDownloadItemIdDeserializ
     @Override
     public IDownloadItemId deserialize(ByteBuffer buffer)
     {
-        return new TestDownloadItemId(new String(buffer.array(), buffer.position(), buffer.limit()));
+        return new TestDownloadItemId(Paths.get(new String(buffer.array(), buffer.position(), buffer.limit())));
     }
 
 }

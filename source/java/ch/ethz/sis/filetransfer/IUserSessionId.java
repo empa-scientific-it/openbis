@@ -24,6 +24,9 @@ import java.io.Serializable;
 public interface IUserSessionId extends Serializable
 {
 
+    /**
+     * Unique session identifier
+     */
     public String getId();
 
 }

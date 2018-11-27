@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -24,6 +23,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 
@@ -43,47 +43,64 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
         this.storePath = storePath;
     }
 
-    public abstract Path getItemPath(IDownloadItemId itemId);
+    protected abstract Path getFilePath(IDownloadItemId itemId);
+
+    private Path getItemDirectory(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
+    {
+        String userDir = UUID.nameUUIDFromBytes(userSessionId.getId().getBytes()).toString();
+        String downloadDir = UUID.nameUUIDFromBytes(downloadSessionId.getId().getBytes()).toString();
+        String itemIdDir = UUID.nameUUIDFromBytes(itemId.getId().getBytes()).toString();
+
+        return storePath.resolve(userDir).resolve(downloadDir).resolve(itemIdDir);
+    }
 
     @Override
     public Path getItemPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
     {
-        Path path = getItemPath(itemId);
-        return storePath.resolve(userSessionId.toString()).resolve(downloadSessionId.getUuid().toString()).resolve(path);
+        Path itemDirectory = getItemDirectory(userSessionId, downloadSessionId, itemId);
+        Path filePath = getFilePath(itemId);
+        return itemDirectory.resolve(filePath);
+    }
+
+    private Path getChunkPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException
+    {
+        return getItemDirectory(userSessionId, downloadSessionId, chunk.getDownloadItemId()).resolve(chunk.getFilePath());
     }
 
     @Override
     public void storeChunk(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException
     {
-        Path path = getItemPath(userSessionId, downloadSessionId, chunk.getDownloadItemId());
-        File folder = path.getParent().toFile();
+        Path chunkPath = getChunkPath(userSessionId, downloadSessionId, chunk);
 
-        if (false == folder.exists())
+        if (chunk.isDirectory())
         {
-            folder.mkdirs();
-        }
-
-        ByteBuffer buffer = ByteBuffer.allocate((int) FileUtils.ONE_MB);
-        int size = 0;
-
-        try (
-                ReadableByteChannel chunkChannel = Channels.newChannel(chunk.getPayload());
-                FileChannel fileChannel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
+            chunkPath.toFile().mkdirs();
+        } else
         {
-            fileChannel.position(chunk.getFileOffset());
+            chunkPath.toFile().getParentFile().mkdirs();
 
-            while (chunkChannel.read(buffer) != -1)
+            ByteBuffer buffer = ByteBuffer.allocate((int) FileUtils.ONE_MB);
+            int size = 0;
+
+            try (
+                    ReadableByteChannel chunkChannel = Channels.newChannel(chunk.getPayload());
+                    FileChannel fileChannel = FileChannel.open(chunkPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
             {
-                buffer.flip();
-                size += fileChannel.write(buffer);
-                buffer.clear();
+                fileChannel.position(chunk.getFileOffset());
+
+                while (chunkChannel.read(buffer) != -1)
+                {
+                    buffer.flip();
+                    size += fileChannel.write(buffer);
+                    buffer.clear();
+                }
+
+                logger.log(getClass(), LogLevel.INFO, "Chunk " + chunk.getSequenceNumber() + " successfully stored (size: " + size + ")");
+
+            } catch (IOException e)
+            {
+                throw new DownloadException("Chunk " + chunk.getSequenceNumber() + " couldn't be stored", e, true);
             }
-
-            logger.log(getClass(), LogLevel.INFO, "Chunk " + chunk.getSequenceNumber() + " successfully stored (size: " + size + ")");
-
-        } catch (IOException e)
-        {
-            throw new DownloadException("Chunk " + chunk.getSequenceNumber() + " couldn't be stored", e, true);
         }
     }
 

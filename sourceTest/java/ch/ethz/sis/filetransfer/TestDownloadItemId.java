@@ -15,11 +15,11 @@ package ch.ethz.sis.filetransfer;
  * limitations under the License.
  */
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import ch.ethz.sis.filetransfer.IDownloadItemId;
-import ch.ethz.sis.filetransfer.ToString;
 
 /**
  * @author pkupczyk
@@ -31,20 +31,20 @@ public class TestDownloadItemId implements IDownloadItemId
 
     private String filePath;
 
-    public TestDownloadItemId(String filePath)
+    public TestDownloadItemId(Path filePath)
     {
-        this.filePath = filePath;
+        this.filePath = filePath.toString();
     }
 
     @Override
     public String getId()
     {
-        return getFilePath();
+        return filePath;
     }
 
-    public String getFilePath()
+    public Path getFilePath()
     {
-        return filePath;
+        return Paths.get(filePath);
     }
 
     @Override

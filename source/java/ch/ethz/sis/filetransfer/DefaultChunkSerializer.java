@@ -91,6 +91,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
                 // Format:
                 // - sequenceNumber (Integer 4 bytes)
                 // - downloadItemIdLength (Short 2 bytes)
+                // - isDirectory (byte 1 byte)
                 // - filePathLength (Short 2 bytes)
                 // - fileOffset (Long 8 bytes)
                 // - payloadLength (Integer 4 bytes)
@@ -99,7 +100,7 @@ public class DefaultChunkSerializer implements IChunkSerializer
                 // - checksum (Long 8 bytes)
 
                 ByteBuffer downloadItemIdBytes = itemIdSerializer.serialize(chunk.getDownloadItemId());
-                byte[] filePathBytes = chunk.getFilePath().getBytes();
+                byte[] filePathBytes = chunk.getFilePath().toString().getBytes();
 
                 if (downloadItemIdBytes.remaining() > Short.MAX_VALUE)
                 {
@@ -111,9 +112,10 @@ public class DefaultChunkSerializer implements IChunkSerializer
                     throw new RuntimeException("File path too long to serialize");
                 }
 
-                fieldsBuffer = ByteBuffer.allocate(20 + downloadItemIdBytes.remaining() + filePathBytes.length)
+                fieldsBuffer = ByteBuffer.allocate(21 + downloadItemIdBytes.remaining() + filePathBytes.length)
                         .putInt(chunk.getSequenceNumber())
                         .putShort((short) downloadItemIdBytes.remaining())
+                        .put((byte) (chunk.isDirectory() ? 1 : 0))
                         .putShort((short) filePathBytes.length)
                         .putLong(chunk.getFileOffset())
                         .putInt(chunk.getPayloadLength())
