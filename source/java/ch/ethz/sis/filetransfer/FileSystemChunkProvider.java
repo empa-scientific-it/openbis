@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -65,14 +64,15 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
 
         for (IDownloadItemId itemId : itemIds)
         {
-            List<Chunk> chunks = getChunks(sequenceNumber, itemId, getFilePath(itemId));
+            Path itemFilePath = getFilePath(itemId);
+            List<Chunk> chunks = getChunks(sequenceNumber, itemId, itemFilePath.getParent(), itemFilePath);
             result.put(itemId, chunks);
         }
 
         return result;
     }
 
-    private List<Chunk> getChunks(AtomicInteger sequenceNumber, IDownloadItemId itemId, Path filePath) throws DownloadException
+    private List<Chunk> getChunks(AtomicInteger sequenceNumber, IDownloadItemId itemId, Path rootFilePath, Path filePath) throws DownloadException
     {
         List<Chunk> chunks = new LinkedList<Chunk>();
 
@@ -80,11 +80,11 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
         {
             if (filePath.toFile().isDirectory())
             {
-                chunks.add(new DirectoryChunk(sequenceNumber.getAndIncrement(), itemId, filePath.toString()));
+                chunks.add(new DirectoryChunk(sequenceNumber.getAndIncrement(), itemId, rootFilePath.relativize(filePath).toString()));
 
                 for (File file : filePath.toFile().listFiles())
                 {
-                    chunks.addAll(getChunks(sequenceNumber, itemId, file.toPath()));
+                    chunks.addAll(getChunks(sequenceNumber, itemId, rootFilePath, file.toPath()));
                 }
             } else
             {
@@ -95,7 +95,8 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
                 {
                     int payloadLength = (int) (Math.min(fileOffset + chunkSize, fileSize) - fileOffset);
 
-                    chunks.add(new FileChunk(sequenceNumber.getAndIncrement(), itemId, filePath.toString(), fileOffset, payloadLength));
+                    chunks.add(new FileChunk(sequenceNumber.getAndIncrement(), itemId, rootFilePath.relativize(filePath).toString(), fileOffset,
+                            filePath, payloadLength));
 
                     fileOffset += chunkSize;
                 } while (fileOffset < fileSize);
@@ -134,9 +135,12 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
     private class FileChunk extends Chunk
     {
 
-        public FileChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath, long fileOffset, int payloadLength)
+        private Path payloadPath;
+
+        public FileChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath, long fileOffset, Path payloadPath, int payloadLength)
         {
             super(sequenceNumber, downloadItemId, false, filePath, fileOffset, payloadLength);
+            this.payloadPath = payloadPath;
         }
 
         @Override
@@ -144,7 +148,7 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
         {
             final ByteBuffer buffer;
 
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(getFilePath()), StandardOpenOption.READ))
+            try (FileChannel fileChannel = FileChannel.open(payloadPath, StandardOpenOption.READ))
             {
                 buffer = ByteBuffer.allocate(getPayloadLength());
                 fileChannel.position(getFileOffset());

@@ -72,7 +72,7 @@ public class DownloadClientTest
 
     private static final Path TEST_FILES_PATH = Paths.get("sourceTest/test-files");
 
-    private static final Path TEST_TEMP_PATH = Paths.get("targets/temp-files");
+    private static final Path TEMP_FILES_PATH = Paths.get("targets/temp-files");
 
     private static final TestDownloadItemId TEST_ITEM_1_ID = new TestDownloadItemId(TEST_FILES_PATH.resolve("testFile1.txt"));
 
@@ -94,8 +94,8 @@ public class DownloadClientTest
         deleteDirectory(TEST_STORE_PATH);
         TEST_STORE_PATH.toFile().mkdirs();
 
-        deleteDirectory(TEST_TEMP_PATH);
-        TEST_TEMP_PATH.toFile().mkdirs();
+        deleteDirectory(TEMP_FILES_PATH);
+        TEMP_FILES_PATH.toFile().mkdirs();
 
         logger = new TestLogger();
         logger.log(getClass(), LogLevel.INFO, "");
@@ -170,10 +170,10 @@ public class DownloadClientTest
     {
         TestAssertions assertion = new TestAssertions();
 
-        Path path1 = TEST_TEMP_PATH.resolve("testFolder/testFile");
-        Path path2 = TEST_TEMP_PATH.resolve("testFolder/testFile2");
-        Path path3 = TEST_TEMP_PATH.resolve("testFile");
-        Path path4 = TEST_TEMP_PATH.resolve("testFile2");
+        Path path1 = TEMP_FILES_PATH.resolve("testFolder/testFile");
+        Path path2 = TEMP_FILES_PATH.resolve("testFolder/testFile2");
+        Path path3 = TEMP_FILES_PATH.resolve("testFile");
+        Path path4 = TEMP_FILES_PATH.resolve("testFile2");
 
         createRandomFile(path1, FileUtils.ONE_MB);
         createRandomFile(path2, FileUtils.ONE_MB / 2);
@@ -392,10 +392,10 @@ public class DownloadClientTest
         TestUserSession userSession1 = new TestUserSession();
         TestUserSession userSession2 = new TestUserSession();
 
-        Path path1 = TEST_TEMP_PATH.resolve("testFolder/testFile");
-        Path path2 = TEST_TEMP_PATH.resolve("testFolder/testFile2");
-        Path path3 = TEST_TEMP_PATH.resolve("testFile");
-        Path path4 = TEST_TEMP_PATH.resolve("testFile2");
+        Path path1 = TEMP_FILES_PATH.resolve("testFolder/testFile");
+        Path path2 = TEMP_FILES_PATH.resolve("testFolder/testFile2");
+        Path path3 = TEMP_FILES_PATH.resolve("testFile");
+        Path path4 = TEMP_FILES_PATH.resolve("testFile2");
 
         createRandomFile(path1, FileUtils.ONE_MB);
         createRandomFile(path2, FileUtils.ONE_MB / 2);
@@ -562,8 +562,8 @@ public class DownloadClientTest
     {
         TestAssertions assertion = new TestAssertions();
 
-        TestDownloadItemId item1 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile1"));
-        TestDownloadItemId item2 = new TestDownloadItemId(TEST_TEMP_PATH.resolve("testFile2"));
+        TestDownloadItemId item1 = new TestDownloadItemId(TEMP_FILES_PATH.resolve("testFile1"));
+        TestDownloadItemId item2 = new TestDownloadItemId(TEMP_FILES_PATH.resolve("testFile2"));
 
         createRandomFile(item1.getFilePath(), FileUtils.ONE_MB * 100);
         createRandomFile(item2.getFilePath(), FileUtils.ONE_MB * 50);
@@ -835,7 +835,7 @@ public class DownloadClientTest
     @Test(invocationCount = INVOCATION_COUNT)
     public void testDownloadWithInconsistentCRCInPayload() throws DownloadException
     {
-        testDownloadWithInconsistentCRC(100, "Error in payload data detected");
+        testDownloadWithInconsistentCRC(80, "Error in payload data detected");
     }
 
     private void testDownloadWithInconsistentCRC(int byteIndexToFail, String expectedErrorMessage) throws DownloadException

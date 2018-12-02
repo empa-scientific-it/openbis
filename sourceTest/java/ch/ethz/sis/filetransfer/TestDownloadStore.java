@@ -29,10 +29,4 @@ public class TestDownloadStore extends FileSystemDownloadStore
         super(logger, storePath);
     }
 
-    @Override
-    protected Path getFilePath(IDownloadItemId itemId)
-    {
-        return ((TestDownloadItemId) itemId).getFilePath();
-    }
-
 }

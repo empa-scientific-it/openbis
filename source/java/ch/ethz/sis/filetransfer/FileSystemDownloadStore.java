@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -53,7 +54,7 @@ import org.apache.commons.io.FileUtils;
  * 
  * @author pkupczyk
  */
-public abstract class FileSystemDownloadStore implements IDownloadStore
+public class FileSystemDownloadStore implements IDownloadStore
 {
 
     private ILogger logger;
@@ -65,13 +66,6 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
         this.logger = logger;
         this.storePath = storePath;
     }
-
-    /**
-     * An abstract method to be implemented in an actual store. The method must return a relative location of an item in a file system. Given the
-     * location the store will recreate a corresponding directory structure in the item folder. The store checks if the final location still belongs
-     * to the store directory.
-     */
-    protected abstract Path getFilePath(IDownloadItemId itemId);
 
     private Path getItemDirectory(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
     {
@@ -86,15 +80,18 @@ public abstract class FileSystemDownloadStore implements IDownloadStore
     public Path getItemPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
     {
         Path itemDirectory = getItemDirectory(userSessionId, downloadSessionId, itemId);
-        Path filePath = getFilePath(itemId);
-        Path itemPath = itemDirectory.resolve(filePath);
 
-        if (false == belongsToStore(itemPath))
+        if (itemDirectory.toFile().exists())
         {
-            throw new DownloadException("Item path does not belong to the store. Item path: " + itemPath + ", store path: " + storePath, false);
+            File[] itemFiles = itemDirectory.toFile().listFiles();
+
+            if (itemFiles.length > 0)
+            {
+                return itemFiles[0].toPath();
+            }
         }
 
-        return itemPath;
+        throw new DownloadItemNotFoundException("Store does not contain any files for download item id: " + itemId);
     }
 
     private Path getChunkPath(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, Chunk chunk) throws DownloadException

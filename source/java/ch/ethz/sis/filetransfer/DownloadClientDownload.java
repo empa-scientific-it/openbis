@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -259,6 +260,101 @@ public class DownloadClientDownload
         }
     }
 
+    public void await()
+    {
+        try
+        {
+            await(null);
+        } catch (TimeoutException e)
+        {
+            // never happens
+        }
+    }
+
+    public void await(int timeoutInMillis) throws TimeoutException
+    {
+        await((Integer) timeoutInMillis);
+    }
+
+    private void await(Integer timeoutInMillisOrNull) throws TimeoutException
+    {
+        if (status.equals(DownloadStatus.NEW))
+        {
+            throw new IllegalStateException("Download has to be started before waiting for the results");
+        }
+
+        if (timeoutInMillisOrNull != null && timeoutInMillisOrNull <= 0)
+        {
+            throw new IllegalArgumentException("Timeout should be > 0");
+        }
+
+        List<Thread> threads = new ArrayList<Thread>();
+        threads.addAll(downloadThreads);
+        if (listenersThread != null)
+        {
+            threads.add(listenersThread);
+        }
+
+        Long timeoutTimeOrNull = timeoutInMillisOrNull != null ? System.currentTimeMillis() + timeoutInMillisOrNull : null;
+
+        try
+        {
+            for (Thread thread : threads)
+            {
+                if (timeoutTimeOrNull != null)
+                {
+                    long millisLeft = timeoutTimeOrNull - System.currentTimeMillis();
+
+                    if (millisLeft > 0)
+                    {
+                        thread.join(millisLeft);
+                    } else
+                    {
+                        throw new TimeoutException();
+                    }
+                } else
+                {
+                    thread.join();
+                }
+            }
+        } catch (InterruptedException e)
+        {
+            if (config.getLogger().isEnabled(LogLevel.WARN))
+            {
+                config.getLogger().log(getClass(), LogLevel.WARN, "Got interrupted while waiting for the results", e);
+            }
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Map<IDownloadItemId, Path> getResults() throws DownloadException
+    {
+        if (false == status.equals(DownloadStatus.FINISHED))
+        {
+            throw new IllegalStateException(
+                    "Results are available only for downloads that have successfully finished (current download status: " + status + ")");
+        }
+
+        Map<IDownloadItemId, Path> itemPaths = new HashMap<IDownloadItemId, Path>();
+
+        for (IDownloadItemId itemId : itemIdsDownloaded)
+        {
+            Path itemPath = config.getRetryProvider().executeWithRetry(new IRetryAction<Path>()
+                {
+                    @Override
+                    public Path execute() throws DownloadException
+                    {
+                        return config.getStore().getItemPath(userSessionId, downloadSession.getDownloadSessionId(), itemId);
+                    }
+                });
+
+            itemPaths.put(itemId, itemPath);
+        }
+
+        return itemPaths;
+    }
+
     private void startListenersThread()
     {
         listenersThread = new ListenersThread();
@@ -426,21 +522,7 @@ public class DownloadClientDownload
                 {
                     try
                     {
-                        Map<IDownloadItemId, Path> itemPaths = new HashMap<IDownloadItemId, Path>();
-
-                        for (IDownloadItemId itemId : itemIdsDownloaded)
-                        {
-                            Path itemPath = config.getRetryProvider().executeWithRetry(new IRetryAction<Path>()
-                                {
-                                    @Override
-                                    public Path execute() throws DownloadException
-                                    {
-                                        return config.getStore().getItemPath(userSessionId, downloadSession.getDownloadSessionId(), itemId);
-                                    }
-                                });
-
-                            itemPaths.put(itemId, itemPath);
-                        }
+                        Map<IDownloadItemId, Path> itemPaths = getResults();
 
                         for (IDownloadListener listener : listeners)
                         {
