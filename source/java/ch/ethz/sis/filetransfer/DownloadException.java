@@ -19,7 +19,7 @@ package ch.ethz.sis.filetransfer;
 /**
  * @author pkupczyk
  */
-public class DownloadException extends Exception
+public class DownloadException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;

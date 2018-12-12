@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * A download server interface. The interface defines methods a download client can use to download files from the server, Methods in this interface
+ * A download server interface. The interface defines methods a download client can use to download files from the server. Methods in this interface
  * have been designed specifically with reliability and high-performance in mind. To enable effective downloads of very large files, the files are cut
  * into pieces called chunks. Each chunk is downloaded individually and can be re-downloaded in case of any problems without a need of restarting the
  * whole file. To increase the performance of downloads multiple chunks can be downloaded in parallel via multiple download streams (each download
