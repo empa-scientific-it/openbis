@@ -52,6 +52,10 @@ classdef OpenBis
             obj.pybis.logout();
         end
         
+        function tf= is_session_active(obj)
+            % isvalid Check if the session token is still active. Returns true or false.
+            tf  = obj.pybis.is_session_active();
+        end
         
         %% Masterdata methods
         % this section defines Matlab equivalents of the following pyBIS methods:
@@ -260,8 +264,7 @@ classdef OpenBis
         end
         
         function experiment = new_experiment(obj, type, space, project)
-            % Todo: make this work in Python first
-            % Create a new experiment of specific type in a defined space and project
+           % Create a new experiment of specific type in a defined space and project
             % Return the object
             experiment = obj.pybis.new_experiment(pyargs('type', type, 'space', space, 'project', project));
             experiment.save();
@@ -334,7 +337,6 @@ classdef OpenBis
             
         end
         
-        
         function path_to_file = dataset_download(obj, dataset, files, varargin)
             % provide files as cell array of files
             
@@ -358,6 +360,26 @@ classdef OpenBis
             path_to_file = fullfile(a.destination, dataset.char, a.files);
             
         end
+        
+        function dataset = new_dataset(obj, type, experiment, object, file_list, properties)
+           % Create a new dataset
+            % Return the dataset
+            dataset = obj.pybis.new_dataset(pyargs('type', type, 'experiment', experiment, 'sample', object, 'files', file_list, 'props', properties));
+            dataset.save();
+            
+        end
+        
+        
+%         ds_new = o.new_dataset(
+%     type       = 'ANALYZED_DATA', 
+%     experiment = '/SPACE/PROJECT/EXP1', 
+%     sample     = '/SPACE/SAMP1',
+%     files      = ['my_analyzed_data.dat'], 
+%     props      = {'name': 'some good name', 'description': '...' })
+% )
+
+        
+        
         
     end
     
