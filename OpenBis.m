@@ -277,6 +277,8 @@ classdef OpenBis
         % get_dataset
         % get_dataset_files
         % dataset_download
+        % new_dataset
+        % new_dataset_container
         
         function datasets = get_datasets(obj, varargin)
             % Return table of matching datasets.
@@ -361,24 +363,42 @@ classdef OpenBis
             
         end
         
-        function dataset = new_dataset(obj, type, experiment, object, file_list, properties)
+        function dataset = new_dataset(obj, type, experiment, object, file_list)
            % Create a new dataset
             % Return the dataset
-            dataset = obj.pybis.new_dataset(pyargs('type', type, 'experiment', experiment, 'sample', object, 'files', file_list, 'props', properties));
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addRequired(p, 'type', @ischar);
+            addRequired(p, 'experiment', @ischar);
+            addRequired(p, 'object', @ischar);
+            addRequired(p, 'file_list', @iscellstr);
+            
+            parse(p, obj, type, experiment, object, file_list);
+            a = p.Results;
+            
+            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'experiment', a.experiment, 'sample', a.object, 'files', a.file_list));
             dataset.save();
             
         end
         
-        
-%         ds_new = o.new_dataset(
-%     type       = 'ANALYZED_DATA', 
-%     experiment = '/SPACE/PROJECT/EXP1', 
-%     sample     = '/SPACE/SAMP1',
-%     files      = ['my_analyzed_data.dat'], 
-%     props      = {'name': 'some good name', 'description': '...' })
-% )
-
-        
+        function dataset = new_dataset_container(obj, type, experiment, object)
+           % Create a new dataset container
+            % Return the dataset container
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addRequired(p, 'type', @ischar);
+            addRequired(p, 'experiment', @ischar);
+            addRequired(p, 'object', @ischar);
+            
+            parse(p, obj, type, experiment, object, file_list);
+            a = p.Results;
+            
+            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'experiment', a.experiment, 'sample', a.object, 'kind', 'CONTAINER'));
+            dataset.save();
+            
+        end
         
         
     end
