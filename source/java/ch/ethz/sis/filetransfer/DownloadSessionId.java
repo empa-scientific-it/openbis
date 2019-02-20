@@ -19,59 +19,16 @@ package ch.ethz.sis.filetransfer;
 import java.io.Serializable;
 import java.util.UUID;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 /**
  * @author pkupczyk
  */
-public class DownloadSessionId implements Serializable
+public class DownloadSessionId extends AbstractId implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
-
     public DownloadSessionId()
     {
-        this.id = UUID.randomUUID().toString();
+        super(UUID.randomUUID().toString());
     }
-
-    public String getId()
-    {
-        return id;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return new HashCodeBuilder().append(id).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj.getClass() != getClass())
-        {
-            return false;
-        }
-
-        DownloadSessionId other = (DownloadSessionId) obj;
-        return new EqualsBuilder().append(id, other.id).isEquals();
-    }
-
-    @Override
-    public String toString()
-    {
-        return new ToString(this).append("id", id).toString();
-    }
-
 }

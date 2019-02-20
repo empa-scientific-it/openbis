@@ -16,64 +16,16 @@
 
 package ch.ethz.sis.filetransfer;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 /**
  * @author pkupczyk
  */
-public class DownloadItemId implements IDownloadItemId
+public class DownloadItemId extends AbstractId implements IDownloadItemId
 {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
-
     public DownloadItemId(String id)
     {
-        if (id == null)
-        {
-            throw new IllegalArgumentException("Id cannot be null");
-        }
-        this.id = id;
+        super(id);
     }
-
-    @Override
-    public String getId()
-    {
-        return id;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return new HashCodeBuilder().append(id).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj.getClass() != getClass())
-        {
-            return false;
-        }
-
-        DownloadItemId other = (DownloadItemId) obj;
-        return new EqualsBuilder().append(id, other.id).isEquals();
-    }
-
-    @Override
-    public String toString()
-    {
-        return new ToString(this).append("id", id).toString();
-    }
-
 }

@@ -16,64 +16,17 @@
 
 package ch.ethz.sis.filetransfer;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 /**
  * @author pkupczyk
  */
-public class UserSessionId implements IUserSessionId
+public class UserSessionId extends AbstractId implements IUserSessionId
 {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
-
     public UserSessionId(String id)
     {
-        if (id == null)
-        {
-            throw new IllegalArgumentException("Id cannot be null");
-        }
-        this.id = id;
-    }
-
-    @Override
-    public String getId()
-    {
-        return id;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return new HashCodeBuilder().append(id).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj.getClass() != getClass())
-        {
-            return false;
-        }
-
-        UserSessionId other = (UserSessionId) obj;
-        return new EqualsBuilder().append(id, other.id).isEquals();
-    }
-
-    @Override
-    public String toString()
-    {
-        return new ToString(this).append("id", id).toString();
+        super(id);
     }
 
 }
