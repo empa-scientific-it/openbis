@@ -26,7 +26,19 @@ public class DefaultSerializerProvider implements ISerializerProvider
 
     private IDownloadItemIdSerializer itemIdSerializer;
 
-    public DefaultSerializerProvider(ILogger logger, IDownloadItemIdSerializer itemIdSerializer)
+    public DefaultSerializerProvider(ILogger logger)
+    {
+        this(new IDownloadItemIdSerializer()
+            {
+                @Override
+                public byte[] serialize(IDownloadItemId itemId) throws DownloadException
+                {
+                    return itemId.getId().getBytes();
+                }
+            }, logger);
+    }
+
+    public DefaultSerializerProvider(IDownloadItemIdSerializer itemIdSerializer, ILogger logger)
     {
         this.logger = logger;
         this.itemIdSerializer = itemIdSerializer;

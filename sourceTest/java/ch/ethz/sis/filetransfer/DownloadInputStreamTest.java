@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  */
 public class DownloadInputStreamTest
 {
-    private static final String LOG_TEMPLATE = "DownloadInputStream: [INFO] Starting to read chunk {0}\n{1}";
+    private static final String LOG_TEMPLATE = "DownloadInputStream: [DEBUG] Starting to read chunk {0}\n{1}";
     
     static String getExpectedLogMessage(int sequenceNumber, long headerChecksum, TestInputStream testInputStream)
     {

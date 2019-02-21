@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.nio.ByteBuffer;
-
 /**
  * @author pkupczyk
  */
@@ -25,10 +23,9 @@ public class TestDownloadItemIdSerializer implements IDownloadItemIdSerializer
 {
 
     @Override
-    public ByteBuffer serialize(IDownloadItemId itemId)
+    public byte[] serialize(IDownloadItemId itemId)
     {
-        byte[] bytes = ((TestDownloadItemId) itemId).getFilePath().toString().getBytes();
-        return ByteBuffer.wrap(bytes);
+        return ((TestDownloadItemId) itemId).getFilePath().toString().getBytes();
     }
 
 }

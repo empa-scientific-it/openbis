@@ -86,10 +86,10 @@ class ChunkInputStream extends AbstractBulkInputStream
             // - filePath (byte[] variable length)
             // - checksum (Long 8 bytes)
 
-            ByteBuffer downloadItemIdBytes = itemIdSerializer.serialize(chunk.getDownloadItemId());
+            byte[] downloadItemIdBytes = itemIdSerializer.serialize(chunk.getDownloadItemId());
             byte[] filePathBytes = chunk.getFilePath().toString().getBytes();
 
-            if (downloadItemIdBytes.remaining() > Short.MAX_VALUE)
+            if (downloadItemIdBytes.length > Short.MAX_VALUE)
             {
                 throw new RuntimeException("Download item id too long too serialize");
             }
@@ -99,9 +99,9 @@ class ChunkInputStream extends AbstractBulkInputStream
                 throw new RuntimeException("File path too long to serialize");
             }
 
-            fieldsBuffer = ByteBuffer.allocate(21 + downloadItemIdBytes.remaining() + filePathBytes.length)
+            fieldsBuffer = ByteBuffer.allocate(21 + downloadItemIdBytes.length + filePathBytes.length)
                     .putInt(chunk.getSequenceNumber())
-                    .putShort((short) downloadItemIdBytes.remaining())
+                    .putShort((short) downloadItemIdBytes.length)
                     .put((byte) (chunk.isDirectory() ? 1 : 0))
                     .putShort((short) filePathBytes.length)
                     .putLong(chunk.getFileOffset())

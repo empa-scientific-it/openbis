@@ -16,14 +16,15 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.nio.ByteBuffer;
-
 /**
+ * Interface of classes which can serialize an {@link IDownloadItemId} into a byte array.
+ * 
  * @author pkupczyk
+ * @author Franz-Josef Elmer
  */
 public interface IDownloadItemIdSerializer
 {
 
-    public ByteBuffer serialize(IDownloadItemId itemId) throws DownloadException;
+    public byte[] serialize(IDownloadItemId itemId) throws DownloadException;
 
 }

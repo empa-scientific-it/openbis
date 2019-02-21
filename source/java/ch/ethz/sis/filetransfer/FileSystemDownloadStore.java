@@ -133,8 +133,10 @@ public class FileSystemDownloadStore implements IDownloadStore
                     size += fileChannel.write(buffer);
                     buffer.clear();
                 }
-
-                logger.log(getClass(), LogLevel.INFO, "Chunk " + chunk.getSequenceNumber() + " successfully stored (size: " + size + ")");
+                if (logger.isEnabled(LogLevel.DEBUG))
+                {
+                    logger.log(getClass(), LogLevel.DEBUG, "Chunk " + chunk.getSequenceNumber() + " successfully stored (size: " + size + ")");
+                }
 
             } catch (IOException e)
             {

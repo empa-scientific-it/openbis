@@ -16,15 +16,11 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,7 +93,7 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
                     int payloadLength = (int) (Math.min(fileOffset + chunkSize, fileSize) - fileOffset);
 
                     chunks.add(new FileChunk(sequenceNumber.getAndIncrement(), itemId, rootFilePath.relativize(filePath).toString(), fileOffset,
-                            filePath, payloadLength));
+                            payloadLength, filePath, logger));
 
                     fileOffset += chunkSize;
                 } while (fileOffset < fileSize);
@@ -130,51 +126,6 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
                     }
                 };
         }
-    }
-
-    private class FileChunk extends Chunk
-    {
-
-        private Path payloadPath;
-
-        public FileChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath, long fileOffset, Path payloadPath, int payloadLength)
-        {
-            super(sequenceNumber, downloadItemId, false, filePath, fileOffset, payloadLength);
-            this.payloadPath = payloadPath;
-        }
-
-        @Override
-        public InputStream getPayload() throws DownloadException
-        {
-            final ByteBuffer buffer;
-
-            try (FileChannel fileChannel = FileChannel.open(payloadPath, StandardOpenOption.READ))
-            {
-                int payloadLength = getPayloadLength();
-                buffer = ByteBuffer.allocate(payloadLength);
-                fileChannel.position(getFileOffset());
-                fileChannel.read(buffer);
-                buffer.flip();
-                byte[] bytes = new byte[payloadLength];
-                buffer.get(bytes);
-                return new ByteArrayInputStream(bytes)
-                    {
-                        @Override
-                        public void close() throws IOException
-                        {
-                            if (logger.isEnabled(LogLevel.DEBUG))
-                            {
-                                logger.log(FileSystemChunkProvider.class, LogLevel.DEBUG,
-                                        "Closing input stream for chunk " + getSequenceNumber());
-                            }
-                        }
-                    };
-            } catch (IOException e)
-            {
-                throw new DownloadException("Couldn't get payload", e, true);
-            }
-        }
-
     }
 
 }

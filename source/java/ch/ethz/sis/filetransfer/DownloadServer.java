@@ -182,7 +182,8 @@ public class DownloadServer implements IDownloadServer
     {
         if (config.getLogger().isEnabled(LogLevel.INFO))
         {
-            config.getLogger().log(getClass(), LogLevel.INFO, "download - downloadSessionId: " + downloadSessionId);
+            config.getLogger().log(getClass(), LogLevel.INFO, "download - downloadSessionId: " + downloadSessionId 
+                    + ", number of chunks: " + (numberOfChunksOrNull == null ? "unspecified" : numberOfChunksOrNull));
         }
 
         if (downloadSessionId == null)

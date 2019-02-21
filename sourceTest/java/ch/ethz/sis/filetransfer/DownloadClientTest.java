@@ -883,7 +883,7 @@ public class DownloadClientTest
             setSessionManager(new TestUserSessionManager());
             setChunkProvider(new TestChunkProvider(logger, 5));
             setConcurrencyProvider(new TestConcurrencyProvider());
-            setSerializerProvider(new DefaultSerializerProvider(logger, new TestDownloadItemIdSerializer()));
+            setSerializerProvider(new DefaultSerializerProvider(new TestDownloadItemIdSerializer(), logger));
         }
 
     }

@@ -110,15 +110,15 @@ public class DownloadExample
                 }
             };
  
-        ISerializerProvider serializerProvider = new DefaultSerializerProvider(logger, new IDownloadItemIdSerializer()
+        ISerializerProvider serializerProvider = new DefaultSerializerProvider(new IDownloadItemIdSerializer()
             {
                 @Override
-                public ByteBuffer serialize(IDownloadItemId itemId) throws DownloadException
+                public byte[] serialize(IDownloadItemId itemId) throws DownloadException
                 {
                     // just serialize "id" field
-                    return ByteBuffer.wrap(itemId.getId().getBytes());
+                    return itemId.getId().getBytes();
                 }
-            });
+            }, logger);
  
         IConcurrencyProvider concurrencyProvider = new IConcurrencyProvider()
             {

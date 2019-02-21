@@ -21,18 +21,12 @@ package ch.ethz.sis.filetransfer;
  */
 public class ConsoleLogger extends AbstractLogger
 {
+    private boolean printStackTrace;
 
-    private LogLevel level;
-
-    public ConsoleLogger(LogLevel level)
+    public ConsoleLogger(LogLevel level, boolean printStackTrace)
     {
         super(level);
-    }
-
-    @Override
-    public boolean isEnabled(LogLevel level)
-    {
-        return level.ordinal() >= this.level.ordinal();
+        this.printStackTrace = printStackTrace;
     }
 
     @Override
@@ -46,6 +40,10 @@ public class ConsoleLogger extends AbstractLogger
     {
         System.out.println("[" + Thread.currentThread().getName() + "] " + clazz.getName() + " " + level + " " + message + " "
                 + (throwable != null ? throwable : ""));
+        if (throwable != null && printStackTrace)
+        {
+            throwable.printStackTrace();
+        }
     }
 
 }

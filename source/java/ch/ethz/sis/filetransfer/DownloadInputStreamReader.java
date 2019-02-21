@@ -57,16 +57,16 @@ class DownloadInputStreamReader
 
             if (chunk != null)
             {
-                if (logger.isEnabled(LogLevel.INFO))
+                if (logger.isEnabled(LogLevel.DEBUG))
                 {
-                    logger.log(getClass(), LogLevel.INFO, "Read chunk " + chunk.getSequenceNumber());
+                    logger.log(getClass(), LogLevel.DEBUG, "Read chunk " + chunk.getSequenceNumber());
                 }
             }
 
             return chunk;
         } catch (IOException e)
         {
-            throw new DownloadException("Couldn't read chunk", e, true);
+            throw new DownloadException("Couldn't read chunk: " + e.getMessage(), e, true);
         }
     }
 

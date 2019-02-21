@@ -35,6 +35,8 @@ class DownloadInputStream extends AbstractBulkInputStream
 
     private InputStream chunkStream;
 
+    private int sequenceNumber;
+
     public DownloadInputStream(ILogger logger, IChunkQueue chunkQueue, IChunkSerializer chunkSerializer, Integer numberOfChunksOrNull)
     {
         this.logger = logger;
@@ -66,9 +68,10 @@ class DownloadInputStream extends AbstractBulkInputStream
                 return -1;
             } else
             {
-                if (logger.isEnabled(LogLevel.INFO))
+                sequenceNumber = chunk.getSequenceNumber();
+                if (logger.isEnabled(LogLevel.DEBUG))
                 {
-                    logger.log(getClass(), LogLevel.INFO, "Starting to read chunk " + chunk.getSequenceNumber());
+                    logger.log(getClass(), LogLevel.DEBUG, "Starting to read chunk " + sequenceNumber);
                 }
 
                 try
@@ -76,7 +79,7 @@ class DownloadInputStream extends AbstractBulkInputStream
                     chunkStream = chunkSerializer.serialize(chunk);
                 } catch (DownloadException e)
                 {
-                    throw new IOException("Couldn't serialize a chunk", e);
+                    throw new IOException("Couldn't serialize a chunk " + sequenceNumber, e);
                 }
             }
         }
@@ -92,7 +95,7 @@ class DownloadInputStream extends AbstractBulkInputStream
         {
             if (logger.isEnabled(LogLevel.WARN))
             {
-                logger.log(getClass(), LogLevel.WARN, "Couldn't close a chunk stream", e);
+                logger.log(getClass(), LogLevel.WARN, "Couldn't close the stream for chunk " + sequenceNumber, e);
             }
         }
         chunkStream = null;

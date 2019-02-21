@@ -832,7 +832,7 @@ public class DownloadClientDownload
                 return reader.read();
             } catch (Exception e)
             {
-                throw new DownloadException("Couldn't read a chunk", e, true);
+                throw new DownloadException("Couldn't read a chunk: " + e.getMessage(), e, true);
             }
         }
 
