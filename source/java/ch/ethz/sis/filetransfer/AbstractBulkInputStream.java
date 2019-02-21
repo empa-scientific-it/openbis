@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright 2019 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,26 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author pkupczyk
+ * Abstract sub class of {@link InputStream} which implements {@link InputStream#read()} but declares {@link InputStream#read(byte[], int, int)}
+ * abstract.
+ * 
+ * @author Franz-Josef Elmer
  */
-public class DefaultChunkSerializer implements IChunkSerializer
+public abstract class AbstractBulkInputStream extends InputStream
 {
 
-    ILogger logger;
-
-    private IDownloadItemIdSerializer itemIdSerializer;
-
-    public DefaultChunkSerializer(ILogger logger, IDownloadItemIdSerializer itemIdSerializer)
-    {
-        this.logger = logger;
-        this.itemIdSerializer = itemIdSerializer;
-    }
-
     @Override
-    public InputStream serialize(Chunk chunk) throws DownloadException
+    public int read() throws IOException
     {
-        return new ChunkInputStream(logger, itemIdSerializer, chunk);
+        byte[] onebyte = new byte[1];
+        int n = read(onebyte);
+        return n < 0 ? -1 : onebyte[0] & 0xff;
     }
+
+    public abstract int read(byte[] b, int off, int len) throws IOException;
 
 }

@@ -156,29 +156,20 @@ public class DefaultChunkDeserializer implements IChunkDeserializer
     private void putToBuffer(InputStream stream, ByteBuffer buffer, String name, int length, CRC32 checksum) throws DownloadException
     {
         buffer.clear();
-
-        int i = 0;
-
         try
         {
-            while (i < length)
+            byte[] bytes = new byte[length];
+            int numberOfBytesRead = stream.read(bytes);
+            if (numberOfBytesRead < length)
             {
-                int b = stream.read();
-
-                if (b == -1)
-                {
-                    throw new DownloadException("Unexpected finish of '" + name + "' field. Actual length: " + i + ". Expected length: " + length,
-                            true);
-                }
-
-                buffer.put((byte) b);
-
-                if (checksum != null)
-                {
-                    checksum.update(b);
-                }
-
-                i++;
+                throw new DownloadException("Unexpected finish of '" + name + "' field. Actual length: " + numberOfBytesRead + ". Expected length: " + length,
+                        true);
+                
+            }
+            buffer.put(bytes);
+            if (checksum != null)
+            {
+                checksum.update(bytes);
             }
         } catch (IOException e)
         {

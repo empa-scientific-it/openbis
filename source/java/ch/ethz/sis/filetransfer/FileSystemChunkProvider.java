@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.filetransfer;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,7 +130,6 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
                     }
                 };
         }
-
     }
 
     private class FileChunk extends Chunk
@@ -150,39 +150,29 @@ public abstract class FileSystemChunkProvider implements IChunkProvider
 
             try (FileChannel fileChannel = FileChannel.open(payloadPath, StandardOpenOption.READ))
             {
-                buffer = ByteBuffer.allocate(getPayloadLength());
+                int payloadLength = getPayloadLength();
+                buffer = ByteBuffer.allocate(payloadLength);
                 fileChannel.position(getFileOffset());
                 fileChannel.read(buffer);
                 buffer.flip();
+                byte[] bytes = new byte[payloadLength];
+                buffer.get(bytes);
+                return new ByteArrayInputStream(bytes)
+                    {
+                        @Override
+                        public void close() throws IOException
+                        {
+                            if (logger.isEnabled(LogLevel.DEBUG))
+                            {
+                                logger.log(FileSystemChunkProvider.class, LogLevel.DEBUG,
+                                        "Closing input stream for chunk " + getSequenceNumber());
+                            }
+                        }
+                    };
             } catch (IOException e)
             {
                 throw new DownloadException("Couldn't get payload", e, true);
             }
-
-            return new InputStream()
-                {
-                    @Override
-                    public int read() throws IOException
-                    {
-                        if (buffer.hasRemaining())
-                        {
-                            return 0xff & buffer.get();
-                        } else
-                        {
-                            return -1;
-                        }
-                    }
-
-                    @Override
-                    public void close() throws IOException
-                    {
-                        if (logger.isEnabled(LogLevel.DEBUG))
-                        {
-                            logger.log(FileSystemChunkProvider.class, LogLevel.DEBUG,
-                                    "Closing input stream for chunk " + getSequenceNumber());
-                        }
-                    }
-                };
         }
 
     }

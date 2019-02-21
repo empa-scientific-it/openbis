@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright 2019 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,15 @@
 package ch.ethz.sis.filetransfer;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
  */
-public class ConsoleLogger extends AbstractLogger
+public abstract class AbstractLogger implements ILogger
 {
-
     private LogLevel level;
 
-    public ConsoleLogger(LogLevel level)
+    public AbstractLogger(LogLevel level)
     {
-        super(level);
+        this.level = level;
     }
 
     @Override
@@ -36,16 +35,24 @@ public class ConsoleLogger extends AbstractLogger
     }
 
     @Override
-    public void doLog(Class<?> clazz, LogLevel level, String message)
+    public void log(Class<?> clazz, LogLevel level, String message)
     {
-        doLog(clazz, level, message, null);
+        if (isEnabled(level))
+        {
+            doLog(clazz, level, message);
+        }
     }
+
+    protected abstract void doLog(Class<?> clazz, LogLevel level, String message);
 
     @Override
-    public void doLog(Class<?> clazz, LogLevel level, String message, Throwable throwable)
+    public void log(Class<?> clazz, LogLevel level, String message, Throwable throwable)
     {
-        System.out.println("[" + Thread.currentThread().getName() + "] " + clazz.getName() + " " + level + " " + message + " "
-                + (throwable != null ? throwable : ""));
+        if (isEnabled(level))
+        {
+            doLog(clazz, level, message, throwable);
+        }
     }
 
+    protected abstract void doLog(Class<?> clazz, LogLevel level, String message, Throwable throwable);
 }
