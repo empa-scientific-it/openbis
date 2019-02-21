@@ -100,66 +100,6 @@ class DownloadInputStream extends AbstractBulkInputStream
     }
 
     @Override
-    public int read() throws IOException
-    {
-        if (chunkStream == null)
-        {
-            if (numberOfChunksOrNull != null)
-            {
-                if (numberOfChunksOrNull > 0)
-                {
-                    numberOfChunksOrNull = numberOfChunksOrNull - 1;
-                } else
-                {
-                    return -1;
-                }
-            }
-
-            Chunk chunk = chunkQueue.poll();
-
-            if (chunk == null)
-            {
-                return -1;
-            } else
-            {
-                if (logger.isEnabled(LogLevel.INFO))
-                {
-                    logger.log(getClass(), LogLevel.INFO, "Starting to read chunk " + chunk.getSequenceNumber());
-                }
-
-                try
-                {
-                    chunkStream = chunkSerializer.serialize(chunk);
-                } catch (DownloadException e)
-                {
-                    throw new IOException("Couldn't serialize a chunk", e);
-                }
-            }
-        }
-
-        int value = chunkStream.read();
-
-        if (value == -1)
-        {
-            try
-            {
-                chunkStream.close();
-            } catch (Exception e)
-            {
-                if (logger.isEnabled(LogLevel.WARN))
-                {
-                    logger.log(getClass(), LogLevel.WARN, "Couldn't close a chunk stream", e);
-                }
-            }
-            chunkStream = null;
-            return read();
-        } else
-        {
-            return value;
-        }
-    }
-
-    @Override
     public void close() throws IOException
     {
         if (chunkStream != null)
