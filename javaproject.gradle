@@ -137,7 +137,7 @@ def calculateBuildInfo() {
     def distFolder = new File("${project.projectDir}/$targetsDist")
     distFolder.deleteDir()
     distFolder.mkdirs()
-    file("${project.projectDir}/$targetsDist/BUILD-${project.name}.INFO") << buildInfo
+    file("${project.projectDir}/$targetsDist/BUILD-file-transfer.INFO") << buildInfo
 }
 
 calculateBuildInfo()
