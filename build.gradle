@@ -34,4 +34,9 @@ task dist(type: Zip, dependsOn: [jar, javadoc]) {
     rename 'commons-io.*', 'commons-io.jar'
 }
 
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+}
 build.dependsOn dist
