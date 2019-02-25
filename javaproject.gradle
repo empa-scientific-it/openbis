@@ -95,7 +95,7 @@ def isGitProject() {
 
 def calculateCleanFlag() {
     if (isGitProject()) {
-        def output = execute_working_dir('git', ['status', '--porcelain'], '../' + project.name)
+        def output = execute_working_dir('git', ['status', '--porcelain'], '.')
         return (output.length == 0 || (output.length ==1 && output[0].length() == 0)) ? 'clean' : 'dirty'
     } else {
     	return 'dirty'
@@ -108,7 +108,7 @@ def findMaximum(lines, key) {
 
 def calculateBuildInfo() {
     if (isGitProject()) {
-        def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at-%H'], '../' + project.name)
+        def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at-%H'], '.')
         def rev = gitlogoutput[0].split("-")
         project.ext.revisionNumber = Integer.parseInt(rev[0])
         def commitHash = rev[1]
