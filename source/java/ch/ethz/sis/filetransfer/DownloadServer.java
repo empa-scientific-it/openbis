@@ -180,9 +180,9 @@ public class DownloadServer implements IDownloadServer
     public InputStream download(DownloadSessionId downloadSessionId, DownloadStreamId streamId, Integer numberOfChunksOrNull)
             throws InvalidUserSessionException, InvalidDownloadSessionException, InvalidDownloadStreamException, DownloadException
     {
-        if (config.getLogger().isEnabled(LogLevel.INFO))
+        if (config.getLogger().isEnabled(LogLevel.DEBUG))
         {
-            config.getLogger().log(getClass(), LogLevel.INFO, "download - downloadSessionId: " + downloadSessionId 
+            config.getLogger().log(getClass(), LogLevel.DEBUG, "download - downloadSessionId: " + downloadSessionId 
                     + ", number of chunks: " + (numberOfChunksOrNull == null ? "unspecified" : numberOfChunksOrNull));
         }
 
