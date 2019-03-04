@@ -37,7 +37,7 @@ public interface IConcurrencyProvider
      *         message.
      * @throws DownloadException In case of any problems
      */
-    public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedNumberOfStreams, List<DownloadState> downloadStates)
+    public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedNumberOfStreamsOrNull, List<DownloadState> downloadStates)
             throws DownloadException;
 
 }

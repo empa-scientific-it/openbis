@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright 2019 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,15 @@
 
 package ch.ethz.sis.filetransfer;
 
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-
 /**
- * Listener for important events during a download session.
+ * Factory for {@link IDeserializerProvider} instances.
  * 
- * @author pkupczyk
  * @author Franz-Josef Elmer
  */
-public interface IDownloadListener
+public interface IDeserializerProviderFactory
 {
-    public void onDownloadStarted();
-
-    public void onDownloadFinished(Map<IDownloadItemId, Path> itemPaths);
-
-    public void onDownloadFailed(Collection<Exception> e);
-
-    public void onItemStarted(IDownloadItemId itemId);
-
-    public void onItemFinished(IDownloadItemId itemId, Path itemPath);
-    
-    public void onChunkDownloaded(int sequenceNumber);
-
+    /**
+     * Creates a deserializer provider which uses the specified logger.
+     */
+    public IDeserializerProvider createDeserializerProvider(ILogger logger);
 }

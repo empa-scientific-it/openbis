@@ -580,6 +580,26 @@ public class DownloadClientDownload
             });
     }
 
+    private void notifyChunkDownloaded(int sequenceNumber)
+    {
+        notify(new IListenerExecution()
+        {
+            @Override
+            public String getDescription()
+            {
+                return "Chunk " + sequenceNumber + " downloaded";
+            }
+            
+            public void execute()
+            {
+                for (IDownloadListener listener : listeners)
+                {
+                    listener.onChunkDownloaded(sequenceNumber);
+                }
+            }
+        });
+    }
+    
     private void notifyItemFinished(IDownloadItemId itemId)
     {
         notify(new IListenerExecution()
@@ -878,6 +898,7 @@ public class DownloadClientDownload
 
                     itemChunksToDownload.remove(chunk.getSequenceNumber());
                     itemChunksDownloaded.add(chunk.getSequenceNumber());
+                    notifyChunkDownloaded(chunk.getSequenceNumber());
 
                     if (itemChunksToDownload.isEmpty())
                     {

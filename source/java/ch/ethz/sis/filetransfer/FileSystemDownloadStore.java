@@ -67,7 +67,7 @@ public class FileSystemDownloadStore implements IDownloadStore
         this.storePath = storePath;
     }
 
-    private Path getItemDirectory(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
+    protected Path getItemDirectory(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, IDownloadItemId itemId) throws DownloadException
     {
         String userDir = UUID.nameUUIDFromBytes(userSessionId.getId().getBytes()).toString();
         String downloadDir = UUID.nameUUIDFromBytes(downloadSessionId.getId().getBytes()).toString();

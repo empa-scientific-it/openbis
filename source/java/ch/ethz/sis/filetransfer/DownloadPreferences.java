@@ -36,9 +36,9 @@ public class DownloadPreferences implements Serializable
     {
     }
 
-    public DownloadPreferences(int wishedNumberOfStreams)
+    public DownloadPreferences(Integer wishedNumberOfStreams)
     {
-        if (wishedNumberOfStreams <= 0)
+        if (wishedNumberOfStreams != null && wishedNumberOfStreams <= 0)
         {
             throw new IllegalArgumentException("Wished number of streams must be > 0");
         }

@@ -57,12 +57,12 @@ class DownloadServerDownload
     private Map<DownloadStreamId, DownloadInputStream> streams = new HashMap<DownloadStreamId, DownloadInputStream>();
 
     public DownloadServerDownload(DownloadServerConfig config, IUserSessionId userSessionId, List<IDownloadItemId> itemIds,
-            Integer wishedNumberOfStreams, int allowedNumberOfStreams) throws DownloadException
+            Integer wishedNumberOfStreamsOrNull, int allowedNumberOfStreams) throws DownloadException
     {
         this.config = config;
         this.userSessionId = userSessionId;
         this.itemIds = itemIds;
-        this.wishedNumberOfStreams = wishedNumberOfStreams;
+        this.wishedNumberOfStreams = wishedNumberOfStreamsOrNull;
         this.allowedNumberOfStreams = allowedNumberOfStreams;
 
         this.chunksByItemId = initChunksByItemId(itemIds, config.getChunkProvider());

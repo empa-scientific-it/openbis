@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright 2019 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,17 @@
 package ch.ethz.sis.filetransfer;
 
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
 
 /**
- * Listener for important events during a download session.
+ * Factory for {@link IDownloadStore} instances.
  * 
- * @author pkupczyk
  * @author Franz-Josef Elmer
+ *
  */
-public interface IDownloadListener
+public interface IDownloadStoreFactory
 {
-    public void onDownloadStarted();
-
-    public void onDownloadFinished(Map<IDownloadItemId, Path> itemPaths);
-
-    public void onDownloadFailed(Collection<Exception> e);
-
-    public void onItemStarted(IDownloadItemId itemId);
-
-    public void onItemFinished(IDownloadItemId itemId, Path itemPath);
-    
-    public void onChunkDownloaded(int sequenceNumber);
-
+    /**
+     * Creates a download store which based on the specified root path and which uses the specified logger.
+     */
+    public IDownloadStore createStore(ILogger logger, Path root);
 }

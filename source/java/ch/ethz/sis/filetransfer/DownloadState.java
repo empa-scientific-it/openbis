@@ -33,14 +33,14 @@ public class DownloadState implements Serializable
 
     private List<IDownloadItemId> itemIds;
 
-    private int wishedNumberOfStreams;
+    private Integer wishedNumberOfStreams;
 
     private int allowedNumberOfStreams;
 
     private int currentNumberOfStreams;
 
-    public DownloadState(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, List<IDownloadItemId> itemIds, int wishedNumberOfStreams,
-            int allowedNumberOfStreams, int currentNumberOfStreams)
+    public DownloadState(IUserSessionId userSessionId, DownloadSessionId downloadSessionId, List<IDownloadItemId> itemIds, 
+            Integer wishedNumberOfStreams, int allowedNumberOfStreams, int currentNumberOfStreams)
     {
         this.userSessionId = userSessionId;
         this.downloadSessionId = downloadSessionId;
@@ -65,7 +65,7 @@ public class DownloadState implements Serializable
         return itemIds;
     }
 
-    public int getWishedNumberOfStreams()
+    public Integer getWishedNumberOfStreams()
     {
         return wishedNumberOfStreams;
     }

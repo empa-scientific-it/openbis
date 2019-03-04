@@ -51,4 +51,9 @@ public class DownloadListenerAdapter implements IDownloadListener
     {
     }
 
+    @Override
+    public void onChunkDownloaded(int chunkSequenceNumber)
+    {
+    }
+
 }

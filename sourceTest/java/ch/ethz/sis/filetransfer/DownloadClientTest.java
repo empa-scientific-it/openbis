@@ -670,6 +670,12 @@ public class DownloadClientTest
                 }
 
                 @Override
+                public void onChunkDownloaded(int chunkSequenceNumber)
+                {
+                    logger.log(getClass(), LogLevel.INFO, "testOnChunkDownloaded");
+                }
+
+                @Override
                 public void onItemFinished(IDownloadItemId itemId, Path itemPath)
                 {
                     assertion.executeAssertion(new IAssertion()
@@ -699,7 +705,7 @@ public class DownloadClientTest
                 }
             });
         download.start();
-        logger.awaitLogs(TIMEOUT, "testOnDownloadStarted", "testOnItemStarted", "testOnItemFinished", "testOnDownloadFinished");
+        logger.awaitLogs(TIMEOUT, "testOnDownloadStarted", "testOnItemStarted", "testOnChunkDownloaded", "testOnItemFinished", "testOnDownloadFinished");
         logger.assertNoLogsWithLevels(LogLevel.ERROR, LogLevel.WARN);
         assertion.assertOK();
     }
