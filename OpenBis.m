@@ -317,7 +317,8 @@ classdef OpenBis
             parse(p, obj, permid, varargin{:});
             a = p.Results;
             
-            dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
+%             dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
+            dataset = obj.pybis.get_dataset(a.permid);
             
         end
         
@@ -406,18 +407,3 @@ classdef OpenBis
 end
 
 
-
-
-
-%         function obj = login(obj, varargin)
-%             if nargin >1
-%                 user = varargin{1};
-%                 pw = varargin{2};
-%             else
-%                 [user, pw] = user_url_pw_inputdlg;
-%             end
-%
-%             o = py.pybis.Openbis(obj.url, pyargs('verify_certificates', 0));
-%             o.login(user, pw, pyargs('save_token', 1));
-%             obj.pybis = o;
-%         end
