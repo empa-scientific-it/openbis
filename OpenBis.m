@@ -28,10 +28,13 @@ classdef OpenBis
         function obj = OpenBis(varargin)
             % OpenBis   Constructor method for class OpenBis
             % Creates the Python Openbis object and logs into the server
-            % Optional input arguments:
+            % Optional positional input arguments:
             % url ... URL of the openBIS server (incl. port)
             % user ... user name for openBIS
             % pw ... password for openBIS
+            % Usage:
+            % obi = OpenBis() --> opens UI to enter URL, user name and password
+            % obi = OpenBis('server_url', 'user_name', 'user_password')
             
             if nargin > 0
                 url = varargin{1};
@@ -47,57 +50,99 @@ classdef OpenBis
         end
         
         function logout(obj)
-            % logout Log out of openBIS.
+            %logout 
+            % Log out of openBIS.
+            % Usage:
+            % obi.logout()
+            % 
             % After logout, the session token is no longer valid.
+            
             obj.pybis.logout();
         end
         
         function tf= is_session_active(obj)
-            % isvalid Check if the session token is still active. Returns true or false.
+            %is_session_active 
+            % Check if the session token is still active. Returns true or false.
+            % Usage:
+            % true_false = obi.is_session_active()
+            
             tf  = obj.pybis.is_session_active();
+        end
+        
+        function token = token(obj)
+            %token 
+            % Returns the current session token.
+            % Usage:
+            % token = obi.token()
+            
+            token  = char(obj.pybis.token);
         end
         
         %% Masterdata methods
         % this section defines Matlab equivalents of the following pyBIS methods:
-        % get_experiment_types
-        % get_sample_types
-        % get_material_types
-        % get_dataset_types
-        % get_terms
-        % get_tags
+        %   get_experiment_types
+        %   get_sample_types
+        %   get_material_types
+        %   get_dataset_types
+        %   get_terms
+        %   get_tags
         
         function experiment_types = get_experiment_types(obj)
-            % Return table of all available experiment types.
+            %get_experiment_types
+            % Return a table of all available experiment types.
+            % Usage:
+            % experiment_types = obi.get_experiment_types()
+            
             experiment_types = obj.pybis.get_experiment_types();
             experiment_types = df_to_table(experiment_types.df);
         end
         
         function sample_types = get_sample_types(obj)
+            %get_sample_types
             % Return table of all available sample types.
+            % Usage:
+            % sample_types = obi.get_sample_types()
+            
             sample_types = obj.pybis.get_sample_types();
             sample_types = df_to_table(sample_types.df);
         end
         
         function material_types = get_material_types(obj)
+            %get_material_types
             % Return table of all available material types.
+            % Usage:
+            % material_types = obi.get_material_types()
+            
             material_types = obj.pybis.get_material_types();
             material_types = df_to_table(material_types.df);
         end
         
         function dataset_types = get_dataset_types(obj)
+            %get_dataset_types
             % Return table of all available dataset types.
+            % Usage:
+            % dataset_types = obi.get_dataset_types()
+            
             dataset_types = obj.pybis.get_dataset_types();
             dataset_types = df_to_table(dataset_types.df);
         end
         
         function terms = get_terms(obj)
+            %get_terms
             % Return table of all available terms.
+            % Usage:
+            % terms = obi.get_terms()
+            
             terms = obj.pybis.get_terms();
             terms = df_to_table(terms.df);
         end
         
         function tags = get_tags(obj)
+            %get_tags
             % Return table of all available tags.
+            % Usage:
+            % tags = obi.get_tags()
+            
             tags = obj.pybis.get_tags();
             tags = df_to_table(tags.df);
         end
@@ -105,39 +150,56 @@ classdef OpenBis
         
         %% Space methods
         % this section defines Matlab equivalents of the following pyBIS methods:
-        % get_spaces
-        % get_space
-        % new_space
-        % space.delete
+        %   get_spaces
+        %   get_space
+        %   new_space
+        %   space.delete
         
         function spaces = get_spaces(obj)
+            %get_spaces
             % Return table of all available spaces.
+            % Usage:
+            % spaces = obi.get_spaces()
+            
             spaces = obj.pybis.get_spaces();
             spaces = df_to_table(spaces.df);
         end
         
         function space = get_space(obj, code)
-            % Get space with code and return the space object
-            % Input arguments
+            %get_space
+            % Fetch space with matching space code and return the space object.
+            % An error is raised if a space with the code is not found on the server.
+            % Required input arguments:
             % code ... space code
+            % Usage:
+            % space = obi.get_space('code')
+            
             space = obj.pybis.get_space(code);
         end
         
         function space = new_space(obj, code, description)
+            %new_space
             % Create a new space with code and description and return the space object
-            % Input arguments
+            % Required input arguments:
             % code ... Space code
             % description ... Space description
+            % Usage:
+            % space = obi.new_space('code', 'description')
+            
             space = obj.pybis.new_space(pyargs('code',  code, ...
                 'description', description));
             space.save;
         end
         
         function delete_space(obj, code, reason)
+            %delete_space
             % Delete space with code and provide a reason for deletion
-            % Input arguments
+            % Required input arguments:
             % code ... Space code
             % reason ... reason for deletion
+            % Usage:
+            % obi.delete_space('code', 'reason')
+            
             space = obj.pybis.get_space(code);
             space.delete(reason);
         end
@@ -145,108 +207,84 @@ classdef OpenBis
         
         %% Project methods
         % this section defines Matlab equivalents of the following pyBIS methods:
-        % get_projects
-        % get_project
-        % new_project
+        %   get_projects
+        %   get_project
+        %   new_project
+        %   project.delete
         
         function projects = get_projects(obj, space, code)
+            %get_projects
             % Return table of matching projects.
             % Input arguments:
             % space ... space to fetch projects from
             % project ... fetch projects matching code
+            % Usage:
+            % projects = obi.get_projects('space', 'code')
+            
             projects = obj.pybis.get_projects(pyargs('space',  space, 'code', code));
             projects = df_to_table(projects.df);
         end
         
         function project = get_project(obj, id)
-            % Return matching project.
-            % Input arguments:
-            % id ... project permID
+            %get_project
+            % Fetch project with matching project id and return the project object.
+            % An error is raised if a project with the id is not found on the server.
+            % Required input arguments:
+            % id ... project id
+            % Usage:
+            % project = obi.get_project('id')
+            
             project = obj.pybis.get_project(id);
         end
         
-        function project_cell = get_project_by_code(obj, space, code)
-            % Return matching project.
-            % Input arguments:
-            % space ... space code
-            % code ... project code
-            projects = obj.get_projects(space, code);
-            project_ids = projects.permId;
-            project_cell = cell(1, numel(project_ids));
-            for ix = 1:numel(project_ids)
-                project_cell{ix} = obj.get_project(project_ids{ix});
-            end
-        end
-        
         function project = new_project(obj, space, code, description)
+            %new_project
             % Create a new project in space with code and description
             % Return the project object
             % Input arguments
             % space ... Space code
-            % code ... Project code
+            % code ... Project code / id
             % description ... Project description
+            % Usage:
+            % project = obi.new_project('space', 'code', 'description')
+            
             space = obj.pybis.get_space(space);
             project = space.new_project(pyargs('code', code,  'description', description));
             project.save();
         end
         
-        
-        %% Object methods
-        % this section defines following Matlab methods related to openBIS objects / samples:
-        % get_object
-        % get_objects
-        % new_object
-        % delete_object
-        
-        function object = get_object(obj, id)
-            % Return object (sample) corresponding to the id
-            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
-            object = obj.pybis.get_object(id);
-        end
-        
-        function objects = get_objects(obj, varargin)
-            defaultSpace = '';
-            defaultType = '';
-            defaultTag = ''; % currently only 1 tag can be specified
+        function delete_project(obj, code, reason)
+            %delete_project
+            % Delete project with code and provide a reason for deletion
+            % Required input arguments:
+            % code ... Project code
+            % reason ... reason for deletion
+            % Usage:
+            % obi.delete_project('code', 'reason')
             
-            p = inputParser;
-            addRequired(p, 'obj');
-            addParameter(p, 'space', defaultSpace, @ischar);
-            addParameter(p, 'type', defaultType, @ischar);
-            addParameter(p, 'tag', defaultTag);
-            parse(p, obj, varargin{:});
-            a = p.Results;
-            
-            objects = obj.pybis.get_objects(pyargs('space', a.space, 'type', a.type, 'tag', a.tag));
-            objects = df_to_table(objects.df);
-        end
-        
-        function object = new_object(obj, type, space, code)
-            % Create a new object (sample) of specific type in a space
-            % Return the object
-            object = obj.pybis.new_object(pyargs('type', type, 'space', space, 'code', code));
-            object.save();
-        end
-        
-        function object = delete_object(obj, object, reason)
-            % Delete object (sample) specifying a reason
-            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
-            object.delete(reason)
+            project = obj.pybis.get_project(code);
+            project.delete(reason);
         end
         
         
         %% Experiment methods
         % this section defines the following Matlab methods:
-        % get_experiment
-        % get_experiments
-        
-        function experiment = get_experiment(obj, id)
-            % Return experiment corresponding to the id
-            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
-            experiment = obj.pybis.get_experiment(id);
-        end
+        %   get_experiments
+        %   get_experiment
+        %   new_experiment
         
         function experiments = get_experiments(obj, varargin)
+            %get_experiments
+            % Return table of matching experiments.
+            % Optional input arguments:
+            % space ... space to fetch experiments from
+            % type ... fetch experiments of specific type
+            % project ... project to fetch experiments from
+            % Usage:
+            % experiments = obi.get_experiments()
+            % experiments = obi.get_experiments('space', 'SPACE')
+            % experiments = obi.get_experiments('space', 'SPACE', 'type', 'UNKNOWN')
+            
             space = '';
             type = '';
             project = '';
@@ -263,27 +301,123 @@ classdef OpenBis
             experiments = df_to_table(experiments.df);
         end
         
-        function experiment = new_experiment(obj, type, space, project)
-           % Create a new experiment of specific type in a defined space and project
-            % Return the object
-            experiment = obj.pybis.new_experiment(pyargs('type', type, 'space', space, 'project', project));
-            experiment.save();
+        function experiment = get_experiment(obj, id)
+            %get_experiment
+            % Return experiment with identifier
+            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
+            % Usage:
+            % exp = obi.get_experiment('/SPACE/PROJECT/EXP')
+            % exp = obi.get_experiment('permID')
             
+            experiment = obj.pybis.get_experiment(id);
         end
+        
+        function experiment = new_experiment(obj, type, code, project)
+            %new_experiment
+            % Create a new experiment of specific type in a defined project
+            % Required input arguments:
+            % type ... new experiment type
+            % code ... new experiment code
+            % project ... project for new experiment ('SPACE/Project')
+            % Usage:
+            % experiment = obi.new_experiment('type', 'space', 'Space/Project')
+            
+            experiment = obj.pybis.new_experiment(pyargs('type', type, 'code', code, 'project', project));
+            experiment.save();
+        end
+        
+        
+        %% Object methods
+        % this section defines following Matlab methods related to openBIS objects / samples:
+        %   get_object
+        %   get_objects
+        %   new_object
+        %   delete_object
+        
+        function objects = get_objects(obj, varargin)
+            %get_objects
+            % Return a table of objects matching specified criteria
+            % Optional keyword arguments:
+            % id ... object identifier ('SPACE/PROJECT/')
+            % Usage:
+            % objects = obi.get_objects()
+            % objects = obi.get_objects('id', 'SPACE/')
+            
+            defaultId = '';
+            
+            p = inputParser;
+            addRequired(p, 'obj');
+            addParameter(p, 'id', defaultId, @ischar);
+            parse(p, obj, varargin{:});
+            a = p.Results;
+           
+            objects = obj.pybis.get_objects(a.id);
+            objects = df_to_table(objects.df);
+        end
+        
+        function object = get_object(obj, id)
+            %get_object
+            % Return object (sample) corresponding to the id
+            % ID can be either the Space + Object code (e.g. /SPACE/123456789) or the PermID (e.g. 20181002164551373-1234)
+            % An error is raised if an object with the id is not found on the server.
+            % Required input arguments:
+            % id ... object id
+            % Usage:
+            % object = obi.get_object('id')
+            
+            object = obj.pybis.get_object(id);
+        end
+        
+        function object = new_object(obj, type, space, code)
+            %new_object
+            % Create a new object of type in space with code
+            % Return the object
+            % Input arguments
+            % type ... object type
+            % space ... Space code
+            % code ... object code
+            % Usage:
+            % object = obi.new_object('type', 'space', 'code')
+            
+            object = obj.pybis.new_object(pyargs('type', type, 'space', space, 'code', code));
+            object.save();
+        end
+        
+        function object = delete_object(obj, object, reason)
+            %delete_object
+            % Delete object and provide a reason for deletion
+            % Required input arguments:
+            % object ... object returned by get_object / new_object methods
+            % reason ... reason for deletion
+            % Usage:
+            % obi.delete_object(object, 'reason')
+            
+            object.delete(reason)
+        end
+
         
         %% Dataset methods
         % this section defines following Matlab methods:
-        % get_datasets
-        % get_dataset
-        % get_dataset_files
-        % dataset_download
-        % new_dataset
-        % new_dataset_container
+        %   get_datasets
+        %   get_dataset
+        %   get_dataset_files
+        %   dataset_download
+        %   new_dataset
+        %   new_dataset_container
         
         function datasets = get_datasets(obj, varargin)
+            %get_datasets
             % Return table of matching datasets.
             % Optional input arguments:
-            % code, type, experiment, project, tags
+            % code ... dataset code / permId
+            % type ... dataset type
+            % experiment ... datasets in experiment 
+            % project ... datasets in project
+            % tags ... datasets with tags
+            % Usage:
+            % datasets = obi.get_datasets()
+            % datasets = obi.get_datasets('type', 'RAW_DATA')
+            % datasets = obi.get_datasets('experiment', '/SPACE/PROJECT/EXPERIMENT')
             
             defaultCode = '';
             defaultType = '';
@@ -307,6 +441,12 @@ classdef OpenBis
         end
         
         function dataset = get_dataset(obj, permid, varargin)
+            %get_dataset
+            % Get dataset with permId. An error is raised if a dataset with the id is not found on the server.
+            % Input arguments:
+            % permId ... dataset permId
+            % Usage:
+            % dataset = obi.get_dataset('permId')
             
             only_data = false;
             
@@ -319,11 +459,17 @@ classdef OpenBis
             
 %             dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
             dataset = obj.pybis.get_dataset(a.permid);
-            
         end
         
         
         function files = get_dataset_files(obj, dataset, varargin)
+            %get_dataset_files
+            % Get list of files in a dataset starting with start_folder.
+            % Input arguments:
+            % dataset ... dataset object returned by get_dataset
+            % start_folder ... starting folder for files (default: '/')
+            % Usage:
+            % files = obi.get_dataset_files(dataset)
             
             start_folder = '/';
             
@@ -335,13 +481,19 @@ classdef OpenBis
             a = p.Results;
             
             files = dataset.get_files(pyargs('start_folder', a.start_folder));
-            
             files = df_to_table(files);
-            
         end
         
         function path_to_file = dataset_download(obj, dataset, files, varargin)
-            % provide files as cell array of files
+            %dataset_download
+            % Download files in a dataset
+            % dataset ... dataset object returned by get_dataset
+            % files ... cell array of files
+            % destination ... folder to download to (default: data)
+            % wait_until_finished ... wait or download in the background (default: true)
+            % workers ... number of workers to use for download (default: 10)
+            % Usage:
+            % path_to_files = obi.dataset_download(dataset, {'file1', 'file2'})
             
             destination = 'data';
             wait_until_finished = true;
@@ -365,8 +517,14 @@ classdef OpenBis
         end
         
         function dataset = new_dataset(obj, type, experiment, object, file_list)
-           % Create a new dataset
-            % Return the dataset
+            %new_dataset
+            % Create a new dataset with files
+            % type ... dataset type
+            % experiment ... experiment for dataset
+            % object ... object for dataset
+            % file_list ... list of files (cell string) to upload to new dataset
+            % Usage:
+            % dataset = obi.new_dataset('type', 'RAW_DATA', 'experiment', 'MY_EXP', 'object', 'MY_SAMPLE', 'file_list', {'file1', 'file2'})
             
             p = inputParser;
             addRequired(p, 'obj');
@@ -384,8 +542,13 @@ classdef OpenBis
         end
         
         function dataset = new_dataset_container(obj, type, experiment, object)
-           % Create a new dataset container
-            % Return the dataset container
+            %new_dataset_container
+            % Create a new dataset container
+            % type ... dataset container type
+            % experiment ... experiment for dataset container
+            % object ... object for dataset container
+            % Usage:
+            % dataset = obi.new_dataset_container('type', 'RAW_DATA', 'experiment', 'MY_EXP', 'object', 'MY_SAMPLE')
             
             p = inputParser;
             addRequired(p, 'obj');

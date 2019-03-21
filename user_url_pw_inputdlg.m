@@ -1,4 +1,6 @@
 function [url, user, pw] = user_url_pw_inputdlg
+%user_url_pw_inputdlg
+%   Return the URL, user name and password for the openBIS server
 
 prompt = {'openBIS URL:', 'openBIS user:'};
 title = 'openBIS connection details';
