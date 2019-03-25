@@ -516,27 +516,30 @@ classdef OpenBis
             
         end
         
-        function dataset = new_dataset(obj, type, experiment, object, file_list)
+        function dataset = new_dataset(obj, type, object, file_list, varargin)
             %new_dataset
             % Create a new dataset with files
             % type ... dataset type
-            % experiment ... experiment for dataset
             % object ... object for dataset
             % file_list ... list of files (cell string) to upload to new dataset
+            % properties ... structure with dataset properties (meta-data)
             % Usage:
-            % dataset = obi.new_dataset('type', 'RAW_DATA', 'experiment', 'MY_EXP', 'object', 'MY_SAMPLE', 'file_list', {'file1', 'file2'})
+            % dataset = obi.new_dataset('RAW_DATA', '/SPACE/PROJECT/OBJECT', {'file1', 'file2'}, 'properties', props)
+            
+            properties = struct;
             
             p = inputParser;
             addRequired(p, 'obj');
             addRequired(p, 'type', @ischar);
-            addRequired(p, 'experiment', @ischar);
             addRequired(p, 'object', @ischar);
             addRequired(p, 'file_list', @iscellstr);
+            addParameter(p, 'properties', properties, @isstruct);
             
-            parse(p, obj, type, experiment, object, file_list);
+            parse(p, obj, type, object, file_list, varargin{:});
             a = p.Results;
             
-            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'experiment', a.experiment, 'sample', a.object, 'files', a.file_list));
+            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'sample', a.object, ...
+                'files', a.file_list, 'props', a.properties));
             dataset.save();
             
         end
