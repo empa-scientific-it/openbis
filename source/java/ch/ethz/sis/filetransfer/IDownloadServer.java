@@ -74,8 +74,8 @@ public interface IDownloadServer
      * @param downloadSessionId Download session id returned by {@link #startDownloadSession(IUserSessionId, List, DownloadPreferences)} method
      * @param streamId One of the download stream ids returned by {@link #startDownloadSession(IUserSessionId, List, DownloadPreferences)} method
      * @param numberOfChunksOrNull Number of chunks that can be read from the input stream. If specified, the input stream will only return the
-     *            requested number of chunks even if the download queue contains more. If null, the input stream will allow to read all chunks from
-     *            the download queue.
+     *            requested number of chunks even if the download queue contains more. If <code>null</code>, the input stream will allow to read all chunks from
+     *            the download queue. Use always <code>null</code> if it isn't evident what to choose as a concrete value. 
      * @throws InvalidUserSessionException In case user session is not valid
      * @throws InvalidDownloadSessionException In case download session is not valid
      * @throws InvalidDownloadStreamException In case download stream id is not valid
