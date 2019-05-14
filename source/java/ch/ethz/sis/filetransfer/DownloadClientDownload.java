@@ -806,8 +806,8 @@ public class DownloadClientDownload
                 {
                     config.getLogger().log(getClass(), LogLevel.ERROR, "Download thread failed", e);
                 }
-                setStatus(DownloadStatus.FAILED);
                 setException(e);
+                setStatus(DownloadStatus.FAILED);
             }
         }
 
