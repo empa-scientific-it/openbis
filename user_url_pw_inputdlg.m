@@ -10,6 +10,7 @@ answer = inputdlg(prompt, title, 1, definput);
 url = answer{1};
 user = answer{2};
 
-pw = passwordEntryDialog('CheckPasswordLength',0);
+% pw = passwordEntryDialog('CheckPasswordLength',0);
+pw = passcode;
 
 end
