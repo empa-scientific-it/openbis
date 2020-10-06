@@ -196,7 +196,7 @@ define(
 						c.assertEqual(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
 						c.assertEqual(experiment.getProperties()[propertyTypeCodeSample], "20130412140147735-20", "Sample property id");
 						c.assertEqual(experiment.getProperties()[propertyTypeCodeDate], "2013-04-12", "Date property");
-						c.assertEqual(experiment.getSampleProperties()[propertyTypeCodeSample].getIdentifier().getIdentifier(), "/PLATONIC/PLATE-1", "Sample property");
+						c.assertEqual(experiment.getSampleProperties()[propertyTypeCodeSample].getIdentifier().getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1", "Sample property");
 					}
 					
 					testCreate(c, fCreate, c.findExperiment, fCheck);
@@ -364,7 +364,7 @@ define(
 						c.assertEqual(sample.getCode(), code, "Sample code");
 						c.assertEqual(sample.getType().getCode(), sampleTypeCode, "Type code");
 						c.assertEqual(sample.getSpace().getCode(), "TEST", "Space code");
-						c.assertEqual(sample.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/PLATE-1", "Sample property");
+						c.assertEqual(sample.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1", "Sample property");
 						c.assertEqual(sample.getProperties()[propertyTypeCode], "20130412140147735-20", "Sample property id");
 					}
 					
@@ -540,7 +540,7 @@ define(
 						c.assertEqual(dataSet.getCode(), code, "Data set code");
 						c.assertEqual(dataSet.getType().getCode(), dataSetTypeCode, "Type code");
 						c.assertEqual(dataSet.getProperties()[propertyTypeCode], "20130412140147735-20", "Sample property id");
-						c.assertEqual(dataSet.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/PLATE-1", "Sample property");
+						c.assertEqual(dataSet.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1", "Sample property");
 					}
 					
 					testCreate(c, fCreate, c.findDataSet, fCheck);

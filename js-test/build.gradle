@@ -57,6 +57,16 @@ task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').wa
 	rename {filename -> 'openbis.war'}
 }
 
+task deleteXlsImportVersionInfoJson {
+    doFirst {
+        println "DELETE xls-import-version-info.json file in $buildDir"
+        File file = file('xls-import-version-info.json')
+        file.delete();
+    }
+}
+
+clean.dependsOn deleteXlsImportVersionInfoJson
+
 test {
     useTestNG()
     options.suites('source/java/tests.xml')

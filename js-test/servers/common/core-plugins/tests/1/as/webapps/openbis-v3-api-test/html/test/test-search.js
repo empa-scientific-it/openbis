@@ -336,7 +336,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
-			}, fo, "code", null, true, "EXP-1");
+			}, fo, "code", null, true, "DEFAULT_EXPERIMENT");
 		});
 
 		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {
@@ -740,7 +740,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -755,7 +755,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -802,13 +802,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.SampleSearchCriteria();
-				criteria.withIdentifier().thatEquals("/PLATONIC/PLATE-1");
+				criteria.withIdentifier().thatEquals("/PLATONIC/SCREENING-EXAMPLES/PLATE-1");
 				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
 				c.assertEqual(samples.length, 1);
-				c.assertEqual(samples[0].getIdentifier(), "/PLATONIC/PLATE-1");
+				c.assertEqual(samples[0].getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -843,7 +843,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCheck = function(facade, samples) {
 				identifiers = c.extractIdentifiers(samples);
 				c.assertEqual(identifiers.length, 4);
-				c.assertEqual(identifiers.toString(), "/PLATONIC/PLATE-1:A1,/PLATONIC/PLATE-2:A1,/TEST/PLATE-1A:A1,/TEST/PLATE-2:A1");
+				c.assertEqual(identifiers.toString(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1:A1,/PLATONIC/SCREENING-EXAMPLES/PLATE-2:A1,/TEST/TEST-PROJECT/PLATE-1A:A1,/TEST/TEST-PROJECT/PLATE-2:A1");
 			}
 			
 			testSearch(c, fSearch, fCheck);
@@ -862,7 +862,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCheck = function(facade, samples) {
 				identifiers = c.extractIdentifiers(samples);
 				c.assertEqual(identifiers.length, 1);
-				c.assertEqual(identifiers.toString(), "/TEST/TEST-SAMPLE-2-PARENT");
+				c.assertEqual(identifiers.toString(), "/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
 			}
 			
 			testSearch(c, fSearch, fCheck);
@@ -881,7 +881,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCheck = function(facade, samples) {
 				identifiers = c.extractIdentifiers(samples);
 				c.assertEqual(identifiers.length, 2);
-				c.assertEqual(identifiers.toString(), "/TEST/TEST-SAMPLE-2-CHILD-2,/TEST/TEST-SAMPLE-2-PARENT");
+				c.assertEqual(identifiers.toString(), "/TEST/TEST-PROJECT/TEST-SAMPLE-2-CHILD-2,/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
 			}
 			
 			testSearch(c, fSearch, fCheck);
@@ -1700,7 +1700,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 							if (samplePermId === "20130412140147735-20") {
 								prepopulatedSamplesCount++;
 							}
-							c.assertTrue(result.getObjectIdentifier().getIdentifier() === "/PLATONIC/PLATE-1" ||
+							c.assertTrue(result.getObjectIdentifier().getIdentifier() === "/PLATONIC/SCREENING-EXAMPLES/PLATE-1" ||
 								result.getObjectIdentifier().getIdentifier().startsWith("/TEST/V3_SAMPLE_"),
 								"ObjectIdentifier");
 							c.assertTrue(match === "Perm ID: " + samplePermId ||
@@ -1839,7 +1839,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.PluginSearchCriteria();
-				criteria.withName().thatContains("e");
+				criteria.withName().thatContains("Has");
 				criteria.withPluginType().thatEquals(c.PluginType.ENTITY_VALIDATION);
 				var fo = c.createPluginFetchOptions();
 				fo.withScript();
@@ -1948,7 +1948,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					codes.push(vocabularies[i].getCode());
 				}
 				codes.sort();
-				c.assertEqual(codes.toString(), "AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
+				c.assertEqual(codes.toString(), "$STORAGE.STORAGE_VALIDATION_LEVEL,AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
 			}
 			
 			testSearch(c, fSearch, fCheck);
