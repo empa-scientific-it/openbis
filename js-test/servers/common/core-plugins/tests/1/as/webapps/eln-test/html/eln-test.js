@@ -3,7 +3,23 @@ QUnit.jUnitReport = function(report) {
 	console.log(report.xml);
 }
 
-QUnit.test("AdminTests.login()", function(assert) {
+QUnit.module("ELN-Test");
 
-    assert.ok(1 == "1", "Passed!");
+QUnit.test("AdminTests.login()", function(assert) {
+    stop();
+
+    $("#eln-frame").on('test1event', function(e) {
+        start();
+        assert.equal(e.msg, "Test 1 passed", e.msg);
+    });
 });
+
+/*
+QUnit.test("AdminTests.inventorySpace()", function(assert) {
+    stop();
+    $(document).on('test2event', function(e) {
+        start();
+        assert.equal(e.msg, "Test 2 passed", e.msg);
+    });
+});
+*/

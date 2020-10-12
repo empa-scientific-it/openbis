@@ -15,30 +15,52 @@ var TestUtil = new function() {
         });
     }
 
+    this.reportToJenkins = function(id, msg) {
+        if ($.cookie("report-to-jenkins") == "true") {
+            var testName = "test" + id + "event";
+            var event = jQuery.Event(testName);
+            event.msg = msg;
+            window.parent.$("#eln-frame").trigger(event);
+        }
+    }
+
+    this.reportError = function(id, error, reject) {
+        TestUtil.reportToJenkins(id, error.stack);
+        reject(error);
+    }
+
     this.testPassed = function(id) {
         return new Promise(function executor(resolve, reject) {
-            console.log("%cTest " + id +" passed", "color: green");
+            var msg = "Test " + id +" passed";
+            TestUtil.reportToJenkins(id, msg);
+            console.log("%c" + msg, "color: green");
             resolve();
         });
     }
 
     this.testNotExist = function(id) {
         return new Promise(function executor(resolve, reject) {
-            console.log("%cTest " + id +" is not exist", "color: grey");
+            var msg = "Test " + id +" is not exist";
+            TestUtil.reportToJenkins(id, msg);
+            console.log("%c" + msg, "color: grey");
             resolve();
         });
     }
 
     this.testLocally = function(id) {
         return new Promise(function executor(resolve, reject) {
-            console.log("%cTest " + id +" should be tested locally", "color: blue");
+            var msg = "Test " + id + " should be tested locally";
+            TestUtil.reportToJenkins(id, msg);
+            console.log("%c" + msg, "color: blue");
             resolve();
         });
     }
 
     this.allTestsPassed = function() {
         return new Promise(function executor(resolve, reject) {
-            alert("Tests passed!");
+            if ($.cookie("report-to-jenkins") != "true") {
+                alert("Tests passed!");
+            }
             resolve();
         });
     }
@@ -57,15 +79,15 @@ var TestUtil = new function() {
         });
     }
 
-    this.verifyInventory  = function(ids) {
+    this.verifyInventory  = function(testId, ids) {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
 
             chain = Promise.resolve();
-            for (let i = 0; i < ids.length; i++) {
-                chain = chain.then(() => e.waitForId(ids[i])).catch((error) => reject(error));
+            for (var i = 0; i < ids.length; i++) {
+                chain = chain.then(() => e.waitForId(ids[i]));
             }
-            chain.then(() => resolve());
+            chain.then(() => resolve()).catch(error => TestUtil.reportError(testId, error, reject));
         });
     }
 
@@ -102,7 +124,7 @@ var TestUtil = new function() {
 
     this.blob2Text = function(blob, action) {
         // get text from blob
-        let fileReader = new FileReader();
+        var fileReader = new FileReader();
 
         fileReader.readAsText(blob);
 
