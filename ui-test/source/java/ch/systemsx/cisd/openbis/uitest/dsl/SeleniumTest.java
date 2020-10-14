@@ -37,12 +37,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
@@ -150,6 +149,8 @@ import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 public abstract class SeleniumTest
 {
     public static int IMPLICIT_WAIT = 30;
+
+    public static String USER_TEXTBOX = "openbis_login_username";
 
     public static String ADMIN_USER = "selenium";
 
@@ -266,17 +267,16 @@ public abstract class SeleniumTest
             // System.setProperty("webdriver.chrome.driver",
             // "/Users/anttil/Downloads/chromedriver");
             // driver = new ChromeDriver();
-            driver = new FirefoxDriver();
-            setImplicitWaitToDefault();
-            driver.manage().deleteAllCookies();
+            // System.setProperty("webdriver.gecko.driver", "/Users/mariapukhliakova/git/openbis-bbb-hub/ui-test/resource/geckodriver");
 
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
-            Dimension screenResolution =
-                    new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
-                            .getScreenSize().getHeight());
-            driver.manage().window().setSize(screenResolution);
+            driver = new FirefoxDriver();
+            driver.manage().deleteAllCookies();
+            driver.manage().window().maximize();
         }
         driver.get(startPage);
+        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, IMPLICIT_WAIT);
+        WebElement userTextBox = driver.findElement(By.id(USER_TEXTBOX));
+        wait.until(ExpectedConditions.visibilityOf(userTextBox));
     }
 
     private void deleteOldScreenShots()

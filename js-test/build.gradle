@@ -34,8 +34,8 @@ configurations.create('externalDss')
 
 dependencies {
 
-	compile 'reflections:reflections:0.9.10', 
-	'testng:testng:6.8-CISD', 
+    compile 'reflections:reflections:0.9.10',
+    'testng:testng:6.8-CISD',
 	'fasterxml:jackson-core:2.9.10',
 	'fasterxml:jackson-annotations:2.9.10',
 	'fasterxml:jackson-databind:2.9.10'

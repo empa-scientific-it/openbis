@@ -19,10 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.page;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.openqa.selenium.support.ui.FluentWait;
-
-import com.google.common.base.Predicate;
 
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
@@ -137,16 +136,13 @@ public abstract class Browser
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<PagingToolBar>()
+                        new Function<PagingToolBar, Boolean>() {
+                            public Boolean apply(PagingToolBar paging)
                             {
-
-                                @Override
-                                public boolean apply(PagingToolBar paging)
-                                {
-                                    System.out.println("waiting for paging toolbar to get enabled");
-                                    return paging.isEnabled();
-                                }
-                            });
+                                System.out.println("waiting for paging toolbar to get enabled");
+                                return paging.isEnabled();
+                            }
+                        });
     }
 
     @Override

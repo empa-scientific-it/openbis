@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.uitest.page;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.openqa.selenium.support.ui.FluentWait;
 
@@ -70,15 +71,11 @@ public class ExperimentBrowser extends Browser
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<Refreshable>()
-                            {
-
-                                @Override
-                                public boolean apply(Refreshable refreshable)
-                                {
-                                    return refreshable.hasStateBeenUpdatedSince(state);
-                                }
-                            });
+                        new Function<Refreshable, Boolean>() {
+                            public Boolean apply(Refreshable refreshable) {
+                                return refreshable.hasStateBeenUpdatedSince(state);
+                            }
+                });
 
         return projectFound;
     }

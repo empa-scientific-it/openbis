@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -53,15 +54,11 @@ public class FilterToolBar implements Widget
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<Refreshable>()
-                            {
-
-                                @Override
-                                public boolean apply(Refreshable refreshable)
-                                {
-                                    return refresher.hasStateBeenUpdatedSince(state);
-                                }
-                            });
+                    new Function<Refreshable, Boolean>() {
+                        public Boolean apply(Refreshable refreshable) {
+                            return refreshable.hasStateBeenUpdatedSince(state);
+                        }
+                });
     }
 
     public Collection<String> getVisibleFilters()
