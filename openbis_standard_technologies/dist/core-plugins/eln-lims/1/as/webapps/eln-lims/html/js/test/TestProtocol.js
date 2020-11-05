@@ -19,6 +19,7 @@ var TestProtocol = new function () {
     }
 
     this.startUserTests = function() {
+        console.log("startUserTests");
 
         testChain = Promise.resolve();
                  //5. User Manager (end of test)

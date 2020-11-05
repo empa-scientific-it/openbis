@@ -24,8 +24,17 @@ var TestUtil = new function() {
         }
     }
 
+    this.reportErrorToJenkins = function(id, msg) {
+        if ($.cookie("report-to-jenkins") == "true") {
+            var testName = "jenkinsError";
+            var event = jQuery.Event(testName);
+            event.msg = msg;
+            window.parent.$("#eln-frame").trigger(event);
+        }
+    }
+
     this.reportError = function(id, error, reject) {
-        TestUtil.reportToJenkins(id, error.stack);
+        TestUtil.reportErrorToJenkins(id, error.stack);
         reject(error);
     }
 
@@ -84,7 +93,7 @@ var TestUtil = new function() {
             var e = EventUtil;
 
             chain = Promise.resolve();
-            for (var i = 0; i < ids.length; i++) {
+            for (let i = 0; i < ids.length; i++) {
                 chain = chain.then(() => e.waitForId(ids[i]));
             }
             chain.then(() => resolve()).catch(error => TestUtil.reportError(testId, error, reject));
@@ -124,7 +133,7 @@ var TestUtil = new function() {
 
     this.blob2Text = function(blob, action) {
         // get text from blob
-        var fileReader = new FileReader();
+        let fileReader = new FileReader();
 
         fileReader.readAsText(blob);
 

@@ -50,7 +50,7 @@ var AdminTests = new function() {
                        "TRASHCAN",
                        "SETTINGS"];
 
-            Promise.resolve().then(() => TestUtil.verifyInventory(ids))
+            Promise.resolve().then(() => TestUtil.verifyInventory(2, ids))
                              .then(() => TestUtil.testPassed(2))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(2, error, reject));
@@ -92,18 +92,46 @@ var AdminTests = new function() {
                      .then(() => e.click("USER_MANAGER"))
                      .then(() => e.waitForId("createUser"))
                      .then(() => e.click("createUser"))
-                     // fill user name
                      .then(() => e.waitForId("userId"))
-                     .then(() => e.change("userId", "testid"))
-                     // fill password
-                     .then(() => e.waitForId("passwordId", true, 2000))
+                     .then(() => e.change("userId", "testId"))
+                     .then(() => e.click("createUserBtn"))
+                     .then(() => AdminTests.createPassword())
+                     .then(() => AdminTests.userExist())
+                     .then(() => TestUtil.setCookies("suitename", "testId"))
+                     .then(() => e.click("logoutBtn"))
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
+        });
+    }
+
+    // Sometimes it ask for password. Try to fill it.
+    this.createPassword = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            testChain = Promise.resolve();
+
+            testChain.then(() => e.waitForId("passwordId", true, 2000))
                      .then(() => e.change("passwordId", "pass", true))
                      .then(() => e.change("passwordRepeatId", "pass", true))
-                     // create user
-                     .then(() => e.click("createUserBtn"))
-                     .then(() => e.waitForId("jSuccess"))
-                     .then(() => TestUtil.setCookies("suitename", "testid"))
-                     .then(() => e.click("logoutBtn"))
+                     .then(() => e.click("createUserBtn", true))
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
+        });
+    }
+
+    // If the user already exists, we will see an error.
+    // This is not a problem for the script, and we can continue.
+    this.userExist = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            testChain = Promise.resolve();
+
+            testChain.then(() => e.waitForId("jError", true, 2000))
+                     .then(() => e.waitForId("jNotifyDismiss", true, 2000))
+                     .then(() => e.click("jNotifyDismiss", true))
+                     .then(() => e.click("cancelBtn", true))
                      .then(() => resolve())
                      .catch((error) => reject(error));
         });
