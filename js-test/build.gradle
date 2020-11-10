@@ -67,6 +67,9 @@ task deleteXlsImportVersionInfoJson {
 
 clean.dependsOn deleteXlsImportVersionInfoJson
 
+
+import org.gradle.internal.os.OperatingSystem
+
 test {
     useTestNG()
     options.suites('source/java/tests.xml')
@@ -83,6 +86,14 @@ test {
     systemProperty 'org.eclipse.jetty.util.log.class', 'org.eclipse.jetty.util.log.StrErrLog'
     
     workingDir = 'servers/common/openBIS-server'
+
+    if (OperatingSystem.current().isLinux()) {
+        systemProperty 'webdriver.gecko.driver', 'gecko-driver/linux/geckodriver'
+    } else if (OperatingSystem.current().isMacOsX()) {
+        systemProperty 'webdriver.gecko.driver', 'gecko-driver/mac/geckodriver'
+    } else {
+        println "Please set up geckodriver"
+    }
 }
 test.dependsOn clean
 test.dependsOn copyWar

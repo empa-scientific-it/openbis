@@ -52,6 +52,14 @@ task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').wa
 	rename {filename -> 'openbis.war'}
 }
 
+import org.gradle.internal.os.OperatingSystem
+
+task makeGeckodriverExecutable(type:Exec) {
+
+    commandLine 'chmod', '+x', 'etc/gecko-driver/linux/geckodriver'
+    commandLine 'chmod', '+x', 'etc/gecko-driver/mac/geckodriver'
+}
+
 test {
     useTestNG()
     options.suites('source/java/tests.xml')    
@@ -60,8 +68,18 @@ test {
     
     testLogging.showStandardStreams = true
     ignoreFailures = true
-    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath   
+    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
+
+    if (OperatingSystem.current().isLinux()) {
+        systemProperty 'webdriver.gecko.driver', 'etc/gecko-driver/linux/geckodriver'
+    } else if (OperatingSystem.current().isMacOsX()) {
+        systemProperty 'webdriver.gecko.driver', 'etc/gecko-driver/mac/geckodriver'
+    } else {
+        println "Please set up geckodriver"
+    }
 }
+
+test.dependsOn makeGeckodriverExecutable
 test.dependsOn copyWar
 
 

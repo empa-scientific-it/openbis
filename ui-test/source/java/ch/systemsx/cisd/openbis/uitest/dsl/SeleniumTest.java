@@ -264,11 +264,6 @@ public abstract class SeleniumTest
     {
         if (driver == null)
         {
-            // System.setProperty("webdriver.chrome.driver",
-            // "/Users/anttil/Downloads/chromedriver");
-            // driver = new ChromeDriver();
-            // System.setProperty("webdriver.gecko.driver", "/Users/mariapukhliakova/git/openbis-bbb-hub/ui-test/resource/geckodriver");
-
             driver = new FirefoxDriver();
             driver.manage().deleteAllCookies();
             driver.manage().window().maximize();
