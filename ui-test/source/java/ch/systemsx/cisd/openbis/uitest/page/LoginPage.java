@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.SubmitButton;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LoginPage
 {
@@ -31,8 +35,14 @@ public class LoginPage
     @Locate("openbis_login_submit")
     private SubmitButton button;
 
+    private void waitLoginTextBox() {
+        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
+        wait.until(ExpectedConditions.visibilityOf(SeleniumTest.driver.findElement(By.id("openbis_login_username"))));
+    }
+
     public void loginAs(String user, String pwd)
     {
+        waitLoginTextBox();
         username.write(user);
         password.write(pwd);
         button.click();

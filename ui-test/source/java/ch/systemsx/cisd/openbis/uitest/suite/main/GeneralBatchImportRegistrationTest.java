@@ -270,6 +270,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file, SAME_SUBCODE_ERROR_MSG);
     }
 
+
     @Test
     public void propertiesOfSamplesAreImported() throws Exception
     {

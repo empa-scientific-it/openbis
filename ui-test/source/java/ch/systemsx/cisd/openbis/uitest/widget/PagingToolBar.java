@@ -40,7 +40,7 @@ public class PagingToolBar implements Widget, Refreshable
 
     public void filters()
     {
-        if (filtersButton.isPressed() == false)
+        if (!filtersButton.isPressed())
         {
             filtersButton.click();
         }
@@ -91,7 +91,7 @@ public class PagingToolBar implements Widget, Refreshable
             return false;
         }
 
-        return (currentState.equals(oldState) == false);
+        return !currentState.equals(oldState);
     }
 
     public boolean isEnabled()

@@ -18,15 +18,16 @@ package ch.systemsx.cisd.openbis.uitest.page;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
-import org.openqa.selenium.support.ui.FluentWait;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * @author anttil
@@ -44,11 +45,15 @@ public abstract class Browser
 
     protected abstract void delete();
 
+    protected String columnNameForSelect() {
+        return "Code";
+    }
+
     public final BrowserRow select(Browsable browsable)
     {
         filterTo(browsable);
         showColumnsOf(browsable);
-        return getGrid().select("Code", browsable.getIdValue());
+        return getGrid().select(columnNameForSelect(), browsable.getIdValue());
     }
 
     public final BrowserRow getRow(Browsable browsable)
@@ -96,17 +101,14 @@ public abstract class Browser
         waitForPagingToolBar();
         getPaging().filters();
         showFiltersOf(browsable);
-        if (getPaging().rowCount() != 1)
-        {
-            getFilters().setFilter(browsable.getIdColumn(), browsable.getIdValue(), getPaging());
-        }
+        getFilters().setFilter(browsable.getIdColumn(), browsable.getIdValue(), getPaging());
     }
 
     private void showFiltersOf(Browsable browsable)
     {
         waitForPagingToolBar();
         Collection<String> visibleFilters = getFilters().getVisibleFilters();
-        if (visibleFilters.contains(browsable.getIdColumn()) == false)
+        if (!visibleFilters.contains(browsable.getIdColumn()))
         {
             getPaging().settings();
             getSettings().showFilters(browsable.getIdColumn());
@@ -132,17 +134,13 @@ public abstract class Browser
 
     private void waitForPagingToolBar()
     {
-        new FluentWait<PagingToolBar>(getPaging())
-                .withTimeout(30, TimeUnit.SECONDS)
-                .pollingEvery(100, TimeUnit.MILLISECONDS)
-                .until(
-                        new Function<PagingToolBar, Boolean>() {
-                            public Boolean apply(PagingToolBar paging)
-                            {
-                                System.out.println("waiting for paging toolbar to get enabled");
-                                return paging.isEnabled();
-                            }
-                        });
+        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
+        wait.until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver driver) {
+                System.out.println("waiting for paging toolbar to get enabled");
+                return getPaging().isEnabled();
+            }
+        });
     }
 
     @Override

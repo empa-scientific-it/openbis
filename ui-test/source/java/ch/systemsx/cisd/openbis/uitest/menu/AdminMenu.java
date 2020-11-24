@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.menu;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AdminMenu
 {
@@ -87,20 +91,28 @@ public class AdminMenu
         vocabularies.click();
     }
 
+    private void waitBeforeClick(String id) {
+        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(id)));
+    }
+
     public void sampleTypes()
     {
+        waitBeforeClick("ADMINISTRATION_MENU_MANAGE_TYPES");
         types.highlight();
         sampleTypes.click();
     }
 
     public void experimentTypes()
     {
+        waitBeforeClick("ADMINISTRATION_MENU_MANAGE_TYPES");
         types.highlight();
         experimentTypes.click();
     }
 
     public void dataSetTypes()
     {
+        waitBeforeClick("ADMINISTRATION_MENU_MANAGE_TYPES");
         types.highlight();
         dataSetTypes.click();
     }
