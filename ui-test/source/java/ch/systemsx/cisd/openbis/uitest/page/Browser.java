@@ -101,7 +101,10 @@ public abstract class Browser
         waitForPagingToolBar();
         getPaging().filters();
         showFiltersOf(browsable);
-        getFilters().setFilter(browsable.getIdColumn(), browsable.getIdValue(), getPaging());
+        if (getPaging().rowCount() != 1)
+        {
+            getFilters().setFilter(browsable.getIdColumn(), browsable.getIdValue(), getPaging());
+        }
     }
 
     private void showFiltersOf(Browsable browsable)
