@@ -16,18 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-
-import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
-import ch.systemsx.cisd.openbis.uitest.widget.Grid;
-import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
-import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import ch.systemsx.cisd.openbis.uitest.widget.*;
+import org.openqa.selenium.support.ui.FluentWait;
 
 /**
  * @author anttil
@@ -137,13 +133,16 @@ public abstract class Browser
 
     private void waitForPagingToolBar()
     {
-        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
-        wait.until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver driver) {
-                System.out.println("waiting for paging toolbar to get enabled");
-                return getPaging().isEnabled();
-            }
-        });
+        FluentWait<PagingToolBar> wait = new FluentWait<>(getPaging());
+
+        wait.withTimeout(Duration.of(30, ChronoUnit.SECONDS))
+                .pollingEvery(Duration.of(100, ChronoUnit.MILLIS))
+                .until(new Function<PagingToolBar, Boolean>() {
+                    public Boolean apply(PagingToolBar paging) {
+                        System.out.println("waiting for paging toolbar to get enabled");
+                        return paging.isEnabled();
+                    }
+                });
     }
 
     @Override

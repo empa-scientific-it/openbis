@@ -16,21 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
+import ch.systemsx.cisd.openbis.uitest.widget.*;
 
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Button;
-import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
-import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
-import ch.systemsx.cisd.openbis.uitest.widget.Grid;
-import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
-import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
-import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.FluentWait;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.function.Function;
 
 public class ExperimentBrowser extends Browser
 {
@@ -64,12 +59,16 @@ public class ExperimentBrowser extends Browser
         final Object state = paging.getState();
         Boolean projectFound = projectTree.select(project.getCode());
 
-        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
-        wait.until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver driver) {
-                return paging.hasStateBeenUpdatedSince(state);
-            }
-        });
+        FluentWait<Refreshable> wait = new FluentWait<>(paging);
+
+        wait.withTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .pollingEvery(Duration.of(100, ChronoUnit.MILLIS))
+            .until(new Function<Refreshable, Boolean>() {
+                public Boolean apply(Refreshable refreshable)
+                {
+                    return refreshable.hasStateBeenUpdatedSince(state);
+                }
+            });
 
         return projectFound;
     }
