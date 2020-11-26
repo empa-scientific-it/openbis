@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
  */
 class WidgetContext implements WebElement, Locatable, WrapsElement
 {
-
     private WebElement element;
 
     private ScreenShotter shotter;
@@ -105,7 +104,7 @@ class WidgetContext implements WebElement, Locatable, WrapsElement
 
     @Override
     public Rectangle getRect() {
-        return null;
+        return element.getRect();
     }
 
     @Override
@@ -164,6 +163,6 @@ class WidgetContext implements WebElement, Locatable, WrapsElement
 
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        return null;
+        throw new WebDriverException("Method not implemented");
     }
 }
