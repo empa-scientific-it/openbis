@@ -37,7 +37,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
-import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.annotations.AfterMethod;
@@ -260,9 +263,18 @@ public abstract class SeleniumTest
     {
         if (driver == null)
         {
+            // System.setProperty("webdriver.chrome.driver",
+            // "/Users/anttil/Downloads/chromedriver");
+            // driver = new ChromeDriver();
             driver = new FirefoxDriver();
+            setImplicitWaitToDefault();
             driver.manage().deleteAllCookies();
-            driver.manage().window().maximize();
+
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Dimension screenResolution =
+                    new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
+                            .getScreenSize().getHeight());
+            driver.manage().window().setSize(screenResolution);
         }
         driver.get(startPage);
     }
@@ -270,6 +282,7 @@ public abstract class SeleniumTest
     private void deleteOldScreenShots()
     {
         delete(new File("targets/dist"));
+
     }
 
     private void initializeLogging()
@@ -893,7 +906,7 @@ public abstract class SeleniumTest
     {
         pages.screenshot();
         Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(element).perform();
+        builder.moveToElement(element).build().perform();
     }
 
     public static <U extends Widget> U initializeWidget(Class<U> widgetClass, WebElement context)
