@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.support.ui.FluentWait;
+
 import java.util.function.Function;
 
-import ch.systemsx.cisd.openbis.uitest.widget.*;
-import org.openqa.selenium.support.ui.FluentWait;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
 /**
  * @author anttil
@@ -107,7 +111,7 @@ public abstract class Browser
     {
         waitForPagingToolBar();
         Collection<String> visibleFilters = getFilters().getVisibleFilters();
-        if (!visibleFilters.contains(browsable.getIdColumn()))
+        if (visibleFilters.contains(browsable.getIdColumn()) == false)
         {
             getPaging().settings();
             getSettings().showFilters(browsable.getIdColumn());
@@ -133,16 +137,20 @@ public abstract class Browser
 
     private void waitForPagingToolBar()
     {
-        FluentWait<PagingToolBar> wait = new FluentWait<>(getPaging());
+        new FluentWait<PagingToolBar>(getPaging())
+                .withTimeout(30, TimeUnit.SECONDS)
+                .pollingEvery(100, TimeUnit.MILLISECONDS)
+                .until(
+                        new Function<PagingToolBar, Boolean>()
+                        {
 
-        wait.withTimeout(Duration.of(30, ChronoUnit.SECONDS))
-                .pollingEvery(Duration.of(100, ChronoUnit.MILLIS))
-                .until(new Function<PagingToolBar, Boolean>() {
-                    public Boolean apply(PagingToolBar paging) {
-                        System.out.println("waiting for paging toolbar to get enabled");
-                        return paging.isEnabled();
-                    }
-                });
+                            @Override
+                            public Boolean apply(PagingToolBar paging)
+                            {
+                                System.out.println("waiting for paging toolbar to get enabled");
+                                return paging.isEnabled();
+                            }
+                        });
     }
 
     @Override
