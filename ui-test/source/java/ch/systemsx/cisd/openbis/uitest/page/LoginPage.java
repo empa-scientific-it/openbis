@@ -35,14 +35,9 @@ public class LoginPage
     @Locate("openbis_login_submit")
     private SubmitButton button;
 
-    private void waitLoginTextBox() {
-        WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
-        wait.until(ExpectedConditions.visibilityOf(SeleniumTest.driver.findElement(By.id("openbis_login_username"))));
-    }
-
     public void loginAs(String user, String pwd)
     {
-        waitLoginTextBox();
+        SeleniumTest.waitForVisibilityOf("openbis_login_username");
         username.write(user);
         password.write(pwd);
         button.click();

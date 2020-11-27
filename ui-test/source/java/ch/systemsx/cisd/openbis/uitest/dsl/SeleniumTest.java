@@ -22,6 +22,9 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.*;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -37,12 +41,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.FluentWait;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
@@ -1045,5 +1047,22 @@ public abstract class SeleniumTest
     protected static String randomValue()
     {
         return UUID.randomUUID().toString();
+    }
+
+    public static void waitForVisibilityOf(String id) {
+        WebElement webElement = SeleniumTest.driver.findElement(By.id(id));
+        new FluentWait<WebElement>(webElement)
+                .withTimeout(Duration.of(30, ChronoUnit.SECONDS))
+                .pollingEvery(Duration.of(100, ChronoUnit.MILLIS))
+                .until(
+                        new Function<WebElement, Boolean>()
+                        {
+
+                            @Override
+                            public Boolean apply(WebElement webElement)
+                            {
+                                return webElement.isDisplayed();
+                            }
+                        });
     }
 }

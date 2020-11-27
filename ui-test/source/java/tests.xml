@@ -1,8 +1,25 @@
 <suite name="All" verbose="2" >
+  <test name="Main-order-dependent" annotations="JDK">
+    <classes>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.GeneralBatchImportRegistrationTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.SpaceTest"/>
+    </classes>
+  </test>
   <test name="Main" annotations="JDK">
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.uitest.suite.main.*" />
-    </packages>
+    <classes>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.DataSetTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.ExperimentTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.ExperimentTypeTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.GeneralBatchImportUpdateTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.MainSuite"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.ProjectTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.PropertyTypeAssignmentTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.PropertyTypeTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.SampleTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.SampleTypeTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.ScriptTest"/>
+      <class name="ch.systemsx.cisd.openbis.uitest.suite.main.VocabularyTest"/>
+    </classes>
   </test>
   <test name="Sprint" annotations="JDK">
     <packages>
