@@ -46,6 +46,10 @@ async function testLogin() {
         {
           label: 'Users',
           selected: false
+        },
+        {
+          label: 'Tools',
+          selected: false
         }
       ]
     },

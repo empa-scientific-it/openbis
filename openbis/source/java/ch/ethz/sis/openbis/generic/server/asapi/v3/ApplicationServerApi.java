@@ -230,6 +230,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOpera
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.DeletePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.EvaluatePluginOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.EvaluatePluginOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
@@ -1500,6 +1504,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public TableModel executeSql(String sessionToken, String sql, SqlExecutionOptions options)
     {
         ExecuteSqlOperationResult result = executeOperation(sessionToken, new ExecuteSqlOperation(sql, options));
+        return result.getResult();
+    }
+
+    @Override
+    public PluginEvaluationResult evaluatePlugin(String sessionToken, PluginEvaluationOptions options)
+    {
+        EvaluatePluginOperationResult result = executeOperation(sessionToken, new EvaluatePluginOperation(options));
         return result.getResult();
     }
 

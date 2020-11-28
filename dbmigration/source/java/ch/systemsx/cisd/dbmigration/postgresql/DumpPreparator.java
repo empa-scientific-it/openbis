@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -135,7 +136,9 @@ public class DumpPreparator
         final String dumpExec = getDumpExecutable();
         final String dumpFilePath = dumpFile.getAbsolutePath();
         final List<String> command = new ArrayList<String>();
-        command.addAll(Arrays.asList(dumpExec, "-U", "postgres", "--no-owner", "-f", dumpFilePath));
+        command.addAll(Arrays.asList(dumpExec,
+                "-h", DatabaseEngine.getTestEnvironmentHostOrConfigured("localhost"),
+                "-U", "postgres", "--no-owner", "-f", dumpFilePath));
         if (onlySchema)
         {
             command.add("--schema-only");

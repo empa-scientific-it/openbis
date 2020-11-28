@@ -1972,6 +1972,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.evaluatePlugin = function(options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "evaluatePlugin",
+					"params" : [ thisFacade._private.sessionToken, options ]
+				}
+			});
+		}
+
 		this.archiveDataSets = function(ids, options) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

@@ -9,6 +9,9 @@ const config = {
     label: {
       fontSize: '0.7rem',
       color: '#0000008a'
+    },
+    sourceCode: {
+      fontFamily: '"Fira code", "Fira Mono", monospace'
     }
   },
   palette: {
@@ -29,11 +32,13 @@ const config = {
     },
     background: {
       primary: '#ebebeb',
-      secondary: '#f5f5f5'
+      secondary: '#f5f5f5',
+      field: '#e8e8e8'
     },
     border: {
       primary: '#dbdbdb',
-      secondary: '#ebebeb'
+      secondary: '#ebebeb',
+      field: '#878787'
     }
   }
 }

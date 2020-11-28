@@ -98,6 +98,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPerson
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IUpdatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.ICreatePluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IDeletePluginsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IEvaluatePluginOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IGetPluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.ISearchPluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IUpdatePluginsOperationExecutor;
@@ -584,6 +585,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IExecuteSqlOperationExecutor executeSqlExecutor;
 
     @Autowired
+    private IEvaluatePluginOperationExecutor evaluatePluginExecutor;
+
+    @Autowired
     private IRevertDeletionsOperationExecutor revertDeletionsExecutor;
 
     @Autowired
@@ -677,6 +681,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getSessionInformationExecutor.execute(context, operations));
         resultMap.putAll(executeQueryExecutor.execute(context, operations));
         resultMap.putAll(executeSqlExecutor.execute(context, operations));
+        resultMap.putAll(evaluatePluginExecutor.execute(context, operations));
     }
 
     private void executeSearches(List<? extends IOperation> operations,

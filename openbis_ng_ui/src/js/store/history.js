@@ -1,9 +1,10 @@
 import { createBrowserHistory } from 'history'
 import actions from '@src/js/store/actions/actions.js'
 import routes from '@src/js/common/consts/routes.js'
+import url from '@src/js/common/url.js'
 
 let history = createBrowserHistory({
-  basename: '#'
+  basename: url.getApplicationPath() + '#'
 })
 
 history.configure = store => {

@@ -1,12 +1,20 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/common/search/CodeSearchCriteria", "as/dto/common/search/CodesSearchCriteria",
-		"as/dto/common/search/PermIdSearchCriteria", "as/dto/common/search/RegistrationDateSearchCriteria", "as/dto/common/search/ModificationDateSearchCriteria",
-		"as/dto/common/search/NumberPropertySearchCriteria", "as/dto/tag/search/TagSearchCriteria", "as/dto/common/search/StringPropertySearchCriteria",
-		"as/dto/common/search/DatePropertySearchCriteria", "as/dto/common/search/AnyPropertySearchCriteria", "as/dto/common/search/AnyFieldSearchCriteria",
-		"as/dto/common/search/AbstractCompositeSearchCriteria", "as/dto/person/search/RegistratorSearchCriteria", "as/dto/person/search/ModifierSearchCriteria" ], function(require, stjs,
-		AbstractObjectSearchCriteria, SearchOperator) {
+define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/SearchOperator",
+		"as/dto/common/search/CodeSearchCriteria", "as/dto/common/search/CodesSearchCriteria",
+		"as/dto/common/search/PermIdSearchCriteria", "as/dto/common/search/RegistrationDateSearchCriteria",
+		"as/dto/common/search/ModificationDateSearchCriteria",
+		"as/dto/common/search/NumberPropertySearchCriteria", "as/dto/common/search/BooleanPropertySearchCriteria",
+		"as/dto/tag/search/TagSearchCriteria", "as/dto/common/search/StringPropertySearchCriteria",
+		"as/dto/common/search/DatePropertySearchCriteria", "as/dto/common/search/AnyPropertySearchCriteria",
+		"as/dto/common/search/AnyFieldSearchCriteria",
+		"as/dto/common/search/AbstractCompositeSearchCriteria", "as/dto/person/search/RegistratorSearchCriteria",
+		"as/dto/person/search/ModifierSearchCriteria",
+		"as/dto/common/search/StrictlyStringPropertySearchCriteria",
+		"as/dto/common/search/AnyDatePropertySearchCriteria", "as/dto/common/search/AnyNumberPropertySearchCriteria",
+		"as/dto/common/search/AnyStringPropertySearchCriteria", "as/dto/common/search/AnyBooleanPropertySearchCriteria"
+		], function(require, stjs, AbstractObjectSearchCriteria, SearchOperator) {
 	var AbstractEntitySearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};

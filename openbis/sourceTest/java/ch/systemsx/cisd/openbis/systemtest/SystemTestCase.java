@@ -20,16 +20,21 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -71,9 +76,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -128,6 +136,18 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected static final String PROVIDER_BOOLEAN_BOOLEAN = "provider-boolean-boolean";
 
+    private static final String HOT_DEPLOYMENT_ENTITY_VALIDATION_PLUGINS_FOLDER_KEY = "entity-validation-plugins-directory";
+
+    private static final String HOT_DEPLOYMENT_DYNAMIC_PROPERTY_PLUGINS_FOLDER_KEY = "dynamic-property-plugins-directory";
+
+    private static final String HOT_DEPLOYMENT_MANAGED_PROPERTY_PLUGINS_FOLDER_KEY = "managed-property-plugins-directory";
+
+    protected static final String HOT_DEPLOYMENT_ENTITY_VALIDATION_PLUGINS_FOLDER = "sourceTest/hot-deployment/entity-validation-plugins";
+
+    protected static final String HOT_DEPLOYMENT_DYNAMIC_PROPERTY_PLUGINS_FOLDER = "sourceTest/hot-deployment/dynamic-property-plugins";
+
+    protected static final String HOT_DEPLOYMENT_MANAGED_PROPERTY_PLUGINS_FOLDER = "sourceTest/hot-deployment/managed-property-plugins";
+
     protected IDAOFactory daoFactory;
 
     protected ICommonServerForInternalUse commonServer;
@@ -148,10 +168,15 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected ISessionWorkspaceProvider sessionWorkspaceProvider;
 
     @BeforeSuite
-    public void beforeSuite()
+    public void beforeSuite() throws IOException
     {
         System.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY, SOURCE_TEST_CORE_PLUGINS);
         System.setProperty(Constants.ENABLED_MODULES_KEY, "test-.*");
+
+        initHotDeploymentFolder(HOT_DEPLOYMENT_DYNAMIC_PROPERTY_PLUGINS_FOLDER_KEY, HOT_DEPLOYMENT_DYNAMIC_PROPERTY_PLUGINS_FOLDER);
+        initHotDeploymentFolder(HOT_DEPLOYMENT_ENTITY_VALIDATION_PLUGINS_FOLDER_KEY, HOT_DEPLOYMENT_ENTITY_VALIDATION_PLUGINS_FOLDER);
+        initHotDeploymentFolder(HOT_DEPLOYMENT_MANAGED_PROPERTY_PLUGINS_FOLDER_KEY, HOT_DEPLOYMENT_MANAGED_PROPERTY_PLUGINS_FOLDER);
+
         TestInitializer.init();
     }
 
@@ -644,6 +669,78 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
             mergedResults.addAll(Arrays.asList(result));
         }
         return mergedResults.toArray(new Object[0][]);
+    }
+
+    private void initHotDeploymentFolder(String propertyKey, String folderPath) throws IOException
+    {
+        System.setProperty(propertyKey, folderPath);
+
+        File folder = new File(folderPath);
+
+        if (folder.exists())
+        {
+            FileUtils.cleanDirectory(folder);
+        } else
+        {
+            folder.mkdirs();
+        }
+    }
+
+    protected Script hotDeployPlugin(ScriptType pluginType, String pluginName, File pluginJarFile)
+    {
+        File hotDeploymentFolder = null;
+
+        if (pluginType == ScriptType.DYNAMIC_PROPERTY)
+        {
+            hotDeploymentFolder = new File(HOT_DEPLOYMENT_DYNAMIC_PROPERTY_PLUGINS_FOLDER);
+        } else if (pluginType == ScriptType.ENTITY_VALIDATION)
+        {
+            hotDeploymentFolder = new File(HOT_DEPLOYMENT_ENTITY_VALIDATION_PLUGINS_FOLDER);
+        } else if (pluginType == ScriptType.MANAGED_PROPERTY)
+        {
+            hotDeploymentFolder = new File(HOT_DEPLOYMENT_MANAGED_PROPERTY_PLUGINS_FOLDER);
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported plugin type: " + pluginType);
+        }
+
+        SessionContextDTO session = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+
+        List<Script> beforePlugins = commonServer.listScripts(session.getSessionToken(), pluginType, null);
+
+        if (beforePlugins.stream().anyMatch(p -> p.getName().equals(pluginName)))
+        {
+            throw new IllegalArgumentException(String.format("Plugin '%s' already exists", pluginName));
+        }
+
+        try
+        {
+            Files.copy(pluginJarFile.toPath(), hotDeploymentFolder.toPath().resolve(pluginJarFile.getName()));
+        } catch (IOException e)
+        {
+            throw new RuntimeException(
+                    String.format("Could not hot deploy plugin with type '%s', name '%s' and jar file '%s'", pluginType, pluginName, pluginJarFile));
+        }
+
+        long timeoutMillis = System.currentTimeMillis() + 30 * 1000;
+
+        while (System.currentTimeMillis() < timeoutMillis)
+        {
+            List<Script> afterPlugins = commonServer.listScripts(session.getSessionToken(), pluginType, null);
+
+            Optional<Script> plugin = afterPlugins.stream().filter(p -> p.getName().equals(pluginName)).findFirst();
+
+            if (plugin.isPresent())
+            {
+                return plugin.get();
+            } else
+            {
+                sleep(100);
+            }
+        }
+
+        throw new RuntimeException(String.format("Timed out waiting for hot deployment of plugin with type '%s', name '%s' and jar file '%s'",
+                pluginType, pluginName, pluginJarFile));
     }
 
 }

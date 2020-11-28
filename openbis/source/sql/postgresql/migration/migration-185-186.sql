@@ -42,34 +42,31 @@ DECLARE proj_code VARCHAR;
         container_code VARCHAR;
         identifier VARCHAR := '/';
 BEGIN
-    IF NEW.space_id IS NOT NULL THEN
-        SELECT code INTO STRICT space_code FROM spaces WHERE id = NEW.space_id;
-        identifier := identifier || space_code || '/';
-    END IF;
-
-    IF NEW.proj_id IS NOT NULL THEN
+    IF TG_OP != 'DELETE' AND (TG_OP = 'INSERT' OR
+            (NEW.space_id IS DISTINCT FROM OLD.space_id OR NEW.proj_id IS DISTINCT FROM OLD.proj_id OR
+            NEW.samp_id_part_of IS DISTINCT FROM OLD.samp_id_part_of)) THEN
         IF NEW.space_id IS NOT NULL THEN
-            SELECT code INTO STRICT proj_code FROM projects WHERE id = NEW.proj_id;
-        ELSE
-            SELECT p.code, s.code INTO STRICT proj_code, space_code FROM projects p
-                    INNER JOIN spaces s ON p.space_id = s.id WHERE id = NEW.proj_id;
+            SELECT code INTO STRICT space_code FROM spaces WHERE id = NEW.space_id;
             identifier := identifier || space_code || '/';
         END IF;
 
-        identifier := identifier || proj_code || '/';
-    END IF;
+        IF NEW.proj_id IS NOT NULL THEN
+            SELECT code INTO STRICT proj_code FROM projects WHERE id = NEW.proj_id;
+            identifier := identifier || proj_code || '/';
+        END IF;
 
-    IF NEW.samp_id_part_of IS NOT NULL THEN
-        SELECT code INTO STRICT container_code FROM samples_all WHERE id = NEW.samp_id_part_of;
-        identifier := identifier || container_code || ':' || NEW.code;
-    ELSE
-        identifier := identifier || NEW.code;
-    END IF;
+        IF NEW.samp_id_part_of IS NOT NULL THEN
+            SELECT code INTO STRICT container_code FROM samples_all WHERE id = NEW.samp_id_part_of;
+            identifier := identifier || container_code || ':' || NEW.code;
+        ELSE
+            identifier := identifier || NEW.code;
+        END IF;
 
-    NEW.sample_identifier := identifier;
-    NEW.tsvector_document := setweight((escape_tsvector_string(NEW.perm_id) || ':1')::tsvector, 'A') ||
-            setweight((escape_tsvector_string(identifier) || ':1')::tsvector, 'A') ||
-            setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
+        NEW.sample_identifier := identifier;
+        NEW.tsvector_document := setweight((escape_tsvector_string(NEW.perm_id) || ':1')::tsvector, 'A') ||
+                setweight((escape_tsvector_string(identifier) || ':1')::tsvector, 'A') ||
+                setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
+    END IF;
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql;

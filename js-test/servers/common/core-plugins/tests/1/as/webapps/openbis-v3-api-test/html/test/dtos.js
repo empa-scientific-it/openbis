@@ -80,6 +80,9 @@
 	// 'as/dto/vocabulary/id/IVocabularyTermId',
 	// 'as/dto/roleassignment/id/RoleAssignmentTechId',
 	// 'as/dto/rights/Right',
+	// 'as/dto/plugin/evaluate/PluginEvaluationOptions',
+	// 'as/dto/plugin/evaluate/PluginEvaluationResult',
+
 
 
 // these are the DTOs that can be "manually" created on the client
@@ -556,6 +559,12 @@ var sources = [
 	'as/dto/plugin/delete/PluginDeletionOptions',
 	'as/dto/plugin/delete/DeletePluginsOperation',
 	'as/dto/plugin/delete/DeletePluginsOperationResult',
+	'as/dto/plugin/evaluate/DynamicPropertyPluginEvaluationOptions',
+	'as/dto/plugin/evaluate/DynamicPropertyPluginEvaluationResult',
+	'as/dto/plugin/evaluate/EntityValidationPluginEvaluationOptions',
+	'as/dto/plugin/evaluate/EntityValidationPluginEvaluationResult',
+	'as/dto/plugin/evaluate/EvaluatePluginOperation',
+	'as/dto/plugin/evaluate/EvaluatePluginOperationResult',
 	'as/dto/plugin/fetchoptions/PluginFetchOptions',
 	'as/dto/plugin/fetchoptions/PluginSortOptions',
 	'as/dto/plugin/get/GetPluginsOperation',

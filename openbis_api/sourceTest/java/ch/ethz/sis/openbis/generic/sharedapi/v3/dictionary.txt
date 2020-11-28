@@ -2421,3 +2421,17 @@ withAnyStringProperty
 withBooleanProperty
 withStringProperty
 activate
+Dynamic Property Plugin Evaluation Options
+Dynamic Property Plugin Evaluation Result
+Entity Validation Plugin Evaluation Options
+Entity Validation Plugin Evaluation Result
+evaluate Plugin
+Evaluate Plugin Operation
+Evaluate Plugin Operation Result
+get Plugin Script
+get Requested Validations
+is New
+Plugin Evaluation Options
+Plugin Evaluation Result
+set New
+set Plugin Script

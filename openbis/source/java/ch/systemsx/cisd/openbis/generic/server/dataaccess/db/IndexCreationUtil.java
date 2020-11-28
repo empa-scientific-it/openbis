@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -127,7 +128,9 @@ public final class IndexCreationUtil
     {
         String sql = template.createText();
         String psql = DumpPreparator.getPSQLExecutable();
-        List<String> cmd = Arrays.asList(psql, "-U", "postgres", "-c", sql);
+        List<String> cmd = Arrays.asList(psql,
+                "-h", DatabaseEngine.getTestEnvironmentHostOrConfigured("localhost"),
+                "-U", "postgres", "-c", sql);
         boolean ok = ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
         if (ok == false)
         {

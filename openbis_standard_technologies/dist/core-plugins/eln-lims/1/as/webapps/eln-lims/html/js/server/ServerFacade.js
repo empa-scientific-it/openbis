@@ -1091,6 +1091,11 @@ function ServerFacade(openbisServer) {
    * This is a Javascript version of the Java method found at org.apache.lucene.queryparser.classic.QueryParserBase.escape
    */
     this.queryParserEscape = function(s) {
+
+        if(!profile.enableLuceneQueryEngine) { // This patch is to avoid escapes in openBIS 20.10
+            return s;
+        }
+
         var sb = "";
         for (var i = 0; i < s.length; i++) {
           var c = s.charAt(i);

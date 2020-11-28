@@ -77,9 +77,9 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     }
 
     /**
-     * @deprecated This method casts any string to the actual type of the property been queried.
-     * This leads in some cases to cast errors or missing operators for the type latter on during the query parsing.
-     * More often than not these errors are completely avoidable simply using the typed methods:
+     * @deprecated This method casts any string to the actual type of the property being queried.
+     * This leads in some cases to cast errors or missing operators for the type later on during query parsing.
+     * More often than not, these errors are completely avoidable simply by using the typed methods:
      * {@link AbstractEntitySearchCriteria#withDateProperty(String)}
      * {@link AbstractEntitySearchCriteria#withNumberProperty(String)}
      * {@link AbstractEntitySearchCriteria#withStringProperty(String)}
@@ -107,13 +107,13 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     }
 
     /**
-     * @deprecated This method doesn't cast any string to the actual type of the property been queried.
-     * Instead it does string comparison, being inconsistent with the rest of the query engine.
+     * @deprecated This method does not cast any string to the actual type of the property being queried.
+     * Instead it does string comparison, which is inconsistent with the rest of the query engine.
      * It is an inefficient replacement of full text search that actually does a very slow full table scan that can lead to heavy slowdowns on big databases.
-     * {@link AbstractEntitySearchCriteria#withAnyDateProperty(String)}
-     * {@link AbstractEntitySearchCriteria#withAnyNumberProperty(String)}
-     * {@link AbstractEntitySearchCriteria#withAnyStringProperty(String)}
-     * {@link AbstractEntitySearchCriteria#withAnyBooleanProperty(String)}
+     * {@link AbstractEntitySearchCriteria#withAnyDateProperty()}
+     * {@link AbstractEntitySearchCriteria#withAnyNumberProperty()}
+     * {@link AbstractEntitySearchCriteria#withAnyStringProperty()}
+     * {@link AbstractEntitySearchCriteria#withAnyBooleanProperty()}
      */
     @Deprecated
     public AnyPropertySearchCriteria withAnyProperty()

@@ -886,42 +886,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			
 			testSearch(c, fSearch, fCheck);
 		});
-/*
-	    @Test
-	    public void testSearchWithCodeThatIsLessOrEqualTo()
-	    {
-	        SampleSearchCriteria criteria = new SampleSearchCriteria();
-	        criteria.withCode().thatIsLessThanOrEqualTo("3VCP5");
-	        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126", "/CISD/3VCP5");
-	    }
 
-	    @Test
-	    public void testSearchWithCodeThatIsLessThan()
-	    {
-	        SampleSearchCriteria criteria = new SampleSearchCriteria();
-	        criteria.withCode().thatIsLessThan("3VCP5");
-	        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126");
-	    }
-
-	    @Test
-	    public void testSearchWithCodeThatIsGreaterThanOrEqualTo()
-	    {
-	        SampleSearchCriteria criteria = new SampleSearchCriteria();
-	        criteria.withCode().thatIsGreaterThanOrEqualTo("WELL-A01");
-	        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
-	    }
-
-	    @Test
-	    public void testSearchWithCodeThatIsGreaterThan()
-	    {
-	        SampleSearchCriteria criteria = new SampleSearchCriteria();
-	        criteria.withCode().thatIsGreaterThan("WELL-A01");
-	        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A02");
-	    }
-
-*/
-		
-		
 		QUnit.test("searchSampleTypes()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -2709,6 +2674,583 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchSamples() withProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.VARCHAR).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], "abc").then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withProperty(propertyTypeIds[0].getPermId()).thatEquals("abc");
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withAnyProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.VARCHAR).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], "abc").then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withAnyProperty().thatEquals("abc");
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withStringProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.VARCHAR).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], "abc").then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withStringProperty(propertyTypeIds[0].getPermId()).thatEquals("abc");
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withAnyStringProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.VARCHAR).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], "abc").then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withAnyStringProperty().thatEquals("abc");
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withStringProperty throwing exception", function(assert) {
+			var c = new common(assert, openbis);
+			checkExceptionsThrown(assert, [
+				c.DataType.BOOLEAN,
+				c.DataType.CONTROLLEDVOCABULARY,
+				c.DataType.DATE,
+				c.DataType.INTEGER,
+				c.DataType.MATERIAL,
+				c.DataType.REAL,
+				c.DataType.SAMPLE,
+				c.DataType.TIMESTAMP
+			], function(propertyTypePermId) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withStringProperty(propertyTypePermId).thatEquals("true");
+				return criteria;
+			});
+		});
+
+		QUnit.test("searchSamples() withNumberProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.INTEGER).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], 12344).then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withNumberProperty(propertyTypeIds[0].getPermId()).thatEquals(12344);
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withAnyNumberProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.INTEGER).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], 12344).then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withAnyNumberProperty().thatEquals(12344);
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withNumberProperty throwing exception", function(assert) {
+			var c = new common(assert, openbis);
+			checkExceptionsThrown(assert, [
+				c.DataType.BOOLEAN,
+				c.DataType.CONTROLLEDVOCABULARY,
+				c.DataType.DATE,
+				c.DataType.HYPERLINK,
+				c.DataType.MATERIAL,
+				c.DataType.MULTILINE_VARCHAR,
+				c.DataType.SAMPLE,
+				c.DataType.TIMESTAMP,
+				c.DataType.VARCHAR,
+				c.DataType.XML,
+			], function(propertyTypePermId) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withNumberProperty(propertyTypePermId).thatEquals(12);
+				return criteria;
+			});
+		});
+
+		QUnit.test("searchSamples() withBooleanProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.BOOLEAN).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], true).then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withBooleanProperty(propertyTypeIds[0].getPermId()).thatEquals(true);
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withAnyBooleanProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.BOOLEAN).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], true).then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withAnyBooleanProperty().thatEquals(true);
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withBooleanProperty throwing exception", function(assert) {
+			var c = new common(assert, openbis);
+			checkExceptionsThrown(assert, [
+				c.DataType.CONTROLLEDVOCABULARY,
+				c.DataType.DATE,
+				c.DataType.HYPERLINK,
+				c.DataType.INTEGER,
+				c.DataType.MATERIAL,
+				c.DataType.MULTILINE_VARCHAR,
+				c.DataType.REAL,
+				c.DataType.SAMPLE,
+				c.DataType.TIMESTAMP,
+				c.DataType.VARCHAR,
+				c.DataType.XML,
+			], function(propertyTypePermId) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withBooleanProperty(propertyTypePermId).thatEquals(true);
+				return criteria;
+			});
+		});
+
+		QUnit.test("searchSamples() withDateProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.DATE).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], '2007-07-17').then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withDateProperty(propertyTypeIds[0].getPermId()).thatEquals('2007-07-17');
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				debugger;
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withAnyDateProperty", function(assert) {
+			var c = new common(assert, openbis);
+
+			var samplePermId;
+			var propertyTypeId;
+			var sampleTypeId;
+			var fSearch = function(facade) {
+				return createPropertyType(c, facade, c.DataType.DATE).then(function(propertyTypeIds) {
+					propertyTypeId = propertyTypeIds[0];
+					return createSampleType(c, facade, false, propertyTypeIds[0]).then(function(sampleTypeIds) {
+						sampleTypeId = sampleTypeIds[0];
+						return createSample(c, facade, sampleTypeIds[0], propertyTypeIds[0], '2017-09-17').then(
+							function(sampleIds) {
+								samplePermId = sampleIds[0];
+								var criteria = new c.SampleSearchCriteria();
+								criteria.withAnyDateProperty().thatEquals('2017-09-17');
+								return facade.searchSamples(criteria, c.createSampleFetchOptions());
+							});
+					});
+				}).fail(function(error) {
+					c.fail("Error creating property type. error=" + error.message);
+				});
+			}
+
+			var fCleanup = function(facade, samples) {
+				debugger;
+				if (samples) {
+					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
+				}
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getPermId(), samplePermId.getPermId());
+
+				fCleanup(facade, samples);
+			}
+
+			testSearch(c, fSearch, fCheck, fCleanup);
+		});
+
+		QUnit.test("searchSamples() withDateProperty throwing exception", function(assert) {
+			var c = new common(assert, openbis);
+			checkExceptionsThrown(assert, [
+				c.DataType.BOOLEAN,
+				c.DataType.CONTROLLEDVOCABULARY,
+				c.DataType.HYPERLINK,
+				c.DataType.INTEGER,
+				c.DataType.MATERIAL,
+				c.DataType.MULTILINE_VARCHAR,
+				c.DataType.REAL,
+				c.DataType.SAMPLE,
+				c.DataType.VARCHAR,
+				c.DataType.XML,
+			], function(propertyTypePermId) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withDateProperty(propertyTypePermId).thatEquals('2017-09-17');
+				return criteria;
+			});
+		});
+
+		function checkExceptionsThrown(assert, dataTypes, createCriteria) {
+			var c = new common(assert, openbis);
+			c.start = function() {}
+			c.finish = function() {}
+
+			var finish = assert.async();
+
+			var fRecursion = function(i) {
+				if (i < dataTypes.length - 1) {
+					testDataType(i + 1);
+				} else {
+					finish();
+				}
+			}
+
+			var testDataType = function(i) {
+				debugger;
+				var dataType = dataTypes[i];
+				var fSearch = function(facade) {
+					return createPropertyType(c, facade, dataType).then(function(propertyTypeIds) {
+						var criteria = createCriteria(propertyTypeIds[0].getPermId());
+						return facade.searchSamples(criteria, c.createSampleFetchOptions());
+					});
+				}
+
+				var fCheck = function() {
+					debugger;
+					c.fail("Expected exception not thrown for data type " + dataType + ".");
+					fRecursion(i);
+				}
+
+				testSearch(c, fSearch, fCheck, function(e) {
+					debugger;
+					c.ok("Expected exception thrown for data type " + dataType + ".");
+					fRecursion(i);
+				});
+			}
+
+			testDataType(0);
+		}
+
+		function cleanup(c, facade, samplePermId, propertyTypeId, sampleTypeId) {
+			var options = new c.SampleDeletionOptions();
+			options.setReason("Test reason.");
+			facade.deleteSamples([samplePermId], options)
+				.then(function() {
+					facade.deleteSampleTypes([sampleTypeId], new c.SampleTypeDeletionOptions())
+						.then(function() {
+							facade.deletePropertyTypes([propertyTypeId], new c.PropertyTypeDeletionOptions())
+								.fail(function(error) {
+									c.fail("Error deleting property type. error.message=" + erro.message);
+								});
+						})
+						.fail(function(error) {
+							c.fail("Error deleting sample type. error.message=" + error.message);
+						});
+				})
+				.fail(function(error) {
+					c.fail("Error deleting sample. error.message=" + error.message);
+				});
+		}
+
+		function createSampleType(c, facade, mandatory) {
+			var creation = new c.SampleTypeCreation();
+			creation.setCode("SAMPLE-TYPE-" + Date.now());
+
+			var assignments = [];
+			for (var i = 3; i < arguments.length; i++) {
+				var propertyAssignmentCreation = new c.PropertyAssignmentCreation();
+				propertyAssignmentCreation.setPropertyTypeId(arguments[i]);
+				propertyAssignmentCreation.setMandatory(mandatory);
+				assignments.push(propertyAssignmentCreation);
+			}
+			creation.setPropertyAssignments(assignments);
+
+			return facade.createSampleTypes([creation]);
+		}
+
+		function createPropertyType(c, facade, dataType, vocabularyPermId) {
+			var creation = new c.PropertyTypeCreation();
+			creation.setCode("TYPE-" + Date.now());
+			creation.setDataType(dataType);
+			creation.setDescription("description");
+			creation.setLabel("label");
+
+			if (dataType === c.DataType.CONTROLLEDVOCABULARY)
+			{
+				creation.setVocabularyId(vocabularyPermId);
+			}
+			return facade.createPropertyTypes([creation]);
+		}
+
+		function createSample(c, facade, sampleTypeId, propertyType, value) {
+			var creation = new c.SampleCreation();
+			creation.setTypeId(sampleTypeId);
+			creation.setCode("TST-SAMPLE-" + Date.now());
+			creation.setSpaceId(new c.SpacePermId("TEST"));
+			creation.setProperty(propertyType, value);
+			return facade.createSamples([creation]);
+		}
 	}
 
 	return function() {

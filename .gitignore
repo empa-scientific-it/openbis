@@ -6,6 +6,7 @@
 */.gradle
 datastore_server/source/core-plugins
 openbis/source/core-plugins
+openbis/sourceTest/hot-deployment
 */bin/*
 **/.DS_Store
 *$py.class

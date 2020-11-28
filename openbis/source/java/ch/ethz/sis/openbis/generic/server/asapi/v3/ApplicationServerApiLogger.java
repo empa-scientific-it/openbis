@@ -120,6 +120,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -1139,6 +1141,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public TableModel executeSql(String sessionToken, String sql, SqlExecutionOptions options)
     {
         logAccess(sessionToken, "execute-sql", "SQL(%s) EXECUTION_OPTIONS(%s)", sql, options);
+        return null;
+    }
+
+    @Override
+    public PluginEvaluationResult evaluatePlugin(String sessionToken, PluginEvaluationOptions options)
+    {
+        logAccess(sessionToken, "evaluate-plugin", "EVALUATION_OPTIONS(%s)", options);
         return null;
     }
 

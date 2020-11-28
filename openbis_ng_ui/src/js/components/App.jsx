@@ -15,6 +15,7 @@ import Menu from '@src/js/components/common/menu/Menu.jsx'
 import Login from '@src/js/components/login/Login.jsx'
 import Users from '@src/js/components/users/Users.jsx'
 import Types from '@src/js/components/types/Types.jsx'
+import Tools from '@src/js/components/tools/Tools.jsx'
 
 const styles = {
   container: {
@@ -37,7 +38,8 @@ const styles = {
 
 const pageToComponent = {
   [pages.TYPES]: Types,
-  [pages.USERS]: Users
+  [pages.USERS]: Users,
+  [pages.TOOLS]: Tools
 }
 
 function mapStateToProps(state) {

@@ -28,6 +28,7 @@ module.exports = {
     moment: '<rootDir>/srcV3/lib/moment/js/moment.js',
     stjs: '<rootDir>/srcV3/lib/stjs/js/stjs.js',
     underscore: '<rootDir>/srcV3/lib/underscore/js/underscore.js',
+    '\\.css$': '<rootDir>/srcTest/js/mockStyles.js',
     'openbis.js': '<rootDir>/srcTest/js/services/openbis.js',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@srcTest/(.*)$': '<rootDir>/srcTest/$1',

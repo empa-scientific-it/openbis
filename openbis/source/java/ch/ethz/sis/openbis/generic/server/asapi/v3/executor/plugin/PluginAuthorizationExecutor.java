@@ -67,4 +67,11 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     {
     }
 
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("EVALUATE_PLUGIN")
+    public void canEvaluate(IOperationContext context)
+    {
+    }
+
 }

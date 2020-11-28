@@ -20,6 +20,7 @@ module.exports = {
       aggregateTimeout: 300,
       poll: 1000
     },
+    publicPath: '/ng-ui-path/',
     proxy: {
       '/openbis': {
         target: 'http://localhost:8888',

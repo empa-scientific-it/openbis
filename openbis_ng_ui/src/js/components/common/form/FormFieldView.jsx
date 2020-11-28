@@ -11,10 +11,7 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1) / 2,
     borderBottomWidth: '1px',
     borderBottomStyle: 'solid',
-    borderBottomColor: theme.palette.border.secondary,
-    '&:after': {
-      content: '"\\00a0"'
-    }
+    borderBottomColor: theme.palette.border.secondary
   }
 })
 
@@ -23,11 +20,11 @@ class FormFieldView extends React.PureComponent {
     const { label, value, classes } = this.props
     return (
       <div>
-        <Typography variant='body2' className={classes.label}>
+        <Typography variant='body2' component='div' className={classes.label}>
           {label}
         </Typography>
-        <Typography variant='body2' className={classes.value}>
-          {value ? value : ''}
+        <Typography variant='body2' component='div' className={classes.value}>
+          {value ? value : <span>&nbsp;</span>}
         </Typography>
       </div>
     )

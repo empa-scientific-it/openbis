@@ -184,23 +184,35 @@ def copyFromTo(sourceFolder, destinationFolder, relativePathInSourceFolder):
         shutil.copytree(source, 
                     destination, ignore = shutil.ignore_patterns(".*"))
     printAndFlush("'%s' copied from '%s' to '%s'" % (relativePathInSourceFolder, sourceFolder, destinationFolder))
-    
+
+def getDatabaseHost():
+    host = os.environ.get('FORCE_OPENBIS_POSTGRES_HOST')
+    if (host is None):
+        host = "localhost"
+    return host
+
 def dropDatabase(psqlExe, database):
     """
     Drops the specified database by using the specified path to psql.
     """
-    executeCommand([psqlExe, '-U', 'postgres', '-c' , "drop database if exists %s" % database], 
+    executeCommand([psqlExe,
+    '-h', getDatabaseHost(),
+    '-U', 'postgres', '-c' , "drop database if exists %s" % database],
                    "Couldn't drop database %s" % database)
     
 def createDatabase(psqlExe, database, scriptPath = None):
     """
     Creates specified database and run (if defined) the specified SQL script. 
     """
-    executeCommand([psqlExe, '-U', 'postgres', '-c' , "create database %s with owner %s" % (database, USER)], 
+    executeCommand([psqlExe,
+    '-h', getDatabaseHost(),
+    '-U', 'postgres', '-c' , "create database %s with owner %s" % (database, USER)],
                    "Couldn't create database %s" % database)
     if scriptPath == None:
         return
-    executeCommand([psqlExe, '-q', '-U', USER, '-d', database,  '-f', scriptPath], suppressStdOut=True,
+    executeCommand([psqlExe,
+    '-h', getDatabaseHost(),
+    '-q', '-U', USER, '-d', database,  '-f', scriptPath], suppressStdOut=True,
                    failingMessage="Couldn't execute script %s for database %s" % (scriptPath, database))
     
 def queryDatabase(psqlExe, database, queryStatement, showHeaders = False):
@@ -209,7 +221,9 @@ def queryDatabase(psqlExe, database, queryStatement, showHeaders = False):
     where each row is a list, too.
     """
     printingOption = '-A' if showHeaders else '-tA'
-    lines = executeCommand([psqlExe, '-U', 'postgres', printingOption, '-d', database, '-c', queryStatement], 
+    lines = executeCommand([psqlExe,
+    '-h', getDatabaseHost(),
+    '-U', 'postgres', printingOption, '-d', database, '-c', queryStatement],
                            "Couldn't execute query: %s" % queryStatement, suppressStdOut = True)
     result = []
     for line in lines:

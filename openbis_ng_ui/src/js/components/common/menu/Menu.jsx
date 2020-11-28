@@ -113,6 +113,7 @@ class Menu extends React.Component {
           >
             <Tab value={pages.TYPES} label='Types' />
             <Tab value={pages.USERS} label='Users' />
+            <Tab value={pages.TOOLS} label='Tools' />
           </Tabs>
           <TextField
             placeholder='Search...'

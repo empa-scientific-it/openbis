@@ -181,6 +181,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ProcessingServiceExecutionOptions = dtos.ProcessingServiceExecutionOptions;
 		this.QueryExecutionOptions = dtos.QueryExecutionOptions;
 		this.SqlExecutionOptions = dtos.SqlExecutionOptions;
+		this.EvaluatePluginOperation = dtos.EvaluatePluginOperation;
+		this.DynamicPropertyPluginEvaluationOptions = dtos.DynamicPropertyPluginEvaluationOptions;
+		this.EntityValidationPluginEvaluationOptions = dtos.EntityValidationPluginEvaluationOptions;
 		this.GlobalSearchCriteria = dtos.GlobalSearchCriteria;
 		this.GlobalSearchObjectFetchOptions = dtos.GlobalSearchObjectFetchOptions;
 		this.ObjectKindModificationSearchCriteria = dtos.ObjectKindModificationSearchCriteria;

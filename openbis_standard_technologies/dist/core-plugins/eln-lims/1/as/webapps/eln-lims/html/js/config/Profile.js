@@ -37,6 +37,7 @@ $.extend(DefaultProfile.prototype, {
 	    //
 	    this.isOpenBIS2020 = true;
 	    this.enableNewAnnotationsBackend = this.isOpenBIS2020;
+	    this.enableLuceneQueryEngine = !this.isOpenBIS2020;
 
 		//
 		// Updating title and logo

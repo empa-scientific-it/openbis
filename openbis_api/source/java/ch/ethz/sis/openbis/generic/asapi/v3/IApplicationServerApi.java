@@ -119,6 +119,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -1991,6 +1993,18 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems
      */
     public TableModel executeSql(String sessionToken, String sql, SqlExecutionOptions options);
+
+    /**
+     * Evaluates the provided plugin (e.g. a dynamic property plugin or an entity validation plugin). Parameters to be passed to the plugin can be set
+     * via {@code PluginEvaluationOptions} subclasses. The method returns appropriate subclasses of {@code PluginEvaluationResult} depending on the
+     * plugin type.
+     * <p>
+     * Required access rights: {@code INSTANCE_ADMIN}
+     * </p>
+     * 
+     * @throws UserFailureException in case of any problems
+     */
+    public PluginEvaluationResult evaluatePlugin(String sessionToken, PluginEvaluationOptions options);
 
     /**
      * Archives data sets with the provided {@code IDataSetId} ids. Additional archiving options can be set via {@code DataSetArchiveOptions}.

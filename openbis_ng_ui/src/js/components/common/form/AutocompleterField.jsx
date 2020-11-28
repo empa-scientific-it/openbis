@@ -8,6 +8,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
+import compare from '@src/js/common/compare.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -45,7 +46,8 @@ class AutocompleterFormField extends React.PureComponent {
     super(props)
 
     this.state = {
-      open: false
+      open: false,
+      focused: false
     }
 
     this.reference = React.createRef()
@@ -98,11 +100,15 @@ class AutocompleterFormField extends React.PureComponent {
   }
 
   handleFocus(event) {
+    this.setState({
+      focused: true
+    })
     this.handleEvent(event, null, this.props.onFocus)
   }
 
   handleBlur(event) {
     this.setState({
+      focused: false,
       open: false
     })
 
@@ -154,7 +160,6 @@ class AutocompleterFormField extends React.PureComponent {
   renderEdit() {
     const {
       name,
-      options,
       description,
       value,
       disabled,
@@ -165,7 +170,7 @@ class AutocompleterFormField extends React.PureComponent {
       variant
     } = this.props
 
-    const { open } = this.state
+    const { open, focused } = this.state
 
     return (
       <FormFieldContainer
@@ -180,7 +185,7 @@ class AutocompleterFormField extends React.PureComponent {
           disableClearable
           name={name}
           disabled={disabled}
-          options={options}
+          options={this.getOptions()}
           value={value}
           open={open}
           onChange={this.handleChange}
@@ -203,6 +208,9 @@ class AutocompleterFormField extends React.PureComponent {
                   input: classes.input,
                   disabled: classes.disabled
                 }
+              }}
+              InputLabelProps={{
+                shrink: !!value || focused
               }}
               label={this.renderLabel()}
               error={!!error}
@@ -240,6 +248,24 @@ class AutocompleterFormField extends React.PureComponent {
         {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </InputAdornment>
     )
+  }
+
+  getOptions() {
+    const { options, sort = true } = this.props
+
+    if (options) {
+      let result = Array.from(options)
+
+      if (sort) {
+        result.sort((option1, option2) => {
+          return compare(option1, option2)
+        })
+      }
+
+      return result
+    } else {
+      return []
+    }
   }
 
   getReference() {

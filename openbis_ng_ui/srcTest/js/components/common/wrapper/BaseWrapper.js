@@ -61,6 +61,10 @@ export default class BaseWrapper {
     })
   }
 
+  exists() {
+    return this.wrapper.exists()
+  }
+
   expectJSON(json) {
     expect(this.toJSON()).toMatchObject(json)
   }
