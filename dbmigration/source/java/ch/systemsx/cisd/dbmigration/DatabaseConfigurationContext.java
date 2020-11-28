@@ -436,6 +436,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.urlHostPart = null;
         }
+        setTestEnvironmentHostOrConfigured();
     }
 
     private boolean isSet(String propertyValueStr)

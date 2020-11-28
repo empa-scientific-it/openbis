@@ -56,7 +56,7 @@ public class SpaceSearchManager extends AbstractLocalSearchManager<SpaceSearchCr
 
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, criteria, TableMapper.SPACE,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, criteria, TableMapper.SPACE,
                 idsColumnName, authorisationInformation);
 
         // If we have results, we use them

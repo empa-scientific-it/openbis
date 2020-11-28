@@ -90,7 +90,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         {
             // The main criteria have no recursive ISearchCriteria into it, to facilitate building a query
             final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(mainCriteria, finalSearchOperator);
-            mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
+            mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
                     idsColumnName, authorisationInformation);
         } else
         {
@@ -259,7 +259,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         final CRITERIA criteria = createEmptyCriteria();
         final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion();
         containerCriterion.setCriteria(Collections.singletonList(criteria));
-        return getSearchDAO().queryDBWithNonRecursiveCriteria(userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
+        return getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
     }
 
     private Set<Long> getChildrenIdsOf(final Set<Long> parentIdSet, final TableMapper tableMapper,

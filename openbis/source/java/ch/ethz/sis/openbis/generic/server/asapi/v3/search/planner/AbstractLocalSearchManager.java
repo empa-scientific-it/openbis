@@ -143,7 +143,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
     protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String selectColumnName,
             final TableMapper tableMapper)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, criteria, tableMapper,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, criteria, tableMapper,
                 selectColumnName, authorisationInformation);
 
         // If we have results, we use them
@@ -160,7 +160,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         if (!criteria.isEmpty())
         {
             final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
-            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
+            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
                     idsColumnName, authorisationInformation);
             return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
         } else

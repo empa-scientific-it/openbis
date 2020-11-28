@@ -18,13 +18,13 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 /**
  * A static class which holds the database version.
- * 
+ *
  * @author Christian Ribeaud
  */
 public final class DatabaseVersionHolder
 {
     /** Current version of the database. */
-    private static final String DATABASE_VERSION = "186";
+    private static final String DATABASE_VERSION = "187";
 
     private DatabaseVersionHolder()
     {

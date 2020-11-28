@@ -38,7 +38,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PROPERTY_T
 
 /**
  * Manages detailed search with complex property assignment search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class PropertyAssignmentSearchManager extends
@@ -67,7 +67,7 @@ public class PropertyAssignmentSearchManager extends
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
         // TODO: not always related to samples.
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
                 criteria, TableMapper.SAMPLE_PROPERTY_ASSIGNMENT, idsColumnName, authorisationInformation);
 
         final Set<Long> finalResults;
@@ -77,7 +77,7 @@ public class PropertyAssignmentSearchManager extends
             final DummyCompositeSearchCriterion compositeSearchCriterion = new DummyCompositeSearchCriterion(
                     criteria.getCriteria(), criteria.getOperator());
 
-            final Set<Long> propertyTypesIds = getSearchDAO().queryDBWithNonRecursiveCriteria(userId,
+            final Set<Long> propertyTypesIds = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
                     compositeSearchCriterion, TableMapper.SEMANTIC_ANNOTATION, PROPERTY_TYPE_COLUMN, authorisationInformation);
 
             final Set<Long> assignmentIDsWithoutAnnotations = assignmentsSearchDAO.findAssignmentsWithoutAnnotations(

@@ -76,7 +76,7 @@ public class TagSearchManager extends AbstractLocalSearchManager<TagSearchCriter
             }
         }).collect(Collectors.toList());
 
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
                 new DummyCompositeSearchCriterion(newCriteria, criteria.getOperator()), TableMapper.TAG, idsColumnName, authorisationInformation);
 
         if (!containsValues(mainCriteriaIntermediateResults))

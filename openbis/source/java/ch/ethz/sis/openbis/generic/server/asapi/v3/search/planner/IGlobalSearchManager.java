@@ -18,9 +18,10 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 
 import java.util.Collection;
@@ -39,16 +40,35 @@ public interface IGlobalSearchManager extends ISearchManager
      * @param criteria search criteria.
      * @param idsColumnName name of the column to select the ID's by; usually the
      * {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN}.
-     * @param tableMapper the table mapper that points to the table to run global search on.
-     * @param useHeadline whether match spans should be calculated.
+     * @param objectKinds object kinds to be included in the search.
+     * @param fetchOptions whether match spans should be calculated.
+     * @param onlyTotalCount
      * @return set of IDs of found entities.
      */
-    Set<Map<String, Object>> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
-            final GlobalSearchCriteria criteria, final String idsColumnName, final TableMapper tableMapper, final boolean useHeadline);
+    Collection<Map<String, Object>> searchForIDs(Long userId, AuthorisationInformation authorisationInformation,
+            GlobalSearchCriteria criteria, String idsColumnName, Set<GlobalSearchObjectKind> objectKinds,
+            GlobalSearchObjectFetchOptions fetchOptions, final boolean onlyTotalCount);
 
-    List<MatchingEntity> sortRecords(Collection<MatchingEntity> records,
+    /**
+     * Searches for entities using certain criteria.
+     *
+     * @param idsAndRanksResult the result of the query with short information.
+     * @param authorisationInformation
+     * @param criteria search criteria.
+     * @param idsColumnName name of the column to select the ID's by; usually the
+     * {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN}.
+     * @param objectKinds
+     * @param fetchOptions whether match spans should be calculated.
+     * @return set of IDs of found entities.
+     */
+    Collection<Map<String, Object>> searchForDetails(Collection<Map<String, Object>> idsAndRanksResult,
+            Long userId, AuthorisationInformation authorisationInformation,
+            GlobalSearchCriteria criteria, String idsColumnName,
+            final Set<GlobalSearchObjectKind> objectKinds, GlobalSearchObjectFetchOptions fetchOptions);
+
+    List<Map<String, Object>> sortRecords(Collection<Map<String, Object>> records,
             SortOptions<GlobalSearchObject> sortOptions);
 
-    Collection<MatchingEntity> map(final Collection<Map<String, Object>> ids, boolean withMatches);
+    Collection<MatchingEntity> map(Collection<Map<String, Object>> ids, boolean withMatches);
 
 }

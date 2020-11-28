@@ -23,7 +23,9 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
@@ -42,23 +44,47 @@ public interface ISQLSearchDAO
      * @param authorisationInformation
      * @return set of numbers which represent the IDs of the scpecified ID column name.
      */
-    Set<Long> queryDBWithNonRecursiveCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion, final TableMapper tableMapper,
+    Set<Long> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion, final TableMapper tableMapper,
             final String idsColumnName, final AuthorisationInformation authorisationInformation);
+
+    /**
+     * Queries the DB only with non recursive global text search criteria for short result with ID's, ranks and
+     * object kings.
+     *
+     * @param userId ID of the user who makes the query.
+     * @param criterion the global text search criterion to search by.
+     * @param idsColumnName name of the column to select by, if {@code null}
+     *     {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN} is used.
+     * @param authorisationInformation user authorisation information.
+     * @param objectKinds object kinds to be included in this search.
+     * @param fetchOptions global search fetch options.
+     * @param onlyTotalCount whether only total count should be returned.
+     * @return list of result rows containing ID's, ranks and object kings.
+     */
+    List<Map<String, Object>> queryDBForIdsAndRanksWithNonRecursiveCriteria(Long userId, GlobalSearchCriteria criterion,
+            String idsColumnName, AuthorisationInformation authorisationInformation,
+            Set<GlobalSearchObjectKind> objectKinds, GlobalSearchObjectFetchOptions fetchOptions,
+            boolean onlyTotalCount);
 
     /**
      * Queries the DB only with non recursive global text search criteria.
      *
+     *
+     * @param idsAndRanksResult the result of calling {@link #queryDBForIdsAndRanksWithNonRecursiveCriteria(Long,
+     * GlobalSearchCriteria, String, AuthorisationInformation, Set, GlobalSearchObjectFetchOptions)} before.
      * @param userId ID of the user who makes the query.
      * @param criterion the global text search criterion to search by.
-     * @param tableMapper table mapper that contains extra information about tables related to the entities which can have parent-child relationships.
-     * @param idsColumnName name of the column to select by, if {@code null} {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN}
-     *     is used.
+     * @param idsColumnName name of the column to select by, if {@code null}
+     *     {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN} is used.
      * @param authorisationInformation user authorisation information.
-     * @param useHeadline global search fetch options.
-     * @return set of numbers which represent the IDs of the scpecified ID column name.
+     * @param objectKinds object kinds to be included in this search.
+     * @param fetchOptions global search fetch options.
+     * @return set of numbers which represent the IDs of the specified ID column name.
      */
-    Set<Map<String, Object>> queryDBWithNonRecursiveCriteria(final Long userId, final GlobalSearchCriteria criterion, final TableMapper tableMapper,
-            final String idsColumnName, final AuthorisationInformation authorisationInformation, final boolean useHeadline);
+    Collection<Map<String, Object>> queryDBWithNonRecursiveCriteria(Collection<Map<String, Object>> idsAndRanksResult,
+            Long userId, GlobalSearchCriteria criterion, String idsColumnName,
+            AuthorisationInformation authorisationInformation, final Set<GlobalSearchObjectKind> objectKinds,
+            GlobalSearchObjectFetchOptions fetchOptions);
 
     /**
      * Finds child IDs which correspond to parent IDs.

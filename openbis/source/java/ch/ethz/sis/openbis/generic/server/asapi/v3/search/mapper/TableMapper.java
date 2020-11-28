@@ -35,13 +35,13 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 public enum TableMapper
 {
 
-    SAMPLE(SAMPLES_VIEW, SAMPLE_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, SAMPLE_TYPES_TABLE,
-            SAMPLE_TYPE_PROPERTY_TYPE_TABLE, SAMPLE_TYPE_COLUMN, PROPERTY_TYPE_COLUMN, SAMPLE_PROPERTIES_TABLE,
-            SAMPLE_COLUMN, SAMPLE_TYPE_PROPERTY_TYPE_COLUMN, SAMPLE_RELATIONSHIPS_VIEW, PARENT_SAMPLE_COLUMN,
-            CHILD_SAMPLE_COLUMN, DATA_VIEW, SAMPLE_COLUMN, SAMPLE_COLUMN, EntityKind.SAMPLE, true, true),
+    MATERIAL(MATERIALS_TABLE, MATERIAL_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, MATERIAL_TYPES_TABLE,
+            MATERIAL_TYPE_PROPERTY_TYPE_TABLE, MATERIAL_TYPE_COLUMN, PROPERTY_TYPE_COLUMN, MATERIAL_PROPERTIES_TABLE,
+            MATERIAL_COLUMN, MATERIAL_TYPE_PROPERTY_TYPE_COLUMN, null, null, null, DATA_VIEW, MATERIAL_COLUMN,
+            MATERIAL_COLUMN, EntityKind.MATERIAL, true, false),
 
-    SAMPLE_TYPE(SAMPLE_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, EntityKind.SAMPLE, false, false),
+    MATERIAL_TYPE(MATERIAL_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, EntityKind.MATERIAL, false, false),
 
     EXPERIMENT(EXPERIMENTS_VIEW, EXPERIMENT_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, EXPERIMENT_TYPES_TABLE,
             EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE, EXPERIMENT_TYPE_COLUMN, PROPERTY_TYPE_COLUMN,
@@ -51,6 +51,14 @@ public enum TableMapper
     EXPERIMENT_TYPE(EXPERIMENT_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, EntityKind.EXPERIMENT, false, false),
 
+    SAMPLE(SAMPLES_VIEW, SAMPLE_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, SAMPLE_TYPES_TABLE,
+            SAMPLE_TYPE_PROPERTY_TYPE_TABLE, SAMPLE_TYPE_COLUMN, PROPERTY_TYPE_COLUMN, SAMPLE_PROPERTIES_TABLE,
+            SAMPLE_COLUMN, SAMPLE_TYPE_PROPERTY_TYPE_COLUMN, SAMPLE_RELATIONSHIPS_VIEW, PARENT_SAMPLE_COLUMN,
+            CHILD_SAMPLE_COLUMN, DATA_VIEW, SAMPLE_COLUMN, SAMPLE_COLUMN, EntityKind.SAMPLE, true, true),
+
+    SAMPLE_TYPE(SAMPLE_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, EntityKind.SAMPLE, false, false),
+
     DATA_SET(DATA_VIEW, DATA_SET_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, DATA_SET_TYPES_TABLE,
             DATA_SET_TYPE_PROPERTY_TYPE_TABLE, DATA_SET_TYPE_COLUMN, PROPERTY_TYPE_COLUMN, DATA_SET_PROPERTIES_TABLE,
             DATA_SET_COLUMN, DATA_SET_TYPE_PROPERTY_TYPE_COLUMN, DATA_SET_RELATIONSHIPS_VIEW, DATA_PARENT_COLUMN,
@@ -58,14 +66,6 @@ public enum TableMapper
 
     DATA_SET_TYPE(DATA_SET_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, EntityKind.DATA_SET, false, false),
-
-    MATERIAL(MATERIALS_TABLE, MATERIAL_TYPE_COLUMN, PROPERTY_TYPES_TABLE, DATA_TYPE_COLUMN, MATERIAL_TYPES_TABLE,
-            MATERIAL_TYPE_PROPERTY_TYPE_TABLE, MATERIAL_TYPE_COLUMN, PROPERTY_TYPE_COLUMN, MATERIAL_PROPERTIES_TABLE,
-            MATERIAL_COLUMN, MATERIAL_TYPE_PROPERTY_TYPE_COLUMN, null, null, null, DATA_VIEW, MATERIAL_COLUMN,
-            MATERIAL_COLUMN, EntityKind.MATERIAL, true, false),
-
-    MATERIAL_TYPE(MATERIAL_TYPES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, EntityKind.MATERIAL, false, false),
 
     PERSON(PERSONS_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, true, false),

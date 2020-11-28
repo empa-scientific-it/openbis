@@ -3,14 +3,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.IDENTIFIER_ALIAS;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERSON_REGISTERER_COLUMN;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -39,7 +34,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.AbstractSampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.DataSetSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ExperimentSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.GlobalSearchManager;
@@ -128,11 +122,20 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
 
         // Obtain entity id results from search manager
 
-        Set<Map<String, Object>> newResults = getGlobalSearchManager().searchForIDs(personPE.getId(),
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+        final Collection<Map<String, Object>> newShortResults = getGlobalSearchManager().searchForIDs(personPE.getId(),
                 getAuthorisationInformation(personPE),
                 globalSearchCriteria,
                 ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN,
-                getTableMapper(searchableEntity), true);
+                Collections.singleton(getObjectKind(searchableEntity)), fetchOptions, false);
+
+        final Collection<Map<String, Object>> newResults = getGlobalSearchManager().searchForDetails(newShortResults,
+                personPE.getId(),
+                getAuthorisationInformation(personPE),
+                globalSearchCriteria,
+                ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN,
+                Collections.singleton(getObjectKind(searchableEntity)), fetchOptions);
 
         Collection<MatchingEntity> matchingEntities = getGlobalSearchManager().map(newResults, true);
 
@@ -200,23 +203,35 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         return globalSearchCriteria;
     }
 
-    private TableMapper getTableMapper(SearchableEntity entityKind) {
-        TableMapper tableMapper = null;
+    private GlobalSearchObjectKind getObjectKind(final SearchableEntity entityKind) {
+        final GlobalSearchObjectKind objectKind;
         switch (entityKind) {
             case MATERIAL:
-                tableMapper = TableMapper.MATERIAL;
+            {
+                objectKind = GlobalSearchObjectKind.MATERIAL;
                 break;
+            }
             case EXPERIMENT:
-                tableMapper = TableMapper.EXPERIMENT;
+            {
+                objectKind = GlobalSearchObjectKind.EXPERIMENT;
                 break;
+            }
             case SAMPLE:
-                tableMapper = TableMapper.SAMPLE;
+            {
+                objectKind = GlobalSearchObjectKind.SAMPLE;
                 break;
+            }
             case DATA_SET:
-                tableMapper = TableMapper.DATA_SET;
+            {
+                objectKind = GlobalSearchObjectKind.DATA_SET;
                 break;
+            }
+            default:
+            {
+                throw new IllegalArgumentException();
+            }
         }
-        return tableMapper;
+        return objectKind;
     }
 
     @Override

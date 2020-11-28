@@ -389,12 +389,51 @@ var BarcodeUtil = new function() {
         });
 
         var $canvas = $('<img>');
+
+        var $barcodeTypesDropdown = FormUtil.getDropdown(this.supportedBarcodes());
+
+        var $width = FormUtil.getDropdown([ { label: '10 mm', value: 10 },
+                                            { label: '15 mm', value: 15 },
+                                            { label: '20 mm', value: 20 },
+                                            { label: '25 mm', value: 25 },
+                                            { label: '30 mm', value: 30 },
+                                            { label: '35 mm', value: 35 },
+                                            { label: '40 mm', value: 40 },
+                                            { label: '45 mm', value: 45 },
+                                            { label: '50 mm', value: 50, selected: true }
+        ]);
+
+        var $height = FormUtil.getDropdown([{ label: ' 5 mm', value:  5 },
+                                            { label: '10 mm', value: 10 },
+                                            { label: '15 mm', value: 15, selected: true },
+                                            { label: '20 mm', value: 20 },
+                                            { label: '25 mm', value: 25 },
+                                            { label: '30 mm', value: 30 },
+                                            { label: '35 mm', value: 35 },
+                                            { label: '40 mm', value: 40 },
+                                            { label: '45 mm', value: 45 },
+                                            { label: '50 mm', value: 50 }
+        ]);
+
+        // The interaction with the library to generate barcodes is buggy so a double call is needed, this should probably be wrapped on the generateBarcode method instead of here
+        var updateBarcode = function() {
+            _this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode, function() {
+                var imageData = _this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode,  null, parseInt($width.val()), parseInt($height.val()));
+                $canvas.attr('src', imageData);
+            }, parseInt($width.val()), parseInt($height.val()));
+        };
+
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Download' });
         $btnAccept.click(function(event) {
-            var downloadLink = document.createElement("a");
-            downloadLink.href = $canvas.attr('src');
-            downloadLink.download = entity.permId + '.png';
-            downloadLink.click();
+            var pdf = new jsPDF({
+                orientation: 'l',
+                unit: 'mm',
+                format: [parseInt($width.val()), parseInt($height.val())],
+                putOnlyUsedFonts:true
+            });
+            var imageData = _this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode,  null, parseInt($width.val()), parseInt($height.val()));
+            pdf.addImage(imageData, 'png', 0, 0, parseInt($width.val()), parseInt($height.val()));
+            pdf.save("barcodes.pdf");
         });
 
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
@@ -402,13 +441,17 @@ var BarcodeUtil = new function() {
 			Util.unblockUI();
 		});
 
-        var $barcodeTypesDropdown = FormUtil.getDropdown(this.supportedBarcodes());
-            $barcodeTypesDropdown.change(function() {
-                $canvas.attr('src', _this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode));
-            });
+        $barcodeTypesDropdown.change(updateBarcode);
+        $width.change(updateBarcode);
+        $height.change(updateBarcode);
+
 		$window.append($('<legend>').append("Print Barcode"));
 	    $window.append($('<br>'));
 	    $window.append($('<center>').append($barcodeTypesDropdown));
+	    $window.append($('<br>'));
+	    $window.append($('<center>').append($width));
+	    $window.append($('<br>'));
+	    $window.append($('<center>').append($height));
 	    $window.append($('<br>'));
 	    $window.append($('<center>').append($canvas));
 	    $window.append($('<br>'));
@@ -426,11 +469,8 @@ var BarcodeUtil = new function() {
 
         Util.blockUI($window, css);
 
-        // The first call is to load the library if is not loaded yet
-        var _this = this;
-        this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode, function() {
-            $canvas.attr('src', _this.generateBarcode($barcodeTypesDropdown.val(), barcode, barcode));
-        });
+        // The first call is to load the library and show the barcode
+        updateBarcode();
     }
 
     this.supportedBarcodes = function() {

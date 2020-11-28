@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 import java.util.HashMap;
 import java.util.Map;
 
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class AttributesMapper
@@ -55,7 +56,7 @@ public class AttributesMapper
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(CONTROLLED_VOCABULARY_TERM_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_SET_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_STORES_TABLE, ColumnNames.CODE_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.DATA_SET.getEntitiesTable(), ColumnNames.CODE_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_SET.getEntitiesTable(), ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(GRID_CUSTOM_COLUMNS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(EXPERIMENT_TYPES_TABLE, ColumnNames.CODE_COLUMN);
@@ -70,9 +71,9 @@ public class AttributesMapper
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(OPERATION_EXECUTIONS_TABLE, ColumnNames.CODE_COLUMN);
 
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.EXPERIMENT.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(EXPERIMENT.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(PROJECTS_TABLE, ColumnNames.PERM_ID_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.SAMPLE.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(SAMPLE.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(SEMANTIC_ANNOTATIONS_TABLE, ColumnNames.PERM_ID_COLUMN);
     }
 

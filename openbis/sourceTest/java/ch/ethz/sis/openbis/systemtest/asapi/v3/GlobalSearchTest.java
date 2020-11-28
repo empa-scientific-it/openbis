@@ -461,18 +461,18 @@ public class GlobalSearchTest extends AbstractTest
                     final IObjectId permId2 = o2.getObjectPermId();
 
                     assertFalse(permId1.toString().compareTo(permId2.toString()) > 0,
-                            "Subsubordering is incorrect. [index=" + index + "permId1=" + permId1 +
-                                    ", permId2=" + permId2 + "]");
+                            String.format("Subsubordering is incorrect. [index=%d, permId1=%s, permId2=%s]",
+                                    index, permId1, permId2));
                 } else
                 {
                     assertFalse(objectKind1.compareTo(objectKind2) < 0,
-                            "Subordering is incorrect. [index=" + index + "objectKind1=" + objectKind1 +
-                                    ", objectKind2=" + objectKind2 + "]");
+                            String.format("Subordering is incorrect. [index=%d, objectKind1=%s, objectKind2=%s]",
+                                    index, objectKind1, objectKind2));
                 }
             } else
             {
-                assertFalse(value1 > value2,
-                        "Ordering is incorrect. [index=" + index + "value1=" + value1 + ", value2=" + value2 + "]");
+                assertFalse(value1 > value2, String.format("Ordering is incorrect. [index=%d, value1=%s, value2=%s]",
+                        index, value1, value2));
             }
         }
     }
@@ -483,11 +483,12 @@ public class GlobalSearchTest extends AbstractTest
     {
         for (int index = 1, size = globalSearchObjects.size(); index < size; index++)
         {
-            final Comparable<Object> value1 = (Comparable<Object>) valueRetriever.apply(globalSearchObjects.get(index - 1));
+            final Comparable<Object> value1 = (Comparable<Object>) valueRetriever.apply(
+                    globalSearchObjects.get(index - 1));
             final Object value2 = valueRetriever.apply(globalSearchObjects.get(index));
             final int comparison = value1.compareTo(value2);
             assertFalse(ascending && comparison > 0 || !ascending && comparison < 0,
-                    "Ordering is incorrect. [index=" + index + "value1=" + value1 + ", value2=" + value2 + "]");
+                    String.format("Ordering is incorrect. [index=%d, value1=%s, value2=%s]", index, value1, value2));
         }
     }
 
@@ -536,6 +537,21 @@ public class GlobalSearchTest extends AbstractTest
             assertTrue(globalSearchObject.getMatch().contains("Property 'Gender': MALE"));
             assertTrue(globalSearchObject.getScore() > 0);
         }
+    }
+
+    @Test
+    public void testSearchWithPagingOffsetTooLarge()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple male");
+
+        final GlobalSearchObjectFetchOptions fo1 = new GlobalSearchObjectFetchOptions();
+        fo1.from(10).count(1);
+
+        final SearchResult<GlobalSearchObject> searchResult = search(TEST_USER, criteria, fo1);
+        final List<GlobalSearchObject> results = searchResult.getObjects();
+        assertEquals(searchResult.getTotalCount(), 5);
+        assertEquals(results.size(), 0);
     }
 
     @Test
@@ -965,6 +981,7 @@ public class GlobalSearchTest extends AbstractTest
         c.withText().thatContains("simple male");
 
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().score().desc();
         fo.withExperiment();
         fo.withMatch();
 

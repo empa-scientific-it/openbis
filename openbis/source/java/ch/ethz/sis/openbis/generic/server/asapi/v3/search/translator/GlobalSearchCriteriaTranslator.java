@@ -1,8 +1,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.Sorting;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsExactlyValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKindCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchTextCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchWildCardsCriteria;
@@ -17,8 +21,8 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.FLOAT4;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.INT8;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectSortOptions.*;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper.PERM_ID_ATTRIBUTE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
@@ -41,13 +45,15 @@ public class GlobalSearchCriteriaTranslator
 
     public static final String IDENTIFIER_ALIAS = "identifier";
 
-    public static final String OBJECT_KIND_ALIAS = "object_kind";
+    public static final String OBJECT_KIND_ORDINAL_ALIAS = "object_kind_ordinal";
 
     public static final String SPACE_CODE_ALIAS = "space_code";
 
     public static final String CODE_MATCH_ALIAS = "code_match";
 
     public static final String PERM_ID_MATCH_ALIAS = "perm_id_match";
+
+    public static final String TOTAL_COUNT_ALIAS = "total_count";
 
     public static final String SAMPLE_IDENTIFIER_MATCH_ALIAS = "sample_identifier_match";
 
@@ -102,6 +108,16 @@ public class GlobalSearchCriteriaTranslator
 
     private static final Logger LOG = LogFactory.getLogger(LogCategory.OPERATION, GlobalSearchCriteriaTranslator.class);
 
+    private static final Map<String, String> ALIAS_BY_FIELD_NAME = new HashMap<>(4);
+
+    static
+    {
+        ALIAS_BY_FIELD_NAME.put(SCORE, RANK_ALIAS);
+        ALIAS_BY_FIELD_NAME.put(OBJECT_KIND, OBJECT_KIND_ORDINAL_ALIAS);
+        ALIAS_BY_FIELD_NAME.put(OBJECT_PERM_ID, PERM_ID_COLUMN);
+        ALIAS_BY_FIELD_NAME.put(OBJECT_IDENTIFIER, IDENTIFIER_ALIAS);
+    }
+
     private GlobalSearchCriteriaTranslator()
     {
         throw new UnsupportedOperationException();
@@ -119,7 +135,8 @@ public class GlobalSearchCriteriaTranslator
                 .toString();
     }
 
-    public static SelectQuery translateToShortQuery(final TranslationContext translationContext)
+    public static SelectQuery translateToShortQuery(final TranslationContext translationContext,
+            final boolean onlyTotalCount)
     {
         if (translationContext.getCriteria() == null)
         {
@@ -148,95 +165,122 @@ public class GlobalSearchCriteriaTranslator
         }
         sqlBuilder.append(RP);
 
-        final StringBuilder prefixSqlBuilder = new StringBuilder();
+        final String prefixSelectContent = onlyTotalCount ? COUNT + LP + ASTERISK + RP + SP + TOTAL_COUNT_ALIAS
+                : ID_COLUMN + COMMA + SP + PERM_ID_COLUMN + COMMA + SP +
+                OBJECT_KIND_ORDINAL_ALIAS + COMMA + SP + RANK_ALIAS + COMMA + SP + IDENTIFIER_ALIAS + COMMA + SP +
+                COUNT + LP + ASTERISK + RP + SP + OVER + LP + RP + SP + TOTAL_COUNT_ALIAS;
+        final String prefixSql = SELECT + SP + prefixSelectContent + NL +
+                FROM + SP + LP + NL +
+                SELECT + SP + PROJECT_COLUMN + COMMA + SP + SPACE_COLUMN + COMMA + SP + ID_COLUMN + COMMA + SP +
+                PERM_ID_COLUMN + SP + PERM_ID_COLUMN + COMMA + SP + OBJECT_KIND_ORDINAL_ALIAS + COMMA +
+                SP + SUM + LP + RANK_ALIAS + RP + SP + RANK_ALIAS + COMMA + SP + IDENTIFIER_ALIAS + NL +
+                FROM + SP + LP + NL;
+
         final StringBuilder suffixSqlBuilder = new StringBuilder();
-
-        prefixSqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(COMMA).append(SP)
-                .append(PERM_ID_COLUMN).append(COMMA).append(SP)
-                .append(OBJECT_KIND_ALIAS).append(COMMA).append(SP)
-                .append(RANK_ALIAS).append(NL)
-                .append(FROM).append(SP).append(LP).append(NL);
-        prefixSqlBuilder.append(SELECT).append(SP);
-
-        final TableMapper tableMapper = translationContext.getTableMapper();
-        final boolean hasSpaces = hasSpaces(tableMapper);
-        final boolean hasProjects = hasProjects(tableMapper);
-        final boolean hasExperiments = hasExperiments(tableMapper);
-        final String permIdColumn = getPermId(tableMapper);
-
-        if (hasProjects)
-        {
-            prefixSqlBuilder.append(PROJECT_COLUMN).append(COMMA).append(SP);
-        }
-
-        if (hasSpaces)
-        {
-            prefixSqlBuilder.append(SPACE_COLUMN).append(COMMA).append(SP);
-        }
-
-        prefixSqlBuilder.append(ID_COLUMN).append(COMMA).append(SP)
-                .append(permIdColumn).append(SP).append(PERM_ID_COLUMN).append(COMMA).append(SP)
-                .append(OBJECT_KIND_ALIAS).append(COMMA).append(SP)
-                .append(SUM).append(LP).append(RANK_ALIAS).append(RP).append(SP).append(RANK_ALIAS).append(NL)
-                .append(FROM).append(SP).append(LP).append(NL);
-
         suffixSqlBuilder.append(RP).append(SP).append("q1").append(NL)
                 .append(GROUP_BY).append(SP);
 
-        if (hasProjects)
+        suffixSqlBuilder.append(PROJECT_COLUMN).append(COMMA).append(SP);
+        suffixSqlBuilder.append(SPACE_COLUMN).append(COMMA).append(SP);
+        suffixSqlBuilder.append(EXPERIMENT_COLUMN).append(COMMA).append(SP);
+        suffixSqlBuilder.append(ID_COLUMN).append(COMMA).append(SP);
+        suffixSqlBuilder.append(PERM_ID_COLUMN).append(COMMA).append(SP);
+        suffixSqlBuilder.append(OBJECT_KIND_ORDINAL_ALIAS).append(COMMA).append(SP);
+        suffixSqlBuilder.append(IDENTIFIER_ALIAS).append(NL);
+
+        suffixSqlBuilder.append(RP).append(SP).append("q2").append(NL);
+
+        if (!onlyTotalCount)
         {
-            suffixSqlBuilder.append(PROJECT_COLUMN).append(COMMA).append(SP);
+            translateOrderBy(suffixSqlBuilder, translationContext);
+            translateLimitOffset(suffixSqlBuilder, translationContext);
         }
 
-        if (hasSpaces)
-        {
-            suffixSqlBuilder.append(SPACE_COLUMN).append(COMMA).append(SP);
-        }
-
-        if (hasExperiments)
-        {
-            suffixSqlBuilder.append(EXPERIMENT_COLUMN).append(COMMA).append(SP);
-        }
-
-        suffixSqlBuilder.append(ID_COLUMN).append(COMMA).append(SP)
-                .append(permIdColumn).append(COMMA).append(SP)
-                .append(OBJECT_KIND_ALIAS).append(NL);
-
-        translateAuthorisation(suffixSqlBuilder, translationContext);
-
-        suffixSqlBuilder.append(RP).append(SP).append("q2");
-
-        return new SelectQuery(prefixSqlBuilder.toString() + sqlBuilder.toString() + suffixSqlBuilder.toString(),
+        return new SelectQuery(prefixSql + sqlBuilder.toString() + suffixSqlBuilder.toString(),
                 translationContext.getArgs());
     }
 
-    private static void translateAuthorisation(final StringBuilder sqlBuilder,
+    private static void translateOrderBy(final StringBuilder sqlBuilder,
             final TranslationContext translationContext)
     {
+        final GlobalSearchObjectSortOptions sortOptions = translationContext.getFetchOptions().getSortBy();
+        if (sortOptions != null)
+        {
+            final List<Sorting> sortings = sortOptions.getSortings();
+
+            if (sortings != null && !sortings.isEmpty())
+            {
+                sqlBuilder.append(ORDER_BY).append(SP);
+                final Spliterator<Sorting> spliterator = sortings.stream().spliterator();
+
+                if (spliterator.tryAdvance(sorting -> addOrderByField(sqlBuilder, sorting)))
+                {
+                    StreamSupport.stream(spliterator, false).forEach(sorting ->
+                    {
+                        sqlBuilder.append(COMMA).append(SP);
+                        addOrderByField(sqlBuilder, sorting);
+                    });
+                }
+                sqlBuilder.append(NL);
+            }
+        }
+    }
+
+    private static void addOrderByField(final StringBuilder suffixSqlBuilder, final Sorting sorting)
+    {
+        suffixSqlBuilder.append(ALIAS_BY_FIELD_NAME.get(sorting.getField())).append(SP)
+                .append(sorting.getOrder().toString());
+    }
+
+    private static void translateLimitOffset(final StringBuilder suffixSqlBuilder,
+            final TranslationContext translationContext)
+    {
+        final GlobalSearchObjectFetchOptions fetchOptions = translationContext.getFetchOptions();
+        final Integer foFromRecord = fetchOptions.getFrom();
+        final Integer foRecordsCount = fetchOptions.getCount();
+        if (foRecordsCount != null)
+        {
+            suffixSqlBuilder.append(LIMIT).append(SP).append(foRecordsCount).append(NL);
+        }
+        if (foFromRecord != null)
+        {
+            suffixSqlBuilder.append(OFFSET).append(SP).append(foFromRecord).append(NL);
+        }
+    }
+
+    private static void translateAuthorisation(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final TableMapper tableMapper)
+    {
         final AuthorisationInformation authorisationInformation = translationContext.getAuthorisationInformation();
-        final TableMapper tableMapper = translationContext.getTableMapper();
         final List<Object> args = translationContext.getArgs();
         if (!authorisationInformation.isInstanceRole())
         {
+            if (tableMapper != MATERIAL)
+            {
+                sqlBuilder.append(SP).append(AND).append(SP).append(LP).append(NL);
+            }
             switch (tableMapper)
             {
                 case SAMPLE:
                 {
-                    sqlBuilder.append(HAVING).append(SP);
-                    sqlBuilder.append(SPACE_COLUMN).append(SP).append(IN).append(SP).append(LP)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SPACE_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP)
                             .append(SELECT).append(SP).append(UNNEST).append(LP).append(QU).append(RP).append(RP)
                             .append(SP).append(OR).append(NL);
-                    sqlBuilder.append(PROJECT_COLUMN).append(SP).append(IN).append(SP).append(LP).append(SELECT)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PROJECT_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP).append(SELECT)
                             .append(SP).append(UNNEST).append(LP).append(QU).append(RP).append(RP)
                             .append(SP).append(OR).append(NL);
-                    sqlBuilder.append(EXPERIMENT_COLUMN).append(SP).append(IN).append(SP).append(LP).append(SELECT)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(EXPERIMENT_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP).append(SELECT)
                             .append(SP).append(ID_COLUMN).append(SP).append(FROM).append(SP)
                             .append(TableMapper.EXPERIMENT.getEntitiesTable()).append(SP)
                             .append(WHERE).append(SP).append(PROJECT_COLUMN).append(SP).append(IN).append(SP)
                             .append(SELECT_UNNEST).append(RP)
                             .append(SP).append(OR).append(NL);
-                    sqlBuilder.append(SPACE_COLUMN).append(SP).append(IS_NULL)
-                            .append(SP).append(AND).append(SP).append(PROJECT_COLUMN).append(SP).append(IS_NULL)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SPACE_COLUMN).append(SP).append(IS_NULL)
+                            .append(SP).append(AND).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
+                            .append(PROJECT_COLUMN).append(SP).append(IS_NULL)
                             .append(NL);
 
                     final Long[] projectIds = authorisationInformation.getProjectIds().toArray(new Long[0]);
@@ -248,15 +292,16 @@ public class GlobalSearchCriteriaTranslator
 
                 case EXPERIMENT:
                 {
-                    sqlBuilder.append(HAVING).append(SP);
-                    sqlBuilder.append(PROJECT_COLUMN).append(SP).append(IN).append(SP).append(LP)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PROJECT_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP)
                             .append(SELECT).append(SP).append(ID_COLUMN).append(SP)
                             .append(FROM).append(SP).append(PROJECTS_TABLE).append(SP)
                             .append(WHERE).append(SP).append(SPACE_COLUMN).append(SP).append(IN).append(SP).append(LP)
                             .append(SELECT).append(SP).append(UNNEST).append(LP).append(QU).append(RP)
                             .append(RP)
                             .append(RP).append(SP).append(OR).append(NL);
-                    sqlBuilder.append(PROJECT_COLUMN).append(SP).append(IN).append(SP).append(LP)
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PROJECT_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP)
                             .append(SELECT).append(SP).append(UNNEST).append(LP).append(QU).append(RP)
                             .append(RP).append(NL);
 
@@ -272,8 +317,8 @@ public class GlobalSearchCriteriaTranslator
                     final String sp = "sp";
                     final String exp = "exp";
                     final String samp = "samp";
-                    sqlBuilder.append(HAVING).append(SP);
-                    sqlBuilder.append(ID_COLUMN).append(SP).append(IN).append(SP).append(LP);
+                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(IN)
+                            .append(SP).append(LP);
                     sqlBuilder.append(SELECT).append(SP).append(d).append(PERIOD).append(ID_COLUMN).append(NL);
                     sqlBuilder.append(FROM).append(SP).append(TableMapper.DATA_SET.getEntitiesTable()).append(SP)
                             .append(d).append(NL);
@@ -324,11 +369,15 @@ public class GlobalSearchCriteriaTranslator
                             + tableMapper);
                 }
             }
+            if (tableMapper != MATERIAL)
+            {
+                sqlBuilder.append(RP);
+            }
         }
     }
 
     public static SelectQuery translateToDetailsQuery(final TranslationContext translationContext,
-            final Collection<Long> ids)
+            final Map<GlobalSearchObjectKind, Set<Long>> idSetByObjectKindMap)
     {
         final StringBuilder sqlBuilder = new StringBuilder(SELECT + SP + ASTERISK + NL);
         sqlBuilder.append(FROM).append(SP).append(LP).append(NL);
@@ -338,22 +387,16 @@ public class GlobalSearchCriteriaTranslator
                 .filter((criterion) -> !(criterion instanceof GlobalSearchWildCardsCriteria)
                         && !(criterion instanceof GlobalSearchObjectKindCriteria)).spliterator();
         if (spliterator.tryAdvance((criterion) -> translateDetailsCriterion(sqlBuilder, translationContext, criterion,
-                ids)))
+                idSetByObjectKindMap)))
         {
             StreamSupport.stream(spliterator, false).forEach((criterion) ->
             {
                 sqlBuilder.append(RP).append(NL).append(UNION_ALL).append(NL).append(LP).append(NL);
-                translateDetailsCriterion(sqlBuilder, translationContext, criterion, ids);
+                translateDetailsCriterion(sqlBuilder, translationContext, criterion, idSetByObjectKindMap);
             });
         }
         sqlBuilder.append(RP).append(NL);
         sqlBuilder.append(RP).append(SP).append("q1").append(NL);
-
-        sqlBuilder.append(ORDER_BY).append(SP).append(ARRAY_POSITION).append(LP).append(QU).append(COMMA).append(SP)
-                .append("q1").append(PERIOD)
-                .append(ID_COLUMN).append(DOUBLE_COLON).append(INT8)
-                .append(RP);
-        translationContext.getArgs().add(ids.toArray(new Long[0]));
 
         return new SelectQuery(sqlBuilder.toString(), translationContext.getArgs());
     }
@@ -361,50 +404,139 @@ public class GlobalSearchCriteriaTranslator
     private static void translateShortCriterion(final StringBuilder sqlBuilder,
             final TranslationContext translationContext, final ISearchCriteria criterion)
     {
-        if (criterion instanceof GlobalSearchTextCriteria)
+        final Set<GlobalSearchObjectKind> objectKinds = translationContext.getObjectKinds();
+        if (criterion instanceof GlobalSearchTextCriteria && objectKinds != null && !objectKinds.isEmpty())
         {
             final GlobalSearchTextCriteria globalSearchTextCriterion = (GlobalSearchTextCriteria) criterion;
+            final boolean containsSample = objectKinds.contains(GlobalSearchObjectKind.SAMPLE);
+            final boolean containsExperiment = objectKinds.contains(GlobalSearchObjectKind.EXPERIMENT);
+            final boolean containsDataSet = objectKinds.contains(GlobalSearchObjectKind.DATA_SET);
+            final boolean containsMaterial = objectKinds.contains(GlobalSearchObjectKind.MATERIAL);
 
-            // Fields
-            buildShortSelect(sqlBuilder, translationContext, globalSearchTextCriterion, true);
-            buildShortFrom(sqlBuilder, translationContext, true);
-            buildShortWhere(sqlBuilder, translationContext, globalSearchTextCriterion, true);
+            if (containsSample)
+            {
+                buildShortSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, SAMPLE);
+            }
 
-            sqlBuilder.append(UNION_ALL).append(NL);
+            if (containsExperiment)
+            {
+                if (containsSample)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, EXPERIMENT);
+            }
 
-            // Properties
-            buildShortSelect(sqlBuilder, translationContext, globalSearchTextCriterion, false);
-            buildShortFrom(sqlBuilder, translationContext, false);
-            buildShortWhere(sqlBuilder, translationContext, globalSearchTextCriterion, false);
+            if (containsDataSet)
+            {
+                if (containsSample || containsExperiment)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, DATA_SET);
+            }
+
+            if (containsMaterial)
+            {
+                if (containsSample || containsExperiment || containsDataSet)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, MATERIAL);
+            }
         }
+    }
+
+    private static void buildShortSubquery(final StringBuilder sqlBuilder, final TranslationContext translationContext,
+            final GlobalSearchTextCriteria globalSearchTextCriterion, final TableMapper tableMapper)
+    {
+        // Fields
+        buildShortSelect(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, true);
+        buildShortFrom(sqlBuilder, tableMapper, true);
+        buildShortWhere(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, true);
+
+        sqlBuilder.append(UNION_ALL).append(NL);
+
+        // Properties
+        buildShortSelect(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, false);
+        buildShortFrom(sqlBuilder, tableMapper, false);
+        buildShortWhere(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, false);
     }
 
     private static void translateDetailsCriterion(final StringBuilder sqlBuilder,
             final TranslationContext translationContext, final ISearchCriteria criterion,
-            final Collection<Long> resultIds)
+            final Map<GlobalSearchObjectKind, Set<Long>> idSetByObjectKindMap)
     {
-        if (criterion instanceof GlobalSearchTextCriteria)
+        final Set<GlobalSearchObjectKind> objectKinds = translationContext.getObjectKinds();
+        if (criterion instanceof GlobalSearchTextCriteria && objectKinds != null && !objectKinds.isEmpty())
         {
             final GlobalSearchTextCriteria globalSearchTextCriterion = (GlobalSearchTextCriteria) criterion;
+            final Set<Long> sampleIdSet = idSetByObjectKindMap.get(GlobalSearchObjectKind.SAMPLE);
+            final Set<Long> experimentIdSet = idSetByObjectKindMap.get(GlobalSearchObjectKind.EXPERIMENT);
+            final Set<Long> dataSetIdSet = idSetByObjectKindMap.get(GlobalSearchObjectKind.DATA_SET);
+            final Set<Long> materialIdSet = idSetByObjectKindMap.get(GlobalSearchObjectKind.MATERIAL);
+            final boolean containsSample = sampleIdSet != null;
+            final boolean containsExperiment = experimentIdSet != null;
+            final boolean containsDataSet = dataSetIdSet != null;
+            final boolean containsMaterial = materialIdSet != null;
 
-            // Fields
-            buildDetailsSelect(sqlBuilder, translationContext, globalSearchTextCriterion, true);
-            buildFrom(sqlBuilder, translationContext, true);
-            buildDetailsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, resultIds, true);
+            if (containsSample)
+            {
+                buildDetailsSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, SAMPLE, sampleIdSet);
+            }
 
-            sqlBuilder.append(UNION_ALL).append(NL);
+            if (containsExperiment)
+            {
+                if (containsSample)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildDetailsSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, EXPERIMENT,
+                        experimentIdSet);
+            }
 
-            // Properties
-            buildDetailsSelect(sqlBuilder, translationContext, globalSearchTextCriterion, false);
-            buildFrom(sqlBuilder, translationContext, false);
-            buildDetailsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, resultIds, false);
+            if (containsDataSet)
+            {
+                if (containsSample || containsExperiment)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildDetailsSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, DATA_SET,
+                        dataSetIdSet);
+            }
+
+            if (containsMaterial)
+            {
+                if (containsSample || containsExperiment || containsDataSet)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildDetailsSubquery(sqlBuilder, translationContext, globalSearchTextCriterion, MATERIAL,
+                        materialIdSet);
+            }
         }
     }
 
-    private static void buildShortSelect(final StringBuilder sqlBuilder, final TranslationContext translationContext,
-            final GlobalSearchTextCriteria criterion, final boolean forAttributes)
+    private static void buildDetailsSubquery(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final GlobalSearchTextCriteria globalSearchTextCriterion,
+            final TableMapper tableMapper, final Collection<Long> resultIds)
     {
-        final TableMapper tableMapper = translationContext.getTableMapper();
+        // Fields
+        buildDetailsSelect(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, true);
+        buildDetailsFrom(sqlBuilder, tableMapper, true);
+        buildDetailsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, resultIds, tableMapper, true);
+
+        sqlBuilder.append(UNION_ALL).append(NL);
+
+        // Properties
+        buildDetailsSelect(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper, false);
+        buildDetailsFrom(sqlBuilder, tableMapper, false);
+        buildDetailsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, resultIds, tableMapper, false);
+    }
+
+    private static void buildShortSelect(final StringBuilder sqlBuilder, final TranslationContext translationContext,
+            final GlobalSearchTextCriteria criterion, final TableMapper tableMapper, final boolean forAttributes)
+    {
         final AbstractStringValue stringValue = criterion.getFieldValue();
         final List<Object> args = translationContext.getArgs();
 
@@ -414,34 +546,51 @@ public class GlobalSearchCriteriaTranslator
 
         final String prefix = MAIN_TABLE_ALIAS + PERIOD;
         sqlBuilder.append(SELECT).append(SP);
+        sqlBuilder.append(prefix).append(ID_COLUMN).append(COMMA).append(SP);
+
+        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects);
+        sqlBuilder.append(COMMA).append(SP);
 
         if (hasProjects)
         {
-            sqlBuilder.append(prefix).append(PROJECT_COLUMN).append(COMMA).append(SP);
+            sqlBuilder.append(prefix).append(PROJECT_COLUMN);
+        } else
+        {
+            sqlBuilder.append(NULL).append(SP).append(PROJECT_COLUMN);
         }
+        sqlBuilder.append(COMMA).append(SP);
 
         if (hasSpaces)
         {
-            sqlBuilder.append(prefix).append(SPACE_COLUMN).append(COMMA).append(SP);
+            sqlBuilder.append(prefix).append(SPACE_COLUMN);
+        } else
+        {
+            sqlBuilder.append(NULL).append(SP).append(SPACE_COLUMN);
         }
+        sqlBuilder.append(COMMA).append(SP);
 
         if (hasExperiments)
         {
-            sqlBuilder.append(prefix).append(EXPERIMENT_COLUMN).append(COMMA).append(SP);
+            sqlBuilder.append(prefix).append(EXPERIMENT_COLUMN);
+        } else
+        {
+            sqlBuilder.append(NULL).append(SP).append(EXPERIMENT_COLUMN);
         }
+        sqlBuilder.append(COMMA).append(SP);
 
-        if (forAttributes) {
-            sqlBuilder.append(prefix).append(ID_COLUMN).append(COMMA).append(SP);
-            sqlBuilder.append(prefix).append(getPermId(tableMapper)).append(COMMA).append(SP)
-                    .append(SQ).append(tableMapper).append(SQ).append(SP).append(OBJECT_KIND_ALIAS).append(COMMA)
-                    .append(SP);
+        final int objectKindOrdinal = GlobalSearchObjectKind.valueOf(tableMapper.toString()).ordinal();
+        if (forAttributes)
+        {
+            sqlBuilder.append(prefix).append(getPermId(tableMapper)).append(SP)
+                    .append(PERM_ID_COLUMN).append(COMMA).append(SP)
+                    .append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
+                    .append(COMMA).append(SP);
             buildTsRank(sqlBuilder, MAIN_TABLE_ALIAS, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
         } else
         {
-            sqlBuilder.append(prefix).append(ID_COLUMN).append(COMMA).append(SP);
             sqlBuilder.append(prefix).append(getPermId(tableMapper)).append(COMMA).append(SP)
-                    .append(SQ).append(tableMapper).append(SQ).append(SP).append(OBJECT_KIND_ALIAS).append(COMMA)
-                    .append(SP);
+                    .append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
+                    .append(COMMA).append(SP);
             buildTsRank(sqlBuilder, PROPERTIES_TABLE_ALIAS, () -> buildTsQueryPart(sqlBuilder, stringValue, args));
 
             sqlBuilder.append(SP).append(PLUS).append(SP);
@@ -479,10 +628,9 @@ public class GlobalSearchCriteriaTranslator
         sqlBuilder.append(RP);
     }
 
-    private static void buildShortFrom(final StringBuilder sqlBuilder, final TranslationContext translationContext,
+    private static void buildShortFrom(final StringBuilder sqlBuilder, final TableMapper tableMapper,
             final boolean forAttributes)
     {
-        final TableMapper tableMapper = translationContext.getTableMapper();
         final String entitiesTable = tableMapper.getEntitiesTable();
 
         sqlBuilder.append(FROM).append(SP).append(entitiesTable).append(SP).append(MAIN_TABLE_ALIAS).append(NL);
@@ -499,8 +647,7 @@ public class GlobalSearchCriteriaTranslator
                     .append(SP).append(EQ).append(SP).append(MATERIALS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
                     .append(NL);
 
-            if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
-                    || tableMapper == TableMapper.DATA_SET)
+            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
             {
                 sqlBuilder.append(LEFT_JOIN).append(SP).append(SAMPLE.getEntitiesTable()).append(SP)
                         .append(SAMPLES_TABLE_ALIAS).append(SP)
@@ -509,10 +656,20 @@ public class GlobalSearchCriteriaTranslator
                         .append(NL);
             }
         }
+
+        if (tableMapper == EXPERIMENT)
+        {
+            buildProjectAndSpacesJoin(sqlBuilder, tableMapper);
+        }
+
+        if (tableMapper == MATERIAL)
+        {
+            buildEntityTypesJoin(sqlBuilder, tableMapper);
+        }
     }
 
     private static void buildShortWhere(final StringBuilder sqlBuilder, final TranslationContext translationContext,
-            final GlobalSearchTextCriteria criterion, final boolean forAttributes)
+            final GlobalSearchTextCriteria criterion, final TableMapper tableMapper, final boolean forAttributes)
     {
         final List<Object> args = translationContext.getArgs();
 
@@ -525,17 +682,18 @@ public class GlobalSearchCriteriaTranslator
             args.add(toTsQueryText(criterion.getFieldValue()));
         } else
         {
-            buildTsVectorMatch(sqlBuilder, criterion.getFieldValue(), translationContext.getTableMapper(), args);
+            buildTsVectorMatch(sqlBuilder, criterion.getFieldValue(), tableMapper, args);
         }
+        translateAuthorisation(sqlBuilder, translationContext, tableMapper);
         sqlBuilder.append(NL);
     }
 
     private static void buildDetailsSelect(final StringBuilder sqlBuilder, final TranslationContext translationContext,
-            final GlobalSearchTextCriteria criterion, final boolean forAttributes)
+            final GlobalSearchTextCriteria criterion, final TableMapper tableMapper, final boolean forAttributes)
     {
-        final TableMapper tableMapper = translationContext.getTableMapper();
         final AbstractStringValue stringValue = criterion.getFieldValue();
         final List<Object> args = translationContext.getArgs();
+        final int objectKindOrdinal = GlobalSearchObjectKind.valueOf(tableMapper.toString()).ordinal();
 
         final boolean hasSpaces = hasSpaces(tableMapper);
         final boolean hasProjects = hasProjects(tableMapper);
@@ -548,20 +706,111 @@ public class GlobalSearchCriteriaTranslator
             case SAMPLE:
             case EXPERIMENT:
             {
-                sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PERM_ID_COLUMN).append(COMMA).append(NL);
+                sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PERM_ID_COLUMN);
+                break;
+            }
+            default:
+            {
+                sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP)
+                        .append(PERM_ID_COLUMN);
                 break;
             }
         }
+        sqlBuilder.append(COMMA).append(NL);
 
         sqlBuilder.append(ENTITY_TYPES_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP)
                 .append(ENTITY_TYPES_CODE_ALIAS).append(COMMA).append(NL);
 
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(COMMA).append(NL);
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PERSON_REGISTERER_COLUMN).append(COMMA).append(NL);
-        sqlBuilder.append(SQ).append(tableMapper.getEntityKind()).append(SQ).append(SP).append(OBJECT_KIND_ALIAS)
+        sqlBuilder.append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
                 .append(COMMA).append(NL);
 
-        sqlBuilder.append(UPPER).append(LP);
+        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects);
+        sqlBuilder.append(COMMA).append(NL);
+
+        if (hasSpaces || hasProjects)
+        {
+            sqlBuilder.append(SPACE_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
+        } else
+        {
+            sqlBuilder.append(NULL);
+        }
+        sqlBuilder.append(SP).append(SPACE_CODE_ALIAS).append(COMMA).append(NL);
+
+        final String[] criterionValues = criterion.getFieldValue().getValue().toLowerCase().trim().split("\\s+");
+        if (forAttributes)
+        {
+            buildAttributesMatchSelection(sqlBuilder, criterionValues, tableMapper, args);
+            sqlBuilder.append(COMMA).append(NL);
+
+            if (tableMapper == SAMPLE)
+            {
+                final String sampleIdentifierColumnReference = MAIN_TABLE_ALIAS + PERIOD + SAMPLE_IDENTIFIER_COLUMN;
+                buildCaseWhenIn(sqlBuilder, args, criterionValues,
+                        new String[] { sampleIdentifierColumnReference },
+                        sampleIdentifierColumnReference, NULL);
+            } else
+            {
+                sqlBuilder.append(NULL);
+            }
+            sqlBuilder.append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
+
+            sqlBuilder.append(NULL).append(SP).append(MATERIAL_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(SAMPLE_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(PROPERTY_TYPE_LABEL_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(PROPERTY_VALUE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(CV_CODE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(CV_LABEL_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(VALUE_HEADLINE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(CODE_HEADLINE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(LABEL_HEADLINE_ALIAS);
+        } else
+        {
+            sqlBuilder.append(NULL).append(SP).append(CODE_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(PERM_ID_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
+
+            buildMaterialMatch(sqlBuilder, criterionValues, args);
+            sqlBuilder.append(COMMA).append(NL);
+
+            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
+            {
+                buildSampleMatch(sqlBuilder, criterionValues, args);
+            } else
+            {
+                sqlBuilder.append(NULL).append(SP).append(SAMPLE_MATCH_ALIAS);
+            }
+            sqlBuilder.append(COMMA).append(NL);
+
+            sqlBuilder.append(ATTRIBUTE_TYPES_TABLE_ALIAS).append(PERIOD).append(LABEL_COLUMN).append(SP)
+                    .append(PROPERTY_TYPE_LABEL_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(PROPERTIES_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN).append(SP)
+                    .append(PROPERTY_VALUE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP)
+                    .append(CV_CODE_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(LABEL_COLUMN).append(SP)
+                    .append(CV_LABEL_ALIAS).append(COMMA).append(NL);
+
+            final boolean useHeadline = translationContext.getFetchOptions().hasMatch();
+            buildTsHeadline(sqlBuilder, stringValue, args, PROPERTIES_TABLE_ALIAS + PERIOD + VALUE_COLUMN,
+                    VALUE_HEADLINE_ALIAS, useHeadline);
+            sqlBuilder.append(COMMA).append(NL);
+            buildTsHeadline(sqlBuilder, stringValue, args,
+                    CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS + PERIOD + CODE_COLUMN, CODE_HEADLINE_ALIAS,
+                    useHeadline);
+            sqlBuilder.append(COMMA).append(NL);
+            buildTsHeadline(sqlBuilder, stringValue, args,
+                    CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS + PERIOD + LABEL_COLUMN, LABEL_HEADLINE_ALIAS,
+                    useHeadline);
+        }
+
+        sqlBuilder.append(NL);
+    }
+
+    private static void buildSelectIdentifier(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final boolean hasSpaces, final boolean hasProjects)
+    {
         switch (tableMapper)
         {
             case MATERIAL:
@@ -577,103 +826,11 @@ public class GlobalSearchCriteriaTranslator
             default:
             {
                 buildFullIdentifierConcatenationString(sqlBuilder, hasSpaces || hasProjects ? SPACE_TABLE_ALIAS : null,
-                        hasProjects ? PROJECT_TABLE_ALIAS : null, null, true);
+                        hasProjects ? PROJECT_TABLE_ALIAS : null, null, false);
                 break;
             }
         }
-        sqlBuilder.append(RP).append(SP).append(IDENTIFIER_ALIAS).append(COMMA).append(NL);
-
-        if (hasSpaces || hasProjects)
-        {
-            sqlBuilder.append(SPACE_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
-        } else
-        {
-            sqlBuilder.append(NULL);
-        }
-        sqlBuilder.append(SP).append(SPACE_CODE_ALIAS).append(COMMA).append(NL);
-
-        final String[] criterionValues = criterion.getFieldValue().getValue().toLowerCase().trim().split("\\s+");
-        if (forAttributes)
-        {
-            buildAttributesMatchSelection(sqlBuilder, criterionValues, translationContext.getTableMapper(), args);
-            sqlBuilder.append(COMMA).append(NL);
-
-            if (tableMapper == SAMPLE)
-            {
-                final String sampleIdentifierColumnReference = MAIN_TABLE_ALIAS + PERIOD + SAMPLE_IDENTIFIER_COLUMN;
-                buildCaseWhenIn(sqlBuilder, args, criterionValues,
-                        new String[] { sampleIdentifierColumnReference },
-                        sampleIdentifierColumnReference, NULL);
-                sqlBuilder.append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
-            }
-
-            sqlBuilder.append(NULL).append(SP).append(MATERIAL_MATCH_ALIAS).append(COMMA).append(NL);
-
-            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
-            {
-                sqlBuilder.append(NULL).append(SP).append(SAMPLE_MATCH_ALIAS).append(COMMA).append(NL);
-            }
-
-            sqlBuilder.append(NULL).append(SP).append(PROPERTY_TYPE_LABEL_ALIAS).append(COMMA).append(NL);
-
-            sqlBuilder.append(NULL).append(SP).append(PROPERTY_VALUE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(NULL).append(SP).append(CV_CODE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(NULL).append(SP).append(CV_LABEL_ALIAS).append(COMMA).append(NL);
-
-            sqlBuilder.append(NULL).append(SP).append(VALUE_HEADLINE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(NULL).append(SP).append(CODE_HEADLINE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(NULL).append(SP).append(LABEL_HEADLINE_ALIAS);
-        } else
-        {
-            sqlBuilder.append(NULL).append(SP).append(CODE_MATCH_ALIAS).append(COMMA).append(NL);
-            switch (tableMapper)
-            {
-                case SAMPLE:
-                case EXPERIMENT:
-                {
-                    sqlBuilder.append(NULL).append(SP).append(PERM_ID_MATCH_ALIAS).append(COMMA).append(NL);
-                    break;
-                }
-            }
-
-            if (tableMapper == SAMPLE)
-            {
-                sqlBuilder.append(NULL).append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
-            }
-
-            buildMaterialMatch(sqlBuilder, criterionValues, args);
-            sqlBuilder.append(COMMA).append(NL);
-
-            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
-            {
-                buildSampleMatch(sqlBuilder, criterionValues, args);
-                sqlBuilder.append(COMMA).append(NL);
-            }
-
-            sqlBuilder.append(ATTRIBUTE_TYPES_TABLE_ALIAS).append(PERIOD).append(LABEL_COLUMN).append(SP)
-                    .append(PROPERTY_TYPE_LABEL_ALIAS).append(COMMA).append(NL);
-
-            sqlBuilder.append(PROPERTIES_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN).append(SP)
-                    .append(PROPERTY_VALUE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP)
-                    .append(CV_CODE_ALIAS).append(COMMA).append(NL);
-            sqlBuilder.append(CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(LABEL_COLUMN).append(SP)
-                    .append(CV_LABEL_ALIAS).append(COMMA).append(NL);
-
-            final boolean useHeadline = translationContext.isUseHeadline();
-            buildTsHeadline(sqlBuilder, stringValue, args, PROPERTIES_TABLE_ALIAS + PERIOD + VALUE_COLUMN,
-                    VALUE_HEADLINE_ALIAS, useHeadline);
-            sqlBuilder.append(COMMA).append(NL);
-            buildTsHeadline(sqlBuilder, stringValue, args,
-                    CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS + PERIOD + CODE_COLUMN, CODE_HEADLINE_ALIAS,
-                    useHeadline);
-            sqlBuilder.append(COMMA).append(NL);
-            buildTsHeadline(sqlBuilder, stringValue, args,
-                    CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS + PERIOD + LABEL_COLUMN, LABEL_HEADLINE_ALIAS,
-                    useHeadline);
-        }
-
-        sqlBuilder.append(NL);
+        sqlBuilder.append(SP).append(IDENTIFIER_ALIAS);
     }
 
     private static void buildSampleMatch(final StringBuilder sqlBuilder, final String[] values,
@@ -749,14 +906,13 @@ public class GlobalSearchCriteriaTranslator
     {
         final String thenValue = MAIN_TABLE_ALIAS + PERIOD + CODE_COLUMN;
         buildCaseWhenIn(sqlBuilder, args, criterionValues, new String[]{thenValue}, thenValue, NULL);
-        sqlBuilder.append(SP).append(CODE_MATCH_ALIAS);
+        sqlBuilder.append(SP).append(CODE_MATCH_ALIAS).append(COMMA).append(NL);
 
         switch (tableMapper)
         {
             case SAMPLE:
             case EXPERIMENT:
             {
-                sqlBuilder.append(COMMA).append(NL);
 
                 sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP).append(LOWER).append(LP);
                 sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(PERM_ID_COLUMN).append(RP);
@@ -766,12 +922,18 @@ public class GlobalSearchCriteriaTranslator
                 sqlBuilder.append(SP).append(THEN).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
                         .append(PERM_ID_COLUMN);
                 sqlBuilder.append(SP).append(ELSE).append(SP).append(NULL).append(SP).append(END);
-                sqlBuilder.append(SP).append(PERM_ID_MATCH_ALIAS);
 
                 args.add(criterionValues);
                 break;
             }
+            default:
+            {
+                sqlBuilder.append(NULL);
+                break;
+            }
         }
+
+        sqlBuilder.append(SP).append(PERM_ID_MATCH_ALIAS);
     }
 
     /**
@@ -834,13 +996,10 @@ public class GlobalSearchCriteriaTranslator
         args.add(criterionValues);
     }
 
-    private static void buildFrom(final StringBuilder sqlBuilder, final TranslationContext translationContext,
+    private static void buildDetailsFrom(final StringBuilder sqlBuilder, final TableMapper tableMapper,
             final boolean forAttributes)
     {
-        final TableMapper tableMapper = translationContext.getTableMapper();
-
         final String entitiesTable = tableMapper.getEntitiesTable();
-        final String projectsTableName = PROJECT.getEntitiesTable();
 
         sqlBuilder.append(FROM).append(SP).append(entitiesTable).append(SP).append(MAIN_TABLE_ALIAS).append(NL);
 
@@ -892,13 +1051,37 @@ public class GlobalSearchCriteriaTranslator
             }
         }
 
-        final boolean hasSpaces = hasSpaces(tableMapper);
-        final boolean hasProjects = hasProjects(tableMapper);
+        buildProjectAndSpacesJoin(sqlBuilder, tableMapper);
+        buildEntityTypesJoin(sqlBuilder, tableMapper);
 
-        if (hasProjects)
+        if (tableMapper == SAMPLE)
         {
-            sqlBuilder.append(LEFT_JOIN).append(SP).append(projectsTableName).append(SP).append(PROJECT_TABLE_ALIAS)
-                    .append(SP)
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(SAMPLE.getEntitiesTable())
+                    .append(SP).append(CONTAINER_TABLE_ALIAS)
+                    .append(SP).append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
+                    .append(PART_OF_SAMPLE_COLUMN)
+                    .append(SP).append(EQ).append(SP).append(CONTAINER_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                    .append(NL);
+        }
+    }
+
+    private static void buildEntityTypesJoin(final StringBuilder sqlBuilder, final TableMapper tableMapper)
+    {
+        sqlBuilder.append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesTable()).append(SP)
+                .append(ENTITY_TYPES_TABLE_ALIAS)
+                .append(SP).append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntitiesTableEntityTypeIdField())
+                .append(SP).append(EQ).append(SP).append(ENTITY_TYPES_TABLE_ALIAS).append(PERIOD)
+                .append(ID_COLUMN).append(NL);
+    }
+
+    private static void buildProjectAndSpacesJoin(final StringBuilder sqlBuilder, final TableMapper tableMapper)
+    {
+        final boolean hasSpaces = hasSpaces(tableMapper);
+        if (hasProjects(tableMapper))
+        {
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(PROJECT.getEntitiesTable()).append(SP)
+                    .append(PROJECT_TABLE_ALIAS).append(SP)
                     .append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD).append(PROJECT_COLUMN).append(SP)
                     .append(EQ).append(SP)
                     .append(PROJECT_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
@@ -919,23 +1102,6 @@ public class GlobalSearchCriteriaTranslator
                     .append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD).append(SPACE_COLUMN)
                     .append(SP).append(EQ).append(SP)
                     .append(SPACE_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
-        }
-
-        sqlBuilder.append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesTable()).append(SP)
-                .append(ENTITY_TYPES_TABLE_ALIAS)
-                .append(SP).append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
-                .append(tableMapper.getEntitiesTableEntityTypeIdField())
-                .append(SP).append(EQ).append(SP).append(ENTITY_TYPES_TABLE_ALIAS).append(PERIOD)
-                .append(ID_COLUMN).append(NL);
-
-        if (tableMapper == SAMPLE)
-        {
-            sqlBuilder.append(LEFT_JOIN).append(SP).append(SAMPLE.getEntitiesTable())
-                    .append(SP).append(CONTAINER_TABLE_ALIAS)
-                    .append(SP).append(ON).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
-                    .append(PART_OF_SAMPLE_COLUMN)
-                    .append(SP).append(EQ).append(SP).append(CONTAINER_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                    .append(NL);
         }
     }
 
@@ -958,13 +1124,12 @@ public class GlobalSearchCriteriaTranslator
     }
 
     private static void buildDetailsWhere(final StringBuilder sqlBuilder, final TranslationContext translationContext,
-            final GlobalSearchTextCriteria criterion, final Collection<Long> resultIds,
+            final GlobalSearchTextCriteria criterion, final Collection<Long> resultIds, final TableMapper tableMapper,
             final boolean forAttributes)
     {
         final List<Object> args = translationContext.getArgs();
-        sqlBuilder.append(WHERE).append(SP);
-        sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP).append(IN).append(SP).append(SELECT_UNNEST);
+        sqlBuilder.append(WHERE).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
+                .append(ID_COLUMN).append(SP).append(IN).append(SP).append(SELECT_UNNEST);
         args.add(resultIds.toArray(new Long[0]));
 
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
@@ -974,7 +1139,7 @@ public class GlobalSearchCriteriaTranslator
             buildAttributesMatchCondition(sqlBuilder, criterion, args);
         } else
         {
-            buildTsVectorMatch(sqlBuilder, criterion.getFieldValue(), translationContext.getTableMapper(), args);
+            buildTsVectorMatch(sqlBuilder, criterion.getFieldValue(), tableMapper, args);
         }
         sqlBuilder.append(RP).append(NL);
     }
