@@ -43,6 +43,7 @@ import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.testng.annotations.AfterMethod;
@@ -268,7 +269,10 @@ public abstract class SeleniumTest
             // System.setProperty("webdriver.chrome.driver",
             // "/Users/anttil/Downloads/chromedriver");
             // driver = new ChromeDriver();
-            driver = new FirefoxDriver();
+            FirefoxOptions opts = new FirefoxOptions();
+            opts.addArguments("--headless");
+
+            driver = new FirefoxDriver(opts);
             setImplicitWaitToDefault();
             driver.manage().deleteAllCookies();
 
