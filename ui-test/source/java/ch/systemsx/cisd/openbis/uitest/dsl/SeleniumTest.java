@@ -266,11 +266,9 @@ public abstract class SeleniumTest
     {
         if (driver == null)
         {
-            // System.setProperty("webdriver.chrome.driver",
-            // "/Users/anttil/Downloads/chromedriver");
-            // driver = new ChromeDriver();
             FirefoxOptions opts = new FirefoxOptions();
-            opts.addArguments("--headless");
+            // If you use headless option selenium will work fine but Firefox won't be visible on the screen.
+            // opts.addArguments("--headless");
 
             driver = new FirefoxDriver(opts);
             setImplicitWaitToDefault();
