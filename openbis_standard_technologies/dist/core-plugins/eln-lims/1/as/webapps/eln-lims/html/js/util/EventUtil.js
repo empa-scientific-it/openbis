@@ -136,24 +136,32 @@ var EventUtil = new function() {
 
     this.waitForId = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
-            timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve, reject);
+            try {
+                timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve);
 
-            if($("#" + elementId).length <= 0) {
-                setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
-            } else {
-                resolve();
+                if($("#" + elementId).length <= 0) {
+                    setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
 
     this.waitForClass = function(className, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
-            timeout = EventUtil.checkTimeout(className, timeout, ignoreError, resolve, reject);
+            try {
+                timeout = EventUtil.checkTimeout(className, timeout, ignoreError, resolve);
 
-            if($("." + className).length <= 0) {
-                setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
-            } else {
-                resolve();
+                if($("." + className).length <= 0) {
+                    setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
@@ -161,7 +169,7 @@ var EventUtil = new function() {
     this.waitForStyle = function(elementId, styleName, styleValue, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
             try {
-                timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve, reject);
+                timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve);
 
                 var element = EventUtil.getElement(elementId, ignoreError, resolve);
                 if (element[0].style[styleName] === styleValue) {
@@ -177,31 +185,39 @@ var EventUtil = new function() {
 
     this.waitForFill = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
-            timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve, reject);
+            try {
+                timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve);
 
-            var element = EventUtil.getElement(elementId, ignoreError, resolve);
-            if(element.html().length <= 0 && element.val().length <= 0) {
-                setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
-            } else {
-                resolve();
+                var element = EventUtil.getElement(elementId, ignoreError, resolve);
+                if(element.html().length <= 0 && element.val().length <= 0) {
+                    setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
 
     this.waitForCkeditor = function(elementId, data, timeout) {
         return new Promise(function executor(resolve, reject) {
-            timeout = EventUtil.checkTimeout(elementId, timeout, false, resolve, reject);
-            editor = CKEditorManager.getEditorById(elementId);
+            try {
+                timeout = EventUtil.checkTimeout(elementId, timeout, false, resolve);
+                editor = CKEditorManager.getEditorById(elementId);
 
-            if(editor === undefined) {
-                setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
-            } else {
-                resolve();
+                if(editor === undefined) {
+                    setTimeout(executor.bind(null, resolve, reject), DEFAULT_TIMEOUT_STEP);
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     }
 
-    this.checkTimeout = function(elementId, timeout, ignoreError, resolve, reject) {
+    this.checkTimeout = function(elementId, timeout, ignoreError, resolve) {
         if (!timeout) {
             timeout = DEFAULT_TIMEOUT;
         }
@@ -211,7 +227,7 @@ var EventUtil = new function() {
             if(ignoreError) {
                 resolve();
             } else {
-                reject(new Error("Element '" + elementId + "' is not exist."));
+                throw "Element '" + elementId + "' is not exist.";
             }
         }
         return timeout;

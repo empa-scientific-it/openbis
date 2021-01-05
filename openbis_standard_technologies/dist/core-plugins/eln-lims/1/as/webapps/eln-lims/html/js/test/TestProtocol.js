@@ -1,5 +1,9 @@
 var TestProtocol = new function () {
 
+    this.getTestCount = function() {
+        return 34; // If one test is broken, then all tests must be failed.
+    }
+
     this.startAdminTests = function(withLogin) {
         testChain = Promise.resolve();
 
@@ -19,8 +23,6 @@ var TestProtocol = new function () {
     }
 
     this.startUserTests = function() {
-        console.log("startUserTests");
-
         testChain = Promise.resolve();
                  //5. User Manager (end of test)
         testChain.then(() => TestUtil.deleteCookies("suitename"))
