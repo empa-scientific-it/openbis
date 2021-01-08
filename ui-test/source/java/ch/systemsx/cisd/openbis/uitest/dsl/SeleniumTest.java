@@ -268,7 +268,7 @@ public abstract class SeleniumTest
         {
             FirefoxOptions opts = new FirefoxOptions();
             // If you use headless option selenium will work fine but Firefox won't be visible on the screen.
-            // opts.addArguments("--headless");
+            opts.addArguments("--headless");
 
             driver = new FirefoxDriver(opts);
             setImplicitWaitToDefault();
