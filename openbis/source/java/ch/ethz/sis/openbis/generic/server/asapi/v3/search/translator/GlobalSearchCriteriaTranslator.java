@@ -324,7 +324,8 @@ public class GlobalSearchCriteriaTranslator
         final int objectKindOrdinal = GlobalSearchObjectKind.valueOf(tableMapper.toString()).ordinal();
         sqlBuilder.append(SELECT).append(SP).append(DISTINCT).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
                 .append(ID_COLUMN);
-        sqlBuilder.append(COMMA).append(SP).append("''").append(SP).append(PERM_ID_COLUMN);
+        sqlBuilder.append(COMMA).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD).append(getPermId(tableMapper))
+                .append(SP).append(PERM_ID_COLUMN);
         sqlBuilder.append(COMMA).append(SP).append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS);
         sqlBuilder.append(COMMA).append(SP).append(0).append(DOUBLE_COLON).append(FLOAT4).append(SP).append(RANK_ALIAS);
         sqlBuilder.append(COMMA).append(SP).append("''").append(SP).append(IDENTIFIER_ALIAS);
