@@ -31,11 +31,9 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.Attribut
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildFullIdentifierConcatenationString;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildTypeCodeIdentifierConcatenationString;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_TYPES_TABLE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class GlobalSearchCriteriaTranslator
 {
@@ -313,13 +311,17 @@ public class GlobalSearchCriteriaTranslator
             final boolean useWildcards, final GlobalSearchTextCriteria globalSearchTextCriterion,
             final TableMapper tableMapper)
     {
-        buildShortContainsSelect(sqlBuilder, tableMapper);
-        buildShortContainsFrom(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper);
+        final StringBuilder fromSqlBuilder = new StringBuilder();
+        buildShortContainsFrom(fromSqlBuilder, translationContext, globalSearchTextCriterion, tableMapper);
+        buildShortContainsSelect(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper);
+        sqlBuilder.append(fromSqlBuilder);
         buildShortContainsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper,
                 useWildcards);
     }
 
-    private static void buildShortContainsSelect(final StringBuilder sqlBuilder, final TableMapper tableMapper)
+    private static void buildShortContainsSelect(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final GlobalSearchTextCriteria globalSearchTextCriterion,
+            final TableMapper tableMapper)
     {
         final int objectKindOrdinal = GlobalSearchObjectKind.valueOf(tableMapper.toString()).ordinal();
         sqlBuilder.append(SELECT).append(SP).append(DISTINCT).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
@@ -328,7 +330,17 @@ public class GlobalSearchCriteriaTranslator
                 .append(SP).append(PERM_ID_COLUMN);
         sqlBuilder.append(COMMA).append(SP).append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS);
         sqlBuilder.append(COMMA).append(SP).append(0).append(DOUBLE_COLON).append(FLOAT4).append(SP).append(RANK_ALIAS);
-        sqlBuilder.append(COMMA).append(SP).append("''").append(SP).append(IDENTIFIER_ALIAS);
+        sqlBuilder.append(COMMA).append(SP);
+
+        final Map<String, JoinInformation> aliases = translationContext.getAliases().get(globalSearchTextCriterion);
+
+        final boolean hasSpaces = hasSpaces(tableMapper);
+        final boolean hasProjects = hasProjects(tableMapper);
+        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects,
+                aliases.get(ENTITY_TYPE_JOIN_INFORMATION_KEY).getSubTableAlias(),
+                hasSpaces ? aliases.get(SPACES_TABLE).getSubTableAlias() : null,
+                hasProjects ? aliases.get(PROJECTS_TABLE).getSubTableAlias() : null);
+
         sqlBuilder.append(NL);
     }
 
@@ -726,7 +738,7 @@ public class GlobalSearchCriteriaTranslator
         sqlBuilder.append(SELECT).append(SP);
         sqlBuilder.append(prefix).append(ID_COLUMN).append(COMMA).append(SP);
 
-        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects);
+        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects, ENTITY_TYPES_TABLE_ALIAS, SPACE_TABLE_ALIAS, PROJECT_TABLE_ALIAS);
         sqlBuilder.append(COMMA).append(SP);
 
         if (hasProjects)
@@ -905,7 +917,7 @@ public class GlobalSearchCriteriaTranslator
         sqlBuilder.append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
                 .append(COMMA).append(NL);
 
-        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects);
+        buildSelectIdentifier(sqlBuilder, tableMapper, hasSpaces, hasProjects, ENTITY_TYPES_TABLE_ALIAS, SPACE_TABLE_ALIAS, PROJECT_TABLE_ALIAS);
         sqlBuilder.append(COMMA).append(NL);
 
         if (hasSpaces || hasProjects)
@@ -988,13 +1000,14 @@ public class GlobalSearchCriteriaTranslator
     }
 
     private static void buildSelectIdentifier(final StringBuilder sqlBuilder, final TableMapper tableMapper,
-            final boolean hasSpaces, final boolean hasProjects)
+            final boolean hasSpaces, final boolean hasProjects, final String entityTypesTableAlias,
+            final String spaceTableAlias, final String projectTableAlias)
     {
         switch (tableMapper)
         {
             case MATERIAL:
             {
-                buildTypeCodeIdentifierConcatenationString(sqlBuilder, ENTITY_TYPES_TABLE_ALIAS);
+                buildTypeCodeIdentifierConcatenationString(sqlBuilder, entityTypesTableAlias);
                 break;
             }
             case SAMPLE:
@@ -1004,8 +1017,8 @@ public class GlobalSearchCriteriaTranslator
             }
             default:
             {
-                buildFullIdentifierConcatenationString(sqlBuilder, hasSpaces || hasProjects ? SPACE_TABLE_ALIAS : null,
-                        hasProjects ? PROJECT_TABLE_ALIAS : null, null, false);
+                buildFullIdentifierConcatenationString(sqlBuilder, hasSpaces || hasProjects ? spaceTableAlias : null,
+                        hasProjects ? projectTableAlias : null, null, false);
                 break;
             }
         }

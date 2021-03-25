@@ -918,8 +918,9 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly("simple");
         criteria.withText().thatContainsExactly("stuff");
 
-        final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria,
-                new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fullResultFo = new GlobalSearchObjectFetchOptions();
+        fullResultFo.sortBy().objectIdentifier().asc();
+        final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria, fullResultFo);
 
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.sortBy().objectIdentifier().asc();
