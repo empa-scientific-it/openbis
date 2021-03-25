@@ -83,6 +83,7 @@ function MainController(profile) {
 	
 	//Functionality to keep state
 	this.backStack = [];
+	this.loggedInAnonymously = false;
 
 	this.zenodoApiTokenKey = "personal-zenodo-api-token";
 	
@@ -91,6 +92,7 @@ function MainController(profile) {
 	//
 
 	this.enterApp = function(data, username, password) {
+        sessionStorage.removeItem("normalLoginHasBeenForces");
 	    var _this = this;
 	    if(data && !username && !password) {
 	        this.openbisV1.listDataStores(function(result) {

@@ -313,6 +313,11 @@
 	//
 	// Application Startup
 	//
+    window.addEventListener('popstate', function(event) {
+        if (sessionStorage.getItem("normalLoginHasBeenForces") == "true") {
+            location.reload();
+        }
+    });
 	var profile = null;
 	var mainController = null;
 	
@@ -364,6 +369,20 @@
 		}
 
 		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+        if (sessionStorage.getItem("forceNormalLogin") != "true") {
+            mainController.serverFacade.getOpenbisV3(function(openbisV3) {
+                openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+                    mainController.serverFacade.openbisServer.useSession(sessionToken);
+                    mainController.serverFacade.openbisServer.rememberSession();
+                    mainController.loggedInAnonymously = true;
+                    mainController.enterApp({"result":true});
+                });
+            });
+        } else {
+            sessionStorage.setItem("normalLoginHasBeenForces", "true");
+        }
+        sessionStorage.removeItem("forceNormalLogin");
+
 		
 		// Make the ENTER key the default button
 		$("login-form input").keypress(function (e) {

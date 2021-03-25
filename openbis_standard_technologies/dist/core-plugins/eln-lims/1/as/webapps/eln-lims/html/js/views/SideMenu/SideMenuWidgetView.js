@@ -120,8 +120,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         searchElement.css({"margin-left" : "2px"});
         searchElement.css({"margin-right" : "2px"});
         
-        var logoutButton = FormUtil.getButtonWithIcon("glyphicon-off", function() {
+        var icon = mainController.loggedInAnonymously ? "glyphicon-log-in" : "glyphicon-off";
+        var logoutButton = FormUtil.getButtonWithIcon(icon, function() {
             $('body').addClass('bodyLogin');
+            sessionStorage.setItem("forceNormalLogin", mainController.loggedInAnonymously);
+            mainController.loggedInAnonymously = false;
             mainController.serverFacade.logout();
          }, null, null, "logoutBtn");
         
