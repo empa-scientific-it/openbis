@@ -28,10 +28,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SampleBuilder extends Builder<Sample>
@@ -114,9 +116,11 @@ public class SampleBuilder extends Builder<Sample>
         String identifier;
         if (this.experiment != null)
         {
-            identifier =
-                    "/" + this.experiment.getProject().getSpace().getCode() + "/"
-                            + this.id.toUpperCase();
+            
+            Project project = this.experiment.getProject();
+            identifier = (SamplePE.projectSamplesEnabled ? project.getIdentifier() 
+                                                         : "/" + project.getSpace().getCode()) 
+                    + "/" + this.id.toUpperCase();
         } else if (this.space != null)
         {
             identifier = "/" + this.space.getCode() + "/" + this.id.toUpperCase();
