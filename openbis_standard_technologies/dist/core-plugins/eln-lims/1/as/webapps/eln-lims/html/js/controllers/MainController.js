@@ -92,6 +92,7 @@ function MainController(profile) {
 	//
 
 	this.enterApp = function(data, username, password) {
+        sessionStorage.removeItem("normalLoginHasBeenForces");
 	    var _this = this;
 	    if(data && !username && !password) {
 	        this.openbisV1.listDataStores(function(result) {
