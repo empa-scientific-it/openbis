@@ -303,7 +303,7 @@ public class DeletionTestCase extends SystemTestCase
 
         List<TableModelRowWithObject<Deletion>> deletionTable = getDeletionTable();
         List<ISerializableComparable> row = deletionTable.get(0).getValues();
-        assertEquals("Sample   /CISD/S1.4 (CELL_PLATE)\n", row.get(2).toString());
+        assertEquals("Sample   /CISD/DEFAULT/S1.4 (CELL_PLATE)\n", row.get(2).toString());
         assertEquals(REASON, row.get(3).toString());
         assertEquals(1, deletionTable.size());
 
@@ -443,7 +443,7 @@ public class DeletionTestCase extends SystemTestCase
             boolean shouldBeDeleted)
     {
         NewSample newSample = createNewSample(sampleCode);
-        newSample.setParentsOrNull(new String[] { parentCode });
+        newSample.setParentsOrNull(new String[] { "/CISD/DEFAULT/" + parentCode });
         createSample(experimentCode, newSample, shouldBeDeleted);
     }
 
@@ -465,7 +465,7 @@ public class DeletionTestCase extends SystemTestCase
     private NewSample createNewSample(String sampleCode)
     {
         NewSample newSample = new NewSample();
-        newSample.setIdentifier("/CISD/" + sampleCode);
+        newSample.setIdentifier("/CISD/DEFAULT/" + sampleCode);
         newSample.setSampleType(new SampleType());
         newSample.getSampleType().setCode("CELL_PLATE");
         return newSample;
