@@ -769,7 +769,7 @@ class DataSet(
             # whole thing in order to get it safely to openBIS.
             file_ending = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(6))
             filename = time.strftime('%Y-%m-%d_%H-%M-%S') + file_ending + '.zip'
-            buf = ZipBuffer(host=datastore_url, token=self.openbis.token, filename=filename)
+            buf = ZipBuffer(openbis_obj=self.openbis, host=datastore_url, filename=filename)
             zipf = zipfile.ZipFile(file=buf, mode='w', compression=zipfile.ZIP_DEFLATED) 
             for file_or_folder in files:
                 self.zipit(file_or_folder, zipf)
@@ -873,7 +873,8 @@ class ZipBuffer(object):
     We will send this content directly to the session_workspace as a POST request.
     """
 
-    def __init__(self, host, token, filename):
+    def __init__(self, openbis_obj, host, filename):
+        self.openbis = openbis_obj
         self.startByte = 0
         self.endByte = 0
         self.filename = filename
@@ -883,7 +884,6 @@ class ZipBuffer(object):
              '&startByte={}' \
              '&endByte={}' \
              '&sessionID={}'
-        self.token = token
         self.session = Session()
 
     def write(self, data):
@@ -899,9 +899,10 @@ class ZipBuffer(object):
                     self.filename,
                     self.startByte,
                     self.endByte,
-                    self.token
+                    self.openbis.token
                 ),
                 data = data,
+                verify = self.openbis.verify_certificates
             )
             if resp.status_code == 200:
                 break

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DeleteEntityView(deleteEntityController, deleteEntityModel) {
+function DeleteEntityView(deleteEntityController, deleteEntityModel, $plugin) {
 	this._deleteEntityController = deleteEntityController;
 	this._deleteEntityModel = deleteEntityModel;
 	
@@ -27,9 +27,11 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel) {
 		});
 		
 		$window.append($('<legend>').append('Confirm Delete'));
-		if(this._deleteEntityModel.warningText) {
+        if ($plugin) {
+            $window.append($plugin);
+        } else if (this._deleteEntityModel.warningText) {
 			var $warning = FormUtil.getFieldForLabelWithText(null, this._deleteEntityModel.warningText);
-			$warning.css('color', '#e71616');
+			$warning.css('color', FormUtil.warningColor);
 			$window.append($warning);
 		}
 		

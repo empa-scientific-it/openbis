@@ -93,7 +93,7 @@ public class LinkedDataSetKindSearchManager extends AbstractLocalSearchManager<L
         final DummyCompositeSearchCriterion compositeSearchCriterion = new DummyCompositeSearchCriterion();
         compositeSearchCriterion.setCriteria(Collections.singletonList(dataSetKindSearchCriteria));
 
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
 
         // If we have results, we use them
         // If we don't have results and criteria are not empty, there are no results.

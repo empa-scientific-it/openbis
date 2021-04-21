@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
@@ -47,11 +48,22 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 public class TranslatorUtils
 {
 
-    public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER = DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
+    public static final String REGISTRATOR_JOIN_INFORMATION_KEY = "registrator";
 
-    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER = DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
+    public static final String MODIFIER_JOIN_INFORMATION_KEY = "modifier";
 
-    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER = DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
+    public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
+
+    public static final String UNIQUE_PREFIX = TranslatorUtils.class.getName();
+
+    public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
+
+    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
+
+    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER =
+            DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
 
     /** Indicator that the property is internal. */
     private static final String INTERNAL_PROPERTY_PREFIX = "$";
@@ -811,6 +823,57 @@ public class TranslatorUtils
                 .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
         args.add(tsQueryValue);
         args.add(tsQueryValue);
+    }
+
+    public static Map<String, JoinInformation> getFieldJoinInformationMap(final TableMapper tableMapper,
+            final IAliasFactory aliasFactory)
+    {
+        final Map<String, JoinInformation> result = getPropertyJoinInformationMap(tableMapper,
+                aliasFactory);
+        appendIdentifierJoinInformationMap(result, tableMapper, aliasFactory, UNIQUE_PREFIX);
+
+        if (tableMapper.hasRegistrator())
+        {
+            final JoinInformation registratorJoinInformation = new JoinInformation();
+            registratorJoinInformation.setJoinType(JoinType.LEFT);
+            registratorJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+            registratorJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+            registratorJoinInformation.setMainTableIdField(PERSON_REGISTERER_COLUMN);
+            registratorJoinInformation.setSubTable(PERSONS_TABLE);
+            registratorJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+            registratorJoinInformation.setSubTableIdField(ID_COLUMN);
+            result.put(REGISTRATOR_JOIN_INFORMATION_KEY, registratorJoinInformation);
+        }
+
+        if (tableMapper.hasModifier())
+        {
+            final JoinInformation registratorJoinInformation = new JoinInformation();
+            registratorJoinInformation.setJoinType(JoinType.LEFT);
+            registratorJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+            registratorJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+            registratorJoinInformation.setMainTableIdField(PERSON_MODIFIER_COLUMN);
+            registratorJoinInformation.setSubTable(PERSONS_TABLE);
+            registratorJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+            registratorJoinInformation.setSubTableIdField(ID_COLUMN);
+            result.put(MODIFIER_JOIN_INFORMATION_KEY, registratorJoinInformation);
+        }
+
+        final JoinInformation typeJoinInformation = new JoinInformation();
+        typeJoinInformation.setJoinType(JoinType.LEFT);
+        typeJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+        typeJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+        typeJoinInformation.setMainTableIdField(tableMapper.getEntitiesTableEntityTypeIdField());
+        typeJoinInformation.setSubTable(tableMapper.getEntityTypesTable());
+        typeJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+        typeJoinInformation.setSubTableIdField(ID_COLUMN);
+        result.put(ENTITY_TYPE_JOIN_INFORMATION_KEY, typeJoinInformation);
+
+        return result;
+    }
+
+    public static String getAlias(final AtomicInteger num)
+    {
+        return "t" + num.getAndIncrement();
     }
 
 }

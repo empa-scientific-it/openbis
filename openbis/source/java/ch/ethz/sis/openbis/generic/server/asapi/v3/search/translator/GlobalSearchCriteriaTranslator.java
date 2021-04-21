@@ -11,12 +11,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchWildCa
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.AnyFieldSearchConditionTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -154,7 +158,7 @@ public class GlobalSearchCriteriaTranslator
                 .filter((criterion) -> !(criterion instanceof GlobalSearchWildCardsCriteria)
                         && !(criterion instanceof GlobalSearchObjectKindCriteria)).spliterator();
 
-        final String setOperator = translationContext.getOperator() == SearchOperator.OR ? UNION_ALL : INTERSECT;
+        final String setOperator = translationContext.getOperator() == SearchOperator.OR ? UNION : INTERSECT;
 
         if (spliterator.tryAdvance((criterion) -> translateShortCriterion(sqlBuilder, translationContext, criterion)))
         {
@@ -166,16 +170,15 @@ public class GlobalSearchCriteriaTranslator
         }
         sqlBuilder.append(RP);
 
-        final String prefixSelectContent = onlyTotalCount ? COUNT + LP + ASTERISK + RP + SP + TOTAL_COUNT_ALIAS
-                : ID_COLUMN + COMMA + SP + PERM_ID_COLUMN + COMMA + SP +
-                OBJECT_KIND_ORDINAL_ALIAS + COMMA + SP + RANK_ALIAS + COMMA + SP + IDENTIFIER_ALIAS + COMMA + SP +
-                COUNT + LP + ASTERISK + RP + SP + OVER + LP + RP + SP + TOTAL_COUNT_ALIAS;
-        final String prefixSql = SELECT + SP + prefixSelectContent + NL +
-                FROM + SP + LP + NL +
-                SELECT + SP + PROJECT_COLUMN + COMMA + SP + SPACE_COLUMN + COMMA + SP + ID_COLUMN + COMMA + SP +
-                PERM_ID_COLUMN + SP + PERM_ID_COLUMN + COMMA + SP + OBJECT_KIND_ORDINAL_ALIAS + COMMA +
-                SP + SUM + LP + RANK_ALIAS + RP + SP + RANK_ALIAS + COMMA + SP + IDENTIFIER_ALIAS + NL +
-                FROM + SP + LP + NL;
+        final StringBuilder prefixSqlBuilder = new StringBuilder();
+        buildOuterSelect(prefixSqlBuilder, onlyTotalCount);
+        prefixSqlBuilder.append(NL).append(FROM).append(SP).append(LP).append(NL).append(SELECT).append(SP)
+                .append(PROJECT_COLUMN).append(COMMA).append(SP).append(SPACE_COLUMN).append(COMMA).append(SP)
+                .append(ID_COLUMN).append(COMMA).append(SP).append(PERM_ID_COLUMN).append(SP).append(PERM_ID_COLUMN)
+                .append(COMMA).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS).append(COMMA)
+                .append(SP).append(SUM).append(LP).append(RANK_ALIAS).append(RP).append(SP)
+                .append(RANK_ALIAS).append(COMMA).append(SP)
+                .append(IDENTIFIER_ALIAS).append(NL).append(FROM).append(SP).append(LP).append(NL);
 
         final StringBuilder suffixSqlBuilder = new StringBuilder();
         suffixSqlBuilder.append(RP).append(SP).append("q1").append(NL)
@@ -197,8 +200,162 @@ public class GlobalSearchCriteriaTranslator
             translateLimitOffset(suffixSqlBuilder, translationContext);
         }
 
-        return new SelectQuery(prefixSql + sqlBuilder.toString() + suffixSqlBuilder.toString(),
+        return new SelectQuery(prefixSqlBuilder.toString() + sqlBuilder.toString() + suffixSqlBuilder.toString(),
                 translationContext.getArgs());
+    }
+
+    private static void buildOuterSelect(final StringBuilder sqlBuilder, final boolean onlyTotalCount)
+    {
+        sqlBuilder.append(SELECT).append(SP);
+        if (onlyTotalCount)
+        {
+            sqlBuilder.append(COUNT).append(LP).append(ASTERISK).append(RP);
+        } else
+        {
+            sqlBuilder.append(ID_COLUMN).append(COMMA).append(SP).append(PERM_ID_COLUMN).append(COMMA).append(SP)
+                    .append(OBJECT_KIND_ORDINAL_ALIAS).append(COMMA).append(SP).append(RANK_ALIAS).append(COMMA)
+                    .append(SP).append(IDENTIFIER_ALIAS).append(COMMA).append(SP).append(COUNT).append(LP)
+                    .append(ASTERISK).append(RP).append(SP).append(OVER).append(LP).append(RP);
+        }
+        sqlBuilder.append(SP).append(TOTAL_COUNT_ALIAS);
+    }
+
+    public static SelectQuery translateToShortContainsQuery(final TranslationContext translationContext,
+            final boolean onlyTotalCount)
+    {
+        final Collection<ISearchCriteria> subcriteria = translationContext.getCriteria();
+        if (subcriteria == null)
+        {
+            throw new IllegalArgumentException("Null criteria provided.");
+        }
+
+        final StringBuilder sqlBuilder = new StringBuilder();
+        final Spliterator<ISearchCriteria> spliterator = subcriteria.stream()
+                .filter((criterion) -> !(criterion instanceof GlobalSearchObjectKindCriteria
+                        || criterion instanceof GlobalSearchWildCardsCriteria)).spliterator();
+
+        final String setOperator = translationContext.getOperator() == SearchOperator.OR ? UNION : INTERSECT;
+        final boolean useWildcards = subcriteria.stream()
+                .anyMatch((criterion) -> criterion instanceof GlobalSearchWildCardsCriteria);
+
+        buildOuterSelect(sqlBuilder, onlyTotalCount);
+        sqlBuilder.append(NL).append(FROM).append(SP).append(LP).append(NL).append(LP).append(NL);
+
+        if (spliterator.tryAdvance((criterion) -> translateShortContainsCriterionCondition(sqlBuilder,
+                translationContext, criterion, useWildcards)))
+        {
+            StreamSupport.stream(spliterator, false).forEach((criterion) ->
+            {
+                sqlBuilder.append(RP).append(NL).append(setOperator).append(NL).append(LP).append(NL);
+                translateShortContainsCriterionCondition(sqlBuilder, translationContext, criterion, useWildcards);
+            });
+        }
+        sqlBuilder.append(RP).append(NL);
+        sqlBuilder.append(RP).append(SP).append("q");
+
+        if (!onlyTotalCount)
+        {
+            sqlBuilder.append(NL);
+            translateOrderBy(sqlBuilder, translationContext);
+            translateLimitOffset(sqlBuilder, translationContext);
+        }
+
+        return new SelectQuery(sqlBuilder.toString(), translationContext.getArgs());
+    }
+
+    private static void translateShortContainsCriterionCondition(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final ISearchCriteria criterion, final boolean useWildcards)
+    {
+        final Set<GlobalSearchObjectKind> objectKinds = translationContext.getObjectKinds();
+        if (criterion instanceof GlobalSearchTextCriteria && objectKinds != null && !objectKinds.isEmpty())
+        {
+            final GlobalSearchTextCriteria globalSearchTextCriterion = (GlobalSearchTextCriteria) criterion;
+            final boolean containsSample = objectKinds.contains(GlobalSearchObjectKind.SAMPLE);
+            final boolean containsExperiment = objectKinds.contains(GlobalSearchObjectKind.EXPERIMENT);
+            final boolean containsDataSet = objectKinds.contains(GlobalSearchObjectKind.DATA_SET);
+            final boolean containsMaterial = objectKinds.contains(GlobalSearchObjectKind.MATERIAL);
+
+            if (containsSample)
+            {
+                buildShortSubquery(sqlBuilder, translationContext, useWildcards, globalSearchTextCriterion, SAMPLE);
+            }
+
+            if (containsExperiment)
+            {
+                if (containsSample)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, useWildcards, globalSearchTextCriterion, EXPERIMENT);
+            }
+
+            if (containsDataSet)
+            {
+                if (containsSample || containsExperiment)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, useWildcards, globalSearchTextCriterion, DATA_SET);
+            }
+
+            if (containsMaterial)
+            {
+                if (containsSample || containsExperiment || containsDataSet)
+                {
+                    sqlBuilder.append(UNION_ALL).append(NL);
+                }
+                buildShortSubquery(sqlBuilder, translationContext, useWildcards, globalSearchTextCriterion, MATERIAL);
+            }
+        }
+    }
+
+    private static void buildShortSubquery(final StringBuilder sqlBuilder, final TranslationContext translationContext,
+            final boolean useWildcards, final GlobalSearchTextCriteria globalSearchTextCriterion,
+            final TableMapper tableMapper)
+    {
+        buildShortContainsSelect(sqlBuilder, tableMapper);
+        buildShortContainsFrom(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper);
+        buildShortContainsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, tableMapper,
+                useWildcards);
+    }
+
+    private static void buildShortContainsSelect(final StringBuilder sqlBuilder, final TableMapper tableMapper)
+    {
+        final int objectKindOrdinal = GlobalSearchObjectKind.valueOf(tableMapper.toString()).ordinal();
+        sqlBuilder.append(SELECT).append(SP).append(DISTINCT).append(SP).append(MAIN_TABLE_ALIAS).append(PERIOD)
+                .append(ID_COLUMN);
+        sqlBuilder.append(COMMA).append(SP).append("''").append(SP).append(PERM_ID_COLUMN);
+        sqlBuilder.append(COMMA).append(SP).append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS);
+        sqlBuilder.append(COMMA).append(SP).append(0).append(DOUBLE_COLON).append(FLOAT4).append(SP).append(RANK_ALIAS);
+        sqlBuilder.append(COMMA).append(SP).append("''").append(SP).append(IDENTIFIER_ALIAS);
+        sqlBuilder.append(NL);
+    }
+
+    private static void buildShortContainsFrom(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final GlobalSearchTextCriteria globalSearchTextCriterion,
+            final TableMapper tableMapper)
+    {
+        sqlBuilder.append(FROM).append(SP).append(tableMapper.getEntitiesTable()).append(SP).append(MAIN_TABLE_ALIAS);
+        final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(tableMapper);
+        joinInformationMap.values().forEach((joinInformation) ->
+                TranslatorUtils.appendJoin(sqlBuilder, joinInformation));
+        translationContext.getAliases().put(globalSearchTextCriterion, joinInformationMap);
+        sqlBuilder.append(NL);
+    }
+
+    private static void buildShortContainsWhere(final StringBuilder sqlBuilder,
+            final TranslationContext translationContext, final GlobalSearchTextCriteria globalSearchTextCriterion,
+            final TableMapper tableMapper, final boolean useWildcards)
+    {
+        sqlBuilder.append(WHERE).append(SP);
+        AnyFieldSearchConditionTranslator.translateAnyField(globalSearchTextCriterion, useWildcards, tableMapper,
+                translationContext.getArgs(), sqlBuilder, getJoinInformationMap(tableMapper));
+    }
+
+    private static Map<String, JoinInformation> getJoinInformationMap(final TableMapper tableMapper)
+    {
+        final AtomicInteger indexCounter = new AtomicInteger(1);
+        return TranslatorUtils.getFieldJoinInformationMap(tableMapper, () -> TranslatorUtils.getAlias(indexCounter));
     }
 
     private static void translateOrderBy(final StringBuilder sqlBuilder,

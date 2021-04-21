@@ -54,7 +54,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
         {
             case ANY_PROPERTY:
             {
-                doTranslate(criterion, tableMapper, args, sqlBuilder, aliases);
+                doTranslate(criterion, criterion.isUseWildcards(), tableMapper, args, sqlBuilder, aliases);
                 break;
             }
 
@@ -67,11 +67,11 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
         }
     }
 
-    static void doTranslate(final StringFieldSearchCriteria criterion, final TableMapper tableMapper,
+    static void doTranslate(final AbstractFieldSearchCriteria<AbstractStringValue> criterion,
+            final boolean useWildcards, final TableMapper tableMapper,
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases)
     {
         final AbstractStringValue value = criterion.getFieldValue();
-        final boolean useWildcards = criterion.isUseWildcards();
         final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
 

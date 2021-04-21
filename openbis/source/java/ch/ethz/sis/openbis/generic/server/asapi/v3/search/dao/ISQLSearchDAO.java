@@ -41,18 +41,19 @@ public interface ISQLSearchDAO
      * @param tableMapper table mapper that contains extra information about tables related to the entities which can have parent-child relationships.
      * @param idsColumnName name of the column to select by, if {@code null} {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN}
      *     is used.
-     * @param authorisationInformation
+     * @param authorisationInformation user authorisation information.
      * @return set of numbers which represent the IDs of the scpecified ID column name.
      */
-    Set<Long> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion, final TableMapper tableMapper,
-            final String idsColumnName, final AuthorisationInformation authorisationInformation);
+    Set<Long> queryDBForIdsWithGlobalSearchMatchCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion,
+            final TableMapper tableMapper, final String idsColumnName,
+            final AuthorisationInformation authorisationInformation);
 
     /**
-     * Queries the DB only with non recursive global text search criteria for short result with ID's, ranks and
+     * Queries the DB only with global text match criteria for short result with ID's, ranks and
      * object kings.
      *
      * @param userId ID of the user who makes the query.
-     * @param criterion the global text search criterion to search by.
+     * @param criterion the global text match criterion to search by.
      * @param idsColumnName name of the column to select by, if {@code null}
      *     {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN} is used.
      * @param authorisationInformation user authorisation information.
@@ -61,7 +62,26 @@ public interface ISQLSearchDAO
      * @param onlyTotalCount whether only total count should be returned.
      * @return list of result rows containing ID's, ranks and object kings.
      */
-    List<Map<String, Object>> queryDBForIdsAndRanksWithNonRecursiveCriteria(Long userId, GlobalSearchCriteria criterion,
+    List<Map<String, Object>> queryDBForIdsWithGlobalSearchMatchCriteria(Long userId, GlobalSearchCriteria criterion,
+            String idsColumnName, AuthorisationInformation authorisationInformation,
+            Set<GlobalSearchObjectKind> objectKinds, GlobalSearchObjectFetchOptions fetchOptions,
+            boolean onlyTotalCount);
+
+    /**
+     * Queries the DB only with global text match criteria for short result with ID's, ranks and
+     * object kings.
+     *
+     * @param userId ID of the user who makes the query.
+     * @param criterion the global text match criterion to search by.
+     * @param idsColumnName name of the column to select by, if {@code null}
+     *     {@link ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN} is used.
+     * @param authorisationInformation user authorisation information.
+     * @param objectKinds object kinds to be included in this search.
+     * @param fetchOptions global search fetch options.
+     * @param onlyTotalCount whether only total count should be returned.
+     * @return list of result rows containing ID's, ranks and object kings.
+     */
+    List<Map<String, Object>> queryDBForIdsWithGlobalSearchContainsCriteria(Long userId, GlobalSearchCriteria criterion,
             String idsColumnName, AuthorisationInformation authorisationInformation,
             Set<GlobalSearchObjectKind> objectKinds, GlobalSearchObjectFetchOptions fetchOptions,
             boolean onlyTotalCount);

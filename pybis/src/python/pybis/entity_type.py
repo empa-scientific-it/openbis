@@ -13,16 +13,20 @@ class EntityType:
     MaterialType classes.
     """ 
 
-    def __init__(self, openbis_obj, data=None, **kwargs):
+    def __init__(self, openbis_obj, data=None, method=None, **kwargs):
         """This __init__ is called by OpenBisObject.__init__
         It stores the propertyAssignments data into the _propertyAssignments
         dict
         """
+        self._set_entity_data(data)
+        if method:
+            self.__dict__['_get_method'] = method
+            
+    def _set_entity_data(self, data=None):
         pas = []
         if data is not None and 'propertyAssignments' in data: 
             pas = data['propertyAssignments'] 
         self.__dict__['_propertyAssignments'] = pas
-
 
     def __str__(self):
 
@@ -94,7 +98,7 @@ class EntityType:
         )
 
     def assign_property(self, 
-        property, plugin=None,
+        prop, plugin=None,
         section=None, ordinal=None,
         mandatory=False, initialValueForExistingEntities=None,
         showInEditView=True, showRawValueInForms=True
@@ -109,9 +113,11 @@ class EntityType:
         if self.is_new:
             raise ValueError("Please save {} first".format(self.entity))
 
-        property_type = self.openbis.get_property_type(property.upper())
-        pt_permid = property_type._permId
-        pt_permid.pop('@id')
+        if isinstance(prop, str):
+            property_type = self.openbis.get_property_type(prop.upper())
+        else:
+            property_type = prop
+
         new_assignment = {
             "section": section,
             "ordinal": ordinal,
@@ -119,7 +125,10 @@ class EntityType:
             "initialValueForExistingEntities": initialValueForExistingEntities,
             "showInEditView": showInEditView,
             "showRawValueInForms": showRawValueInForms,
-            "propertyTypeId": pt_permid,
+            "propertyTypeId": {
+                "@type": "as.dto.property.id.PropertyTypePermId",
+                "permId": property_type.permId,
+            },
             "@type": "as.dto.property.create.PropertyAssignmentCreation",
         }
 
@@ -129,15 +138,30 @@ class EntityType:
             new_assignment['plugin'] = plugin_obj.name
 
         request = self._get_request_for_pa(new_assignment, 'Add')
-        resp  = self.openbis._post_request(self.openbis.as_v3, request)
-        if not resp and VERBOSE:
-            print("Property {} assigned to {}".format(property, self.permId))
+        try:
+            self.openbis._post_request(self.openbis.as_v3, request)
+            new_data = self._get_method(self.permId, only_data=True) 
+            self._set_entity_data(new_data)
+            if VERBOSE:
+                print(f"Property {property_type.permId} assigned to {self.permId}")
+        except ValueError as exc:
+            if 'already assigned' in str(exc):
+                if VERBOSE: 
+                    print(f"Property {property_type.permId} already assigned to {self.permId}")
+            else:
+                raise ValueError(exc)
 
-    def revoke_property(self, property, force=False):
+
+    def revoke_property(self, prop, force=False):
+        if isinstance(prop, str):
+            property_type = prop.upper()
+        else:
+            property_type = prop.permId.upper()
+
         items = {
             "entityTypeId": self._permId,
             "propertyTypeId": {
-                "permId": property.upper(),
+                "permId": property_type,
                 "@type" : "as.dto.property.id.PropertyTypePermId"
             },
             "@type": "as.dto.property.id.PropertyAssignmentPermId"
@@ -145,7 +169,10 @@ class EntityType:
         request = self._get_request_for_pa(items, 'Remove', force)
         resp  = self.openbis._post_request(self.openbis.as_v3, request)
         if not resp and VERBOSE:
-            print("Property {} revoked from {}".format(property, self.permId))
+            new_data = self._get_method(self.permId, only_data=True) 
+            self._set_entity_data(new_data)
+
+            print(f"Property {property_type} revoked from {self.permId}")
         
 
     def _get_request_for_pa(self, items, item_action, force=False):
@@ -208,9 +235,9 @@ class SampleType(
     single_item_method_name='get_sample_type'
 ):
 
-    def __init__(self, openbis_obj, type=None, data=None, props=None, **kwargs):
+    def __init__(self, openbis_obj, type=None, data=None, props=None, method=None, **kwargs):
         OpenBisObject.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
-        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
+        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, method=method, **kwargs)
         
 
     def __dir__(self):
@@ -231,16 +258,15 @@ class SampleType(
     def get_semantic_annotations(self):
         return self.openbis.search_semantic_annotations(entityType=self.code)
 
-
 class DataSetType(
     OpenBisObject, EntityType,
     entity='dataSetType',
     single_item_method_name='get_dataset_type'
 ):
 
-    def __init__(self, openbis_obj, type=None, data=None, props=None, **kwargs):
+    def __init__(self, openbis_obj, type=None, data=None, props=None, method=None, **kwargs):
         OpenBisObject.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
-        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
+        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, method=method, **kwargs)
 
     def __dir__(self):
         return [] + EntityType.__dir__(self) + OpenBisObject.__dir__(self)
@@ -251,9 +277,9 @@ class MaterialType(
     entity='materialType',
     single_item_method_name='get_material_type'
 ):
-    def __init__(self, openbis_obj, type=None, data=None, props=None, **kwargs):
+    def __init__(self, openbis_obj, type=None, data=None, props=None, method=None, **kwargs):
         OpenBisObject.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
-        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
+        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, method=method, **kwargs)
 
     def __dir__(self):
         return [
@@ -266,9 +292,9 @@ class ExperimentType(
     single_item_method_name='get_experiment_type'
 ):
 
-    def __init__(self, openbis_obj, type=None, data=None, props=None, **kwargs):
+    def __init__(self, openbis_obj, type=None, data=None, props=None, method=None, **kwargs):
         OpenBisObject.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
-        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, **kwargs)
+        EntityType.__init__(self, openbis_obj, type=type, data=data, props=props, method=method, **kwargs)
 
     def __dir__(self):
         return [

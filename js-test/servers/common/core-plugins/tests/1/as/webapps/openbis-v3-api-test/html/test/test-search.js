@@ -1731,6 +1731,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
+				criteria.withOrOperator();
 				criteria.withText().thatContains("20130412150049446-204 20130412140147735-20 20130417094936021-428 H2O");
 				var fo = c.createGlobalSearchObjectFetchOptions();
 				fo.withMatch();
@@ -1829,6 +1830,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
+				criteria.withOrOperator();
 				criteria.withText().thatContainsExactly("407 description");
 				var fo = c.createGlobalSearchObjectFetchOptions();
 				fo.withMatch();
@@ -1859,6 +1861,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
+				criteria.withOrOperator();
 				criteria.withText().thatContains("20130412150049446-204 20130412140147735-20 20130417094936021-428 H2O");
 				criteria.withObjectKind().thatIn([ "EXPERIMENT" ]);
 				var fo = c.createGlobalSearchObjectFetchOptions();

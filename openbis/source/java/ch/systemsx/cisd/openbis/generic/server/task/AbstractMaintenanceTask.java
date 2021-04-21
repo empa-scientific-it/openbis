@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
@@ -48,6 +49,8 @@ abstract class AbstractMaintenanceTask implements IMaintenanceTask
 
     protected File configurationFile;
 
+    protected MaintenanceTaskParameters parameters;
+
     AbstractMaintenanceTask(boolean configMandatory)
     {
         this.configMandatory = configMandatory;
@@ -65,6 +68,7 @@ abstract class AbstractMaintenanceTask implements IMaintenanceTask
             throw new ConfigurationFailureException("Configuration file '" + configurationFile.getAbsolutePath()
                     + "' doesn't exist or is a directory.");
         }
+        parameters = new MaintenanceTaskParameters(properties, pluginName);
         setUpSpecific(properties);
         operationLog.info("Plugin '" + pluginName + "' initialized."
                 + (configurationFile.isFile() ? " Configuration file: " + configurationFile.getAbsolutePath() : ""));

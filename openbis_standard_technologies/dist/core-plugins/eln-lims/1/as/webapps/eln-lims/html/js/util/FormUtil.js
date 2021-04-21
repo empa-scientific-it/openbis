@@ -17,6 +17,8 @@ var FormUtil = new function() {
 	this.controlColumnClass = 'col-md-9';
 	this.controlColumnClassBig = 'col-md-9';
 
+    this.warningColor = '#e71616'
+
 	//
 	// Sample Relationship Annotations 19.X & 20.X
 	//

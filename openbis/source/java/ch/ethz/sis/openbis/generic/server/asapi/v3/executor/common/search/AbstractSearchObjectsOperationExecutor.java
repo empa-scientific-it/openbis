@@ -52,9 +52,12 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         implements ISearchObjectsOperationExecutor
 {
 
-    private static final String[] SORTS_TO_IGNORE = new String[] { EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE };
+    private static final String[] SORTS_TO_IGNORE = new String[] {
+            EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE
+    };
 
-    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+    private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractSearchObjectsOperationExecutor.class);
 
     @Autowired
     protected ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> cache;
@@ -95,7 +98,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         CacheMode cacheMode = fetchOptions.getCacheMode();
-        operationLog.info("Cache mode: " + cacheMode);
+        OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         if (CacheMode.NO_CACHE.equals(cacheMode))
         {
@@ -113,17 +116,17 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     protected Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
-        operationLog.info("Searching...");
+        OPERATION_LOG.info("Searching...");
 
         List<OBJECT_PE> ids = doSearch(context, criteria, fetchOptions);
 
-        operationLog.info("Found " + ids.size() + " object id(s).");
+        OPERATION_LOG.info("Found " + ids.size() + " object id(s).");
 
         TranslationContext translationContext = new TranslationContext(context.getSession());
         Map<OBJECT_PE, OBJECT> idToObjectMap = doTranslate(translationContext, ids, fetchOptions);
         Collection<OBJECT> objects = idToObjectMap.values();
 
-        operationLog.info("Translated " + objects.size() + " object(s).");
+        OPERATION_LOG.info("Translated " + objects.size() + " object(s).");
 
         return objects;
     }
@@ -138,7 +141,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         SortAndPage sap = new SortAndPage();
         Collection<OBJECT> objects = sap.sortAndPage(results, criteria, fetchOptions);
 
-        operationLog.info("Return " + objects.size() + " object(s) after sorting and paging.");
+        OPERATION_LOG.info("Return " + objects.size() + " object(s) after sorting and paging.");
 
         return new ArrayList<OBJECT>(objects);
     }
@@ -149,16 +152,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
         SearchCacheEntry<OBJECT> entry = null;
 
-        if (operationLog.isDebugEnabled())
+        if (OPERATION_LOG.isDebugEnabled())
         {
-            operationLog.debug("Will try to lock on session " + context.getSession().hashCode());
+            OPERATION_LOG.debug("Will try to lock on session " + context.getSession().hashCode());
         }
 
         synchronized (context.getSession())
         {
-            if (operationLog.isDebugEnabled())
+            if (OPERATION_LOG.isDebugEnabled())
             {
-                operationLog.debug("Locked on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Locked on session " + context.getSession().hashCode());
             }
 
             if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
@@ -175,9 +178,9 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS>(cache, key));
             }
 
-            if (operationLog.isDebugEnabled())
+            if (OPERATION_LOG.isDebugEnabled())
             {
-                operationLog.debug("Released lock on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Released lock on session " + context.getSession().hashCode());
             }
         }
 
@@ -186,16 +189,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private void populateCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions, SearchCacheEntry<OBJECT> entry)
     {
-        if (operationLog.isDebugEnabled())
+        if (OPERATION_LOG.isDebugEnabled())
         {
-            operationLog.debug("Will try to lock on cache entry " + entry.hashCode());
+            OPERATION_LOG.debug("Will try to lock on cache entry " + entry.hashCode());
         }
 
         synchronized (entry)
         {
-            if (operationLog.isDebugEnabled())
+            if (OPERATION_LOG.isDebugEnabled())
             {
-                operationLog.debug("Locked on cache entry " + entry.hashCode());
+                OPERATION_LOG.debug("Locked on cache entry " + entry.hashCode());
             }
 
             if (entry.getObjects() == null)
@@ -207,13 +210,13 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 cache.put(key, entry);
             } else
             {
-                operationLog.info("Found cache entry " + entry.hashCode() + " that contains search result with " + entry.getObjects().size()
+                OPERATION_LOG.info("Found cache entry " + entry.hashCode() + " that contains search result with " + entry.getObjects().size()
                         + " object(s).");
             }
 
-            if (operationLog.isDebugEnabled())
+            if (OPERATION_LOG.isDebugEnabled())
             {
-                operationLog.debug("Released lock on cache entry " + entry.hashCode());
+                OPERATION_LOG.debug("Released lock on cache entry " + entry.hashCode());
             }
         }
     }
@@ -258,11 +261,17 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         // TODO: doTranslate() should only filter nested objects of the results (parents, children, components...).
         final Map<OBJECT_PE, OBJECT> pagedResultV3DTOs = doTranslate(translationContext, pagedResultPEs, fetchOptions);
 
-        assert pagedResultPEs.size() == pagedResultV3DTOs.size() : "The number of results after translation should not change. " +
-                "[pagedResultPEs.size()=" + pagedResultPEs.size() + ", pagedResultV3DTOs.size()=" + pagedResultV3DTOs.size() + "]";
+        if (pagedResultPEs.size() != pagedResultV3DTOs.size())
+        {
+            throw new RuntimeException(String.format("Number of results after translation has changed. "
+                            + "Total count value will be incorrect. "
+                            + "[pagedResultPEs.size()=%d, pagedResultV3DTOs.size()=%d]",
+                    pagedResultPEs.size(), pagedResultV3DTOs.size()));
+        }
 
         // Reordering of pagedResultV3DTOs is needed because translation mixes the order
         final List<OBJECT> objectResults = pagedResultPEs.stream().map(pagedResultV3DTOs::get)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         // Sorting and paging parents and children in a "conventional" way.
@@ -289,7 +298,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
             for (Sorting sorting : sortingToRemove) {
                 sortOptions.getSortings().remove(sorting);
-                operationLog.warn("[SQL Query Engine - backwards compatibility warning - stop using this feature] " +
+                OPERATION_LOG.warn("[SQL Query Engine - backwards compatibility warning - stop using this feature] " +
                         "SORTING ORDER IGNORED!: " + sorting.getField());
             }
 

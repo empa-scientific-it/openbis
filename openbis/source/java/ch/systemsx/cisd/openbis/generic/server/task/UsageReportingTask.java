@@ -35,13 +35,12 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
+import ch.systemsx.cisd.common.maintenance.INextTimestampProvider;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
 
@@ -114,7 +113,16 @@ public class UsageReportingTask extends AbstractMaintenanceTask
     @Override
     protected void setUpSpecific(Properties properties)
     {
-        long interval = DateTimeUtils.getDurationInMillis(properties, MaintenanceTaskParameters.INTERVAL_KEY, DateUtils.MILLIS_PER_DAY);
+        long interval;
+        INextTimestampProvider nextTimestampProvider = parameters.getNextTimestampProvider();
+        if (nextTimestampProvider != null)
+        {
+            Date next = nextTimestampProvider.getNextTimestamp(getActualTimeStamp());
+            interval = nextTimestampProvider.getNextTimestamp(next).getTime() - next.getTime();
+        } else
+        {
+            interval = parameters.getIntervalSeconds() * 1000;
+        }
         periodType = PeriodType.getBestType(interval);
         eMailAddresses = PluginUtils.getEMailAddresses(properties, ",");
         spacesToBeIgnored = new HashSet<>(PropertyUtils.getList(properties, "spaces-to-be-ignored"));
@@ -183,7 +191,8 @@ public class UsageReportingTask extends AbstractMaintenanceTask
             }
         } catch (IOException e)
         {
-            notificationLog.error("Couldn't sent usage report", e);
+            notificationLog.error("Couldn't sent usage report:" + e);
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
     }
 

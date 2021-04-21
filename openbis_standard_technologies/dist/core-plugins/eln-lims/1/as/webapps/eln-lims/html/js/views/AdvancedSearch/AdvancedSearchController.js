@@ -27,14 +27,19 @@ function AdvancedSearchController(mainController, forceSearch) {
 	this.init = function(views) {
 		var _this = this;
 		_this._searchStoreAvailable(function(searchStoreAvailable) {
-			_this._advancedSearchModel.searchStoreAvailable = searchStoreAvailable;
-			if (searchStoreAvailable) {
-				_this._loadSavedSearches(function() {
-					_this._advancedSearchView.repaint(views);
-				});
-			} else {
-				_this._advancedSearchView.repaint(views);
-			}
+            _this._mainController.serverFacade.getSetting("GLOBAL_SEARCH_DEFAULT", function(globalSearchDefault) {
+                if (globalSearchDefault) {
+                    _this._advancedSearchModel.globalSearchDefault = globalSearchDefault;
+                }
+                _this._advancedSearchModel.searchStoreAvailable = searchStoreAvailable;
+                if (searchStoreAvailable) {
+                    _this._loadSavedSearches(function() {
+                        _this._advancedSearchView.repaint(views);
+                    });
+                } else {
+                    _this._advancedSearchView.repaint(views);
+                }
+            });
 		});
 	}
 
@@ -50,10 +55,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 		for(ruleKey in criteria.rules) {
 			var rule = criteria.rules[ruleKey];
 			numberOfRules++;
-			if(rule.value === null || rule.value === undefined || ("" + rule.value).trim() === "" || ("" + rule.value).trim() === "*") {
+			if(rule.value === null || rule.value === undefined || rule.value.toString().trim() === "" || rule.value.toString().trim() === "*") {
 				numberOfGeneralRules++;
 			} else {
-				numberOfWords += rule.value.trim().split(/\s+/).length;
+				numberOfWords += rule.value.toString().trim().split(/\s+/).length;
 			}
 		}
 

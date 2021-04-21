@@ -102,7 +102,7 @@ function DataSetFormController() {
 				"method" : method,
 				//Identification Info
 				"dataSetType" : dataSetTypeCode,
-				"fileNames" : dataSetFormModel.files,
+				"fileNames" : dataSetFormModel.files.map(filename => filename.trim()),
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
 				"parentIdentifiers" : [],

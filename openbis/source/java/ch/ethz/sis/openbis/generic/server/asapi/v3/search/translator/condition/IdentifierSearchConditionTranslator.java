@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdentifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
@@ -53,10 +54,11 @@ public class IdentifierSearchConditionTranslator implements IConditionTranslator
     public void translate(final IdentifierSearchCriteria criterion, final TableMapper tableMapper, final List<Object> args,
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final Map<String, String> dataTypeByPropertyCode)
     {
-        doTranslate(criterion, tableMapper, args, sqlBuilder, aliases, UNIQUE_PREFIX);
+        doTranslate(criterion, criterion.isUseWildcards(), tableMapper, args, sqlBuilder, aliases, UNIQUE_PREFIX);
     }
 
-    static void doTranslate(final StringFieldSearchCriteria criterion, final TableMapper tableMapper, final List<Object> args,
+    static void doTranslate(final AbstractFieldSearchCriteria<AbstractStringValue> criterion,
+            final boolean useWildcards, final TableMapper tableMapper, final List<Object> args,
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final String prefix)
     {
         final AbstractStringValue fieldValue = criterion.getFieldValue();
@@ -82,7 +84,7 @@ public class IdentifierSearchConditionTranslator implements IConditionTranslator
             sqlBuilder.append(LOWER).append(LP).append(MAIN_TABLE_ALIAS).append(PERIOD)
                     .append(SAMPLE_IDENTIFIER_COLUMN).append(RP);
         }
-        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue().toLowerCase(), criterion.isUseWildcards(),
+        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue().toLowerCase(), useWildcards,
                 sqlBuilder, args);
     }
 

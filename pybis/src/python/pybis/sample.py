@@ -37,12 +37,8 @@ class Sample(
             if 'experiment' in kwargs:
                 try:
                     experiment = getattr(self, 'experiment')
-                    project = None
-                    if not 'project' in kwargs:
-                        project = experiment.project
-                        setattr(self.a, 'project', experiment.project)
                     if not 'space' in kwargs:
-                        project = project or experiment.project
+                        project = experiment.project
                         setattr(self.a, 'space', project.space)
                 except Exception:
                     pass

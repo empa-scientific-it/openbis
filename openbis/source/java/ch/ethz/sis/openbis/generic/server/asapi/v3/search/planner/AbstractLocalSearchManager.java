@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
@@ -135,7 +134,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         final Set<Long> mainCriteriaIntermediateResults;
         if (!mainCriteria.isEmpty())
         {
-            mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(
+            mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(
                     userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
         } else
         {
@@ -184,7 +183,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         {
             final DummyCompositeSearchCriterion containerCriterion =
                     new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
-            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
+            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
                     containerCriterion, tableMapper, idsColumnName, authorisationInformation);
             return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
         } else
@@ -212,7 +211,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria();
         final AbstractCompositeSearchCriteria emptyContainerCriterion = createEmptyCriteria();
         emptyContainerCriterion.setCriteria(Collections.singletonList(emptyCriteria));
-        return getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, emptyContainerCriterion,
+        return getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, emptyContainerCriterion,
                 tableMapper, idsColumnName, authorisationInformation);
     }
 

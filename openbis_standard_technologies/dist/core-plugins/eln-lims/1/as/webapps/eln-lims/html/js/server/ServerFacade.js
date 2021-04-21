@@ -2442,7 +2442,7 @@ function ServerFacade(openbisServer) {
 			} else {
 				searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
 			}
-			searchCriteria.withOperator("AND");
+			searchCriteria.withOperator("OR");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			fetchOptions.withMatch();

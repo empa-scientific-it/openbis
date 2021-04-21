@@ -61,7 +61,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         this.sqlExecutor = sqlExecutor;
     }
 
-    public Set<Long> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion,
+    public Set<Long> queryDBForIdsWithGlobalSearchMatchCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion,
             final TableMapper tableMapper, final String idsColumnName, final AuthorisationInformation authorisationInformation)
     {
         final Collection<ISearchCriteria> criteria = criterion.getCriteria();
@@ -169,7 +169,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
     }
 
     @Override
-    public List<Map<String, Object>> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId,
+    public List<Map<String, Object>> queryDBForIdsWithGlobalSearchMatchCriteria(final Long userId,
             final GlobalSearchCriteria criterion, final String idsColumnName,
             final AuthorisationInformation authorisationInformation, final Set<GlobalSearchObjectKind> objectKinds,
             final GlobalSearchObjectFetchOptions fetchOptions, final boolean onlyTotalCount)
@@ -179,6 +179,21 @@ public class PostgresSearchDAO implements ISQLSearchDAO
 
         // Short query to narrow down the result set and calculate ranks.
         final SelectQuery selectQuery = GlobalSearchCriteriaTranslator.translateToShortQuery(translationContext,
+                onlyTotalCount);
+        return sqlExecutor.execute(selectQuery.getQuery(), selectQuery.getArgs());
+    }
+
+    @Override
+    public List<Map<String, Object>> queryDBForIdsWithGlobalSearchContainsCriteria(final Long userId,
+            final GlobalSearchCriteria criterion, final String idsColumnName,
+            final AuthorisationInformation authorisationInformation, final Set<GlobalSearchObjectKind> objectKinds,
+            final GlobalSearchObjectFetchOptions fetchOptions, final boolean onlyTotalCount)
+    {
+        final TranslationContext translationContext = buildTranslationContext(userId, criterion,
+                idsColumnName, authorisationInformation, objectKinds, fetchOptions);
+
+        // Short query to narrow down the result set and calculate ranks.
+        final SelectQuery selectQuery = GlobalSearchCriteriaTranslator.translateToShortContainsQuery(translationContext,
                 onlyTotalCount);
         return sqlExecutor.execute(selectQuery.getQuery(), selectQuery.getArgs());
     }

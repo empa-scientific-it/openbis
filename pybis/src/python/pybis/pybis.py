@@ -280,6 +280,17 @@ def _criteria_for_code(code):
         "@type": "as.dto.common.search.CodeSearchCriteria"
     }
 
+def _criteria_for_permId(permId):
+    return {
+        "fieldName": "perm_id",
+        "fieldType": "ATTRIBUTE",
+        "fieldValue": {
+            "value": permId,
+            "@type": "as.dto.common.search.StringEqualToValue"
+        },
+        "@type": "as.dto.common.search.PermIdSearchCriteria"
+    }
+
 def _subcriteria_for_userId(userId):
     return {
           "criteria": [
@@ -426,6 +437,11 @@ def _subcriteria_for_properties(prop, value, entity):
     - child_propertyName
     - container_propertyName
     """
+    additional_attr = {}
+    if '*' in str(value):
+        additional_attr['useWildcards']= True
+    else:
+        additional_attr['useWildcards']= False
 
     search_types = {
         'sample': {
@@ -514,8 +530,9 @@ def _subcriteria_for_properties(prop, value, entity):
                     eq_type = "as.dto.common.search.StringLessThanValue"
                 elif comp_operator == '<=':
                     eq_type = "as.dto.common.search.StringLessThanOrEqualToValue"
-                #elif comp_operator == '=':
-                #    eq_type = "as.dto.common.search.StringEqualToValue"
+                elif comp_operator == '=':
+                    eq_type = "as.dto.common.search.StringEqualToValue"
+                    additional_attr['useWildcards']= False
                 else:
                     eq_type = "as.dto.common.search.StringEqualToValue"
 
@@ -551,7 +568,8 @@ def _subcriteria_for_properties(prop, value, entity):
                     "fieldValue": {
                         "@type": "as.dto.common.search.StringEqualToValue",
                         "value": value,
-                    }
+                    },
+                    **additional_attr
                 }
             ]
         }
@@ -571,7 +589,8 @@ def _subcriteria_for_properties(prop, value, entity):
                         "fieldValue": {
                             "@type": eq_type,
                             "value": value,
-                        }
+                        },
+                        **additional_attr
                     }
                 ]
             }
@@ -588,7 +607,8 @@ def _subcriteria_for_properties(prop, value, entity):
         "fieldValue": {
             "value": value,
             "@type": eq_type
-        }
+        },
+        **additional_attr
     }
 
 def _subcriteria_for(thing, entity, parents_or_children='', operator='AND'):
@@ -598,6 +618,18 @@ def _subcriteria_for(thing, entity, parents_or_children='', operator='AND'):
     - an identifier
     - a code
     """
+
+    entity, *_ = entity.split('.')
+    if _:
+        new_entity = '.'.join(_)
+        subcrit = _subcriteria_for(thing, new_entity)
+
+        search_type = get_type_for_entity(entity, 'search', parents_or_children)
+        return {
+            "criteria": subcrit,
+            **search_type,
+            "operator": operator
+        }
 
     if isinstance(thing, str):
         if is_permid(thing):
@@ -689,7 +721,7 @@ def _subcriteria_for_permid(permids, entity, parents_or_children='', operator='A
                 "@type": "as.dto.common.search.StringEqualToValue"
             },
             "fieldType": "ATTRIBUTE",
-            "fieldName": "code"
+            "fieldName": "perm_id"
         })
 
     search_type = get_type_for_entity(entity, 'search', parents_or_children)
@@ -1670,7 +1702,7 @@ class Openbis:
                 } ]
             ]
         }
-        resp = self._post_request(self.as_v3, request)
+        self._post_request(self.as_v3, request)
         return
 
 
@@ -1980,16 +2012,14 @@ class Openbis:
         if code:
             sub_criteria.append(_criteria_for_code(code))
         if permId:
-            sub_criteria.append(_common_search("as.dto.common.search.PermIdSearchCriteria", permId))
-
+            sub_criteria.append(_criteria_for_permId(permId))
 
         criteria = {
             "criteria": sub_criteria,
             "@type": "as.dto.sample.search.SampleSearchCriteria",
-            "operator": "AND"
+            "operator": "AND",
+            "relation": "SAMPLE"
         }
-
-        attrs_fetchoptions = self._get_fetchopts_for_attrs(attrs)
 
         # build the various fetch options
         fetchopts = fetch_option['sample']
@@ -2100,13 +2130,13 @@ class Openbis:
 
         sub_criteria = []
         if space:
-            sub_criteria.append(_subcriteria_for_code(space, 'space'))
+            sub_criteria.append(_subcriteria_for(space, 'project.space', operator='AND'))
         if project:
-            sub_criteria.append(_subcriteria_for_code(project, 'project'))
+            sub_criteria.append(_subcriteria_for(project, 'project', operator='AND'))
         if code:
             sub_criteria.append(_criteria_for_code(code))
         if permId:
-            sub_criteria.append(_common_search("as.dto.common.search.PermIdSearchCriteria", permId))
+            sub_criteria.append(_criteria_for_permId(permId))
         if type:
             sub_criteria.append(_subcriteria_for_code(type, 'experimentType'))
         if tags:
@@ -2221,7 +2251,8 @@ class Openbis:
     def get_datasets(
         self, code=None, type=None, withParents=None, withChildren=None,
         start_with=None, count=None, kind=None,
-        status=None, sample=None, experiment=None, collection=None, project=None,
+        status=None, sample=None, experiment=None, collection=None,
+        project=None, space=None,
         tags=None, attrs=None, props=None, 
         where=None,
         **properties
@@ -2279,12 +2310,10 @@ class Openbis:
         if experiment:
             sub_criteria.append(_subcriteria_for(experiment, 'experiment'))
         if attrs is None: attrs = []
-
         if project:
-            exp_crit = _subcriteria_for(experiment, 'experiment')
-            proj_crit = _subcriteria_for(project, 'project')
-            exp_crit['criteria'].append(proj_crit)
-            sub_criteria.append(exp_crit)
+            sub_criteria.append(_subcriteria_for(project, 'experiment.project'))
+        if space:
+            sub_criteria.append(_subcriteria_for(space, 'experiment.project.space'))
         if tags:
             sub_criteria.append(_subcriteria_for_tags(tags))
         if status:
@@ -2315,18 +2344,6 @@ class Openbis:
             fetchopts[option] = fetch_option[option]
 
         fetchopts['experiment']['project'] = fetch_option['project']
-
-       # else:
-       #     # get fetch options for projects and spaces
-       #     # via experiment, if requested
-       #     for attr in attrs:
-       #         if any([entity in attr for entity in ['space','project']]):
-       #             fetchopts['experiment'] = fetch_option['experiment']
-       #             fetchopts['experiment']['project'] = fetch_option['project']
-
-       #     options = self._get_fetchopts_for_attrs(attrs)
-       #     for option in ['tags', 'properties', 'physicalData']+options:
-       #         fetchopts[option] = fetch_option[option]
 
         if kind:
             kind = kind.upper()
@@ -2525,7 +2542,7 @@ class Openbis:
                 }
             ]
         }
-        resp = self._post_request(self.as_v3, request)
+        self._post_request(self.as_v3, request)
 
 
     def delete_openbis_entity(self, entity, objectId, reason='No reason given'):
@@ -3453,6 +3470,7 @@ class Openbis:
             entity     = 'materialType',
             cls        = MaterialType,
             identifier = type,
+            method     = self.get_material_type,
             only_data  = only_data,
         )
 
@@ -3473,6 +3491,7 @@ class Openbis:
             entity     = 'experimentType',
             cls        = ExperimentType,
             identifier = type,
+            method     = self.get_experiment_type,
             only_data  = only_data,
         )
     get_collection_type = get_experiment_type  # Alias
@@ -3493,6 +3512,7 @@ class Openbis:
             entity     = 'dataSetType',
             identifier = type,
             cls        = DataSetType,
+            method     = self.get_dataset_type,
             only_data  = only_data,
         )
 
@@ -3514,6 +3534,7 @@ class Openbis:
             identifier = type,
             cls        = SampleType,
             with_vocabulary = with_vocabulary,
+            method     = self.get_sample_type,
             only_data  = only_data,
         )
     get_object_type = get_sample_type # Alias
@@ -3569,7 +3590,7 @@ class Openbis:
             totalCount = resp.get('totalCount'),
         )
 
-    def get_entity_type(self, entity, identifier, cls, only_data=False, with_vocabulary=False):
+    def get_entity_type(self, entity, identifier, cls, method=None, only_data=False, with_vocabulary=False):
 
         et = not only_data and not isinstance(identifier, list) and self._object_cache(entity=entity, code=identifier)
         if et:
@@ -3614,7 +3635,8 @@ class Openbis:
             else:
                 obj = cls(
                     openbis_obj = self,
-                    data = resp[ident]
+                    data = resp[ident],
+                    method = method,
                 )
                 if self.use_cache:
                     self._object_cache(entity=entity, code=ident, value=obj)

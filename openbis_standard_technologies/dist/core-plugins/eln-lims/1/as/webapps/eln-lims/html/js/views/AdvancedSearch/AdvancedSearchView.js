@@ -608,34 +608,47 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 		return model;
 	}
+	
+    this._addToEntityTypeModel = function(model, entityKindAndType, label, selectedEntityKindAndType) {
+        model.push({ value : entityKindAndType, label : label, selected : entityKindAndType == selectedEntityKindAndType})
+    }
 
 	this._getEntityTypeDropdown = function() {
-		var _this = this;
-		var model = [];
-			model.push({ value : 'ALL_PARTIAL', label : "All (partial match, slower)", selected : true });
-			model.push({ value : 'ALL', label : "All (full word match, faster)" });
-			model.push({ value : 'EXPERIMENT', label : ELNDictionary.getExperimentDualName() });
-			model.push({ value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" });
-			model.push({ value : 'DATASET', label : "Dataset" });
-			model.push({ value : '', label : "--------------", disabled : true });
-			var sampleTypes = profile.getAllSampleTypes();
-			for(var tIdx = 0; tIdx < sampleTypes.length; tIdx++) {
-				var sampleType = sampleTypes[tIdx];
-				model.push({ value : 'SAMPLE$' + sampleType.code, label : Util.getDisplayNameFromCode(sampleType.code) });
-			}
+        var _this = this;
+        var globalSearchDefault = 'ALL_PARTIAL';
+        if (this._advancedSearchModel.globalSearchDefault) {
+            globalSearchDefault = this._advancedSearchModel.globalSearchDefault;
+        }
+        var model = [];
+        _this._addToEntityTypeModel(model, 'ALL_PARTIAL', "All (partial match, slower)", globalSearchDefault);
+        _this._addToEntityTypeModel(model, 'ALL', "All (full word match, faster)", globalSearchDefault);
+        _this._addToEntityTypeModel(model, 'EXPERIMENT', ELNDictionary.getExperimentDualName(), null);
+        _this._addToEntityTypeModel(model, 'SAMPLE', "" + ELNDictionary.Sample + "", null);
+        _this._addToEntityTypeModel(model, 'DATASET', "Dataset", null);
+        model.push({ value : '', label : "--------------", disabled : true });
+        var sampleTypes = profile.getAllSampleTypes();
+        for(var tIdx = 0; tIdx < sampleTypes.length; tIdx++) {
+            var sampleType = sampleTypes[tIdx];
+            var label = Util.getDisplayNameFromCode(sampleType.code);
+            _this._addToEntityTypeModel(model, 'SAMPLE$' + sampleType.code, label, null);
+        }
 
-		if(!this._advancedSearchModel.forceLoadCriteria) {
-			this._advancedSearchModel.resetModel('ALL_PARTIAL');
-		}
+        if(!this._advancedSearchModel.forceLoadCriteria) {
+            this._advancedSearchModel.resetModel(globalSearchDefault);
+        }
 
-		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
+        var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 
-		$dropdown.change(function() {
-			var kindAndType = $(this).val().split("$");
-
+        $dropdown.change(function() {
+            var value = $(this).val();
+            if (value.startsWith('ALL')) {
+                mainController.serverFacade.setSetting("GLOBAL_SEARCH_DEFAULT", value);
+            }
+            var kindAndType = value.split("$");
+            var entityKind = kindAndType[0]
 			if(_this._advancedSearchModel.isAllRules()) {
 				//1. update the entity type only in the model
-				_this._advancedSearchModel.setEntityKind(kindAndType[0]);
+				_this._advancedSearchModel.setEntityKind(entityKind);
 				//2. change the field type dropdowns in the view
 				var rows = _this._$tbody.children();
 				for(var rIdx = 0; rIdx < rows.length; rIdx++) {

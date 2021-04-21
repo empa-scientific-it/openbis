@@ -76,7 +76,7 @@ public class SampleContainerSearchManager extends AbstractLocalSearchManager<Sam
             final AbstractCompositeSearchCriteria containerCriterion)
     {
         // Container criterion should not return all results
-        return getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(
+        return getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(
                 userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
     }
 
