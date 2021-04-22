@@ -100,7 +100,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getObjects().size(), 1);
 
         GlobalSearchObject object = result.getObjects().get(0);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
     }
 
     @Test
@@ -322,7 +322,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(objects.size(), 1);
         Iterator<GlobalSearchObject> iter = objects.iterator();
 
-        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2", "", false);
+        assertSample(iter.next(), "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "", false);
     }
 
     @Test
@@ -360,7 +360,7 @@ public class GlobalSearchTest extends AbstractTest
         assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091219327-1025"));
-        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-1"));
+        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
     }
 
     @Test
@@ -405,15 +405,15 @@ public class GlobalSearchTest extends AbstractTest
 
         assertEquals(searchObjects[0].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(searchObjects[0].getObjectPermId(), new SamplePermId("200902091219327-1025"));
-        assertEquals(searchObjects[0].getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-1"));
+        assertEquals(searchObjects[0].getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         assertEquals(searchObjects[1].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(searchObjects[1].getObjectPermId(), new SamplePermId("200902091250077-1026"));
-        assertEquals(searchObjects[1].getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-2"));
+        assertEquals(searchObjects[1].getObjectIdentifier(), new SampleIdentifier("/CISD/NOE/CP-TEST-2"));
 
         assertEquals(searchObjects[2].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(searchObjects[2].getObjectPermId(), new SamplePermId("200902091225616-1027"));
-        assertEquals(searchObjects[2].getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-3"));
+        assertEquals(searchObjects[2].getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-3"));
 
         assertEquals(searchObjects[3].getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
         assertEquals(searchObjects[3].getObjectPermId(), new ExperimentPermId("200811050951882-1028"));
@@ -450,7 +450,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", true, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
         object = searchAndAssertOneOrNone("200902091219327-1025", true, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
@@ -484,7 +484,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", false, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", null, false);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", null, false);
 
         object = searchAndAssertOneOrNone("200902091219327-1025", false, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
@@ -515,7 +515,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", true);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
         // data set
         object = searchAndAssertOneOrNone("20081105092159111-1", true);
@@ -537,7 +537,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", false);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", null, false);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", null, false);
 
         // data set
         object = searchAndAssertOneOrNone("20081105092159111-1", false);
@@ -598,7 +598,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(objects.size(), 1);
 
         assertEquals(objects.get(0).getObjectPermId().toString(), "200902091250077-1026");
-        assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/CP-TEST-2");
+        assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/NOE/CP-TEST-2");
     }
 
     @Test
@@ -906,8 +906,8 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getTotalCount(), 7);
         assertEquals(objects.size(), 2);
 
-        assertExperiment(objects.get(0), "201108050937246-1031", "/CISD/DEFAULT/EXP-Y", "Property 'Description': A simple experiment", true);
-        assertExperiment(objects.get(1), "200811050951882-1028", "/CISD/NEMO/EXP1", "Property 'Description': A simple experiment", true);
+        assertExperiment(objects.get(0), "200811050951882-1028", "/CISD/NEMO/EXP1", "Property 'Description': A simple experiment", true);
+        assertExperiment(objects.get(1), "200811050952663-1029", "/CISD/NEMO/EXP10", "Property 'Description': A simple experiment", true);
     }
 
     @Test
@@ -1131,7 +1131,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1147,7 +1147,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertEquals(object.getSample().getCode(), "CP-TEST-1");
         assertExperimentNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1163,7 +1163,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1178,7 +1178,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1753,8 +1753,8 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getTotalCount(), 4);
         assertEquals(objects.size(), 4);
 
-        assertSample(objects.get(0), "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'bacterium': BACTERIUM-Y", true);
-        assertSample(objects.get(1), "200902091250077-1051", "/CISD/PLATE_WELLSEARCH:WELL-A01",
+        assertSample(objects.get(0), "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'bacterium': BACTERIUM-Y", true);
+        assertSample(objects.get(1), "200902091250077-1051", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01",
                 "Property 'bacterium': BACTERIUM-Y", true);
         assertExperiment(objects.get(2), "201108050937246-1031", "/CISD/DEFAULT/EXP-Y",
                 "Property 'any_material': BACTERIUM-Y", true);
@@ -1988,9 +1988,9 @@ public class GlobalSearchTest extends AbstractTest
         final GlobalSearchObject obj2 = findObjectByPermId(objects, "200902091250077-1026");
         final GlobalSearchObject obj3 = findObjectByPermId(objects, "200902091225616-1027");
 
-        assertSample(obj1, "200902091219327-1025", "/CISD/CP-TEST-1", "Property 'Comment': very advanced stuff", true);
-        assertSample(obj2, "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
-        assertSample(obj3, "200902091225616-1027", "/CISD/CP-TEST-3", "Property 'Comment': stuff like others", true);
+        assertSample(obj1, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Property 'Comment': very advanced stuff", true);
+        assertSample(obj2, "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
+        assertSample(obj3, "200902091225616-1027", "/CISD/NEMO/CP-TEST-3", "Property 'Comment': stuff like others", true);
     }
 
     private void assertStuffForContains(SearchResult<GlobalSearchObject> result)
@@ -2006,8 +2006,8 @@ public class GlobalSearchTest extends AbstractTest
                 "200902091225616-1027")));
         final Set<String> identifiers = objects.stream().map(object -> object.getObjectIdentifier().toString())
                 .collect(Collectors.toSet());
-        assertEquals(identifiers, new HashSet<>(Arrays.asList("/CISD/CP-TEST-1", "/CISD/CP-TEST-2",
-                "/CISD/CP-TEST-3")));
+        assertEquals(identifiers, new HashSet<>(Arrays.asList("/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/CP-TEST-3",
+                "/CISD/NOE/CP-TEST-2")));
     }
 
     private void assertSimpleStuff(SearchResult<GlobalSearchObject> result)
@@ -2017,7 +2017,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(objects.size(), 1);
         Iterator<GlobalSearchObject> iter = objects.iterator();
 
-        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
+        assertSample(iter.next(), "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
     }
 
     private void assertSimpleStuffForContains(SearchResult<GlobalSearchObject> result)
@@ -2030,7 +2030,7 @@ public class GlobalSearchTest extends AbstractTest
         assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091250077-1026"));
-        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-2"));
+        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/NOE/CP-TEST-2"));
     }
 
     private void assertSimpleOrStuff(final SearchResult<GlobalSearchObject> result)
@@ -2049,11 +2049,11 @@ public class GlobalSearchTest extends AbstractTest
                 findObjectByPermId(objects, "200811050952663-1030"),
         };
 
-        assertSample(searchObjects[0], "200902091219327-1025", "/CISD/CP-TEST-1",
+        assertSample(searchObjects[0], "200902091219327-1025", "/CISD/NEMO/CP-TEST-1",
                 "Property 'Comment': very advanced stuff", true);
-        assertSample(searchObjects[1], "200902091250077-1026", "/CISD/CP-TEST-2",
+        assertSample(searchObjects[1], "200902091250077-1026", "/CISD/NOE/CP-TEST-2",
                 "Property 'Comment': extremely simple stuff", true);
-        assertSample(searchObjects[2], "200902091225616-1027", "/CISD/CP-TEST-3",
+        assertSample(searchObjects[2], "200902091225616-1027", "/CISD/NEMO/CP-TEST-3",
                 "Property 'Comment': stuff like others", true);
         assertExperiment(searchObjects[3], "201108050937246-1031", "/CISD/DEFAULT/EXP-Y",
                 "Property 'Description': A simple experiment", true);
@@ -2078,8 +2078,8 @@ public class GlobalSearchTest extends AbstractTest
 
         final Set<String> objectIdentifiers = objects.stream().map(object -> object.getObjectIdentifier().toString())
                 .collect(Collectors.toSet());
-        assertEquals(objectIdentifiers, new HashSet<>(Arrays.asList("/CISD/CP-TEST-1", "/CISD/CP-TEST-2",
-                "/CISD/CP-TEST-3", "/CISD/DEFAULT/EXP-Y", "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10",
+        assertEquals(objectIdentifiers, new HashSet<>(Arrays.asList("/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2",
+                "/CISD/NEMO/CP-TEST-3", "/CISD/DEFAULT/EXP-Y", "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10",
                 "/CISD/NEMO/EXP11", "HSV1 (VIRUS)")));
     }
 

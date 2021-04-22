@@ -132,8 +132,8 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
-        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
         SampleIdentifier identifier3 = new SampleIdentifier("/CISD/3VCP8");
         SampleIdentifier identifier4 = new SampleIdentifier("/MP");
         SampleIdentifier identifier5 = new SampleIdentifier("/MP:a03");
@@ -224,8 +224,8 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/PLATE_WELLSEARCH:WELL-A01");
-        SampleIdentifier identifier2 = new SampleIdentifier("/CISD/PLATE_WELLSEARCH:WELL-A02");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01");
+        SampleIdentifier identifier2 = new SampleIdentifier("/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
 
         Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, Arrays.asList(identifier1, identifier2), new SampleFetchOptions());
 
@@ -234,8 +234,8 @@ public class GetSampleTest extends AbstractSampleTest
         Sample sample1 = map.get(identifier1);
         Sample sample2 = map.get(identifier2);
 
-        assertEquals(sample1.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A01");
-        assertEquals(sample2.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        assertEquals(sample1.getIdentifier().getIdentifier(), "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01");
+        assertEquals(sample2.getIdentifier().getIdentifier(), "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
 
         v3api.logout(sessionToken);
     }
@@ -300,9 +300,15 @@ public class GetSampleTest extends AbstractSampleTest
                 spaceCode = CodeConverter.tryToDatabase(identifier2.getSpaceLevel().getSpaceCode());
             }
         }
+        String projectCode = null;
+        if (identifier2.isProjectLevel())
+        {
+            projectCode = identifier2.getProjectLevel().getProjectCode();
+            spaceCode = identifier2.getProjectLevel().getSpaceCode();
+        }
         String sampleSubCode = CodeConverter.tryToDatabase(identifier2.getSampleSubCode());
         String containerCode = CodeConverter.tryToDatabase(identifier2.tryGetContainerCode());
-        return new SampleIdentifier(spaceCode, containerCode, sampleSubCode);
+        return new SampleIdentifier(spaceCode, projectCode, containerCode, sampleSubCode);
     }
 
     @Test
@@ -310,7 +316,7 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleIdentifier identifier1 = new SampleIdentifier("/cisD/cp-TEST-1");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         SampleIdentifier identifier2 = new SampleIdentifier("/Mp");
         SampleIdentifier identifier3 = new SampleIdentifier("/mP:a03");
         SampleIdentifier identifier4 = new SampleIdentifier("/cisd/cl1:A03");
@@ -328,8 +334,8 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(iter.next().getIdentifier(), identifier4);
         assertEquals(iter.next().getIdentifier(), new SampleIdentifier("/CISD/CL1:A01"));
 
-        assertEquals(map.get(identifier1).getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
-        assertEquals(map.get(new SampleIdentifier("/CISD/CP-TEST-1")).getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+        assertEquals(map.get(identifier1).getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-1");
+        assertEquals(map.get(new SampleIdentifier("/CISD/NEMO/CP-TEST-1")).getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-1");
 
         assertEquals(map.get(identifier2).getIdentifier().getIdentifier(), "/MP");
         assertEquals(map.get(new SampleIdentifier("/MP")).getIdentifier().getIdentifier(), "/MP");
@@ -351,8 +357,8 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
-        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
         SampleIdentifier identifier3 = new SampleIdentifier("/NONEXISTENT_SPACE/CP-TEST-1");
         SamplePermId permId1 = new SamplePermId("200902091250077-1026");
         SamplePermId permId2 = new SamplePermId("NONEXISTENT_SAMPLE");
@@ -388,9 +394,9 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         SamplePermId permId = new SamplePermId("200902091250077-1026");
-        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
 
         Map<ISampleId, Sample> map =
                 v3api.getSamples(sessionToken, Arrays.asList(identifier1, permId, identifier2), new SampleFetchOptions());
@@ -414,10 +420,10 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        // "/CISD/CP-TEST-1" and "200902091219327-1025" is the same sample
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        // "/CISD/NEMO/CP-TEST-1" and "200902091219327-1025" is the same sample
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         SamplePermId permId1 = new SamplePermId("200902091219327-1025");
-        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
         SamplePermId permId2 = new SamplePermId("200902091219327-1025");
 
         Map<ISampleId, Sample> map =
@@ -442,10 +448,10 @@ public class GetSampleTest extends AbstractSampleTest
     @Test
     public void testGetByIdsUnauthorized()
     {
-        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
-        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
-        SampleIdentifier identifier3 = new SampleIdentifier("/CISD/CP-TEST-2");
-        SampleIdentifier identifier4 = new SampleIdentifier("/TEST-SPACE/EV-TEST");
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
+        SampleIdentifier identifier3 = new SampleIdentifier("/CISD/NOE/CP-TEST-2");
+        SampleIdentifier identifier4 = new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         List<? extends ISampleId> ids = Arrays.asList(identifier1, identifier2, identifier3, identifier4);
 
@@ -484,7 +490,7 @@ public class GetSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getPermId().toString(), "200902091219327-1025");
         assertEquals(sample.getCode(), "CP-TEST-1");
-        assertEquals(sample.getIdentifier().toString(), "/CISD/CP-TEST-1");
+        assertEquals(sample.getIdentifier().toString(), "/CISD/NEMO/CP-TEST-1");
         assertEqualsDate(sample.getRegistrationDate(), "2009-02-09 12:09:19");
         assertNotNull(sample.getModificationDate());
 
@@ -1057,22 +1063,23 @@ public class GetSampleTest extends AbstractSampleTest
         fetchOptions.withExperiment();
 
         Map<ISampleId, Sample> map =
-                v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), new SampleIdentifier("/CISD/RP1-B1X"),
-                        new SampleIdentifier("/CISD/RP2-A1X")), fetchOptions);
+                v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), 
+                        new SampleIdentifier("/CISD/DEFAULT/RP1-B1X"),
+                        new SampleIdentifier("/CISD/DEFAULT/RP2-A1X")), fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(samples.size(), 3);
 
         Sample sample1 = samples.get(0);
-        assertEquals(sample1.getIdentifier().toString(), "/CISD/3VCP5");
+        assertEquals(sample1.getIdentifier().toString(), "/CISD/NEMO/3VCP5");
         assertEquals(sample1.getExperiment().getIdentifier().toString(), "/CISD/NEMO/EXP10");
 
         Sample sample2 = samples.get(1);
-        assertEquals(sample2.getIdentifier().toString(), "/CISD/RP1-B1X");
+        assertEquals(sample2.getIdentifier().toString(), "/CISD/DEFAULT/RP1-B1X");
         assertEquals(sample2.getExperiment().getIdentifier().toString(), "/CISD/DEFAULT/EXP-REUSE");
 
         Sample sample3 = samples.get(2);
-        assertEquals(sample3.getIdentifier().toString(), "/CISD/RP2-A1X");
+        assertEquals(sample3.getIdentifier().toString(), "/CISD/DEFAULT/RP2-A1X");
         assertEquals(sample3.getExperiment().getIdentifier().toString(), "/CISD/DEFAULT/EXP-REUSE");
 
         assertTrue(sample2.getExperiment() == sample3.getExperiment());
@@ -1121,7 +1128,7 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(samples.size(), 1);
 
         Sample sample = samples.get(0);
-        assertEquals(sample.getIdentifier().toString(), "/CISD/3VCP5");
+        assertEquals(sample.getIdentifier().toString(), "/CISD/NEMO/3VCP5");
 
         SampleType type = sample.getType();
         assertEquals(type.getCode(), "CELL_PLATE");
@@ -1699,7 +1706,7 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        ISampleId id = new SampleIdentifier("/TEST-SPACE/EV-TEST");
+        ISampleId id = new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST");
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         if (user.isDisabledProjectUser())
@@ -1735,10 +1742,10 @@ public class GetSampleTest extends AbstractSampleTest
         fo.withSpace();
         fo.withProject();
 
-        v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200902091219327-1025"), new SampleIdentifier("/TEST-SPACE/CP-TEST-4")), fo);
+        v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200902091219327-1025"), new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4")), fo);
 
         assertAccessLog(
-                "get-samples  SAMPLE_IDS('[200902091219327-1025, /TEST-SPACE/CP-TEST-4]') FETCH_OPTIONS('Sample\n    with Project\n    with Space\n')");
+                "get-samples  SAMPLE_IDS('[200902091219327-1025, /TEST-SPACE/NOE/CP-TEST-4]') FETCH_OPTIONS('Sample\n    with Project\n    with Space\n')");
     }
 
 }
