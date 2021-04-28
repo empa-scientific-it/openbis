@@ -194,7 +194,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 				"experimentIdentifier" : experimentIdentifier, //Use for creation
 				"dataSetParents" : dataSetParents,
 				"dataSetType" : dataSetTypeCode,
-				"filenames" : _this._dataSetFormModel.files,
+				"filenames" : _this._dataSetFormModel.files.map(filename => filename.trim()),
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
 				//Metadata

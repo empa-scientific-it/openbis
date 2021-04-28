@@ -263,7 +263,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
         if (pagedResultPEs.size() != pagedResultV3DTOs.size())
         {
-            OPERATION_LOG.warn(String.format("Number of results after translation has changed. "
+            throw new RuntimeException(String.format("Number of results after translation has changed. "
                             + "Total count value will be incorrect. "
                             + "[pagedResultPEs.size()=%d, pagedResultV3DTOs.size()=%d]",
                     pagedResultPEs.size(), pagedResultV3DTOs.size()));

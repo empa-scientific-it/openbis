@@ -37,6 +37,7 @@ import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -103,8 +104,14 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         properties.setProperty(PluginUtils.EMAIL_ADDRESSES_KEY, "a1@bc.de, a2@bc.de");
     }
 
-    @Test
-    public void testMonthlyGroupsOnlyReport() throws IOException
+    @DataProvider(name = "boolean")
+    public java.lang.Object[][] provideBoolean()
+    {
+        return new java.lang.Object[][] { { true }, { false } };
+    }
+
+    @Test(dataProvider = "boolean")
+    public void testMonthlyGroupsOnlyReport(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
@@ -119,7 +126,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.group("A", "u1", "u4");
         task.group("B", "u2", "u3");
         FileUtilities.writeToFile(configFile, "");
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "30 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "30 d", "1. 1");
         properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.NONE.name());
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"groups\": [{\"key\":\"B\"}, {\"key\":\"A\"}]}");
@@ -154,8 +161,8 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testWeeklyGroupsAndAllUsersReport() throws IOException
+    @Test(dataProvider = "boolean")
+    public void testWeeklyGroupsAndAllUsersReport(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
@@ -171,7 +178,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.group("A", "u1", "u4");
         task.group("B", "u2", "u3");
         FileUtilities.writeToFile(configFile, "");
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "7 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "7 d", "Sa 21:42");
         properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.ALL.name());
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"groups\": [{\"key\":\"B\"}, {\"key\":\"A\"}]}");
@@ -208,9 +215,9 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
-    
-    @Test
-    public void testWeeklyGroupsAndAllUsersReportCountEntities() throws IOException
+
+    @Test(dataProvider = "boolean")
+    public void testWeeklyGroupsAndAllUsersReportCountEntities(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(1234567890));
@@ -231,7 +238,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.user("u3").space("C").newExperiments(2).newDataSets(17);
         task.user("u4").space("A_Z").newExperiments(5).newDataSets(16);
         FileUtilities.writeToFile(configFile, "");
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "7 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "7 d", "Mo 21:42");
         properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.ALL.name());
         properties.setProperty(UsageReportingTask.COUNT_ALL_ENTITIES_KEY, Boolean.toString(true));
         task.setUp("", properties);
@@ -269,9 +276,9 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
-    
-    @Test
-    public void testDailyGroupsAndOutsideUsersReport() throws IOException
+
+    @Test(dataProvider = "boolean")
+    public void testDailyGroupsAndOutsideUsersReport(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
@@ -287,7 +294,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.group("A", "u1", "u4");
         task.group("B", "u2", "u3");
         FileUtilities.writeToFile(configFile, "");
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "1 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "1 d", "21:42");
         properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.OUTSIDE_GROUP_ONLY.name());
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"groups\": [{\"key\":\"B\"}, {\"key\":\"A\"}]}");
@@ -323,9 +330,9 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
-    
-    @Test
-    public void testDailyReportWithoutGroups() throws IOException
+
+    @Test(dataProvider = "boolean")
+    public void testDailyReportWithoutGroups(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
@@ -335,8 +342,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.user("u2").space("A1").newSamples(2).newDataSets(5);
         task.user("u3").space("B").newExperiments(3);
         task.user("u4");
-        properties.remove(UsageReportingTask.CONFIGURATION_FILE_PATH_PROPERTY);
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "1 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "1 d", "21:42");
         task.setUp("", properties);
         
         // When
@@ -369,9 +375,9 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
-    
-    @Test
-    public void testDailyReportWithoutGroupsAndOutsideUsers() throws IOException
+
+    @Test(dataProvider = "boolean")
+    public void testDailyReportWithoutGroupsAndOutsideUsers(boolean intervalSpecified) throws IOException
     {
         // Given
         UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
@@ -381,8 +387,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         task.user("u2").space("A1").newSamples(2).newDataSets(5);
         task.user("u3").space("B").newExperiments(3);
         task.user("u4");
-        properties.remove(UsageReportingTask.CONFIGURATION_FILE_PATH_PROPERTY);
-        properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, "1 d");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "1 d", "21:42");
         properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.OUTSIDE_GROUP_ONLY.name());
         task.setUp("", properties);
         
@@ -416,7 +421,19 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
-    
+
+    private void setIntervalOrRunSchedule(Properties properties, boolean intervalSpecified,
+            String interval, String runSchedule)
+    {
+        if (intervalSpecified)
+        {
+            properties.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, interval);
+        } else
+        {
+            properties.setProperty(MaintenanceTaskParameters.RUN_SCHEDULE_KEY, runSchedule);
+        }
+    }
+
     private void assertRecorders(RecordingMatcher<?> recorder, String expectedRecord, int expectedCount)
     {
         List<?> objects = recorder.getRecordedObjects();
@@ -448,6 +465,13 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
             next();
         }
         
+        @Override
+        public void setUp(String pluginName, Properties properties)
+        {
+            properties.setProperty(MaintenanceTaskParameters.CLASS_KEY, getClass().getName());
+            super.setUp(pluginName, properties);
+        }
+
         void next()
         {
             listOfUsageByUsersAndSpaces.add(0, new TreeMap<>());

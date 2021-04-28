@@ -28,7 +28,7 @@ public class StringStartsWithValue extends AbstractStringValue
         super(null);
     }
 
-    protected StringStartsWithValue(String value)
+    public StringStartsWithValue(String value)
     {
         super(value);
     }

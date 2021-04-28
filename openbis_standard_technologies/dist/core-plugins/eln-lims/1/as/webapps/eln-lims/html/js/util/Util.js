@@ -167,34 +167,14 @@ var Util = new function() {
 	}
 	
 	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
-	    disableReport = true; // Report permanently disabled
 		var userErrorWarning = "";
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";
 		}
 		
-		var warning = "<b>Please send an error report if you wish SIS to review it:</b>" +  "<br>" +
-			          "This report contains information about the user and the action it was performing when it happened, including its data!: <br>" +
-				      "Pressing the 'Send error report' button will open your default mail application and gives you the opportunity to delete any sensitive information before sending.";
-					 
-		var report = "agent: " + navigator.userAgent + "%0D%0A" +
-					 "domain: " + location.hostname + "%0D%0A" +
-					 "session: " + mainController.serverFacade.openbisServer.getSession() + "%0D%0A" +
-					 "timestamp: " + new Date() + "%0D%0A" +
-					 "isUserError: " + isUserError + "%0D%0A" +
-					 "isEnvironmentError: " + isEnvironmentError + "%0D%0A" +
-					 "href: " + location.href.replace(new RegExp("&", 'g'), " - ") + "%0D%0A" +
-					 "error: " + withHTML;
-		
-		var withHTMLToShow = "<div style=\"width:100%;\">";
-		if(disableReport) {
-			withHTMLToShow += "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + withHTML + "</textarea><br>";
-			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>";
-		} else {
-			withHTMLToShow += userErrorWarning + "<br><br><textarea style=\"background: transparent; width:100%;\" rows=\"8\">" + withHTML + "</textarea>" + "<br><br>" + warning + "<br><br>";
-			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>" + "<a class='btn btn-default' href='mailto:" + profile.devEmail + "?subject=ELN Error Report [" + location.hostname +"] ["+ mainController.serverFacade.openbisServer.getSession() + "]&body=" + report +"'>Send error report</a>";
-		}
-		withHTMLToShow += "</div>";
+		var withHTMLToShow = "<div style=\"width:100%;\">"
+            + "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + withHTML 
+            + "</textarea><br><a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a></div>";
 		
 		if(!noBlock) {
 			this.blockUINoMessage();

@@ -2431,17 +2431,29 @@ function ServerFacade(openbisServer) {
 	// Global Search
 	//
 
-	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, containsSearch,
+	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, searchKind,
 		    advancedFetchOptions, callbackFunction) {
 		require(['as/dto/global/search/GlobalSearchCriteria',
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'],
 		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
-			if (containsSearch) {
-				searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
-			} else {
-				searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+			switch (searchKind) {
+				case "ALL": {
+					searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+					break;
+				}
+
+				case "ALL_PARTIAL": {
+					searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+					break;
+				}
+
+				case "ALL_PREFIX": {
+					searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+					break;
+				}
 			}
+
 			searchCriteria.withOperator("OR");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
@@ -2484,9 +2496,9 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
-	this.searchGlobally = function(freeText, containsSearch, advancedFetchOptions, callbackFunction)
+	this.searchGlobally = function(freeText, searchKind, advancedFetchOptions, callbackFunction)
 	{
-		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, containsSearch, advancedFetchOptions,
+		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, searchKind, advancedFetchOptions,
 			function(searchCriteria, fetchOptions) {
 				mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 					callbackFunction(results);

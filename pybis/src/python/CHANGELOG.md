@@ -1,3 +1,20 @@
+## Changes with pybis-1.18.9
+
+- fixed problem when searching for experiments
+
+## Changes with pybis-1.18.8
+
+- fixed problem with 20.10 releases where samples could not be found using the permId
+
+## Changes with pybis-1.18.7
+
+- fixed entity_type caching problem
+
+## Changes with pybis-1.18.6
+
+- fixed create samples bug
+- fixed zip upload bug
+
 ## Changes with pybis-1.18.5
 
 - fixed deref bug for container

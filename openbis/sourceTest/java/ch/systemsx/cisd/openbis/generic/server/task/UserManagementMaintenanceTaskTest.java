@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
@@ -552,6 +553,13 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
             config.setServerUrl("blabla");
             config.setSecurityPrincipalDistinguishedName("blabla");
             config.setSecurityPrincipalPassword("blabla");
+        }
+
+        @Override
+        public void setUp(String pluginName, Properties properties)
+        {
+            properties.setProperty(MaintenanceTaskParameters.CLASS_KEY, getClass().getName());
+            super.setUp(pluginName, properties);
         }
 
         @Override

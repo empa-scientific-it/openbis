@@ -68,7 +68,8 @@ public class GlobalSearchManager implements IGlobalSearchManager
 
         final boolean hasStringMatches = criteria.getCriteria().stream().anyMatch(
                 criterion -> criterion instanceof GlobalSearchTextCriteria &&
-                ((GlobalSearchTextCriteria) criterion).getFieldValue() instanceof StringMatchesValue);
+                        (((GlobalSearchTextCriteria) criterion).getFieldValue() instanceof StringMatchesValue ||
+                        ((GlobalSearchTextCriteria) criterion).getFieldValue() instanceof StringStartsWithValue));
 
         final List<GlobalSearchTextCriteria> stringContainsGlobalSearchTextCriteria = criteria.getCriteria().stream()
                 .filter(criterion -> criterion instanceof GlobalSearchTextCriteria &&

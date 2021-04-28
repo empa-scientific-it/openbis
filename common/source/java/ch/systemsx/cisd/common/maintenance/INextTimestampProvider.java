@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2021 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-function DeleteEntityController(deleteFunction, includeReason, warningText, $plugin) {
-	this._deleteEntityModel = new DeleteEntityModel(deleteFunction, includeReason, warningText);
-	this._deleteEntityView = new DeleteEntityView(this, this._deleteEntityModel, $plugin);
-	
-	this.init = function() {
-		this._deleteEntityView.repaint();
-	}
+package ch.systemsx.cisd.common.maintenance;
+
+import java.util.Date;
+
+/**
+ * @author Franz-Josef Elmer
+ *
+ */
+public interface INextTimestampProvider
+{
+    public Date getNextTimestamp(Date timestamp);
 }

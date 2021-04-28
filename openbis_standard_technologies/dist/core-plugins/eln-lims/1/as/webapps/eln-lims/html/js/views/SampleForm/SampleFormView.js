@@ -161,55 +161,53 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			if (_this._allowedToDelete()) {
 				//Delete
-				var warningText = null;
-				if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
-					warningText = ""
-						var childrenThatAreNotPositions = 0;
-					for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
-						var child = this._sampleFormModel.sample.children[idx];
-						if(child.sampleTypeCode !== "STORAGE_POSITION") {
-							childrenThatAreNotPositions++;
-						}
-					}
-					
-					if(this._sampleFormModel.sample.children.length > 0) {
-						warningText += "The sample has " + childrenThatAreNotPositions + " children samples, these relationships will be broken but the children will remain:\n";
-						var numChildrenToShow = childrenThatAreNotPositions;
-						if(numChildrenToShow > 10) {
-							numChildrenToShow = 10;
-						}
-						for(var cIdx = 0 ; cIdx < numChildrenToShow; cIdx++) {
-							var child = this._sampleFormModel.sample.children[cIdx];
-							if(child.sampleTypeCode !== "STORAGE_POSITION") {
-								warningText += "\n\t" + child.code;
-							}
-						}
-						if(numChildrenToShow > 10) {
-							warningText += "\n\t...";
-						}
-					}
-					if(this._sampleFormModel.datasets.length > 0) {
-						warningText += "\n\nThe " + ELNDictionary.sample + " has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " + ELNDictionary.sample + ":\n";
-						var numDatasetsToShow = this._sampleFormModel.datasets.length;
-						if(numDatasetsToShow > 10) {
-							numDatasetsToShow = 10;
-						}
-						for(var cIdx = 0 ; cIdx < numDatasetsToShow; cIdx++) {
-							warningText += "\n\t" + this._sampleFormModel.datasets[cIdx].code;
-						}
-						if(numDatasetsToShow > 10) {
-							warningText += "\n\t...";
-						}
-					}
-				}
-
-				if(toolbarConfig.DELETE) {
-			        dropdownOptionsModel.push({
+                var maxNumToShow = 10
+                var $component = $("<div>");
+                var childSamples = this._sampleFormModel.sample.children.filter(c => c.sampleTypeCode !== "STORAGE_POSITION");
+                if (childSamples.length > 0) {
+                    var warningText = "The " + ELNDictionary.sample + " has " + childSamples.length 
+                            + " children " + ELNDictionary.sample + "s, these relationships will be broken "
+                            + " but the children will remain:";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(childSamples[cIdx]);
+                    }
+                    if (maxNumToShow < childSamples.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                    var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants"), 
+                            "Delete also all descendant " + ELNDictionary.sample 
+                            + "s (i.e. children, grand children etc.) including their data sets", null, true);
+                    $component.append($ddf);
+                }
+                if (this._sampleFormModel.datasets.length > 0) {
+                    var warningText = "The " + ELNDictionary.sample + " has " 
+                            + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " 
+                            + ELNDictionary.sample + ":";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
+                    }
+                    if (maxNumToShow < childSamples.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                }
+                if(toolbarConfig.DELETE) {
+                    dropdownOptionsModel.push({
                         label : "Delete",
                         action : function() {
                             var modalView = new DeleteEntityController(function(reason) {
-                                _this._sampleFormController.deleteSample(reason);
-                            }, true, warningText);
+                                var deleteDescendants = false;
+                                var inputs = $component.find("input");
+                                if (inputs.length > 0) {
+                                    deleteDescendants = inputs[0].checked;
+                                }
+                                _this._sampleFormController.deleteSample(reason, deleteDescendants);
+                            }, true, null, $component);
                             modalView.init();
                         }
                     });
