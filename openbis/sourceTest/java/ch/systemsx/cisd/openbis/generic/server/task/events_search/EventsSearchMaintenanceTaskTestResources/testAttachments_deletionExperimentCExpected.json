@@ -1,0 +1,60 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "EXPERIMENT_C",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-27 14:59:43 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_C",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "false",
+    "key": "IS_PUBLIC"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-27 14:59:43.350",
+    "type": "RELATIONSHIP",
+    "entityType": "PROJECT",
+    "key": "OWNED",
+    "value": "20210427145921003-205270"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-27 15:00:07.514",
+    "validUntil": "2021-04-27 15:05:36.239",
+    "type": "RELATIONSHIP",
+    "entityType": "UNKNOWN",
+    "key": "OWNER",
+    "value": "20210427150007514-205272"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-27 15:03:27.997",
+    "type": "RELATIONSHIP",
+    "entityType": "ATTACHMENT",
+    "key": "OWNER",
+    "value": "experiment/20210427145943350-205271/c1.txt(1)"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-27 15:03:51.216",
+    "type": "RELATIONSHIP",
+    "entityType": "ATTACHMENT",
+    "key": "OWNER",
+    "value": "experiment/20210427145943350-205271/c3.txt(1)"
+  }
+]

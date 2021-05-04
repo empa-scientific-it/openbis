@@ -1685,6 +1685,33 @@ public class SearchExperimentTest extends AbstractExperimentTest
                 "/CISD/NEMO/EXP11", "/CISD/DEFAULT/EXP-WELLS");
     }
 
+    @Test
+    public void testSearchWithAttributeNegation()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withAndOperator();
+        criteria.withCode().thatContains("-TEST-");
+        criteria.withSubcriteria().negate().withCode().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithStringPropertyNegation()
+    {
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria().withAndOperator();
+        criteria1.withStringProperty("DESCRIPTION").thatContains("esc");
+        criteria1.withSubcriteria().negate().withStringProperty("DESCRIPTION").thatContains("esc1");
+
+        testSearch(TEST_USER, criteria1, "/CISD/NOE/EXP-TEST-2");
+
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria().withAndOperator();
+        criteria2.withStringProperty("DESCRIPTION").thatEndsWith("experiment");
+        criteria2.withSubcriteria().negate().withStringProperty("DESCRIPTION").thatContains("test");
+
+        testSearch(TEST_USER, criteria2, "/CISD/DEFAULT/EXP-Y", "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10",
+                "/CISD/NEMO/EXP11");
+    }
+
     public ExperimentCreation getExperimentCreation(final EntityTypePermId experimentType, final int intValue,
             final double realValue)
     {

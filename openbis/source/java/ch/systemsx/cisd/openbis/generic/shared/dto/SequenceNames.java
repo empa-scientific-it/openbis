@@ -117,6 +117,8 @@ public final class SequenceNames
 
     public static final String EVENT_SEQUENCE = "EVENT_ID_SEQ";
 
+    public static final String EVENTS_SEARCH_SEQUENCE = "EVENTS_SEARCH_ID_SEQ";
+
     public static final String CODE_SEQUENCE = "CODE_SEQ";
 
     public static final String EXPERIMENT_CODE_SEQUENCE = "EXPERIMENT_CODE_SEQ";

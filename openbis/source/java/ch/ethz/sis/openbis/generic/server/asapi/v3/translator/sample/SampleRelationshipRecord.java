@@ -26,6 +26,8 @@ public class SampleRelationshipRecord extends HistoryRelationshipRecord
 
     public Long spaceId;
 
+    public Long projectId;
+
     public Long experimentId;
 
     public Long sampleId;

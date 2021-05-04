@@ -1,0 +1,115 @@
+{
+  "20210407152643902-205218": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "6633CE8F-DD6E-450B-815B-7910CCF91726/2e/9c/b2/20210407152643902-205218",
+      "key": "LOCATION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "STANDARD",
+      "key": "DATA_STORE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "RELATIVE_LOCATION",
+      "key": "LOCATOR_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "1",
+      "key": "SIZE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": null,
+      "key": "DATA_PRODUCER_CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "-50",
+      "key": "SPEED_HINT"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_dataset_C",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "1",
+      "key": "SHARE_ID"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROPRIETARY",
+      "key": "FILE_FORMAT_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "true",
+      "key": "STORAGE_CONFIRMATION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "AVAILABLE",
+      "key": "ARCHIVING_STATUS"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "20210407152643902-205218",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "false",
+      "key": "PRESENT_IN_ARCHIVE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROPRIETARY",
+      "key": "STORAGE_FORMAT"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-07 15:26:44 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "U",
+      "key": "IS_COMPLETE"
+    },
+    {
+      "userId": "etlserver",
+      "validFrom": "2021-04-07 15:26:44.174",
+      "validUntil": "2021-04-07 15:27:54.770",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNED",
+      "value": "20210407141248879-205213"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-07 15:27:54.770",
+      "validUntil": "2021-04-07 15:29:22.515",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNED",
+      "value": "20210407141206022-205211"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-07 15:29:22.515",
+      "type": "RELATIONSHIP",
+      "entityType": "EXPERIMENT",
+      "key": "OWNED",
+      "value": "20210407141217738-205212"
+    }
+  ]
+}

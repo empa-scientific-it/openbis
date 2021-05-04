@@ -1,0 +1,30 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "SAMPLE_A",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-20 10:58:58 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_sample_A",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-20 10:58:58.331",
+    "type": "RELATIONSHIP",
+    "entityType": "PROJECT",
+    "key": "OWNED",
+    "value": "20210420105829314-205247"
+  }
+]

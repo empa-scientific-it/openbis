@@ -1,0 +1,41 @@
+{
+  "20210329150838023-205177": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROJECT_A",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": null,
+      "key": "DESCRIPTION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-03-29 15:08:38 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_project_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-03-29 15:08:38.023",
+      "type": "RELATIONSHIP",
+      "entityType": "SPACE",
+      "key": "OWNED",
+      "value": "SPACE_A"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-03-29 15:09:03.348",
+      "validUntil": "2021-03-29 15:09:22.472",
+      "type": "RELATIONSHIP",
+      "entityType": "EXPERIMENT",
+      "key": "OWNER",
+      "value": "20210329150903348-205179"
+    }
+  ]
+}

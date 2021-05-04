@@ -1,0 +1,14 @@
+[
+  {
+    "userId": "registerer_D2",
+    "validFrom": "2021-04-27 15:04:46.163",
+    "type": "ATTACHMENT",
+    "entityType": "SAMPLE",
+    "fileName": "d2.txt",
+    "version": 1,
+    "description": "D2 description",
+    "title": "D2 title",
+    "key": "OWNED",
+    "value": "20210427150007514-205272"
+  }
+]

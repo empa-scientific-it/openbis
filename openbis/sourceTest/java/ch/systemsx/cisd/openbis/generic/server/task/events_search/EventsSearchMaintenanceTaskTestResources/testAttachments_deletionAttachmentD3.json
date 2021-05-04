@@ -1,0 +1,16 @@
+{
+  "sample/20210427150007514-205272/d3.txt(1)": [
+    {
+      "userId": "registerer_D3",
+      "validFrom": "2021-04-27 15:04:58.407",
+      "type": "ATTACHMENT",
+      "entityType": "SAMPLE",
+      "fileName": "d3.txt",
+      "version": 1,
+      "description": "D3 description",
+      "title": "D3 title",
+      "key": "OWNED",
+      "value": "20210427150007514-205272"
+    }
+  ]
+}

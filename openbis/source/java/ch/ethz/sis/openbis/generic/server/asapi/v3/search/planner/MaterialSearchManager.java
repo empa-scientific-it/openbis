@@ -61,7 +61,7 @@ public class MaterialSearchManager extends AbstractCompositeEntitySearchManager<
     }
 
     @Override
-    protected MaterialSearchCriteria createEmptyCriteria()
+    protected MaterialSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new MaterialSearchCriteria();
     }

@@ -382,6 +382,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		switch(entityKind) {
 			case "ALL":
 			case "ALL_PARTIAL":
+			case "ALL_PREFIX":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }];
 				this._$andOrDropdownComponent.val("OR").trigger('change');
 				this._advancedSearchModel.criteria.logicalOperator = "OR";
@@ -608,20 +609,21 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 		return model;
 	}
-	
+
     this._addToEntityTypeModel = function(model, entityKindAndType, label, selectedEntityKindAndType) {
         model.push({ value : entityKindAndType, label : label, selected : entityKindAndType == selectedEntityKindAndType})
     }
 
 	this._getEntityTypeDropdown = function() {
         var _this = this;
-        var globalSearchDefault = 'ALL_PARTIAL';
+        var globalSearchDefault = 'ALL_PREFIX';
         if (this._advancedSearchModel.globalSearchDefault) {
             globalSearchDefault = this._advancedSearchModel.globalSearchDefault;
         }
         var model = [];
-        _this._addToEntityTypeModel(model, 'ALL_PARTIAL', "All (partial match, slower)", globalSearchDefault);
+        _this._addToEntityTypeModel(model, 'ALL_PREFIX', "All (prefix match, faster)", globalSearchDefault);
         _this._addToEntityTypeModel(model, 'ALL', "All (full word match, faster)", globalSearchDefault);
+        _this._addToEntityTypeModel(model, 'ALL_PARTIAL', "All (partial match, slower)", globalSearchDefault);
         _this._addToEntityTypeModel(model, 'EXPERIMENT', ELNDictionary.getExperimentDualName(), null);
         _this._addToEntityTypeModel(model, 'SAMPLE', "" + ELNDictionary.Sample + "", null);
         _this._addToEntityTypeModel(model, 'DATASET', "Dataset", null);
@@ -698,7 +700,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			this.beforeRenderingHook();
 		}
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL"
-			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL";
+			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
+			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
 		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
 		dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}

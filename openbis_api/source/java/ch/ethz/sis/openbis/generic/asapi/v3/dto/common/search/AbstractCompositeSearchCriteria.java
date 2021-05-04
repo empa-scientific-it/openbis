@@ -69,7 +69,7 @@ public abstract class AbstractCompositeSearchCriteria extends AbstractSearchCrit
     }
 
     @Override
-    public final String toString()
+    public String toString()
     {
         return toString("");
     }

@@ -36,6 +36,8 @@ public class SearchCriteriaToStringBuilder implements Serializable
 
     private Collection<ISearchCriteria> criteria;
 
+    private boolean negated;
+
     public SearchCriteriaToStringBuilder setName(String name)
     {
         this.name = name;
@@ -54,6 +56,12 @@ public class SearchCriteriaToStringBuilder implements Serializable
         return this;
     }
 
+    public SearchCriteriaToStringBuilder setNegated(final boolean negated)
+    {
+        this.negated = negated;
+        return this;
+    }
+
     public String toString(String anIndentation)
     {
         StringBuilder sb = new StringBuilder();
@@ -61,17 +69,18 @@ public class SearchCriteriaToStringBuilder implements Serializable
 
         if (indentation.isEmpty())
         {
-            sb.append(name.toUpperCase() + "\n");
+            sb.append(negated ? "NEGATED " : "").append(name.toUpperCase()).append("\n");
         } else
         {
-            sb.append(indentation + "with " + name.toLowerCase() + ":\n");
+            sb.append(indentation).append("with ").append(negated ? "NEGATED " : "").append(name.toLowerCase())
+                    .append(":\n");
         }
 
         indentation += "    ";
 
         if (operator != null && criteria.size() > 1)
         {
-            sb.append(indentation + "with operator '" + operator + "'\n");
+            sb.append(indentation).append("with operator '").append(operator).append("'\n");
         }
 
         for (ISearchCriteria aCriteria : criteria)
@@ -82,7 +91,7 @@ public class SearchCriteriaToStringBuilder implements Serializable
                 sb.append(compositeCriteria.toString(indentation));
             } else
             {
-                sb.append(indentation + aCriteria.toString() + "\n");
+                sb.append(indentation).append(aCriteria.toString()).append("\n");
             }
         }
         return sb.toString();

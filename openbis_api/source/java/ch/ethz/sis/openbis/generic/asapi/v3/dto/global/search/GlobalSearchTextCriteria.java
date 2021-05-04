@@ -64,4 +64,14 @@ public class GlobalSearchTextCriteria extends AbstractFieldSearchCriteria<Abstra
         setFieldValue(new StringMatchesValue(string));
     }
 
+    /**
+     * Set the value to this criterion which is interpreted as a lexical "starts with" match.
+     *
+     * @param string the phrase to be matched.
+     */
+    public void thatStartsWith(final String string)
+    {
+        setFieldValue(new StringStartsWithValue(string));
+    }
+
 }

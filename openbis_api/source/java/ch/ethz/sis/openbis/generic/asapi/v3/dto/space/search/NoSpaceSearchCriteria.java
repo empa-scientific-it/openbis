@@ -20,7 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
+ *
  *
  * @author Franz-Josef Elmer
  */
@@ -33,6 +33,12 @@ public class NoSpaceSearchCriteria implements ISearchCriteria
     public String toString()
     {
         return "without space";
+    }
+
+    @Override
+    public boolean isNegated()
+    {
+        return false;
     }
 
 }

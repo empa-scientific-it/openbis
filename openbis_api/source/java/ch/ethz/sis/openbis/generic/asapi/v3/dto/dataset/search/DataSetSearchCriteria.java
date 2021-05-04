@@ -58,4 +58,9 @@ public class DataSetSearchCriteria extends AbstractDataSetSearchCriteria<DataSet
         return with(new TextAttributeSearchCriteria());
     }
 
+    public DataSetSearchCriteria negate()
+    {
+        return (DataSetSearchCriteria) super.negate();
+    }
+
 }

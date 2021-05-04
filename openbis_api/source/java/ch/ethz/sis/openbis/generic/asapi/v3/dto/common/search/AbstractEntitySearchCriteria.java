@@ -31,6 +31,8 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
 
     private static final long serialVersionUID = 1L;
 
+    private boolean negated = false;
+
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());
@@ -149,4 +151,25 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     public abstract AbstractEntitySearchCriteria<ID> withOrOperator();
 
     public abstract AbstractEntitySearchCriteria<ID> withAndOperator();
+
+    public boolean isNegated()
+    {
+        return negated;
+    }
+
+    protected AbstractEntitySearchCriteria<ID> negate()
+    {
+        negated = true;
+        return this;
+    }
+
+    protected SearchCriteriaToStringBuilder createBuilder()
+    {
+        SearchCriteriaToStringBuilder builder = new SearchCriteriaToStringBuilder();
+        builder.setCriteria(criteria);
+        builder.setOperator(operator);
+        builder.setNegated(negated);
+        return builder;
+    }
+
 }

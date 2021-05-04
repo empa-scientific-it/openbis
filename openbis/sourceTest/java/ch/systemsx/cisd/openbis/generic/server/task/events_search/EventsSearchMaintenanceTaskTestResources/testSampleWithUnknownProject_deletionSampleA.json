@@ -1,0 +1,32 @@
+{
+  "20210419173140752-205246": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "SAMPLE_A",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-19 17:31:40 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_sample_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-19 17:31:40.752",
+      "type": "RELATIONSHIP",
+      "entityType": "EXPERIMENT",
+      "key": "OWNED",
+      "value": "20210419173116451-205245"
+    }
+  ]
+}

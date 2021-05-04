@@ -34,4 +34,10 @@ public class NoProjectSearchCriteria implements ISearchCriteria
         return "without project";
     }
 
+    @Override
+    public boolean isNegated()
+    {
+        return false;
+    }
+
 }

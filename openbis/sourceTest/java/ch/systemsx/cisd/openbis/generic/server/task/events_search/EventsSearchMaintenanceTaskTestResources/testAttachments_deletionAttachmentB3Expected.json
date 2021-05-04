@@ -1,0 +1,14 @@
+[
+  {
+    "userId": "registerer_B3",
+    "validFrom": "2021-04-27 15:02:52.432",
+    "type": "ATTACHMENT",
+    "entityType": "PROJECT",
+    "fileName": "b3.txt",
+    "version": 1,
+    "description": "B3 description",
+    "title": "B3 title",
+    "key": "OWNED",
+    "value": "20210427145921003-205270"
+  }
+]

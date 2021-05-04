@@ -16,18 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.jdbc.support.JdbcAccessor;
-
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
@@ -38,10 +26,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.jdbc.support.JdbcAccessor;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Data access object for {@link EventPE}.
- * 
+ *
  * @author Piotr Buczek
  */
 public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEventDAO
@@ -115,4 +115,38 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
+    @Override public List<EventPE> listEvents(EventType eventType, EntityType entityTypeOrNull, Date lastSeenTimestampOrNull)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
+        criteria.addOrder(Order.asc("registrationDate"));
+        criteria.addOrder(Order.asc("id"));
+        criteria.add(Restrictions.eq("eventType", eventType));
+
+        if (entityTypeOrNull != null)
+        {
+            criteria.add(Restrictions.eq("entityType", entityTypeOrNull));
+        }
+
+        if (lastSeenTimestampOrNull != null)
+        {
+            criteria.add(Restrictions.gt("registrationDate", lastSeenTimestampOrNull));
+        }
+
+        List<EventPE> list = cast(getHibernateTemplate().findByCriteria(criteria, 0, 1));
+
+        if (list.size() > 0)
+        {
+            Date registrationDate = list.get(0).getRegistrationDateInternal();
+            criteria.add(Restrictions.le("registrationDate", registrationDate));
+            list = cast(getHibernateTemplate().findByCriteria(criteria, 0, Integer.MAX_VALUE));
+        }
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%s(%s, %s): %d events(s) have been found.", MethodUtils.getCurrentMethod().getName(), eventType, entityTypeOrNull, list.size()));
+        }
+
+        return list;
+    }
 }

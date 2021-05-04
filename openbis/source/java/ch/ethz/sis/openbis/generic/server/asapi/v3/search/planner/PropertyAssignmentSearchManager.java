@@ -106,7 +106,7 @@ public class PropertyAssignmentSearchManager extends
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new PropertyAssignmentSearchCriteria();
     }

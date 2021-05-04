@@ -1,0 +1,55 @@
+{
+  "20210419173116451-205245": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "EXPERIMENT_A",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-19 17:31:16 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_experiment_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "false",
+      "key": "IS_PUBLIC"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-19 17:31:16.451",
+      "validUntil": "2021-04-19 17:32:19.732",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNED",
+      "value": "20210419173048021-205243"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-19 17:31:40.752",
+      "validUntil": "2021-04-19 17:32:01.964",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNER",
+      "value": "20210419173140752-205246"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-19 17:32:19.732",
+      "type": "RELATIONSHIP",
+      "entityType": "PROJECT",
+      "key": "OWNED",
+      "value": "20210419173058839-205244"
+    }
+  ]
+}

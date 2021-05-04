@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Helper class which parses a entity identifier string.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class FullEntityIdentifier
@@ -61,14 +61,14 @@ public class FullEntityIdentifier
             spaceCode = homeSpaceCodeOrNull;
         }
 
-        List<String> splittedCode = splitCode(code, entityIdentifier);
-        if (splittedCode.size() == 2)
+        List<String> splitCode = splitCode(code, entityIdentifier);
+        if (splitCode.size() == 2)
         {
-            containerCode = splittedCode.get(0);
-            plainEntityCode = splittedCode.get(1);
+            containerCode = splitCode.get(0);
+            plainEntityCode = splitCode.get(1);
         } else
         {
-            plainEntityCode = splittedCode.get(0);
+            plainEntityCode = splitCode.get(0);
         }
 
         // Code format validation
@@ -80,7 +80,6 @@ public class FullEntityIdentifier
         entityCode = CodeConverter.tryToDatabase(plainEntityCode);
         entityIdentifierParts = new SampleIdentifierParts(CodeConverter.tryToDatabase(spaceCode),
                 CodeConverter.tryToDatabase(projectCode), CodeConverter.tryToDatabase(containerCode));
-
     }
 
     private List<String> splitCode(String code, String entityIdentifier)

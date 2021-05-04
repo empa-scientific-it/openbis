@@ -69,9 +69,14 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
     }
 
     @Override
-    protected DataSetSearchCriteria createEmptyCriteria()
+    protected DataSetSearchCriteria createEmptyCriteria(final boolean negated)
     {
-        return new DataSetSearchCriteria();
+        final DataSetSearchCriteria dataSetSearchCriteria = new DataSetSearchCriteria();
+        if (negated)
+        {
+            dataSetSearchCriteria.negate();
+        }
+        return dataSetSearchCriteria;
     }
 
     @Override
@@ -88,8 +93,9 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
     }
 
     @Override
-    public Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final DataSetSearchCriteria criteria,
-            final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
+    public Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
+            final DataSetSearchCriteria criteria, final AbstractCompositeSearchCriteria parentCriteria,
+            final String idsColumnName)
     {
         final Class<? extends ISearchCriteria> parentsSearchCriteriaClass = getParentsSearchCriteriaClass();
         final Class<? extends ISearchCriteria> containerSearchCriteriaClass = getContainerSearchCriteriaClass();
@@ -126,7 +132,8 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
                 ).collect(Collectors.toList());
 
         final CompositeEntityCriteriaVo criteriaVo = new CompositeEntityCriteriaVo(newMainCriteria, newParentsCriteria,
-                newChildrenCriteria, newContainerCriteria, nestedCriteria, criteria.getOperator());
+                newChildrenCriteria, newContainerCriteria, nestedCriteria, criteria.getOperator(),
+                criteria.isNegated());
 
         return super.doSearchForIDs(userId, criteriaVo, idsColumnName, TableMapper.DATA_SET, authorisationInformation);
     }

@@ -45,7 +45,7 @@ public class PersonSearchManager extends AbstractLocalSearchManager<PersonSearch
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new PersonSearchCriteria();
     }

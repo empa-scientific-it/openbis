@@ -121,6 +121,7 @@ public abstract class AbstractSampleSearchCriteria<T extends AbstractSampleSearc
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
         builder.setName(relation.name());
+        builder.setNegated(isNegated());
         return builder;
     }
 

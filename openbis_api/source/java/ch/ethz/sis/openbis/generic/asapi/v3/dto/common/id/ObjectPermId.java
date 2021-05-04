@@ -29,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.common.id.ObjectPermId")
-public abstract class ObjectPermId implements IObjectId
+public class ObjectPermId implements IObjectId
 {
 
     private static final long serialVersionUID = 1L;

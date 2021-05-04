@@ -16,17 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.history.DataSetRelationType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -34,21 +23,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.ContentCopyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.id.UnknownRelatedObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryContentCopyRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuthorizationValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
-
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.*;
 
 /**
  * @author pkupczyk
@@ -112,6 +100,8 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
             dataSetIds = dataSetValidator.validate(context.getSession().tryGetPerson(), dataSetIds);
         }
 
+        final boolean isSystemUser = context.getSession().tryGetPerson() != null && context.getSession().tryGetPerson().isSystemUser();
+
         for (DataSetRelationshipRecord record : records)
         {
             boolean isValid = false;
@@ -125,6 +115,9 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
             } else if (record.dataSetId != null)
             {
                 isValid = dataSetIds.contains(record.dataSetId);
+            } else
+            {
+                isValid = isSystemUser;
             }
 
             if (isValid)
@@ -175,6 +168,9 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
                     throw new IllegalArgumentException("Unsupported relation type: " + relationType);
             }
             entry.setRelatedObjectId(new DataSetPermId(dataSetRecord.relatedObjectId));
+        } else
+        {
+            entry.setRelatedObjectId(new UnknownRelatedObjectId(dataSetRecord.relatedObjectId, dataSetRecord.relationType));
         }
 
         return entry;
@@ -191,19 +187,19 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
     protected void createArbitraryEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRecord> records,
             Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
     {
-      for (HistoryRecord record : records)
-      {
-          HistoryContentCopyRecord contentCopyRecord = (HistoryContentCopyRecord) record;
-          List<HistoryEntry> entries = entriesMap.get(contentCopyRecord.dataSetId);
+        for (HistoryRecord record : records)
+        {
+            HistoryContentCopyRecord contentCopyRecord = (HistoryContentCopyRecord) record;
+            List<HistoryEntry> entries = entriesMap.get(contentCopyRecord.dataSetId);
 
-          if (entries == null)
-          {
-              entries = new LinkedList<HistoryEntry>();
-              entriesMap.put(contentCopyRecord.dataSetId, entries);
-          }
+            if (entries == null)
+            {
+                entries = new LinkedList<HistoryEntry>();
+                entriesMap.put(contentCopyRecord.dataSetId, entries);
+            }
 
-          entries.add(createContentCopyEntry(record, authorMap, fetchOptions));
-      }
+            entries.add(createContentCopyEntry(record, authorMap, fetchOptions));
+        }
     }
 
     private HistoryEntry createContentCopyEntry(HistoryRecord record, Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)

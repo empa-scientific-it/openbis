@@ -69,6 +69,11 @@ public class ExperimentSearchCriteria extends AbstractEntitySearchCriteria<IExpe
         return with(new TextAttributeSearchCriteria());
     }
 
+    public ExperimentSearchCriteria negate()
+    {
+        return (ExperimentSearchCriteria) super.negate();
+    }
+
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {

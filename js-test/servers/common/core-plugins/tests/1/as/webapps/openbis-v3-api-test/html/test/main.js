@@ -1,4 +1,4 @@
-define([ 
+define([
          'test/test-login',
          'test/test-jsVSjava',
          'test/test-create', 'test/test-update', 'test/test-search',
@@ -10,7 +10,7 @@ define([
          'test/test-evaluate',
          'test/test-json',
 
-//         'test/test-dto', 
+//         'test/test-dto',
          'test/test-dto-roundtrip',
          'test/test-custom-services',
          'test/test-dss-services',

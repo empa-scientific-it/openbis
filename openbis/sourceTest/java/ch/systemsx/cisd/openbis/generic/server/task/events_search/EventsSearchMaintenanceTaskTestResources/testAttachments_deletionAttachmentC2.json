@@ -1,0 +1,16 @@
+{
+  "experiment/20210427145943350-205271/c2.txt(1)": [
+    {
+      "userId": "registerer_C2",
+      "validFrom": "2021-04-27 15:03:39.413",
+      "type": "ATTACHMENT",
+      "entityType": "EXPERIMENT",
+      "fileName": "c2.txt",
+      "version": 1,
+      "description": "C2 description",
+      "title": "C2 title",
+      "key": "OWNED",
+      "value": "20210427145943350-205271"
+    }
+  ]
+}

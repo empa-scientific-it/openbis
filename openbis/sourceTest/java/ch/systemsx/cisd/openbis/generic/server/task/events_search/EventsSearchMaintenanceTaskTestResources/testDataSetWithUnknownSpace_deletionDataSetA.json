@@ -1,0 +1,97 @@
+{
+  "20210420131858024-205259": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "6633CE8F-DD6E-450B-815B-7910CCF91726/a8/b5/68/20210420131858024-205259",
+      "key": "LOCATION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "STANDARD",
+      "key": "DATA_STORE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "RELATIVE_LOCATION",
+      "key": "LOCATOR_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": null,
+      "key": "SIZE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": null,
+      "key": "DATA_PRODUCER_CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "-50",
+      "key": "SPEED_HINT"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_dataset_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "1",
+      "key": "SHARE_ID"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROPRIETARY",
+      "key": "FILE_FORMAT_TYPE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "true",
+      "key": "STORAGE_CONFIRMATION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "AVAILABLE",
+      "key": "ARCHIVING_STATUS"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "20210420131858024-205259",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "false",
+      "key": "PRESENT_IN_ARCHIVE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROPRIETARY",
+      "key": "STORAGE_FORMAT"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-20 13:18:58 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "U",
+      "key": "IS_COMPLETE"
+    },
+    {
+      "userId": "etlserver",
+      "validFrom": "2021-04-20 13:18:58.104",
+      "type": "RELATIONSHIP",
+      "entityType": "SAMPLE",
+      "key": "OWNED",
+      "value": "20210420131737031-205258"
+    }
+  ]
+}

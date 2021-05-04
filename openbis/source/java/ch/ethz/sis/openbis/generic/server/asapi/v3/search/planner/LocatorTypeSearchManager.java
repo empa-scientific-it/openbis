@@ -47,7 +47,7 @@ public class LocatorTypeSearchManager extends AbstractLocalSearchManager<Locator
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new LocatorTypeSearchCriteria();
     }

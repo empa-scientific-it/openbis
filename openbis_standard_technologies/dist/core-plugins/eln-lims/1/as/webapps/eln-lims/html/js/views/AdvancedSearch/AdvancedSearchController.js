@@ -239,22 +239,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 			switch(criteriaToSend.entityKind) {
 				case "ALL":
-					var freeText = "";
-					for(var ruleId in criteriaToSend.rules) {
-						if(criteriaToSend.rules[ruleId].value) {
-							freeText += " " +  criteriaToSend.rules[ruleId].value;
-						}
-					}
-					mainController.serverFacade.searchGlobally(freeText, false, fetchOptions, callbackForSearch);
-					break;
 				case "ALL_PARTIAL":
+				case "ALL_PREFIX":
 					var freeText = "";
 					for(var ruleId in criteriaToSend.rules) {
 						if(criteriaToSend.rules[ruleId].value) {
 							freeText += " " +  criteriaToSend.rules[ruleId].value;
 						}
 					}
-					mainController.serverFacade.searchGlobally(freeText, true, fetchOptions, callbackForSearch);
+					mainController.serverFacade.searchGlobally(freeText, criteriaToSend.entityKind, fetchOptions,
+							callbackForSearch);
 					break;
 				case "SAMPLE":
 					mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, callbackForSearch);

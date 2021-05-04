@@ -49,7 +49,7 @@ public class PhysicalDataSetKindSearchManager extends AbstractLocalSearchManager
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new PhysicalDataSearchCriteria();
     }

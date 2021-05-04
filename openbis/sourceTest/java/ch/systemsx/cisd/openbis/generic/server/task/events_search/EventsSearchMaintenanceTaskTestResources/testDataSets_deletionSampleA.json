@@ -1,0 +1,59 @@
+{
+  "20210407141248879-205213": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "SAMPLE_A",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-07 14:12:48 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_sample_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-07 14:12:48.879",
+      "validUntil": "2021-04-07 15:27:23.854",
+      "type": "RELATIONSHIP",
+      "entityType": "SPACE",
+      "key": "OWNED",
+      "value": "SPACE_A"
+    },
+    {
+      "userId": "etlserver",
+      "validFrom": "2021-04-07 14:19:33.882",
+      "validUntil": "2021-04-07 15:22:27.468",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNER",
+      "value": "20210407141933487-205216"
+    },
+    {
+      "userId": "etlserver",
+      "validFrom": "2021-04-07 15:26:44.174",
+      "validUntil": "2021-04-07 15:27:54.770",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNER",
+      "value": "20210407152643902-205218"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-07 15:27:23.854",
+      "type": "RELATIONSHIP",
+      "entityType": "SPACE",
+      "key": "OWNED",
+      "value": "SPACE_B"
+    }
+  ]
+}
