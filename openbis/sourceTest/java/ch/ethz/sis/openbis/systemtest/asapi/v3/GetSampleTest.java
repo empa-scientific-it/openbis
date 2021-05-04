@@ -1564,36 +1564,34 @@ public class GetSampleTest extends AbstractSampleTest
         // get history with CISD space user
         String cisdSpaceUserSessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
         Sample sample = v3api.getSamples(cisdSpaceUserSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertEquals(sample.getHistory().size(), 2);
-
-        RelationHistoryEntry entry = (RelationHistoryEntry) sample.getHistory().get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.PROJECT);
-        assertEquals(entry.getRelatedObjectId(), projectIds.get(0));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) sample.getHistory().get(1);
-        assertEquals(entry2.getRelationType(), SampleRelationType.PROJECT);
-        assertEquals(entry2.getRelatedObjectId(), projectIds.get(1));
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
 
         // get history with user that has access to project A and C
         String projectUserACSessionToken = v3api.login(projectUserACCreation.getUserId(), PASSWORD);
         sample = v3api.getSamples(projectUserACSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertEquals(sample.getHistory().size(), 1);
-
-        entry = (RelationHistoryEntry) sample.getHistory().get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.PROJECT);
-        assertEquals(entry.getRelatedObjectId(), projectIds.get(0));
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0));
 
         // get history with instance admin
         sample = v3api.getSamples(instanceAdminSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertEquals(sample.getHistory().size(), 2);
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
+    }
 
-        entry = (RelationHistoryEntry) sample.getHistory().get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.PROJECT);
-        assertEquals(entry.getRelatedObjectId(), projectIds.get(0));
-
-        entry2 = (RelationHistoryEntry) sample.getHistory().get(1);
-        assertEquals(entry2.getRelationType(), SampleRelationType.PROJECT);
-        assertEquals(entry2.getRelatedObjectId(), projectIds.get(1));
+    private void assertRelationHistory(Sample sample, SampleRelationType relationType, ProjectPermId... permIds)
+    {
+        List<String> actual = new ArrayList<>();
+        for (HistoryEntry historyEntry : sample.getHistory())
+        {
+            RelationHistoryEntry entry = (RelationHistoryEntry) historyEntry;
+            actual.add(entry.getRelationType() + ":" + entry.getRelatedObjectId());
+        }
+        Collections.sort(actual);
+        List<String> expected = new ArrayList<>();
+        for (ProjectPermId id : permIds)
+        {
+            expected.add(relationType + ":" + id);
+        }
+        Collections.sort(expected);
+        assertEquals(actual, expected);
     }
 
     @Test
