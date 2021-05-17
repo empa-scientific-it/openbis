@@ -215,15 +215,15 @@ public class UpdateTagTest extends AbstractTest
     public void testUpdateWithSamplesAdd()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
-        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
+        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         TagUpdate update = new TagUpdate();
         update.setTagId(before.getPermId());
-        update.getSampleIds().add(new SampleIdentifier("/TEST-SPACE/FV-TEST"));
+        update.getSampleIds().add(new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
 
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
-        assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/EV-TEST", "/TEST-SPACE/FV-TEST");
+        assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         assertSamplesExists("201206191219327-1054");
     }
 
@@ -231,11 +231,11 @@ public class UpdateTagTest extends AbstractTest
     public void testUpdateWithSamplesRemove()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
-        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
+        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         TagUpdate update = new TagUpdate();
         update.setTagId(before.getPermId());
-        update.getSampleIds().remove(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
+        update.getSampleIds().remove(new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST"));
 
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
@@ -247,15 +247,15 @@ public class UpdateTagTest extends AbstractTest
     public void testUpdateWithSamplesSet()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
-        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
+        assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         TagUpdate update = new TagUpdate();
         update.setTagId(before.getPermId());
-        update.getSampleIds().set(new SampleIdentifier("/TEST-SPACE/FV-TEST"));
+        update.getSampleIds().set(new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
 
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
-        assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/FV-TEST");
+        assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         assertSamplesExists("201206191219327-1054", "201206191219327-1055");
     }
 
@@ -268,15 +268,15 @@ public class UpdateTagTest extends AbstractTest
                 public void execute()
                 {
                     Tag before = getTag(TEST_SPACE_USER, PASSWORD, new TagPermId(TEST_SPACE_USER, "TEST_METAPROJECTS"));
-                    assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST", "/TEST-SPACE/FV-TEST");
+                    assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/FV-TEST");
 
                     TagUpdate update = new TagUpdate();
                     update.setTagId(before.getPermId());
-                    update.getSampleIds().add(new SampleIdentifier("/CISD/CP-TEST-1"));
+                    update.getSampleIds().add(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
                     updateTag(TEST_SPACE_USER, PASSWORD, update);
                 }
-            }, new SampleIdentifier("/CISD/CP-TEST-1"));
+            }, new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
     }
 
     @Test
