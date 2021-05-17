@@ -873,7 +873,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
 
         uploadFile(session.getSessionID(), "testUpdateSamplesWithProjectAuthorization.txt",
                 "identifier\tCOMMENT\n"
-                        + "/TEST-SPACE/FV-TEST\tupdated comment\n");
+                        + "/TEST-SPACE/TEST-PROJECT/FV-TEST\tupdated comment\n");
 
         if (user.isDisabledProjectUser())
         {
