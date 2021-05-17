@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -53,7 +54,13 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     {
         super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
-        this.projectIdentifier = projectIdentifier;
+        if (experimentIdentifierOrNull != null)
+        {
+            this.projectIdentifier = ProjectIdentifierFactory.parse(experimentIdentifierOrNull.asProjectIdentifierString());
+        } else
+        {
+            this.projectIdentifier = projectIdentifier;
+        }
         this.attachments = attachments;
         this.sampleIdentifier = sampleIdentifier;
     }
