@@ -446,12 +446,12 @@ public class EntityGraphManager
         }
     }
 
-    private Sample createSample(SampleNode sampleNode, Space space)
+    private Sample createSample(SampleNode sampleNode, Space space, Project project)
     {
         try
         {
             NewSample sample = new NewSample();
-            sample.setIdentifier(createSampleIdentifier(space, sampleNode));
+            sample.setIdentifier(createSampleIdentifier(space, project, sampleNode));
             sample.setSampleType(defaultSampleType);
             ExperimentNode experimentNode = sampleNode.getExperiment();
             if (experimentNode != null)
@@ -500,15 +500,21 @@ public class EntityGraphManager
         return parentIdentifiers;
     }
 
-    private String createSampleIdentifier(Space space, SampleNode sampleNode)
+    private String createSampleIdentifier(Space space, Project project, SampleNode sampleNode)
     {
-        String prefix = space == null ? "/" : space.getIdentifier() + "/";
+        String prefix = project == null ? (space == null ? "/" : space.getIdentifier() + "/")
+                : project.getIdentifier() + "/";
         if (sampleNode.isShared())
         {
             prefix = "/";
         } else if (sampleNode.getSpace() != null)
         {
-            prefix = createSpace(sampleNode.getSpace()).getIdentifier() + "/";
+            space = createSpace(sampleNode.getSpace());
+            prefix = space.getIdentifier() + "/";
+            if (sampleNode.getProject() != null)
+            {
+                prefix += createProject(space, sampleNode.getProject()).getIdentifier() + "/";
+            }
         }
         return prefix + sampleNode.getCode() + generateUniqueId();
     }
@@ -603,7 +609,7 @@ public class EntityGraphManager
         defaultExperimentType = createExperimentType("ET");
         defaultSampleType = createSampleType("ST");
         createExperiments(defaultProject, g);
-        createSamples(defaultSpace, g);
+        createSamples(defaultSpace, defaultProject, g);
         createDataSets(g);
         org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
@@ -620,13 +626,13 @@ public class EntityGraphManager
         }
     }
 
-    private void createSamples(Space space, EntityGraphGenerator g)
+    private void createSamples(Space space, Project project, EntityGraphGenerator g)
     {
         ArrayList<SampleNode> sampleNodes = new ArrayList<SampleNode>(g.getSamples().values());
         // Collections.reverse(sampleNodes);
         for (SampleNode sampleNode : sampleNodes)
         {
-            repository.put(sampleNode, createSample(sampleNode, space));
+            repository.put(sampleNode, createSample(sampleNode, space, project));
         }
     }
 

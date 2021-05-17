@@ -144,7 +144,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
@@ -2590,8 +2589,7 @@ public class CommonServerTest extends SystemTestCase
 
         SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), 
                 ExperimentIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"), 
-                ProjectIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT"),
-                new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/TEST-PROJECT/EV-TEST
+                null, new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/TEST-PROJECT/EV-TEST
         updates.setUpdateExperimentLink(false);
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
