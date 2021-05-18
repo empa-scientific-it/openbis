@@ -576,6 +576,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchDeletionsOperation(criteria, fetchOptions));
 		}
 
+		this.searchEvents = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchEventsOperation(criteria, fetchOptions));
+		}
+
 		this.revertDeletions = function(ids) {
 			return this._executeOperation(new c.RevertDeletionsOperation(ids)).then(function(results) {
 				return results.getResults()[0];

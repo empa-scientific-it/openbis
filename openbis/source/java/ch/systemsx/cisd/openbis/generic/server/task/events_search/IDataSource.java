@@ -22,7 +22,7 @@ import java.util.List;
 interface IDataSource
 {
 
-    <T> T executeInNewTransaction(TransactionCallback<T> callback);
+    Statistics executeInNewTransaction(TransactionCallback<?> callback);
 
     List<SpacePE> loadSpaces(List<String> codes);
 
@@ -32,7 +32,7 @@ interface IDataSource
 
     List<Sample> loadSamples(List<ISampleId> ids, SampleFetchOptions fo);
 
-    List<EventPE> loadEvents(EventType eventType, EntityType entityType, Date lastSeenTimestampOrNull);
+    List<EventPE> loadEvents(EventType eventType, EntityType entityType, Date lastSeenTimestampOrNull, Integer limitOrNull);
 
     Date loadLastEventsSearchTimestamp(EventType eventType, EntityType entityType);
 

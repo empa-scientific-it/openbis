@@ -1908,6 +1908,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.searchEvents = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchEvents",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "Event" ]
+				}
+			});
+		}
+
 		this.revertDeletions = function(ids) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

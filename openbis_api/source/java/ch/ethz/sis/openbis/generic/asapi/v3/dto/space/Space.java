@@ -15,23 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.space;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpaceTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +42,9 @@ public class Space implements Serializable, ICodeHolder, IDescriptionHolder, IMo
 
     @JsonProperty
     private SpaceFetchOptions fetchOptions;
+
+    @JsonProperty
+    private SpaceTechId id;
 
     @JsonProperty
     private SpacePermId permId;
@@ -92,6 +90,17 @@ public class Space implements Serializable, ICodeHolder, IDescriptionHolder, IMo
     public void setFetchOptions(SpaceFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
+    }
+
+    @JsonIgnore
+    public SpaceTechId getId()
+    {
+        return id;
+    }
+
+    public void setId(SpaceTechId id)
+    {
+        this.id = id;
     }
 
     // Method automatically generated with DtoGenerator

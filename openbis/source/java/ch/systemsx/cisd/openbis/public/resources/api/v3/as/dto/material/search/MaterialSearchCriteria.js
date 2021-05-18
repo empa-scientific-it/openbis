@@ -27,6 +27,9 @@ define([ "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/co
 			var TextAttributeSearchCriteria = require("as/dto/common/search/TextAttributeSearchCriteria");
 			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
+		prototype.negate = function() {
+			return AbstractEntitySearchCriteria.prototype.negate.call();
+		};
 	}, {
 		operator : {
 			name : "Enum",

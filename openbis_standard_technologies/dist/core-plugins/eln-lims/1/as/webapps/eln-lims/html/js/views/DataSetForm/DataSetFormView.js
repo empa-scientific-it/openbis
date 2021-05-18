@@ -678,7 +678,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				FormUtil.fixStringPropertiesForForm(propertyType, this._dataSetFormModel.dataSet);
 				
-				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
+				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 					continue;
 				} else if(propertyType.dinamic && this._dataSetFormController.mode === FormMode.CREATE) { //Skip
 					continue;

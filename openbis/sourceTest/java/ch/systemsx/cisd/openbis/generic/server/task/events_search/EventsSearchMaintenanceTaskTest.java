@@ -66,7 +66,7 @@ public class EventsSearchMaintenanceTaskTest
                     @Override public Object invoke(Invocation invocation) throws Throwable
                     {
                         ((TransactionCallback) invocation.getParameter(0)).doInTransaction(null);
-                        return null;
+                        return new Statistics();
                     }
                 });
             }
@@ -384,7 +384,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210329150903348-205179"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210329150903348-205179");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testExperiments_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -406,7 +406,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentsAB.setEventType(EventType.DELETION);
         deletionExperimentsAB.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentsAB.setIdentifiers(Arrays.asList("20210329151120278-205181", "20210329151130167-205182"));
-        deletionExperimentsAB.setDescription("Description Experiments A and B");
+        deletionExperimentsAB.setDescription("20210329151120278-205181, 20210329151130167-205182");
         deletionExperimentsAB.setReason("Reason Experiments A and B");
         deletionExperimentsAB.setContent(loadFile("testExperiments_deletionExperimentsAB.json"));
         deletionExperimentsAB.setRegistrator(deleterExperimentsAB);
@@ -522,6 +522,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentsABExpectedB.setEntityRegisterer("registerer_experiment_B");
         deletionExperimentsABExpectedB.setEntityRegistrationTimestamp(dateTimeMillis("2021-03-29 15:11:30.000"));
         deletionExperimentsABExpectedB.setIdentifier("20210329151130167-205182");
+        deletionExperimentsABExpectedB.setDescription("20210329151130167-205182");
         deletionExperimentsABExpectedB.setContent(loadFile("testExperiments_deletionExperimentsABExpectedB.json"));
         assertExpectedEvent(events.get(3), deletionExperimentsABExpectedB);
 
@@ -533,6 +534,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentsABExpectedA.setEntityRegisterer("registerer_experiment_A");
         deletionExperimentsABExpectedA.setEntityRegistrationTimestamp(dateTimeMillis("2021-03-29 15:11:20.000"));
         deletionExperimentsABExpectedA.setIdentifier("20210329151120278-205181");
+        deletionExperimentsABExpectedA.setDescription("20210329151120278-205181");
         deletionExperimentsABExpectedA.setContent(loadFile("testExperiments_deletionExperimentsABExpectedA.json"));
         assertExpectedEvent(events.get(4), deletionExperimentsABExpectedA);
     }
@@ -564,7 +566,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210419162809496-205242"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210419162809496-205242");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testExperimentWithUnknownSpace_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -734,7 +736,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210401151830921-205198"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210401151830921-205198");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testSamples_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -952,7 +954,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210419173116451-205245"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210419173116451-205245");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testSampleWithUnknownProject_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -1335,7 +1337,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210407141206022-205211"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210407141206022-205211");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testDataSets_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -1574,7 +1576,7 @@ public class EventsSearchMaintenanceTaskTest
         deletionExperimentA.setEventType(EventType.DELETION);
         deletionExperimentA.setEntityType(EntityType.EXPERIMENT);
         deletionExperimentA.setIdentifiers(Collections.singletonList("20210420114236830-205252"));
-        deletionExperimentA.setDescription("Description Experiment A");
+        deletionExperimentA.setDescription("20210420114236830-205252");
         deletionExperimentA.setReason("Reason Experiment A");
         deletionExperimentA.setContent(loadFile("testDataSetWithUnknownProject_deletionExperimentA.json"));
         deletionExperimentA.setRegistrator(deleterExperimentA);
@@ -2528,7 +2530,7 @@ public class EventsSearchMaintenanceTaskTest
         mockery.checking(new Expectations()
         {
             {
-                one(dataSource).loadEvents(with(eventType), with(entityType), with(lastSeenTimestamp));
+                one(dataSource).loadEvents(with(eventType), with(entityType), with(lastSeenTimestamp), with(any(Integer.class)));
                 will(returnValue(Arrays.asList(events)));
             }
         });

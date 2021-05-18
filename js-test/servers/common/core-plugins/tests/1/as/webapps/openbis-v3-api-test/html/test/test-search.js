@@ -2722,6 +2722,310 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchEvents()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, events) {
+				c.assertEqual(events.length, 6);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+        QUnit.test("searchEvents() withEventType", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEventType().thatEquals(c.EventType.FREEZING);
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.withRegistrator();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.FREEZING, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[0].getIdentifier(), "/EVENT_TEST_SPACE_A/EVENT_TEST_PROJECT_A/EVENT_TEST_EXPERIMENT_A", "Identifier");
+                c.assertEqual(events[0].getReason(), "[\"freeze\"]", "Reason");
+                c.assertEqual(events[0].getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+                c.assertDate(events[0].getRegistrationDate(), "Registration date", 2021, 5, 14, 10, 10);
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntityType", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntityType().thatEquals(c.EntityType.EXPERIMENT);
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.withRegistrator();
+                fetchOptions.sortBy().id().desc();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 3);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.FREEZING, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[0].getIdentifier(), "/EVENT_TEST_SPACE_A/EVENT_TEST_PROJECT_A/EVENT_TEST_EXPERIMENT_A", "Identifier");
+                c.assertEqual(events[0].getReason(), "[\"freeze\"]", "Reason");
+                c.assertEqual(events[0].getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+                c.assertDate(events[0].getRegistrationDate(), "Registration date", 2021, 5, 14, 10, 10);
+
+                c.assertEqual(events[1].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[1].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[1].getEntitySpace(), "EVENT_TEST_SPACE_B", "Entity Space");
+                c.assertEqual(events[1].getEntityProject(), "/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B", "Entity Project");
+                c.assertEqual(events[1].getEntityProjectId().getPermId(), "20210514121033383-440", "Entity Project Id");
+                c.assertEqual(events[1].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertDate(events[1].getEntityRegistrationDate(), "Entity Registration date", 2021, 5, 14, 10, 10);
+                c.assertEqual(events[1].getIdentifier(), "20210514121033530-443", "Identifier");
+                c.assertEqual(events[1].getDescription(), "20210514121033530-443", "Description");
+                c.assertEqual(events[1].getReason(), "delete experiments", "Reason");
+                c.assertEqual(events[1].getRegistrator().getUserId(), "admin", "Registrator");
+                c.assertDate(events[1].getRegistrationDate(), "Registration date", 2021, 5, 14, 10, 10);
+
+                c.assertEqual(events[2].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[2].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[2].getEntitySpace(), "EVENT_TEST_SPACE_B", "Entity Space");
+                c.assertEqual(events[2].getEntityProject(), "/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B", "Entity Project");
+                c.assertEqual(events[2].getEntityProjectId().getPermId(), "20210514121033383-440", "Entity Project Id");
+                c.assertEqual(events[2].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertDate(events[2].getEntityRegistrationDate(), "Entity Registration date", 2021, 5, 14, 10, 10);
+                c.assertEqual(events[2].getIdentifier(), "20210514121033530-444", "Identifier");
+                c.assertEqual(events[2].getDescription(), "20210514121033530-444", "Description");
+                c.assertEqual(events[2].getReason(), "delete experiments", "Reason");
+                c.assertEqual(events[2].getRegistrator().getUserId(), "admin", "Registrator");
+                c.assertDate(events[2].getRegistrationDate(), "Registration date", 2021, 5, 14, 10, 10);
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntitySpace", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntitySpace().thatEquals("EVENT_TEST_SPACE_C");
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertEqual(events[0].getEntitySpace(), "EVENT_TEST_SPACE_C", "Entity Space");
+                c.assertEqual(events[0].getEntitySpaceId().getTechId(), 6, "Entity Space Id");
+                c.assertEqual(events[0].getEntityProject(), "/EVENT_TEST_SPACE_C/EVENT_TEST_PROJECT_C", "Entity Project");
+                c.assertEqual(events[0].getEntityProjectId().getPermId(), "20210514121033383-441", "Entity Project Id");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-441", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntitySpaceId", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntitySpaceId().thatEquals("6");
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertEqual(events[0].getEntitySpace(), "EVENT_TEST_SPACE_C", "Entity Space");
+                c.assertEqual(events[0].getEntitySpaceId().getTechId(), 6, "Entity Space Id");
+                c.assertEqual(events[0].getEntityProject(), "/EVENT_TEST_SPACE_C/EVENT_TEST_PROJECT_C", "Entity Project");
+                c.assertEqual(events[0].getEntityProjectId().getPermId(), "20210514121033383-441", "Entity Project Id");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-441", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntityProject", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntityProject().thatEquals("/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B");
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.sortBy().identifier();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 3);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertEqual(events[0].getEntitySpace(), "EVENT_TEST_SPACE_B", "Entity Space");
+                c.assertEqual(events[0].getEntityProject(), "/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B", "Entity Project");
+                c.assertEqual(events[0].getEntityProjectId().getPermId(), "20210514121033383-440", "Entity Project Id");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-440", "Identifier");
+
+                c.assertEqual(events[1].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[1].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[1].getEntitySpace(), "EVENT_TEST_SPACE_B", "Entity Space");
+                c.assertEqual(events[1].getEntityProject(), "/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B", "Entity Project");
+                c.assertEqual(events[1].getEntityProjectId().getPermId(), "20210514121033383-440", "Entity Project Id");
+                c.assertEqual(events[1].getIdentifier(), "20210514121033530-443", "Identifier");
+
+                c.assertEqual(events[2].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[2].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[2].getEntitySpace(), "EVENT_TEST_SPACE_B", "Entity Space");
+                c.assertEqual(events[2].getEntityProject(), "/EVENT_TEST_SPACE_B/EVENT_TEST_PROJECT_B", "Entity Project");
+                c.assertEqual(events[2].getEntityProjectId().getPermId(), "20210514121033383-440", "Entity Project Id");
+                c.assertEqual(events[2].getIdentifier(), "20210514121033530-444", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntityProjectId", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntityProjectId().thatEquals("20210514121033383-441");
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertEqual(events[0].getEntitySpace(), "EVENT_TEST_SPACE_C", "Entity Space");
+                c.assertEqual(events[0].getEntitySpaceId().getTechId(), 6, "Entity Space Id");
+                c.assertEqual(events[0].getEntityProject(), "/EVENT_TEST_SPACE_C/EVENT_TEST_PROJECT_C", "Entity Project");
+                c.assertEqual(events[0].getEntityProjectId().getPermId(), "20210514121033383-441", "Entity Project Id");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-441", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntityRegistrator", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntityRegistrator().thatEquals("openbis_test_js");
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.sortBy().id();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 2);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[0].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033530-444", "Identifier");
+
+                c.assertEqual(events[1].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[1].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[1].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertEqual(events[1].getIdentifier(), "20210514121033530-443", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withEntityRegistrationDate", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withEntityRegistrationDate().thatEquals("2021-05-13");
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertDate(events[0].getEntityRegistrationDate(), "Entity Registration date", 2021, 5, 13, 8, 0);
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-441", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withRegistrator", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withRegistrator().withUserId().thatEquals("openbis_test_js");
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.withRegistrator();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.FREEZING, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[0].getIdentifier(), "/EVENT_TEST_SPACE_A/EVENT_TEST_PROJECT_A/EVENT_TEST_EXPERIMENT_A", "Identifier");
+                c.assertEqual(events[0].getRegistrator().getUserId(), "openbis_test_js", "Registrator");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
+        QUnit.test("searchEvents() withRegistrationDate", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withAndOperator();
+                criteria.withRegistrationDate().thatIsLaterThanOrEqualTo("2021-05-11");
+                criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo("2021-05-13");
+                var fetchOptions = new c.EventFetchOptions();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 1);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.PROJECT, "Entity Type");
+                c.assertDate(events[0].getRegistrationDate(), "Registration date", 2021, 5, 12, 8, 10);
+                c.assertEqual(events[0].getIdentifier(), "20210514121033383-441", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
 		QUnit.test("searchQueries() withId", function(assert) {
 			var c = new common(assert, openbis);
 

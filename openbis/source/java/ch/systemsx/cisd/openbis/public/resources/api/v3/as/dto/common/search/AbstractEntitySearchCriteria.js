@@ -22,6 +22,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		prototype['@type'] = 'as.dto.common.search.AbstractEntitySearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.operator = SearchOperator.AND;
+		prototype.negated = false;
 		prototype.getOperator = function() {
 			return this.operator;
 		};
@@ -107,6 +108,13 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		};
 		prototype.withAndOperator = function() {
 			return this.withOperator(SearchOperator.AND);
+		};
+		prototype.isNegated = function() {
+			return this.negated;
+		};
+		prototype.negate = function() {
+			this.negated = true;
+			return this;
 		};
 	}, {
 		operator : {

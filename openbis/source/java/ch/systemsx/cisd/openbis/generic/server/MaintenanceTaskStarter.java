@@ -16,23 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
-import ch.systemsx.cisd.openbis.generic.server.task.StatisticsCollectionMaintenanceTask;
-import org.apache.log4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.IOperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.task.OperationExecutionMarkFailedAfterServerRestartMaintenanceTask;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.task.OperationExecutionMarkTimeOutPendingMaintenanceTask;
@@ -44,6 +27,18 @@ import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask;
+import ch.systemsx.cisd.openbis.generic.server.task.StatisticsCollectionMaintenanceTask;
+import ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask;
+import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * Configures and starts maintenance tasks.
@@ -119,6 +114,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
                     false,
                     StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
+        }
+
+        if (false == isTaskConfigured(tasks, EventsSearchMaintenanceTask.class))
+        {
+            tasks = addTask(tasks,
+                    EventsSearchMaintenanceTask.class,
+                    EventsSearchMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
+                    false,
+                    EventsSearchMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
         }
 
         plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);

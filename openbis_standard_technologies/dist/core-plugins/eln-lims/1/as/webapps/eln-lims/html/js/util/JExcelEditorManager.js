@@ -179,10 +179,25 @@ var JExcelEditorManager = new function() {
             }
         } else {
             var onChangeHandler = this.getOnChange(guid, propertyCode, entity);
-            options.onchangeheader = onChangeHandler;
-            options.onchange = onChangeHandler;
-            options.onchangestyle = onChangeHandler;
-            options.onchangemeta = onChangeHandler;
+            options.onundo = onChangeHandler;
+            options.onredo = onChangeHandler;
+            options.onchange = onChangeHandler; //
+            options.onafterchanges = onChangeHandler;
+            options.oninsertrow = onChangeHandler;
+            options.oninsertcolumn = onChangeHandler;
+            options.ondeleterow = onChangeHandler;
+            options.ondeletecolumn = onChangeHandler;
+            options.onmoverow = onChangeHandler;
+            options.onmovecolumn = onChangeHandler;
+            options.onresizerow = onChangeHandler;
+            options.onresizecolumn = onChangeHandler;
+            options.onsort = onChangeHandler;
+            options.onpaste = onChangeHandler;
+            options.onmerge = onChangeHandler;
+            options.onchangeheader = onChangeHandler; //
+            options.oneditionend = onChangeHandler;
+            options.onchangestyle = onChangeHandler; //
+            options.onchangemeta = onChangeHandler; //
 
             options.toolbar = [
                     { type:'select', k:'font-family', v:['Arial','Verdana'] },

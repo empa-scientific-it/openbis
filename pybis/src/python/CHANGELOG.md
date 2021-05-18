@@ -1,3 +1,8 @@
+## Changes with pybis-1.18.10
+
+- added deprecation warnings for components/containers and attachments
+- added download_path and file_links to datasets
+
 ## Changes with pybis-1.18.9
 
 - fixed problem when searching for experiments

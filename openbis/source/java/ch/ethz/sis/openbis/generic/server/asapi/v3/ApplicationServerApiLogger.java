@@ -16,9 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.util.List;
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
@@ -60,6 +57,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -192,29 +192,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticA
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.AggregationService;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ProcessingService;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ReportingService;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainService;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainServiceExecutionResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.AggregationServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ProcessingServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ReportingServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.SearchDomainServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.AggregationServiceSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingServiceSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
@@ -252,6 +238,9 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author pkupczyk
@@ -1028,6 +1017,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public SearchResult<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-deletions", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
+    @Override public SearchResult<Event> searchEvents(final String sessionToken, final EventSearchCriteria searchCriteria,
+            final EventFetchOptions fetchOptions)
+    {
         return null;
     }
 

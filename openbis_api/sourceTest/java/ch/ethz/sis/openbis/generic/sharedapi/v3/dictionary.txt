@@ -2463,3 +2463,67 @@ TextAttributeSearchCriteria
 thatMatches
 withTextAttribute
 Unknown Related Object Id
+
+ATTACHMENT
+Entity Type
+Event
+Event Entity Project Perm Id Search Criteria
+Event Entity Project Search Criteria
+Event Entity Registration Date Search Criteria
+Event Entity Registrator Search Criteria
+Event Entity Space Perm Id Search Criteria
+Event Entity Space Search Criteria
+Event Entity Type Search Criteria
+Event Event Type Search Criteria
+Event Fetch Options
+Event Registration Date Search Criteria
+Event Registrator Search Criteria
+Event Search Criteria
+Event Sort Options
+Event Tech Id
+Event Type
+FREEZING
+get Entity Project
+get Entity Project Id
+get Entity Registration Date
+get Entity Registrator
+get Entity Space
+get Entity Space Id
+get Event Type
+has Entity Registrator
+IEventId
+is Negated
+MOVEMENT
+negate
+search Events
+Search EventsOperation
+Search Events Operation Result
+set Entity Project
+set Entity Project Id
+set Entity Registration Date
+set Entity Registrator
+set Entity Space
+set Entity Space Id
+set Event Type
+set Negated
+TAG
+with Entity Project
+with Entity Project Perm Id
+with Entity Registration Date
+with Entity Registrator
+with Entity Registrator Using
+with Entity Space
+with Entity Space Perm Id
+with Event Type
+Event Entity Project Id Search Criteria
+Event Entity Space Id Search Criteria
+Event Type Search Criteria
+ID
+id
+Space Tech Id
+with Entity Project Id
+with Entity Space Id
+
+isNegated
+setNegated
+negate

@@ -9,6 +9,9 @@ define([ "stjs", "as/dto/common/search/ISearchCriteria" ], function(stjs, ISearc
 		constructor.serialVersionUID = 1;
 		prototype.hashCode = function() {
 		};
+		prototype.isNegated = function() {
+			return false;
+		};
 	}, {});
 	return AbstractSearchCriteria;
 })

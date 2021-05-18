@@ -10,9 +10,16 @@ repositories {
 
 dependencies {
     compile project(':microservice_server_template')
-    compile 'openbis:openbis-v3-api-batteries-included:20.10.0'
-    compile 'com.maxmind.geoip2:geoip2:2.15.0'
-    compile 'org.slf4j:slf4j-log4j12:1.7.30'
+    compile 'openbis:openbis-v3-api-batteries-included:20.10.0',
+            'apache:log4j:1.2.15',
+            'maxmind:geoip2:2.15.0',
+            // Geo IP dependencies
+            'maxmind:maxmind-db:2.0.0',
+            'fasterxml:jackson-core:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
+            'fasterxml:jackson-annotations:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
+            'fasterxml:jackson-databind:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
+            'apache:commons-codec:1.10', // It actually requires 1.15 needs to be added to the repo
+            'apache:httpclient:4.3.6' // It actually requires 4.5.13 needs to be added to the repo
 }
 
 ext {

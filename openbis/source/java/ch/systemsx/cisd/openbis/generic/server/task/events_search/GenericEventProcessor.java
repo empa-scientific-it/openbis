@@ -39,7 +39,7 @@ public class GenericEventProcessor extends EventProcessor
 
         while (true)
         {
-            final List<EventPE> events = dataSource.loadEvents(eventType, entityType, latestLastSeenTimestamp.getValue());
+            final List<EventPE> events = dataSource.loadEvents(eventType, entityType, latestLastSeenTimestamp.getValue(), DEFAULT_BATCH_SIZE);
 
             if (events.isEmpty())
             {

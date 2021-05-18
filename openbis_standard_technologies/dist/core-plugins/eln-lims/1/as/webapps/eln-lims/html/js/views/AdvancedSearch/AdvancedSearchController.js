@@ -269,14 +269,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 		switch(criteriaToSend.entityKind) {
 			case "ALL":
+			case "ALL_PARTIAL":
+			case "ALL_PREFIX":
 				var freeText = "";
 				for(var ruleId in criteriaToSend.rules) {
 					if(criteriaToSend.rules[ruleId].value) {
 						freeText += " " +  criteriaToSend.rules[ruleId].value;
 					}
 				}
-				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, false, {},
-					callback);
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText,
+					criteriaToSend.entityKind, {}, callback);
 				break;
 			case "ALL_PARTIAL":
 				var freeText = "";

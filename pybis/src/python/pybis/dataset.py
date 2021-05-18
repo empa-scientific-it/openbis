@@ -122,8 +122,8 @@ class DataSet(
             'set_parents()', 'set_children()', 'set_components()', 'set_contained()', 'set_containers()',
             'set_tags()', 'add_tags()', 'del_tags()',
             'add_attachment()', 'get_attachments()', 'download_attachments()',
-            "get_files()", 'file_list','physicalData',
-            'download()','is_physical()', 'symlink()', 'is_symlink()',
+            "get_files()", 'file_list', 'file_links', 'physicalData',
+            'download()','download_path', 'is_physical()', 'symlink()', 'is_symlink()',
             'archive()', 'unarchive()',
             'save()', 'delete()', 'mark_to_be_deleted()', 'unmark_to_be_deleted()', 'is_marked_to_be_deleted()',
             'attrs','props',
@@ -174,7 +174,12 @@ class DataSet(
             return self.data['physicalData']['status']
         except Exception:
             return None
-
+        
+    @property
+    def download_path(self):
+        """after ther physical datasets have been downloaded, this returns the relative path.
+        """
+        return self.__dict__.get('download_path', '')
 
     @property
     def _sftp_source_dir(self):
@@ -417,6 +422,8 @@ class DataSet(
             final_destination = os.path.join(destination, self.permId)
         else:
             final_destination = destination
+            
+        self.__dict__['download_path'] = final_destination
 
         download_url = self._get_download_url()
         base_url = download_url + '/datastore_server/' + self.permId + '/'
@@ -512,6 +519,22 @@ class DataSet(
                 else:
                     files.append(file['pathInDataSet'])
             return files
+        
+    @property
+    def file_links(self):
+        if self.is_new:
+            return ''
+        url = self.openbis.url
+        location_part = self.physicalData.location.split('/')[-1] 
+        token = self.openbis.token
+
+        
+        file_links = {}
+        for filepath in self.file_list:
+            quoted_filepath = urllib.parse.quote(filepath, safe='')
+            file_links[filepath] = '/'.join([url, 'datastore_server', location_part, quoted_filepath]) + '?sessionID=' + token
+                    
+        return file_links
 
     def get_files(self, start_folder='/'):
         """Returns a DataFrame of all files in this dataset

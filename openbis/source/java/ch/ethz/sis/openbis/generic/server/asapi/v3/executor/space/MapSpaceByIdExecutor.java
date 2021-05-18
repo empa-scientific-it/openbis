@@ -16,19 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.ListSpaceByPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.ListSpaceByTechId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author pkupczyk
@@ -52,6 +52,7 @@ public class MapSpaceByIdExecutor extends AbstractMapObjectByIdExecutor<ISpaceId
     protected void addListers(IOperationContext context, List<IListObjectById<? extends ISpaceId, SpacePE>> listers)
     {
         listers.add(new ListSpaceByPermId(spaceDAO));
+        listers.add(new ListSpaceByTechId(spaceDAO));
     }
 
     @Autowired

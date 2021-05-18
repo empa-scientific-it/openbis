@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpaceTechId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -99,6 +100,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<Long, Space, Spac
         TranslationResults relations = (TranslationResults) objectRelations;
         SpaceBaseRecord baseRecord = relations.get(ISpaceBaseTranslator.class, spaceId);
 
+        result.setId(new SpaceTechId(baseRecord.id));
         result.setCode(baseRecord.code);
         result.setPermId(new SpacePermId(baseRecord.code));
         result.setDescription(baseRecord.description);

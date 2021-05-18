@@ -28,6 +28,11 @@ class DataSetDeletionProcessor extends DeletionEventProcessor
         return Collections.emptySet();
     }
 
+    @Override protected int getBatchSize()
+    {
+        return 1;
+    }
+
     @Override protected void processDeletion(LastTimestamps lastTimestamps, EventPE deletion, List<NewEvent> newEvents, List<Snapshot> newSnapshots)
             throws Exception
     {

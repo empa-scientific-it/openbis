@@ -115,7 +115,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
-    @Override public List<EventPE> listEvents(EventType eventType, EntityType entityTypeOrNull, Date lastSeenTimestampOrNull)
+    @Override public List<EventPE> listEvents(EventType eventType, EntityType entityTypeOrNull, Date lastSeenTimestampOrNull, Integer limitOrNull)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
         criteria.addOrder(Order.asc("registrationDate"));
@@ -132,13 +132,23 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
             criteria.add(Restrictions.gt("registrationDate", lastSeenTimestampOrNull));
         }
 
-        List<EventPE> list = cast(getHibernateTemplate().findByCriteria(criteria, 0, 1));
+        int limit = limitOrNull != null ? limitOrNull : 1;
 
-        if (list.size() > 0)
+        List<EventPE> list = cast(getHibernateTemplate().findByCriteria(criteria, 0, limit));
+
+        if (list.size() == limit)
         {
-            Date registrationDate = list.get(0).getRegistrationDateInternal();
-            criteria.add(Restrictions.le("registrationDate", registrationDate));
-            list = cast(getHibernateTemplate().findByCriteria(criteria, 0, Integer.MAX_VALUE));
+            Date lastRegistrationDate = list.get(list.size() - 1).getRegistrationDateInternal();
+            criteria.add(Restrictions.le("registrationDate", lastRegistrationDate));
+
+            List<EventPE> remainderList = cast(getHibernateTemplate().findByCriteria(criteria, limit, Integer.MAX_VALUE));
+
+            if (remainderList.size() > 0)
+            {
+                List<EventPE> fullList = new ArrayList<>(list);
+                fullList.addAll(remainderList);
+                list = fullList;
+            }
         }
 
         if (operationLog.isDebugEnabled())

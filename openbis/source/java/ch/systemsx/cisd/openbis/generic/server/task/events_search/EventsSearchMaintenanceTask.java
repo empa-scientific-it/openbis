@@ -21,6 +21,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -34,6 +35,10 @@ import java.util.Properties;
 public class EventsSearchMaintenanceTask implements IMaintenanceTask
 {
 
+    public static final String DEFAULT_MAINTENANCE_TASK_NAME = "events-search-task";
+
+    public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 24 * 60 * 60;
+
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private final IDataSource dataSource;
@@ -43,7 +48,7 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
         this.dataSource = new DataSource();
     }
 
-    EventsSearchMaintenanceTask(IDataSource dataSource)
+    public EventsSearchMaintenanceTask(IDataSource dataSource)
     {
         this.dataSource = dataSource;
     }
@@ -55,8 +60,14 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        dataSource.executeInNewTransaction((TransactionCallback<Void>) status -> {
-            try
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        try
+        {
+            operationLog.info("Execution started...");
+
+            Statistics statistics = dataSource.executeInNewTransaction((TransactionCallback<Void>) status ->
             {
                 LastTimestamps lastTimestamps = new LastTimestamps(dataSource);
                 SnapshotsFacade snapshots = new SnapshotsFacade(dataSource);
@@ -82,12 +93,16 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
                 }
 
                 return null;
-            } catch (Throwable e)
-            {
-                operationLog.error("Execution failed", e);
-                throw e;
-            }
-        });
+            });
+
+            operationLog.info("Execution finished after: " + stopWatch.toString());
+            operationLog.info("Statistics: " + statistics.toString());
+
+        } catch (Throwable e)
+        {
+            operationLog.error("Execution failed after: " + stopWatch.toString(), e);
+            throw e;
+        }
     }
 
 }

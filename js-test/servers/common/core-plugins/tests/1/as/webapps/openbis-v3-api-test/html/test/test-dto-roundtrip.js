@@ -25,7 +25,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 		QUnit.test("dtosRoundtripTest()", function(assert){
 			var c = new common(assert);
-			
+
 			var id = new c.CustomASServiceCode("custom-service-a");
 			var actionFacade;
 
@@ -36,7 +36,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				var initWithNull = _.any(nullParamRegexes, function (regex) {
 							return proto.prototype["@type"].match(regex) !== null;
 						});
-				return new proto(initWithNull ? null : ""); 
+				return new proto(initWithNull ? null : "");
 			};
 
 			var fAction = function(facade) {
@@ -57,7 +57,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 			var fCheck = function(promises) {
 				return $.when.apply($, promises).then(function(here_we_get_unknown_number_of_resolved_dtos_so_foo){
 					c.ok("Got results");
-					
+
 					var dtos = Array.prototype.slice.call(arguments);
 					var roundtrips = _.map(dtos, function(dto){
 
@@ -70,7 +70,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 							_.chain(_.allKeys(dto))
 							.filter(function(key) {
-								return !key.startsWith("@") && !key.startsWith("freeze") && !_.isFunction(dto[key]);
+								return !key.startsWith("@") && !key.startsWith("freeze") && !key.startsWith("negate") && !key.startsWith("isNegated") && !_.isFunction(dto[key]);
 							})
 							.each(function(key){
 								var val = dto[key];
@@ -93,15 +93,15 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 										var regularSetFn = _.find(_.functions(subj), function(fn) {
 											return fn.toLowerCase() === "set" + key.toLowerCase();
 										});
-										
+
 										var otherSetFn = _.find(_.functions(subj), function(fn) {
 											return (fn.toLowerCase() === key.toLowerCase())
 												|| (fn.toLowerCase() === "with" + key.toLowerCase());
 										});
-										
-										// prefer regularSetFn function over otherSetFn 
+
+										// prefer regularSetFn function over otherSetFn
 										var setter = regularSetFn || otherSetFn;
-										
+
 										c.ok("Setter: [set/with]" + key);
 
 										if (setter) {
@@ -139,7 +139,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 				});
 			}
-			
+
 			testAction(c, fAction, fCheck);
 
 		});

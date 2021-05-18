@@ -16,25 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space;
 
-import java.util.List;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpaceTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.*;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodesMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import java.util.List;
 
 /**
  * @author pkupczyk
@@ -91,6 +83,9 @@ public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<Sp
             } else if (id instanceof SpacePermId)
             {
                 return object.getCode().equals(((SpacePermId) id).getPermId());
+            } else if (id instanceof SpaceTechId)
+            {
+                return object.getId().equals(((SpaceTechId) id).getTechId());
             } else
             {
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());

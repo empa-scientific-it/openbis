@@ -55,6 +55,17 @@ public class AttributesMapper
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("storageConfirmation", ColumnNames.STORAGE_CONFIRMATION);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("gitCommitHash", ColumnNames.GIT_COMMIT_HASH_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("gitRepositoryId", ColumnNames.GIT_REPOSITORY_ID_COLUMN);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_id", ColumnNames.ID_COLUMN);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_type", ColumnNames.EVENT_TYPE);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_type", ColumnNames.ENTITY_TYPE);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_space", ColumnNames.ENTITY_SPACE);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_space_id", ColumnNames.ENTITY_SPACE_PERM_ID);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_project", ColumnNames.ENTITY_PROJECT);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_project_id", ColumnNames.ENTITY_PROJECT_PERM_ID);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_registrator", ColumnNames.ENTITY_REGISTERER);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_registration_date", ColumnNames.ENTITY_REGISTRATION_TIMESTAMP);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_identifier", ColumnNames.IDENTIFIER);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_registration_date", ColumnNames.REGISTRATION_TIMESTAMP_COLUMN);
 
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(CONTROLLED_VOCABULARY_TABLE, ColumnNames.CODE_COLUMN);

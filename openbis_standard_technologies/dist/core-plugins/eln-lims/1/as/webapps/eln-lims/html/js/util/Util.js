@@ -789,6 +789,10 @@ var Util = new function() {
 
         setTimeout(_polling, 50);
     };
+
+    this.isMapEmpty = function(map) {
+        return Object.entries(map).length === 0 && map.constructor === Object;
+    }
 }
 
 

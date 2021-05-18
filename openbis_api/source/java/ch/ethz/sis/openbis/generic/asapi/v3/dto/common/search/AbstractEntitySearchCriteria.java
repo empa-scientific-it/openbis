@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
@@ -31,6 +33,7 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private boolean negated = false;
 
     public CodeSearchCriteria withCode()

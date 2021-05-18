@@ -555,20 +555,22 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                             // Add annotations
                             for(var childPermId in childrenAnnotationsState) {
                                 var childAnnotation = childrenAnnotationsState[childPermId];
-                                var childIdentifier = childAnnotation["identifier"]; // When creating new children (copy function), annotations should be added by identifier, permIds are not easily obtainable
-                                if(isCopyWithNewCode) {
-                                    // The copied children identifier follow the pattern /<PARENT_SPACE>/<PARENT_PROJECT>/<COPYED_SAMPLE_CODE>_<ORIGINAL_CHILDREN_CODE>
-                                    var originalSampleIdentifier = _this._sampleFormModel.sample.identifier;
-                                    var parentSampleSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(originalSampleIdentifier);
-                                    var parentSampleProjectCode = IdentifierUtil.getProjectCodeFromSampleIdentifier(originalSampleIdentifier);
-                                    var copiedParentSampleCode = isCopyWithNewCode;
-                                    var childrenToCopyCode = IdentifierUtil.getCodeFromIdentifier(childIdentifier);
-                                    childIdentifier = IdentifierUtil.getSampleIdentifier(parentSampleSpaceCode, parentSampleProjectCode, copiedParentSampleCode + "_" + childrenToCopyCode);
-                                }
-                                delete childAnnotation["identifier"];
-                                delete childAnnotation["sampleType"];
-                                for(var annotationKey in childAnnotation) {
-                                    sampleUpdate.relationship(new SampleIdentifier(childIdentifier)).addChildAnnotation(annotationKey, childAnnotation[annotationKey]);
+                                if(!Util.isMapEmpty(childAnnotation)) { // Storage positions don't have annotations
+                                    var childIdentifier = childAnnotation["identifier"]; // When creating new children (copy function), annotations should be added by identifier, permIds are not easily obtainable
+                                    if(isCopyWithNewCode) {
+                                        // The copied children identifier follow the pattern /<PARENT_SPACE>/<PARENT_PROJECT>/<COPYED_SAMPLE_CODE>_<ORIGINAL_CHILDREN_CODE>
+                                        var originalSampleIdentifier = _this._sampleFormModel.sample.identifier;
+                                        var parentSampleSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(originalSampleIdentifier);
+                                        var parentSampleProjectCode = IdentifierUtil.getProjectCodeFromSampleIdentifier(originalSampleIdentifier);
+                                        var copiedParentSampleCode = isCopyWithNewCode;
+                                        var childrenToCopyCode = IdentifierUtil.getCodeFromIdentifier(childIdentifier);
+                                        childIdentifier = IdentifierUtil.getSampleIdentifier(parentSampleSpaceCode, parentSampleProjectCode, copiedParentSampleCode + "_" + childrenToCopyCode);
+                                    }
+                                    delete childAnnotation["identifier"];
+                                    delete childAnnotation["sampleType"];
+                                    for(var annotationKey in childAnnotation) {
+                                        sampleUpdate.relationship(new SampleIdentifier(childIdentifier)).addChildAnnotation(annotationKey, childAnnotation[annotationKey]);
+                                    }
                                 }
                             }
                             // Update annotations
