@@ -30,7 +30,6 @@ import org.springframework.context.ApplicationContext;
 
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -365,7 +364,12 @@ public class ToolBox
         NewSample sample = sample(number, properties);
         if (experimentOrNull != null)
         {
-            sample.setExperimentIdentifier(experimentOrNull.getIdentifier());
+            String experimentIdentifier = experimentOrNull.getIdentifier();
+            sample.setExperimentIdentifier(experimentIdentifier);
+            String projectIdentifier = ExperimentIdentifierFactory.parse(experimentIdentifier).asProjectIdentifierString();
+            sample.setProjectIdentifier(projectIdentifier);
+            String[] identifierParts = sample.getIdentifier().split("/");
+            sample.setIdentifier(projectIdentifier + "/" + identifierParts[identifierParts.length - 1]);
         }
         return sample;
     }
