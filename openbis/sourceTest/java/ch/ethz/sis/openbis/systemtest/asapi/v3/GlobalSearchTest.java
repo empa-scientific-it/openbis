@@ -115,7 +115,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getObjects().size(), 1);
 
         final GlobalSearchObject object = result.getObjects().get(0);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class GlobalSearchTest extends AbstractTest
 
         assertSample(obj1, "200811050919915-8", "/CISD/CL1", "Property 'Description': test control layout", true);
         assertSample(obj2, "200811050946559-981", "/CISD/3VCP7", "Property 'Comment': test comment", true);
-        assertSample(obj3, "201206191219327-1055", "/TEST-SPACE/EV-TEST", "Property 'Comment': test comment", true);
+        assertSample(obj3, "201206191219327-1055", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "Property 'Comment': test comment", true);
     }
 
     @Test
@@ -527,7 +527,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
@@ -600,7 +600,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", null, false);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
 
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
@@ -631,7 +631,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
         // data set
         object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.MATCHES);
@@ -675,7 +675,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // sample
         object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS);
-        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", null, false);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
 
         // data set
         object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.CONTAINS);
@@ -1413,7 +1413,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = result.getObjects().get(0);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);

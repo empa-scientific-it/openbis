@@ -3063,7 +3063,7 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = v3api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
 
         // Then
-        assertSampleIdentifiers(samples, "/CISD/RP1-A2X");
+        assertSampleIdentifiers(samples, "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
@@ -3084,53 +3084,53 @@ public class SearchSampleTest extends AbstractSampleTest
         criteriaGOE.withNumberProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(321.0);
         List<Sample> samplesGOE1 = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria().withAndOperator();
         criteriaGOE.withNumberProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(320.9);
         List<Sample> samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria().withAndOperator();
         criteriaGOE.withProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withProperty("SIZE").thatIsLessThan("321.0");
         samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         // Greater - Giving integer as real
         SampleSearchCriteria criteriaG = new SampleSearchCriteria().withAndOperator();
         criteriaG.withNumberProperty("SIZE");
         criteriaG.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321.0);
         List<Sample> samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         criteriaG = new SampleSearchCriteria().withAndOperator();
         criteriaG.withProperty("SIZE");
         criteriaG.withSubcriteria().negate().withProperty("SIZE").thatIsLessThanOrEqualTo("321.0");
         samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         // Equals
         final SampleSearchCriteria criteriaE = new SampleSearchCriteria().withAndOperator();
         criteriaE.withNumberProperty("SIZE");
         criteriaE.withSubcriteria().negate().withNumberProperty("SIZE").thatEquals(666);
         final List<Sample> samplesE = searchSamples(sessionToken, criteriaE, sortByCodeFO);
-        samplesE.forEach(sample -> assertNotEquals(sample.getIdentifier().getIdentifier(), "/CISD/CP-TEST-3"));
+        samplesE.forEach(sample -> assertNotEquals(sample.getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-3"));
 
         // Less
         final SampleSearchCriteria criteriaL = new SampleSearchCriteria().withAndOperator();
         criteriaL.withNumberProperty("SIZE");
         criteriaL.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(666);
         final List<Sample> samplesL = searchSamples(sessionToken, criteriaL, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         // Less or Equals
         final SampleSearchCriteria criteriaLOE = new SampleSearchCriteria().withAndOperator();
         criteriaLOE.withNumberProperty("SIZE");
         criteriaLOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThan(321);
         final List<Sample> samplesLOE = searchSamples(sessionToken, criteriaLOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         v3api.logout(sessionToken);
     }
