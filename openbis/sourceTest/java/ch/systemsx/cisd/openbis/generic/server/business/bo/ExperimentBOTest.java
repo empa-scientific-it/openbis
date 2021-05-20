@@ -102,6 +102,13 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         entityAsPropertiesHolder = context.mock(IEntityPropertiesHolder.class);
         entityAsModifiableBean = context.mock(IModifierAndModificationDateBean.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleDAO).tryfindByCodeAndProject(with(any(String.class)), with(any(ProjectPE.class)));
+                    will(returnValue(null));
+                }
+            });
     }
 
     @Test
@@ -761,7 +768,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     @Test(expectedExceptionsMessageRegExp = "Samples with following codes do not exist "
-            + "in the space 'HOME_GROUP': '\\[S2\\]'\\.", expectedExceptions = UserFailureException.class)
+            + "in the project '/HOME_GROUP/PROJECT_EVOLUTION': '\\[S2\\]'\\.", expectedExceptions = UserFailureException.class)
     public void testUpdateByAddingAnUnknownSample()
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
