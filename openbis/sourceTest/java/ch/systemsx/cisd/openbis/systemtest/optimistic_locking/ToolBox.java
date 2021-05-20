@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -380,7 +382,12 @@ public class ToolBox
         NewSample sample = sample(number, properties);
         if (sampleOrNull != null)
         {
-            sample.setParents(sampleOrNull.getCode());
+            String parent = sampleOrNull.getCode();
+            if (sampleOrNull instanceof IIdentifierHolder)
+            {
+                parent = ((IIdentifierHolder) sampleOrNull).getIdentifier();
+            }
+            sample.setParents(parent);
         }
         return sample;
     }
@@ -422,6 +429,11 @@ public class ToolBox
 
     public Sample loadSample(String sessionToken, IIdentifierHolder sample)
     {
+        if (sample instanceof IPermIdHolder)
+        {
+            PermId permId = new PermId(((IPermIdHolder) sample).getPermId());
+            return etlService.tryGetSampleByPermId(sessionToken, permId);
+        }
         return etlService.tryGetSampleWithExperiment(sessionToken,
                 SampleIdentifierFactory.parse(sample.getIdentifier()));
     }
