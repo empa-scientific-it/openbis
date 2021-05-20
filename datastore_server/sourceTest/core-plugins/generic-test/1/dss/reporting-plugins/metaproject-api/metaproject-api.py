@@ -54,7 +54,7 @@ def process(transaction, parameters, tableBuilder):
   for m in mas.getMaterials():
     addRow("MATERIAL %s" % m.getMaterialIdentifier())
   
-  oldSample = transaction.getSample("/TEST-SPACE/EV-TEST")
+  oldSample = transaction.getSample("/TEST-SPACE/TEST-PROJECT/EV-TEST")
   
   ms = transaction.getSearchServiceFilteredForUser("test_role").listMetaprojectsForEntity(oldSample)
   for m in ms:
