@@ -32,7 +32,7 @@ public class ExampleJavaDataSetRegistrationDropboxV2 extends
     public void process(IDataSetRegistrationTransactionV2 transaction)
     {
         @SuppressWarnings("deprecation")
-        ISampleImmutable container = transaction.getSample("/CISD/PLATE_WELLSEARCH");
+        ISampleImmutable container = transaction.getSample("/CISD/DEFAULT/PLATE_WELLSEARCH");
         ISample sample = transaction.createNewSample("/CISD/DP1-A", "NORMAL");
         sample.setContainer(container);
         IDataSet dataSet = transaction.createNewDataSet("UNKNOWN");
