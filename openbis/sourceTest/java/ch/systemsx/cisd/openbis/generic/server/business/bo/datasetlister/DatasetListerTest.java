@@ -89,7 +89,7 @@ public class DatasetListerTest extends AbstractDAOTest
         lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, daoFactory.getDataDAO(),
                 daoFactory.getRelationshipTypeDAO(), "url", null);
         exampleSample =
-                DatasetListingQueryTest.getSample("CISD", "CP-TEST-1",
+                DatasetListingQueryTest.getSample("CISD", "NEMO", "CP-TEST-1",
                         datasetListerDAO.getDatabaseInstanceId(), daoFactory);
         exampleSampleId = exampleSample.getId();
     }
