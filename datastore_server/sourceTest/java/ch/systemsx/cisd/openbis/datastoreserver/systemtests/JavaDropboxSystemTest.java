@@ -110,14 +110,14 @@ public class JavaDropboxSystemTest extends SystemTestCase
         List<AbstractExternalData> x = openBISService.listDataSetsByCode(codes);
 
         assertEquals("Exactly one dataset should have been imported.", 1, x.size());
-        assertEquals("/CISD/DEFAULT/PLATE_WELLSEARCH:DP1-A", x.get(0).getSampleIdentifier());
+        assertEquals("/CISD/PLATE_WELLSEARCH:DP1-A", x.get(0).getSampleIdentifier());
 
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "PLATE_WELLSEARCH"));
         List<Sample> samples = openBISService.searchForSamples(searchCriteria);
         assertEquals("[/CISD/DEFAULT/PLATE_WELLSEARCH]", extractIdentifiers(samples).toString());
         List<Sample> components = openBISService.listSamples(ListSampleCriteria.createForContainer(new TechId(samples.get(0))));
-        assertEquals("[/CISD/DEFAULT/PLATE_WELLSEARCH:DP1-A, /CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01, /CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02]",
+        assertEquals("[/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01, /CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02, /CISD/PLATE_WELLSEARCH:DP1-A]",
                 extractIdentifiers(components).toString());
     }
 
