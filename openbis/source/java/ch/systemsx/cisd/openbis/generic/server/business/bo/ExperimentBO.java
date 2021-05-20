@@ -542,7 +542,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    // Finds samples in the specified project. Throws exception if some samples do not exist.
+    // Finds samples in the specified project or project space. Throws exception if some samples do not exist.
     // Throws exception if any sample code specified is already assigned to an experiment.
     private static List<SamplePE> findSamples(ISampleDAO sampleDAO, Set<String> sampleCodes,
             ProjectPE project, boolean unassigned) throws UserFailureException
@@ -552,6 +552,10 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         for (String code : sampleCodes)
         {
             SamplePE sample = sampleDAO.tryfindByCodeAndProject(code, project);
+            if (sample == null)
+            {
+                sample = sampleDAO.tryFindByCodeAndSpace(code, project.getSpace());
+            }
             if (sample == null)
             {
                 missingSamples.add(code);
