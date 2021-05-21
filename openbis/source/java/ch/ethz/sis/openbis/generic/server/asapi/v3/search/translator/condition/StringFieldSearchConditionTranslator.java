@@ -288,7 +288,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                         aliases.get(tableMapper.getValuesTable()).getSubTableAlias(), args);
             }
 
-            sqlBuilder.append(NL).append(END);
+            sqlBuilder.append(NL).append(ELSE).append(SP).append(FALSE).append(NL).append(END);
         }
         sqlBuilder.append(RP);
     }

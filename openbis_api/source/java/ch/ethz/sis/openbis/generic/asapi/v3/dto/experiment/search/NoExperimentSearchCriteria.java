@@ -34,4 +34,18 @@ public class NoExperimentSearchCriteria implements ISearchCriteria
         return "without experiment";
     }
 
+    @Override
+    public boolean isNegated()
+    {
+        return false;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private void setNegated(boolean negated)
+    {
+    }
+
 }

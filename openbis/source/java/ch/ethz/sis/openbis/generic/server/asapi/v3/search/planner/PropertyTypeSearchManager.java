@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * Manages detailed search with complex property type search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class PropertyTypeSearchManager extends AbstractLocalSearchManager<PropertyTypeSearchCriteria, PropertyType, Long>
@@ -45,7 +45,7 @@ public class PropertyTypeSearchManager extends AbstractLocalSearchManager<Proper
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new PropertyTypeSearchCriteria();
     }

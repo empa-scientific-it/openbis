@@ -70,6 +70,12 @@ public class ExperimentSearchCriteria extends AbstractEntitySearchCriteria<IExpe
     }
 
     @Override
+    public ExperimentSearchCriteria negate()
+    {
+        return (ExperimentSearchCriteria) super.negate();
+    }
+
+    @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -39,49 +40,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISemanticAnnotationDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
@@ -529,6 +487,12 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IEventDAO getEventDAO()
     {
         return daoFactory.getEventDAO();
+    }
+
+    @Override
+    public IEventsSearchDAO getEventsSearchDAO()
+    {
+        return daoFactory.getEventsSearchDAO();
     }
 
     @Override

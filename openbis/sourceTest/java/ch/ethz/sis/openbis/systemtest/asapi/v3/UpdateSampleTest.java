@@ -51,6 +51,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -63,6 +65,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
@@ -1646,6 +1649,73 @@ public class UpdateSampleTest extends AbstractSampleTest
                 }
             }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/3V-125'")));
+    }
+
+    @Test
+    public void testMoveSampleToSpaceWithSampleHavingSameCode()
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SpaceCreation space1 = new SpaceCreation();
+        space1.setCode("TEST-SPACE-A");
+        SpaceCreation space2 = new SpaceCreation();
+        space2.setCode("TEST-SPACE-B");
+        List<SpacePermId> spaceIds = v3api.createSpaces(sessionToken, Arrays.asList(space1, space2));
+
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode("SAMPLE");
+        s1.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s1.setSpaceId(spaceIds.get(0));
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("SAMPLE");
+        s2.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s2.setSpaceId(spaceIds.get(1));
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(s1, s2));
+
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleIds.get(0));
+        sampleUpdate.setSpaceId(spaceIds.get(1));
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate)), 
+                // Then
+                "Insert/Update of sample (code: SAMPLE) failed because sample with the same code already exists.");
+    }
+
+    @Test(enabled = false) // requires 'project-samples-enabled = true' in service.properties
+    public void testMoveSampleToProjectWithSampleHavingSameCode()
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SpacePermId spaceId = new SpacePermId("TEST-SPACE");
+        ProjectCreation p1 = new ProjectCreation();
+        p1.setCode("TEST-A");
+        p1.setSpaceId(spaceId);
+        ProjectCreation p2 = new ProjectCreation();
+        p2.setCode("TEST-B");
+        p2.setSpaceId(spaceId);
+        List<ProjectPermId> projectIds = v3api.createProjects(sessionToken, Arrays.asList(p1, p2));
+
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode("SAMPLE");
+        s1.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s1.setSpaceId(spaceId);
+        s1.setProjectId(projectIds.get(0));
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("SAMPLE");
+        s2.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s2.setSpaceId(spaceId);
+        s2.setProjectId(projectIds.get(1));
+
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(s1, s2));
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleIds.get(0));
+        sampleUpdate.setProjectId(projectIds.get(1));
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate)), 
+                // Then
+                "Insert/Update of sample (code: SAMPLE) failed because sample with the same code already exists.");
     }
 
     @Test

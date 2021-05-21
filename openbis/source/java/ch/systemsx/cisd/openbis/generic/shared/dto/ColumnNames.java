@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
  * This class lists database field names commonly used.
- * 
+ *
  * @author Christian Ribeaud
  */
 public final class ColumnNames
@@ -275,6 +275,18 @@ public final class ColumnNames
     public static final String EVENT_TYPE = "event_type";
 
     public static final String ENTITY_TYPE = "entity_type";
+
+    public static final String ENTITY_SPACE = "entity_space";
+
+    public static final String ENTITY_SPACE_PERM_ID = "entity_space_perm_id";
+
+    public static final String ENTITY_PROJECT = "entity_project";
+
+    public static final String ENTITY_PROJECT_PERM_ID = "entity_project_perm_id";
+
+    public static final String ENTITY_REGISTERER = "entity_registerer";
+
+    public static final String ENTITY_REGISTRATION_TIMESTAMP = "entity_registration_timestamp";
 
     public static final String IDENTIFIER = "identifier";
 

@@ -1,0 +1,62 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "EXPERIMENT_A",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-01 15:18:30 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_experiment_A",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "false",
+    "key": "IS_PUBLIC"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:18:30.921",
+    "validUntil": "2021-04-01 15:22:53.266",
+    "type": "RELATIONSHIP",
+    "entityType": "PROJECT",
+    "key": "OWNED",
+    "value": "20210329151103947-205180"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:21:24.191",
+    "validUntil": "2021-04-01 15:21:39.465",
+    "type": "RELATIONSHIP",
+    "entityType": "UNKNOWN",
+    "key": "OWNER",
+    "value": "20210401152124191-205202"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:22:32.224",
+    "validUntil": "2021-04-01 15:23:20.254",
+    "type": "RELATIONSHIP",
+    "entityType": "SAMPLE",
+    "key": "OWNER",
+    "value": "20210401152213749-205203"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:22:53.266",
+    "type": "RELATIONSHIP",
+    "entityType": "PROJECT",
+    "key": "OWNED",
+    "value": "20210401151815315-205197"
+  }
+]

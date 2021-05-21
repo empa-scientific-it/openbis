@@ -33,7 +33,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 
 /**
  * Manages detailed search with entity type search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 
@@ -47,7 +47,7 @@ public class EntityTypeSearchManager extends AbstractLocalSearchManager<EntityTy
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new EntityTypeSearchCriteria();
     }

@@ -1,0 +1,57 @@
+{
+  "20210427145921003-205270": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "PROJECT_B",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": null,
+      "key": "DESCRIPTION"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-27 14:59:21 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_B",
+      "key": "REGISTRATOR"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-27 14:59:21.003",
+      "type": "RELATIONSHIP",
+      "entityType": "SPACE",
+      "key": "OWNED",
+      "value": "SPACE_A"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-27 14:59:43.350",
+      "validUntil": "2021-04-27 15:06:19.640",
+      "type": "RELATIONSHIP",
+      "entityType": "UNKNOWN",
+      "key": "OWNER",
+      "value": "20210427145943350-205271"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-27 15:02:40.608",
+      "type": "RELATIONSHIP",
+      "entityType": "ATTACHMENT",
+      "key": "OWNER",
+      "value": "project/20210427145921003-205270/b2.txt(1)"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-27 15:02:52.432",
+      "type": "RELATIONSHIP",
+      "entityType": "ATTACHMENT",
+      "key": "OWNER",
+      "value": "project/20210427145921003-205270/b3.txt(1)"
+    }
+  ]
+}

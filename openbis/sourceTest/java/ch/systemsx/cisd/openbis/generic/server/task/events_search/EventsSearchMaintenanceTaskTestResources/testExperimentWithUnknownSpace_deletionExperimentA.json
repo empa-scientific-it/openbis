@@ -1,0 +1,37 @@
+{
+  "20210419162809496-205242": [
+    {
+      "type": "ATTRIBUTE",
+      "value": "EXPERIMENT_A",
+      "key": "CODE"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "2021-04-19 16:28:09 +0200",
+      "key": "REGISTRATION_TIMESTAMP"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "registerer_experiment_A",
+      "key": "REGISTRATOR"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "false",
+      "key": "IS_PUBLIC"
+    },
+    {
+      "type": "ATTRIBUTE",
+      "value": "UNKNOWN",
+      "key": "ENTITY_TYPE"
+    },
+    {
+      "userId": "admin",
+      "validFrom": "2021-04-19 16:28:09.496",
+      "type": "RELATIONSHIP",
+      "entityType": "PROJECT",
+      "key": "OWNED",
+      "value": "20210419162753803-205241"
+    }
+  ]
+}

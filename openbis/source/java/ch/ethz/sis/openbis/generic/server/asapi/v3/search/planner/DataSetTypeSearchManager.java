@@ -45,7 +45,7 @@ public class DataSetTypeSearchManager extends AbstractLocalSearchManager<DataSet
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new DataSetTypeSearchCriteria();
     }

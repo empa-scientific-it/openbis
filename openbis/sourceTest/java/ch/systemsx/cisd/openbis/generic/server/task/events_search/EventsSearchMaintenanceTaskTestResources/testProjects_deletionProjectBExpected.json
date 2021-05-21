@@ -1,0 +1,30 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "PROJECT_B",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": null,
+    "key": "DESCRIPTION"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-03-29 11:51:17 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_project_B",
+    "key": "REGISTRATOR"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-03-29 11:51:17.300",
+    "type": "RELATIONSHIP",
+    "entityType": "SPACE",
+    "key": "OWNED",
+    "value": "SPACE_C"
+  }
+]

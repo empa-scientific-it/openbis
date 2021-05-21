@@ -32,6 +32,8 @@ def process(context, parameters):
         result = getServiceProperty(context, parameters);
     elif method == "getNextSequenceForType":
         result = getNextSequenceForType(context, parameters);
+    elif method == "getNextExperimentCode":
+        result = getNextExperimentCode(context, parameters);
     elif method == "doSpacesBelongToDisabledUsers":
         result = doSpacesBelongToDisabledUsers(context, parameters);
     elif method == "trashStorageSamplesWithoutParents":
@@ -215,6 +217,26 @@ def getNextSequenceForType(context, parameters):
     sampleCount = querySampleCount.uniqueResult();
 
     return (sampleCount + 1)
+
+def getNextExperimentCode(context, parameters):
+    daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+    currentSession = daoFactory.getSessionFactory().getCurrentSession();
+
+    projectId = int(parameters.get("projectId"));
+
+    queryProjectCode = currentSession.createSQLQuery("SELECT code from projects WHERE id = :projectId");
+    queryProjectCode.setParameter("projectId", projectId);
+    projectCode = queryProjectCode.uniqueResult();
+
+    experimentPrefix = projectCode + '_EXP_'
+    experimentPrefixLengthPlusOneAsString = str((len(experimentPrefix) + 1));
+
+    queryExperimentCount = currentSession.createSQLQuery("SELECT COALESCE(MAX(CAST(substring(code, " + experimentPrefixLengthPlusOneAsString + ") as int)), 0) FROM experiments_all WHERE proj_id = :projectId AND code ~ :codePattern");
+    queryExperimentCount.setParameter("projectId", projectId);
+    queryExperimentCount.setParameter("codePattern", "^" + experimentPrefix + "[0-9]+$");
+
+    experimentCount = queryExperimentCount.uniqueResult();
+    return experimentPrefix + str(experimentCount + 1)
 
 def doSpacesBelongToDisabledUsers(context, parameters):
     daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);

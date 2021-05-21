@@ -9,6 +9,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'as.dto.space.Space';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.id = null;
 		prototype.permId = null;
 		prototype.code = null;
 		prototype.description = null;
@@ -26,6 +27,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
+		};
+		prototype.getId = function() {
+			return this.id;
+		};
+		prototype.setId = function(id) {
+			this.id = id;
 		};
 		prototype.getPermId = function() {
 			return this.permId;
@@ -107,6 +114,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "SpaceFetchOptions",
+		id : "SpaceTechId",
 		permId : "SpacePermId",
 		registrationDate : "Date",
 		registrator : "Person",

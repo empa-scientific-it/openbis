@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
@@ -88,7 +89,9 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
                     sqlBuilder.append(MODIFICATION_TIMESTAMP_COLUMN);
                 } else
                 {
-                    sqlBuilder.append(fieldName);
+                    final String columnName = AttributesMapper.getColumnName(fieldName,
+                            tableMapper.getEntitiesTable(), fieldName);
+                    sqlBuilder.append(columnName);
                 }
                 sqlBuilder.append(SP);
                 TranslatorUtils.appendTimeZoneConversion(value, sqlBuilder, timeZone);
@@ -128,9 +131,11 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
             final Map<String, String> dataTypeByPropertyCode, boolean isAnyProperty)
     {
         final String fullPropertyName;
-        if (isAnyProperty) {
+        if (isAnyProperty)
+        {
             fullPropertyName = null;
-        } else {
+        } else
+        {
             fullPropertyName = criterion.getFieldName();
         }
 

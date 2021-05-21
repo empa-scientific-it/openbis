@@ -1,45 +1,7 @@
 package ch.systemsx.cisd.openbis.jstest.report;
 
-import java.io.File;
-
-/*
- * Copyright 2015 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
-
-import org.reflections.ReflectionUtils;
-import org.reflections.Reflections;
-import org.reflections.scanners.ResourcesScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-import org.testng.annotations.Test;
-
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -48,9 +10,21 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import org.reflections.ReflectionUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
+import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.*;
 
 /**
  * @author pkupczyk
@@ -68,22 +42,22 @@ public class V3APIReport
     static
     {
         CLASS_FILTERS.add(new ClassFilter("inner classes filter")
+        {
+            @Override
+            public boolean accepts(Class<?> clazz)
             {
-                @Override
-                public boolean accepts(Class<?> clazz)
-                {
-                    return false == clazz.getName().contains("$");
-                }
-            });
+                return false == clazz.getName().contains("$");
+            }
+        });
 
         CLASS_FILTERS.add(new ClassFilter("ignored classes marked with @JsonIgnoreType")
+        {
+            @Override
+            public boolean accepts(Class<?> clazz)
             {
-                @Override
-                public boolean accepts(Class<?> clazz)
-                {
-                    return clazz.getAnnotation(JsonIgnoreType.class) == null;
-                }
-            });
+                return clazz.getAnnotation(JsonIgnoreType.class) == null;
+            }
+        });
 
     }
 
@@ -127,25 +101,24 @@ public class V3APIReport
 
     private Collection<Class<?>> getPublicClasses()
     {
-        List<ClassLoader> classLoadersList = new LinkedList<ClassLoader>();
-        classLoadersList.add(ClasspathHelper.contextClassLoader());
-        classLoadersList.add(ClasspathHelper.staticClassLoader());
-
-        SubTypesScanner subTypesScanner = new SubTypesScanner();
-        subTypesScanner.filterResultsBy(new FilterBuilder().include(".*"));
-
         FilterBuilder filterBuilder = new FilterBuilder();
-        for (String v3PublicPackage : PUBLIC_PACKAGES)
+        Set<URL> urls = new HashSet<URL>();
+
+        for (String prefix : PUBLIC_PACKAGES)
         {
-            filterBuilder.include(FilterBuilder.prefix(v3PublicPackage));
+            urls.addAll(ClasspathHelper.forPackage(prefix));
+            filterBuilder.include(FilterBuilder.prefix(prefix));
         }
 
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .setScanners(subTypesScanner, new ResourcesScanner())
-                .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
-                .filterInputsBy(filterBuilder));
+        ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+        configBuilder.setScanners(new SubTypesScanner(false));
+        configBuilder.addUrls(urls);
+        configBuilder.filterInputsBy(filterBuilder);
 
-        Multimap<String, String> map = reflections.getStore().get(subTypesScanner.getClass().getSimpleName());
+        Reflections reflections = new Reflections(configBuilder);
+
+        Multimap<String, String> map = reflections.getStore().get(SubTypesScanner.class.getSimpleName());
+
         Collection<String> uniqueClassNames = new TreeSet<String>(map.values());
         Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
         Collection<Class<?>> filteredClasses = new LinkedHashSet<Class<?>>(uniqueClasses);
@@ -153,18 +126,18 @@ public class V3APIReport
         for (final ClassFilter filter : CLASS_FILTERS)
         {
             filteredClasses = Collections2.filter(filteredClasses, new Predicate<Class<?>>()
+            {
+                @Override
+                public boolean apply(Class<?> clazz)
                 {
-                    @Override
-                    public boolean apply(Class<?> clazz)
+                    boolean result = filter.apply(clazz);
+                    if (!result)
                     {
-                        boolean result = filter.apply(clazz);
-                        if (!result)
-                        {
-                            System.out.println("Filtered out class '" + clazz.getName() + "' by filter '" + filter.getFilterName() + "'");
-                        }
-                        return result;
+                        System.out.println("Filtered out class '" + clazz.getName() + "' by filter '" + filter.getFilterName() + "'");
                     }
-                });
+                    return result;
+                }
+            });
         }
 
         for (Class<?> filteredClass : filteredClasses)

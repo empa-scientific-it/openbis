@@ -34,4 +34,18 @@ public class NoSampleSearchCriteria implements ISearchCriteria
         return "without sample";
     }
 
+    @Override
+    public boolean isNegated()
+    {
+        return false;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private void setNegated(boolean negated)
+    {
+    }
+
 }

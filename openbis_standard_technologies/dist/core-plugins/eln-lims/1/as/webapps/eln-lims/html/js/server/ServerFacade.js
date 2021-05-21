@@ -650,6 +650,16 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
+    this.generateExperimentCode = function(projectId, action) {
+        var parameters = {
+            "method" : "getNextExperimentCode",
+            "projectId" : projectId
+        }
+        this.customELNASAPI(parameters, function(generatedCode) {
+            action(generatedCode);
+        });
+    }
+
 	this.deleteDataSets = function(datasetIds, reason, callback) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}

@@ -27,7 +27,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 /**
  * Extension of enum {@link EntityKind} to contain extra information about tables related to the entities which can
  * have parent-child relationships.<p/>
- *
  * This enum also contains table information for non-entity search criteria (not related to MATERIAL, EXPERIMENT, SAMPLE, DATA_SET).
  *
  * @author Viktor Kovtun
@@ -104,7 +103,10 @@ public enum TableMapper
             null, null, null, null, false, false),
 
     CONTROLLED_VOCABULARY_TERMS(CONTROLLED_VOCABULARY_TERM_TABLE, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, true, false);
+            null, null, null, null, null, null, null, null, true, false),
+
+    EVENT(EVENTS_SEARCH_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, true, false);
 
     static
     {
@@ -139,7 +141,6 @@ public enum TableMapper
         initDataSetTypeSQLTypeToFieldsMap();
     }
 
-
     /*
      * Entities Table
      */
@@ -148,7 +149,6 @@ public enum TableMapper
     private String entitiesTableEntityTypeIdField;
 
     private String attributeTypesTableDataTypeIdField;
-
 
     /*
      * Common Attribute definition Tables
@@ -166,7 +166,6 @@ public enum TableMapper
 
     private String entityTypesAttributeTypesTableAttributeTypeIdField; //prty
 
-
     /*
      * Entity Values Tables
      */
@@ -176,7 +175,6 @@ public enum TableMapper
 
     private String valuesTableEntityTypeAttributeTypeIdField;
 
-
     /*
      * Relationships Tables
      */
@@ -185,7 +183,6 @@ public enum TableMapper
     private String relationshipsTableParentIdField;
 
     private String relationshipsTableChildIdField;
-
 
     /*
      * Files tables
@@ -200,7 +197,9 @@ public enum TableMapper
 
     private String metaprojectAssignmentsEntityIdField;
 
-    /** Entity kind related to this mapper. */
+    /**
+     * Entity kind related to this mapper.
+     */
     private EntityKind entityKind;
 
     private Map<String, PSQLTypes> fieldToSQLTypeMap = new HashMap<>();
@@ -338,7 +337,8 @@ public enum TableMapper
         return metaprojectAssignmentsEntityIdField;
     }
 
-    public EntityKind getEntityKind() {
+    public EntityKind getEntityKind()
+    {
         return entityKind;
     }
 

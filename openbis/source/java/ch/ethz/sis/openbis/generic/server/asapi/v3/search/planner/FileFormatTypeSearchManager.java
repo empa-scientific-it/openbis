@@ -48,7 +48,7 @@ public class FileFormatTypeSearchManager extends AbstractLocalSearchManager<File
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new FileFormatTypeSearchCriteria();
     }

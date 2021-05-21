@@ -16,26 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Super class of <i>Persistent Entities</i> which hold registration data.
  * <p>
  * <b>Note:</b> there is no <i>NOT-NULL</i> constraint applied to registrator (by comparison with the database where there almost one).
  * </p>
- * 
+ *
  * @author Christian Ribeaud
  */
 @MappedSuperclass
@@ -81,6 +75,12 @@ public abstract class HibernateAbstractRegistrationHolder implements Serializabl
     public Date getRegistrationDate()
     {
         return getDate(registrationDate);
+    }
+
+    @Transient
+    public Date getRegistrationDateInternal()
+    {
+        return registrationDate;
     }
 
     public void setRegistrationDate(final Date registrationDate)

@@ -1,0 +1,53 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "EXPERIMENT_A",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-20 11:42:36 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_experiment_A",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "false",
+    "key": "IS_PUBLIC"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-20 11:42:36.830",
+    "validUntil": "2021-04-20 11:46:12.388",
+    "type": "RELATIONSHIP",
+    "entityType": "UNKNOWN",
+    "key": "OWNED",
+    "value": "20210420114205083-205250"
+  },
+  {
+    "userId": "etlserver",
+    "validFrom": "2021-04-20 11:44:35.474",
+    "validUntil": "2021-04-20 11:45:56.375",
+    "type": "RELATIONSHIP",
+    "entityType": "UNKNOWN",
+    "key": "OWNER",
+    "value": "20210420114435382-205253"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-20 11:46:12.388",
+    "type": "RELATIONSHIP",
+    "entityType": "PROJECT",
+    "key": "OWNED",
+    "value": "20210420114213918-205251"
+  }
+]

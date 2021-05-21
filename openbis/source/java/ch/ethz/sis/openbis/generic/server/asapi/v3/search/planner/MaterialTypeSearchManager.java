@@ -34,7 +34,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 
 /**
  * Manages detailed search with complex material type search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class MaterialTypeSearchManager extends AbstractLocalSearchManager<MaterialTypeSearchCriteria, MaterialType, Long>
@@ -47,7 +47,7 @@ public class MaterialTypeSearchManager extends AbstractLocalSearchManager<Materi
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new MaterialTypeSearchCriteria();
     }

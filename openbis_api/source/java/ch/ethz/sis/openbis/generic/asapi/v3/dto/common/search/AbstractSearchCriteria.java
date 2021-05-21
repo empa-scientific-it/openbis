@@ -52,4 +52,18 @@ public abstract class AbstractSearchCriteria implements ISearchCriteria
         return toString().equals(obj.toString());
     }
 
+    @Override
+    public boolean isNegated()
+    {
+        return false;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    protected void setNegated(boolean negated)
+    {
+    }
+
 }

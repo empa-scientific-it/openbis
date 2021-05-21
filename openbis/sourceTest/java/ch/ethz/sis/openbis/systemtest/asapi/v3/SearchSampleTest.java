@@ -19,8 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsAtLeast;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionDoesntContain;
 import static org.junit.Assert.fail;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2547,6 +2546,12 @@ public class SearchSampleTest extends AbstractSampleTest
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
         criteria3.withStringProperty("SHORT_TEXT").withWildcards().thatEquals("te\\?t");
         testSearch(TEST_USER, criteria3, "/CISD/TEXT_PROPERTY_TEST_2");
+
+        // Testing negation as well
+        final SampleSearchCriteria criteria4 = new SampleSearchCriteria().withAndOperator();
+        criteria4.withStringProperty("SHORT_TEXT").withWildcards().thatEquals("te?t");
+        criteria4.withSubcriteria().negate().withStringProperty("SHORT_TEXT").withoutWildcards().thatEquals("te?t");
+        testSearch(TEST_USER, criteria4, "/CISD/TEXT_PROPERTY_TEST_1");
     }
 
     @Test
@@ -3036,6 +3041,97 @@ public class SearchSampleTest extends AbstractSampleTest
         subCriteria2.withIdentifier().thatEndsWith(":B01");
 
         testSearch(TEST_USER, criteria, "/MP:B03", "/CISD/B1B3:B03", "/CISD/B1B3:B01");
+    }
+
+    @Test
+    public void testSearchWithAttributeNegation()
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withCode().thatContains("P1-A2");
+        criteria.withSubcriteria().negate().withCode().thatEquals("CP1-A2");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withType();
+        fetchOptions.withExperiment().withProperties();
+        fetchOptions.withProperties();
+
+        // When
+        final List<Sample> samples = v3api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
+
+        // Then
+        assertSampleIdentifiers(samples, "/CISD/RP1-A2X");
+    }
+
+    @Test
+    public void testSearchWithNumericPropertyNegation()
+    {
+        // SIZE: 4711 CODE: 3VCP7
+        // SIZE: 123 CODE: CP-TEST-1
+        // SIZE: 321 CODE: CP-TEST-2
+        // SIZE: 666 CODE: CP-TEST-3
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions sortByCodeFO = new SampleFetchOptions();
+        sortByCodeFO.sortBy().code().asc();
+        sortByCodeFO.withProperties();
+
+        // Greater or Equals - Giving integer as real
+        SampleSearchCriteria criteriaGOE = new SampleSearchCriteria().withAndOperator();
+        criteriaGOE.withNumberProperty("SIZE");
+        criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(321.0);
+        List<Sample> samplesGOE1 = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        criteriaGOE = new SampleSearchCriteria().withAndOperator();
+        criteriaGOE.withNumberProperty("SIZE");
+        criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(320.9);
+        List<Sample> samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        criteriaGOE = new SampleSearchCriteria().withAndOperator();
+        criteriaGOE.withProperty("SIZE");
+        criteriaGOE.withSubcriteria().negate().withProperty("SIZE").thatIsLessThan("321.0");
+        samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        // Greater - Giving integer as real
+        SampleSearchCriteria criteriaG = new SampleSearchCriteria().withAndOperator();
+        criteriaG.withNumberProperty("SIZE");
+        criteriaG.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321.0);
+        List<Sample> samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+
+        criteriaG = new SampleSearchCriteria().withAndOperator();
+        criteriaG.withProperty("SIZE");
+        criteriaG.withSubcriteria().negate().withProperty("SIZE").thatIsLessThanOrEqualTo("321.0");
+        samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+
+        // Equals
+        final SampleSearchCriteria criteriaE = new SampleSearchCriteria().withAndOperator();
+        criteriaE.withNumberProperty("SIZE");
+        criteriaE.withSubcriteria().negate().withNumberProperty("SIZE").thatEquals(666);
+        final List<Sample> samplesE = searchSamples(sessionToken, criteriaE, sortByCodeFO);
+        samplesE.forEach(sample -> assertNotEquals(sample.getIdentifier().getIdentifier(), "/CISD/CP-TEST-3"));
+
+        // Less
+        final SampleSearchCriteria criteriaL = new SampleSearchCriteria().withAndOperator();
+        criteriaL.withNumberProperty("SIZE");
+        criteriaL.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(666);
+        final List<Sample> samplesL = searchSamples(sessionToken, criteriaL, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+
+        // Less or Equals
+        final SampleSearchCriteria criteriaLOE = new SampleSearchCriteria().withAndOperator();
+        criteriaLOE.withNumberProperty("SIZE");
+        criteriaLOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThan(321);
+        final List<Sample> samplesLOE = searchSamples(sessionToken, criteriaLOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+
+        v3api.logout(sessionToken);
     }
 
     @Test

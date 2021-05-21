@@ -470,9 +470,15 @@ o.get_projects(space='MY_SPACE')
 space.get_projects()
 
 project.get_experiments()
-project.get_attachments()
-p.add_attachment(fileName='testfile', description= 'another file', title= 'one more attachment')
-project.download_attachments()
+
+project.get_attachments()             # deprecated, as attachments are not compatible with ELN-LIMS.
+                                      # Attachments are an old concept and should not be used anymore.
+p.add_attachment(                     # deprecated, see above
+    fileName='testfile',
+     description= 'another file',
+     title= 'one more attachment'
+)
+project.download_attachments()        # deprecated, see above
 
 # get individual attributes
 project.code
@@ -649,9 +655,10 @@ sample.tags = ['guten_tag', 'zahl_tag' ]
 sample.attrs.all()                    # returns all attributes as a dict
 sample.props.all()                    # returns all properties as a dict
 
-sample.get_attachments()
-sample.download_attachments()
-sample.add_attachment('testfile.xls')
+sample.get_attachments()              # deprecated, as attachments are not compatible with ELN-LIMS.
+                                      # Attachments are an old concept and should not be used anymore.
+sample.download_attachments()         # deprecated, see above
+sample.add_attachment('testfile.xls') # deprecated, see above
 
 sample.delete('deleted for some reason')
 ```
@@ -717,6 +724,7 @@ sample.container = '/MY_SPACE/CONTAINER_SAMPLE_NAME'   # watch out, this will ch
 sample.container = ''                                  # this will remove the container. 
 
 # A Sample may contain other Samples, in order to act like a container (see above)
+# caveat: containers are NOT compatible with ELN-LIMS
 # The Sample-objects inside that Sample are called «components» or «contained Samples»
 # You may also use the xxx_contained() functions, which are just aliases.
 sample.get_components()
@@ -837,34 +845,52 @@ Datasets are by all means the most important openBIS entity. The actual files ar
                 * dataset
 
 ### working with existing dataSets
-```
-# search for datasets, see more search examples below
-datasets = sample.get_datasets(type='SCANS', start_with=0, count=10)
 
+
+**search for datasets**
+
+This example does the following
+
+* search for all datasets of type `SCANS`, retrieve the first 10 entries
+* print out all properties
+* print the list of all files in this dataset
+* download the dataset
+
+```
+datasets = sample.get_datasets(type='SCANS', start_with=0, count=10)
 for dataset in datasets:
-    print(dataset.props.all())
+    print(dataset.props())
     print(dataset.file_list)
     dataset.download()
 dataset = datasets[0]
+```
 
+**More dataset functions:**
+
+```
 ds = o.get_dataset('20160719143426517-259')
 ds.get_parents()
 ds.get_children()
 ds.sample
 ds.experiment
 ds.physicalData
-ds.status                         # AVAILABLE LOCKED ARCHIVED 
-                                  # ARCHIVE_PENDING UNARCHIVE_PENDING
+ds.status                         # AVAILABLE   LOCKED   ARCHIVED 
+                                  # ARCHIVE_PENDING   UNARCHIVE_PENDING
                                   # BACKUP_PENDING
-ds.archive()
-ds.unarchive()
+ds.archive()                      # archives a dataset, i.e. moves it to a slower but cheaper diskspace (tape).
+                                  # archived datasets cannot be downloaded, they need to be unarchived first.
+                                  # This is an asynchronous process,
+                                  # check ds.status regularly until the dataset becomes 'ARCHIVED'
+ds.unarchive()                    # this starts an asynchronous process which gets the dataset from the tape.
+                                  # Check ds.status regularly until it becomes 'AVAILABLE'
 
 ds.attrs.all()                    # returns all attributes as a dict
 ds.props.all()                    # returns all properties as a dict
 
-ds.add_attachment()               # attachments usually contain meta-data
+ds.add_attachment()               # Deprecated. Attachments usually contain meta-data
 ds.get_attachments()              # about the dataSet, not the data itself.
-ds.download_attachments()
+ds.download_attachments()         # Deprecated, as attachments are not compatible with ELN-LIMS.
+                                  # Attachments are an old concept and should not be used anymore.
 ```
 
 ### download dataSets
@@ -874,15 +900,17 @@ o.download_prefix                  # used for download() and symlink() method.
                                    # Is set to data/hostname by default, but can be changed.
 ds.get_files(start_folder="/")     # get file list as Pandas dataFrame
 ds.file_list                       # get file list as array
+ds.file_links                      # file list as a dict containing direct https links
 
-ds.download()                      # simply download all files to data/hostnae/permId/
+ds.download()                      # simply download all files to data/hostname/permId/
 ds.download(
 	destination = 'my_data',        # download files to folder my_data/
 	create_default_folders = False, # ignore the /original/DEFAULT folders made by openBIS
 	wait_until_finished = False,    # download in background, continue immediately
 	workers = 10                    # 10 downloads parallel (default)
 )
-ds.is_physical()                   # TRUE if dataset has been physically downloaded
+ds.download_path                   # returns the relative path (destination) of the files after a ds.download()
+ds.is_physical()                   # TRUE if dataset is physically 
 ```
 
 ### link dataSets
@@ -1096,6 +1124,7 @@ dataset.del_children(['20170115220259155-412'])
 
 * A DataSet may belong to other DataSets, which must be of kind=CONTAINER
 * As opposed to Samples, DataSets may belong (contained) to more than one DataSet-container
+* caveat: containers are NOT compatible with ELN-LIMS
 
 ```
 dataset.get_containers()
@@ -1107,6 +1136,7 @@ dataset.del_containers(['20170115220259155-412'])
 * a DataSet of kind=CONTAINER may contain other DataSets, to act like a folder (see above)
 * the DataSet-objects inside that DataSet are called components or contained DataSets
 * you may also use the xxx_contained() functions, which are just aliases.
+* caveat: components are NOT compatible with ELN-LIMS
 
 ```
 dataset.get_components()

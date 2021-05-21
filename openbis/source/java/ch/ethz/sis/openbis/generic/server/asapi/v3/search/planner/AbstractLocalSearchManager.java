@@ -123,11 +123,11 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
     protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
             final AbstractCompositeSearchCriteria criteria, final String idsColumnName, final TableMapper tableMapper)
     {
-        final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria();
-        final List<CRITERIA> nestedCriteria = (List<CRITERIA>) getCriteria(criteria, emptyCriteria.getClass());
-        final List<ISearchCriteria> mainCriteria = getOtherCriteriaThan(criteria, emptyCriteria.getClass());
+        final AbstractCompositeSearchCriteria emptyCriterion = createEmptyCriteria(criteria.isNegated());
+        final List<CRITERIA> nestedCriteria = (List<CRITERIA>) getCriteria(criteria, emptyCriterion.getClass());
+        final List<ISearchCriteria> mainCriteria = getOtherCriteriaThan(criteria, emptyCriterion.getClass());
 
-        final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria();
+        final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria(criteria.isNegated());
         containerCriterion.withOperator(criteria.getOperator());
         containerCriterion.setCriteria(mainCriteria);
 
@@ -145,7 +145,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         if (!nestedCriteria.isEmpty())
         {
             nestedCriteriaIntermediateResults = nestedCriteria.stream().map(nestedCriterion ->
-                    searchForIDs(userId, authorisationInformation, nestedCriterion, null, idsColumnName))
+                    searchForIDs(userId, authorisationInformation, nestedCriterion, emptyCriterion, idsColumnName))
                     .collect(Collectors.toList());
         } else
         {
@@ -192,7 +192,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         }
     }
 
-    protected abstract AbstractCompositeSearchCriteria createEmptyCriteria();
+    protected abstract AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated);
 
     /**
      * Queries the DB to return all entity IDs.
@@ -208,8 +208,8 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
             final String idsColumnName, final TableMapper tableMapper,
             final AbstractCompositeSearchCriteria containerCriterion)
     {
-        final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria();
-        final AbstractCompositeSearchCriteria emptyContainerCriterion = createEmptyCriteria();
+        final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria(false);
+        final AbstractCompositeSearchCriteria emptyContainerCriterion = createEmptyCriteria(false);
         emptyContainerCriterion.setCriteria(Collections.singletonList(emptyCriteria));
         return getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, emptyContainerCriterion,
                 tableMapper, idsColumnName, authorisationInformation);

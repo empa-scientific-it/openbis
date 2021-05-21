@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -240,14 +244,30 @@ public class Parameters
 
     private static ThreadParameters[] asThreadParameters(SectionProperties[] sectionProperties)
     {
-        final ThreadParameters[] threadParameters = new ThreadParameters[sectionProperties.length];
-        for (int i = 0; i < threadParameters.length; i++)
+        List<ThreadParameters> threadParameters = new ArrayList<>();
+        for (SectionProperties section : sectionProperties)
         {
-            SectionProperties section = sectionProperties[i];
-            operationLog.info("Create parameters for thread '" + section.getKey() + "'.");
-            threadParameters[i] = new ThreadParameters(section.getProperties(), section.getKey());
+            String incomingDirs = section.getProperties().getProperty("incoming-dirs");
+            if (incomingDirs == null)
+            {
+                operationLog.info("Create parameters for thread '" + section.getKey() + "'.");
+                threadParameters.add(new ThreadParameters(section.getProperties(), section.getKey()));
+            } else
+            {
+                List<String> dirs = new ArrayList<>(new LinkedHashSet<>(Arrays.asList(incomingDirs.split(","))));
+                for (int i = 0; i < dirs.size(); i++)
+                {
+                    Properties p = (Properties) section.getProperties().clone();
+                    String incomingDir = dirs.get(i).trim();
+                    p.setProperty(ThreadParameters.INCOMING_DIR, incomingDir);
+                    String key = section.getKey() + "[" + (i + 1) + "]";
+                    operationLog.info("Create parameters for thread '" + key 
+                            + "' (incoming-dir: " + incomingDir + ").");
+                    threadParameters.add(new ThreadParameters(p, key));
+                }
+            }
         }
-        return threadParameters;
+        return threadParameters.toArray(new ThreadParameters[0]);
     }
 
     public final static Properties createMailProperties(final Properties serviceProperties)

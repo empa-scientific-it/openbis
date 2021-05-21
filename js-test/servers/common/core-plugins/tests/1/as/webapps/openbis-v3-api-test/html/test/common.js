@@ -163,6 +163,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.QueryDatabaseFetchOptions = dtos.QueryDatabaseFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
+        this.EventFetchOptions = dtos.EventFetchOptions;
+        this.EventSearchCriteria = dtos.EventSearchCriteria;
+        this.EventType = require('as/dto/event/EventType');
+        this.EntityType = require('as/dto/event/EntityType');
 		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
 		this.CustomASServiceFetchOptions = dtos.CustomASServiceFetchOptions;
 		this.CustomASServiceCode = dtos.CustomASServiceCode;
@@ -322,6 +326,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
 		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
 		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
+		this.SearchEventsOperation = dtos.SearchEventsOperation;
 		this.SearchDataStoresOperation = dtos.SearchDataStoresOperation;
 		this.SearchPropertyTypesOperation = dtos.SearchPropertyTypesOperation;
 		this.SearchPropertyAssignmentsOperation = dtos.SearchPropertyAssignmentsOperation;

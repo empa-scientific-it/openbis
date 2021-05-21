@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * Manages detailed search with complex semantic annotation search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class SemanticAnnotationSearchManager extends
@@ -46,7 +46,7 @@ public class SemanticAnnotationSearchManager extends
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new SemanticAnnotationSearchCriteria();
     }

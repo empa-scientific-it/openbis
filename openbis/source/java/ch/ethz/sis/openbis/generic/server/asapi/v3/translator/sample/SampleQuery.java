@@ -100,7 +100,7 @@ public interface SampleQuery extends ObjectQuery
 
     @Select(sql = "select srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
             + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
-            + "srh.space_id as spaceId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
+            + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
             + "from sample_relationships_history srh where srh.valid_until_timestamp is not null and srh.main_samp_id = any(?{1})", parameterBindings = {
                     LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getRelationshipsHistory(LongSet sampleIds);

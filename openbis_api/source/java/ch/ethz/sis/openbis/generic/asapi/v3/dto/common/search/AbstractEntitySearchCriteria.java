@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
@@ -30,6 +32,9 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
 {
 
     private static final long serialVersionUID = 1L;
+
+    @JsonProperty
+    private boolean negated = false;
 
     public CodeSearchCriteria withCode()
     {
@@ -149,4 +154,31 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     public abstract AbstractEntitySearchCriteria<ID> withOrOperator();
 
     public abstract AbstractEntitySearchCriteria<ID> withAndOperator();
+
+    @Override
+    protected void setNegated(boolean negated)
+    {
+        this.negated = negated;
+    }
+
+    public boolean isNegated()
+    {
+        return negated;
+    }
+
+    protected AbstractEntitySearchCriteria<ID> negate()
+    {
+        negated = true;
+        return this;
+    }
+
+    protected SearchCriteriaToStringBuilder createBuilder()
+    {
+        SearchCriteriaToStringBuilder builder = new SearchCriteriaToStringBuilder();
+        builder.setCriteria(criteria);
+        builder.setOperator(operator);
+        builder.setNegated(negated);
+        return builder;
+    }
+
 }

@@ -1,46 +1,16 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators;
 
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionError;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionProgress;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.FileFormatType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LocatorType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.StorageFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.FileFormatTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LocatorTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.PhysicalDataFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.StorageFormatFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
@@ -49,6 +19,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.fetchoptions.EntityTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EventType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.id.IEventId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -69,11 +43,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionNotification;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionDetails;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionSummary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionNotificationFetchOptions;
@@ -84,6 +54,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
@@ -110,6 +81,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAn
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -118,6 +90,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators.DtoGenerator.DTOField;
+
+import java.io.FileNotFoundException;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Generator extends AbstractGenerator
 {
@@ -409,6 +386,30 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(Date.class, "deletionDate");
 
         gen.setToStringMethod("\"Deletion \" + id");
+
+        return gen;
+    }
+
+    private static DtoGenerator createEvent()
+    {
+        DtoGenerator gen = new DtoGenerator("event", "Event", EventFetchOptions.class);
+        gen.addSimpleField(IEventId.class, "id");
+        gen.addSimpleField(EventType.class, "eventType");
+        gen.addSimpleField(EntityType.class, "entityType");
+        gen.addStringField("entitySpace");
+        gen.addSimpleField(ISpaceId.class, "entitySpaceId");
+        gen.addStringField("entityProject");
+        gen.addSimpleField(IProjectId.class, "entityProjectId");
+        gen.addStringField("entityRegistrator");
+        gen.addSimpleField(Date.class, "entityRegistrationDate");
+        gen.addStringField("identifier");
+        gen.addStringField("description");
+        gen.addStringField("reason");
+        gen.addStringField("content");
+        addRegistrator(gen);
+        addRegistrationDate(gen);
+
+        gen.setToStringMethod("\"Event \" + id");
 
         return gen;
     }
@@ -881,6 +882,7 @@ public class Generator extends AbstractGenerator
         list.add(createSemanticAnnotation());
         list.add(createQuery());
         list.add(createQueryDatabase());
+        list.add(createEvent());
 
         for (DtoGenerator gen : list)
         {

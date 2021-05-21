@@ -62,6 +62,18 @@ public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMateri
     }
 
     @Override
+    protected void setNegated(boolean negated)
+    {
+        super.setNegated(negated);
+    }
+
+    @Override
+    public MaterialSearchCriteria negate()
+    {
+        return (MaterialSearchCriteria) super.negate();
+    }
+
+    @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();

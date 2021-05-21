@@ -27,4 +27,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public interface ISearchCriteria extends Serializable
 {
 
+    boolean isNegated();
+
 }

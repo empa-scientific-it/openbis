@@ -1,0 +1,104 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "6633CE8F-DD6E-450B-815B-7910CCF91726/ac/06/b7/20210407152453960-205217",
+    "key": "LOCATION"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "STANDARD",
+    "key": "DATA_STORE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "RELATIVE_LOCATION",
+    "key": "LOCATOR_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "1",
+    "key": "SIZE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": null,
+    "key": "DATA_PRODUCER_CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "-50",
+    "key": "SPEED_HINT"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_dataset_B",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "1",
+    "key": "SHARE_ID"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "PROPRIETARY",
+    "key": "FILE_FORMAT_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "true",
+    "key": "STORAGE_CONFIRMATION"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "AVAILABLE",
+    "key": "ARCHIVING_STATUS"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "20210407152453960-205217",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "false",
+    "key": "PRESENT_IN_ARCHIVE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "PROPRIETARY",
+    "key": "STORAGE_FORMAT"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-07 15:24:54 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "U",
+    "key": "IS_COMPLETE"
+  },
+  {
+    "userId": "etlserver",
+    "validFrom": "2021-04-07 15:24:54.209",
+    "validUntil": "2021-04-07 15:25:35.181",
+    "type": "RELATIONSHIP",
+    "entityType": "EXPERIMENT",
+    "key": "OWNED",
+    "value": "20210407141206022-205211"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-07 15:25:35.181",
+    "type": "RELATIONSHIP",
+    "entityType": "EXPERIMENT",
+    "key": "OWNED",
+    "value": "20210407141217738-205212"
+  }
+]

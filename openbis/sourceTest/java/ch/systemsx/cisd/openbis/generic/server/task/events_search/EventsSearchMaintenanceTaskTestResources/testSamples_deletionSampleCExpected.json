@@ -1,0 +1,39 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "SAMPLE_C",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-01 15:21:24 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_sample_C",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:21:24.191",
+    "validUntil": "2021-04-01 15:21:39.465",
+    "type": "RELATIONSHIP",
+    "entityType": "EXPERIMENT",
+    "key": "OWNED",
+    "value": "20210401151830921-205198"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-01 15:21:39.465",
+    "type": "RELATIONSHIP",
+    "entityType": "EXPERIMENT",
+    "key": "OWNED",
+    "value": "20210401151838580-205199"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "userId": "registerer_C1",
+    "validFrom": "2021-04-27 15:03:27.997",
+    "type": "ATTACHMENT",
+    "entityType": "EXPERIMENT",
+    "fileName": "c1.txt",
+    "version": 1,
+    "description": "C1 description",
+    "title": "C1 title",
+    "key": "OWNED",
+    "value": "20210427145943350-205271"
+  }
+]

@@ -65,6 +65,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.EventPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.EventsSearchPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE</value>
@@ -126,7 +127,7 @@
                     org.hibernate.cache.EhCacheProvider
                 </prop>
                 <prop key="hibernate.max_fetch_depth">4</prop>
-                <!--  Uncomment this for debugging the Hibernate sql queries> 
+                <!--  Uncomment this for debugging the Hibernate sql queries>
 <prop key="hibernate.show_sql">true</prop>
 <prop key="hibernate.use_sql_comments">true</prop>
 <prop key="hibernate.format_sql">true</prop -->

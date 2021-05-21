@@ -45,7 +45,7 @@ public class SampleTypeSearchManager extends AbstractLocalSearchManager<SampleTy
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new SampleTypeSearchCriteria();
     }

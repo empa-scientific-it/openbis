@@ -710,7 +710,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
 			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
-			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
+			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
 				continue;
@@ -1103,6 +1103,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					var newSampleCodeForCopy = $("#newSampleCodeForCopy");
 					var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
 					var copyChildrenOnCopy = $("input[name=copyChildrenOnCopy]:checked").val();
+					if(copyChildrenOnCopy === 'None') {
+					    copyChildrenOnCopy = false;
+					}
 					var copyCommentsLogOnCopy = $("#copyCommentsLogOnCopy")[0].checked;
 					var isValid = newSampleCodeForCopy[0].checkValidity();
 					if(isValid) {

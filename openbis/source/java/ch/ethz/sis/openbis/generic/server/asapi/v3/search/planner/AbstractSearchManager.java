@@ -182,7 +182,8 @@ public abstract class AbstractSearchManager<OBJECT>
         return result;
     }
 
-    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String idsColumnName,
+    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
+            final AbstractCompositeSearchCriteria criteria, final String idsColumnName,
             final TableMapper tableMapper)
     {
         final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,

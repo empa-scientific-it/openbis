@@ -51,7 +51,7 @@ public abstract class DateFieldSearchCriteria extends AbstractFieldSearchCriteri
 
     private ITimeZone timeZone = new ServerTimeZone();
 
-    DateFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
+    protected DateFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
     {
         super(fieldName, fieldType);
     }

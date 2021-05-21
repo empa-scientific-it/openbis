@@ -1,0 +1,16 @@
+{
+  "project/20210427145921003-205270/b1.txt(1)": [
+    {
+      "userId": "registerer_B1",
+      "validFrom": "2021-04-27 15:02:26.537",
+      "type": "ATTACHMENT",
+      "entityType": "PROJECT",
+      "fileName": "b1.txt",
+      "version": 1,
+      "description": "B1 description",
+      "title": "B1 title",
+      "key": "OWNED",
+      "value": "20210427145921003-205270"
+    }
+  ]
+}

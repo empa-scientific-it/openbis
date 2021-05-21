@@ -16,25 +16,6 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.testng.annotations.Test;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -49,10 +30,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -62,6 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
@@ -71,6 +59,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.testng.annotations.Test;
+
+import java.util.*;
+
+import static org.testng.Assert.*;
 
 /**
  * @author pkupczyk
@@ -929,10 +924,10 @@ public class GetSampleTest extends AbstractSampleTest
         Sample sample2 = map.get(permId2);
         assertEquals(sample1.getChildren().size(), 1);
         assertEquals(sample1.getChildren().get(0).getPermId().getPermId(), "200811050929940-1019"); // parent
-        assertEquals(sample1.getChildrenRelationships().toString(), 
+        assertEquals(sample1.getChildrenRelationships().toString(),
                 "{200811050929940-1019=Relationship[parent annotations={},child annotations={}]}");
         assertEquals(sample1.getChildren().get(0).getChildren().get(0).getPermId().getPermId(), "200811050931564-1022");
-        assertEquals(sample1.getChildren().get(0).getChildrenRelationships().toString(), 
+        assertEquals(sample1.getChildren().get(0).getChildrenRelationships().toString(),
                 "{200811050931564-1022=Relationship[parent annotations={},child annotations={}]}");
         assertEquals(sample2.getChildren().size(), 0);
 
@@ -1309,21 +1304,21 @@ public class GetSampleTest extends AbstractSampleTest
         }
 
         Collection<String> projectCodes = CollectionUtils.collect(totalProjects, new Transformer<Project, String>()
+        {
+            @Override
+            public String transform(Project input)
             {
-                @Override
-                public String transform(Project input)
-                {
-                    return input.getCode();
-                }
-            });
+                return input.getCode();
+            }
+        });
         Collection<String> experimentCodes = CollectionUtils.collect(totalExperiments, new Transformer<Experiment, String>()
+        {
+            @Override
+            public String transform(Experiment input)
             {
-                @Override
-                public String transform(Experiment input)
-                {
-                    return input.getCode();
-                }
-            });
+                return input.getCode();
+            }
+        });
 
         AssertionUtil.assertCollectionContainsOnly(projectCodes, "TEST-PROJECT", "NOE", "PROJECT-TO-DELETE");
         AssertionUtil.assertCollectionContainsOnly(experimentCodes, "EXP-SPACE-TEST", "EXP-TEST-2", "EXPERIMENT-TO-DELETE");
@@ -1494,6 +1489,102 @@ public class GetSampleTest extends AbstractSampleTest
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
         assertEquals(entry.getRelationType(), SampleRelationType.SPACE);
         assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+    }
+
+    @Test(enabled = false) // requires 'project-samples-enabled = true' in service.properties
+    public void testGetWithHistoryProject()
+    {
+        String instanceAdminSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ISpaceId spaceId = new SpacePermId("CISD");
+
+        // create projects /CISD/A, /CISD/B, /CISD/C
+        ProjectCreation projectACreation = new ProjectCreation();
+        projectACreation.setCode("PROJECT_A");
+        projectACreation.setSpaceId(spaceId);
+
+        ProjectCreation projectBCreation = new ProjectCreation();
+        projectBCreation.setCode("PROJECT_B");
+        projectBCreation.setSpaceId(spaceId);
+
+        ProjectCreation projectCCreation = new ProjectCreation();
+        projectCCreation.setCode("PROJECT_C");
+        projectCCreation.setSpaceId(spaceId);
+
+        List<ProjectPermId> projectIds =
+                v3api.createProjects(instanceAdminSessionToken, Arrays.asList(projectACreation, projectBCreation, projectCCreation));
+
+        // create a user with access to project A and C
+        PersonCreation projectUserACCreation = new PersonCreation();
+        projectUserACCreation.setUserId("project_user_AC_pa_on");
+        IPersonId projectACUserId = v3api.createPersons(instanceAdminSessionToken, Arrays.asList(projectUserACCreation)).get(0);
+
+        RoleAssignmentCreation projectUserARoleCreation = new RoleAssignmentCreation();
+        projectUserARoleCreation.setUserId(projectACUserId);
+        projectUserARoleCreation.setRole(Role.USER);
+        projectUserARoleCreation.setProjectId(projectIds.get(0));
+
+        RoleAssignmentCreation projectUserCRoleCreation = new RoleAssignmentCreation();
+        projectUserCRoleCreation.setUserId(projectACUserId);
+        projectUserCRoleCreation.setRole(Role.OBSERVER);
+        projectUserCRoleCreation.setProjectId(projectIds.get(2));
+
+        v3api.createRoleAssignments(instanceAdminSessionToken, Arrays.asList(projectUserARoleCreation, projectUserCRoleCreation));
+
+        // create sample in project /CISD/A
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("SAMPLE_WITH_PROJECT_HISTORY");
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setProjectId(projectIds.get(0));
+        SamplePermId sampleId = v3api.createSamples(instanceAdminSessionToken, Arrays.asList(sampleCreation)).get(0);
+
+        // move sample to project /CISD/B
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleId);
+        sampleUpdate.setProjectId(projectIds.get(1));
+        v3api.updateSamples(instanceAdminSessionToken, Arrays.asList(sampleUpdate));
+
+        // move sample to project /CISD/C
+        SampleUpdate sampleUpdate2 = new SampleUpdate();
+        sampleUpdate2.setSampleId(sampleId);
+        sampleUpdate2.setProjectId(projectIds.get(2));
+        v3api.updateSamples(instanceAdminSessionToken, Arrays.asList(sampleUpdate2));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withHistory();
+
+        // get history with CISD space user
+        String cisdSpaceUserSessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+        Sample sample = v3api.getSamples(cisdSpaceUserSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
+
+        // get history with user that has access to project A and C
+        String projectUserACSessionToken = v3api.login(projectUserACCreation.getUserId(), PASSWORD);
+        sample = v3api.getSamples(projectUserACSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0));
+
+        // get history with instance admin
+        sample = v3api.getSamples(instanceAdminSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
+    }
+
+    private void assertRelationHistory(Sample sample, SampleRelationType relationType, ProjectPermId... permIds)
+    {
+        List<String> actual = new ArrayList<>();
+        for (HistoryEntry historyEntry : sample.getHistory())
+        {
+            RelationHistoryEntry entry = (RelationHistoryEntry) historyEntry;
+            actual.add(entry.getRelationType() + ":" + entry.getRelatedObjectId());
+        }
+        Collections.sort(actual);
+        List<String> expected = new ArrayList<>();
+        for (ProjectPermId id : permIds)
+        {
+            expected.add(relationType + ":" + id);
+        }
+        Collections.sort(expected);
+        assertEquals(actual, expected);
     }
 
     @Test
@@ -1705,13 +1796,13 @@ public class GetSampleTest extends AbstractSampleTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
-                    }
-                });
+                    v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
+                }
+            });
         } else
         {
             Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);

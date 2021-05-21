@@ -154,6 +154,8 @@ public final class TableNames
 
     public static final String EVENTS_TABLE = "events";
 
+    public static final String EVENTS_SEARCH_TABLE = "events_search";
+
     public static final String AUTHORIZATION_GROUPS_TABLE = "authorization_groups";
 
     public static final String AUTHORIZATION_GROUP_PERSONS_TABLE = "authorization_group_persons";

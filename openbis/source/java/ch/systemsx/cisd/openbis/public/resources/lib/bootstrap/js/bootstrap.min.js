@@ -1,3 +1,6 @@
+var isBootstrap34Loaded = (typeof $().emulateTransitionEnd == 'function');
+if(isBootstrap34Loaded) { return; }
+
 /*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)
  * Copyright 2011-2014 Twitter, Inc.

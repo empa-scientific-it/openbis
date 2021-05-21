@@ -19,12 +19,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.LabelSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchTextCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.*;
@@ -37,10 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.Semant
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.NoSpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.IGlobalSearchManager;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.DataSetKindSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ISearchManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.*;
 import org.springframework.context.ApplicationContext;
 
@@ -53,7 +50,8 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
  *
  * @author Viktor Kovtun
  */
-public class CriteriaMapper {
+public class CriteriaMapper
+{
 
     private static final Map<Class<? extends ISearchCriteria>, ISearchManager>
             CRITERIA_TO_MANAGER_MAP = new HashMap<>();
@@ -78,7 +76,9 @@ public class CriteriaMapper {
      */
     private static final Map<Class<? extends ISearchCriteria>, String> CRITERIA_TO_IN_COLUMN_MAP = new HashMap<>();
 
-    /** This map is used do set an ID different from default for subqueries. The key is the couple (parent, child). */
+    /**
+     * This map is used do set an ID different from default for subqueries. The key is the couple (parent, child).
+     */
     private static final Map<List<Class<? extends ISearchCriteria>>, String>
             PARENT_CHILD_CRITERIA_TO_CHILD_SELECT_ID_MAP = new HashMap<>();
 
@@ -183,6 +183,14 @@ public class CriteriaMapper {
                 new TextAttributeConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(UserIdSearchCriteria.class, new UserIdSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(UserIdsSearchCriteria.class, collectionFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventTypeSearchCriteria.class, enumFieldConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityTypeSearchCriteria.class, enumFieldConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntitySpaceSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntitySpaceIdSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityProjectSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityProjectIdSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityRegistratorSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityRegistrationDateSearchCriteria.class, dateFieldSearchConditionTranslator);
 
         // When adding a new manager to CRITERIA_TO_IN_COLUMN_MAP, create the manager as a bean in
         // genericApplicationContext.xml and add the corresponding record in initCriteriaToManagerMap().
@@ -292,6 +300,7 @@ public class CriteriaMapper {
         CRITERIA_TO_MANAGER_MAP.put(MaterialTypeSearchCriteria.class, materialTypeSearchManager);
         CRITERIA_TO_MANAGER_MAP.put(GlobalSearchCriteria.class,
                 applicationContext.getBean("global-search-manager", IGlobalSearchManager.class));
+        CRITERIA_TO_MANAGER_MAP.put(EventSearchCriteria.class, applicationContext.getBean(EventSearchManager.class));
     }
 
     public static Map<Class<? extends ISearchCriteria>, ISearchManager> getCriteriaToManagerMap()
@@ -300,7 +309,7 @@ public class CriteriaMapper {
     }
 
     public static Map<Class<? extends ISearchCriteria>, IConditionTranslator<? extends ISearchCriteria>>
-            getCriteriaToConditionTranslatorMap()
+    getCriteriaToConditionTranslatorMap()
     {
         return CRITERIA_TO_CONDITION_TRANSLATOR_MAP;
     }
@@ -315,7 +324,8 @@ public class CriteriaMapper {
         return PARENT_CHILD_CRITERIA_TO_CHILD_SELECT_ID_MAP;
     }
 
-    public static Map<EntityKind, ILocalSearchManager<ISearchCriteria, ?, ?>> getEntityKindToManagerMap() {
+    public static Map<EntityKind, ILocalSearchManager<ISearchCriteria, ?, ?>> getEntityKindToManagerMap()
+    {
         return ENTITY_KIND_TO_MANAGER_MAP;
     }
 

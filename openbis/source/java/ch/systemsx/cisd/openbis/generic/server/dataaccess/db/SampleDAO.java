@@ -546,6 +546,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     private static final String ENTITY_TYPE = "case "
             + "when h.space_id is not null then 'SPACE' "
             + "when h.samp_id is not null then 'SAMPLE' "
+            + "when h.proj_id is not null then 'PROJECT' "
             + "when h.expe_id is not null then 'EXPERIMENT' "
             + "else 'UNKNOWN' end as entity_type";
 

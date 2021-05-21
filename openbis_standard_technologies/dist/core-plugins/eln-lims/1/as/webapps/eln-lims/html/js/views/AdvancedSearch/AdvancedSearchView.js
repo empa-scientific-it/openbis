@@ -623,7 +623,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         var model = [];
         _this._addToEntityTypeModel(model, 'ALL_PREFIX', "All (prefix match, faster)", globalSearchDefault);
         _this._addToEntityTypeModel(model, 'ALL', "All (full word match, faster)", globalSearchDefault);
-			model.push({ value : 'ALL_PARTIAL', label : "All (partial match, slower)" });
+        _this._addToEntityTypeModel(model, 'ALL_PARTIAL', "All (partial match, slower)", globalSearchDefault);
         _this._addToEntityTypeModel(model, 'EXPERIMENT', ELNDictionary.getExperimentDualName(), null);
         _this._addToEntityTypeModel(model, 'SAMPLE', "" + ELNDictionary.Sample + "", null);
         _this._addToEntityTypeModel(model, 'DATASET', "Dataset", null);

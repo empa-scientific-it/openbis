@@ -1,0 +1,104 @@
+[
+  {
+    "type": "ATTRIBUTE",
+    "value": "6633CE8F-DD6E-450B-815B-7910CCF91726/e2/62/cb/20210407141933487-205216",
+    "key": "LOCATION"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "STANDARD",
+    "key": "DATA_STORE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "RELATIVE_LOCATION",
+    "key": "LOCATOR_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "1",
+    "key": "SIZE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": null,
+    "key": "DATA_PRODUCER_CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "-50",
+    "key": "SPEED_HINT"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "registerer_dataset_A",
+    "key": "REGISTRATOR"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "1",
+    "key": "SHARE_ID"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "UNKNOWN",
+    "key": "ENTITY_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "PROPRIETARY",
+    "key": "FILE_FORMAT_TYPE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "true",
+    "key": "STORAGE_CONFIRMATION"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "AVAILABLE",
+    "key": "ARCHIVING_STATUS"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "20210407141933487-205216",
+    "key": "CODE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "false",
+    "key": "PRESENT_IN_ARCHIVE"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "PROPRIETARY",
+    "key": "STORAGE_FORMAT"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "2021-04-07 14:19:33 +0200",
+    "key": "REGISTRATION_TIMESTAMP"
+  },
+  {
+    "type": "ATTRIBUTE",
+    "value": "U",
+    "key": "IS_COMPLETE"
+  },
+  {
+    "userId": "etlserver",
+    "validFrom": "2021-04-07 14:19:33.882",
+    "validUntil": "2021-04-07 15:22:27.468",
+    "type": "RELATIONSHIP",
+    "entityType": "SAMPLE",
+    "key": "OWNED",
+    "value": "20210407141248879-205213"
+  },
+  {
+    "userId": "admin",
+    "validFrom": "2021-04-07 15:22:27.468",
+    "type": "RELATIONSHIP",
+    "entityType": "SAMPLE",
+    "key": "OWNED",
+    "value": "20210407141318103-205214"
+  }
+]
