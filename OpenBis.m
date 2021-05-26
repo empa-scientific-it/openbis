@@ -520,7 +520,7 @@ classdef OpenBis
             %new_dataset
             % Create a new dataset with files
             % type ... dataset type
-            % object ... object for dataset
+            % object ... object for dataset (experiment)
             % file_list ... list of files (cell string) to upload to new dataset
             % properties ... structure with dataset properties (meta-data)
             % Usage:
@@ -538,7 +538,7 @@ classdef OpenBis
             parse(p, obj, type, object, file_list, varargin{:});
             a = p.Results;
             
-            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'sample', a.object, ...
+            dataset = obj.pybis.new_dataset(pyargs('type', a.type, 'experiment', a.object, ...
                 'files', a.file_list, 'props', a.properties));
             dataset.save();
             
