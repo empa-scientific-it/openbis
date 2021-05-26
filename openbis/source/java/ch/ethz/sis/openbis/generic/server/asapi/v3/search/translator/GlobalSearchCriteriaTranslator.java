@@ -719,7 +719,9 @@ public class GlobalSearchCriteriaTranslator
         buildDetailsWhere(sqlBuilder, translationContext, globalSearchTextCriterion, resultIds, tableMapper, true);
 
         if (globalSearchTextCriterion.getFieldValue() instanceof StringMatchesValue ||
-                globalSearchTextCriterion.getFieldValue() instanceof StringStartsWithValue)
+                globalSearchTextCriterion.getFieldValue() instanceof StringStartsWithValue ||
+                globalSearchTextCriterion.getFieldValue() instanceof StringContainsExactlyValue ||
+                globalSearchTextCriterion.getFieldValue() instanceof StringContainsValue)
         {
             sqlBuilder.append(UNION_ALL).append(NL);
 
@@ -1085,6 +1087,32 @@ public class GlobalSearchCriteriaTranslator
             sqlBuilder.append(NULL);
         }
         sqlBuilder.append(SP).append(alias);
+    }
+
+    private static void buildPropertiesMatchCondition(final StringBuilder sqlBuilder,
+            final GlobalSearchTextCriteria criterion, final TableMapper tableMapper, final boolean withWildcards,
+            final List<Object> args)
+    {
+        final AbstractStringValue stringValue = criterion.getFieldValue();
+
+        sqlBuilder.append(COALESCE).append(LP).append(PROPERTIES_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN)
+                .append(COMMA).append(SP).append(CONTROLLED_VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD)
+                .append(CODE_COLUMN);
+
+        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
+                || tableMapper == TableMapper.DATA_SET)
+        {
+            sqlBuilder.append(COMMA).append(SP).append(SAMPLES_TABLE_ALIAS).append(PERIOD)
+                    .append(SAMPLE_IDENTIFIER_COLUMN).append(COMMA).append(SP).append(MATERIALS_TABLE_ALIAS)
+                    .append(PERIOD).append(CODE_COLUMN);
+        }
+        sqlBuilder.append(RP);
+        appendStringComparatorOp(stringValue, withWildcards, sqlBuilder, args);
+
+//        final String tsQuerySuffix = stringValue instanceof StringStartsWithValue ? PREFIX_MATCH_SUFFIX : "";
+//        sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+//                .append(SP).append(LP).append(QU).append(tsQuerySuffix).append(RP).append(DOUBLE_COLON).append(TSQUERY);
+//        args.add(toTsQueryText(stringValue));
     }
 
     /**
@@ -1522,6 +1550,16 @@ public class GlobalSearchCriteriaTranslator
             {
                 buildTsVectorMatch(sqlBuilder, fieldValue, tableMapper, args);
             }
+            sqlBuilder.append(RP);
+        } else if (!forAttributes && (fieldValue instanceof StringContainsExactlyValue ||
+                fieldValue instanceof StringContainsValue))
+        {
+            sqlBuilder.append(SP).append(AND).append(SP).append(LP);
+
+            final boolean withWildcards = translationContext.getCriteria().stream()
+                    .anyMatch((searchCriterion) -> searchCriterion instanceof GlobalSearchWildCardsCriteria);
+            buildPropertiesMatchCondition(sqlBuilder, criterion, tableMapper, withWildcards, args);
+
             sqlBuilder.append(RP);
         }
         sqlBuilder.append(NL);

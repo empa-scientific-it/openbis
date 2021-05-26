@@ -314,7 +314,12 @@ public class GlobalSearchManager implements IGlobalSearchManager
                 Function.identity(),
                 (existingPropertyMatch, newPropertyMatch) ->
                 {
-                    existingPropertyMatch.getSpans().addAll(newPropertyMatch.getSpans());
+                    final List<Span> existingSpans = existingPropertyMatch.getSpans();
+                    final List<Span> newSpans = newPropertyMatch.getSpans();
+                    if (existingSpans != null && newSpans != null)
+                    {
+                        existingSpans.addAll(newSpans);
+                    }
                     return existingPropertyMatch;
                 },
                 HashMap::new
