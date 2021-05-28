@@ -699,11 +699,18 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContains("stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
 
-        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
+        objects.forEach(globalSearchObject ->
+        {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
 
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
