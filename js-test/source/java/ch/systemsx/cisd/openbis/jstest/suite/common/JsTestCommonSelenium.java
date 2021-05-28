@@ -26,6 +26,7 @@ import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisV3JsWebappLocation;
+import ch.systemsx.cisd.openbis.jstest.layout.ELNJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.page.OpenbisJsCommonWebapp;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
@@ -121,6 +122,14 @@ public class JsTestCommonSelenium extends SeleniumTest
     {
         runTests("runOpenbisV3JsTests", new OpenbisV3JsWebappLocation());
     }
+
+    /*
+    @Test
+    public void runELNTests()
+    {
+        runTests("runELNTests", new ELNJsWebappLocation());
+    }
+     */
 
     protected void runTests(String method, Location<OpenbisJsCommonWebapp> location)
     {

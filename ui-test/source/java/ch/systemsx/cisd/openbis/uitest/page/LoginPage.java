@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.SubmitButton;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LoginPage
 {
@@ -33,6 +37,7 @@ public class LoginPage
 
     public void loginAs(String user, String pwd)
     {
+        SeleniumTest.waitForVisibilityOf("openbis_login_username");
         username.write(user);
         password.write(pwd);
         button.click();

@@ -34,8 +34,8 @@ configurations.create('externalDss')
 
 dependencies {
 
-	compile 'reflections:reflections:0.9.10', 
-	'testng:testng:6.8-CISD', 
+    compile 'reflections:reflections:0.9.10',
+    'testng:testng:6.8-CISD',
 	'fasterxml:jackson-core:2.9.10',
 	'fasterxml:jackson-annotations:2.9.10',
 	'fasterxml:jackson-databind:2.9.10'
@@ -57,6 +57,19 @@ task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').wa
 	rename {filename -> 'openbis.war'}
 }
 
+task deleteXlsImportVersionInfoJson {
+    doFirst {
+        println "DELETE xls-import-version-info.json file in $buildDir"
+        File file = file('xls-import-version-info.json')
+        file.delete();
+    }
+}
+
+clean.dependsOn deleteXlsImportVersionInfoJson
+
+
+import org.gradle.internal.os.OperatingSystem
+
 test {
     useTestNG()
     options.suites('source/java/tests.xml')
@@ -73,6 +86,14 @@ test {
     systemProperty 'org.eclipse.jetty.util.log.class', 'org.eclipse.jetty.util.log.StrErrLog'
     
     workingDir = 'servers/common/openBIS-server'
+
+    if (OperatingSystem.current().isLinux()) {
+        systemProperty 'webdriver.gecko.driver', 'gecko-driver/linux/geckodriver'
+    } else if (OperatingSystem.current().isMacOsX()) {
+        systemProperty 'webdriver.gecko.driver', 'gecko-driver/mac/geckodriver'
+    } else {
+        println "Please set up geckodriver"
+    }
 }
 test.dependsOn clean
 test.dependsOn copyWar
