@@ -746,10 +746,14 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly("simple stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 1);
         assertNotNull(objects.get(0).getMatch());
+        assertFalse(objects.get(0).getMatch().isEmpty());
         assertEquals(objects.get(0).getObjectPermId().toString(), "200902091250077-1026");
         assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/CP-TEST-2");
     }
@@ -1115,6 +1119,7 @@ public class GlobalSearchTest extends AbstractTest
         for (int i = 0; i <= 1; i++)
         {
             assertNotNull(pagedObjects.get(i).getMatch());
+            assertFalse(pagedObjects.get(i).getMatch().isEmpty());
             assertEquals(pagedObjects.get(i).getObjectPermId().toString(),
                     fullResult.getObjects().get(3 + i).getObjectPermId().toString());
             assertEquals(pagedObjects.get(i).getObjectIdentifier().toString(),
@@ -2273,6 +2278,7 @@ public class GlobalSearchTest extends AbstractTest
         objects.forEach(object ->
         {
             assertNotNull(object.getMatch());
+            assertFalse(object.getMatch().isEmpty());
             assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         });
 
@@ -2305,6 +2311,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = iter.next();
         assertNotNull(object);
         assertNotNull(object.getMatch());
+        assertFalse(object.getMatch().isEmpty());
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091250077-1026"));
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-2"));
@@ -2347,7 +2354,11 @@ public class GlobalSearchTest extends AbstractTest
         final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 8);
 
-        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
+        objects.forEach(globalSearchObject ->
+        {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
 
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
