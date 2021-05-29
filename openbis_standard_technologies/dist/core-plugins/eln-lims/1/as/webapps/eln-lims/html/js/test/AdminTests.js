@@ -9,7 +9,7 @@ var AdminTests = new function() {
             testChain.then(() => TestUtil.login("admin", "admin"))
                      .then(() => TestUtil.testPassed(1))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(1, error, reject));
         });
     }
 
@@ -50,10 +50,10 @@ var AdminTests = new function() {
                        "TRASHCAN",
                        "SETTINGS"];
 
-            Promise.resolve().then(() => TestUtil.verifyInventory(ids))
+            Promise.resolve().then(() => TestUtil.verifyInventory(2, ids))
                              .then(() => TestUtil.testPassed(2))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(2, error, reject));
         });
     }
 
@@ -79,7 +79,7 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("edit-btn"))
                      .then(() => TestUtil.testPassed(3))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(3, error, reject));
         });
     }
 
@@ -92,18 +92,46 @@ var AdminTests = new function() {
                      .then(() => e.click("USER_MANAGER"))
                      .then(() => e.waitForId("createUser"))
                      .then(() => e.click("createUser"))
-                     // fill user name
                      .then(() => e.waitForId("userId"))
                      .then(() => e.change("userId", "testId"))
-                     // fill password
-                     .then(() => e.waitForId("passwordId", true, 2000))
-                     .then(() => e.change("passwordId", "pass", true))
-                     .then(() => e.change("passwordRepeatId", "pass", true))
-                     // create user
                      .then(() => e.click("createUserBtn"))
-                     .then(() => e.waitForId("jSuccess"))
+                     .then(() => AdminTests.createPassword())
+                     .then(() => AdminTests.userExist())
                      .then(() => TestUtil.setCookies("suitename", "testId"))
                      .then(() => e.click("logoutBtn"))
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
+        });
+    }
+
+    // Sometimes it ask for password. Try to fill it.
+    this.createPassword = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            testChain = Promise.resolve();
+
+            testChain.then(() => e.waitForId("passwordId", true, 2000))
+                     .then(() => e.change("passwordId", "pass", true))
+                     .then(() => e.change("passwordRepeatId", "pass", true))
+                     .then(() => e.click("createUserBtn", true))
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
+        });
+    }
+
+    // If the user already exists, we will see an error.
+    // This is not a problem for the script, and we can continue.
+    this.userExist = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            testChain = Promise.resolve();
+
+            testChain.then(() => e.waitForId("jError", true, 2000))
+                     .then(() => e.waitForId("jNotifyDismiss", true, 2000))
+                     .then(() => e.click("jNotifyDismiss", true))
+                     .then(() => e.click("cancelBtn", true))
                      .then(() => resolve())
                      .catch((error) => reject(error));
         });
@@ -155,7 +183,7 @@ var AdminTests = new function() {
                      .then(() => TestUtil.returnRealSaveAs())
                      .then(() => TestUtil.testPassed(31))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(31, error, reject));
         });
     }
 
@@ -200,7 +228,7 @@ var AdminTests = new function() {
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      .then(() => TestUtil.testPassed(32))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(32, error, reject));
         });
     }
 
@@ -243,7 +271,7 @@ var AdminTests = new function() {
                      .then(() => e.verifyExistence("deleted--stock_catalog-requests-req1-id", false))
                      .then(() => TestUtil.testPassed(33))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(33, error, reject));
         });
     }
 
@@ -272,7 +300,7 @@ var AdminTests = new function() {
                      .then(() => e.equalTo("total-count-id", "5", true, false))
                      .then(() => TestUtil.testPassed(34))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(34, error, reject));
         });
     }
 }

@@ -336,7 +336,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
-			}, fo, "code", null, true, "EXP-1");
+			}, fo, "code", null, true, "DEFAULT_EXPERIMENT");
 		});
 
 		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {
@@ -803,7 +803,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -818,7 +818,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -2001,7 +2001,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.PluginSearchCriteria();
-				criteria.withName().thatContains("e");
+				criteria.withName().thatContains("Has");
 				criteria.withPluginType().thatEquals(c.PluginType.ENTITY_VALIDATION);
 				var fo = c.createPluginFetchOptions();
 				fo.withScript();
@@ -2110,7 +2110,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					codes.push(vocabularies[i].getCode());
 				}
 				codes.sort();
-				c.assertEqual(codes.toString(), "AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
+				c.assertEqual(codes.toString(), "$STORAGE.STORAGE_VALIDATION_LEVEL,AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
 			}
 
 			testSearch(c, fSearch, fCheck);

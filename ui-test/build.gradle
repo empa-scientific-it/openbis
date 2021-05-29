@@ -15,9 +15,6 @@ sourceSets {
         java {
             srcDirs = ['sourceTest/java']
         }
-        resources {
-            srcDirs = ['source/java']
-        }
     }
     test {
         java {
@@ -35,14 +32,14 @@ configurations.create('externalDss')
 
 dependencies {
 	testCompile project(':datastore_server'),
-			'selenium:selenium-java:2.37.0'
+                        'selenium:selenium-java:3.141.59'
 			
 	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 
 	testRuntimeSecond 'google:gwt-user:2.4'
 	
 	externalDss project(':datastore_server')
-} 
+}
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
@@ -50,6 +47,14 @@ task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').wa
 	from project(':openbis_standard_technologies').war
 	into 'targets/gradle/openbis-war'
 	rename {filename -> 'openbis.war'}
+}
+
+import org.gradle.internal.os.OperatingSystem
+
+task makeGeckodriverExecutable(type:Exec) {
+
+    commandLine 'chmod', '+x', 'etc/gecko-driver/linux/geckodriver'
+    commandLine 'chmod', '+x', 'etc/gecko-driver/mac/geckodriver'
 }
 
 test {
@@ -60,8 +65,18 @@ test {
     
     testLogging.showStandardStreams = true
     ignoreFailures = true
-    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath   
+    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
+
+    if (OperatingSystem.current().isLinux()) {
+        systemProperty 'webdriver.gecko.driver', 'etc/gecko-driver/linux/geckodriver'
+    } else if (OperatingSystem.current().isMacOsX()) {
+        systemProperty 'webdriver.gecko.driver', 'etc/gecko-driver/mac/geckodriver'
+    } else {
+        println "Please set up geckodriver"
+    }
 }
+
+test.dependsOn makeGeckodriverExecutable
 test.dependsOn copyWar
 
 
