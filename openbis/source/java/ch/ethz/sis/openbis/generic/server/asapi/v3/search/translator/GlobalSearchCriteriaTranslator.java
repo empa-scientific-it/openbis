@@ -103,6 +103,14 @@ public class GlobalSearchCriteriaTranslator
 
     private static final String DATA_TYPES_TABLE_ALIAS = "daty";
 
+    private static final String LINKED_SAMPLES_TABLE_ALIAS = "linked_samp";
+
+    private static final String LINKED_EXPERIMENTS_TABLE_ALIAS = "linked_expe";
+
+    private static final String LINKED_PROJECTS_TABLE_ALIAS = "linked_proj";
+
+    private static final String LINKED_SPACE_TABLE_ALIAS = "linked_space";
+
     private static final String TS_HEADLINE_OPTIONS = "HighlightAll=TRUE, StartSel=" + START_SEL
             +", StopSel=" + STOP_SEL;
 
@@ -936,6 +944,9 @@ public class GlobalSearchCriteriaTranslator
         if (hasSpaces || hasProjects)
         {
             sqlBuilder.append(SPACE_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
+        } else if (tableMapper == TableMapper.DATA_SET)
+        {
+            sqlBuilder.append(LINKED_SPACE_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
         } else
         {
             sqlBuilder.append(NULL);
@@ -1418,6 +1429,35 @@ public class GlobalSearchCriteriaTranslator
                         .append(PERIOD).append(SAMPLE_PROP_COLUMN).append(SP).append(EQ).append(SP)
                         .append(SAMPLES_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
             }
+        }
+
+        if (tableMapper == TableMapper.DATA_SET)
+        {
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(SAMPLE.getEntitiesTable()).append(SP)
+                    .append(LINKED_SAMPLES_TABLE_ALIAS).append(SP).append(ON).append(SP).append(MAIN_TABLE_ALIAS)
+                    .append(PERIOD).append(SAMPLE_COLUMN).append(SP).append(EQ).append(SP)
+                    .append(LINKED_SAMPLES_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
+
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(EXPERIMENT.getEntitiesTable()).append(SP)
+                    .append(LINKED_EXPERIMENTS_TABLE_ALIAS).append(SP).append(ON).append(SP)
+                    .append(MAIN_TABLE_ALIAS)
+                    .append(PERIOD).append(EXPERIMENT_COLUMN).append(SP).append(EQ).append(SP)
+                    .append(LINKED_EXPERIMENTS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(PROJECT.getEntitiesTable()).append(SP)
+                    .append(LINKED_PROJECTS_TABLE_ALIAS).append(SP).append(ON).append(SP)
+                    .append(LINKED_EXPERIMENTS_TABLE_ALIAS).append(PERIOD).append(PROJECT_COLUMN)
+                    .append(SP).append(EQ).append(SP)
+                    .append(LINKED_PROJECTS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN).append(NL);
+
+            sqlBuilder.append(LEFT_JOIN).append(SP).append(SPACE.getEntitiesTable()).append(SP)
+                    .append(LINKED_SPACE_TABLE_ALIAS).append(SP).append(ON).append(SP)
+                    .append(LINKED_SPACE_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                    .append(SP).append(EQ).append(SP)
+                    .append(COALESCE).append(LP)
+                    .append(LINKED_SAMPLES_TABLE_ALIAS).append(PERIOD).append(SPACE_COLUMN)
+                    .append(SP).append(COMMA).append(SP)
+                    .append(LINKED_PROJECTS_TABLE_ALIAS).append(PERIOD).append(SPACE_COLUMN)
+                    .append(RP);
         }
 
         buildProjectAndSpacesJoin(sqlBuilder, tableMapper);
