@@ -3050,6 +3050,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
             testSearch(c, fSearch, fCheck);
         });
 
+        QUnit.test("searchEvents() withReason", function(assert) {
+            var c = new common(assert, openbis);
+
+            var fSearch = function(facade) {
+                var criteria = new c.EventSearchCriteria();
+                criteria.withReason().thatEquals("delete experiments");
+                var fetchOptions = new c.EventFetchOptions();
+                fetchOptions.sortBy().id();
+                return facade.searchEvents(criteria, fetchOptions);
+            }
+
+            var fCheck = function(facade, events) {
+                c.assertEqual(events.length, 2);
+
+                c.assertEqual(events[0].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[0].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[0].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertEqual(events[0].getIdentifier(), "20210514121033530-444", "Identifier");
+
+                c.assertEqual(events[1].getEventType(), c.EventType.DELETION, "Event Type");
+                c.assertEqual(events[1].getEntityType(), c.EntityType.EXPERIMENT, "Entity Type");
+                c.assertEqual(events[1].getEntityRegistrator(), "openbis_test_js", "Entity Registrator");
+                c.assertEqual(events[1].getIdentifier(), "20210514121033530-443", "Identifier");
+            }
+
+            testSearch(c, fSearch, fCheck);
+        });
+
         QUnit.test("searchEvents() withRegistrator", function(assert) {
             var c = new common(assert, openbis);
 

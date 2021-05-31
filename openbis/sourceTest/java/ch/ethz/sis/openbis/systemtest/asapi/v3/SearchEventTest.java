@@ -73,6 +73,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOption
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.delete.TagDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
@@ -110,6 +116,10 @@ public class SearchEventTest extends AbstractTest
 
     private IEntityTypeId experimentTypeId;
 
+    private Tag tagA;
+
+    private Tag tagB;
+
     @BeforeClass
     public void beforeClass()
     {
@@ -133,6 +143,7 @@ public class SearchEventTest extends AbstractTest
                 initProjects();
                 initExperimentTypes();
                 initExperiments();
+                initTags();
 
                 String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -161,6 +172,7 @@ public class SearchEventTest extends AbstractTest
                 deleteExperimentTypes(sessionToken, Collections.singletonList(experimentTypeId), "clean up experiment types");
                 deleteProjects(sessionToken, Arrays.asList(projectAA.getPermId(), projectBB.getPermId(), projectCC.getPermId()), "clean up projects");
                 deleteSpaces(sessionToken, Arrays.asList(spaceA.getPermId(), spaceB.getPermId(), spaceC.getPermId()), "clean up spaces");
+                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "clean up tags");
 
                 return null;
             }
@@ -184,6 +196,7 @@ public class SearchEventTest extends AbstractTest
                 deleteExperiments(sessionToken, Arrays.asList(experimentBBB.getPermId(), experimentBBC.getPermId()), "delete experiments");
                 deleteProjects(sessionToken, Arrays.asList(projectBB.getPermId(), projectCC.getPermId()), "delete projects");
                 deleteSpaces(sessionToken, Collections.singletonList(spaceB.getPermId()), "delete spaces");
+                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "delete tags");
 
                 // process new events
                 EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(new TestDataSource());
@@ -289,6 +302,25 @@ public class SearchEventTest extends AbstractTest
         experimentBBC = experimentMap.get(experimentIds.get(2));
     }
 
+    private void initTags()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        TagCreation tagACreation = new TagCreation();
+        tagACreation.setCode("EVENT_TEST_TAG_A_" + System.currentTimeMillis());
+
+        TagCreation tagBCreation = new TagCreation();
+        tagBCreation.setCode("EVENT_TEST_TAG_B_" + System.currentTimeMillis());
+
+        List<TagPermId> tagIds = v3api.createTags(sessionToken, Arrays.asList(tagACreation, tagBCreation));
+
+        TagFetchOptions fo = new TagFetchOptions();
+
+        Map<ITagId, Tag> tagMap = v3api.getTags(sessionToken, tagIds, fo);
+        tagA = tagMap.get(tagIds.get(0));
+        tagB = tagMap.get(tagIds.get(1));
+    }
+
     @Test
     public void testSearchWithEmptyCriteria()
     {
@@ -297,7 +329,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, new EventSearchCriteria(), new EventFetchOptions());
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
     }
 
     @Test
@@ -469,6 +501,27 @@ public class SearchEventTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithReason()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        EventSearchCriteria criteria = new EventSearchCriteria();
+        criteria.withReason().thatEquals("delete experiments");
+
+        EventFetchOptions fo = new EventFetchOptions();
+        fo.withRegistrator();
+        fo.sortBy().identifier();
+
+        SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
+        List<Event> events = getEventsAfterDate(result, startDate);
+
+        assertEquals(events.size(), 2);
+
+        assertExperimentDeletion(events.get(0), experimentBBB);
+        assertExperimentDeletion(events.get(1), experimentBBC);
+    }
+
+    @Test
     public void testSearchWithRegistrationDate()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -480,7 +533,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, new EventFetchOptions());
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         // > now
         criteria = new EventSearchCriteria();
@@ -525,13 +578,15 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         assertSpaceDeletion(events.get(0), spaceD);
         assertSpaceDeletion(events.get(1), spaceB);
         // we cannot assert on the exact order of project and experiment deletions as entities deleted
         // together are stored in random order in the original event table in JSON content column
-        assertExperimentFreezing(events.get(6), experimentAAA);
+        assertTagDeletion(events.get(6), tagA);
+        assertTagDeletion(events.get(7), tagB);
+        assertExperimentFreezing(events.get(8), experimentAAA);
     }
 
     @Test
@@ -548,7 +603,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         assertProjectDeletion(events.get(0), projectBB); // project deletions have project perm id stored as identifier value
         assertProjectDeletion(events.get(1), projectCC);
@@ -557,6 +612,8 @@ public class SearchEventTest extends AbstractTest
         assertExperimentFreezing(events.get(4), experimentAAA); // experiment freeze has experiment identifier stored as identifier value
         assertSpaceDeletion(events.get(5), spaceB); // space deletions have space code stored as identifier value
         assertSpaceDeletion(events.get(6), spaceD);
+        assertTagDeletion(events.get(7), tagA); // tag deletions have tag code stored as identifier value
+        assertTagDeletion(events.get(8), tagB);
     }
 
     @Test
@@ -576,7 +633,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         assertSpaceDeletion(events.get(0), spaceD); // it is first as it was created in a different transaction in beforeClass method
         assertProjectDeletion(events.get(1), projectBB);
@@ -585,6 +642,8 @@ public class SearchEventTest extends AbstractTest
         assertExperimentDeletion(events.get(4), experimentBBC);
         assertExperimentFreezing(events.get(5), experimentAAA);
         assertSpaceDeletion(events.get(6), spaceB);
+        assertTagDeletion(events.get(7), tagA);
+        assertTagDeletion(events.get(8), tagB);
     }
 
     @Test
@@ -708,6 +767,13 @@ public class SearchEventTest extends AbstractTest
         SpaceDeletionOptions spaceOptions = new SpaceDeletionOptions();
         spaceOptions.setReason(reason);
         v3api.deleteSpaces(sessionToken, ids, spaceOptions);
+    }
+
+    private void deleteTags(String sessionToken, List<ITagId> ids, String reason)
+    {
+        TagDeletionOptions tagOptions = new TagDeletionOptions();
+        tagOptions.setReason(reason);
+        v3api.deleteTags(sessionToken, ids, tagOptions);
     }
 
     private static void assertDateAfter(Date date, Date startDate)
@@ -841,6 +907,31 @@ public class SearchEventTest extends AbstractTest
         } catch (AssertionError e)
         {
             throw new AssertionError("Assertion failed for event: " + toString(event) + " and space: " + toString(space), e);
+        }
+    }
+
+    private void assertTagDeletion(Event event, Tag tag)
+    {
+        try
+        {
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.DELETION);
+            assertEquals(event.getEntityType(), EntityType.TAG);
+            assertNull(event.getEntitySpace());
+            assertNull(event.getEntitySpaceId());
+            assertNull(event.getEntityProject());
+            assertNull(event.getEntityProjectId());
+            assertNull(event.getEntityRegistrator());
+            assertNull(event.getEntityRegistrationDate());
+            assertEquals(event.getIdentifier(), tag.getCode());
+            assertEquals(event.getDescription(), tag.getCode());
+            assertEquals(event.getReason(), "delete tags");
+            assertNull(event.getContent());
+            assertEquals(event.getRegistrator().getUserId(), TEST_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
+        {
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and tag: " + toString(tag), e);
         }
     }
 
