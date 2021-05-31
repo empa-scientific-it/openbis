@@ -2475,6 +2475,7 @@ Event Entity Space Perm Id Search Criteria
 Event Entity Space Search Criteria
 Event Entity Type Search Criteria
 Event Event Type Search Criteria
+Event Reason Search Criteria
 Event Fetch Options
 Event Registration Date Search Criteria
 Event Registrator Search Criteria
@@ -2515,6 +2516,7 @@ with Entity Registrator Using
 with Entity Space
 with Entity Space Perm Id
 with Event Type
+with Reason
 Event Entity Project Id Search Criteria
 Event Entity Space Id Search Criteria
 Event Type Search Criteria
