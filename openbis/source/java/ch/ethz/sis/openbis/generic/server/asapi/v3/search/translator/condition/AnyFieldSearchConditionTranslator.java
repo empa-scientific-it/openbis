@@ -91,7 +91,7 @@ public class AnyFieldSearchConditionTranslator implements IConditionTranslator<A
         if (valueClass != StringMatchesValue.class)
         {
             IdentifierSearchConditionTranslator.doTranslate(criterion, useWildcards, tableMapper, args, sqlBuilder,
-                    aliases, UNIQUE_PREFIX);
+                    aliases, "");
             sqlBuilder.append(OR_SEPARATOR);
 
             translateEntityTypeMatch(value, args, sqlBuilder, aliases, useWildcards);

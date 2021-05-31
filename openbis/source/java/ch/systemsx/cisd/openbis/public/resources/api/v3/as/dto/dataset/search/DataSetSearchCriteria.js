@@ -53,6 +53,9 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.getRelation = function() {
 			return this.relation;
 		};
+		prototype.negate = function() {
+			return AbstractEntitySearchCriteria.prototype.negate.call(this);
+		};
 	}, {
 		relation : {
 			name : "Enum",
@@ -94,7 +97,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
 		prototype.negate = function() {
-			return AbstractDataSetSearchCriteria.prototype.negate.call();
+			return AbstractDataSetSearchCriteria.prototype.negate.call(this);
 		};
 	}, {
 		relation : {

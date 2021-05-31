@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.suite.main;
 
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -42,9 +43,10 @@ public abstract class MainSuite extends SeleniumTest
         // This is because changing filters later at the same time with columns
         // causes StaleElementReferenceExceptions and I cannot figure out how to fix them.
         create(aSampleType());
-        browser().goTo(sampleBrowser()).allSpaces();
-        browser().goTo(sampleBrowser()).getPaging().settings();
-        browser().goTo(sampleBrowser()).getSettings().showFilters("Subcode");
+        SampleBrowser sampleBrowser = browser().goTo(sampleBrowser());
+        sampleBrowser.allSpaces();
+        sampleBrowser.getPaging().settings();
+        sampleBrowser.getSettings().showFilters("Subcode");
 
         fixturex();
     }

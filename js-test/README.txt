@@ -27,6 +27,19 @@ If a test fails you can click on the test and only the failed test will be shown
 You can change the test code (e.g. in servers/common/core-plugins/tests/1/as/webapps/openbis-test/html/openbis-test.js).
 To see the changes you have to reload the frame (not the application) in the Web browser.
 
+Geckodriver
+==========
+
+If you want to develop tests on your machine make sure that you use correct Geckodriver for your operation system.
+
+You can find it here:
+https://github.com/mozilla/geckodriver/releases
+
+If you are using MAC OS you can easily install Geckodriver using command:
+brew install geckodriver
+
+Otherwise you need to specify the path to your Geckodriver in makeGeckodriverExecutable task.
+
 Some Tips:
 ==========
 

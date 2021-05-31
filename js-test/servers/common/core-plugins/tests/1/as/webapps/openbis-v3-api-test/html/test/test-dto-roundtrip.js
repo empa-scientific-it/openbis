@@ -70,7 +70,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 							_.chain(_.allKeys(dto))
 							.filter(function(key) {
-								return !key.startsWith("@") && !key.startsWith("freeze") && !_.isFunction(dto[key]);
+								return !key.startsWith("@") && !key.startsWith("freeze") && !key.startsWith("negate") && !key.startsWith("isNegated") && !_.isFunction(dto[key]);
 							})
 							.each(function(key){
 								var val = dto[key];
@@ -137,6 +137,9 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 					return applied;
 
+				}).fail(function(error) {
+					c.fail(error.message);
+					c.finish();
 				});
 			}
 

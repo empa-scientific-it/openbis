@@ -19,12 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.webdriver;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.internal.Coordinates;
-import org.openqa.selenium.internal.Locatable;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Coordinates;
+import org.openqa.selenium.interactions.Locatable;
 import org.openqa.selenium.internal.WrapsElement;
 
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
@@ -34,7 +31,6 @@ import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
  */
 class WidgetContext implements WebElement, Locatable, WrapsElement
 {
-
     private WebElement element;
 
     private ScreenShotter shotter;
@@ -107,6 +103,11 @@ class WidgetContext implements WebElement, Locatable, WrapsElement
     }
 
     @Override
+    public Rectangle getRect() {
+        return element.getRect();
+    }
+
+    @Override
     public String getText()
     {
         return element.getText();
@@ -158,5 +159,10 @@ class WidgetContext implements WebElement, Locatable, WrapsElement
             return ((WrapsElement) element).getWrappedElement();
         }
         return element;
+    }
+
+    @Override
+    public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
+        throw new WebDriverException("Method not implemented");
     }
 }

@@ -145,6 +145,7 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setId(1L);
         sample.setExperiment(experimentPE);
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
                 new DataStorePE());
@@ -186,6 +187,7 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setId(1L);
         sample.setExperiment(experimentPE);
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
                 new DataStorePE());
@@ -236,6 +238,7 @@ public class DataBOTest extends AbstractBOTest
         final LocatorTypePE locatorType = new LocatorTypePE();
         SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setId(1L);
         sample.setExperiment(experimentPE);
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType,
                 new DataStorePE());
@@ -286,6 +289,7 @@ public class DataBOTest extends AbstractBOTest
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
         ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setId(1L);
         DataStorePE dataStore = new DataStorePE();
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataPE data = new DataPE();
@@ -1067,6 +1071,7 @@ public class DataBOTest extends AbstractBOTest
     private ExperimentPE createExperiment(String experimentCode, String spaceCode)
     {
         ExperimentPE experiment = new ExperimentPE();
+        experiment.setId((long) String.valueOf(experimentCode).hashCode());
         experiment.setCode(experimentCode);
         ProjectPE project = new ProjectPE();
         project.setCode("P");

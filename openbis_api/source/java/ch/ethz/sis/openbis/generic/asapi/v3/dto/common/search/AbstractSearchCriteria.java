@@ -62,7 +62,7 @@ public abstract class AbstractSearchCriteria implements ISearchCriteria
     // JSON-RPC
     //
 
-    private void setNegated(boolean negated)
+    protected void setNegated(boolean negated)
     {
     }
 

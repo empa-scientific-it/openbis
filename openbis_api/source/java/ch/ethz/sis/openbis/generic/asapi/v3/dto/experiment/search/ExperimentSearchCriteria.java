@@ -69,6 +69,7 @@ public class ExperimentSearchCriteria extends AbstractEntitySearchCriteria<IExpe
         return with(new TextAttributeSearchCriteria());
     }
 
+    @Override
     public ExperimentSearchCriteria negate()
     {
         return (ExperimentSearchCriteria) super.negate();

@@ -234,6 +234,8 @@ public class GlobalSearchTest extends AbstractTest
         final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
 
+        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
+
         final Set<String> permIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
 
@@ -380,11 +382,12 @@ public class GlobalSearchTest extends AbstractTest
         fo.withMatch();
         final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
 
-        List<GlobalSearchObject> objects = result.getObjects();
+        final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 1);
-        Iterator<GlobalSearchObject> iter = objects.iterator();
+        final Iterator<GlobalSearchObject> iter = objects.iterator();
 
-        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2", "", false);
+        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2",
+                "Property 'Comment': extremely simple stuff", false);
     }
 
     @Test
@@ -420,6 +423,7 @@ public class GlobalSearchTest extends AbstractTest
 
         final GlobalSearchObject object = objects.iterator().next();
         assertNotNull(object);
+        assertNotNull(object.getMatch());
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091219327-1025"));
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-1"));
@@ -468,6 +472,8 @@ public class GlobalSearchTest extends AbstractTest
 
         final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 8);
+
+        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
 
         final GlobalSearchObject[] searchObjects = new GlobalSearchObject[] {
                 findObjectByPermId(objects, "200902091219327-1025"),
@@ -693,9 +699,18 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContains("stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
+
+        objects.forEach(globalSearchObject ->
+        {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
 
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
@@ -731,10 +746,14 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly("simple stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 1);
-
+        assertNotNull(objects.get(0).getMatch());
+        assertFalse(objects.get(0).getMatch().isEmpty());
         assertEquals(objects.get(0).getObjectPermId().toString(), "200902091250077-1026");
         assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/CP-TEST-2");
     }
@@ -869,8 +888,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectPermId().toString(), false);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectPermIdAsc()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -885,8 +903,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectPermId().toString(), true);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectPermIdDesc()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -931,8 +948,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectIdentifier().toString(), false);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectIdentifierAsc()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -947,8 +963,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectIdentifier().toString(), true);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectIdentifierDesc()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -1086,8 +1101,9 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly("simple");
         criteria.withText().thatContainsExactly("stuff");
 
-        final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria,
-                new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fullResultFo = new GlobalSearchObjectFetchOptions();
+        fullResultFo.sortBy().objectIdentifier().asc();
+        final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria, fullResultFo);
 
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.sortBy().objectIdentifier().asc();
@@ -1102,6 +1118,8 @@ public class GlobalSearchTest extends AbstractTest
 
         for (int i = 0; i <= 1; i++)
         {
+            assertNotNull(pagedObjects.get(i).getMatch());
+            assertFalse(pagedObjects.get(i).getMatch().isEmpty());
             assertEquals(pagedObjects.get(i).getObjectPermId().toString(),
                     fullResult.getObjects().get(3 + i).getObjectPermId().toString());
             assertEquals(pagedObjects.get(i).getObjectIdentifier().toString(),
@@ -2257,7 +2275,12 @@ public class GlobalSearchTest extends AbstractTest
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
 
-        objects.forEach(object -> assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE));
+        objects.forEach(object ->
+        {
+            assertNotNull(object.getMatch());
+            assertFalse(object.getMatch().isEmpty());
+            assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        });
 
         final Set<String> permIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
@@ -2287,6 +2310,8 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = iter.next();
         assertNotNull(object);
+        assertNotNull(object.getMatch());
+        assertFalse(object.getMatch().isEmpty());
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091250077-1026"));
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-2"));
@@ -2328,6 +2353,12 @@ public class GlobalSearchTest extends AbstractTest
     {
         final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 8);
+
+        objects.forEach(globalSearchObject ->
+        {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
 
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());

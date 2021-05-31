@@ -26,7 +26,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.FluentWait;
 
-import com.google.common.base.Predicate;
+import java.util.function.Function;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
@@ -53,15 +53,15 @@ public class FilterToolBar implements Widget
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<Refreshable>()
-                            {
+                        new Function<Refreshable, Boolean>()
+                        {
 
-                                @Override
-                                public boolean apply(Refreshable refreshable)
-                                {
-                                    return refresher.hasStateBeenUpdatedSince(state);
-                                }
-                            });
+                            @Override
+                            public Boolean apply(Refreshable refreshable)
+                            {
+                                return refresher.hasStateBeenUpdatedSince(state);
+                            }
+                        });
     }
 
     public Collection<String> getVisibleFilters()
