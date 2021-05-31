@@ -53,15 +53,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fCheck = function(facade, result) {
-				c.assertEqual(result.getTotalCount(), 2, "Number of results");
-				c.assertEqual(result.getObjects().length, 2, "Number of results");
+				c.assertEqual(result.getTotalCount(), 4, "Number of results");
+				c.assertEqual(result.getObjects().length, 4, "Number of results");
 				var objects = result.getObjects();
 				objects.sort(function(o1, o2) { return o1.getPermId().toString().localeCompare(o2.getPermId().toString())});
-				c.assertEqual(objects[0].getPermId().toString(), "DSS1:echo-database", "Perm id");
-				c.assertEqual(objects[0].getName(), "echo-database", "Name");
-				c.assertEqual(objects[0].getLabel(), "Echo database", "Label");
-				c.assertEqual(objects[0].getPossibleSearchOptionsKey(), "optionsKey", "Possible searcg option keys");
-				c.assertEqual(objects[0].getPossibleSearchOptions().toString(), "Alpha [alpha],beta [beta]", "Possible search options");
+				c.assertEqual(objects[1].getPermId().toString(), "DSS1:echo-database", "Perm id");
+				c.assertEqual(objects[1].getName(), "echo-database", "Name");
+				c.assertEqual(objects[1].getLabel(), "Echo database", "Label");
+				c.assertEqual(objects[1].getPossibleSearchOptionsKey(), "optionsKey", "Possible searcg option keys");
+				c.assertEqual(objects[1].getPossibleSearchOptions().toString(), "Alpha [alpha],beta [beta]", "Possible search options");
 			}
 
 			testAction(c, fAction, fCheck);
@@ -72,6 +72,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			
 			var fAction = function(facade) {
 				var options = new c.SearchDomainServiceExecutionOptions();
+				options.withPreferredSearchDomain("echo-database");
 				options.withSearchString("key").withParameter("key", 
 						JSON.stringify({
 							"searchDomain" : "Echo database",

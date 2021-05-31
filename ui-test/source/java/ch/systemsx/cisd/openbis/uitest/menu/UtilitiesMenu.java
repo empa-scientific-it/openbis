@@ -28,6 +28,9 @@ public class UtilitiesMenu
     @Locate("openbis_top-menu_openbis-v3-api-test")
     private Link openbisV3JsWebapp;
 
+    @Locate("openbis_top-menu_eln-test")
+    private Link elnJSWebapp;
+
     public void openbisJsWebapp()
     {
         openbisJsWebapp.click();
@@ -36,6 +39,11 @@ public class UtilitiesMenu
     public void openbisV3JsWebapp()
     {
         openbisV3JsWebapp.click();
+    }
+
+    public void elnJSWebapp()
+    {
+        elnJSWebapp.click();
     }
 
 }

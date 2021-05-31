@@ -127,6 +127,16 @@ public class SearchMaterialTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithTypeWithPermIdWithNegation()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+        criteria.withType().withPermId().thatEquals("BACTERIUM");
+        criteria.withSubcriteria().negate().withCode().thatEndsWith("1");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM2", "BACTERIUM"),
+                new MaterialPermId("BACTERIUM-X", "BACTERIUM"), new MaterialPermId("BACTERIUM-Y", "BACTERIUM"));
+    }
+
+    @Test
     public void testSearchWithPropertyThatEquals()
     {
         MaterialSearchCriteria criteria = new MaterialSearchCriteria();

@@ -37,7 +37,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			return this.withOperator(SearchOperator.AND);
 		};
 		prototype.negate = function() {
-			return AbstractEntitySearchCriteria.prototype.negate.call();
+			return AbstractEntitySearchCriteria.prototype.negate.call(this);
 		};
 	}, {
 		operator : {

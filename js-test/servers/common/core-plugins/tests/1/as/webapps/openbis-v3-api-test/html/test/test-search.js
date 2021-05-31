@@ -336,7 +336,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearchWithPagingAndSorting(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
-			}, fo, "code", null, true, "EXP-1");
+			}, fo, "code", null, true, "DEFAULT_EXPERIMENT");
 		});
 
 		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {
@@ -396,6 +396,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fCheck = function(facade, experiments) {
 				c.assertObjectsWithValues(experiments, "code", [ "EXP-1", "EXP-2", "TEST-EXPERIMENT-3" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchExperiments() withModifier withUserId negated", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.ExperimentSearchCriteria().withAndOperator();
+				criteria.withModifier().withUserId().thatEquals("etlserver");
+				criteria.withSubcriteria().negate().withCode().thatEndsWith("-2");
+				return facade.searchExperiments(criteria, c.createExperimentFetchOptions());
+			}
+
+			var fCheck = function(facade, experiments) {
+				c.assertObjectsWithValues(experiments, "code", [ "EXP-1", "TEST-EXPERIMENT-3" ]);
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -713,6 +730,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchSamples() withoutContainer negated", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria().withAndOperator();
+				criteria.withCode().thatStartsWith("TEST-SAMPLE");
+				criteria.withoutContainer();
+				criteria.withSubcriteria().negate().withCode().thatEndsWith("-1");
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-2", "TEST-SAMPLE-2-PARENT",
+					"TEST-SAMPLE-2-CHILD-2" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchSamples() withContainer", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -767,7 +803,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -782,7 +818,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var criteria = new c.SampleSearchCriteria();
 			criteria.withOrOperator();
-			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/PLATE-1"));
+			criteria.withId().thatEquals(new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-1"));
 			criteria.withId().thatEquals(new c.SampleIdentifier("/TEST/TEST-SAMPLE-1"));
 
 			var fo = c.createSampleFetchOptions();
@@ -1227,6 +1263,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSets() withSample negated", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetSearchCriteria().withAndOperator();
+				criteria.withCode().thatContains("-40");
+				criteria.withSample();
+				criteria.withSubcriteria().negate().withCode().thatEndsWith("8");
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130415093804724-403" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchDataSets() withSampleWithWildcardsEnabled", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1638,6 +1692,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchMaterials() withRegistrator withUserId negated", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.MaterialSearchCriteria().withAndOperator();
+				criteria.withRegistrator().withUserId().thatEquals("etlserver");
+				criteria.withSubcriteria().negate().withCode().thatEndsWith("4");
+				return facade.searchMaterials(criteria, c.createMaterialFetchOptions());
+			}
+
+			var fCheck = function(facade, materials) {
+				c.assertObjectsWithValues(materials, "code", [ "SIRNA-3" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchMaterials() withModifier withUserId", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1930,7 +2001,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fSearch = function(facade) {
 				var criteria = new c.PluginSearchCriteria();
-				criteria.withName().thatContains("e");
+				criteria.withName().thatContains("Has");
 				criteria.withPluginType().thatEquals(c.PluginType.ENTITY_VALIDATION);
 				var fo = c.createPluginFetchOptions();
 				fo.withScript();
@@ -2039,7 +2110,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					codes.push(vocabularies[i].getCode());
 				}
 				codes.sort();
-				c.assertEqual(codes.toString(), "AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
+				c.assertEqual(codes.toString(), "$STORAGE.STORAGE_VALIDATION_LEVEL,AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
 			}
 
 			testSearch(c, fSearch, fCheck);

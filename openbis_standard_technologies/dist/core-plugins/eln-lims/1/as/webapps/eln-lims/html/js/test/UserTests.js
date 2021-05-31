@@ -25,10 +25,10 @@ var UserTests = new function() {
                        "_METHODS_PROTOCOLS_PCR_PROTOCOLS",
                        "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS"];
 
-            Promise.resolve().then(() => TestUtil.verifyInventory(ids))
+            Promise.resolve().then(() => TestUtil.verifyInventory(5, ids))
                              .then(() => e.verifyExistence("USER_MANAGER", false))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(5, error, reject));
         });
     }
 
@@ -42,7 +42,7 @@ var UserTests = new function() {
                              .then(() => UserTests.createBacteria("BAC4", "Durantimonas"))
                              .then(() => TestUtil.testPassed(6))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(6, error, reject));
         });
     }
 
@@ -84,7 +84,7 @@ var UserTests = new function() {
                      .then(() => e.equalTo("NAME", name, true, false))
                      .then(() => TestUtil.ckeditorTestData("BACTERIA.GENOTYPE", richText))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => reject(error));
         });
     }
 
@@ -136,7 +136,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac4-column-id"))
                              .then(() => TestUtil.testPassed(7))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(7, error, reject));
         });
     }
 
@@ -155,7 +155,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac4"))
                              .then(() => TestUtil.testPassed(8))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(8, error, reject));
         });
     }
 
@@ -200,7 +200,7 @@ var UserTests = new function() {
                              .then(() => e.equalTo("parent-annotations-bac3", parentAnnotations, true, false))
                              .then(() => TestUtil.testPassed(9))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(9, error, reject));
         });
     }
 
@@ -245,7 +245,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac5_bac4"))
                              .then(() => TestUtil.testPassed(10))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(10, error, reject));
         });
     }
 
@@ -273,7 +273,7 @@ var UserTests = new function() {
                              .then(() => e.click("jNotifyDismiss"))
                              .then(() => TestUtil.testPassed(11))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(11, error, reject));
         });
     }
 
@@ -313,7 +313,7 @@ var UserTests = new function() {
                              .then(() => TestUtil.returnRealSaveAs())
                              .then(() => TestUtil.testPassed(12))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(12, error, reject));
         });
     }
 
@@ -334,7 +334,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac9-column-id"))
                              .then(() => TestUtil.testPassed(13))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(13, error, reject));
         });
     }
 
@@ -355,7 +355,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac13-column-id"))
                              .then(() => TestUtil.testPassed(14))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(14, error, reject));
         });
     }
 
@@ -382,7 +382,7 @@ var UserTests = new function() {
                      .then(() => e.waitForId("accept-type-file"))
                      .then(() => e.click("accept-type-file"))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => reject(error));
         });
     }
 
@@ -419,7 +419,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("testbox-c2-id"))
                              .then(() => TestUtil.testPassed(15))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(15, error, reject));
         });
     }
 
@@ -443,7 +443,7 @@ var UserTests = new function() {
                              .then(() => e.sleep(3000)) // wait for saving
                              .then(() => TestUtil.testPassed(16))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(16, error, reject));
         });
     }
 
@@ -472,7 +472,7 @@ var UserTests = new function() {
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
                              .then(() => TestUtil.testPassed(17))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(17, error, reject));
         });
     }
 
@@ -495,7 +495,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("edit-btn"))
                              .then(() => TestUtil.testPassed(18))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(18, error, reject));
         });
     }
 
@@ -524,7 +524,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("edit-btn"))
                              .then(() => TestUtil.testPassed(19))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(19, error, reject));
         });
     }
 
@@ -589,7 +589,7 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => TestUtil.testPassed(20))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(20, error, reject));
         });
     }
 
@@ -655,7 +655,7 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => TestUtil.testPassed(21))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(21, error, reject));
         });
     }
 
@@ -696,7 +696,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("dataset-edit-btn"))
                              .then(() => TestUtil.testPassed(23))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(23, error, reject));
         });
     }
 
@@ -726,7 +726,7 @@ var UserTests = new function() {
                              .then(() => e.waitForStyle("project-samples", "display", "", false))
                              .then(() => TestUtil.testPassed(25))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(25, error, reject));
         });
     }
 
@@ -772,7 +772,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac5_bac4-id"))
                              .then(() => TestUtil.testPassed(26))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(26, error, reject));
         });
     }
 
@@ -791,7 +791,7 @@ var UserTests = new function() {
                              .then(() => UserTests.createSupplier("DE", "GERMAN", "companyde@email.com"))
                              .then(() => TestUtil.testPassed(27))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(27, error, reject));
         });
     }
 
@@ -821,7 +821,7 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => reject(error));
         });
     }
 
@@ -840,7 +840,7 @@ var UserTests = new function() {
                              .then(() => UserTests.createProductForm("DE", "EUR", "sup2-column-id"))
                              .then(() => TestUtil.testPassed(28))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => TestUtil.reportError(28, error, reject));
         });
     }
 
@@ -876,7 +876,7 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => reject(error));
         });
     }
 
@@ -929,7 +929,7 @@ var UserTests = new function() {
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               .then(() => TestUtil.testPassed(29))
                               .then(() => resolve())
-                              .catch((error) => reject(error));
+                              .catch(error => TestUtil.reportError(29, error, reject));
          });
      }
 
@@ -950,7 +950,7 @@ var UserTests = new function() {
                               .then(() => e.verifyExistence("create-btn", false))
                               .then(() => TestUtil.testPassed(30))
                               .then(() => resolve())
-                              .catch((error) => reject(error));
+                              .catch(error => TestUtil.reportError(30, error, reject));
          });
       }
 
@@ -961,7 +961,7 @@ var UserTests = new function() {
             Promise.resolve().then(() => TestUtil.setCookies("suitename", "finishTest"))
                              .then(() => e.click("logoutBtn"))
                              .then(() => resolve())
-                             .catch((error) => reject(error));
+                             .catch(error => reject(error));
          });
      }
 }

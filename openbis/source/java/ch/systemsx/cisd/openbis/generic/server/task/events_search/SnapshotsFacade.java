@@ -1,5 +1,14 @@
 package ch.systemsx.cisd.openbis.generic.server.task.events_search;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -23,9 +32,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 class SnapshotsFacade
 {
@@ -532,6 +538,9 @@ class SnapshotsFacade
         {
             newEvent.entitySpaceCode = spaceSnapshot.entityCode;
             newEvent.entitySpacePermId = spaceSnapshot.entityPermId;
+        } else
+        {
+            newEvent.entitySpaceCode = spaceCode;
         }
     }
 
@@ -549,6 +558,9 @@ class SnapshotsFacade
             {
                 newEvent.entityProject = new ProjectIdentifier(newEvent.entitySpaceCode, projectSnapshot.entityCode).toString();
             }
+        } else
+        {
+            newEvent.entityProjectPermId = projectPermId;
         }
     }
 

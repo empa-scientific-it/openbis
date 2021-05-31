@@ -35,6 +35,6 @@ public class FileUpload implements Widget
         ((JavascriptExecutor) SeleniumTest.driver).executeScript("arguments[0].readOnly=false",
                 input);
         input.sendKeys(file);
-        input.click();
+        input.submit();
     }
 }

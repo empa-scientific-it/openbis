@@ -22,6 +22,11 @@ To start one test look at the TestProtocol. Find the test and call for it by the
 
 For example: AdminTests.login();
 
+### Other parameters:
+
+jenkins=true - send signals to Jenkins
+testWithLogin=true - login first
+
 ## Tests results ##
 
 If test passed you will see a successful message in browser console.

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.support.ui.FluentWait;
 
-import com.google.common.base.Predicate;
+import java.util.function.Function;
 
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
@@ -70,15 +70,15 @@ public class ExperimentBrowser extends Browser
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<Refreshable>()
-                            {
+                        new Function<Refreshable, Boolean>()
+                        {
 
-                                @Override
-                                public boolean apply(Refreshable refreshable)
-                                {
-                                    return refreshable.hasStateBeenUpdatedSince(state);
-                                }
-                            });
+                            @Override
+                            public Boolean apply(Refreshable refreshable)
+                            {
+                                return refreshable.hasStateBeenUpdatedSince(state);
+                            }
+                        });
 
         return projectFound;
     }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.suite.sprint;
 
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
@@ -39,9 +40,10 @@ public abstract class SprintSuite extends SeleniumTest
         // This is because changing filters later at the same time with columns
         // causes StaleElementReferenceExceptions. Should be fixed.
         create(aSampleType());
-        browser().goTo(sampleBrowser()).allSpaces();
-        browser().goTo(sampleBrowser()).getPaging().settings();
-        browser().goTo(sampleBrowser()).getSettings().showFilters("Subcode");
+        SampleBrowser sampleBrowser = browser().goTo(sampleBrowser());
+        sampleBrowser.allSpaces();
+        sampleBrowser.getPaging().settings();
+        sampleBrowser.getSettings().showFilters("Subcode");
     }
 
     protected void enableLegacyUi()

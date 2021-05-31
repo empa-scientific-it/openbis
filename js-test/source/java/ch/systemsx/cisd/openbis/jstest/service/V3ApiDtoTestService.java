@@ -56,7 +56,7 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
             if (name.startsWith("java.") && name.endsWith("Map"))
             {
                 throw new IllegalArgumentException("Map class detected (" + name + "). This is a hint "
-                        + "that no appropirated class found for deserialization. "
+                        + "that no appropriate class found for deserialization. "
                         + "This is most probably caused by missing default constructor. Object: " + obj);
             }
             throw new IllegalArgumentException("Fully qualified class named doesn't start with '" + PACKAGE_PREFIX

@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.support.ui.FluentWait;
 
-import com.google.common.base.Predicate;
+import java.util.function.Function;
 
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
@@ -45,11 +45,15 @@ public abstract class Browser
 
     protected abstract void delete();
 
+    protected String columnNameForSelect() {
+        return "Code";
+    }
+
     public final BrowserRow select(Browsable browsable)
     {
         filterTo(browsable);
         showColumnsOf(browsable);
-        return getGrid().select("Code", browsable.getIdValue());
+        return getGrid().select(columnNameForSelect(), browsable.getIdValue());
     }
 
     public final BrowserRow getRow(Browsable browsable)
@@ -137,16 +141,16 @@ public abstract class Browser
                 .withTimeout(30, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(
-                        new Predicate<PagingToolBar>()
-                            {
+                        new Function<PagingToolBar, Boolean>()
+                        {
 
-                                @Override
-                                public boolean apply(PagingToolBar paging)
-                                {
-                                    System.out.println("waiting for paging toolbar to get enabled");
-                                    return paging.isEnabled();
-                                }
-                            });
+                            @Override
+                            public Boolean apply(PagingToolBar paging)
+                            {
+                                System.out.println("waiting for paging toolbar to get enabled");
+                                return paging.isEnabled();
+                            }
+                        });
     }
 
     @Override

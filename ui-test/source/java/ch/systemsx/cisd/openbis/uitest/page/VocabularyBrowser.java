@@ -57,6 +57,12 @@ public class VocabularyBrowser extends Browser
     }
 
     @Override
+    protected String columnNameForSelect() {
+        // Because If you click on "Code" you will go in list of Vocabulary Terms
+        return "Description";
+    }
+
+    @Override
     public void delete()
     {
         delete.click();
