@@ -807,7 +807,7 @@ public class DownloadClientTest
         } else if (operationName.equals(OPERATION_DOWNLOAD_READ))
         {
             // IOException thrown from InputStream.read method is always retried
-            logger.awaitLogs(TIMEOUT, "Call failed - will retry", "Call failed - will retry", "Call failed - will retry", "testOnDownloadFinished");
+            logger.awaitLogs(TIMEOUT, "Call failed - will retry", "testOnDownloadFinished");
             logger.assertNoLogsWithLevels(LogLevel.ERROR);
             assertEquals(exception, null);
         } else if (operationName.equals(OPERATION_GET_ITEM_PATH))
