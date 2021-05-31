@@ -731,6 +731,29 @@ def _subcriteria_for_permid(permids, entity, parents_or_children='', operator='A
         "operator": operator
     }
 
+def _subcriteria_for_permid_new(codes, entity, parents_or_children='', operator='AND'):
+    if not isinstance(codes, list):
+        codes = [codes]
+
+    criteria = []
+    for code in codes:
+        criteria.append({
+            "@type": "as.dto.common.search.PermIdSearchCriteria",
+            "fieldValue": {
+                "value": code,
+                "@type": "as.dto.common.search.StringEqualToValue"
+            },
+            "fieldType": "ATTRIBUTE",
+            "fieldName": "perm_id"
+        })
+
+    search_type = get_type_for_entity(entity, 'search', parents_or_children)
+    return {
+        "criteria": criteria,
+        **search_type,
+        "operator": operator
+    }
+
 
 def _subcriteria_for_code_new(codes, entity, parents_or_children='', operator='AND'):
     if not isinstance(codes, list):
@@ -1950,7 +1973,7 @@ class Openbis:
         type         -- sampleType code or object
         space        -- space code or object
         project      -- project code or object
-        experiment   -- experiment code or object
+        experiment   -- experiment code or object (can be a list, too)
         collection   -- same as above
         tags         -- only return samples with the specified tags
         where        -- key-value pairs of property values to search for
@@ -2010,9 +2033,9 @@ class Openbis:
         if tags:
             sub_criteria.append(_subcriteria_for_tags(tags))
         if code:
-            sub_criteria.append(_criteria_for_code(code))
+            sub_criteria.append(_subcriteria_for_code_new(code, 'sample', operator='OR'))
         if permId:
-            sub_criteria.append(_criteria_for_permId(permId))
+            sub_criteria.append(_subcriteria_for_permid_new(permId, 'sample', operator='OR'))
 
         criteria = {
             "criteria": sub_criteria,
@@ -2249,7 +2272,7 @@ class Openbis:
 
 
     def get_datasets(
-        self, code=None, type=None, withParents=None, withChildren=None,
+        self, permId=None, code=None, type=None, withParents=None, withChildren=None,
         start_with=None, count=None, kind=None,
         status=None, sample=None, experiment=None, collection=None,
         project=None, space=None,
@@ -2261,6 +2284,8 @@ class Openbis:
 
         Filters
         -------
+        permId       -- the permId is the unique identifier of a dataSet. A list of permIds can be provided.
+        code         -- actually a synonym for the permId of the dataSet.
         project      -- a project code or a project object
         experiment   -- an experiment code or an experiment object
         sample       -- a sample code/permId or a sample/object
@@ -2295,8 +2320,10 @@ class Openbis:
 
         sub_criteria = []
 
-        if code:
-            sub_criteria.append(_criteria_for_code(code))
+        if code or permId:
+            if code is None:
+                code=permId
+            sub_criteria.append(_subcriteria_for_code_new(code, 'dataSet', operator='OR'))
         if type:
             sub_criteria.append(_subcriteria_for_code(type, 'dataSetType'))
 
@@ -2386,6 +2413,10 @@ class Openbis:
         """ Returns an experiment object for a given identifier (code).
         """
 
+        experiment = not only_data and self._object_cache(entity='experiment',code=code)
+        if experiment:
+            return experiment
+
         fetchopts = fetch_option['experiment']
 
         search_request = _type_for_id(code, 'experiment')
@@ -2409,15 +2440,20 @@ class Openbis:
             raise ValueError(f"No such experiment: {code}")
 
         parse_jackson(resp)
-        for permid in resp:
-            if only_data:
-                return resp[permid]
-            else:
-                return Experiment(
-                    openbis_obj = self,
-                    type = self.get_experiment_type(resp[code]["type"]["code"]),
-                    data = resp[permid]
-                )
+        data = resp[code]
+        if only_data:
+            return data
+
+        experiment = Experiment(
+            openbis_obj = self,
+            type = self.get_experiment_type(data["type"]["code"]),
+            data = data
+        )
+        if self.use_cache:
+            identifier = data['identifier']['identifier']
+            self._object_cache(entity='experiment', code=identifier, value=experiment)
+        return experiment
+
     get_collection = get_experiment  # Alias
 
 
