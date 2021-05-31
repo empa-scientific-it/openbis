@@ -469,6 +469,27 @@ public class SearchEventTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithReason()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        EventSearchCriteria criteria = new EventSearchCriteria();
+        criteria.withReason().thatEquals("delete experiments");
+
+        EventFetchOptions fo = new EventFetchOptions();
+        fo.withRegistrator();
+        fo.sortBy().identifier();
+
+        SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
+        List<Event> events = getEventsAfterDate(result, startDate);
+
+        assertEquals(events.size(), 2);
+
+        assertExperimentDeletion(events.get(0), experimentBBB);
+        assertExperimentDeletion(events.get(1), experimentBBC);
+    }
+
+    @Test
     public void testSearchWithRegistrationDate()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
