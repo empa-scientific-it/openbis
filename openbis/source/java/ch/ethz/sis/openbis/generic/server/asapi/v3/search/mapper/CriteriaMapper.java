@@ -147,6 +147,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.D
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DateFieldSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EmailSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EnumFieldSearchConditionTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EventEntityTypeConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.FirstNameSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IdSearchConditionTranslator;
@@ -299,7 +300,7 @@ public class CriteriaMapper
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(UserIdsSearchCriteria.class, collectionFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventTypeSearchCriteria.class, enumFieldConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventReasonSearchCriteria.class, stringFieldSearchConditionTranslator);
-        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityTypeSearchCriteria.class, enumFieldConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityTypeSearchCriteria.class, new EventEntityTypeConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntitySpaceSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntitySpaceIdSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityProjectSearchCriteria.class, stringFieldSearchConditionTranslator);

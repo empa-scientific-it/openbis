@@ -16,17 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType.ATTRIBUTE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
+
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.EnumFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
-
-import java.util.List;
-import java.util.Map;
-
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType.ATTRIBUTE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 
 public class EnumFieldSearchConditionTranslator implements IConditionTranslator<EnumFieldSearchCriteria<?>>
 {
@@ -45,16 +48,23 @@ public class EnumFieldSearchConditionTranslator implements IConditionTranslator<
     {
         if (criterion.getFieldType() == ATTRIBUTE)
         {
-            final Enum<?> value = criterion.getFieldValue();
+            final Enum<?> criterionValue = criterion.getFieldValue();
+            final String databaseValue = getDatabaseValue(criterionValue);
             final String criterionFieldName = criterion.getFieldName();
             final String columnName = AttributesMapper.getColumnName(criterionFieldName, tableMapper.getEntitiesTable(), criterion.getFieldName());
 
-            sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(EQ).append(SP).append(QU);
-            args.add(value.toString());
+            sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(EQ).append(SP)
+                    .append(QU);
+            args.add(databaseValue);
         } else
         {
             throw new IllegalArgumentException();
         }
+    }
+
+    protected String getDatabaseValue(Enum<?> criterionValue)
+    {
+        return criterionValue.toString();
     }
 
 }
