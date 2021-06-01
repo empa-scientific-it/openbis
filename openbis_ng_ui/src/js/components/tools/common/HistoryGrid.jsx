@@ -1,5 +1,6 @@
 import React from 'react'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
+import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -21,21 +22,41 @@ class HistoryGrid extends React.PureComponent {
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
-        columns={
-          [
-            /*
+        columns={[
           {
             name: 'eventType',
-            label: messages.get(messages.NAME),
-            getValue: ({ row }) => row.name.value,
-            renderValue: ({ row }) => {
-              return (
-                <PluginLink
-                  pluginName={row.name.value}
-                  pluginType={pluginType}
-                />
-              )
-            }
+            label: messages.get(messages.EVENT_TYPE),
+            getValue: ({ row }) => row.eventType.value
+          },
+          {
+            name: 'entityType',
+            label: messages.get(messages.ENTITY_TYPE),
+            getValue: ({ row }) => row.entityType.value
+          },
+          {
+            name: 'entitySpace',
+            label: messages.get(messages.ENTITY_SPACE),
+            getValue: ({ row }) => row.entitySpace.value
+          },
+          {
+            name: 'entityProject',
+            label: messages.get(messages.ENTITY_PROJECT),
+            getValue: ({ row }) => row.entityProject.value
+          },
+          {
+            name: 'entityRegistrator',
+            label: messages.get(messages.ENTITY_REGISTRATOR),
+            getValue: ({ row }) => row.entityRegistrator.value
+          },
+          {
+            name: 'entityRegistrationDate',
+            label: messages.get(messages.ENTITY_REGISTRATION_DATE),
+            getValue: ({ row }) => row.entityRegistrationDate.value
+          },
+          {
+            name: 'identifier',
+            label: messages.get(messages.IDENTIFIER),
+            getValue: ({ row }) => row.identifier.value
           },
           {
             name: 'description',
@@ -43,32 +64,31 @@ class HistoryGrid extends React.PureComponent {
             getValue: ({ row }) => row.description.value
           },
           {
-            name: 'pluginKind',
-            label: messages.get(messages.PLUGIN_KIND),
-            getValue: ({ row }) => row.pluginKind.value
+            name: 'reason',
+            label: messages.get(messages.REASON),
+            getValue: ({ row }) => row.reason.value
           },
           {
-            name: 'entityKind',
-            label: messages.get(messages.ENTITY_KIND),
-            getValue: ({ row }) => {
-              return row.entityKind.value
-                ? new EntityKind(row.entityKind.value).getLabel()
-                : '(' + messages.get(messages.ALL) + ')'
-            }
+            name: 'content',
+            label: messages.get(messages.CONTENT),
+            getValue: ({ row }) => row.content.value
           },
           {
             name: 'registrator',
-            label: messages.get(messages.REGISTRATOR),
+            label: messages.get(messages.USER),
             getValue: ({ row }) => row.registrator.value,
             renderValue: ({ value }) => {
               return <UserLink userId={value} />
             }
+          },
+          {
+            name: 'registrationDate',
+            label: messages.get(messages.DATE),
+            getValue: ({ row }) => row.registrationDate.value
           }
-          */
-          ]
-        }
-        rows={[]}
-        selectedRowId={null}
+        ]}
+        rows={rows}
+        selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />
     )
