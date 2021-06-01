@@ -9,6 +9,7 @@ import ToolBrowser from '@src/js/components/tools/browser/ToolBrowser.jsx'
 import ToolSearch from '@src/js/components/tools/search/ToolSearch.jsx'
 import PluginForm from '@src/js/components/tools/form/plugin/PluginForm.jsx'
 import QueryForm from '@src/js/components/tools/form/query/QueryForm.jsx'
+import HistoryForm from '@src/js/components/tools/form/history/HistoryForm.jsx'
 import messages from '@src/js/common/messages.js'
 
 const styles = () => ({
@@ -50,6 +51,8 @@ class Tools extends React.Component {
       object.type === objectType.QUERY
     ) {
       return <QueryForm object={object} />
+    } else if (object.type === objectType.HISTORY) {
+      return <HistoryForm object={object} />
     } else if (object.type === objectType.SEARCH) {
       return <ToolSearch searchText={object.id} />
     } else if (object.type === objectType.OVERVIEW) {
@@ -70,7 +73,8 @@ class Tools extends React.Component {
         [objectType.ENTITY_VALIDATION_PLUGIN]: messages.get(
           messages.ENTITY_VALIDATION_PLUGINS
         ),
-        [objectType.QUERY]: messages.get(messages.QUERIES)
+        [objectType.QUERY]: messages.get(messages.QUERIES),
+        [objectType.HISTORY]: messages.get(messages.HISTORY)
       }
       label = labels[object.id]
     } else {
@@ -85,6 +89,7 @@ class Tools extends React.Component {
         [objectType.ENTITY_VALIDATION_PLUGIN]:
           messages.get(messages.ENTITY_VALIDATION_PLUGIN) + ': ',
         [objectType.QUERY]: messages.get(messages.QUERY) + ': ',
+        [objectType.HISTORY]: messages.get(messages.HISTORY) + ': ',
         [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
       }
       label = prefixes[object.type] + object.id

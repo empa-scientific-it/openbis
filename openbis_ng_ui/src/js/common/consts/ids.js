@@ -16,6 +16,8 @@ const VOCABULARY_TERMS_GRID_ID = 'vocabulary_terms_grid'
 const DYNAMIC_PROPERTY_PLUGINS_GRID_ID = 'dynamic_property_plugins_grid'
 const ENTITY_VALIDATION_PLUGINS_GRID_ID = 'entity_validation_plugins_grid'
 const QUERIES_GRID_ID = 'queries_grid'
+const HISTORY_OF_DELETION_GRID_ID = 'history_of_deletion_grid'
+const HISTORY_OF_FREEZING_GRID_ID = 'history_of_freezing_grid'
 
 export default {
   WEB_APP_ID,
@@ -35,5 +37,7 @@ export default {
   VOCABULARY_TERMS_GRID_ID,
   DYNAMIC_PROPERTY_PLUGINS_GRID_ID,
   ENTITY_VALIDATION_PLUGINS_GRID_ID,
-  QUERIES_GRID_ID
+  QUERIES_GRID_ID,
+  HISTORY_OF_DELETION_GRID_ID,
+  HISTORY_OF_FREEZING_GRID_ID
 }
