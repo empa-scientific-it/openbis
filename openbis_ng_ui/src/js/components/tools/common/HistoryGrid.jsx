@@ -5,6 +5,7 @@ import Collapse from '@material-ui/core/Collapse'
 import Link from '@material-ui/core/Link'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
+import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
 
 class HistoryGrid extends React.PureComponent {
@@ -78,7 +79,7 @@ class HistoryGrid extends React.PureComponent {
           {
             name: 'entityRegistrationDate',
             label: messages.get(messages.ENTITY_REGISTRATION_DATE),
-            getValue: ({ row }) => row.entityRegistrationDate.value
+            getValue: ({ row }) => date.format(row.entityRegistrationDate.value)
           },
           {
             name: 'description',
@@ -131,7 +132,7 @@ class HistoryGrid extends React.PureComponent {
           {
             name: 'registrationDate',
             label: messages.get(messages.DATE),
-            getValue: ({ row }) => row.registrationDate.value
+            getValue: ({ row }) => date.format(row.registrationDate.value)
           }
         ]}
         rows={rows}
