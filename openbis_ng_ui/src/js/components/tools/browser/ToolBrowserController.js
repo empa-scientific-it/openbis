@@ -131,10 +131,6 @@ export default class ToolBrowserController extends BrowserController {
         {
           id: 'history',
           text: messages.get(messages.HISTORY),
-          object: {
-            type: objectType.OVERVIEW,
-            id: objectType.HISTORY
-          },
           children: historyNodes,
           canAdd: false
         }
