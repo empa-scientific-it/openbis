@@ -56,6 +56,11 @@ class HistoryGrid extends React.PureComponent {
             getValue: ({ row }) => row.entityType.value
           },
           {
+            name: 'entityIdentifier',
+            label: messages.get(messages.ENTITY_IDENTIFIER),
+            getValue: ({ row }) => row.identifier.value
+          },
+          {
             name: 'entitySpace',
             label: messages.get(messages.ENTITY_SPACE),
             getValue: ({ row }) => row.entitySpace.value
@@ -74,11 +79,6 @@ class HistoryGrid extends React.PureComponent {
             name: 'entityRegistrationDate',
             label: messages.get(messages.ENTITY_REGISTRATION_DATE),
             getValue: ({ row }) => row.entityRegistrationDate.value
-          },
-          {
-            name: 'identifier',
-            label: messages.get(messages.IDENTIFIER),
-            getValue: ({ row }) => row.identifier.value
           },
           {
             name: 'description',
