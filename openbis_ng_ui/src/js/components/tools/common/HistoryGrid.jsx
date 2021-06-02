@@ -106,7 +106,11 @@ class HistoryGrid extends React.PureComponent {
                     >
                       {visible ? 'hide' : 'show'}
                     </Link>
-                    <Collapse in={visible}>
+                    <Collapse
+                      in={visible}
+                      mountOnEnter={true}
+                      unmountOnExit={true}
+                    >
                       <pre>{value}</pre>
                     </Collapse>
                   </div>
