@@ -6,6 +6,7 @@ import Link from '@material-ui/core/Link'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 class HistoryGrid extends React.PureComponent {
@@ -33,7 +34,6 @@ class HistoryGrid extends React.PureComponent {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
     const {
-      id,
       rows,
       selectedRowId,
       onSelectedRowChange,
@@ -42,9 +42,9 @@ class HistoryGrid extends React.PureComponent {
 
     return (
       <Grid
-        id={id}
-        controllerRef={controllerRef}
+        id={this.getId()}
         header={this.getHeader()}
+        controllerRef={controllerRef}
         columns={[
           {
             name: 'eventType',
@@ -140,6 +140,16 @@ class HistoryGrid extends React.PureComponent {
         onSelectedRowChange={onSelectedRowChange}
       />
     )
+  }
+
+  getId() {
+    const { eventType } = this.props
+
+    if (eventType === openbis.EventType.DELETION) {
+      return ids.HISTORY_OF_DELETION_GRID_ID
+    } else if (eventType === openbis.EventType.FREEZING) {
+      return ids.HISTORY_OF_FREEZING_GRID_ID
+    }
   }
 
   getHeader() {

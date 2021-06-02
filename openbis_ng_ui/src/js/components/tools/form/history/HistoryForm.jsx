@@ -6,7 +6,6 @@ import { withStyles } from '@material-ui/core/styles'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import HistoryGrid from '@src/js/components/tools/common/HistoryGrid.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
-import ids from '@src/js/common/consts/ids.js'
 import openbis from '@src/js/services/openbis.js'
 import store from '@src/js/store/store.js'
 import actions from '@src/js/store/actions/actions.js'
@@ -116,7 +115,6 @@ class HistoryForm extends React.PureComponent {
     return (
       <GridContainer>
         <HistoryGrid
-          id={ids.HISTORY}
           eventType={id}
           rows={rows}
           onRowChange={this.handleRowChange}
