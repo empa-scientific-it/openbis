@@ -61,14 +61,15 @@ export default class GridController {
       name: config.name,
       label: config.label,
       getValue: config.getValue,
-      render: row => {
+      render: (row, classes) => {
         const value = config.getValue({ row, column })
 
         const renderedValue = config.renderValue
           ? config.renderValue({
               value,
               row,
-              column
+              column,
+              classes
             })
           : value
 
