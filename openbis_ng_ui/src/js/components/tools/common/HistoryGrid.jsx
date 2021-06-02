@@ -1,11 +1,33 @@
 import React from 'react'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import Collapse from '@material-ui/core/Collapse'
+import Link from '@material-ui/core/Link'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 class HistoryGrid extends React.PureComponent {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      shown: {}
+    }
+  }
+
+  handleVisibilityChange(row, fieldName) {
+    const { onRowChange } = this.props
+    if (onRowChange) {
+      onRowChange(row.id, {
+        [fieldName]: {
+          ...row[fieldName],
+          visible: !row[fieldName].visible
+        }
+      })
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
@@ -71,7 +93,28 @@ class HistoryGrid extends React.PureComponent {
           {
             name: 'content',
             label: messages.get(messages.CONTENT),
-            getValue: ({ row }) => row.content.value
+            getValue: ({ row }) => row.content.value,
+            renderValue: ({ row }) => {
+              const { value, visible } = row.content
+              if (value) {
+                return (
+                  <div>
+                    <Link
+                      onClick={() => {
+                        this.handleVisibilityChange(row, 'content')
+                      }}
+                    >
+                      {visible ? 'hide' : 'show'}
+                    </Link>
+                    <Collapse in={visible}>
+                      <pre>{value}</pre>
+                    </Collapse>
+                  </div>
+                )
+              } else {
+                return null
+              }
+            }
           },
           {
             name: 'registrator',

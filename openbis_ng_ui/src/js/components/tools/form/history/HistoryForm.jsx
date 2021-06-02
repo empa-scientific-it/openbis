@@ -76,7 +76,8 @@ class HistoryForm extends React.PureComponent {
         value: _.get(event, 'reason')
       }),
       content: FormUtil.createField({
-        value: _.get(event, 'content')
+        value: _.get(event, 'content'),
+        visible: false
       }),
       registrator: FormUtil.createField({
         value: _.get(event, 'registrator.userId')
@@ -87,6 +88,25 @@ class HistoryForm extends React.PureComponent {
     }))
   }
 
+  handleRowChange(rowId, change) {
+    const rows = this.state.rows
+    this.setState(state => {
+      const index = rows.findIndex(row => row.id === rowId)
+      if (index !== -1) {
+        const row = rows[index]
+        const newRows = Array.from(rows)
+        newRows[index] = {
+          ...row,
+          ...change
+        }
+        return {
+          ...state,
+          rows: newRows
+        }
+      }
+    })
+  }
+
   render() {
     logger.log(logger.DEBUG, 'HistoryForm.render')
 
@@ -95,7 +115,12 @@ class HistoryForm extends React.PureComponent {
 
     return (
       <GridContainer>
-        <HistoryGrid id={ids.HISTORY} eventType={id} rows={rows} />
+        <HistoryGrid
+          id={ids.HISTORY}
+          eventType={id}
+          rows={rows}
+          onRowChange={this.handleRowChange}
+        />
       </GridContainer>
     )
   }
