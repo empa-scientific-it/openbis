@@ -209,15 +209,6 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.QUERY
   }),
-  HISTORY: new Route('/history/:id', {
-    page: pages.TOOLS,
-    type: objectTypes.HISTORY
-  }),
-  HISTORY_OVERVIEW: new Route('/history-overview', {
-    page: pages.TOOLS,
-    type: objectTypes.OVERVIEW,
-    id: objectTypes.HISTORY
-  }),
   DEFAULT: new DefaultRoute()
 }
 
