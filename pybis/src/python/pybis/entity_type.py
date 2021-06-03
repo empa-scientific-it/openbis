@@ -140,16 +140,18 @@ class EntityType:
         request = self._get_request_for_pa(new_assignment, 'Add')
         try:
             self.openbis._post_request(self.openbis.as_v3, request)
-            new_data = self._get_method(self.permId, only_data=True) 
-            self._set_entity_data(new_data)
-            if VERBOSE:
-                print(f"Property {property_type.permId} assigned to {self.permId}")
         except ValueError as exc:
             if 'already assigned' in str(exc):
                 if VERBOSE: 
                     print(f"Property {property_type.permId} already assigned to {self.permId}")
+                return
             else:
                 raise ValueError(exc)
+
+        new_data = self._get_method(self.permId, only_data=True) 
+        self._set_entity_data(new_data)
+        if VERBOSE:
+            print(f"Property {property_type.permId} assigned to {self.permId}")
 
 
     def revoke_property(self, prop, force=False):
