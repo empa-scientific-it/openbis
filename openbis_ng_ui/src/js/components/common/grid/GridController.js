@@ -41,13 +41,14 @@ export default class GridController {
       page: 0,
       pageSize: 10,
       columns,
-      allRows: [],
+      rows: [],
       filteredRows: [],
       sortedRows: [],
       currentRows: [],
       selectedRow: null,
       sort: initialSort,
-      sortDirection: initialSortDirection
+      sortDirection: initialSortDirection,
+      totalCount: 0
     })
 
     this.context = context
@@ -137,11 +138,8 @@ export default class GridController {
   }
 
   async load() {
-    const { rows, selectedRowId } = this.context.getProps()
-
     await this._loadSettings()
-    await this.updateAllRows(rows)
-    await this.updateSelectedRowId(selectedRowId)
+    await this._loadRows()
 
     await this.context.setState(() => ({
       loaded: true
@@ -226,11 +224,37 @@ export default class GridController {
     openbis.updatePersons([update])
   }
 
-  async updateAllRows(rows) {
-    const { allRows } = this.context.getState()
+  async _loadRows() {
+    const { load, rows } = this.context.getProps()
 
-    if (allRows !== rows) {
-      await this._recalculateCurrentRows(rows)
+    if (load) {
+      const {
+        columns,
+        filters,
+        sort,
+        sortDirection,
+        page,
+        pageSize
+      } = this.context.getState()
+
+      await load({
+        columns,
+        filters,
+        page,
+        pageSize,
+        sort,
+        sortDirection
+      })
+    } else {
+      await this.updateRows(rows, rows.length)
+    }
+  }
+
+  async updateRows(newRows, newTotalCount) {
+    const { rows, totalCount } = this.context.getState()
+
+    if (newRows !== rows || newTotalCount !== totalCount) {
+      await this._recalculateCurrentRows(newRows, newTotalCount)
     }
   }
 
@@ -242,36 +266,51 @@ export default class GridController {
     }
   }
 
-  async _recalculateCurrentRows(rows) {
+  async _recalculateCurrentRows(newRows, newTotalCount) {
+    const { load } = this.context.getProps()
+
     const {
-      allRows,
+      rows,
       columns,
       filters,
       sort,
       sortDirection,
       page,
-      pageSize
+      pageSize,
+      totalCount
     } = this.context.getState()
 
-    if (!rows) {
-      rows = allRows
+    newRows = newRows || rows
+    newTotalCount = newTotalCount || totalCount
+
+    if (load) {
+      const pageCount = Math.max(Math.ceil(newTotalCount / pageSize), 1)
+      const newPage = Math.min(page, pageCount - 1)
+
+      await this.context.setState({
+        rows: newRows,
+        filteredRows: [],
+        sortedRows: [],
+        currentRows: newRows,
+        page: newPage,
+        totalCount: newTotalCount
+      })
+    } else {
+      const filteredRows = this._filter(newRows, columns, filters)
+      const pageCount = Math.max(Math.ceil(filteredRows.length / pageSize), 1)
+      const newPage = Math.min(page, pageCount - 1)
+      const sortedRows = this._sort(filteredRows, columns, sort, sortDirection)
+      const currentRows = this._page(sortedRows, newPage, pageSize)
+
+      await this.context.setState({
+        rows: newRows,
+        filteredRows,
+        sortedRows,
+        currentRows,
+        page: newPage,
+        totalCount: filteredRows.length
+      })
     }
-
-    const filteredRows = this._filter(rows, columns, filters)
-
-    const pageCount = Math.max(Math.ceil(filteredRows.length / pageSize), 1)
-    const newPage = Math.min(page, pageCount - 1)
-
-    const sortedRows = this._sort(filteredRows, columns, sort, sortDirection)
-    const currentRows = this._page(sortedRows, newPage, pageSize)
-
-    await this.context.setState({
-      allRows: rows,
-      filteredRows,
-      sortedRows,
-      currentRows,
-      page: newPage
-    })
 
     const { selectedRow } = this.context.getState()
 
@@ -330,7 +369,7 @@ export default class GridController {
     }
   }
 
-  handleFilterChange(column, filter) {
+  async handleFilterChange(column, filter) {
     const state = this.context.getState()
 
     let filters = {
@@ -338,17 +377,16 @@ export default class GridController {
       [column]: filter
     }
 
-    this.context
-      .setState(() => ({
-        page: 0,
-        filters
-      }))
-      .then(() => {
-        this._recalculateCurrentRows()
-      })
+    await this.context.setState(() => ({
+      page: 0,
+      filters
+    }))
+
+    await this._loadRows()
+    await this._recalculateCurrentRows()
   }
 
-  handleColumnVisibleChange(name) {
+  async handleColumnVisibleChange(name) {
     const state = this.context.getState()
 
     let columns = state.columns.map(column => {
@@ -362,16 +400,14 @@ export default class GridController {
       }
     })
 
-    this.context
-      .setState(() => ({
-        columns
-      }))
-      .then(() => {
-        this._saveSettings()
-      })
+    await this.context.setState(() => ({
+      columns
+    }))
+
+    this._saveSettings()
   }
 
-  handleColumnOrderChange(sourceIndex, destinationIndex) {
+  async handleColumnOrderChange(sourceIndex, destinationIndex) {
     const state = this.context.getState()
 
     let columns = [...state.columns]
@@ -379,59 +415,56 @@ export default class GridController {
     columns.splice(sourceIndex, 1)
     columns.splice(destinationIndex, 0, source)
 
-    this.context
-      .setState(() => ({
-        columns
-      }))
-      .then(() => {
-        this._saveSettings()
-      })
+    await this.context.setState(() => ({
+      columns
+    }))
+
+    this._saveSettings()
   }
 
-  handleSortChange(column) {
+  async handleSortChange(column) {
     if (!column.sortable) {
       return
     }
 
-    this.context
-      .setState(state => {
-        if (column.name === state.sort) {
-          return {
-            sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
-          }
-        } else {
-          return {
-            sort: column.name,
-            sortDirection: 'asc'
-          }
+    await this.context.setState(state => {
+      if (column.name === state.sort) {
+        return {
+          sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
         }
-      })
-      .then(() => {
-        this._saveSettings()
-        this._recalculateCurrentRows()
-      })
+      } else {
+        return {
+          sort: column.name,
+          sortDirection: 'asc'
+        }
+      }
+    })
+
+    this._saveSettings()
+
+    await this._loadRows()
+    await this._recalculateCurrentRows()
   }
 
-  handlePageChange(page) {
-    this.context
-      .setState(() => ({
-        page
-      }))
-      .then(() => {
-        this._recalculateCurrentRows()
-      })
+  async handlePageChange(page) {
+    await this.context.setState(() => ({
+      page
+    }))
+
+    await this._loadRows()
+    await this._recalculateCurrentRows()
   }
 
-  handlePageSizeChange(pageSize) {
-    this.context
-      .setState(() => ({
-        page: 0,
-        pageSize
-      }))
-      .then(() => {
-        this._saveSettings()
-        this._recalculateCurrentRows()
-      })
+  async handlePageSizeChange(pageSize) {
+    await this.context.setState(() => ({
+      page: 0,
+      pageSize
+    }))
+
+    this._saveSettings()
+
+    await this._loadRows()
+    await this._recalculateCurrentRows()
   }
 
   handleRowSelect(row) {
