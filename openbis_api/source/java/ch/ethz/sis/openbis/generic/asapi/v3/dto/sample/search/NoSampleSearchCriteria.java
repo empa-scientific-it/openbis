@@ -40,4 +40,12 @@ public class NoSampleSearchCriteria implements ISearchCriteria
         return false;
     }
 
+    //
+    // JSON-RPC
+    //
+
+    private void setNegated(boolean negated)
+    {
+    }
+
 }

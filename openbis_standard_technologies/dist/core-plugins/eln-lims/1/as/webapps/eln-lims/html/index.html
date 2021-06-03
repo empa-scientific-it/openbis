@@ -406,6 +406,12 @@
 		if (mainController.resetPasswordRequested()) {
 		    mainController.resetPassword();
 		}
+
+		var jenkins = queryString.jenkins;
+		if (jenkins == "true") {
+			$.cookie("report-to-jenkins", "true");
+		}
+
 		var test = queryString.test;
 		var testWithLogin = queryString.testWithLogin;
 

@@ -54,8 +54,6 @@ public class TranslatorUtils
 
     public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
 
-    public static final String UNIQUE_PREFIX = TranslatorUtils.class.getName();
-
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
 
@@ -830,7 +828,7 @@ public class TranslatorUtils
     {
         final Map<String, JoinInformation> result = getPropertyJoinInformationMap(tableMapper,
                 aliasFactory);
-        appendIdentifierJoinInformationMap(result, tableMapper, aliasFactory, UNIQUE_PREFIX);
+        appendIdentifierJoinInformationMap(result, tableMapper, aliasFactory, "");
 
         if (tableMapper.hasRegistrator())
         {

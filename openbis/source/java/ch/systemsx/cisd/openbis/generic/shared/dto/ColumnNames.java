@@ -288,6 +288,8 @@ public final class ColumnNames
 
     public static final String ENTITY_REGISTRATION_TIMESTAMP = "entity_registration_timestamp";
 
+    public static final String REASON = "reason";
+
     public static final String IDENTIFIER = "identifier";
 
     public static final String IDENTIFIERS = "identifiers";

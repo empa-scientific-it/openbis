@@ -16,9 +16,37 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.builder.MultilineRecursiveToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EventType;
@@ -28,6 +56,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
@@ -44,29 +73,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOption
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.delete.TagDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.task.events_search.DataSource;
 import ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.events_search.Statistics;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.testng.Assert.*;
 
 /**
  * @author pkupczyk
@@ -96,6 +114,12 @@ public class SearchEventTest extends AbstractTest
 
     private Experiment experimentBBC;
 
+    private IEntityTypeId experimentTypeId;
+
+    private Tag tagA;
+
+    private Tag tagB;
+
     @BeforeClass
     public void beforeClass()
     {
@@ -117,7 +141,9 @@ public class SearchEventTest extends AbstractTest
                 // create test data
                 initSpaces();
                 initProjects();
+                initExperimentTypes();
                 initExperiments();
+                initTags();
 
                 String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -143,8 +169,10 @@ public class SearchEventTest extends AbstractTest
                 // clean up test data
                 deleteExperiments(sessionToken, Arrays.asList(experimentAAA.getPermId(), experimentBBB.getPermId(), experimentBBC.getPermId()),
                         "clean up experiments");
+                deleteExperimentTypes(sessionToken, Collections.singletonList(experimentTypeId), "clean up experiment types");
                 deleteProjects(sessionToken, Arrays.asList(projectAA.getPermId(), projectBB.getPermId(), projectCC.getPermId()), "clean up projects");
                 deleteSpaces(sessionToken, Arrays.asList(spaceA.getPermId(), spaceB.getPermId(), spaceC.getPermId()), "clean up spaces");
+                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "clean up tags");
 
                 return null;
             }
@@ -168,6 +196,7 @@ public class SearchEventTest extends AbstractTest
                 deleteExperiments(sessionToken, Arrays.asList(experimentBBB.getPermId(), experimentBBC.getPermId()), "delete experiments");
                 deleteProjects(sessionToken, Arrays.asList(projectBB.getPermId(), projectCC.getPermId()), "delete projects");
                 deleteSpaces(sessionToken, Collections.singletonList(spaceB.getPermId()), "delete spaces");
+                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "delete tags");
 
                 // process new events
                 EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(new TestDataSource());
@@ -231,26 +260,32 @@ public class SearchEventTest extends AbstractTest
         projectCC = projectMap.get(projectIds.get(2));
     }
 
-    private void initExperiments()
+    private void initExperimentTypes()
     {
         String systemSessionToken = v3api.loginAsSystem();
 
         ExperimentTypeCreation experimentTypeCreation = new ExperimentTypeCreation();
         experimentTypeCreation.setCode("EVENT_TEST_EXPERIMENT_TYPE_" + System.currentTimeMillis());
         List<EntityTypePermId> experimentTypeIds = v3api.createExperimentTypes(systemSessionToken, Collections.singletonList(experimentTypeCreation));
+        experimentTypeId = experimentTypeIds.get(0);
+    }
+
+    private void initExperiments()
+    {
+        String systemSessionToken = v3api.loginAsSystem();
 
         ExperimentCreation experimentAAACreation = new ExperimentCreation();
-        experimentAAACreation.setTypeId(experimentTypeIds.get(0));
+        experimentAAACreation.setTypeId(experimentTypeId);
         experimentAAACreation.setCode("EVENT_TEST_EXPERIMENT_A_" + System.currentTimeMillis());
         experimentAAACreation.setProjectId(projectAA.getPermId());
 
         ExperimentCreation experimentBBBCreation = new ExperimentCreation();
-        experimentBBBCreation.setTypeId(experimentTypeIds.get(0));
+        experimentBBBCreation.setTypeId(experimentTypeId);
         experimentBBBCreation.setCode("EVENT_TEST_EXPERIMENT_B_" + System.currentTimeMillis());
         experimentBBBCreation.setProjectId(projectBB.getPermId());
 
         ExperimentCreation experimentBBCCreation = new ExperimentCreation();
-        experimentBBCCreation.setTypeId(experimentTypeIds.get(0));
+        experimentBBCCreation.setTypeId(experimentTypeId);
         experimentBBCCreation.setCode("EVENT_TEST_EXPERIMENT_C_" + System.currentTimeMillis());
         experimentBBCCreation.setProjectId(projectBB.getPermId());
 
@@ -267,6 +302,25 @@ public class SearchEventTest extends AbstractTest
         experimentBBC = experimentMap.get(experimentIds.get(2));
     }
 
+    private void initTags()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        TagCreation tagACreation = new TagCreation();
+        tagACreation.setCode("EVENT_TEST_TAG_A_" + System.currentTimeMillis());
+
+        TagCreation tagBCreation = new TagCreation();
+        tagBCreation.setCode("EVENT_TEST_TAG_B_" + System.currentTimeMillis());
+
+        List<TagPermId> tagIds = v3api.createTags(sessionToken, Arrays.asList(tagACreation, tagBCreation));
+
+        TagFetchOptions fo = new TagFetchOptions();
+
+        Map<ITagId, Tag> tagMap = v3api.getTags(sessionToken, tagIds, fo);
+        tagA = tagMap.get(tagIds.get(0));
+        tagB = tagMap.get(tagIds.get(1));
+    }
+
     @Test
     public void testSearchWithEmptyCriteria()
     {
@@ -275,7 +329,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, new EventSearchCriteria(), new EventFetchOptions());
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
     }
 
     @Test
@@ -313,10 +367,9 @@ public class SearchEventTest extends AbstractTest
 
         assertEquals(events.size(), 3);
 
-        assertExperimentFreezing(events.get(0), experimentAAA);
-        assertExperimentDeletion(events.get(1), experimentBBB);
-        assertExperimentDeletion(events.get(2), experimentBBC);
-
+        assertExperimentDeletion(events.get(0), experimentBBB);
+        assertExperimentDeletion(events.get(1), experimentBBC);
+        assertExperimentFreezing(events.get(2), experimentAAA);
     }
 
     @Test
@@ -448,6 +501,27 @@ public class SearchEventTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithReason()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        EventSearchCriteria criteria = new EventSearchCriteria();
+        criteria.withReason().thatEquals("delete experiments");
+
+        EventFetchOptions fo = new EventFetchOptions();
+        fo.withRegistrator();
+        fo.sortBy().identifier();
+
+        SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
+        List<Event> events = getEventsAfterDate(result, startDate);
+
+        assertEquals(events.size(), 2);
+
+        assertExperimentDeletion(events.get(0), experimentBBB);
+        assertExperimentDeletion(events.get(1), experimentBBC);
+    }
+
+    @Test
     public void testSearchWithRegistrationDate()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -459,7 +533,7 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, new EventFetchOptions());
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         // > now
         criteria = new EventSearchCriteria();
@@ -504,13 +578,15 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         assertSpaceDeletion(events.get(0), spaceD);
         assertSpaceDeletion(events.get(1), spaceB);
         // we cannot assert on the exact order of project and experiment deletions as entities deleted
         // together are stored in random order in the original event table in JSON content column
-        assertExperimentFreezing(events.get(6), experimentAAA);
+        assertTagDeletion(events.get(6), tagA);
+        assertTagDeletion(events.get(7), tagB);
+        assertExperimentFreezing(events.get(8), experimentAAA);
     }
 
     @Test
@@ -527,15 +603,17 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
-        assertExperimentFreezing(events.get(0), experimentAAA); // experiment freeze has experiment identifier stored as identifier value
-        assertProjectDeletion(events.get(1), projectBB); // project deletions have project perm id stored as identifier value
-        assertProjectDeletion(events.get(2), projectCC);
-        assertExperimentDeletion(events.get(3), experimentBBB); // experiment deletions have experiment perm id stored as identifier value
-        assertExperimentDeletion(events.get(4), experimentBBC);
+        assertProjectDeletion(events.get(0), projectBB); // project deletions have project perm id stored as identifier value
+        assertProjectDeletion(events.get(1), projectCC);
+        assertExperimentDeletion(events.get(2), experimentBBB); // experiment deletions have experiment perm id stored as identifier value
+        assertExperimentDeletion(events.get(3), experimentBBC);
+        assertExperimentFreezing(events.get(4), experimentAAA); // experiment freeze has experiment identifier stored as identifier value
         assertSpaceDeletion(events.get(5), spaceB); // space deletions have space code stored as identifier value
         assertSpaceDeletion(events.get(6), spaceD);
+        assertTagDeletion(events.get(7), tagA); // tag deletions have tag code stored as identifier value
+        assertTagDeletion(events.get(8), tagB);
     }
 
     @Test
@@ -555,15 +633,17 @@ public class SearchEventTest extends AbstractTest
         SearchResult<Event> result = v3api.searchEvents(sessionToken, criteria, fo);
         List<Event> events = getEventsAfterDate(result, startDate);
 
-        assertEquals(events.size(), 7);
+        assertEquals(events.size(), 9);
 
         assertSpaceDeletion(events.get(0), spaceD); // it is first as it was created in a different transaction in beforeClass method
-        assertExperimentFreezing(events.get(1), experimentAAA);
-        assertProjectDeletion(events.get(2), projectBB);
-        assertProjectDeletion(events.get(3), projectCC);
-        assertExperimentDeletion(events.get(4), experimentBBB);
-        assertExperimentDeletion(events.get(5), experimentBBC);
+        assertProjectDeletion(events.get(1), projectBB);
+        assertProjectDeletion(events.get(2), projectCC);
+        assertExperimentDeletion(events.get(3), experimentBBB);
+        assertExperimentDeletion(events.get(4), experimentBBC);
+        assertExperimentFreezing(events.get(5), experimentAAA);
         assertSpaceDeletion(events.get(6), spaceB);
+        assertTagDeletion(events.get(7), tagA);
+        assertTagDeletion(events.get(8), tagB);
     }
 
     @Test
@@ -608,10 +688,10 @@ public class SearchEventTest extends AbstractTest
 
         assertEquals(events.size(), 4);
 
-        assertExperimentFreezing(events.get(0), experimentAAA);
-        assertProjectDeletion(events.get(1), projectBB);
-        assertExperimentDeletion(events.get(2), experimentBBB);
-        assertExperimentDeletion(events.get(3), experimentBBC);
+        assertProjectDeletion(events.get(0), projectBB);
+        assertExperimentDeletion(events.get(1), experimentBBB);
+        assertExperimentDeletion(events.get(2), experimentBBC);
+        assertExperimentFreezing(events.get(3), experimentAAA);
     }
 
     @Test
@@ -668,6 +748,13 @@ public class SearchEventTest extends AbstractTest
         v3api.confirmDeletions(sessionToken, Collections.singletonList(experimentDeletionId));
     }
 
+    private void deleteExperimentTypes(String sessionToken, List<IEntityTypeId> ids, String reason)
+    {
+        ExperimentTypeDeletionOptions typeOptions = new ExperimentTypeDeletionOptions();
+        typeOptions.setReason(reason);
+        v3api.deleteExperimentTypes(sessionToken, ids, typeOptions);
+    }
+
     private void deleteProjects(String sessionToken, List<IProjectId> ids, String reason)
     {
         ProjectDeletionOptions projectOptions = new ProjectDeletionOptions();
@@ -680,6 +767,13 @@ public class SearchEventTest extends AbstractTest
         SpaceDeletionOptions spaceOptions = new SpaceDeletionOptions();
         spaceOptions.setReason(reason);
         v3api.deleteSpaces(sessionToken, ids, spaceOptions);
+    }
+
+    private void deleteTags(String sessionToken, List<ITagId> ids, String reason)
+    {
+        TagDeletionOptions tagOptions = new TagDeletionOptions();
+        tagOptions.setReason(reason);
+        v3api.deleteTags(sessionToken, ids, tagOptions);
     }
 
     private static void assertDateAfter(Date date, Date startDate)
@@ -695,106 +789,160 @@ public class SearchEventTest extends AbstractTest
 
     private void assertExperimentFreezing(Event event, Experiment experiment)
     {
-        assertNotNull(event.getId());
-        assertEquals(event.getEventType(), EventType.FREEZING);
-        assertEquals(event.getEntityType(), EntityType.EXPERIMENT);
-        assertNull(event.getEntitySpace());
-        assertNull(event.getEntitySpaceId());
-        assertNull(event.getEntityProject());
-        assertNull(event.getEntityProjectId());
-        assertNull(event.getEntityRegistrator());
-        assertNull(event.getEntityRegistrationDate());
-        assertEquals(event.getIdentifier(), experiment.getIdentifier().getIdentifier());
-        assertNull(event.getDescription());
-        assertEquals(event.getReason(), "[\"freeze\"]");
-        assertNull(event.getContent());
-        assertEquals(event.getRegistrator().getUserId(), SYSTEM_USER);
-        assertDateAfter(event.getRegistrationDate(), startDate);
+        try
+        {
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.FREEZING);
+            assertEquals(event.getEntityType(), EntityType.EXPERIMENT);
+            assertNull(event.getEntitySpace());
+            assertNull(event.getEntitySpaceId());
+            assertNull(event.getEntityProject());
+            assertNull(event.getEntityProjectId());
+            assertNull(event.getEntityRegistrator());
+            assertNull(event.getEntityRegistrationDate());
+            assertEquals(event.getIdentifier(), experiment.getIdentifier().getIdentifier());
+            assertNull(event.getDescription());
+            assertEquals(event.getReason(), "[\"freeze\"]");
+            assertNull(event.getContent());
+            assertEquals(event.getRegistrator().getUserId(), SYSTEM_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
+        {
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and experiment: " + toString(experiment), e);
+        }
     }
 
     private void assertExperimentDeletion(Event event, Experiment experiment)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> spaces =
-                v3api.getSpaces(sessionToken, Arrays.asList(experiment.getProject().getSpace().getPermId()), new SpaceFetchOptions());
-
-        assertNotNull(event.getId());
-        assertEquals(event.getEventType(), EventType.DELETION);
-        assertEquals(event.getEntityType(), EntityType.EXPERIMENT);
-        assertEquals(event.getEntitySpace(), experiment.getProject().getSpace().getCode());
-
-        if (spaces.size() > 0)
+        try
         {
-            assertEquals(event.getEntitySpaceId(), experiment.getProject().getSpace().getId());
-        } else
+            String sessionToken = v3api.login(TEST_USER, PASSWORD);
+            Map<ISpaceId, Space> spaces =
+                    v3api.getSpaces(sessionToken, Arrays.asList(experiment.getProject().getSpace().getPermId()), new SpaceFetchOptions());
+
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.DELETION);
+            assertEquals(event.getEntityType(), EntityType.EXPERIMENT);
+            assertEquals(event.getEntitySpace(), experiment.getProject().getSpace().getCode());
+
+            if (spaces.size() > 0)
+            {
+                assertEquals(event.getEntitySpaceId(), experiment.getProject().getSpace().getId());
+            } else
+            {
+                assertNull(event.getEntitySpaceId());
+            }
+
+            assertEquals(event.getEntityProject(), experiment.getProject().getIdentifier().getIdentifier());
+            assertEquals(event.getEntityProjectId(), experiment.getProject().getPermId());
+            assertEquals(event.getEntityRegistrator(), experiment.getRegistrator().getUserId());
+            assertDateEquals(event.getEntityRegistrationDate(), experiment.getRegistrationDate());
+            assertEquals(event.getIdentifier(), experiment.getPermId().getPermId());
+            assertEquals(event.getDescription(), experiment.getPermId().getPermId());
+            assertEquals(event.getReason(), "delete experiments");
+            assertTrue(event.getContent().contains(experiment.getCode()));
+            assertEquals(event.getRegistrator().getUserId(), TEST_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
         {
-            assertNull(event.getEntitySpaceId());
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and experiment: " + toString(experiment), e);
         }
-
-        assertEquals(event.getEntityProject(), experiment.getProject().getIdentifier().getIdentifier());
-        assertEquals(event.getEntityProjectId(), experiment.getProject().getPermId());
-        assertEquals(event.getEntityRegistrator(), experiment.getRegistrator().getUserId());
-        assertDateEquals(event.getEntityRegistrationDate(), experiment.getRegistrationDate());
-        assertEquals(event.getIdentifier(), experiment.getPermId().getPermId());
-        assertEquals(event.getDescription(), experiment.getPermId().getPermId());
-        assertEquals(event.getReason(), "delete experiments");
-        assertTrue(event.getContent().contains(experiment.getCode()));
-        assertEquals(event.getRegistrator().getUserId(), TEST_USER);
-        assertDateAfter(event.getRegistrationDate(), startDate);
     }
 
     private void assertProjectDeletion(Event event, Project project)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> spaces = v3api.getSpaces(sessionToken, Arrays.asList(project.getSpace().getPermId()), new SpaceFetchOptions());
-
-        assertNotNull(event.getId());
-        assertEquals(event.getEventType(), EventType.DELETION);
-        assertEquals(event.getEntityType(), EntityType.PROJECT);
-        assertEquals(event.getEntitySpace(), project.getSpace().getCode());
-
-        if (spaces.size() > 0)
+        try
         {
-            assertEquals(event.getEntitySpaceId(), project.getSpace().getId());
-        } else
+            String sessionToken = v3api.login(TEST_USER, PASSWORD);
+            Map<ISpaceId, Space> spaces = v3api.getSpaces(sessionToken, Arrays.asList(project.getSpace().getPermId()), new SpaceFetchOptions());
+
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.DELETION);
+            assertEquals(event.getEntityType(), EntityType.PROJECT);
+            assertEquals(event.getEntitySpace(), project.getSpace().getCode());
+
+            if (spaces.size() > 0)
+            {
+                assertEquals(event.getEntitySpaceId(), project.getSpace().getId());
+            } else
+            {
+                assertNull(event.getEntitySpaceId());
+            }
+
+            assertEquals(event.getEntityProject(), project.getIdentifier().getIdentifier());
+            assertEquals(event.getEntityProjectId(), project.getPermId());
+            assertEquals(event.getEntityRegistrator(), project.getRegistrator().getUserId());
+            assertDateEquals(event.getEntityRegistrationDate(), project.getRegistrationDate());
+            assertEquals(event.getIdentifier(), project.getPermId().getPermId());
+            assertEquals(event.getDescription(), project.getIdentifier().getIdentifier());
+            assertEquals(event.getReason(), "delete projects");
+            assertTrue(event.getContent().contains(project.getCode()));
+            assertEquals(event.getRegistrator().getUserId(), TEST_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
         {
-            assertNull(event.getEntitySpaceId());
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and project: " + toString(project), e);
         }
-
-        assertEquals(event.getEntityProject(), project.getIdentifier().getIdentifier());
-        assertEquals(event.getEntityProjectId(), project.getPermId());
-        assertEquals(event.getEntityRegistrator(), project.getRegistrator().getUserId());
-        assertDateEquals(event.getEntityRegistrationDate(), project.getRegistrationDate());
-        assertEquals(event.getIdentifier(), project.getPermId().getPermId());
-        assertEquals(event.getDescription(), project.getIdentifier().getIdentifier());
-        assertEquals(event.getReason(), "delete projects");
-        assertTrue(event.getContent().contains(project.getCode()));
-        assertEquals(event.getRegistrator().getUserId(), TEST_USER);
-        assertDateAfter(event.getRegistrationDate(), startDate);
     }
 
     private void assertSpaceDeletion(Event event, Space space)
     {
-        assertNotNull(event.getId());
-        assertEquals(event.getEventType(), EventType.DELETION);
-        assertEquals(event.getEntityType(), EntityType.SPACE);
-        assertEquals(event.getEntitySpace(), space.getCode());
-        assertNull(event.getEntitySpaceId());
-        assertNull(event.getEntityProject());
-        assertNull(event.getEntityProjectId());
-        assertNull(event.getEntityRegistrator());
-        assertNull(event.getEntityRegistrationDate());
-        assertEquals(event.getIdentifier(), space.getCode());
-        assertEquals(event.getDescription(), space.getCode());
-        assertEquals(event.getReason(), "delete spaces");
-        assertNull(event.getContent());
-        assertEquals(event.getRegistrator().getUserId(), TEST_USER);
-        assertDateAfter(event.getRegistrationDate(), startDate);
+        try
+        {
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.DELETION);
+            assertEquals(event.getEntityType(), EntityType.SPACE);
+            assertEquals(event.getEntitySpace(), space.getCode());
+            assertNull(event.getEntitySpaceId());
+            assertNull(event.getEntityProject());
+            assertNull(event.getEntityProjectId());
+            assertNull(event.getEntityRegistrator());
+            assertNull(event.getEntityRegistrationDate());
+            assertEquals(event.getIdentifier(), space.getCode());
+            assertEquals(event.getDescription(), space.getCode());
+            assertEquals(event.getReason(), "delete spaces");
+            assertNull(event.getContent());
+            assertEquals(event.getRegistrator().getUserId(), TEST_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
+        {
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and space: " + toString(space), e);
+        }
+    }
+
+    private void assertTagDeletion(Event event, Tag tag)
+    {
+        try
+        {
+            assertNotNull(event.getId());
+            assertEquals(event.getEventType(), EventType.DELETION);
+            assertEquals(event.getEntityType(), EntityType.TAG);
+            assertNull(event.getEntitySpace());
+            assertNull(event.getEntitySpaceId());
+            assertNull(event.getEntityProject());
+            assertNull(event.getEntityProjectId());
+            assertNull(event.getEntityRegistrator());
+            assertNull(event.getEntityRegistrationDate());
+            assertEquals(event.getIdentifier(), tag.getCode());
+            assertEquals(event.getDescription(), tag.getCode());
+            assertEquals(event.getReason(), "delete tags");
+            assertNull(event.getContent());
+            assertEquals(event.getRegistrator().getUserId(), TEST_USER);
+            assertDateAfter(event.getRegistrationDate(), startDate);
+        } catch (AssertionError e)
+        {
+            throw new AssertionError("Assertion failed for event: " + toString(event) + " and tag: " + toString(tag), e);
+        }
     }
 
     private static List<Event> getEventsAfterDate(SearchResult<Event> result, Date startDate)
     {
         return result.getObjects().stream().filter(e -> e.getRegistrationDate().compareTo(startDate) >= 0).collect(Collectors.toList());
+    }
+
+    private static String toString(Object object)
+    {
+        return new ReflectionToStringBuilder(object, new MultilineRecursiveToStringStyle()).toString();
     }
 
 }

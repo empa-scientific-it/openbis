@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
@@ -63,7 +64,12 @@ public class MaterialSearchManager extends AbstractCompositeEntitySearchManager<
     @Override
     protected MaterialSearchCriteria createEmptyCriteria(final boolean negated)
     {
-        return new MaterialSearchCriteria();
+        final MaterialSearchCriteria materialSearchCriteria = new MaterialSearchCriteria();
+        if (negated)
+        {
+            materialSearchCriteria.negate();
+        }
+        return materialSearchCriteria;
     }
 
     @Override

@@ -137,6 +137,9 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 					return applied;
 
+				}).fail(function(error) {
+					c.fail(error.message);
+					c.finish();
 				});
 			}
 

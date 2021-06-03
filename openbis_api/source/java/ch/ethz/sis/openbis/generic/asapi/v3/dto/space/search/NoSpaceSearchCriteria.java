@@ -41,4 +41,12 @@ public class NoSpaceSearchCriteria implements ISearchCriteria
         return false;
     }
 
+    //
+    // JSON-RPC
+    //
+
+    private void setNegated(boolean negated)
+    {
+    }
+
 }

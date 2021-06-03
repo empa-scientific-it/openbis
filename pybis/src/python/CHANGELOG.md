@@ -1,3 +1,9 @@
+## Changes with pybis-1.18.12
+
+- fixed rel_file_links, prepended /
+## Changes with pybis-1.18.11
+
+- added rel_file_links to datasets for embedding in ELN-LIMS
 ## Changes with pybis-1.18.10
 
 - added deprecation warnings for components/containers and attachments

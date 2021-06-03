@@ -1,5 +1,9 @@
 var TestProtocol = new function () {
 
+    this.getTestCount = function() {
+        return 34; // If one test is broken, then all tests must be failed.
+    }
+
     this.startAdminTests = function(withLogin) {
         testChain = Promise.resolve();
 
@@ -19,11 +23,10 @@ var TestProtocol = new function () {
     }
 
     this.startUserTests = function() {
-
         testChain = Promise.resolve();
                  //5. User Manager (end of test)
         testChain.then(() => TestUtil.deleteCookies("suitename"))
-                 .then(() => TestUtil.login("testId", "pass"))
+                 .then(() => TestUtil.login("testid", "pass"))
                  .then(() => UserTests.inventorySpaceForTestUser())
                  .then(() => TestUtil.testPassed(5))
                  //6. Sample Form - Creation

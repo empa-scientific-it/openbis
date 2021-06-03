@@ -28,7 +28,7 @@ define([ "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/co
 			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
 		prototype.negate = function() {
-			return AbstractEntitySearchCriteria.prototype.negate.call();
+			return AbstractEntitySearchCriteria.prototype.negate.call(this);
 		};
 	}, {
 		operator : {

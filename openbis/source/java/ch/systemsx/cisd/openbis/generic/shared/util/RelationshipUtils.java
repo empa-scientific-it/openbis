@@ -177,6 +177,12 @@ public class RelationshipUtils
     public static void setExperimentForDataSet(DataPE dataSet, ExperimentPE experiment,
             IAuthSession session, Date modificationTimestamp)
     {
+        Long deid = dataSet.getExperiment() == null ? null : dataSet.getExperiment().getId();
+        Long eid = experiment == null ? null : experiment.getId();
+        if (deid == eid)
+        {
+            return;
+        }
         updateModificationDateAndModifier(dataSet.getExperiment(), session, modificationTimestamp);
         dataSet.setExperiment(experiment);
         updateModificationDateAndModifier(experiment, session, modificationTimestamp);
