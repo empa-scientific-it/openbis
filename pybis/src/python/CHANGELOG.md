@@ -1,3 +1,10 @@
+## Changes with pybis-1.19.0
+
+- added caching for get_experiment
+- included OR when providing codes/permIds for samples and datasets
+- improved documentation
+- fixed property assigning problem with newly created entity types
+
 ## Changes with pybis-1.18.12
 
 - fixed rel_file_links, prepended /

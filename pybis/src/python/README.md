@@ -214,6 +214,7 @@ pt = o.new_property_type(
     description = 'my first property',
     dataType    = 'VARCHAR',
 )
+pt.save()
 
 pt_int = o.new_property_type(
     code        = '$DEFAULT_OBJECT_TYPE', 
@@ -221,6 +222,7 @@ pt_int = o.new_property_type(
     dataType    = 'VARCHAR',
     managedInternally = True,
 )
+pt_int.save()
 
 pt_voc = o.new_property_type(
     code        = 'MY_CONTROLLED_VOCABULARY', 
@@ -229,6 +231,7 @@ pt_voc = o.new_property_type(
     dataType    = 'CONTROLLEDVOCABULARY',
     vocabulary  = 'STORAGE',
 )
+pt_voc.save()
 ```
 
 The `dataType` attribute can contain any of these values:
@@ -515,6 +518,7 @@ The new name for **experiment** is **collection**. You can use boths names inter
 
 ```
 exp = o.new_experiment
+    code='MY_NEW_EXPERIMENT',
     type='DEFAULT_EXPERIMENT',
     space='MY_SPACE',
     project='YEASTS'

@@ -4415,6 +4415,7 @@ class Openbis:
             showParents = showParents,
             showParentMetadata = showParentMetadata,
             validationPlugin = validationPlugin,
+            method = self.get_sample_type,
         )
     new_object_type = new_sample_type
 
@@ -4436,6 +4437,7 @@ class Openbis:
             mainDataSetPath=mainDataSetPath,
             disallowDeletion=disallowDeletion,
             validationPlugin=validationPlugin,
+            method = self.get_dataset_type,
         )
 
     def new_experiment_type(self, 
@@ -4449,6 +4451,7 @@ class Openbis:
             code=code, 
             description=description, 
             validationPlugin=validationPlugin,
+            method=self.get_experiment_type,
         )
     new_collection_type = new_experiment_type
 
@@ -4464,6 +4467,7 @@ class Openbis:
             code=code,
             description=description,
             validationPlugin=validationPlugin,
+            method=self.get_material_type,
         )
 
     def new_dataset(self, type=None, kind='PHYSICAL_DATA', files=None, file=None, props=None, folder=None, **kwargs):
