@@ -1550,7 +1550,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1573,7 +1573,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
@@ -1596,7 +1596,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);

@@ -63,6 +63,12 @@ public class GlobalSearchCriteriaTranslator
 
     public static final String SAMPLE_MATCH_ALIAS = "sample_match";
 
+    public static final String ENTITY_TYPE_MATCH_ALIAS = "entity_type_match";
+
+    public static final String PROJECT_MATCH_ALIAS = "project_match";
+
+    public static final String SPACE_MATCH_ALIAS = "space_match";
+
     public static final String ENTITY_TYPES_CODE_ALIAS = "enty_code";
 
     public static final String PROPERTY_TYPE_LABEL_ALIAS = "property_type_label";
@@ -977,6 +983,38 @@ public class GlobalSearchCriteriaTranslator
             }
             sqlBuilder.append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
 
+
+            final String entityTypeColumnReference = ENTITY_TYPES_TABLE_ALIAS + PERIOD + CODE_COLUMN;
+            buildCaseWhen(sqlBuilder, new String[] { makeCondition(entityTypeColumnReference, args,
+                    criterionValues, stringValueClass, withWildcards) },
+                    new String[] { entityTypeColumnReference }, NULL);
+
+            sqlBuilder.append(SP).append(ENTITY_TYPE_MATCH_ALIAS).append(COMMA).append(NL);
+
+            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT)
+            {
+                final String projectColumnReference = PROJECT_TABLE_ALIAS + PERIOD + CODE_COLUMN;
+                buildCaseWhen(sqlBuilder, new String[] { makeCondition(projectColumnReference, args,
+                        criterionValues, stringValueClass, withWildcards) },
+                        new String[] { projectColumnReference }, NULL);
+            } else
+            {
+                sqlBuilder.append(NULL);
+            }
+            sqlBuilder.append(SP).append(PROJECT_MATCH_ALIAS).append(COMMA).append(NL);
+
+            if (tableMapper == SAMPLE || tableMapper == EXPERIMENT)
+            {
+                final String spaceColumnReference = SPACE_TABLE_ALIAS + PERIOD + CODE_COLUMN;
+                buildCaseWhen(sqlBuilder, new String[] { makeCondition(spaceColumnReference, args,
+                        criterionValues, stringValueClass, withWildcards) },
+                        new String[] { spaceColumnReference }, NULL);
+            } else
+            {
+                sqlBuilder.append(NULL);
+            }
+            sqlBuilder.append(SP).append(SPACE_MATCH_ALIAS).append(COMMA).append(NL);
+
             sqlBuilder.append(NULL).append(SP).append(MATERIAL_MATCH_ALIAS).append(COMMA).append(NL);
             sqlBuilder.append(NULL).append(SP).append(SAMPLE_MATCH_ALIAS).append(COMMA).append(NL);
             sqlBuilder.append(NULL).append(SP).append(PROPERTY_TYPE_LABEL_ALIAS).append(COMMA).append(NL);
@@ -991,6 +1029,9 @@ public class GlobalSearchCriteriaTranslator
             sqlBuilder.append(NULL).append(SP).append(CODE_MATCH_ALIAS).append(COMMA).append(NL);
             sqlBuilder.append(NULL).append(SP).append(PERM_ID_MATCH_ALIAS).append(COMMA).append(NL);
             sqlBuilder.append(NULL).append(SP).append(SAMPLE_IDENTIFIER_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(ENTITY_TYPE_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(PROJECT_MATCH_ALIAS).append(COMMA).append(NL);
+            sqlBuilder.append(NULL).append(SP).append(SPACE_MATCH_ALIAS).append(COMMA).append(NL);
 
             buildMaterialMatch(sqlBuilder, criterionValues, args);
             sqlBuilder.append(COMMA).append(NL);
