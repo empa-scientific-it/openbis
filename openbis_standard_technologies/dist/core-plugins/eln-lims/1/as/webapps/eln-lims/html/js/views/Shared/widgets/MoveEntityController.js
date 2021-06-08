@@ -52,7 +52,7 @@ function MoveEntityController(entityType, entityPermId) {
 			if(!found) {
 				setTimeout(function(){ waitForIndexUpdate(); }, 300);
 			} else {
-				Util.showSuccess("Move successfull", function() { 
+				Util.showSuccess("Moved successfully", function() { 
 					Util.unblockUI();
 					
 					mainController.sideMenu.refreshNodeParent(entity.getPermId().permId); // Refresh old node parent
@@ -77,7 +77,8 @@ function MoveEntityController(entityType, entityPermId) {
 		});
 	}
 	
-	this.move = function() {
+	this.move = function(descendants) {
+	    var _this = this;
 		Util.blockUI();
 		
 		var done = function() {
@@ -102,15 +103,41 @@ function MoveEntityController(entityType, entityPermId) {
         			});
 				break;
 			case "SAMPLE":
-				require([ "as/dto/sample/update/SampleUpdate", "as/dto/space/id/SpacePermId"],
-			        function(SampleUpdate, SpacePermId) {
-			            var sampleUpdate = new SampleUpdate();
-			            sampleUpdate.setSampleId(moveEntityModel.entity.getIdentifier());
-			 			sampleUpdate.setExperimentId(moveEntityModel.selected.getIdentifier());
-			 			var spaceCode = moveEntityModel.selected.getIdentifier().getIdentifier().split("/")[1];
-			 			sampleUpdate.setSpaceId(new SpacePermId(spaceCode));
-			 			mainController.openbisV3.updateSamples([ sampleUpdate ]).done(done).fail(fail);
-        			});
+				require([ "as/dto/sample/fetchoptions/SampleFetchOptions", 
+                          "as/dto/sample/update/SampleUpdate", "as/dto/space/id/SpacePermId"],
+                    function(SampleFetchOptions, SampleUpdate, SpacePermId) {
+                        var permId = moveEntityModel.entity.getPermId();
+                        var experimentId = moveEntityModel.selected.getPermId();
+                        var spaceCode = moveEntityModel.selected.getIdentifier().getIdentifier().split("/")[1];
+                        var spaceId = new SpacePermId(spaceCode);
+                        if (descendants) {
+                            var currentExperiment = moveEntityModel.entity.getExperiment().getPermId().getPermId();
+                            var fetchOptions = new SampleFetchOptions();
+                            fetchOptions.withExperiment();
+                            fetchOptions.withChildrenUsing(fetchOptions);
+                            mainController.openbisV3.getSamples([permId], fetchOptions).done(function(map) {
+                                var samplesToUpdate = [];
+                                _this.gatherAllDescendants(samplesToUpdate, map[permId]);
+                                var updates = []
+                                samplesToUpdate.forEach(function(sample) {
+                                    if (currentExperiment == sample.getExperiment().getPermId().getPermId()) {
+                                        var sampleUpdate = new SampleUpdate();
+                                        sampleUpdate.setSampleId(sample.getPermId());
+                                        sampleUpdate.setExperimentId(experimentId);
+                                        sampleUpdate.setSpaceId(spaceId);
+                                        updates.push(sampleUpdate);
+                                    }
+                                });
+                                mainController.openbisV3.updateSamples(updates).done(done).fail(fail);
+                            });
+                        } else {
+                            var sampleUpdate = new SampleUpdate();
+                            sampleUpdate.setSampleId(permId);
+                            sampleUpdate.setExperimentId(experimentId);
+                            sampleUpdate.setSpaceId(spaceId);
+                            mainController.openbisV3.updateSamples([ sampleUpdate ]).done(done).fail(fail);
+                        }
+                    });
 				break;
 			case "DATASET":
 				require([ "as/dto/dataset/update/DataSetUpdate"], 
@@ -141,4 +168,9 @@ function MoveEntityController(entityType, entityPermId) {
 		}
 		
 	}
+	
+    this.gatherAllDescendants = function(entities, entity) {
+        entities.push(entity);
+        entity.getChildren().forEach(child => this.gatherAllDescendants(entities, child));
+    }
 }
