@@ -3,7 +3,12 @@ function MoveEntityView(moveEntityController, moveEntityModel) {
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 		$window.submit(function() {
 			Util.unblockUI();
-			moveEntityController.move();
+            var descendants = false;
+            var inputs = $window.find("input");
+            if (inputs.length > 0) {
+                descendants = inputs[0].checked;
+            }
+			moveEntityController.move(descendants);
 		});
 		
 		switch(moveEntityModel.entity["@type"]) {
@@ -27,6 +32,11 @@ function MoveEntityView(moveEntityController, moveEntityModel) {
 						false, false, false, true, false);
 				break;
 			case "as.dto.sample.Sample":
+                $searchBox.append(FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("move_descendants"), 
+                        "Click the checkbox if also all descendant " + ELNDictionary.sample 
+                        + "s (i.e. children, grand children etc.) including their data sets should be moved. "
+                        + "Only those descendants are moved which belong to the same "
+                        + ELNDictionary.getExperimentDualName() + " as this " + ELNDictionary.sample, null, true))
 				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to",
 						true, false, false, false, false);
 				break;
