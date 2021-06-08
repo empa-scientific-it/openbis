@@ -340,6 +340,10 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.showDatasetOnNav = function(datasetTypeCode) {
+            return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
+        }
+
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
 

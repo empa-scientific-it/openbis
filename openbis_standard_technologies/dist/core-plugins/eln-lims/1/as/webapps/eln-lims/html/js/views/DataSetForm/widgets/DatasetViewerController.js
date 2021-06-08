@@ -81,9 +81,16 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 		var datasetPermIds = [];
 		
 		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
-			datasetPermIds.push(datasets[i].code);
+		    if(profile.showDatasetOnNav(datasets[i].dataSetTypeCode)) {
+			    datasetPermIds.push(datasets[i].code);
+			}
 		}
-		
+
+		if(datasetPermIds.length === 0) {
+		    mainController.sideMenu.removeSubSideMenu();
+		    return;
+		}
+
 		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
 				function(DataSetPermId, DataSetFetchOptions) {
 					var ids = [];
