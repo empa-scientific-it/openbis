@@ -46,6 +46,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.openbisController = self.createOpenbisController()
         self.openbisController.createTestDatabase("openbis")
         self.openbisController.asProperties['max-number-of-sessions-per-user'] = '0'
+        self.openbisController.dssProperties['host-address'] = 'https://localhost'
 
         self.openbisController.allUp()
 
@@ -354,7 +355,7 @@ class TestCase(systemtest.testcase.TestCase):
             output_buffer = '=================== 18. Use git-annex hashes as checksums ===================\n'
             cmd('obis init data10')
             with cd('data10'):
-                cmd('dd if=/dev/zero of=big_file bs=1000000 count=1')
+                cmd('dd if=/dev/zero of=big_file bs=2000000 count=1')
                 cmd('obis object set id=/OBIS_TEST_1/SAMPLE_1')
                 # use SHA256 form git annex by default
                 result = cmd('obis commit -m \'commit-message\'')
