@@ -1,4 +1,5 @@
 import abc
+import ctypes
 import hashlib
 import json
 import os
@@ -66,7 +67,7 @@ class ChecksumGeneratorCrc32(ChecksumGenerator):
             raise CommandException(result)
         fields = result.output.split(" ")
         return {
-            'crc32': int(fields[0]),
+            'crc32': ctypes.c_int(int(fields[0])).value,
             'fileLength': int(fields[1]),
             'path': file
         }
