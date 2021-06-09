@@ -770,19 +770,22 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                     mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
                     { only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, 
     				  withChildren : true, withChildrenProperties : true, withChildrenExperiment : true, 
-    				  withParentsType : true, withChildrenType : true}
-                    , function(searchResult) {
+    				  withParentsType : true, withChildrenType : true},
+                    function(searchResult) {
                         var results = [];
                         var samples = searchResult.objects;
                         if(samples && samples[0] && samples[0].children) {
-                            if(samples[0].children.length > 50) {
-                                Util.showInfo("More than 50 Samples, please use the children table to navigate them.");
+                            var experiment = samples[0].experiment.identifier.identifier;
+                            var children = samples[0].children.filter(function(sample) {
+                                    return sample.experiment.identifier.identifier === experiment
+                                        && profile.showOnNav(sample.type.code)
+                                });
+                            if (children.length > 50) {
+                                Util.showInfo("More than 50 " + ELNDictionary.samples 
+                                        + ", please use the children table to navigate them.");
                             } else {
-                                for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
-                                    var sample = samples[0].children[cIdx];
-                                    if (sample.experiment.identifier.identifier !== samples[0].experiment.identifier.identifier) {
-        								continue;
-        							}
+                                for(var cIdx = 0; cIdx < children.length; cIdx++) {
+                                    var sample = children[cIdx];
                                     var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
                                     var sampleIcon;
                                     if(sampleIsExperiment) {
@@ -792,41 +795,39 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     } else {
                                         sampleIcon = "fa fa-file";
                                     }
-                                    if(profile.showOnNav(sample.type.code)) {
-                                        var parentTypeCode = samples[0].type.code;
-                                        var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
-                                        var showSampleOnNav = false;
-                                        if(!showOnNavForParentTypes) {
-                                            showSampleOnNav = true;
-                                        } else {
-                                            for(var ptIdx = 0; ptIdx < showOnNavForParentTypes.length; ptIdx++) {
-                                                if(parentTypeCode === showOnNavForParentTypes[ptIdx]) {
-                                                    showSampleOnNav = true;
-                                                    break;
-                                                }
+                                    var parentTypeCode = samples[0].type.code;
+                                    var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
+                                    var showSampleOnNav = false;
+                                    if(!showOnNavForParentTypes) {
+                                        showSampleOnNav = true;
+                                    } else {
+                                        for(var ptIdx = 0; ptIdx < showOnNavForParentTypes.length; ptIdx++) {
+                                            if(parentTypeCode === showOnNavForParentTypes[ptIdx]) {
+                                                showSampleOnNav = true;
+                                                break;
                                             }
                                         }
+                                    }
 
-                                        if(showSampleOnNav) {
-                                            var sampleDisplayName = sample.code;
-                                            if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-                                                    sampleDisplayName = sample.properties[profile.propertyReplacingCode];
-                                            }
-                                            var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId(), null);
-                                            var sampleNode = {
-                                                displayName: sampleDisplayName,
-                                                title : sampleLink,
-                                                entityType: "SAMPLE",
-                                                key : sample.getPermId().getPermId(),
-                                                folder : true,
-                                                lazy : true,
-                                                view : "showViewSamplePageFromPermId",
-                                                viewData: sample.getPermId().getPermId(),
-                                                icon : sampleIcon,
-                                                registrationDate: sample.registrationDate
-                                            };
-                                            results.push(sampleNode);
+                                    if(showSampleOnNav) {
+                                        var sampleDisplayName = sample.code;
+                                        if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+                                                sampleDisplayName = sample.properties[profile.propertyReplacingCode];
                                         }
+                                        var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId(), null);
+                                        var sampleNode = {
+                                            displayName: sampleDisplayName,
+                                            title : sampleLink,
+                                            entityType: "SAMPLE",
+                                            key : sample.getPermId().getPermId(),
+                                            folder : true,
+                                            lazy : true,
+                                            view : "showViewSamplePageFromPermId",
+                                            viewData: sample.getPermId().getPermId(),
+                                            icon : sampleIcon,
+                                            registrationDate: sample.registrationDate
+                                        };
+                                        results.push(sampleNode);
                                     }
                                 }
                             }
