@@ -83,4 +83,28 @@ var CKEditorManager = new function() {
             { title: 'Omega uppercase'      , character: 'Ω' }
         ]);
 	}
+
+    this.imagePattern = "<img src=";
+    this.servicePattern = "/openbis/openbis/file-service/eln-lims/";
+	this.isDataValid = function(data) {
+	    var domain = window.location.hostname;
+	    var offset = 0;
+	    while(offset < data.length) {
+	        var indexOf = data.indexOf(this.imagePattern, offset);
+	        if(indexOf > 0) {
+	            // 1. Move offset
+	            offset = indexOf + this.imagePattern.length + 1;
+	            // 2. Check that image src
+	            var dataCheckEnd = offset + this.servicePattern.length;
+	            var dataCheck = data.substring(offset, dataCheckEnd);
+	            var startsWith = this.servicePattern === dataCheck;
+	            if(!startsWith) {
+                    return false;
+	            }
+	        } else {
+	            return true;
+	        }
+	    }
+	    return true;
+	}
 }
