@@ -753,13 +753,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         };
                         
                         if(samplesToShow.length > 50) {
-                            var toExecute = function() {
-                                Util.blockUIConfirm("Do you want to show " + samplesToShow.length + " " + ELNDictionary.Samples + " on the tree?",
-                                        getOkResultsFunction(dfd, samplesToShow),
-                                        getCancelResultsFunction(dfd));
-                            };
-                            
-                            setTimeout(toExecute, 1000);
+                            Util.showInfo("More than 50 " + ELNDictionary.samples 
+                                    + ", please use the table to navigate them.");
+                            getCancelResultsFunction(dfd)();
                         } else {
                             getOkResultsFunction(dfd, samplesToShow)();
                         }
