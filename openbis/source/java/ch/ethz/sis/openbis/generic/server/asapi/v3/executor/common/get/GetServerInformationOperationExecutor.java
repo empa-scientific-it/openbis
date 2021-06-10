@@ -68,6 +68,7 @@ public class GetServerInformationOperationExecutor
         info.put("archiving-configured", Boolean.toString(basicServer.isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
         info.put("authentication-service", configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE));
+        info.put("create-continuous-sample-codes", configurer.getResolvedProps().getProperty(Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY));
         info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
 
         // String disabledText = server.tryGetDisabledText();

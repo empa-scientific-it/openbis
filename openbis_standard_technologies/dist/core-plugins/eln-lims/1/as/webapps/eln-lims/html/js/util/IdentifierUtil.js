@@ -1,6 +1,7 @@
 var IdentifierUtil = new function() {
 	this.isProjectSamplesEnabled = false;
-	
+    this.createContinuousSampleCodes = true;
+    		
 	//
 	// Identifier Building
 	//
