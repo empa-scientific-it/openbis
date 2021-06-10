@@ -257,7 +257,7 @@ var Util = new function() {
 		});
 		
 		$("#jNotifyDismiss").click(function(e) {
-			popUp._close();
+			if (popUp) popUp._close();
 		});
 	}
 

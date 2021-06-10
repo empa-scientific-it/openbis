@@ -712,6 +712,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                     
                                     if(profile.mainMenu.showDatasets) {
                                         if(experimentDatasets.length > 50) {
+                                                data.node.toggleExpanded();
                                                 Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
                                         } else {
                                                 for (var i = 0; i < experimentDatasets.length; i++) {
@@ -753,6 +754,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         };
                         
                         if(samplesToShow.length > 50) {
+                            data.node.toggleExpanded();
                             Util.showInfo("More than 50 " + ELNDictionary.samples 
                                     + ", please use the table to navigate them.");
                             getCancelResultsFunction(dfd)();
@@ -777,6 +779,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         && profile.showOnNav(sample.type.code)
                                 });
                             if (children.length > 50) {
+                                data.node.toggleExpanded();
                                 Util.showInfo("More than 50 " + ELNDictionary.samples 
                                         + ", please use the children table to navigate them.");
                             } else {
@@ -836,6 +839,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
                             if(profile.mainMenu.showDatasets) {
                                 if(datasets.length > 50) {
+                                    data.node.toggleExpanded();
                                     Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
                                 } else {
                                     for (var i = 0; i < datasets.length; i++) {
