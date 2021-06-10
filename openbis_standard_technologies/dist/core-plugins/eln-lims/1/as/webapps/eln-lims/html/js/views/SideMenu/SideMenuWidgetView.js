@@ -712,7 +712,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                     
                                     if(profile.mainMenu.showDatasets) {
                                         if(experimentDatasets.length > 50) {
-                                                data.node.toggleExpanded();
                                                 Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
                                         } else {
                                                 for (var i = 0; i < experimentDatasets.length; i++) {
@@ -739,7 +738,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         }
                                     }
                                 
-                                results.sort(sortItems);
+                                    results.sort(sortItems);
                                     dfd.resolve(results);
                                     Util.unblockUI();
                                 });
@@ -750,13 +749,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         var getCancelResultsFunction = function(dfd) {
                             return function() {
                                 dfd.resolve([]);
+                                Util.unblockUI();
                             }
                         };
                         
-                        if(samplesToShow.length > 50) {
-                            data.node.toggleExpanded();
-                            Util.showInfo("More than 50 " + ELNDictionary.samples 
-                                    + ", please use the table to navigate them.");
+                        if (samplesToShow.length > 50 && window.confirm("Do you want to show " 
+                                + samplesToShow.length + " " + ELNDictionary.Samples + " on the tree?") == false) {
                             getCancelResultsFunction(dfd)();
                         } else {
                             getOkResultsFunction(dfd, samplesToShow)();
@@ -779,7 +777,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         && profile.showOnNav(sample.type.code)
                                 });
                             if (children.length > 50) {
-                                data.node.toggleExpanded();
                                 Util.showInfo("More than 50 " + ELNDictionary.samples 
                                         + ", please use the children table to navigate them.");
                             } else {
@@ -839,7 +836,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
                             if(profile.mainMenu.showDatasets) {
                                 if(datasets.length > 50) {
-                                    data.node.toggleExpanded();
                                     Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
                                 } else {
                                     for (var i = 0; i < datasets.length; i++) {
