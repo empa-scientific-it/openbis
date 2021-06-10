@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -36,6 +37,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
+import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -91,12 +95,16 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
 
     private static final int MAX_NUMBER_OF_DATA_SETS_DEFAULT = 1000;
 
+    private static final String MAX_NUMBER_OF_WORKERS = "maximum-number-of-workers";
+
+    private static final int MAX_NUMBER_OF_WORKERS_DEFAULT = 1;
+
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MicroscopyThumbnailsCreationTask.class);
 
     private Properties properties;
 
-    private IJythonEvaluator evaluator;
+    private ThreadLocal<IJythonEvaluator> evaluator = new ThreadLocal<>();
 
     private String dataSetContainerType;
 
@@ -105,6 +113,8 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
     private Pattern mainDataSetTypePattern;
 
     private int maxCount;
+
+    private int maxNumberOfWorkers;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -115,6 +125,7 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         dataSetThumbnailTypePattern = PropertyUtils.getPattern(properties, DATA_SET_THUMBNAIL_TYPE_REGEX_KEY, DATA_SET_THUMBNAIL_TYPE_REGEX_DEFAULT);
         mainDataSetTypePattern = PropertyUtils.getPattern(properties, MAIN_DATA_SET_TYPE_REGEX_KEY, MAIN_DATA_SET_TYPE_REGEX_DEFAULT);
         maxCount = PropertyUtils.getInt(properties, MAX_NUMBER_OF_DATA_SETS_KEY, MAX_NUMBER_OF_DATA_SETS_DEFAULT);
+        maxNumberOfWorkers = PropertyUtils.getInt(properties, MAX_NUMBER_OF_WORKERS, MAX_NUMBER_OF_WORKERS_DEFAULT);
     }
 
     @Override
@@ -148,16 +159,26 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         int totalCount = searchResult.getTotalCount();
         operationLog.info(totalCount + " data sets found."
                 + (totalCount > containerDataSets.size() ? " Handle the first " + containerDataSets.size() : ""));
-        int numberOfCreatedThumbnailDataSets = 0;
-        evaluator = null; // allow to re-compile script
-        for (DataSet containerDataSet : containerDataSets)
-        {
-            if (hasNoThumbnails(containerDataSet) && containerDataSet.getComponents().isEmpty() == false)
+        AtomicInteger numberOfCreatedThumbnailDataSets = new AtomicInteger(0);
+        evaluator.set(null); // allow to re-compile script
+        ParallelizedExecutor.process(containerDataSets, new ITaskExecutor<DataSet>()
             {
-                operationLog.info("Generate thumbnails for data set " + containerDataSet.getCode());
-                numberOfCreatedThumbnailDataSets += createThumbnailDataSet(sessionToken, containerDataSet);
-            }
-            updateTimeStampFile(renderTimeStampAndCode(containerDataSet.getRegistrationDate(), containerDataSet.getCode()));
+                @Override
+                public Status execute(DataSet containerDataSet)
+                {
+                    if (hasNoThumbnails(containerDataSet) && containerDataSet.getComponents().isEmpty() == false)
+                    {
+                        operationLog.info("Generate thumbnails for data set " + containerDataSet.getCode());
+                        int numberOfDataSets = createThumbnailDataSet(sessionToken, containerDataSet);
+                        numberOfCreatedThumbnailDataSets.addAndGet(numberOfDataSets);
+                    }
+                    return Status.OK;
+                }
+            }, 0.5, maxNumberOfWorkers, "thumbnail creation", 0, true);
+        if (containerDataSets.isEmpty() == false)
+        {
+            DataSet lastDataSet = containerDataSets.get(containerDataSets.size() - 1);
+            updateTimeStampFile(renderTimeStampAndCode(lastDataSet.getRegistrationDate(), lastDataSet.getCode()));
         }
         operationLog.info(numberOfCreatedThumbnailDataSets + " thumbnail data sets have been created.");
     }
@@ -288,11 +309,11 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
                 private IJythonEvaluator getEvaluator(String scriptString, String[] jythonPath,
                         DataSetProcessingContext context)
                 {
-                    if (evaluator == null)
+                    if (evaluator.get() == null)
                     {
-                        evaluator = super.createEvaluator(scriptString, jythonPath, context);
+                        evaluator.set(super.createEvaluator(scriptString, jythonPath, context));
                     }
-                    return evaluator;
+                    return evaluator.get();
                 }
             };
         return scriptRunnerFactory;
