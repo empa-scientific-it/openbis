@@ -1059,16 +1059,26 @@ var FormUtil = new function() {
                          }
                     })
                     .then( editor => {
+                        editor.acceptedData = ""; // Is used to undo paste events containing images coming from a different domain
                         if (value) {
                             value = this.prepareCkeditorData(value);
                             editor.setData(value);
+                            editor.acceptedData = editor.getData();
                         }
 
                         editor.isReadOnly = isReadOnly;
-
-                        editor.model.document.on('change:data', function (event) {
-                            var value = editor.getData();
-                            componentOnChange(event, value);
+                        editor.model.document.on('change:data', function (event, data) {
+                            var newData = editor.getData();
+                            if(newData !== editor.acceptedData) {
+                                var isDataValid = CKEditorManager.isDataValid(newData);
+                                if(isDataValid) {
+                                    editor.acceptedData = newData;
+                                    componentOnChange(event, newData); // Store changes on original model
+                                } else {
+                                    editor.setData(editor.acceptedData);
+                                    Util.showUserError("Images should be uploaded");
+                                }
+                            }
                         });
 
                         if(toolbarContainer) {
@@ -1076,6 +1086,11 @@ var FormUtil = new function() {
                         }
 
                         CKEditorManager.addEditor($component.attr('id'), editor);
+
+//                        $component.on('paste', function(evt) {
+//                            evt.stop(); // we don't let editor to paste data;
+//                            alert('paste');
+//                        });
                     })
                     .catch(error => {
                         Util.showError(error);

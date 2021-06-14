@@ -63,7 +63,7 @@ public class MicroscopyThumbnailsCreationTaskTest extends AbstractMicroscopyImag
     public void dropAnExampleDataSet() throws Exception
     {
         super.dropAnExampleDataSet();
-        waitUntilDataSetImported(new CountStopCondition(new RegexCondition(".* thumbnail data sets have been created."), 5));
+        waitUntilDataSetImported(new CountStopCondition(new RegexCondition(".* thumbnail data sets have been created."), 3));
     }
 
     @Test
