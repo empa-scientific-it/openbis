@@ -50,6 +50,8 @@ public class DataSetRecord
 
     public String sa_code;
 
+    public String sa_identifier;
+
     public String sac_code;
 
     public String pe_first_name;
