@@ -480,7 +480,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(
+                    allowing(projectDAO).tryFindProject(
                             experimentIdentifier.getSpaceCode(),
                             experimentIdentifier.getProjectCode());
                     will(returnValue(project));
@@ -490,6 +490,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(experimentToAttach));
 
                     one(relationshipService).assignSampleToExperiment(EXAMPLE_SESSION, sample, experimentToAttach);
+                    one(relationshipService).assignSampleToProject(EXAMPLE_SESSION, sample, project);
                 }
             });
         createSampleBO().update(
