@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import Collapse from '@material-ui/core/Collapse'
+import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import openbis from '@src/js/services/openbis.js'
@@ -41,9 +42,13 @@ class HistoryGrid extends React.PureComponent {
     criteria.withEventType().thatEquals(eventType)
 
     Object.keys(filters).forEach(filterName => {
-      criteria['with' + _.upperFirst(filterName)]().thatContains(
-        filters[filterName]
-      )
+      if (filterName === 'entityType') {
+        criteria.withEntityType().thatEquals(filters[filterName])
+      } else {
+        criteria['with' + _.upperFirst(filterName)]().thatContains(
+          filters[filterName]
+        )
+      }
     })
 
     const fo = new openbis.EventFetchOptions()
@@ -153,7 +158,22 @@ class HistoryGrid extends React.PureComponent {
             name: 'entityType',
             label: messages.get(messages.ENTITY_TYPE),
             sortable: false,
-            getValue: ({ row }) => row.entityType.value
+            getValue: ({ row }) => row.entityType.value,
+            renderFilter: ({ value, onChange }) => {
+              return (
+                <SelectField
+                  label={messages.get(messages.FILTER)}
+                  value={value}
+                  emptyOption={{}}
+                  options={openbis.EntityType.values.map(entityType => ({
+                    value: entityType
+                  }))}
+                  onChange={event => {
+                    onChange(event.target.value)
+                  }}
+                />
+              )
+            }
           },
           {
             name: 'identifier',

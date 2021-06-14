@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
@@ -27,21 +28,45 @@ class GridHeaderFilter extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridHeaderFilter.render')
 
-    const { column, filter, classes } = this.props
+    const { column, classes } = this.props
 
     if (column.visible) {
+      let rendered = this.renderFilter()
+
       return (
         <TableCell classes={{ root: classes.cell }}>
-          {column.filterable && (
-            <FilterField
-              filter={filter || ''}
-              filterChange={this.handleFilterChange}
-            />
-          )}
+          {column.filterable && rendered}
         </TableCell>
       )
     } else {
       return null
+    }
+  }
+
+  renderFilter() {
+    const { column, filter } = this.props
+
+    const params = {
+      value: filter,
+      column,
+      onChange: this.handleFilterChange
+    }
+
+    const renderedFilter = column.renderFilter ? (
+      column.renderFilter(params)
+    ) : (
+      <FilterField
+        filter={filter || ''}
+        filterChange={this.handleFilterChange}
+      />
+    )
+
+    if (renderedFilter === null || renderedFilter === undefined) {
+      return ''
+    } else if (_.isNumber(renderedFilter) || _.isBoolean(renderedFilter)) {
+      return String(renderedFilter)
+    } else {
+      return renderedFilter
     }
   }
 }

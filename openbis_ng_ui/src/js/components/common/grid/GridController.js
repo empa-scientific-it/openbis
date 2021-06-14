@@ -62,26 +62,6 @@ export default class GridController {
       name: config.name,
       label: config.label,
       getValue: config.getValue,
-      render: (row, classes) => {
-        const value = config.getValue({ row, column })
-
-        const renderedValue = config.renderValue
-          ? config.renderValue({
-              value,
-              row,
-              column,
-              classes
-            })
-          : value
-
-        if (renderedValue === null || renderedValue === undefined) {
-          return ''
-        } else if (_.isNumber(renderedValue) || _.isBoolean(renderedValue)) {
-          return String(renderedValue)
-        } else {
-          return renderedValue
-        }
-      },
       matches: (row, filter) => {
         function defaultMatches(value, filter) {
           if (filter) {
@@ -98,7 +78,7 @@ export default class GridController {
 
         const value = config.getValue({ row, column })
 
-        if (config.filterValue) {
+        if (config.matchesValue) {
           return config.matchesValue({
             value,
             row,
@@ -281,8 +261,8 @@ export default class GridController {
       totalCount
     } = this.context.getState()
 
-    newRows = newRows || rows
-    newTotalCount = newTotalCount || totalCount
+    newRows = newRows === undefined ? rows : newRows
+    newTotalCount = newTotalCount === undefined ? totalCount : newTotalCount
 
     if (load) {
       const pageCount = Math.max(Math.ceil(newTotalCount / pageSize), 1)

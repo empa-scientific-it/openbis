@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
@@ -49,19 +50,17 @@ class GridRow extends React.PureComponent {
           root: classes.row
         }}
       >
-        {columns.map(column => this.renderCell(column, row))}
+        {columns.map(column => this.renderCell(column))}
       </TableRow>
     )
   }
 
-  renderCell(column, row) {
+  renderCell(column) {
     const { classes } = this.props
 
     if (column.visible) {
-      let rendered = column.render(row, {
-        wrap: classes.wrap,
-        nowrap: classes.nowrap
-      })
+      let rendered = this.renderValue(column)
+
       return (
         <TableCell
           key={column.name}
@@ -72,6 +71,33 @@ class GridRow extends React.PureComponent {
       )
     } else {
       return null
+    }
+  }
+
+  renderValue(column) {
+    const { row, classes } = this.props
+
+    const value = column.getValue({ row, column })
+    const params = {
+      value,
+      row,
+      column,
+      classes: {
+        wrap: classes.wrap,
+        nowrap: classes.nowrap
+      }
+    }
+
+    const renderedValue = column.renderValue
+      ? column.renderValue(params)
+      : value
+
+    if (renderedValue === null || renderedValue === undefined) {
+      return ''
+    } else if (_.isNumber(renderedValue) || _.isBoolean(renderedValue)) {
+      return String(renderedValue)
+    } else {
+      return renderedValue
     }
   }
 }
