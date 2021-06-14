@@ -33,9 +33,18 @@ class HistoryGrid extends React.PureComponent {
     }
   }
 
-  async loadHistory(eventType, { page, pageSize, sort, sortDirection }) {
+  async loadHistory(
+    eventType,
+    { filters, page, pageSize, sort, sortDirection }
+  ) {
     const criteria = new openbis.EventSearchCriteria()
     criteria.withEventType().thatEquals(eventType)
+
+    Object.keys(filters).forEach(filterName => {
+      criteria['with' + _.upperFirst(filterName)]().thatContains(
+        filters[filterName]
+      )
+    })
 
     const fo = new openbis.EventFetchOptions()
     fo.withRegistrator()
@@ -137,6 +146,7 @@ class HistoryGrid extends React.PureComponent {
             name: 'eventType',
             label: messages.get(messages.EVENT_TYPE),
             sortable: false,
+            filterable: false,
             getValue: ({ row }) => row.eventType.value
           },
           {
@@ -149,6 +159,7 @@ class HistoryGrid extends React.PureComponent {
             name: 'identifier',
             label: messages.get(messages.ENTITY_IDENTIFIER),
             sortable: true,
+            filterable: false,
             getValue: ({ row }) => row.identifier.value
           },
           {
@@ -176,21 +187,23 @@ class HistoryGrid extends React.PureComponent {
             getValue: ({ row }) => date.format(row.entityRegistrationDate.value)
           },
           {
-            name: 'description',
-            label: messages.get(messages.DESCRIPTION),
-            sortable: false,
-            getValue: ({ row }) => row.description.value
-          },
-          {
             name: 'reason',
             label: messages.get(messages.REASON),
             sortable: false,
             getValue: ({ row }) => row.reason.value
           },
           {
+            name: 'description',
+            label: messages.get(messages.DESCRIPTION),
+            sortable: false,
+            filterable: false,
+            getValue: ({ row }) => row.description.value
+          },
+          {
             name: 'content',
             label: messages.get(messages.CONTENT),
             sortable: false,
+            filterable: false,
             getValue: ({ row }) => row.content.value,
             renderValue: ({ row }) => {
               const { value, visible } = row.content

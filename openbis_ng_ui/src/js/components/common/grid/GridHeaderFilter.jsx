@@ -32,10 +32,12 @@ class GridHeaderFilter extends React.PureComponent {
     if (column.visible) {
       return (
         <TableCell classes={{ root: classes.cell }}>
-          <FilterField
-            filter={filter || ''}
-            filterChange={this.handleFilterChange}
-          />
+          {column.filterable && (
+            <FilterField
+              filter={filter || ''}
+              filterChange={this.handleFilterChange}
+            />
+          )}
         </TableCell>
       )
     } else {

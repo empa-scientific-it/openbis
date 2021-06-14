@@ -131,6 +131,7 @@ export default class GridController {
         }
       },
       sortable: config.sortable === undefined ? true : config.sortable,
+      filterable: config.filterable === undefined ? true : config.filterable,
       visible: true
     })
 
@@ -373,8 +374,13 @@ export default class GridController {
     const state = this.context.getState()
 
     let filters = {
-      ...state.filters,
-      [column]: filter
+      ...state.filters
+    }
+
+    if (filter && _.trim(filter).length > 0) {
+      filters[column] = filter
+    } else {
+      delete filters[column]
     }
 
     await this.context.setState(() => ({
