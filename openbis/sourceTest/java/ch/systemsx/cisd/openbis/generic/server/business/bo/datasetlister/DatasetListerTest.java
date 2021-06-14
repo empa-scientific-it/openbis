@@ -42,6 +42,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
@@ -157,6 +158,15 @@ public class DatasetListerTest extends AbstractDAOTest
         Map<Sample, List<AbstractExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 
         StringBuilder builder = new StringBuilder();
+        Collections.sort(samples, new SimpleComparator<Sample, String>()
+            {
+                @Override
+                public String evaluate(Sample sample)
+                {
+                    return sample.getCode();
+                }
+            });
+        Collections.reverse(samples);
         for (Sample sample : samples)
         {
             builder.append(sample.getCode());
