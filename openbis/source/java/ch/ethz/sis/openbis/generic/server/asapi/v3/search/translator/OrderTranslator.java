@@ -41,16 +41,10 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class OrderTranslator
 {
-    public static final String PROPERTY_CODE_ALIAS = "property_code";
-
-    public static final String TYPE_CODE_ALIAS = "type_code";
 
     private static final String IDENTIFIER = "IDENTIFIER";
 
     private static final String UNIQUE_PREFIX = OrderTranslator.class.getName() + ":";
-
-    /** Column name in select for sorting by identifier (which is a generated string). */
-    private static final String IDENTIFIER_SORTING_COLUMN = "i";
 
     private static final String QUERY_ALIAS = "q";
 
@@ -63,62 +57,73 @@ public class OrderTranslator
         {
             throw new IllegalArgumentException("Null sort options provided.");
         }
-        final List<Sorting> sortings = sortOptions.getSortings();
-        if (sortings.isEmpty())
+        if (sortOptions.getSortings().isEmpty())
         {
             throw new IllegalArgumentException("No sortings in sort options provided.");
         }
 
-        final List<Object> args = translationContext.getArgs();
+        final StringBuilder queryBuilder  = new StringBuilder(SELECT + SP);
 
-        // SELECT
+        appendSelect(queryBuilder, translationContext);
+        appendFrom(queryBuilder, translationContext);
+        appendWhere(queryBuilder, translationContext);
+        appendOrderBy(queryBuilder, translationContext);
 
-        final StringBuilder query  = new StringBuilder(SELECT + SP);
+        return new SelectQuery(queryBuilder.toString(), translationContext.getArgs());
+    }
 
-        appendIdsCoalesce(query, sortings.size());
-        query.append(SP).append(AS).append(SP).append(ID_COLUMN).append(NL);
-        query.append(FROM).append(NL).append(LP);
+    private static void appendSelect(final StringBuilder queryBuilder, final TranslationContext translationContext)
+    {
+        final List<Sorting> sortings = translationContext.getSortOptions().getSortings();
+        appendIdsCoalesce(queryBuilder, sortings.size());
+        queryBuilder.append(SP).append(AS).append(SP).append(ID_COLUMN).append(NL);
+    }
 
-        // TODO: maybe just string should be returned because args added automatically anyway.
-        final SelectQuery subquery1 = translateToOrderSubquery(translationContext, sortings.get(0));
+    private static void appendFrom(final StringBuilder queryBuilder, final TranslationContext translationContext)
+    {
+        final List<Sorting> sortings = translationContext.getSortOptions().getSortings();
+        queryBuilder.append(FROM).append(NL).append(LP);
 
-        query.append(subquery1.getQuery());
-        query.append(NL).append(RP).append(SP).append(QUERY_ALIAS).append(1).append(NL);
+        appendOrderSubquery(queryBuilder, translationContext, sortings.get(0));
+
+        queryBuilder.append(NL).append(RP).append(SP).append(QUERY_ALIAS).append(1).append(NL);
 
         for (int i = 2; i <= sortings.size(); i++)
         {
-            query.append(FULL_OUTER_JOIN).append(NL).append(LP);
-            final SelectQuery subquery = translateToOrderSubquery(translationContext, sortings.get(i - 1));
-            query.append(subquery.getQuery());
-            query.append(NL).append(RP).append(SP).append(QUERY_ALIAS).append(i).append(SP).append(ON).append(SP);
-            appendIdsCoalesce(query, i - 1);
-            query.append(SP).append(EQ).append(SP).append(QUERY_ALIAS).append(i).append(PERIOD)
+            queryBuilder.append(FULL_OUTER_JOIN).append(NL).append(LP);
+            appendOrderSubquery(queryBuilder, translationContext, sortings.get(i - 1));
+            queryBuilder.append(NL).append(RP).append(SP).append(QUERY_ALIAS).append(i).append(SP).append(ON)
+                    .append(SP);
+            appendIdsCoalesce(queryBuilder, i - 1);
+            queryBuilder.append(SP).append(EQ).append(SP).append(QUERY_ALIAS).append(i).append(PERIOD)
                     .append(ID_COLUMN);
-            query.append(NL);
+            queryBuilder.append(NL);
         }
+    }
 
-        // WHERE
+    private static void appendWhere(final StringBuilder queryBuilder, final TranslationContext translationContext)
+    {
+        final List<Sorting> sortings = translationContext.getSortOptions().getSortings();
+        queryBuilder.append(WHERE).append(SP);
+        appendIdsCoalesce(queryBuilder, sortings.size());
+        queryBuilder.append(SP).append(IN).append(SP).append(SELECT_UNNEST);
+        translationContext.getArgs().add(translationContext.getIds().toArray(new Long[0]));
+        queryBuilder.append(NL);
+    }
 
-        query.append(WHERE).append(SP);
-        appendIdsCoalesce(query, sortings.size());
-        query.append(SP).append(IN).append(SP).append(SELECT_UNNEST);
-        args.add(translationContext.getIds().toArray(new Long[0]));
-        query.append(NL);
-
-        //ORDER BY
-
-        query.append(ORDER_BY).append(SP);
-        query.append(QUERY_ALIAS).append(1).append(PERIOD).append(VALUE_ALIAS);
-        query.append(SP);
-        query.append(sortings.get(0).getOrder()).append(SP).append(NULLS_LAST);
+    private static void appendOrderBy(final StringBuilder queryBuilder, final TranslationContext translationContext)
+    {
+        final List<Sorting> sortings = translationContext.getSortOptions().getSortings();
+        queryBuilder.append(ORDER_BY).append(SP);
+        queryBuilder.append(QUERY_ALIAS).append(1).append(PERIOD).append(VALUE_ALIAS);
+        queryBuilder.append(SP);
+        queryBuilder.append(sortings.get(0).getOrder()).append(SP).append(NULLS_LAST);
 
         for (int i = 2; i <= sortings.size(); i++)
         {
-            query.append(COMMA).append(SP).append(QUERY_ALIAS).append(i).append(PERIOD).append(VALUE_ALIAS);
-            query.append(SP).append(sortings.get(i - 1).getOrder()).append(SP).append(NULLS_LAST);
+            queryBuilder.append(COMMA).append(SP).append(QUERY_ALIAS).append(i).append(PERIOD).append(VALUE_ALIAS);
+            queryBuilder.append(SP).append(sortings.get(i - 1).getOrder()).append(SP).append(NULLS_LAST);
         }
-
-        return new SelectQuery(query.toString(), args);
     }
 
     private static void appendIdsCoalesce(final StringBuilder query, final int count)
@@ -131,32 +136,17 @@ public class OrderTranslator
         query.append(RP);
     }
 
-    private static SelectQuery translateToOrderSubquery(final TranslationContext translationContext,
+    private static void appendOrderSubquery(final StringBuilder sqlBuilder, final TranslationContext translationContext,
             final Sorting sorting)
     {
-        final String from = buildFrom(translationContext, sorting);
-        final String where = buildWhere(translationContext, sorting);
-        final String select = buildSelect(translationContext, sorting);
+        final String from = buildSubqueryFrom(translationContext, sorting);
+        final String where = buildSubqueryWhere(translationContext, sorting);
+        final String select = buildSubquerySelect(translationContext, sorting);
 
-        return new SelectQuery(select  + NL + from + NL + where, translationContext.getArgs());
+        sqlBuilder.append(select).append(NL).append(from).append(NL).append(where);
     }
 
-    private static String buildOrderBy(final TranslationContext translationContext)
-    {
-        final StringBuilder orderByBuilder = translationContext.getSortOptions().getSortings().stream().collect(
-                StringBuilder::new,
-                (stringBuilder, sorting) ->
-                {
-                    stringBuilder.append(COMMA + SP);
-                    appendSortingColumn(translationContext, stringBuilder, sorting, false);
-                },
-                StringBuilder::append
-        );
-
-        return ORDER_BY + orderByBuilder.substring(COMMA.length());
-    }
-
-    private static String buildSelect(final TranslationContext translationContext, final Sorting sorting)
+    private static String buildSubquerySelect(final TranslationContext translationContext, final Sorting sorting)
     {
         final StringBuilder sqlBuilder = new StringBuilder(
                 SELECT + SP + SearchCriteriaTranslator.MAIN_TABLE_ALIAS + PERIOD + ID_COLUMN);
@@ -202,7 +192,7 @@ public class OrderTranslator
         } else
         {
             sqlBuilder.append(COMMA).append(SP);
-            appendSortingColumn(translationContext, sqlBuilder, sorting, true);
+            appendSortingColumn(translationContext, sqlBuilder, sorting);
         }
 
         sqlBuilder.append(SP).append(AS).append(SP).append(VALUE_ALIAS);
@@ -210,7 +200,7 @@ public class OrderTranslator
         return sqlBuilder.toString();
     }
 
-    private static String buildFrom(final TranslationContext translationContext, final Sorting sorting)
+    private static String buildSubqueryFrom(final TranslationContext translationContext, final Sorting sorting)
     {
         final TableMapper tableMapper = translationContext.getTableMapper();
         final StringBuilder sqlBuilder = new StringBuilder(FROM + SP + tableMapper.getEntitiesTable() + SP +
@@ -254,7 +244,7 @@ public class OrderTranslator
         return sqlBuilder.toString();
     }
 
-    private static String buildWhere(final TranslationContext translationContext,
+    private static String buildSubqueryWhere(final TranslationContext translationContext,
             final Sorting sorting)
     {
         final TableMapper tableMapper = translationContext.getTableMapper();
@@ -288,10 +278,9 @@ public class OrderTranslator
      * @param translationContext order translation context.
      * @param sqlBuilder string builder to which the column should be appended.
      * @param sorting sorting parameters.
-     * @param inSelect {@code true} if this method is used in the {@code SELECT} clause.
      */
-    private static void appendSortingColumn(final TranslationContext translationContext, final StringBuilder sqlBuilder, final Sorting sorting,
-            final boolean inSelect)
+    private static void appendSortingColumn(final TranslationContext translationContext, final StringBuilder sqlBuilder,
+            final Sorting sorting)
     {
         final String sortingCriteriaFieldName = sorting.getField();
         final Map<String, JoinInformation> aliases = translationContext.getAliases().get(UNIQUE_PREFIX);
@@ -310,53 +299,41 @@ public class OrderTranslator
             }
         } else if (isTypeSearchCriterion(sortingCriteriaFieldName))
         {
-            final String typesTableAlias = translationContext.getAliases().get(EntityWithPropertiesSortOptions.TYPE).get(tableMapper.getEntityTypesTable()).
-                    getSubTableAlias();
+            final String typesTableAlias = translationContext.getAliases().get(EntityWithPropertiesSortOptions.TYPE)
+                    .get(tableMapper.getEntityTypesTable()).getSubTableAlias();
             sqlBuilder.append(typesTableAlias).append(PERIOD).append(CODE_COLUMN);
         } else if (isSortingByIdentifierCriterion(sortingCriteriaFieldName))
         {
-            if (inSelect)
+            if (tableMapper != TableMapper.SAMPLE)
             {
-                if (tableMapper != TableMapper.SAMPLE)
-                {
-                    final JoinInformation entitiesTableAlias = aliases.get(tableMapper.getEntitiesTable());
-                    final JoinInformation spacesTableAlias = aliases.get(UNIQUE_PREFIX + SPACES_TABLE);
-                    final JoinInformation projectsTableAlias = aliases.get(UNIQUE_PREFIX + PROJECTS_TABLE);
-                    buildFullIdentifierConcatenationString(sqlBuilder,
-                            (spacesTableAlias != null) ? spacesTableAlias.getSubTableAlias() : null,
-                            (projectsTableAlias != null) ? projectsTableAlias.getSubTableAlias() : null,
-                            (entitiesTableAlias != null) ? entitiesTableAlias.getSubTableAlias() : null, false);
-                } else
-                {
-                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN);
-                }
+                final JoinInformation entitiesTableAlias = aliases.get(tableMapper.getEntitiesTable());
+                final JoinInformation spacesTableAlias = aliases.get(UNIQUE_PREFIX + SPACES_TABLE);
+                final JoinInformation projectsTableAlias = aliases.get(UNIQUE_PREFIX + PROJECTS_TABLE);
+                buildFullIdentifierConcatenationString(sqlBuilder,
+                        (spacesTableAlias != null) ? spacesTableAlias.getSubTableAlias() : null,
+                        (projectsTableAlias != null) ? projectsTableAlias.getSubTableAlias() : null,
+                        (entitiesTableAlias != null) ? entitiesTableAlias.getSubTableAlias() : null, false);
+            } else
+            {
+                sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN);
             }
         } else if (isSortingByMaterialPermId(translationContext, sortingCriteriaFieldName))
         {
-            final String materialTypeTableAlias = translationContext.getAliases().get(EntityWithPropertiesSortOptions.TYPE)
+            final String materialTypeTableAlias = translationContext.getAliases()
+                    .get(EntityWithPropertiesSortOptions.TYPE)
                     .get(tableMapper.getEntityTypesTable()).getSubTableAlias();
             sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
-
-            if (!inSelect)
-            {
-                sqlBuilder.append(SP).append(sorting.getOrder());
-            }
-
             sqlBuilder.append(COMMA).append(SP).append(materialTypeTableAlias).append(PERIOD).append(CODE_COLUMN);
         } else if (isSortingBySpaceModificationDate(translationContext, sortingCriteriaFieldName))
         {
-            sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(REGISTRATION_TIMESTAMP_COLUMN.toLowerCase());
+            sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD)
+                    .append(REGISTRATION_TIMESTAMP_COLUMN.toLowerCase());
         } else
         {
             final String lowerCaseSortingCriteriaFieldName = sortingCriteriaFieldName.toLowerCase();
-            final String fieldName = AttributesMapper.getColumnName(lowerCaseSortingCriteriaFieldName, tableMapper.getEntitiesTable(),
-                    lowerCaseSortingCriteriaFieldName);
+            final String fieldName = AttributesMapper.getColumnName(lowerCaseSortingCriteriaFieldName,
+                    tableMapper.getEntitiesTable(), lowerCaseSortingCriteriaFieldName);
             sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(fieldName);
-        }
-
-        if (!inSelect)
-        {
-            sqlBuilder.append(SP).append(sorting.getOrder());
         }
     }
 
@@ -383,19 +360,6 @@ public class OrderTranslator
     private static boolean isTypeSearchCriterion(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.equals(EntityWithPropertiesSortOptions.TYPE);
-    }
-
-    public static SelectQuery translateToSearchTypeQuery(final TranslationContext translationContext)
-    {
-        final TableMapper tableMapper = translationContext.getTableMapper();
-        final String queryString = SELECT + SP + DISTINCT + SP + "o3" + PERIOD + CODE_COLUMN + SP + PROPERTY_CODE_ALIAS + COMMA + SP +
-                "o4" + PERIOD + CODE_COLUMN + SP + TYPE_CODE_ALIAS + NL +
-                FROM + SP + tableMapper.getAttributeTypesTable() + SP + "o3" + SP + NL +
-                INNER_JOIN + SP + DATA_TYPES_TABLE + SP + "o4" + SP +
-                ON + SP + "o3" + PERIOD + tableMapper.getAttributeTypesTableDataTypeIdField() + SP + EQ + SP + "o4" + PERIOD + ID_COLUMN + NL +
-                WHERE + SP + "o4" + PERIOD + CODE_COLUMN + SP + IN + SP + LP + SELECT + SP + UNNEST + LP + QU + RP + RP;
-
-        return new SelectQuery(queryString, Collections.singletonList(translationContext.getTypesToFilter()));
     }
 
 }
