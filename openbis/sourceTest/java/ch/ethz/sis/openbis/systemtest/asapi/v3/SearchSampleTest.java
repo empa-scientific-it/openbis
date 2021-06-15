@@ -1545,7 +1545,6 @@ public class SearchSampleTest extends AbstractSampleTest
         {
             // No exception should be thrown because both properties exist in the result set.
             final List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-            assertEquals(samples1.size(), 3);
             assertEquals(samples1.get(0).getProperty("COMMENT"), "extremely simple stuff");
             assertEquals(samples1.get(1).getProperty("COMMENT"), "stuff like others");
             assertEquals(samples1.get(2).getProperty("COMMENT"), "very advanced stuff");
@@ -1555,9 +1554,7 @@ public class SearchSampleTest extends AbstractSampleTest
         }
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "Sorting by multiple fields when one or more properties are missing " +
-                    "in the result set entities is not supported\\..*")
+    @Test
     public void testSearchWithSortingByMultiplePropertiesMissingProperty()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria();
@@ -1574,13 +1571,18 @@ public class SearchSampleTest extends AbstractSampleTest
         final SampleFetchOptions fo = new SampleFetchOptions();
         fo.withProperties();
 
-        fo.sortBy().property("COMMENT").asc();
         fo.sortBy().property("OFFSET").desc();
+        fo.sortBy().property("COMMENT").asc();
 
         try
         {
-            searchSamples(sessionToken, criteria, fo);
-            fail("Expected exception to be thrown.");
+            final List<Sample> samples = searchSamples(sessionToken, criteria, fo);
+            assertEquals(samples.size(), 6);
+            assertEquals(samples.get(0).getProperty("OFFSET"), "49");
+            assertEquals(samples.get(1).getProperty("OFFSET"), "42");
+            assertEquals(samples.get(2).getProperty("COMMENT"), "extremely simple stuff");
+            assertEquals(samples.get(3).getProperty("COMMENT"), "stuff like others");
+            assertEquals(samples.get(4).getProperty("COMMENT"), "very advanced stuff");
         } finally
         {
             v3api.logout(sessionToken);

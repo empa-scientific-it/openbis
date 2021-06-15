@@ -313,12 +313,6 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         final List<Long> toPage;
         if (sortedIds.size() < ids.size())
         {
-            if (sortOptions != null && sortOptions.getSortings().size() > 1)
-            {
-                throwIllegalArgumentException("Sorting by multiple fields when one or more properties are missing " +
-                        "in the result set entities is not supported.");
-            }
-
             final Set<Long> combiningSet = new LinkedHashSet<>(sortedIds);
             combiningSet.addAll(ids);
             toPage = new ArrayList<>(combiningSet);
