@@ -46,7 +46,7 @@ public final class IndexCreationUtil
 
     private static final Template CREATE_DATABASE_TEMPLATE = new Template(
             "create database ${duplicated-database} with owner ${owner} "
-            + "encoding = 'utf8' lc_collate = 'en_US' lc_ctype = 'en_US' template ${database}");
+            + "encoding = 'utf8' lc_collate = 'en_US.UTF-8' lc_ctype = 'en_US.UTF-8' template ${database}");
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             IndexCreationUtil.class);
