@@ -1555,34 +1555,44 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testSearchWithSortingByMultiplePropertiesMissingProperty()
+    public void testSearchWithSortingByMultiplePropertiesWithMissingProperties()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050919915-8");
+        criteria.withPermId().thatEquals("201206191219327-1054");
         criteria.withPermId().thatEquals("200902091219327-1025");
         criteria.withPermId().thatEquals("200902091225616-1027");
         criteria.withPermId().thatEquals("200902091250077-1026");
         criteria.withPermId().thatEquals("200902091250077-1051");
         criteria.withPermId().thatEquals("200811050945092-976");
         criteria.withPermId().thatEquals("200811050945092-977");
+        criteria.withPermId().thatEquals("200811050946559-981");
 
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final SampleFetchOptions fo = new SampleFetchOptions();
         fo.withProperties();
 
+        fo.sortBy().property("BACTERIUM").asc();
         fo.sortBy().property("OFFSET").desc();
         fo.sortBy().property("COMMENT").asc();
+        fo.sortBy().property("ORGANISM").asc();
+        fo.sortBy().property("SIZE").asc();
 
         try
         {
             final List<Sample> samples = searchSamples(sessionToken, criteria, fo);
-            assertEquals(samples.size(), 6);
-            assertEquals(samples.get(0).getProperty("OFFSET"), "49");
-            assertEquals(samples.get(1).getProperty("OFFSET"), "42");
-            assertEquals(samples.get(2).getProperty("COMMENT"), "extremely simple stuff");
-            assertEquals(samples.get(3).getProperty("COMMENT"), "stuff like others");
-            assertEquals(samples.get(4).getProperty("COMMENT"), "very advanced stuff");
+            assertEquals(samples.size(), 9);
+            assertEquals(samples.get(0).getPermId().toString(), "200902091219327-1025");
+            assertEquals(samples.get(1).getPermId().toString(), "201206191219327-1054");
+            assertEquals(samples.get(2).getPermId().toString(), "200902091250077-1026");
+            assertEquals(samples.get(3).getPermId().toString(), "200902091250077-1051");
+            assertEquals(samples.get(4).getPermId().toString(), "200811050945092-976");
+            assertEquals(samples.get(5).getPermId().toString(), "200811050945092-977");
+            assertEquals(samples.get(6).getPermId().toString(), "200902091225616-1027");
+            assertEquals(samples.get(7).getPermId().toString(), "200811050946559-981");
+            assertEquals(samples.get(8).getPermId().toString(), "200811050919915-8");
         } finally
         {
             v3api.logout(sessionToken);
