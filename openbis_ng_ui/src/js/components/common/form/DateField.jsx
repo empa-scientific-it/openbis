@@ -19,6 +19,26 @@ class DateField extends React.PureComponent {
     mode: 'edit'
   }
 
+  constructor(props) {
+    super(props)
+    this.handleChange = this.handleChange.bind(this)
+    this.renderEditInput = this.renderEditInput.bind(this)
+  }
+
+  handleChange(date, string) {
+    const { name, onChange } = this.props
+
+    if (onChange) {
+      onChange({
+        target: {
+          name: name,
+          value: date && false === Number.isNaN(date.getTime()) ? date : null,
+          valueString: string
+        }
+      })
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'DateField.render')
 
@@ -39,7 +59,7 @@ class DateField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { name, label, value, classes, onChange } = this.props
+    const { name, label, value, classes } = this.props
 
     return (
       <div className={classes.container}>
@@ -49,22 +69,28 @@ class DateField extends React.PureComponent {
           ampm={false}
           label={label}
           value={value}
-          onChange={onChange}
+          onChange={this.handleChange}
           format='yyyy-MM-dd HH:mm:ss'
-          TextFieldComponent={params => (
-            <TextField
-              {...params}
-              InputProps={{
-                ...params.InputProps,
-                classes: {
-                  ...params.InputProps.classes,
-                  input: classes.input
-                }
-              }}
-            />
-          )}
+          TextFieldComponent={this.renderEditInput}
         />
       </div>
+    )
+  }
+
+  renderEditInput(params) {
+    const { classes } = this.props
+
+    return (
+      <TextField
+        {...params}
+        InputProps={{
+          ...params.InputProps,
+          classes: {
+            ...params.InputProps.classes,
+            input: classes.input
+          }
+        }}
+      />
     )
   }
 }

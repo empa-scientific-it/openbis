@@ -18,10 +18,10 @@ class GridHeaderFilter extends React.PureComponent {
     this.handleFilterChange = this.handleFilterChange.bind(this)
   }
 
-  handleFilterChange(filter) {
+  handleFilterChange(event) {
     const { column, onFilterChange } = this.props
     if (onFilterChange) {
-      onFilterChange(column.name, filter)
+      onFilterChange(column.name, event.target.value)
     }
   }
 
@@ -57,7 +57,9 @@ class GridHeaderFilter extends React.PureComponent {
     ) : (
       <FilterField
         filter={filter || ''}
-        filterChange={this.handleFilterChange}
+        filterChange={filter =>
+          this.handleFilterChange({ target: { value: filter } })
+        }
       />
     )
 

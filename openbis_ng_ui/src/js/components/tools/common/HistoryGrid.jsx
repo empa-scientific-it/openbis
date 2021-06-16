@@ -5,7 +5,7 @@ import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import Collapse from '@material-ui/core/Collapse'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import DateField from '@src/js/components/common/form/DateField.jsx'
+import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import openbis from '@src/js/services/openbis.js'
@@ -43,12 +43,22 @@ class HistoryGrid extends React.PureComponent {
     criteria.withEventType().thatEquals(eventType)
 
     Object.keys(filters).forEach(filterName => {
+      const filterValue = filters[filterName]
       if (filterName === 'entityType') {
-        criteria.withEntityType().thatEquals(filters[filterName])
+        criteria.withEntityType().thatEquals(filterValue)
+      } else if (filterName === 'registrationDate') {
+        if (filterValue.from && filterValue.from.value) {
+          criteria
+            .withRegistrationDate()
+            .thatIsLaterThanOrEqualTo(filterValue.from.valueString)
+        }
+        if (filterValue.to && filterValue.to.value) {
+          criteria
+            .withRegistrationDate()
+            .thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
+        }
       } else {
-        criteria['with' + _.upperFirst(filterName)]().thatContains(
-          filters[filterName]
-        )
+        criteria['with' + _.upperFirst(filterName)]().thatContains(filterValue)
       }
     })
 
@@ -169,9 +179,7 @@ class HistoryGrid extends React.PureComponent {
                   options={openbis.EntityType.values.map(entityType => ({
                     value: entityType
                   }))}
-                  onChange={event => {
-                    onChange(event.target.value)
-                  }}
+                  onChange={onChange}
                 />
               )
             }
@@ -268,12 +276,7 @@ class HistoryGrid extends React.PureComponent {
             sort: 'desc',
             getValue: ({ row }) => date.format(row.registrationDate.value),
             renderFilter: ({ value, onChange }) => {
-              return (
-                <React.Fragment>
-                  <DateField label='From' value={value} onChange={onChange} />
-                  <DateField label='To' value={value} onChange={onChange} />
-                </React.Fragment>
-              )
+              return <DateRangeField value={value} onChange={onChange} />
             }
           }
         ]}
