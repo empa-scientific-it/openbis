@@ -5,7 +5,7 @@ import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import Collapse from '@material-ui/core/Collapse'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import { DateTimePicker } from '@material-ui/pickers'
+import DateField from '@src/js/components/common/form/DateField.jsx'
 import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import openbis from '@src/js/services/openbis.js'
@@ -269,11 +269,10 @@ class HistoryGrid extends React.PureComponent {
             getValue: ({ row }) => date.format(row.registrationDate.value),
             renderFilter: ({ value, onChange }) => {
               return (
-                <DateTimePicker
-                  variant='inline'
-                  value={value}
-                  onChange={onChange}
-                />
+                <React.Fragment>
+                  <DateField label='From' value={value} onChange={onChange} />
+                  <DateField label='To' value={value} onChange={onChange} />
+                </React.Fragment>
               )
             }
           }
