@@ -447,13 +447,14 @@ public class EntityGraphManager
         }
     }
 
-    private Sample createSample(SampleNode sampleNode, Space space, Project project)
+    private Sample createSample(SampleNode sampleNode, Space space)
     {
         try
         {
             NewSample sample = new NewSample();
             sample.setSampleType(defaultSampleType);
             ExperimentNode experimentNode = sampleNode.getExperiment();
+            Project project = null;
             if (experimentNode != null)
             {
                 Experiment experiment = repository.tryGetExperiment(experimentNode);
@@ -615,7 +616,7 @@ public class EntityGraphManager
         defaultExperimentType = createExperimentType("ET");
         defaultSampleType = createSampleType("ST");
         createExperiments(defaultProject, g);
-        createSamples(defaultSpace, defaultProject, g);
+        createSamples(defaultSpace, g);
         createDataSets(g);
         org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
@@ -632,13 +633,13 @@ public class EntityGraphManager
         }
     }
 
-    private void createSamples(Space space, Project project, EntityGraphGenerator g)
+    private void createSamples(Space space, EntityGraphGenerator g)
     {
         ArrayList<SampleNode> sampleNodes = new ArrayList<SampleNode>(g.getSamples().values());
         // Collections.reverse(sampleNodes);
         for (SampleNode sampleNode : sampleNodes)
         {
-            repository.put(sampleNode, createSample(sampleNode, space, project));
+            repository.put(sampleNode, createSample(sampleNode, space));
         }
     }
 
