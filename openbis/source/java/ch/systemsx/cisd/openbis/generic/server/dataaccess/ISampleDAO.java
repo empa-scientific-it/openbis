@@ -65,9 +65,15 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     SamplePE tryfindByCodeAndProject(String sampleCode, ProjectPE project);
 
     /**
-     * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
+     * Returns the non-project sample specified by given <var>sampleCode</var> and given <var>space</var>.
      */
     SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
+            throws DataAccessException;
+    
+    /**
+     * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
+     */
+    SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space, boolean ignoringProject)
             throws DataAccessException;
     
     /**

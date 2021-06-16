@@ -554,7 +554,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             SamplePE sample = sampleDAO.tryfindByCodeAndProject(code, project);
             if (sample == null)
             {
-                sample = sampleDAO.tryFindByCodeAndSpace(code, project.getSpace());
+                sample = sampleDAO.tryFindByCodeAndSpace(code, project.getSpace(), true);
             }
             if (sample == null)
             {

@@ -268,15 +268,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     @Override
     public final SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
     {
+        return tryFindByCodeAndSpace(sampleCode, space, false);
+    }
+    
+    @Override
+    public final SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space, boolean ignoringProject)
+    {
         assert sampleCode != null : "Unspecified sample code.";
         assert space != null : "Unspecified space.";
 
-        Criteria criteria = createSpaceCriteria(space);
+        Criteria criteria = createSpaceCriteria(space, ignoringProject);
         addSampleCodeCriterion(criteria, sampleCode);
         SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (sample == null && isFullCode(sampleCode) == false)
         {
-            criteria = createSpaceCriteria(space);
+            criteria = createSpaceCriteria(space, ignoringProject);
             sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
         }
         if (operationLog.isDebugEnabled())
@@ -295,7 +301,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         assert sampleCodes != null : "Unspecified sample codes.";
         assert space != null : "Unspecified space.";
 
-        Criteria criteria = createSpaceCriteria(space);
+        Criteria criteria = createSpaceCriteria(space, false);
         return listByCodes(criteria, sampleCodes, containerCodeOrNull);
     }
 
@@ -341,10 +347,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return criteria;
     }
 
-    private Criteria createSpaceCriteria(final SpacePE space)
+    private Criteria createSpaceCriteria(final SpacePE space, boolean ignoringProject)
     {
         Criteria criteria = createFindCriteria(Restrictions.eq("space", space));
-        criteria.add(Restrictions.isNull("projectInternal"));
+        if (ignoringProject == false)
+        {
+            criteria.add(Restrictions.isNull("projectInternal"));
+        }
         return criteria;
     }
 

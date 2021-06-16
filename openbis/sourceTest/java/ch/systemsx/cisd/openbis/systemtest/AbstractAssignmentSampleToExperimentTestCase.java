@@ -499,7 +499,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             String errorMessage = getErrorMessage(ex);
             if (errorMessage.startsWith("Samples"))
             {
-                AssertionUtil.assertContains("Samples with following codes do not exist in the space 'S2': '["
+                AssertionUtil.assertContains("Samples with following codes do not exist in the project '/S2/P1' nor in the space 'S2': '["
                         + entityGraphManager.getSample(g.s(1)).getCode(), errorMessage);
             } else if (errorMessage.startsWith("Sample space"))
             {
@@ -646,7 +646,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             String errorMessage = getErrorMessage(ex);
             if (errorMessage.startsWith("Samples"))
             {
-                AssertionUtil.assertContains("Samples with following codes do not exist in the space 'S1': '["
+                AssertionUtil.assertContains("Samples with following codes do not exist in the project '/S1/P1' nor in the space 'S1': '["
                     + entityGraphManager.getSample(g.s(1)).getCode(), errorMessage);
             } else if (errorMessage.startsWith("Shared samples"))
             {
