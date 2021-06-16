@@ -46,6 +46,8 @@ class HistoryGrid extends React.PureComponent {
       const filterValue = filters[filterName]
       if (filterName === 'entityType') {
         criteria.withEntityType().thatEquals(filterValue)
+      } else if (filterName === 'registrator') {
+        criteria.withRegistrator().withUserId().thatContains(filterValue)
       } else if (filterName === 'registrationDate') {
         if (filterValue.from && filterValue.from.value) {
           criteria
