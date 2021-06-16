@@ -2,7 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
-import FilterField from '@src/js/components/common/form/FilterField.jsx'
+import TextField from '@src/js/components/common/form/TextField.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -55,11 +56,11 @@ class GridHeaderFilter extends React.PureComponent {
     const renderedFilter = column.renderFilter ? (
       column.renderFilter(params)
     ) : (
-      <FilterField
-        filter={filter || ''}
-        filterChange={filter =>
-          this.handleFilterChange({ target: { value: filter } })
-        }
+      <TextField
+        label={messages.get(messages.FILTER)}
+        value={filter}
+        onChange={this.handleFilterChange}
+        variant='standard'
       />
     )
 

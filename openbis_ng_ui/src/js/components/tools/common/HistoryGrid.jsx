@@ -182,6 +182,7 @@ class HistoryGrid extends React.PureComponent {
                     value: entityType
                   }))}
                   onChange={onChange}
+                  variant='standard'
                 />
               )
             }
