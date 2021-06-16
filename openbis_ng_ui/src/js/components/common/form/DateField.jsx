@@ -1,12 +1,16 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import TextField from '@material-ui/core/TextField'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
 import { KeyboardDateTimePicker } from '@material-ui/pickers'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({
+const styles = theme => ({
   container: {
-    minWidth: '250px'
+    minWidth: '200px'
+  },
+  input: {
+    fontSize: theme.typography.body2.fontSize
   }
 })
 
@@ -47,6 +51,18 @@ class DateField extends React.PureComponent {
           value={value}
           onChange={onChange}
           format='yyyy-MM-dd HH:mm:ss'
+          TextFieldComponent={params => (
+            <TextField
+              {...params}
+              InputProps={{
+                ...params.InputProps,
+                classes: {
+                  ...params.InputProps.classes,
+                  input: classes.input
+                }
+              }}
+            />
+          )}
         />
       </div>
     )
