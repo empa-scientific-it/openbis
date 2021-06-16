@@ -9,6 +9,9 @@ const styles = theme => ({
   container: {
     minWidth: '200px'
   },
+  label: {
+    fontSize: theme.typography.body2.fontSize
+  },
   input: {
     fontSize: theme.typography.body2.fontSize
   }
@@ -59,7 +62,7 @@ class DateField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { name, label, value, classes } = this.props
+    const { name, value, classes } = this.props
 
     return (
       <div className={classes.container}>
@@ -67,7 +70,7 @@ class DateField extends React.PureComponent {
           name={name}
           variant='inline'
           ampm={false}
-          label={label}
+          label={this.renderEditLabel()}
           value={value}
           onChange={this.handleChange}
           format='yyyy-MM-dd HH:mm:ss'
@@ -75,6 +78,11 @@ class DateField extends React.PureComponent {
         />
       </div>
     )
+  }
+
+  renderEditLabel() {
+    const { label, classes } = this.props
+    return <span className={classes.label}>{label}</span>
   }
 
   renderEditInput(params) {
