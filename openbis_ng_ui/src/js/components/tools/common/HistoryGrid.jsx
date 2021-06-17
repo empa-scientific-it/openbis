@@ -80,9 +80,6 @@ class HistoryGrid extends React.PureComponent {
 
     const rows = result.objects.map(event => ({
       id: _.get(event, 'id'),
-      eventType: FormUtil.createField({
-        value: _.get(event, 'eventType')
-      }),
       entityType: FormUtil.createField({
         value: _.get(event, 'entityType')
       }),
@@ -163,13 +160,6 @@ class HistoryGrid extends React.PureComponent {
         id={this.getId()}
         header={this.getHeader()}
         columns={[
-          {
-            name: 'eventType',
-            label: messages.get(messages.EVENT_TYPE),
-            sortable: false,
-            filterable: false,
-            getValue: ({ row }) => row.eventType.value
-          },
           {
             name: 'entityType',
             label: messages.get(messages.ENTITY_TYPE),
