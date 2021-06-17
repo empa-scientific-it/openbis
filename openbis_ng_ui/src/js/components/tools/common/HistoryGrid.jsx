@@ -48,16 +48,19 @@ class HistoryGrid extends React.PureComponent {
         criteria.withEntityType().thatEquals(filterValue)
       } else if (filterName === 'registrator') {
         criteria.withRegistrator().withUserId().thatContains(filterValue)
-      } else if (filterName === 'registrationDate') {
+      } else if (
+        filterName === 'registrationDate' ||
+        filterName === 'entityRegistrationDate'
+      ) {
         if (filterValue.from && filterValue.from.value) {
-          criteria
-            .withRegistrationDate()
-            .thatIsLaterThanOrEqualTo(filterValue.from.valueString)
+          criteria[
+            'with' + _.upperFirst(filterName)
+          ]().thatIsLaterThanOrEqualTo(filterValue.from.valueString)
         }
         if (filterValue.to && filterValue.to.value) {
-          criteria
-            .withRegistrationDate()
-            .thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
+          criteria[
+            'with' + _.upperFirst(filterName)
+          ]().thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
         }
       } else {
         criteria['with' + _.upperFirst(filterName)]().thatContains(filterValue)
@@ -215,7 +218,11 @@ class HistoryGrid extends React.PureComponent {
             name: 'entityRegistrationDate',
             label: messages.get(messages.ENTITY_REGISTRATION_DATE),
             sortable: false,
-            getValue: ({ row }) => date.format(row.entityRegistrationDate.value)
+            getValue: ({ row }) =>
+              date.format(row.entityRegistrationDate.value),
+            renderFilter: ({ value, onChange }) => {
+              return <DateRangeField value={value} onChange={onChange} />
+            }
           },
           {
             name: 'reason',
