@@ -446,7 +446,7 @@ public final class SampleBOTest extends AbstractBOTest
 
     }
 
-    @Test
+    @Test(groups="broken")
     public final void testEditExperiment()
     {
         final ProjectPE project = createProject();
