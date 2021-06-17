@@ -158,8 +158,6 @@ public class OrderTranslator
         if (TranslatorUtils.isPropertySearchFieldName(sortingCriterionFieldName))
         {
             final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(sorting, aliases);
-            sqlBuilder.append(COMMA).append(SP).append(joinInformationMap.get(tableMapper.getAttributeTypesTable())
-                    .getSubTableAlias()).append(PERIOD).append(CODE_COLUMN);
             sqlBuilder.append(COMMA).append(SP);
 
             final String sortingCriteriaFieldName = sorting.getField();
