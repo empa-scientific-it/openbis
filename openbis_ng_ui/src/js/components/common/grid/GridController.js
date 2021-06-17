@@ -37,6 +37,7 @@ export default class GridController {
 
     context.initState({
       loaded: false,
+      loading: false,
       filters: {},
       page: 0,
       pageSize: 10,
@@ -218,6 +219,10 @@ export default class GridController {
         pageSize
       } = this.context.getState()
 
+      await this.context.setState(() => ({
+        loading: true
+      }))
+
       await load({
         columns,
         filters,
@@ -226,6 +231,10 @@ export default class GridController {
         sort,
         sortDirection
       })
+
+      await this.context.setState(() => ({
+        loading: false
+      }))
     } else {
       await this.updateRows(rows, rows.length)
     }

@@ -3,6 +3,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import Header from '@src/js/components/common/form/Header.jsx'
@@ -92,11 +93,12 @@ class Grid extends React.PureComponent {
     logger.log(logger.DEBUG, 'Grid.render')
 
     if (!this.state.loaded) {
-      return <React.Fragment />
+      return <Loading loading={true}></Loading>
     }
 
     const { header, classes } = this.props
     const {
+      loading,
       filters,
       sort,
       sortDirection,
@@ -111,47 +113,51 @@ class Grid extends React.PureComponent {
     return (
       <React.Fragment>
         {header && <Header>{header}</Header>}
-        <div onClick={this.handleClickContainer}>
-          <div className={classes.tableHeaderAndBody}>
-            <Table classes={{ root: classes.table }}>
-              <GridHeader
-                columns={columns}
-                filters={filters}
-                sort={sort}
-                sortDirection={sortDirection}
-                onSortChange={this.controller.handleSortChange}
-                onFilterChange={this.controller.handleFilterChange}
+        <Loading loading={loading}>
+          <div onClick={this.handleClickContainer}>
+            <div className={classes.tableHeaderAndBody}>
+              <Table classes={{ root: classes.table }}>
+                <GridHeader
+                  columns={columns}
+                  filters={filters}
+                  sort={sort}
+                  sortDirection={sortDirection}
+                  onSortChange={this.controller.handleSortChange}
+                  onFilterChange={this.controller.handleFilterChange}
+                />
+                <TableBody classes={{ root: classes.tableBody }}>
+                  {currentRows.map(row => {
+                    return (
+                      <GridRow
+                        key={row.id}
+                        columns={columns}
+                        row={row}
+                        selected={
+                          selectedRow ? selectedRow.id === row.id : false
+                        }
+                        onClick={this.controller.handleRowSelect}
+                      />
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+            <div className={classes.tableFooter}>
+              <GridPaging
+                count={totalCount}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={this.controller.handlePageChange}
+                onPageSizeChange={this.controller.handlePageSizeChange}
               />
-              <TableBody classes={{ root: classes.tableBody }}>
-                {currentRows.map(row => {
-                  return (
-                    <GridRow
-                      key={row.id}
-                      columns={columns}
-                      row={row}
-                      selected={selectedRow ? selectedRow.id === row.id : false}
-                      onClick={this.controller.handleRowSelect}
-                    />
-                  )
-                })}
-              </TableBody>
-            </Table>
+              <ColumnConfig
+                columns={columns}
+                onVisibleChange={this.controller.handleColumnVisibleChange}
+                onOrderChange={this.controller.handleColumnOrderChange}
+              />
+            </div>
           </div>
-          <div className={classes.tableFooter}>
-            <GridPaging
-              count={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onPageChange={this.controller.handlePageChange}
-              onPageSizeChange={this.controller.handlePageSizeChange}
-            />
-            <ColumnConfig
-              columns={columns}
-              onVisibleChange={this.controller.handleColumnVisibleChange}
-              onOrderChange={this.controller.handleColumnOrderChange}
-            />
-          </div>
-        </div>
+        </Loading>
       </React.Fragment>
     )
   }
