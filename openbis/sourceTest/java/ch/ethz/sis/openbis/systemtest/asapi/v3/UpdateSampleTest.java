@@ -482,7 +482,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
             }, "Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (perm id: 201206190940555-1032)",
-                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/TEST-PROJECT/SAMPLE'")));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE'")));
     }
 
     @Test
@@ -508,7 +508,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
             }, "Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (perm id: 201206190940555-1032)",
-                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/TEST-PROJECT/SAMPLE'")));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SAMPLE'")));
     }
 
     @Test

@@ -223,8 +223,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             }
         }
         Collections.sort(identifiers);
-        String pid = reloadedExperiment.getProject().getIdentifier();
-        assertEquals("[" + pid + "/LINKED_SAMPLE1, " + pid + "/LINKED_SAMPLE2]", identifiers.toString());
+        assertEquals("[/LINKED_SAMPLE1, /LINKED_SAMPLE2]", identifiers.toString());
     }
 
     @Test
@@ -259,8 +258,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             identifiers.add(sample.getIdentifier());
         }
         Collections.sort(identifiers);
-        String pid = reloadedExperiment.getProject().getIdentifier();
-        assertEquals("[" + pid + "/LINKED_SAMPLE1, " + pid + "/LINKED_SAMPLE2]", identifiers.toString());
+        assertEquals("[/LINKED_SAMPLE1, /LINKED_SAMPLE2]", identifiers.toString());
     }
 
     @Test
