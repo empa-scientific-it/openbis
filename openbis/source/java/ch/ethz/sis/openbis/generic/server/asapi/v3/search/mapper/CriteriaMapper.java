@@ -93,6 +93,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StatusSearchCrite
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StorageConfirmationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StorageFormatSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventDescriptionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityProjectIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityRegistrationDateSearchCriteria;
@@ -100,6 +101,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityRegistra
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntitySpaceIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntitySpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventIdentifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventReasonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventTypeSearchCriteria;
@@ -299,6 +301,8 @@ public class CriteriaMapper
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(UserIdSearchCriteria.class, new UserIdSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(UserIdsSearchCriteria.class, collectionFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventTypeSearchCriteria.class, enumFieldConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventIdentifierSearchCriteria.class, stringFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventDescriptionSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventReasonSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntityTypeSearchCriteria.class, new EventEntityTypeConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EventEntitySpaceSearchCriteria.class, stringFieldSearchConditionTranslator);

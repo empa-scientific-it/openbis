@@ -191,7 +191,6 @@ class HistoryGrid extends React.PureComponent {
             name: 'identifier',
             label: messages.get(messages.ENTITY_IDENTIFIER),
             sortable: true,
-            filterable: false,
             getValue: ({ row }) => row.identifier.value
           },
           {
@@ -228,7 +227,6 @@ class HistoryGrid extends React.PureComponent {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
             sortable: false,
-            filterable: false,
             getValue: ({ row }) => row.description.value
           },
           {

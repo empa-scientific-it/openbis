@@ -57,9 +57,19 @@ public class EventSearchCriteria extends AbstractObjectSearchCriteria<IEventId>
         return with(new EventEntityRegistrationDateSearchCriteria());
     }
 
+    public EventIdentifierSearchCriteria withIdentifier()
+    {
+        return with(new EventIdentifierSearchCriteria());
+    }
+
     public EventReasonSearchCriteria withReason()
     {
         return with(new EventReasonSearchCriteria());
+    }
+
+    public EventDescriptionSearchCriteria withDescription()
+    {
+        return with(new EventDescriptionSearchCriteria());
     }
 
     public RegistratorSearchCriteria withRegistrator()
