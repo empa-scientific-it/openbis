@@ -377,8 +377,21 @@ export default class GridController {
       filters
     }))
 
-    await this._loadRows()
-    await this._recalculateCurrentRows()
+    const { load } = this.context.getProps()
+
+    if (load) {
+      if (this.loadTimerId) {
+        clearTimeout(this.loadTimerId)
+        this.loadTimerId = null
+      }
+      this.loadTimerId = setTimeout(async () => {
+        await this._loadRows()
+        await this._recalculateCurrentRows()
+      }, 500)
+    } else {
+      await this._loadRows()
+      await this._recalculateCurrentRows()
+    }
   }
 
   async handleColumnVisibleChange(name) {
