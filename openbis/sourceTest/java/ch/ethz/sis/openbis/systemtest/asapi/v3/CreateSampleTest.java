@@ -374,7 +374,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, "Shared samples cannot be attached to experiments",
-                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/NEMO/SHARED_SAMPLE_TEST'")));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
     }
 
     @Test
@@ -505,7 +505,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, "Sample space must be the same as experiment space",
-                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/NEMO/SAMPLE_WITH_INCONSISTENT_SPACE'")));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/SAMPLE_WITH_INCONSISTENT_SPACE'")));
     }
 
     @Test
