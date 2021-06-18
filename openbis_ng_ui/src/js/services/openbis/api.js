@@ -115,6 +115,10 @@ class Facade {
     return this.promise(this.v3.searchPropertyAssignments(criteria, fo))
   }
 
+  searchEvents(criteria, fo) {
+    return this.promise(this.v3.searchEvents(criteria, fo))
+  }
+
   getSampleTypes(ids, fo) {
     return this.promise(this.v3.getSampleTypes(ids, fo))
   }

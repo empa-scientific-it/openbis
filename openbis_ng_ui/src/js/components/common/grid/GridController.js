@@ -33,24 +33,24 @@ export default class GridController {
       }
 
       columns.push(this.initColumn(column))
-
-      context.initState({
-        loaded: false,
-        filters: {},
-        page: 0,
-        pageSize: 10,
-        columns,
-        allRows: [],
-        filteredRows: [],
-        sortedRows: [],
-        currentRows: [],
-        selectedRow: null,
-        sort: initialSort,
-        sortDirection: initialSortDirection
-      })
-
-      this.context = context
     })
+
+    context.initState({
+      loaded: false,
+      filters: {},
+      page: 0,
+      pageSize: 10,
+      columns,
+      allRows: [],
+      filteredRows: [],
+      sortedRows: [],
+      currentRows: [],
+      selectedRow: null,
+      sort: initialSort,
+      sortDirection: initialSortDirection
+    })
+
+    this.context = context
   }
 
   initColumn(config) {
@@ -61,14 +61,15 @@ export default class GridController {
       name: config.name,
       label: config.label,
       getValue: config.getValue,
-      render: row => {
+      render: (row, classes) => {
         const value = config.getValue({ row, column })
 
         const renderedValue = config.renderValue
           ? config.renderValue({
               value,
               row,
-              column
+              column,
+              classes
             })
           : value
 

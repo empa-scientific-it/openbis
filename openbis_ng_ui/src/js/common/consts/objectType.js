@@ -19,6 +19,7 @@ const USER_GROUP = 'userGroup'
 const DYNAMIC_PROPERTY_PLUGIN = 'dynamicPropertyPlugin'
 const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
 const QUERY = 'query'
+const HISTORY = 'history'
 
 const SEARCH = 'search'
 const OVERVIEW = 'overview'
@@ -44,6 +45,7 @@ export default {
   DYNAMIC_PROPERTY_PLUGIN,
   ENTITY_VALIDATION_PLUGIN,
   QUERY,
+  HISTORY,
   SEARCH,
   OVERVIEW
 }

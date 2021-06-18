@@ -71,6 +71,29 @@ export default class ToolBrowserController extends BrowserController {
         }
       })
 
+      const historyNodes = [
+        {
+          id: `history/deletion`,
+          text: openbis.EventType.DELETION,
+          object: {
+            type: objectType.HISTORY,
+            id: openbis.EventType.DELETION
+          },
+          canMatchFilter: true,
+          canRemove: false
+        },
+        {
+          id: `history/freeze`,
+          text: openbis.EventType.FREEZING,
+          object: {
+            type: objectType.HISTORY,
+            id: openbis.EventType.FREEZING
+          },
+          canMatchFilter: true,
+          canRemove: false
+        }
+      ]
+
       let nodes = [
         {
           id: 'dynamicPropertyPlugins',
@@ -104,6 +127,12 @@ export default class ToolBrowserController extends BrowserController {
           children: queryNodes,
           childrenType: objectType.NEW_QUERY,
           canAdd: true
+        },
+        {
+          id: 'history',
+          text: messages.get(messages.HISTORY),
+          children: historyNodes,
+          canAdd: false
         }
       ]
 
