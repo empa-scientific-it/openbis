@@ -1,6 +1,6 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
-import FilterFieldWrapper from '@srcTest/js/components/common/form/wrapper/FilterFieldWrapper.js'
 import GridColumnLabelWrapper from '@srcTest/js/components/common/grid/wrapper/GridColumnLabelWrapper.js'
+import GridColumnFilterWrapper from '@srcTest/js/components/common/grid/wrapper/GridColumnFilterWrapper.js'
 
 export default class GridColumnWrapper extends BaseWrapper {
   constructor(column, labelWrapper, filterWrapper, sortWrapper) {
@@ -20,7 +20,7 @@ export default class GridColumnWrapper extends BaseWrapper {
   }
 
   getFilter() {
-    return new FilterFieldWrapper(this.filterWrapper)
+    return new GridColumnFilterWrapper(this.filterWrapper)
   }
 
   getSort() {

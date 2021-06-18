@@ -3,6 +3,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import Header from '@src/js/components/common/form/Header.jsx'
@@ -16,6 +17,9 @@ import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
+  container: {
+    height: '100%'
+  },
   tableHeaderAndBody: {
     width: '100%',
     overflow: 'auto'
@@ -73,15 +77,26 @@ class Grid extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.rows !== prevProps.rows) {
-      this.controller.updateAllRows(this.props.rows)
+    if (
+      this.props.rows !== prevProps.rows ||
+      this.props.totalCount !== prevProps.totalCount
+    ) {
+      this.controller.updateRows(this.props.rows, this.props.totalCount)
     }
     if (this.props.selectedRowId !== prevProps.selectedRowId) {
       this.controller.updateSelectedRowId(this.props.selectedRowId)
     }
   }
 
-  handleClickContainer(event) {
+  handleClickContainer() {
+    const { selectedRowId, onSelectedRowChange } = this.props
+
+    if (!selectedRowId && !onSelectedRowChange) {
+      this.controller.handleRowSelect(null)
+    }
+  }
+
+  handleClickTable(event) {
     event.stopPropagation()
   }
 
@@ -89,11 +104,12 @@ class Grid extends React.PureComponent {
     logger.log(logger.DEBUG, 'Grid.render')
 
     if (!this.state.loaded) {
-      return <React.Fragment />
+      return <Loading loading={true}></Loading>
     }
 
     const { header, classes } = this.props
     const {
+      loading,
       filters,
       sort,
       sortDirection,
@@ -101,55 +117,61 @@ class Grid extends React.PureComponent {
       pageSize,
       columns,
       currentRows,
-      sortedRows,
-      selectedRow
+      selectedRow,
+      totalCount
     } = this.state
 
     return (
-      <React.Fragment>
-        {header && <Header>{header}</Header>}
-        <div onClick={this.handleClickContainer}>
-          <div className={classes.tableHeaderAndBody}>
-            <Table classes={{ root: classes.table }}>
-              <GridHeader
-                columns={columns}
-                filters={filters}
-                sort={sort}
-                sortDirection={sortDirection}
-                onSortChange={this.controller.handleSortChange}
-                onFilterChange={this.controller.handleFilterChange}
-              />
-              <TableBody classes={{ root: classes.tableBody }}>
-                {currentRows.map(row => {
-                  return (
-                    <GridRow
-                      key={row.id}
-                      columns={columns}
-                      row={row}
-                      selected={selectedRow ? selectedRow.id === row.id : false}
-                      onClick={this.controller.handleRowSelect}
-                    />
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
-          <div className={classes.tableFooter}>
-            <GridPaging
-              count={sortedRows.length}
-              page={page}
-              pageSize={pageSize}
-              onPageChange={this.controller.handlePageChange}
-              onPageSizeChange={this.controller.handlePageSizeChange}
-            />
-            <ColumnConfig
-              columns={columns}
-              onVisibleChange={this.controller.handleColumnVisibleChange}
-              onOrderChange={this.controller.handleColumnOrderChange}
-            />
-          </div>
+      <div onClick={this.handleClickContainer} className={classes.container}>
+        <div>{header && <Header>{header}</Header>}</div>
+        <div>
+          <Loading loading={loading}>
+            <div onClick={this.handleClickTable}>
+              <div className={classes.tableHeaderAndBody}>
+                <Table classes={{ root: classes.table }}>
+                  <GridHeader
+                    columns={columns}
+                    filters={filters}
+                    sort={sort}
+                    sortDirection={sortDirection}
+                    onSortChange={this.controller.handleSortChange}
+                    onFilterChange={this.controller.handleFilterChange}
+                  />
+                  <TableBody classes={{ root: classes.tableBody }}>
+                    {currentRows.map(row => {
+                      return (
+                        <GridRow
+                          key={row.id}
+                          columns={columns}
+                          row={row}
+                          selected={
+                            selectedRow ? selectedRow.id === row.id : false
+                          }
+                          onClick={this.controller.handleRowSelect}
+                        />
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className={classes.tableFooter}>
+                <GridPaging
+                  count={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onPageChange={this.controller.handlePageChange}
+                  onPageSizeChange={this.controller.handlePageSizeChange}
+                />
+                <ColumnConfig
+                  columns={columns}
+                  onVisibleChange={this.controller.handleColumnVisibleChange}
+                  onOrderChange={this.controller.handleColumnOrderChange}
+                />
+              </div>
+            </div>
+          </Loading>
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 }

@@ -61,7 +61,10 @@ async function testFilter() {
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
-      { level: 1, text: testQuery.name }
+      { level: 1, text: testQuery.name },
+      { level: 0, text: 'History' },
+      { level: 1, text: openbis.EventType.DELETION },
+      { level: 1, text: openbis.EventType.FREEZING }
     ]
   })
 }

@@ -87,6 +87,7 @@ public class AttributesMapper
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_registration_date", ColumnNames.ENTITY_REGISTRATION_TIMESTAMP);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_identifier", ColumnNames.IDENTIFIER);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_reason", ColumnNames.REASON);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_description", ColumnNames.DESCRIPTION_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_registration_date", ColumnNames.REGISTRATION_TIMESTAMP_COLUMN);
 
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);

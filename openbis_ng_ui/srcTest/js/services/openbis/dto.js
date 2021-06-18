@@ -45,6 +45,7 @@ import DynamicPropertyPluginEvaluationResult from 'as/dto/plugin/evaluate/Dynami
 import EntityValidationPluginEvaluationResult from 'as/dto/plugin/evaluate/EntityValidationPluginEvaluationResult'
 import EntityKind from 'as/dto/entitytype/EntityKind'
 import EntityTypePermId from 'as/dto/entitytype/id/EntityTypePermId'
+import EventType from 'as/dto/event/EventType'
 import ExperimentFetchOptions from 'as/dto/experiment/fetchoptions/ExperimentFetchOptions'
 import ExperimentIdentifier from 'as/dto/experiment/id/ExperimentIdentifier'
 import ExperimentSearchCriteria from 'as/dto/experiment/search/ExperimentSearchCriteria'
@@ -215,6 +216,7 @@ const dto = {
   EntityValidationPluginEvaluationResult,
   EntityKind,
   EntityTypePermId,
+  EventType,
   ExperimentFetchOptions,
   ExperimentIdentifier,
   ExperimentSearchCriteria,
