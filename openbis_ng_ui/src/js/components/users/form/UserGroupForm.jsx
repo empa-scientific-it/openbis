@@ -91,26 +91,30 @@ class UserGroupForm extends React.PureComponent {
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <UserGroupFormGridUsers
-          controllerRef={this.handleUsersGridControllerRef}
-          rows={users}
-          selectedRowId={
-            selection && selection.type === UserGroupFormSelectionType.USER
-              ? selection.params.id
-              : null
-          }
-          onSelectedRowChange={this.handleSelectedUserRowChange}
-        />
-        <UserGroupFormGridRoles
-          controllerRef={this.handleRolesGridControllerRef}
-          rows={roles}
-          selectedRowId={
-            selection && selection.type === UserGroupFormSelectionType.ROLE
-              ? selection.params.id
-              : null
-          }
-          onSelectedRowChange={this.handleSelectedRoleRowChange}
-        />
+        <div>
+          <UserGroupFormGridUsers
+            controllerRef={this.handleUsersGridControllerRef}
+            rows={users}
+            selectedRowId={
+              selection && selection.type === UserGroupFormSelectionType.USER
+                ? selection.params.id
+                : null
+            }
+            onSelectedRowChange={this.handleSelectedUserRowChange}
+          />
+        </div>
+        <div>
+          <UserGroupFormGridRoles
+            controllerRef={this.handleRolesGridControllerRef}
+            rows={roles}
+            selectedRowId={
+              selection && selection.type === UserGroupFormSelectionType.ROLE
+                ? selection.params.id
+                : null
+            }
+            onSelectedRowChange={this.handleSelectedRoleRowChange}
+          />
+        </div>
       </GridContainer>
     )
   }

@@ -17,6 +17,9 @@ import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
+  container: {
+    height: '100%'
+  },
   tableHeaderAndBody: {
     width: '100%',
     overflow: 'auto'
@@ -85,7 +88,15 @@ class Grid extends React.PureComponent {
     }
   }
 
-  handleClickContainer(event) {
+  handleClickContainer() {
+    const { selectedRowId, onSelectedRowChange } = this.props
+
+    if (!selectedRowId && !onSelectedRowChange) {
+      this.controller.handleRowSelect(null)
+    }
+  }
+
+  handleClickTable(event) {
     event.stopPropagation()
   }
 
@@ -111,54 +122,56 @@ class Grid extends React.PureComponent {
     } = this.state
 
     return (
-      <React.Fragment>
-        {header && <Header>{header}</Header>}
-        <Loading loading={loading}>
-          <div onClick={this.handleClickContainer}>
-            <div className={classes.tableHeaderAndBody}>
-              <Table classes={{ root: classes.table }}>
-                <GridHeader
-                  columns={columns}
-                  filters={filters}
-                  sort={sort}
-                  sortDirection={sortDirection}
-                  onSortChange={this.controller.handleSortChange}
-                  onFilterChange={this.controller.handleFilterChange}
+      <div onClick={this.handleClickContainer} className={classes.container}>
+        <div>{header && <Header>{header}</Header>}</div>
+        <div>
+          <Loading loading={loading}>
+            <div onClick={this.handleClickTable}>
+              <div className={classes.tableHeaderAndBody}>
+                <Table classes={{ root: classes.table }}>
+                  <GridHeader
+                    columns={columns}
+                    filters={filters}
+                    sort={sort}
+                    sortDirection={sortDirection}
+                    onSortChange={this.controller.handleSortChange}
+                    onFilterChange={this.controller.handleFilterChange}
+                  />
+                  <TableBody classes={{ root: classes.tableBody }}>
+                    {currentRows.map(row => {
+                      return (
+                        <GridRow
+                          key={row.id}
+                          columns={columns}
+                          row={row}
+                          selected={
+                            selectedRow ? selectedRow.id === row.id : false
+                          }
+                          onClick={this.controller.handleRowSelect}
+                        />
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className={classes.tableFooter}>
+                <GridPaging
+                  count={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onPageChange={this.controller.handlePageChange}
+                  onPageSizeChange={this.controller.handlePageSizeChange}
                 />
-                <TableBody classes={{ root: classes.tableBody }}>
-                  {currentRows.map(row => {
-                    return (
-                      <GridRow
-                        key={row.id}
-                        columns={columns}
-                        row={row}
-                        selected={
-                          selectedRow ? selectedRow.id === row.id : false
-                        }
-                        onClick={this.controller.handleRowSelect}
-                      />
-                    )
-                  })}
-                </TableBody>
-              </Table>
+                <ColumnConfig
+                  columns={columns}
+                  onVisibleChange={this.controller.handleColumnVisibleChange}
+                  onOrderChange={this.controller.handleColumnOrderChange}
+                />
+              </div>
             </div>
-            <div className={classes.tableFooter}>
-              <GridPaging
-                count={totalCount}
-                page={page}
-                pageSize={pageSize}
-                onPageChange={this.controller.handlePageChange}
-                onPageSizeChange={this.controller.handlePageSizeChange}
-              />
-              <ColumnConfig
-                columns={columns}
-                onVisibleChange={this.controller.handleColumnVisibleChange}
-                onOrderChange={this.controller.handleColumnOrderChange}
-              />
-            </div>
-          </div>
-        </Loading>
-      </React.Fragment>
+          </Loading>
+        </div>
+      </div>
     )
   }
 }

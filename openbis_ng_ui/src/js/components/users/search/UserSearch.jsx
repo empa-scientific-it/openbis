@@ -341,12 +341,14 @@ class UserSearch extends React.Component {
   renderUsers() {
     if (this.shouldRender(objectTypes.USER, this.state.users)) {
       return (
-        <UsersGrid
-          id={ids.USERS_GRID_ID}
-          rows={this.state.users}
-          onSelectedRowChange={this.handleSelectedRowChange(objectTypes.USER)}
-          selectedRowId={this.getSelectedRowId(objectTypes.USER)}
-        />
+        <div>
+          <UsersGrid
+            id={ids.USERS_GRID_ID}
+            rows={this.state.users}
+            onSelectedRowChange={this.handleSelectedRowChange(objectTypes.USER)}
+            selectedRowId={this.getSelectedRowId(objectTypes.USER)}
+          />
+        </div>
       )
     } else {
       return null
@@ -356,14 +358,16 @@ class UserSearch extends React.Component {
   renderUsersRoles() {
     if (this.shouldRender(objectTypes.USER, this.state.usersRoles)) {
       return (
-        <RolesGrid
-          id={ids.ROLES_OF_USERS_GRID_ID}
-          rows={this.state.usersRoles}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.USER + '-role'
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.USER + '-role')}
-        />
+        <div>
+          <RolesGrid
+            id={ids.ROLES_OF_USERS_GRID_ID}
+            rows={this.state.usersRoles}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.USER + '-role'
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.USER + '-role')}
+          />
+        </div>
       )
     } else {
       return null
@@ -373,14 +377,16 @@ class UserSearch extends React.Component {
   renderUserGroups() {
     if (this.shouldRender(objectTypes.USER_GROUP, this.state.userGroups)) {
       return (
-        <UserGroupsGrid
-          id={ids.GROUPS_GRID_ID}
-          rows={this.state.userGroups}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.USER_GROUP
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.USER_GROUP)}
-        />
+        <div>
+          <UserGroupsGrid
+            id={ids.GROUPS_GRID_ID}
+            rows={this.state.userGroups}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.USER_GROUP
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.USER_GROUP)}
+          />
+        </div>
       )
     } else {
       return null
@@ -390,16 +396,18 @@ class UserSearch extends React.Component {
   renderUserGroupsRoles() {
     if (this.shouldRender(objectTypes.USER_GROUP, this.state.userGroupsRoles)) {
       return (
-        <RolesGrid
-          id={ids.ROLES_OF_GROUPS_GRID_ID}
-          rows={this.state.userGroupsRoles}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.USER_GROUP + '-role'
-          )}
-          selectedRowId={this.getSelectedRowId(
-            objectTypes.USER_GROUP + '-role'
-          )}
-        />
+        <div>
+          <RolesGrid
+            id={ids.ROLES_OF_GROUPS_GRID_ID}
+            rows={this.state.userGroupsRoles}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.USER_GROUP + '-role'
+            )}
+            selectedRowId={this.getSelectedRowId(
+              objectTypes.USER_GROUP + '-role'
+            )}
+          />
+        </div>
       )
     } else {
       return null
