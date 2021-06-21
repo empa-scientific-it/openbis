@@ -115,9 +115,9 @@ public class JavaDropboxSystemTest extends SystemTestCase
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "PLATE_WELLSEARCH"));
         List<Sample> samples = openBISService.searchForSamples(searchCriteria);
-        assertEquals("[/CISD/PLATE_WELLSEARCH]", extractIdentifiers(samples).toString());
+        assertEquals("[/CISD/DEFAULT/PLATE_WELLSEARCH]", extractIdentifiers(samples).toString());
         List<Sample> components = openBISService.listSamples(ListSampleCriteria.createForContainer(new TechId(samples.get(0))));
-        assertEquals("[/CISD/PLATE_WELLSEARCH:DP1-A, /CISD/PLATE_WELLSEARCH:WELL-A01, /CISD/PLATE_WELLSEARCH:WELL-A02]",
+        assertEquals("[/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01, /CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02, /CISD/PLATE_WELLSEARCH:DP1-A]",
                 extractIdentifiers(components).toString());
     }
 

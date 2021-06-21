@@ -87,6 +87,8 @@ import junit.framework.Assert;
 public class ServiceForDataStoreServerTest extends SystemTestCase
 {
 
+    private static final ProjectIdentifier TEST_PROJECT_IDENTIFIER = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
+
     @Test()
     public void testListPhysicalDataSetsWithUnknownSize()
     {
@@ -151,20 +153,19 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<Experiment> experiments =
-                    etlService.listExperimentsForProjects(session.getSessionToken(), Arrays.asList(projectIdentifier), fetchOptions);
+                    etlService.listExperimentsForProjects(session.getSessionToken(), Arrays.asList(TEST_PROJECT_IDENTIFIER), fetchOptions);
             assertEquals(experiments.size(), 1);
             assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         } else
         {
             try
             {
-                etlService.listExperimentsForProjects(session.getSessionToken(), Arrays.asList(projectIdentifier), fetchOptions);
+                etlService.listExperimentsForProjects(session.getSessionToken(), Arrays.asList(TEST_PROJECT_IDENTIFIER), fetchOptions);
                 fail();
             } catch (AuthorizationFailureException e)
             {
@@ -242,17 +243,15 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
-
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            Project project = etlService.tryGetProject(session.getSessionToken(), projectIdentifier);
+            Project project = etlService.tryGetProject(session.getSessionToken(), TEST_PROJECT_IDENTIFIER);
             assertEquals(project.getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
         } else
         {
             try
             {
-                etlService.tryGetProject(session.getSessionToken(), projectIdentifier);
+                etlService.tryGetProject(session.getSessionToken(), TEST_PROJECT_IDENTIFIER);
                 fail();
             } catch (AuthorizationFailureException e)
             {
@@ -365,18 +364,16 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        ProjectIdentifier projectIdentifier = new ProjectIdentifier("TEST-SPACE", "TEST-PROJECT");
-
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            List<Experiment> experiments = etlService.listExperiments(session.getSessionToken(), projectIdentifier);
+            List<Experiment> experiments = etlService.listExperiments(session.getSessionToken(), TEST_PROJECT_IDENTIFIER);
             assertEquals(experiments.size(), 1);
             assertEquals(experiments.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         } else
         {
             try
             {
-                etlService.listExperiments(session.getSessionToken(), projectIdentifier);
+                etlService.listExperiments(session.getSessionToken(), TEST_PROJECT_IDENTIFIER);
                 fail();
             } catch (AuthorizationFailureException e)
             {
@@ -420,7 +417,9 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         {
             List<Sample> samples = etlService.listSamples(session.getSessionToken(), criteria);
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -445,7 +444,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<Sample> samples = etlService.listSamplesByCriteria(session.getSessionToken(), criteria);
-            assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+            assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
         } else
         {
             try
@@ -464,7 +463,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleIdentifier sampleIdentifier = new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "FV-TEST");
+        SampleIdentifier sampleIdentifier = new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "FV-TEST");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
@@ -493,7 +492,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             Sample sample = etlService.tryGetSampleByPermId(session.getSessionToken(), samplePermId);
-            assertEquals(sample.getIdentifier(), "/TEST-SPACE/FV-TEST");
+            assertEquals(sample.getIdentifier(), "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         } else
         {
             try
@@ -517,7 +516,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(session.getSessionToken(), samplePermId);
-            assertEquals(sampleIdentifier.toString(), "/TEST-SPACE/FV-TEST");
+            assertEquals(sampleIdentifier.toString(), "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         } else
         {
             try
@@ -541,7 +540,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             Map<String, SampleIdentifier> samples = etlService.listSamplesByPermId(session.getSessionToken(), Arrays.asList(samplePermId));
-            assertEquals(samples.get(samplePermId).toString(), "/TEST-SPACE/FV-TEST");
+            assertEquals(samples.get(samplePermId).toString(), "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         } else
         {
             try
@@ -608,7 +607,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleIdentifier sampleIdentifier = new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "FV-TEST");
+        SampleIdentifier sampleIdentifier = new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "FV-TEST");
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
@@ -632,7 +631,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleIdentifier sampleIdentifier = new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "FV-TEST");
+        SampleIdentifier sampleIdentifier = new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "FV-TEST");
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
@@ -688,7 +687,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         {
             etlService.registerSample(session.getSessionToken(), newSample, null);
             Sample sample = etlService.tryGetSampleWithExperiment(session.getSessionToken(),
-                    new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "TEST-SAMPLE"));
+                    new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "TEST-SAMPLE"));
             assertEquals(sample.getExperiment().getIdentifier(), newSample.getExperimentIdentifier());
         } else
         {
@@ -715,7 +714,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         {
             etlService.registerSamples(session.getSessionToken(), Arrays.asList(newSamples), null);
             Sample sample = etlService.tryGetSampleWithExperiment(session.getSessionToken(),
-                    new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "TEST-SAMPLE"));
+                    new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "TEST-SAMPLE"));
             assertEquals(sample.getExperiment().getIdentifier(), newSample.getExperimentIdentifier());
         } else
         {
@@ -735,13 +734,13 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/TEST-PROJECT/EV-TEST", "COMMENT", "updated comment");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             etlService.updateSample(session.getSessionToken(), updates);
             IEntityProperty[] properties = etlService.tryGetPropertiesOfSample(session.getSessionToken(),
-                    new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "EV-TEST"));
+                    new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "EV-TEST"));
             assertEquals(properties[0].getValue(), updates.getProperties().get(0).getValue());
         } else
         {
@@ -794,7 +793,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         {
             etlService.registerSampleAndDataSet(session.getSessionToken(), newSample, newExternalData, null);
             Sample sample = etlService.tryGetSampleWithExperiment(session.getSessionToken(),
-                    new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "TEST-SAMPLE"));
+                    new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "TEST-SAMPLE"));
             assertEquals(sample.getExperiment().getIdentifier(), newSample.getExperimentIdentifier());
         } else
         {
@@ -814,14 +813,14 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleUpdatesDTO sampleUpdates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+        SampleUpdatesDTO sampleUpdates = createSampleUpdates(1055, "/TEST-SPACE/TEST-PROJECT/EV-TEST", "COMMENT", "updated comment");
         NewExternalData newExternalData = createNewDataSet("TEST-DATASET");
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             etlService.updateSampleAndRegisterDataSet(session.getSessionToken(), sampleUpdates, newExternalData);
             IEntityProperty[] properties = etlService.tryGetPropertiesOfSample(session.getSessionToken(),
-                    new SampleIdentifier(new SpaceIdentifier("TEST-SPACE"), "EV-TEST"));
+                    new SampleIdentifier(TEST_PROJECT_IDENTIFIER, "EV-TEST"));
             assertEquals(properties[0].getValue(), sampleUpdates.getProperties().get(0).getValue());
         } else
         {
@@ -876,7 +875,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
             List<Sample> samples = etlService.searchForSamples(session.getSessionToken(), criteria);
-            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
         } else if (user.isETLServerUser() && false == user.isTestSpaceUser())
         {
             List<Sample> samples = etlService.searchForSamples(session.getSessionToken(), criteria);
@@ -941,13 +940,15 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         if (user.isInstanceUser() || (user.isETLServerUser() && user.isTestSpaceUser()))
         {
-            List<String> samples = etlService.filterToVisibleSamples(session.getSessionToken(), TEST_USER, Arrays.asList("/TEST-SPACE/FV-TEST"));
-            assertEquals("[/TEST-SPACE/FV-TEST]", samples.toString());
+            List<String> samples = etlService.filterToVisibleSamples(session.getSessionToken(), TEST_USER, 
+                    Arrays.asList("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
+            assertEquals(samples.toString(), "[/TEST-SPACE/TEST-PROJECT/FV-TEST]");
         } else
         {
             try
             {
-                etlService.filterToVisibleSamples(session.getSessionToken(), TEST_USER, Arrays.asList("/TEST-SPACE/FV-TEST"));
+                etlService.filterToVisibleSamples(session.getSessionToken(), TEST_USER, 
+                        Arrays.asList("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
                 fail();
             } catch (AuthorizationFailureException e)
             {
@@ -961,14 +962,15 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO session = etlService.tryAuthenticate(TEST_USER, PASSWORD);
 
-        List<String> samples = etlService.filterToVisibleSamples(session.getSessionToken(), user.getUserId(), Arrays.asList("/TEST-SPACE/FV-TEST"));
+        List<String> samples = etlService.filterToVisibleSamples(session.getSessionToken(), user.getUserId(), 
+                Arrays.asList("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            assertEquals("[/TEST-SPACE/FV-TEST]", samples.toString());
+            assertEquals(samples.toString(), "[/TEST-SPACE/TEST-PROJECT/FV-TEST]");
         } else
         {
-            assertEquals("[]", samples.toString());
+            assertEquals(samples.toString(), "[]");
         }
     }
 
@@ -1133,7 +1135,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     {
         SessionContextDTO adminSession = etlService.tryAuthenticate(TEST_USER, PASSWORD);
 
-        SampleUpdatesDTO sampleUpdate = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+        SampleUpdatesDTO sampleUpdate = createSampleUpdates(1055, "/TEST-SPACE/TEST-PROJECT/EV-TEST", "COMMENT", "updated comment");
 
         AtomicEntityOperationDetails operation =
                 new AtomicEntityOperationDetails(null, user.getUserId(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
@@ -1586,8 +1588,9 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
     private SampleUpdatesDTO createSampleUpdates(long sampleId, String sampleIdentifier, String propertyCode, String propertyValue)
     {
-        SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(new TechId(sampleId), null, null, null, null, 0, SampleIdentifierFactory.parse(sampleIdentifier), null, null);
+        SampleIdentifier sid = SampleIdentifierFactory.parse(sampleIdentifier);
+        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(sampleId), null, null, 
+                sid.getProjectLevel(), null, 0, sid, null, null);
         updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
         updates.setUpdateExperimentLink(false);
         return updates;

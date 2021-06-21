@@ -44,7 +44,7 @@ public class GetServerInformationTest extends AbstractTest
         assertEquals(result.get("archiving-configured"), "false");
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
         assertEquals(result.get("enabled-technologies"), "test-.*");
-        assertEquals(result.get("project-samples-enabled"), "false");
+        assertEquals(result.get("project-samples-enabled"), "true");
         assertEquals(result.get("create-continuous-sample-codes"), "false");
         assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
 

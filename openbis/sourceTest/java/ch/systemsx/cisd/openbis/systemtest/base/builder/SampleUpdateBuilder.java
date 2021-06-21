@@ -26,10 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -69,7 +71,8 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
 
     public SampleUpdateBuilder toExperiment(Experiment experiment)
     {
-        toSpace(experiment.getProject().getSpace());
+        Project project = experiment.getProject();
+        sampleIdentifier = new SampleIdentifier(new ProjectIdentifier(project.getSpace().getCode(), project.getCode()), this.sampleCode);
         this.experimentId = new ExperimentIdentifier(experiment);
         return this;
     }

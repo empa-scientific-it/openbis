@@ -43,9 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.QueryTool;
@@ -266,22 +263,9 @@ public class DataSetLister implements IDataSetLister
             initializer.setExperimentIdentifier(experimentIdentifier.toString());
         }
 
-        if (dataSet.sa_code != null)
+        if (dataSet.sa_identifier != null)
         {
-            SpaceIdentifier sampleSpaceIdentifier = null;
-            if (dataSet.sps_code != null)
-            {
-                // we can reuse the database identifier because
-                // all related objects should belong to the same database
-                sampleSpaceIdentifier =
-                        new SpaceIdentifier(
-                                dataSet.sps_code);
-            }
-
-            SampleIdentifier sampleIdentifier =
-                    IdentifierHelper.createSampleIdentifier(sampleSpaceIdentifier, dataSet.sa_code, dataSet.sac_code);
-
-            initializer.setSampleIdentifierOrNull(sampleIdentifier.toString());
+            initializer.setSampleIdentifierOrNull(dataSet.sa_identifier);
         }
 
         return initializer;

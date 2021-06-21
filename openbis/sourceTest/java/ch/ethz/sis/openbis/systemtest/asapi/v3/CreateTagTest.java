@@ -170,7 +170,7 @@ public class CreateTagTest extends AbstractTest
     @Test
     public void testCreateWithSamples()
     {
-        final SampleIdentifier sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
+        final SampleIdentifier sampleId = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
 
         TagCreation creation = new TagCreation();
         creation.setCode("TEST_TAG");
@@ -185,7 +185,7 @@ public class CreateTagTest extends AbstractTest
     @Test
     public void testCreateWithSamplesUnauthorized()
     {
-        final SampleIdentifier sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
+        final SampleIdentifier sampleId = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {

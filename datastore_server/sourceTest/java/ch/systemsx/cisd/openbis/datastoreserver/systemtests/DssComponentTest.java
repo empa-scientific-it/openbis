@@ -431,7 +431,7 @@ public class DssComponentTest extends SystemTestCase
     private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException
     {
         DataSetOwner dataSetOwner =
-                new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/CP-TEST-1");
+                new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/NEMO/CP-TEST-1");
         createExampleDataSet(exampleDataSet);
         String rootPath = exampleDataSet.getCanonicalPath();
         FileInfoDssBuilder builder = new FileInfoDssBuilder(rootPath, rootPath);

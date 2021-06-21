@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
@@ -346,11 +347,19 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNull(sampleDAO.tryFindByCodeAndSpace("", sample.getSpace()));
     }
 
-    private final SamplePE findSample(String code, String spaceCode)
+    private final SamplePE findSample(String code, String projectCode, String spaceCode)
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SpacePE space = findSpace(spaceCode);
-        final SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, space);
+        SamplePE sample;
+        if (projectCode == null)
+        {
+            sample = sampleDAO.tryFindByCodeAndSpace(code, space);
+        } else
+        {
+            ProjectPE project = daoFactory.getProjectDAO().tryFindProject(spaceCode, projectCode);
+            sample = sampleDAO.tryfindByCodeAndProject(code, project);
+        }
         assertNotNull(sample);
 
         return sample;
@@ -359,7 +368,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithParentAndExperimentPreserved()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE sampleToDelete = findSample("3VCP5", "CISD");
+        final SamplePE sampleToDelete = findSample("3VCP5", "NEMO", "CISD");
 
         // Deleted sample should have all collections which prevent it from deletion empty.
         assertTrue(sampleToDelete.getAttachments().isEmpty());
@@ -389,8 +398,8 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteMultipleSamples()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE sample1 = findSample("3VCP5", "CISD");
-        final SamplePE sample2 = findSample("EMPTY-MP", "CISD");
+        final SamplePE sample1 = findSample("3VCP5", "NEMO", "CISD");
+        final SamplePE sample2 = findSample("EMPTY-MP", null, "CISD");
 
         // delete
         deleteSamples(new SamplePE[]
@@ -418,7 +427,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             identifiers.add(sample.getPermId());
             sampleIds.add(TechId.create(sample));
         }
-
+        Collections.sort(identifiers);
         String commaSeparatedIdentifiers =
                 CollectionUtils.abbreviate(identifiers, -1, CollectionStyle.NO_BOUNDARY);
         final String reason = "reason " + commaSeparatedIdentifiers;
@@ -431,6 +440,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             final EventPE event = tryGetDeletionEvent(sample);
             assertNotNull(event);
             assertEquals(reason, event.getReason());
+            Collections.sort(event.getIdentifiers());
             String persistedIdentifiers =
                     CollectionUtils.abbreviate(event.getIdentifiers(), -1,
                             CollectionStyle.NO_BOUNDARY);
@@ -449,7 +459,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithProperties()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE sampleToDelete = findSample("EMPTY-MP", "CISD");
+        final SamplePE sampleToDelete = findSample("EMPTY-MP", null, "CISD");
 
         // Deleted sample should have all collections which prevent it from deletion empty.
         assertTrue(sampleToDelete.getAttachments().isEmpty());
@@ -480,7 +490,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithAttachments()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE sampleToDelete = findSample("3VCP6", "CISD");
+        final SamplePE sampleToDelete = findSample("3VCP6", "NEMO", "CISD");
 
         // Deleted sample should have attachments which should be deleted as well as the sample.
         assertFalse(sampleToDelete.getAttachments().isEmpty());
@@ -509,7 +519,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithDatasets()
     {
-        final SamplePE sampleToDelete = findSample("CP-TEST-1", "CISD");
+        final SamplePE sampleToDelete = findSample("CP-TEST-1", "NEMO", "CISD");
 
         // Deleted sample should have data sets which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
@@ -526,7 +536,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     // FIXME we expect permanent deletion of parent to fail if it has children
     public final void testDeleteWithGeneratedSamples()
     {
-        final SamplePE sampleToDelete = findSample("3V-125", "CISD");
+        final SamplePE sampleToDelete = findSample("3V-125", null, "CISD");
 
         // Deleted sample should have 'generated' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
@@ -542,7 +552,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithContainedSamples()
     {
-        final SamplePE sampleToDelete = findSample("C1", "CISD");
+        final SamplePE sampleToDelete = findSample("C1", null, "CISD");
 
         // Deleted sample should have 'contained' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.

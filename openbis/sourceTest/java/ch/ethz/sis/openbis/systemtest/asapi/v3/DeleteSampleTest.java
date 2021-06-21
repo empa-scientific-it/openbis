@@ -292,7 +292,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
     {
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
-        ISampleId sampleId = new SampleIdentifier("/TEST-SPACE/EV-TEST");
+        ISampleId sampleId = new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");

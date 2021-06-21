@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +48,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -614,9 +614,12 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         if (sample.getSpace() == null)
         {
             return new SampleIdentifier(sample.getCode());
-        } else
+        } else if (sample.getProject() == null)
         {
             return new SampleIdentifier(id(sample.getSpace()), sample.getCode());
+        } else
+        {
+            return new SampleIdentifier(id(sample.getProject()), sample.getCode());
         }
     }
 

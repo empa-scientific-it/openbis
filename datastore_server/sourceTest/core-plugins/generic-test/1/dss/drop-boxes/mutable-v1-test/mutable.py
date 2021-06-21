@@ -44,9 +44,9 @@ def test(tr):
 
     # SAMPLE
 
-    sample = tr.getSample("/TEST-SPACE/FV-TEST")
+    sample = tr.getSample("/TEST-SPACE/TEST-PROJECT/FV-TEST")
         
-    mutableSample1 = tr.getSampleForUpdate("/TEST-SPACE/FV-TEST")
+    mutableSample1 = tr.getSampleForUpdate("/TEST-SPACE/TEST-PROJECT/FV-TEST")
     addAttachment(mutableSample1, "sample_1")
 
     mutableSample2 = tr.makeSampleMutable(sample)
