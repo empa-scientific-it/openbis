@@ -118,7 +118,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         final NewSample sample = new NewSample();
         final String sampleCode = "W12";
         final String simpleIdentifier = CISD + sampleCode;
-        final String containerCode = "3VCP5";
+        final String containerCode = "3V-125";
         final String containerIdentifier = CISD + containerCode;
         sample.setIdentifier(simpleIdentifier);
         sample.setContainerIdentifier(containerIdentifier);
@@ -144,6 +144,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         for (GridRowModel<Sample> gridRowModel : list)
         {
             Sample sample = gridRowModel.getOriginalObject();
+            System.err.println("SAMPLE:"+sample.getIdentifier()+ " "+sampleIdentifier);
             if (sample.getIdentifier().endsWith(sampleIdentifier.toUpperCase()))
             {
                 return sample;

@@ -317,7 +317,14 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final List<SampleIdentifier> parentIdentifiers =
                 IdentifierHelper.extractSampleIdentifiers(parents, defaultSpace);
         final SampleIdentifier childIdentifier = childPE.getSampleIdentifier();
-        if (childIdentifier.isSpaceLevel())
+        if (childIdentifier.isProjectLevel())
+        {
+            final String spaceCode = childIdentifier.getProjectLevel().getSpaceCode();
+            for (SampleIdentifier si : parentIdentifiers)
+            {
+                IdentifierHelper.fillSpaceIfNotSpecified(si, spaceCode);
+            }
+        } else if (childIdentifier.isSpaceLevel())
         {
             final String spaceCode = childIdentifier.getSpaceLevel().getSpaceCode();
             for (SampleIdentifier si : parentIdentifiers)

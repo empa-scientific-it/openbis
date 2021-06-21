@@ -622,7 +622,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
-        creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        creation.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withExperiment();
@@ -631,7 +631,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP-TEST-1");
-        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -703,7 +703,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
-        creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        creation.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withExperiment();
@@ -712,7 +712,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP-TEST-1");
-        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -723,7 +723,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
-        creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        creation.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -809,7 +809,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
+        final ISampleId sampleId = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(sampleId);
@@ -1876,7 +1876,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setCode("LOG_TEST_1");
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
-        creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        creation.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         DataSetCreation creation2 = physicalDataSetCreation();
         creation2.setCode("LOG_TEST_2");
@@ -1888,12 +1888,15 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation3.setCode("LOG_TEST_3");
         creation3.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation3.setExperimentId(null);
-        creation3.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        creation3.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         v3api.createDataSets(sessionToken, Arrays.asList(creation, creation2, creation3));
 
         assertAccessLog(
-                "create-data-sets  NEW_DATA_SETS('[DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,sampleId=/CISD/CP-TEST-1,code=LOG_TEST_1], DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,sampleId=<null>,code=LOG_TEST_2], DataSetCreation[experimentId=<null>,sampleId=/CISD/CP-TEST-1,code=LOG_TEST_3]]')");
+                "create-data-sets  NEW_DATA_SETS('[DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,"
+                + "sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_1], "
+                + "DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,sampleId=<null>,code=LOG_TEST_2], "
+                + "DataSetCreation[experimentId=<null>,sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_3]]')");
     }
 
     @Test

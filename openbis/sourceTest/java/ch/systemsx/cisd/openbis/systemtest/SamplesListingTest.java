@@ -47,10 +47,10 @@ public class SamplesListingTest extends SystemTestCase
         logIntoCommonClientService();
         sample("/CISD/PLATE-WITH_EXPERIMENT").experiment("/CISD/NEMO/EXP1").type("CELL_PLATE")
                 .property("COMMENT", "root sample").register();
-        sample("/CISD/CHILD-PLATE1").type("CELL_PLATE").parents("/CISD/PLATE-WITH_EXPERIMENT")
+        sample("/CISD/CHILD-PLATE1").type("CELL_PLATE").parents("/CISD/NEMO/PLATE-WITH_EXPERIMENT")
                 .property("COMMENT", "my plate child").register();
         // WELL samples are not listable
-        sample("/CISD/CHILD-WELL1").type("WELL").parents("/CISD/PLATE-WITH_EXPERIMENT").register();
+        sample("/CISD/CHILD-WELL1").type("WELL").parents("/CISD/NEMO/PLATE-WITH_EXPERIMENT").register();
         sample("/CISD/CHILD-PLATE2").type("CELL_PLATE").parents("/CISD/CHILD-PLATE1")
                 .property("COMMENT", "my plate grandchild").register();
         sample("/CISD/CHILD-WELL2").type("WELL").parents("/CISD/CHILD-PLATE1").register();
@@ -59,18 +59,18 @@ public class SamplesListingTest extends SystemTestCase
         listCriteria.setOnlyDirectlyConnected(true);
         TypedTableResultSet<Sample> resultSet =
                 commonClientService.listSamples2(new ListSampleDisplayCriteria2(listCriteria));
-        assertSamples(resultSet, "/CISD/PLATE-WITH_EXPERIMENT");
+        assertSamples(resultSet, "/CISD/NEMO/PLATE-WITH_EXPERIMENT");
         assertEquals("[COMMENT: root sample]", resultSet.getResultSet().getList().get(0)
                 .getOriginalObject().getObjectOrNull().getProperties().toString());
 
         listCriteria.setOnlyDirectlyConnected(false);
         resultSet = commonClientService.listSamples2(new ListSampleDisplayCriteria2(listCriteria));
         assertSamples(resultSet, "/CISD/CHILD-PLATE1", "/CISD/CHILD-PLATE2",
-                "/CISD/PLATE-WITH_EXPERIMENT");
+                "/CISD/NEMO/PLATE-WITH_EXPERIMENT");
         List<Sample> samples = asList(resultSet);
         Collections.sort(samples);
         assertEquals("[COMMENT: my plate child]", samples.get(0).getProperties().toString());
-        assertEquals("/CISD/PLATE-WITH_EXPERIMENT", samples.get(0).getParents().iterator().next()
+        assertEquals("/CISD/NEMO/PLATE-WITH_EXPERIMENT", samples.get(0).getParents().iterator().next()
                 .getIdentifier());
         assertEquals(1, samples.get(0).getParents().size());
         assertEquals("CELL_PLATE", samples.get(0).getSampleType().getCode());

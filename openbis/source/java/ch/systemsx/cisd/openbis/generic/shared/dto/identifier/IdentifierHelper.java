@@ -124,19 +124,17 @@ public final class IdentifierHelper
 
     private static SampleIdentifier createSampleIdentifier(ProjectPE project, final SpacePE space, final String sampleCode)
     {
+        if (space == null)
+        {
+            return new SampleIdentifier(sampleCode);
+        }
         if (project != null)
         {
             SpaceIdentifier spaceIdentifier = createGroupIdentifier(project.getSpace());
             ProjectIdentifier projectIdentifier = new ProjectIdentifier(spaceIdentifier, project.getCode());
             return new SampleIdentifier(projectIdentifier, sampleCode);
         }
-        if (space == null)
-        {
-            return new SampleIdentifier(sampleCode);
-        } else
-        {
-            return new SampleIdentifier(createGroupIdentifier(space), sampleCode);
-        }
+        return new SampleIdentifier(createGroupIdentifier(space), sampleCode);
     }
 
     /**

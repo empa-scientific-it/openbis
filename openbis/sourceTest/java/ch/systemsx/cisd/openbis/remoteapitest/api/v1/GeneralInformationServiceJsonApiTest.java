@@ -702,7 +702,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         DataSet dataSet = result.get(0);
         assertEquals("20081105092159111-1", dataSet.getCode());
         assertEquals("/CISD/NEMO/EXP-TEST-1", dataSet.getExperimentIdentifier());
-        assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifierOrNull());
+        assertEquals("/CISD/NEMO/CP-TEST-1", dataSet.getSampleIdentifierOrNull());
     }
 
     @Test
@@ -739,9 +739,9 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(3, result.size());
         assertEquals(
-                "[DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=1000_C (SIRNA), BACTERIUM=BACTERIUM1 (BACTERIUM), COMMENT=no comment, GENDER=FEMALE}], "
-                        + "DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment}], "
-                        + "DataSet[20081105092159333-3,/CISD/NEMO/EXP-TEST-2,/CISD/CP-TEST-3,HCS_IMAGE,{COMMENT=no comment}]]",
+                "[DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/NEMO/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=1000_C (SIRNA), BACTERIUM=BACTERIUM1 (BACTERIUM), COMMENT=no comment, GENDER=FEMALE}], "
+                        + "DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/NOE/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment}], "
+                        + "DataSet[20081105092159333-3,/CISD/NEMO/EXP-TEST-2,/CISD/NEMO/CP-TEST-3,HCS_IMAGE,{COMMENT=no comment}]]",
                 result.toString());
     }
 
@@ -984,7 +984,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         final List<Attachment> attachments3 =
                 generalInformationService.listAttachmentsForSample(sessionToken,
-                        new SampleIdentifierId("/CISD/3VCP6"), true);
+                        new SampleIdentifierId("/CISD/NEMO/3VCP6"), true);
 
         assertEquals(1, attachments3.size());
 

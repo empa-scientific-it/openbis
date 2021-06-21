@@ -33,7 +33,6 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,14 +214,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> testResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities(
-                "[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/DYNA-TEST-1, /TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]",
+                "[/CISD/NEMO/CP-TEST-1, /CISD/NEMO/CP-TEST-3, /CISD/NEMO/DYNA-TEST-1, /CISD/NOE/CP-TEST-2, "
+                + "/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST]",
                 testResult);
 
         // executed by test on behalf of test_space
         List<Sample> onBehalfOfTestSpaceResult =
                 generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken,
                         searchCriteria, EnumSet.of(SampleFetchOption.BASIC), "test_space");
-        assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
+        assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST]", 
+                onBehalfOfTestSpaceResult);
 
         // executed by test_space
         generalInformationService.logout(sessionToken);
@@ -231,7 +232,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> testSpaceResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
+        assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST]", 
+                testSpaceResult);
     }
 
     @Test(expectedExceptions = AuthorizationFailureException.class)
@@ -258,13 +260,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
         // executed by test
         List<Sample> testResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST]", testResult);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", testResult);
 
         // executed by test on behalf of test_space
         List<Sample> onBehalfOfTestSpaceResult =
                 generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken,
                         searchCriteria, EnumSet.of(SampleFetchOption.BASIC), "test_space");
-        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST]", onBehalfOfTestSpaceResult);
 
         // executed by test_space
         generalInformationService.logout(sessionToken);
@@ -273,7 +275,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> testSpaceResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST]", testSpaceResult);
     }
 
     @Test
@@ -303,7 +305,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
         assertEquals("test_role", samples.get(0).getRegistrationDetails().getModifierUserId());
     }
 
@@ -315,7 +317,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
     }
 
     @Test
@@ -326,7 +328,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-A2X, /CISD/DEFAULT/RP2-A1X]", samples);
     }
 
     @Test
@@ -337,7 +339,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-A2X, /CISD/DEFAULT/RP2-A1X]", samples);
     }
 
     @Test
@@ -348,7 +350,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-A2X, /CISD/DEFAULT/RP2-A1X]", samples);
     }
 
     @Test
@@ -359,7 +361,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-A2X, /CISD/RP2-A1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-A2X, /CISD/DEFAULT/RP2-A1X]", samples);
     }
 
     @Test
@@ -370,7 +372,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-B1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-B1X]", samples);
     }
 
     @Test
@@ -381,7 +383,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-B1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-B1X]", samples);
     }
 
     @Test
@@ -392,7 +394,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-B1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-B1X]", samples);
     }
 
     @Test
@@ -403,7 +405,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/RP1-B1X]", samples);
+        assertEntities("[/CISD/DEFAULT/RP1-B1X]", samples);
     }
 
     @Test
@@ -415,7 +417,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     @Test
@@ -427,7 +429,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     @Test
@@ -439,7 +441,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/3V-125, /TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/CISD/3V-125, /TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     @Test
@@ -463,7 +465,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     public void testSearchForSamplesByMetaprojectIdentifierWithDifferentCase()
@@ -474,7 +476,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     public void testSearchForSamplesByMetaprojectIdentifierWithWildcards()
@@ -485,7 +487,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/3V-125, /TEST-SPACE/EV-TEST]", samples);
+        assertEntities("[/CISD/3V-125, /TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
     @Test
@@ -527,7 +529,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 .getUserEmail());
         assertEquals("{OFFSET=49}", samples.get(0).getProperties().toString());
         List<Sample> children = samples.get(0).getChildren();
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", children);
+        assertEntities("[/CISD/3VCP7, /CISD/3VCP8, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6]", children);
         assertEquals("3VCP5", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES), children.get(0)
                 .getRetrievedFetchOptions());
@@ -751,7 +753,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         }
         List<Sample> children = samples.get(0).getChildren();
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", children);
+        assertEntities("[/CISD/3VCP7, /CISD/3VCP8, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6]", children);
         assertEquals("3VCP5", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.CHILDREN),
                 children.get(0).getRetrievedFetchOptions());
@@ -779,8 +781,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         fetchOptions);
 
         assertEntities(
-                "[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8, /CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, "
-                        + "/CISD/CP1-A1, /CISD/CP1-A2, /CISD/CP1-B1, /CISD/CP2-A1, /CISD/PLATE_WELLSEARCH, /TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]",
+                "[/CISD/3VCP7, /CISD/3VCP8, /CISD/DEFAULT/CP1-A1, /CISD/DEFAULT/CP1-A2, /CISD/DEFAULT/CP1-B1, "
+                + "/CISD/DEFAULT/CP2-A1, /CISD/DEFAULT/PLATE_WELLSEARCH, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6, "
+                + "/CISD/NEMO/CP-TEST-1, /CISD/NEMO/CP-TEST-3, /CISD/NOE/CP-TEST-2, /TEST-SPACE/NOE/CP-TEST-4, "
+                + "/TEST-SPACE/TEST-PROJECT/FV-TEST]",
                 samples);
 
         Sample sample0 = samples.get(0);
@@ -800,7 +804,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 SampleFetchOption.CHILDREN), sample9.getRetrievedFetchOptions());
         assertEntities("[/CISD/DP1-A]", sample9.getParents());
         List<Sample> children = sample9.getChildren();
-        assertEntities("[/CISD/RP1-A2X]", children);
+        assertEntities("[/CISD/DEFAULT/RP1-A2X]", children);
         assertEquals("RP1-A2X", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC), children.get(0)
                 .getRetrievedFetchOptions());
@@ -808,21 +812,21 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Sample sample4 = samples.get(4);
         assertEquals("CP-TEST-1", sample4.getCode());
         parents = sample4.getParents();
-        assertEntities("[/CISD/CP-TEST-2]", parents);
+        assertEntities("[/CISD/NOE/CP-TEST-2]", parents);
         assertEquals("CP-TEST-2", parents.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
                 SampleFetchOption.CHILDREN), parents.get(0).getRetrievedFetchOptions());
-        assertEntities("[/CISD/CP-TEST-1]", parents.get(0).getChildren());
+        assertEntities("[/CISD/NEMO/CP-TEST-1]", parents.get(0).getChildren());
         assertEntities("[]", parents.get(0).getParents());
 
         Sample sample5 = samples.get(5);
         assertEquals("CP-TEST-2", sample5.getCode());
         children = sample5.getChildren();
-        assertEntities("[/CISD/CP-TEST-1]", children);
+        assertEntities("[/CISD/NEMO/CP-TEST-1]", children);
         assertEquals("CP-TEST-1", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
                 SampleFetchOption.CHILDREN), children.get(0).getRetrievedFetchOptions());
-        assertEntities("[/CISD/CP-TEST-2]", children.get(0).getParents());
+        assertEntities("[/CISD/NOE/CP-TEST-2]", children.get(0).getParents());
         assertEntities("[]", children.get(0).getChildren());
     }
 
@@ -839,7 +843,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         fetchOptions);
 
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", samples);
+        assertEntities("[/CISD/3VCP7, /CISD/3VCP8, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6]", samples);
         assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.PARENTS), samples
                 .get(0).getRetrievedFetchOptions());
         assertEquals("/CISD/NEMO/EXP10", samples.get(0).getExperimentIdentifierOrNull());
@@ -879,7 +883,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN), children
                 .get(0).getRetrievedFetchOptions());
         List<Sample> grandChildren = children.get(0).getChildren();
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", grandChildren);
+        assertEntities("[/CISD/3VCP7, /CISD/3VCP8, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6]", grandChildren);
         assertEquals("3VCP5", grandChildren.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN),
                 grandChildren.get(0).getRetrievedFetchOptions());
@@ -895,7 +899,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/CP-TEST-1]", samples);
+        assertEntities("[/CISD/NEMO/CP-TEST-1]", samples);
     }
 
     @Test
@@ -906,7 +910,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3]", samples);
+        assertEntities("[/CISD/NEMO/CP-TEST-1, /CISD/NEMO/CP-TEST-3, /CISD/NOE/CP-TEST-2]", samples);
 
         SearchCriteria experimentCriteria = new SearchCriteria();
         experimentCriteria.addMatchClause(MatchClause.createAnyFieldMatch("EXP-TEST-1"));
@@ -914,7 +918,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 .createExperimentCriteria(experimentCriteria));
 
         samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/CP-TEST-1]", samples);
+        assertEntities("[/CISD/NEMO/CP-TEST-1]", samples);
     }
 
     @Test
@@ -925,7 +929,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/CP-TEST-2]", samples);
+        assertEntities("[/CISD/NOE/CP-TEST-2]", samples);
     }
 
     @Test
@@ -937,7 +941,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/CISD/CP-TEST-1]", samples);
+        assertEntities("[/CISD/NEMO/CP-TEST-1]", samples);
     }
 
     @Test
@@ -960,7 +964,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, criteria);
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", samples);
+        assertEntities("[/CISD/3VCP7, /CISD/3VCP8, /CISD/NEMO/3VCP5, /CISD/NEMO/3VCP6]", samples);
     }
 
     @Test
@@ -997,7 +1001,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, criteria);
-        assertEntities("[/CISD/3VCP6]", samples);
+        assertEntities("[/CISD/NEMO/3VCP6]", samples);
     }
 
     @Test
@@ -1035,7 +1039,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples =
                 generalInformationService
                         .listSamplesForExperiment(sessionToken, "/CISD/NEMO/EXP10");
-        assertEntities("[/CISD/3VCP5]", samples);
+        assertEntities("[/CISD/NEMO/3VCP5]", samples);
 
         loginAsObserver();
         try
@@ -1061,7 +1065,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
         {
             List<Sample> samples = generalInformationService.listSamplesForExperiment(session, experimentIdentifier);
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1088,7 +1094,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1171,7 +1179,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SampleInitializer s1 = new SampleInitializer();
         s1.setId(1042L);
         s1.setCode("CP-TEST-1");
-        s1.setIdentifier("/CISD/CP-TEST-1");
+        s1.setIdentifier("/CISD/NEMO/CP-TEST-1");
         s1.setPermId("200902091219327-1025");
         s1.setSampleTypeCode("CELL_PLATE");
         s1.setSampleTypeId(3L);
@@ -1306,7 +1314,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         SampleInitializer s1 = new SampleInitializer();
         s1.setId(1043L);
         s1.setCode("CP-TEST-2");
-        s1.setIdentifier("/CISD/CP-TEST-2");
+        s1.setIdentifier("/CISD/NEMO/CP-TEST-2");
         s1.setPermId("200902091250077-1026");
         s1.setSampleTypeCode("CELL_PLATE");
         s1.setSampleTypeId(3L);
@@ -1403,7 +1411,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.getDataSetMetaData(sessionToken,
                         Arrays.asList("20081105092159222-2", "20110509092359990-10"));
         assertEquals(
-                "[DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
+                "[DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/NOE/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
                         + "DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{},[]]]",
                 dataSets.toString());
         assertEquals("[]", dataSets.get(1).getContainedDataSets().toString());
@@ -2276,10 +2284,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
             if (user.isInstanceUser() || user.isTestSpaceUser())
             {
-                assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else if (user.isTestProjectUser())
             {
-                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else
             {
                 assertEntities("[]", samples);
@@ -2313,10 +2321,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
             if (user.isInstanceUser() || user.isTestSpaceUser())
             {
-                assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else if (user.isTestProjectUser())
             {
-                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else
             {
                 assertEntities("[]", samples);
@@ -2339,10 +2347,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         if (user.isInstanceUser() || user.isTestSpaceUser())
         {
-            assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+            assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
-            assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+            assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
         } else
         {
             assertEntities("[]", samples);
@@ -2363,12 +2371,18 @@ public class GeneralInformationServiceTest extends SystemTestCase
         if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             assertEntities(
-                    "[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     filteredSamples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     filteredSamples);
         } else
         {
@@ -3017,7 +3031,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         .getMaterials().toString());
         assertEntities("[/CISD/NEMO/EXP11, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
                 mas.getExperiments());
-        assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{COMMENT=test comment},parents=?,children=?]]", mas
+        assertEquals("[Sample[/TEST-SPACE/TEST-PROJECT/EV-TEST,VALIDATE_CHILDREN,{COMMENT=test comment},parents=?,children=?]]", mas
                 .getSamples().toString());
         assertEquals("[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,"
                 + "<null>,HCS_IMAGE,{}]]", mas.getDataSets().toString());
@@ -3153,7 +3167,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         final List<Attachment> attachments3 =
                 generalInformationService.listAttachmentsForSample(sessionToken,
-                        new SampleIdentifierId("/CISD/3VCP6"), true);
+                        new SampleIdentifierId("/CISD/NEMO/3VCP6"), true);
 
         assertEquals(1, attachments3.size());
 

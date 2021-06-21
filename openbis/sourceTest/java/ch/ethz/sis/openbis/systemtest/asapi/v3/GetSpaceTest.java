@@ -219,8 +219,10 @@ public class GetSpaceTest extends AbstractTest
         Space space = map.get(permId);
         List<Sample> samples = space.getSamples();
 
-        assertSampleIdentifiers(samples, "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID",
-                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/CP-TEST-4", "/TEST-SPACE/SAMPLE-TO-DELETE");
+        assertSampleIdentifiers(samples, "/TEST-SPACE/TEST-PROJECT/FV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-TEST", 
+                "/TEST-SPACE/TEST-PROJECT/EV-INVALID", "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID",
+                "/TEST-SPACE/TEST-PROJECT/EV-PARENT", "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL",
+                "/TEST-SPACE/NOE/CP-TEST-4", "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
 
         assertProjectsNotFetched(space);
         assertRegistratorNotFetched(space);

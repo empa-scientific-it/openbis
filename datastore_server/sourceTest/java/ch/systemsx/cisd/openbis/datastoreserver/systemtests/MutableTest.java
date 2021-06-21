@@ -137,7 +137,7 @@ public abstract class MutableTest extends SystemTestCase
 
     private List<Attachment> getSampleAttachments()
     {
-        return generalInformationService.listAttachmentsForSample(sessionToken, new SampleIdentifierId("/TEST-SPACE/FV-TEST"), true);
+        return generalInformationService.listAttachmentsForSample(sessionToken, new SampleIdentifierId("/TEST-SPACE/TEST-PROJECT/FV-TEST"), true);
     }
 
     private String getMaterialProperty()

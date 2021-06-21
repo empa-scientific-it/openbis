@@ -79,7 +79,7 @@ public class DataSetListingTest extends SystemTestCase
         assertProperties(
                 "[ANY_MATERIAL: 1000_C (SIRNA), BACTERIUM: BACTERIUM1 (BACTERIUM), COMMENT: no comment, GENDER: FEMALE]",
                 dataSets.get(0));
-        assertEquals("/CISD/CP-TEST-1", dataSets.get(0).getSampleIdentifier());
+        assertEquals("/CISD/NEMO/CP-TEST-1", dataSets.get(0).getSampleIdentifier());
         assertEquals(18, dataSets.get(0).getExperiment().getId().intValue());
         assertEquals(null, dataSets.get(0).getParents());
         assertProperties("[COMMENT: no comment]", dataSets.get(3));

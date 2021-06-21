@@ -91,8 +91,8 @@ public class GetRightsTest extends AbstractTest
     {
         // Given
         String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
-        IObjectId s1 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
-        IObjectId s2 = new SampleIdentifier("/CISD/CP-TEST-1");
+        IObjectId s1 = new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4");
+        IObjectId s2 = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         IObjectId s3 = new SampleIdentifier("/CISD/NEW");
         IObjectId s4 = new SampleIdentifier("/CISD/NEMO/NEW");
         IObjectId s5 = new SampleIdentifier("/TEST-SPACE/NOE/NEW");

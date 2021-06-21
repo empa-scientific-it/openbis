@@ -738,6 +738,7 @@ final class SampleListingWorker extends AbstractLister
     private void setProject(final Sample sample, Project project)
     {
         sample.setProject(project);
+        sample.setSpace(project.getSpace());
         sample.setIdentifier(IdentifierHelper.createSampleIdentifier(sample).toString());
     }
 

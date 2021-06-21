@@ -182,6 +182,6 @@ public class CodeGenerationTest extends SystemTestCase
             builder.append(sample.getIdentifier()).append(":").append(sample.getProperties());
             builder.append("\n");
         }
-        assertEquals("/CISD/A23:[COMMENT: A]\n" + "/CISD/A24:[COMMENT: B]\n", builder.toString());
+        assertEquals("/CISD/NEMO/A23:[COMMENT: A]\n" + "/CISD/NEMO/A24:[COMMENT: B]\n", builder.toString());
     }
 }
