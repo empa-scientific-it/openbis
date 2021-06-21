@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -453,10 +452,10 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
-    public void testCreateSpaceSampleAsSpaceETLServerSuccessfully()
+    public void testCreateProjectSampleAsSpaceETLServerSuccessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
-        String sampleIdentifier = "/CISD/S1";
+        String sampleIdentifier = "/CISD/NEMO/S1";
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
                         new SampleBuilder()
@@ -480,10 +479,10 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
-    public void testCreateSpaceSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
+    public void testCreateProjectSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
     {
         String sessionToken = authenticateAs(INSTANCE_ADMIN);
-        String sampleIdentifier = "/CISD/S1";
+        String sampleIdentifier = "/CISD/NEMO/S1";
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder()
                         .user(SPACE_ETL_SERVER_FOR_A)
@@ -583,10 +582,12 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
-    public void testUpdateSpaceSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
+    public void testUpdateProjectSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
     {
         String sessionToken = authenticateAs(INSTANCE_ADMIN);
         Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(986)).getParent();
+        assertEquals("/CISD/NEMO/3VCP5", sample.getIdentifier());
+
         List<IEntityProperty> properties = sample.getProperties();
         assertEquals("[]", properties.toString());
         sample.setProperties(new SampleBuilder().property("COMMENT", "hello").getSample()
@@ -602,13 +603,13 @@ public class EntityOperationTest extends SystemTestCase
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
         assertEquals(new Long(986), updatedSample.getId());
-        assertEquals("/CISD/3VCP5", updatedSample.getIdentifier());
+        assertEquals("/CISD/NEMO/3VCP5", updatedSample.getIdentifier());
         assertEquals("CELL_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[COMMENT: hello]", updatedSample.getProperties().toString());
     }
 
     @Test
-    public void testUpdateSpaceSampleAsSpaceETLServerSuccessfully()
+    public void testUpdateProjectSampleAsSpaceETLServerSuccessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
         Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(986)).getParent();
@@ -626,7 +627,7 @@ public class EntityOperationTest extends SystemTestCase
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
         assertEquals(new Long(986), updatedSample.getId());
-        assertEquals("/CISD/3VCP5", updatedSample.getIdentifier());
+        assertEquals("/CISD/NEMO/3VCP5", updatedSample.getIdentifier());
         assertEquals("CELL_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[COMMENT: hello]", updatedSample.getProperties().toString());
     }
@@ -653,7 +654,7 @@ public class EntityOperationTest extends SystemTestCase
                         new DataSetBuilder().code(dataSetCode).type("HCS_IMAGE")
                                 .store(new DataStoreBuilder("STANDARD").getStore())
                                 .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
-                                .sample(new SampleBuilder().identifier("/CISD/WELL-A01").getSample())
+                                .sample(new SampleBuilder().identifier("/CISD/DEFAULT/WELL-A01").getSample())
                                 .getDataSet()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
@@ -663,7 +664,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(dataSetCode, dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
         assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
-        assertEquals("/CISD/PLATE_WELLSEARCH:WELL-A01", dataSet.getSampleIdentifier());
+        assertEquals("/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", dataSet.getSampleIdentifier());
     }
 
     @Test
@@ -707,7 +708,7 @@ public class EntityOperationTest extends SystemTestCase
                                         .fileFormat("XML")
                                         .location("a/b/c")
                                         .property("COMMENT", "my data")
-                                        .sample(new SampleBuilder().identifier("/CISD/CP1-A1")
+                                        .sample(new SampleBuilder().identifier("/CISD/DEFAULT/CP1-A1")
                                                 .getSample()).getDataSet()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);

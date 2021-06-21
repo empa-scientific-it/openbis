@@ -91,6 +91,7 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
 
                     if (experiment != null && experiment.getProject().getSpace().equals(sample.getSpace()) == false)
                     {
+                        sample.setProject(null); // needed to render into the original identifier
                         throw new UserFailureException("Sample space must be the same as experiment space. "
                                 + "Sample: " + EntityUtils.render(sample) + ", Experiment: " + EntityUtils.render(experiment));
                     }

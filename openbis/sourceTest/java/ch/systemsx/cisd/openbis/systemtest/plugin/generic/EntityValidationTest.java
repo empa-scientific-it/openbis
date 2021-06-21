@@ -59,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -180,7 +182,7 @@ public class EntityValidationTest extends GenericSystemTestCase
 
         Sample sample = getSampleFromSpaceAndType("CISD", IMPOSSIBLE_TO_UPDATE_TYPE, "EVT1");
 
-        SampleUpdatesDTO update = createSampleUpdates(sample, "DYNA-TEST-1");
+        SampleUpdatesDTO update = createSampleUpdates(sample, "/CISD/NEMO/DYNA-TEST-1");
 
         try
         {
@@ -205,7 +207,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     public void testRegisterSampleWithPerformEntityOperation()
     {
         NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST-PE", "NORMAL", null);
-        sample.setParents("EV-PARENT-NORMAL");
+        sample.setParents("/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL");
         performSampleCreation(sample);
 
         Sample createdSample =
@@ -219,7 +221,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     public void testRegisterSampleWithETL()
     {
         NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST_ETL", "NORMAL", null);
-        sample.setParents("EV-PARENT-NORMAL");
+        sample.setParents("/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL");
         long sampleId = etlService.registerSample(systemSessionToken, sample, null);
 
         deleteSample(sampleId);
@@ -269,7 +271,7 @@ public class EntityValidationTest extends GenericSystemTestCase
         // the validation of INVALID sample should fail
         Sample sample = getSampleFromSpaceAndType("TEST-SPACE", "WELL", "EV-NOT_INVALID");
 
-        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT");
+        SampleUpdatesDTO update = createSampleUpdates(sample, "/TEST-SPACE/TEST-PROJECT/EV-PARENT");
 
         try
         {
@@ -292,7 +294,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     {
         Sample sample = getSampleFromSpaceAndType("TEST-SPACE", "WELL", "EV-NOT_INVALID");
 
-        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT-NORMAL");
+        SampleUpdatesDTO update = createSampleUpdates(sample, "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL");
 
         etlService.updateSample(systemSessionToken, update);
     }
@@ -305,13 +307,18 @@ public class EntityValidationTest extends GenericSystemTestCase
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
         int version = sample.getVersion();
         Experiment experiment = sample.getExperiment();
-        ExperimentIdentifier experimentIdentifierOrNull =
-                (experiment == null) ? null : new ExperimentIdentifier(experiment);
+        ExperimentIdentifier experimentIdentifierOrNull = null;
+        ProjectIdentifier projIdentifier = null;
+        if (experiment != null)
+        {
+            experimentIdentifierOrNull = new ExperimentIdentifier(experiment);
+            projIdentifier = ProjectIdentifierFactory.parse(experiment.getProject().getIdentifier());
+        }
         List<IEntityProperty> properties = Collections.emptyList();
         Collection<NewAttachment> attachments = Collections.emptyList();
         SampleUpdatesDTO update =
                 new SampleUpdatesDTO(new TechId(sample.getId()), properties,
-                        experimentIdentifierOrNull, null, attachments, version, sampleIdentifier,
+                        experimentIdentifierOrNull, projIdentifier, attachments, version, sampleIdentifier,
                         containerIdentifierOrNull, modifiedParentCodesOrNull);
         return update;
     }
@@ -375,7 +382,7 @@ public class EntityValidationTest extends GenericSystemTestCase
             updates.setDatasetId(new TechId(26));
             updates.setVersion(dataset.getVersion());
             updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
-            updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/TEST-SPACE/FV-TEST"));
+            updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT/FV-TEST"));
             updates.setProperties(Collections.<IEntityProperty> emptyList());
 
             etlService.updateDataSet(systemSessionToken, updates);

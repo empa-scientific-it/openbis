@@ -114,7 +114,7 @@ public class IdSearchConditionTranslator implements IConditionTranslator<IdSearc
 
                 if (projectCode != null)
                 {
-                    buildSelectByIdConditionWithSubquery(sqlBuilder, PROJECT_COLUMN, PROJECTS_TABLE, CODE_COLUMN);
+                    buildSelectByIdConditionWithSubquery(sqlBuilder, PROJECT_COLUMN, IN, PROJECTS_TABLE, CODE_COLUMN);
                     sqlBuilder.append(SP).append(AND).append(SP);
 
                     args.add(projectCode);
@@ -220,7 +220,13 @@ public class IdSearchConditionTranslator implements IConditionTranslator<IdSearc
     private static void buildSelectByIdConditionWithSubquery(final StringBuilder sqlBuilder, final String columnName, final String subqueryTable,
             final String subqueryTableColumn)
     {
-        sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(EQ).append(SP).append(LP).
+        buildSelectByIdConditionWithSubquery(sqlBuilder, columnName, EQ, subqueryTable, subqueryTableColumn);
+    }
+
+    private static void buildSelectByIdConditionWithSubquery(final StringBuilder sqlBuilder, final String columnName, String equalOrIn, final String subqueryTable,
+            final String subqueryTableColumn)
+    {
+        sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(equalOrIn).append(SP).append(LP).
                 append(SELECT).append(SP).append(ID_COLUMN).append(SP).append(FROM).append(SP).append(subqueryTable).append(SP).
                 append(WHERE).append(SP).append(subqueryTableColumn).append(SP).append(EQ).append(SP).append(QU).
                 append(RP);

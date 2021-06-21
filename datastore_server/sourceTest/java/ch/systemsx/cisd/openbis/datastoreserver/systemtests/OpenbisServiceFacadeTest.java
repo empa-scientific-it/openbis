@@ -133,7 +133,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
         File exampleDataSet = new File(workingDirectory, "my-data-pa");
 
-        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.SAMPLE, "/TEST-SPACE/EV-TEST");
+        DataSetOwner dataSetOwner = new DataSetOwner(DataSetOwnerType.SAMPLE, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet, dataSetOwner);
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
@@ -166,7 +166,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
         // We need to take a different route to get the data set we just registered to check if it
         // has a parent.
-        List<Sample> samples = serviceFacade.getSamples(Arrays.asList("/CISD/CP-TEST-1"));
+        List<Sample> samples = serviceFacade.getSamples(Arrays.asList("/CISD/NEMO/CP-TEST-1"));
         List<DataSet> dataSets =
                 serviceFacade.listDataSets(samples, EnumSet.allOf(Connections.class));
 
@@ -304,8 +304,8 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
 
-        assertIdentifiers(samples, "/CISD/CP-TEST-2", "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID",
-                "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE");
+        assertIdentifiers(samples, "/CISD/NOE/CP-TEST-2", "/TEST-SPACE/TEST-PROJECT/FV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-INVALID",
+                "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID", "/TEST-SPACE/TEST-PROJECT/EV-PARENT", "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL", "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
     }
 
     @Test
@@ -313,7 +313,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/TEST-SPACE/NOE"));
 
-        assertIdentifiers(samples, "/TEST-SPACE/CP-TEST-4");
+        assertIdentifiers(samples, "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -323,8 +323,8 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
 
-        assertIdentifiers(samples, "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID",
-                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE");
+        assertIdentifiers(samples, "/TEST-SPACE/TEST-PROJECT/FV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-INVALID", "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID",
+                "/TEST-SPACE/TEST-PROJECT/EV-PARENT", "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL", "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
     }
 
     @Test
@@ -340,7 +340,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE"), EnumSet.of(SampleFetchOption.PROPERTIES));
 
-        assertIdentifiers(samples, "/CISD/CP-TEST-2");
+        assertIdentifiers(samples, "/CISD/NOE/CP-TEST-2");
 
         Sample sample = samples.get(0);
         Map<String, String> properties = sample.getProperties();
@@ -352,7 +352,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE"));
 
-        assertIdentifiers(samples, "/CISD/CP-TEST-2");
+        assertIdentifiers(samples, "/CISD/NOE/CP-TEST-2");
 
         Sample sample = samples.get(0);
         try
@@ -393,7 +393,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException
     {
         DataSetOwner dataSetOwner =
-                new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/CP-TEST-1");
+                new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/NEMO/CP-TEST-1");
         return createNewDataSetDTO(exampleDataSet, dataSetOwner);
     }
 

@@ -42,7 +42,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " dt.code as dt_code,"
             + " ex.code as ex_code, "
             + " ed.storage_confirmation as ed_sc,"
-            + " sa.code as sa_code, sac.code as sac_code,"
+            + " sa.code as sa_code, sa.sample_identifier as sa_identifier, sac.code as sac_code,"
             + " pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.email as pe_email, pe.user_id as pe_user_id,"
             + " mod.first_name as mod_first_name, mod.last_name as mod_last_name, mod.email as mod_email, mod.user_id as mod_user_id,"
             + " pre.code as pre_code, spe.code as spe_code, sps.code as sps_code,"

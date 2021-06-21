@@ -142,6 +142,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
@@ -1093,7 +1094,7 @@ public class CommonServerTest extends SystemTestCase
         AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(5));
 
         assertEquals("20081105092159111-1", dataSet.getCode());
-        assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifier());
+        assertEquals("/CISD/NEMO/CP-TEST-1", dataSet.getSampleIdentifier());
     }
 
     @Test
@@ -1132,7 +1133,8 @@ public class CommonServerTest extends SystemTestCase
         {
             List<Sample> samples = commonServer.listSamples(session.getSessionToken(), criteria);
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1174,16 +1176,20 @@ public class CommonServerTest extends SystemTestCase
                 assertEquals(samples.size(), 38);
             } else if (user.isTestSpaceUser())
             {
-                assertEquals(samples.size(), 7);
                 assertEntities(
-                        "[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                        "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                        + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                        + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                         samples);
+                assertEquals(samples.size(), 7);
             } else if (user.isTestProjectUser())
             {
-                assertEquals(samples.size(), 6);
                 assertEntities(
-                        "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                        "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                        + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                        + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                         samples);
+                assertEquals(samples.size(), 6);
             } else
             {
                 assertEntities("[]", samples);
@@ -1202,7 +1208,9 @@ public class CommonServerTest extends SystemTestCase
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1227,13 +1235,18 @@ public class CommonServerTest extends SystemTestCase
         {
             assertEquals(samples.size(), 7);
             assertEntities(
-                    "[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
             assertEquals(samples.size(), 6);
             assertEntities(
-                    "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST, /TEST-SPACE/SAMPLE-TO-DELETE]",
+                    "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1284,7 +1297,7 @@ public class CommonServerTest extends SystemTestCase
         List<TechId> materialIds = Arrays.asList(new TechId(34));
         List<Sample> samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
 
-        assertEntities("[/CISD/CP-TEST-1, /CISD/PLATE_WELLSEARCH:WELL-A01, /TEST-SPACE/FV-TEST]", samples);
+        assertEntities("[/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01, /CISD/NEMO/CP-TEST-1, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
 
         String observerSessionToken = commonServer.tryAuthenticate("observer", "a").getSessionToken();
         samples = commonServer.listSamplesByMaterialProperties(observerSessionToken, materialIds);
@@ -1295,7 +1308,7 @@ public class CommonServerTest extends SystemTestCase
         commonServer.deleteSamples(systemSessionToken, Arrays.asList(new TechId(1051)), "test", DeletionType.TRASH);
         samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
 
-        assertEntities("[/CISD/CP-TEST-1, /TEST-SPACE/FV-TEST]", samples);
+        assertEntities("[/CISD/NEMO/CP-TEST-1, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER)
@@ -1321,10 +1334,10 @@ public class CommonServerTest extends SystemTestCase
 
             if (user.isInstanceUser())
             {
-                assertEntities("[/CISD/CP-TEST-1, /CISD/PLATE_WELLSEARCH:WELL-A01, /TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01, /CISD/NEMO/CP-TEST-1, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else if (user.isTestSpaceUser() || user.isTestProjectUser())
             {
-                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else
             {
                 assertEntities("[]", samples);
@@ -2164,7 +2177,7 @@ public class CommonServerTest extends SystemTestCase
             {
                 assertEquals(samples.size(), 1);
                 assertEquals(samples.get(0).isStub(), false);
-                assertEquals(samples.get(0).getIdentifier(), "/TEST-SPACE/EV-TEST");
+                assertEquals(samples.get(0).getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EV-TEST");
             } else
             {
                 assertEquals(samples.size(), 1);
@@ -2249,11 +2262,11 @@ public class CommonServerTest extends SystemTestCase
 
             if (user.isInstanceUser() || user.isTestSpaceUser())
             {
-                assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else if (user.isTestProjectUser())
             {
                 assertEquals(samples.size(), 1);
-                assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+                assertEntities("[/TEST-SPACE/TEST-PROJECT/FV-TEST]", samples);
             } else
             {
                 assertEquals(samples.size(), 0);
@@ -2482,13 +2495,13 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        TechId sampleId = new TechId(1054L); // /TEST-SPACE/FV-TEST
+        TechId sampleId = new TechId(1054L); // /TEST-SPACE/TEST-PROJECT/FV-TEST
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             SampleParentWithDerived sample = commonServer.getSampleInfo(session.getSessionToken(), sampleId);
             assertNotNull(sample);
-            assertEquals(sample.getParent().getIdentifier(), "/TEST-SPACE/FV-TEST");
+            assertEquals(sample.getParent().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/FV-TEST");
         } else
         {
             try
@@ -2574,8 +2587,9 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setCode("COMMENT");
         property.setPropertyType(propertyType);
 
-        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), null, null,
-                new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/EV-TEST
+        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), 
+                ExperimentIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"), 
+                null, new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/TEST-PROJECT/EV-TEST
         updates.setUpdateExperimentLink(false);
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())

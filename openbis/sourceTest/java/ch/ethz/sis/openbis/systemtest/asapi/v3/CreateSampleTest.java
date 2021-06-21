@@ -398,7 +398,7 @@ public class CreateSampleTest extends AbstractSampleTest
         assertEquals(sample.getCode(), "SAMPLE_WITH_EXPERIMENT");
         assertEquals(sample.getSpace().getCode(), "CISD");
         assertEquals(sample.getExperiment().getCode(), "EXP1");
-        assertSampleIdentifier(sample, "/CISD/SAMPLE_WITH_EXPERIMENT");
+        assertSampleIdentifier(sample, "/CISD/NEMO/SAMPLE_WITH_EXPERIMENT");
     }
 
     @Test

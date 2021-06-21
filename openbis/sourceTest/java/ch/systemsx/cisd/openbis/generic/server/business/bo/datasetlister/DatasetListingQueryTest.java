@@ -203,7 +203,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasetsForSample()
     {
-        SamplePE sample = getSample("CISD", "CP-TEST-1", dbInstanceId, daoFactory);
+        SamplePE sample = getSample("CISD", "NEMO", "CP-TEST-1", dbInstanceId, daoFactory);
         long sampleId = sample.getId();
         List<DatasetRecord> datasets = asList(query.getDatasetsForSample(sampleId));
         assertTrue(datasets.size() > 0);
@@ -235,13 +235,21 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         return experiment;
     }
 
-    static SamplePE getSample(String groupCode, String sampleCode, long dbInstanceId,
+    static SamplePE getSample(String spaceCode, String projectCode, String sampleCode, long dbInstanceId,
             IDAOFactory daoFactory)
     {
-        SpacePE group =
-                daoFactory.getSpaceDAO().tryFindSpaceByCode(groupCode);
-        assertNotNull(group);
-        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, group);
+        SpacePE space = daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
+        assertNotNull(space);
+        SamplePE sample;
+        if (projectCode == null)
+        {
+            sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
+        } else
+        {
+            ProjectPE project = daoFactory.getProjectDAO().tryFindProject(spaceCode, projectCode);
+            assertNotNull(project);
+            sample = daoFactory.getSampleDAO().tryfindByCodeAndProject(sampleCode, project);
+        }
         assertNotNull(sample);
         return sample;
     }

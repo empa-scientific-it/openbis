@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -451,13 +452,17 @@ public class EntityGraphManager
         try
         {
             NewSample sample = new NewSample();
-            sample.setIdentifier(createSampleIdentifier(space, sampleNode));
             sample.setSampleType(defaultSampleType);
             ExperimentNode experimentNode = sampleNode.getExperiment();
+            Project project = null;
             if (experimentNode != null)
             {
-                sample.setExperimentIdentifier(repository.tryGetExperiment(experimentNode).getIdentifier());
+                Experiment experiment = repository.tryGetExperiment(experimentNode);
+                sample.setExperimentIdentifier(experiment.getIdentifier());
+                project = experiment.getProject();
+                sample.setProjectIdentifier(project.getIdentifier());
             }
+            sample.setIdentifier(createSampleIdentifier(space, project, sampleNode));
             List<String> parentIdentifiers = getParentIdentifiers(sampleNode);
             sample.setParentsOrNull(parentIdentifiers.toArray(new String[0]));
             SampleNode container = sampleNode.getContainer();
@@ -475,7 +480,8 @@ public class EntityGraphManager
             sample.setProperties(new IEntityProperty[0]);
             sample.setAttachments(Collections.<NewAttachment> emptyList());
             service.registerSample(sessionToken, sample, null);
-            return service.tryGetSampleWithExperiment(sessionToken, SampleIdentifierFactory.parse(sample));
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
+            return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
         } catch (Exception ex)
         {
             throw new RuntimeException("Error while creating sample for node " + sampleNode.getCode()
@@ -500,15 +506,22 @@ public class EntityGraphManager
         return parentIdentifiers;
     }
 
-    private String createSampleIdentifier(Space space, SampleNode sampleNode)
+    private String createSampleIdentifier(Space space, Project project, SampleNode sampleNode)
     {
-        String prefix = space == null ? "/" : space.getIdentifier() + "/";
-        if (sampleNode.isShared())
+        String prefix;
+        if (project != null) 
         {
-            prefix = "/";
-        } else if (sampleNode.getSpace() != null)
+            prefix = project.getIdentifier() + "/";
+        } else 
         {
-            prefix = createSpace(sampleNode.getSpace()).getIdentifier() + "/";
+            prefix = space == null ? "/" : space.getIdentifier() + "/";
+            if (sampleNode.isShared())
+            {
+                prefix = "/";
+            } else if (sampleNode.getSpace() != null)
+            {
+                prefix = createSpace(sampleNode.getSpace()).getIdentifier() + "/";
+            }
         }
         return prefix + sampleNode.getCode() + generateUniqueId();
     }

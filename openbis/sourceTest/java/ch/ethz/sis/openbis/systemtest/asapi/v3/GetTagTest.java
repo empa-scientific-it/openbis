@@ -301,7 +301,7 @@ public class GetTagTest extends AbstractTest
         assertEquals(tag.getCode(), "TEST_METAPROJECTS");
         assertEquals(tag.getDescription(), "Example metaproject no. 1");
         assertTrue(tag.isPrivate());
-        assertSampleIdentifiers(tag.getSamples(), "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST");
+        assertSampleIdentifiers(tag.getSamples(), "/TEST-SPACE/TEST-PROJECT/FV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
         assertOwnerNotFetched(tag);
         assertExperimentsNotFetched(tag);

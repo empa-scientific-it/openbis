@@ -344,7 +344,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
 
         String uploadId = UUID.randomUUID().toString();
         String dataSetType = "UNKNOWN";
-        String sampleIdentifier = "/CISD/CP-TEST-1";
+        String sampleIdentifier = "/CISD/NEMO/CP-TEST-1";
 
         UploadedDataSetCreation creation = new UploadedDataSetCreation();
         creation.setTypeId(new EntityTypePermId(dataSetType));
