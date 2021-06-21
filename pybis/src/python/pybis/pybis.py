@@ -988,6 +988,7 @@ class Openbis:
             'new_transaction()',
             'update_sample()',
             'update_object()', 
+            'set_token()',
         ]
 
     def _repr_html_(self):
@@ -3763,6 +3764,7 @@ class Openbis:
         """ checks whether a session is still active. Returns true or false.
         """
         return self.is_token_valid(self.token)
+        self._save_token(token)
 
     def is_token_valid(self, token=None):
         """Check if the connection to openBIS is valid.
@@ -3786,7 +3788,15 @@ class Openbis:
             return False
 
         return resp
-
+    
+    def set_token(self, token, save_token=True):
+        """Checks the validity of a token, sets it as the current token and (by default) saves it
+        to the disk, i.e. in the ~/.pybis directory
+        """
+        if not self.is_token_valid(token):
+            raise ValueError("session token seems not to be valid.")
+        
+        self._save_token(token=token)
 
     def get_dataset(self, permIds, only_data=False, props=None):
         """fetch a dataset and some metadata attached to it:

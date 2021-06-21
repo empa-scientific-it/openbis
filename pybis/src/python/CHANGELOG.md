@@ -1,5 +1,8 @@
 ## Changes with pybis-1.19.0
 
+- add set_token() method to set a token and also store it locally
+## Changes with pybis-1.19.0
+
 - added caching for get_experiment
 - included OR when providing codes/permIds for samples and datasets
 - improved documentation
