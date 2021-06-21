@@ -93,9 +93,13 @@ public class SQLLexemes
 
     public static final String END = "END";
 
+    public static final String FULL = "FULL";
+
     public static final String LEFT = "LEFT";
 
     public static final String INNER = "INNER";
+
+    public static final String OUTER = "OUTER";
 
     public static final String JOIN = "JOIN";
 
@@ -106,6 +110,8 @@ public class SQLLexemes
     public static final String LEFT_JOIN = LEFT + SP + JOIN;
 
     public static final String INNER_JOIN = INNER + SP + JOIN;
+
+    public static final String FULL_OUTER_JOIN = FULL + SP + OUTER + SP + JOIN;
 
     public static final String LIKE = "LIKE";
 
@@ -126,6 +132,8 @@ public class SQLLexemes
     public static final String OR = "OR";
 
     public static final String NULL = "NULL";
+
+    public static final String NULLS_LAST = "NULLS LAST";
 
     public static final String TRUE = Boolean.TRUE.toString();
 

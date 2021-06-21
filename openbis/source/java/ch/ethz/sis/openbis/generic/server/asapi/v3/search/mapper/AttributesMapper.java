@@ -16,14 +16,35 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.AUTHORIZATION_GROUPS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_SET_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_STORES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXPERIMENT_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.FILE_FORMAT_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.GRID_CUSTOM_COLUMNS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.LOCATOR_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIALS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIAL_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.METAPROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.OPERATION_EXECUTIONS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROPERTY_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.RELATIONSHIP_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLE_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SEMANTIC_ANNOTATIONS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SPACES_TABLE;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 public class AttributesMapper
 {
@@ -65,6 +86,8 @@ public class AttributesMapper
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_registrator", ColumnNames.ENTITY_REGISTERER);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_entity_registration_date", ColumnNames.ENTITY_REGISTRATION_TIMESTAMP);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_identifier", ColumnNames.IDENTIFIER);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_reason", ColumnNames.REASON);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_description", ColumnNames.DESCRIPTION_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("event_registration_date", ColumnNames.REGISTRATION_TIMESTAMP_COLUMN);
 
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);

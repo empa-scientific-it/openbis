@@ -367,7 +367,7 @@ public class GetDataSetTest extends AbstractDataSetTest
 
         DataSet dataSet = map.get(permId);
 
-        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+        assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-1");
 
         assertTypeNotFetched(dataSet);
         assertPhysicalDataNotFetched(dataSet);
@@ -997,11 +997,11 @@ public class GetDataSetTest extends AbstractDataSetTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(id);
-        update.setSampleId(new SampleIdentifier("/CISD/3VCP5"));
+        update.setSampleId(new SampleIdentifier("/CISD/NEMO/3VCP5"));
 
         DataSetUpdate update2 = new DataSetUpdate();
         update2.setDataSetId(id);
-        update2.setSampleId(new SampleIdentifier("/CISD/3VCP6"));
+        update2.setSampleId(new SampleIdentifier("/CISD/NEMO/3VCP6"));
 
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);

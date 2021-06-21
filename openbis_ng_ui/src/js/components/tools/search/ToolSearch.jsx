@@ -230,17 +230,19 @@ class ToolSearch extends React.Component {
       )
     ) {
       return (
-        <PluginsGrid
-          id={ids.DYNAMIC_PROPERTY_PLUGINS_GRID_ID}
-          pluginType={openbis.PluginType.DYNAMIC_PROPERTY}
-          rows={this.state.dynamicPropertyPlugins}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.DYNAMIC_PROPERTY_PLUGIN
-          )}
-          selectedRowId={this.getSelectedRowId(
-            objectTypes.DYNAMIC_PROPERTY_PLUGIN
-          )}
-        />
+        <div>
+          <PluginsGrid
+            id={ids.DYNAMIC_PROPERTY_PLUGINS_GRID_ID}
+            pluginType={openbis.PluginType.DYNAMIC_PROPERTY}
+            rows={this.state.dynamicPropertyPlugins}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.DYNAMIC_PROPERTY_PLUGIN
+            )}
+            selectedRowId={this.getSelectedRowId(
+              objectTypes.DYNAMIC_PROPERTY_PLUGIN
+            )}
+          />
+        </div>
       )
     } else {
       return null
@@ -255,17 +257,19 @@ class ToolSearch extends React.Component {
       )
     ) {
       return (
-        <PluginsGrid
-          id={ids.ENTITY_VALIDATION_PLUGINS_GRID_ID}
-          pluginType={openbis.PluginType.ENTITY_VALIDATION}
-          rows={this.state.entityValidationPlugins}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.ENTITY_VALIDATION_PLUGIN
-          )}
-          selectedRowId={this.getSelectedRowId(
-            objectTypes.ENTITY_VALIDATION_PLUGIN
-          )}
-        />
+        <div>
+          <PluginsGrid
+            id={ids.ENTITY_VALIDATION_PLUGINS_GRID_ID}
+            pluginType={openbis.PluginType.ENTITY_VALIDATION}
+            rows={this.state.entityValidationPlugins}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.ENTITY_VALIDATION_PLUGIN
+            )}
+            selectedRowId={this.getSelectedRowId(
+              objectTypes.ENTITY_VALIDATION_PLUGIN
+            )}
+          />
+        </div>
       )
     } else {
       return null
@@ -275,12 +279,16 @@ class ToolSearch extends React.Component {
   renderQueries() {
     if (this.shouldRender(objectTypes.QUERY, this.state.queries)) {
       return (
-        <QueriesGrid
-          id={ids.QUERIES_GRID_ID}
-          rows={this.state.queries}
-          onSelectedRowChange={this.handleSelectedRowChange(objectTypes.QUERY)}
-          selectedRowId={this.getSelectedRowId(objectTypes.QUERY)}
-        />
+        <div>
+          <QueriesGrid
+            id={ids.QUERIES_GRID_ID}
+            rows={this.state.queries}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.QUERY
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.QUERY)}
+          />
+        </div>
       )
     } else {
       return null

@@ -139,7 +139,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
-        Sample sListed = getSample(list, createSampleIdentifier(CELL_PLATE_EXAMPLE));
+        Sample sListed = getSample(list, createSampleIdentifier("NEMO/" + CELL_PLATE_EXAMPLE));
         Sample sDetails =
                 genericClientService.getSampleGenerationInfo(TechId.create(sListed)).getParent();
         assertEquals(sListed.getIdentifier(), sDetails.getIdentifier());
@@ -181,7 +181,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
-        Sample sample = getSample(list, createSampleIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE));
+        Sample sample = getSample(list, createSampleIdentifier("NOE/" + CELL_PLATE_WITH_DATA_EXAMPLE));
 
         // directly connected
         boolean showOnlyDirectlyConnected = true;
@@ -198,7 +198,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                         DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         DataSetExpectations.checkThat(directlyConnectedDataSet)
                 .hasCode(DIRECTLY_CONNECTED_DATA_SET_CODE)
-                .hasSampleWithIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE_ID)
+                .hasSampleWithIdentifier("/CISD/NOE/CP-TEST-2")
                 .hasExperimentWithIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE_EXPERIMENT_ID)
                 .hasFileFormatType("3VPROPRIETARY").hasLocation("a/2");
 
@@ -231,7 +231,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                         indirectlyConnectedDataSetCode1).tryGetAsDataSet();
         DataSetExpectations.checkThat(indirectlyConnectedDataSetThroughChildSample)
                 .hasCode(indirectlyConnectedDataSetCode1)
-                .hasSampleWithIdentifier(CISD_ID_PREFIX + "CP-TEST-1")
+                .hasSampleWithIdentifier(CISD_ID_PREFIX + "NEMO/CP-TEST-1")
                 .hasExperimentWithIdentifier("/CISD/NEMO/EXP-TEST-1").hasFileFormatType("TIFF")
                 .hasLocation("a/1");
 

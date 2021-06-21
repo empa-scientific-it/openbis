@@ -1,7 +1,9 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
-import FilterField from '@src/js/components/common/form/FilterField.jsx'
+import TextField from '@src/js/components/common/form/TextField.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -17,29 +19,57 @@ class GridHeaderFilter extends React.PureComponent {
     this.handleFilterChange = this.handleFilterChange.bind(this)
   }
 
-  handleFilterChange(filter) {
+  handleFilterChange(event) {
     const { column, onFilterChange } = this.props
     if (onFilterChange) {
-      onFilterChange(column.name, filter)
+      onFilterChange(column.name, event.target.value)
     }
   }
 
   render() {
     logger.log(logger.DEBUG, 'GridHeaderFilter.render')
 
-    const { column, filter, classes } = this.props
+    const { column, classes } = this.props
 
     if (column.visible) {
+      let rendered = this.renderFilter()
+
       return (
         <TableCell classes={{ root: classes.cell }}>
-          <FilterField
-            filter={filter || ''}
-            filterChange={this.handleFilterChange}
-          />
+          {column.filterable && rendered}
         </TableCell>
       )
     } else {
       return null
+    }
+  }
+
+  renderFilter() {
+    const { column, filter } = this.props
+
+    const params = {
+      value: filter,
+      column,
+      onChange: this.handleFilterChange
+    }
+
+    const renderedFilter = column.renderFilter ? (
+      column.renderFilter(params)
+    ) : (
+      <TextField
+        label={messages.get(messages.FILTER)}
+        value={filter}
+        onChange={this.handleFilterChange}
+        variant='standard'
+      />
+    )
+
+    if (renderedFilter === null || renderedFilter === undefined) {
+      return ''
+    } else if (_.isNumber(renderedFilter) || _.isBoolean(renderedFilter)) {
+      return String(renderedFilter)
+    } else {
+      return renderedFilter
     }
   }
 }

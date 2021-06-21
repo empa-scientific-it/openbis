@@ -170,7 +170,7 @@ public class SearchDomainServiceTest extends AbstractFileTest
         assertEquals("Search Domain C", result.getSearchDomainLabel());
         assertEquals(EntityKind.SAMPLE, result.getEntityKind());
         assertEquals("CELL_PLATE", result.getEntityType());
-        assertEquals("/TEST-SPACE/CP-TEST-4", result.getEntityIdentifier());
+        assertEquals("/TEST-SPACE/NOE/CP-TEST-4", result.getEntityIdentifier());
         assertEquals("200902091250077-1060", result.getEntityPermId());
         assertEquals("{position=0, property_type=PLATE_GEO}", new TreeMap<>(result.getResultDetails()).toString());
         assertEquals(1, results.size());

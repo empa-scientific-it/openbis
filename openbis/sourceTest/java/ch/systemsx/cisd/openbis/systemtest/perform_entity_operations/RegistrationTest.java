@@ -320,7 +320,7 @@ public class RegistrationTest extends SystemTestCase
         experiment.setProperties(new IEntityProperty[]
         { property });
         builder.experiment(experiment);
-        String sampleIdentifier = "/TEST-SPACE/PLATE-1";
+        String sampleIdentifier = "/TEST-SPACE/TEST-PROJECT/PLATE-1";
         builder.sample(new NewSampleBuilder(sampleIdentifier).experiment(identifier)
                 .type("CELL_PLATE").get());
         builder.sample(new NewSampleBuilder(sampleIdentifier + ":A1").container(sampleIdentifier)
@@ -335,9 +335,9 @@ public class RegistrationTest extends SystemTestCase
                         ExperimentIdentifierFactory.parse(identifier));
         List<Sample> plates =
                 assertSamples(
-                        "[/TEST-SPACE/PLATE-1]",
+                        "[/TEST-SPACE/TEST-PROJECT/PLATE-1]",
                         ListSampleCriteria.createForExperiment(new TechId(loadedExperiment.getId())));
-        assertSamples("[/TEST-SPACE/PLATE-1:A1, /TEST-SPACE/PLATE-1:A2]",
+        assertSamples("[/TEST-SPACE/TEST-PROJECT/PLATE-1:A1, /TEST-SPACE/TEST-PROJECT/PLATE-1:A2]",
                 ListSampleCriteria.createForContainer(new TechId(plates.get(0))));
     }
 

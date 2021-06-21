@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 
 import java.util.Map;
 
@@ -40,12 +39,13 @@ public class GetServerInformationTest extends AbstractTest
         Map<String, String> result = v3api.getServerInformation(sessionToken);
 
         // Then
-        assertEquals(result.size(), 6);
+        assertEquals(result.size(), 7);
         assertEquals(result.get("api-version"), "3.5");
         assertEquals(result.get("archiving-configured"), "false");
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
         assertEquals(result.get("enabled-technologies"), "test-.*");
-        assertEquals(result.get("project-samples-enabled"), "false");
+        assertEquals(result.get("project-samples-enabled"), "true");
+        assertEquals(result.get("create-continuous-sample-codes"), "false");
         assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
 
         v3api.logout(sessionToken);

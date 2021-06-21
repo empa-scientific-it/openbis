@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -185,8 +186,13 @@ public final class EntityOperationBuilder
 
     EntityOperationBuilder sampleUpdate(Sample sample)
     {
+        ExperimentIdentifier experimentIdentifier = null;
+        Experiment experiment = sample.getExperiment();
+        if (experiment != null) {
+            experimentIdentifier = ExperimentIdentifierFactory.parse(experiment.getIdentifier());
+        }
         sampleUpdates.add(new SampleUpdatesDTO(new TechId(sample), sample.getProperties(),
-                null, null, null, sample.getVersion(), SampleIdentifierFactory.parse(sample
+                experimentIdentifier, null, null, sample.getVersion(), SampleIdentifierFactory.parse(sample
                         .getIdentifier()), null, null));
         return this;
     }

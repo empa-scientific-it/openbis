@@ -25,7 +25,8 @@ async function testLoad() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 0, text: 'Entity Validation Plugins' },
-      { level: 0, text: 'Queries' }
+      { level: 0, text: 'Queries' },
+      { level: 0, text: 'History' }
     ]
   })
 }

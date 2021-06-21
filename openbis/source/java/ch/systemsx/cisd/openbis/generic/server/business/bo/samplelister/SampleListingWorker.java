@@ -668,6 +668,7 @@ final class SampleListingWorker extends AbstractLister
         {
             Project project = getOrCreateProject(row);
             setProject(sample, project);
+            setSpace(sample, project.getSpace());
         } else if (row.space_id == null)
         {
             setDatabaseInstance(sample);
@@ -737,6 +738,7 @@ final class SampleListingWorker extends AbstractLister
     private void setProject(final Sample sample, Project project)
     {
         sample.setProject(project);
+        sample.setSpace(project.getSpace());
         sample.setIdentifier(IdentifierHelper.createSampleIdentifier(sample).toString());
     }
 

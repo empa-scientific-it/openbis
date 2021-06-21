@@ -641,13 +641,19 @@ function ServerFacade(openbisServer) {
 
 
 	this.generateCode = function(sampleType, action) {
-		var parameters = {
-			"method" : "getNextSequenceForType",
-			"sampleTypeCode" : sampleType.code
+	    if(IdentifierUtil.createContinuousSampleCodes) {
+            var parameters = {
+                "method" : "getNextSequenceForType",
+                "sampleTypeCode" : sampleType.code
+            }
+            this.customELNASAPI(parameters, function(nextInSequence) {
+                action(sampleType.codePrefix + nextInSequence);
+            });
+		} else {
+		    mainController.openbisV3.createCodes(sampleType.codePrefix, "SAMPLE", 1).done(function(codes) {
+                action(codes[0]);
+		    });
 		}
-		this.customELNASAPI(parameters, function(nextInSequence) {
-			action(sampleType.codePrefix + nextInSequence);
-		});
 	}
 
     this.generateExperimentCode = function(projectId, action) {

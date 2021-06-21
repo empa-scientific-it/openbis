@@ -78,7 +78,7 @@ def testExperimentWithAttachments(transaction):
     assertAttachmentContentContains(content2, None);
 
 def testSampleWithoutAttachments(transaction):
-    sample = transaction.getSample("/CISD/3VCP5");
+    sample = transaction.getSample("/CISD/NEMO/3VCP5");
 
     attachments = transaction.listAttachments(sample)
     assertAttachmentCount(attachments, 0)
@@ -87,7 +87,7 @@ def testSampleWithoutAttachments(transaction):
     assertAttachmentContentContains(content, None);
 
 def testSampleWithAttachments(transaction):
-    sample = transaction.getSample("/CISD/3VCP6");
+    sample = transaction.getSample("/CISD/NEMO/3VCP6");
 
     attachments = transaction.listAttachments(sample)
     assertAttachmentCount(attachments, 1)

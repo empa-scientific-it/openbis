@@ -340,6 +340,10 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.showDatasetOnNav = function(datasetTypeCode) {
+            return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
+        }
+
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
 
@@ -1241,6 +1245,7 @@ $.extend(DefaultProfile.prototype, {
 				openbisV3.getServerInformation().done(function(serverInformation) {
 	                var authSystem = serverInformation["authentication-service"];
 	                IdentifierUtil.isProjectSamplesEnabled = (serverInformation["project-samples-enabled"] === "true");
+	                IdentifierUtil.createContinuousSampleCodes = (serverInformation["create-continuous-sample-codes"] === "true");
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }

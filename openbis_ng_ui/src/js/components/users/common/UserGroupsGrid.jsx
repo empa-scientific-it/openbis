@@ -28,13 +28,24 @@ export default class GroupsGrid extends React.PureComponent {
             sort: 'asc',
             getValue: ({ row }) => row.code.value,
             renderValue: ({ value }) => {
-              return <UserGroupLink groupCode={value} />
+              if (value) {
+                return <UserGroupLink groupCode={value} />
+              } else {
+                return null
+              }
             }
           },
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description.value
+            getValue: ({ row }) => row.description.value,
+            renderValue: ({ value, classes }) => {
+              if (value) {
+                return <span className={classes.wrap}>{value}</span>
+              } else {
+                return null
+              }
+            }
           }
         ]}
         rows={rows}

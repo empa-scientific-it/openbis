@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -515,8 +514,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private List<SamplePE> findSamplesByCodes(Set<String> codesToAdd, boolean unassigned)
     {
-        SpacePE space = experiment.getProject().getSpace();
-        return findSamples(getSampleDAO(), codesToAdd, space, unassigned);
+        return findSamples(getSampleDAO(), codesToAdd, experiment.getProject(), unassigned);
     }
 
     private void removeFromExperiment(List<SamplePE> samples)
@@ -544,16 +542,20 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    // Finds samples in the specified space. Throws exception if some samples do not exist.
+    // Finds samples in the specified project or project space. Throws exception if some samples do not exist.
     // Throws exception if any sample code specified is already assigned to an experiment.
     private static List<SamplePE> findSamples(ISampleDAO sampleDAO, Set<String> sampleCodes,
-            SpacePE space, boolean unassigned) throws UserFailureException
+            ProjectPE project, boolean unassigned) throws UserFailureException
     {
         List<SamplePE> samples = new ArrayList<SamplePE>();
         List<String> missingSamples = new ArrayList<String>();
         for (String code : sampleCodes)
         {
-            SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, space);
+            SamplePE sample = sampleDAO.tryfindByCodeAndProject(code, project);
+            if (sample == null)
+            {
+                sample = sampleDAO.tryFindByCodeAndSpace(code, project.getSpace(), true);
+            }
             if (sample == null)
             {
                 missingSamples.add(code);
@@ -569,8 +571,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         if (missingSamples.size() > 0)
         {
             throw UserFailureException.fromTemplate(
-                    "Samples with following codes do not exist in the space '%s': '%s'.",
-                    space.getCode(), CollectionUtils.abbreviate(missingSamples, 10));
+                    "Samples with following codes do not exist in the project '%s' nor in the space '%s': '%s'.",
+                    project.getIdentifier(), project.getSpace().getCode(), 
+                    CollectionUtils.abbreviate(missingSamples, 10));
         } else
         {
             return samples;

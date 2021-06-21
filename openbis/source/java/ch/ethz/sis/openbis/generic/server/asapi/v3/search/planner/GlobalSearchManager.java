@@ -34,6 +34,12 @@ public class GlobalSearchManager implements IGlobalSearchManager
 
     private static final String PROPERTY_NAME = "Property";
 
+    private static final String ENTITY_TYPE_FIELD_NAME = "Entity type";
+
+    private static final String PROJECT_FIELD_NAME = "Project";
+
+    private static final String SPACE_FIELD_NAME = "Space";
+
     private static final Map<String, String> ALIAS_BY_FIELD_NAME = new HashMap<>(4);
 
     static
@@ -329,6 +335,9 @@ public class GlobalSearchManager implements IGlobalSearchManager
     private static void mapAttributeMatches(final Map<String, Object> fieldsMap, final EntityKind entityKind,
             final List<PropertyMatch> matches)
     {
+        mapAttributeMatch(fieldsMap, matches, ENTITY_TYPE_MATCH_ALIAS, ENTITY_TYPE_FIELD_NAME);
+        mapAttributeMatch(fieldsMap, matches, PROJECT_MATCH_ALIAS, PROJECT_FIELD_NAME);
+        mapAttributeMatch(fieldsMap, matches, SPACE_MATCH_ALIAS, SPACE_FIELD_NAME);
         switch (entityKind)
         {
             case MATERIAL:

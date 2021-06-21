@@ -264,15 +264,17 @@ class TypeSearch extends React.Component {
   renderObjectTypes() {
     if (this.shouldRender(objectTypes.OBJECT_TYPE, this.state.objectTypes)) {
       return (
-        <TypesGrid
-          id={ids.OBJECT_TYPES_GRID_ID}
-          kind={openbis.EntityKind.SAMPLE}
-          rows={this.state.objectTypes}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.OBJECT_TYPE
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.OBJECT_TYPE)}
-        />
+        <div>
+          <TypesGrid
+            id={ids.OBJECT_TYPES_GRID_ID}
+            kind={openbis.EntityKind.SAMPLE}
+            rows={this.state.objectTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.OBJECT_TYPE
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.OBJECT_TYPE)}
+          />
+        </div>
       )
     } else {
       return null
@@ -284,15 +286,17 @@ class TypeSearch extends React.Component {
       this.shouldRender(objectTypes.COLLECTION_TYPE, this.state.collectionTypes)
     ) {
       return (
-        <TypesGrid
-          id={ids.COLLECTION_TYPES_GRID_ID}
-          kind={openbis.EntityKind.EXPERIMENT}
-          rows={this.state.collectionTypes}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.COLLECTION_TYPE
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.COLLECTION_TYPE)}
-        />
+        <div>
+          <TypesGrid
+            id={ids.COLLECTION_TYPES_GRID_ID}
+            kind={openbis.EntityKind.EXPERIMENT}
+            rows={this.state.collectionTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.COLLECTION_TYPE
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.COLLECTION_TYPE)}
+          />
+        </div>
       )
     } else {
       return null
@@ -302,15 +306,17 @@ class TypeSearch extends React.Component {
   renderDataSetTypes() {
     if (this.shouldRender(objectTypes.DATA_SET_TYPE, this.state.dataSetTypes)) {
       return (
-        <TypesGrid
-          id={ids.DATA_SET_TYPES_GRID_ID}
-          kind={openbis.EntityKind.DATA_SET}
-          rows={this.state.dataSetTypes}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.DATA_SET_TYPE
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.DATA_SET_TYPE)}
-        />
+        <div>
+          <TypesGrid
+            id={ids.DATA_SET_TYPES_GRID_ID}
+            kind={openbis.EntityKind.DATA_SET}
+            rows={this.state.dataSetTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.DATA_SET_TYPE
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.DATA_SET_TYPE)}
+          />
+        </div>
       )
     } else {
       return null
@@ -322,15 +328,17 @@ class TypeSearch extends React.Component {
       this.shouldRender(objectTypes.MATERIAL_TYPE, this.state.materialTypes)
     ) {
       return (
-        <TypesGrid
-          id={ids.MATERIAL_TYPES_GRID_ID}
-          kind={openbis.EntityKind.MATERIAL}
-          rows={this.state.materialTypes}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.MATERIAL_TYPE
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.MATERIAL_TYPE)}
-        />
+        <div>
+          <TypesGrid
+            id={ids.MATERIAL_TYPES_GRID_ID}
+            kind={openbis.EntityKind.MATERIAL}
+            rows={this.state.materialTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.MATERIAL_TYPE
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.MATERIAL_TYPE)}
+          />
+        </div>
       )
     } else {
       return null
@@ -342,14 +350,16 @@ class TypeSearch extends React.Component {
       this.shouldRender(objectTypes.VOCABULARY_TYPE, this.state.vocabularyTypes)
     ) {
       return (
-        <VocabulariesGrid
-          id={ids.VOCABULARY_TYPES_GRID_ID}
-          rows={this.state.vocabularyTypes}
-          onSelectedRowChange={this.handleSelectedRowChange(
-            objectTypes.VOCABULARY_TYPE
-          )}
-          selectedRowId={this.getSelectedRowId(objectTypes.VOCABULARY_TYPE)}
-        />
+        <div>
+          <VocabulariesGrid
+            id={ids.VOCABULARY_TYPES_GRID_ID}
+            rows={this.state.vocabularyTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.VOCABULARY_TYPE
+            )}
+            selectedRowId={this.getSelectedRowId(objectTypes.VOCABULARY_TYPE)}
+          />
+        </div>
       )
     } else {
       return null

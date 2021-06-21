@@ -446,7 +446,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-PROJECT/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
@@ -470,7 +470,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        NewSample newSample = createNewSample("/TEST-SPACE/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-PROJECT/TEST-SAMPLE", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
@@ -518,7 +518,8 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/EV-TEST", "COMMENT", "updated comment");
+        SampleUpdatesDTO updates = createSampleUpdates(1055, "/TEST-SPACE/TEST-PROJECT/EV-TEST",
+                "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "COMMENT", "updated comment");
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
@@ -541,7 +542,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        NewSample newSample = createNewSample("/TEST-SPACE/EV-TEST2", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-PROJECT/EV-TEST2", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
 
         if (user.isInstanceUser())
@@ -565,7 +566,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     {
         SessionContextDTO sessionDTO = server.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        NewSample newSample = createNewSample("/TEST-SPACE/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        NewSample newSample = createNewSample("/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         NewSamplesWithTypes newSamples = new NewSamplesWithTypes(newSample.getSampleType(), Arrays.asList(newSample));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
@@ -734,10 +735,13 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         return newSample;
     }
 
-    private SampleUpdatesDTO createSampleUpdates(long sampleId, String sampleIdentifier, String propertyCode, String propertyValue)
+    private SampleUpdatesDTO createSampleUpdates(long sampleId, String sampleIdentifier,
+            String experimentIdentifier, String propertyCode, String propertyValue)
     {
         SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(new TechId(sampleId), null, null, null, Collections.emptyList(), 0,
+                new SampleUpdatesDTO(new TechId(sampleId), null,
+                        ExperimentIdentifierFactory.parse(experimentIdentifier),
+                        null, Collections.emptyList(), 0,
                         SampleIdentifierFactory.parse(sampleIdentifier), null, null);
         updates.setProperties(Arrays.asList(createEntityProperty(propertyCode, propertyValue)));
         updates.setUpdateExperimentLink(false);

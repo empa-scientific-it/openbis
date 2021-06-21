@@ -185,8 +185,8 @@ public class SearchSampleTest extends AbstractSampleTest
             "/CISD/CL-3V:A02", "/CISD/B1B3:B01", "/CISD/B1B3:B03", "/CISD/C1:C01", "/CISD/C2:C02",
             "/CISD/C3:C03", "/CISD/MP1-MIXED:A01", "/CISD/MP1-MIXED:A02", "/CISD/MP1-MIXED:A03",
             "/CISD/MP1-MIXED:B02", "/CISD/MP2-NO-CL:A01", "/CISD/MP2-NO-CL:A02", "/CISD/MP2-NO-CL:A03",
-            "/CISD/MP2-NO-CL:B02", "/CISD/MP2-NO-CL:C03", "/CISD/PLATE_WELLSEARCH:WELL-A01",
-            "/CISD/PLATE_WELLSEARCH:WELL-A02"
+            "/CISD/MP2-NO-CL:B02", "/CISD/MP2-NO-CL:C03", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01",
+            "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02"
     };
 
     @Autowired
@@ -204,8 +204,8 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithIdSetToIdentifier()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -213,7 +213,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withId().thatEquals(new SamplePermId("200902091219327-1025"));
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -221,9 +221,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
         criteria.withId().thatEquals(new SamplePermId("200902091250077-1026"));
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
     }
 
     @Test
@@ -231,27 +231,27 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithIdentifierThatEquals()
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
-        criteria1.withIdentifier().thatEquals("/CISD/CP-TEST-1");
-        testSearch(TEST_USER, criteria1, "/CISD/CP-TEST-1");
+        criteria1.withIdentifier().thatEquals("/CISD/NEMO/CP-TEST-1");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/CP-TEST-1");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
-        criteria2.withIdentifier().withWildcards().thatEquals("/CISD/CP-TEST-*");
-        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        criteria2.withIdentifier().withWildcards().thatEquals("/CISD/N*/CP-TEST-*");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
         criteria3.withIdentifier().withoutWildcards().thatEquals("/CISD/CP-TEST-*");
         testSearch(TEST_USER, criteria3);
 
         final SampleSearchCriteria criteria4 = new SampleSearchCriteria();
-        criteria4.withIdentifier().withWildcards().thatEquals("/CISD/CP-*-1");
-        testSearch(TEST_USER, criteria4, "/CISD/CP-TEST-1");
+        criteria4.withIdentifier().withWildcards().thatEquals("/CISD/NEMO/CP-*-1");
+        testSearch(TEST_USER, criteria4, "/CISD/NEMO/CP-TEST-1");
 
         final SampleSearchCriteria criteria5 = new SampleSearchCriteria();
         criteria5.withIdentifier().withoutWildcards().thatEquals("/CISD/CP-*-1");
@@ -259,8 +259,8 @@ public class SearchSampleTest extends AbstractSampleTest
 
         final SampleSearchCriteria criteria6 = new SampleSearchCriteria();
         criteria6.withIdentifier().withWildcards().thatEquals("/*/CP-TEST-*");
-        testSearch(TEST_USER, criteria6, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3",
-                "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria6, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3",
+                "/TEST-SPACE/NOE/CP-TEST-4");
 
         final SampleSearchCriteria criteria7 = new SampleSearchCriteria();
         criteria7.withIdentifier().withoutWildcards().thatEquals("/*/CP-TEST-*");
@@ -271,12 +271,12 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithIdentifierThatStartsWith()
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
-        criteria1.withIdentifier().thatStartsWith("/CISD/CP-TEST");
-        testSearch(TEST_USER, criteria1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        criteria1.withIdentifier().thatStartsWith("/CISD/NEMO/CP-TEST");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/CP-TEST-3");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withIdentifier().withWildcards().thatStartsWith("/CISD/*-test");
-        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3", "/CISD/NEMO/DYNA-TEST-1");
 
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
         criteria3.withIdentifier().withoutWildcards().thatStartsWith("/CISD/*-test");
@@ -288,12 +288,12 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withIdentifier().thatEndsWith("-TEST-1");
-        testSearch(TEST_USER, criteria1, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withIdentifier().withWildcards().thatEndsWith("-TEST-*");
-        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3",
-                "/TEST-SPACE/CP-TEST-4", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3",
+                "/TEST-SPACE/NOE/CP-TEST-4", "/CISD/NEMO/DYNA-TEST-1");
 
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
         criteria3.withIdentifier().withoutWildcards().thatEndsWith("-TEST-*");
@@ -305,12 +305,12 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withIdentifier().thatContains("CP-TEST");
-        testSearch(TEST_USER, criteria1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3",
-                "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3",
+                "/TEST-SPACE/NOE/CP-TEST-4");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withIdentifier().withWildcards().thatContains("CISD*-TEST");
-        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3", "/CISD/NEMO/DYNA-TEST-1");
 
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
         criteria3.withIdentifier().withoutWildcards().thatContains("CISD*-TEST");
@@ -322,14 +322,14 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatEquals("RP1-A2X");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
     public void testSearchWithIncorrectCode()
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
-        criteria1.withCode().thatEquals("/CISD/RP1-A2X/ABCD");
+        criteria1.withCode().thatEquals("/CISD/DEFAULT/RP1-A2X/ABCD");
         testSearch(TEST_USER, criteria1);
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
@@ -342,7 +342,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatIsLessThanOrEqualTo("3VCP5");
-        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126", "/CISD/3VCP5");
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126", "/CISD/NEMO/3VCP5");
     }
 
     @Test
@@ -358,9 +358,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatIsGreaterThanOrEqualTo("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/SAMPLE-TO-DELETE", "/CISD/RP1-B1X",
-                "/CISD/PLATE_WELLSEARCH:WELL-A02", "/CISD/RP1-A2X", "/CISD/RP2-A1X",
-                "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE", "/CISD/DEFAULT/RP1-B1X",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02", "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP2-A1X",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01");
     }
 
     @Test
@@ -368,8 +368,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatIsGreaterThan("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/SAMPLE-TO-DELETE", "/CISD/RP1-B1X",
-                "/CISD/PLATE_WELLSEARCH:WELL-A02", "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", 
+                "/CISD/DEFAULT/RP2-A1X", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02",
+                "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
     }
 
     @Test
@@ -377,7 +378,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withProperty("COMMENT").thatIsLessThanOrEqualTo("test comment");
-        testSearch(TEST_USER, criteria, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -385,7 +386,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withProperty("COMMENT").thatIsLessThan("test comment");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        testSearch(TEST_USER, criteria, "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
     }
 
     @Test
@@ -393,7 +394,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withProperty("COMMENT").thatIsGreaterThanOrEqualTo("test comment");
-        testSearch(TEST_USER, criteria, "/CISD/3VCP7", "/CISD/CP-TEST-1", "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-1", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -401,7 +402,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withProperty("COMMENT").thatIsGreaterThan("test comment");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -452,15 +453,15 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCodes().thatIn(Arrays.asList("RP1-A2X", "RP1-B1X", "PLATE_WELLSEARCH:WELL-A01",
                 "PLATE_WELLSEARCH:WELL-A02"));
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X",
-                "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
     }
 
     @Test
     public void testSearchWithIncorrectCodes()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withCodes().thatIn(Arrays.asList("/CISD/RP1-A2X/ABC", "/A/B/C/D"));
+        criteria.withCodes().thatIn(Arrays.asList("/CISD/DEFAULT/RP1-A2X/ABC", "/A/B/C/D"));
         testSearch(TEST_USER, criteria);
     }
 
@@ -490,7 +491,7 @@ public class SearchSampleTest extends AbstractSampleTest
         codes.add("RP1-A2X");
         codesSearchCriteria.setFieldValue(codes);
         criteria.withOrOperator();
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
@@ -500,7 +501,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withCodes().thatIn(Arrays.asList());
         criteria.withCode().thatEquals("RP1-A2X");
         criteria.withOrOperator();
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
@@ -508,7 +509,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatEquals("RP1-*X");
-        testSearch(TEST_USER, criteria1, "/CISD/RP1-A2X", "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatEquals("RP1-*X");
@@ -520,7 +521,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatEquals("CP???1");
-        testSearch(TEST_USER, criteria1, "/CISD/CP1-A1", "/CISD/CP1-B1", "/CISD/CP2-A1");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/CP1-A1", "/CISD/DEFAULT/CP1-B1", "/CISD/DEFAULT/CP2-A1");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatEquals("CP???1");
@@ -532,7 +533,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatStartsWith("PLATE_WELLSEARCH:W*L-");
-        testSearch(TEST_USER, criteria1, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatStartsWith("PLATE_WELLSEARCH:W*L-");
@@ -544,7 +545,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatStartsWith("CP?-");
-        testSearch(TEST_USER, criteria1, "/CISD/CP1-A1", "/CISD/CP1-A2", "/CISD/CP1-B1", "/CISD/CP2-A1");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/CP1-A1", "/CISD/DEFAULT/CP1-A2", "/CISD/DEFAULT/CP1-B1", "/CISD/DEFAULT/CP2-A1");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatStartsWith("CP?-");
@@ -556,7 +557,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatEndsWith("NOR*L");
-        testSearch(TEST_USER, criteria1, "/TEST-SPACE/EV-PARENT-NORMAL");
+        testSearch(TEST_USER, criteria1, "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatEndsWith("NOR*L");
@@ -568,7 +569,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withCode().withWildcards().thatEndsWith("-??2");
-        testSearch(TEST_USER, criteria1, "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withCode().withoutWildcards().thatEndsWith("-??2");
@@ -642,7 +643,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatEquals("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01");
     }
 
     @Test
@@ -650,7 +651,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withType().withId().thatEquals(new EntityTypePermId("REINFECT_PLATE"));
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -658,7 +659,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withType().withCode().thatEquals("REINFECT_PLATE");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -666,7 +667,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withType().withCode().withWildcards().thatEquals("REINFECT_PLAT*");
-        testSearch(TEST_USER, criteria1, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", "/CISD/DEFAULT/RP2-A1X");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withType().withCode().withoutWildcards().thatEquals("REINFECT_PLAT*");
@@ -787,7 +788,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withType().withPermId().thatEquals("REINFECT_PLATE");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -796,7 +797,7 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatContains("A01");
         criteria.withExperiment();
-        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01");
     }
 
     @Test
@@ -813,7 +814,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/3VCP5");
     }
 
     @Test
@@ -821,7 +822,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1029"));
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/3VCP5");
     }
 
     @Test
@@ -829,7 +830,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withPermId().thatEquals("200811050952663-1029");
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/3VCP5");
     }
 
     @Test
@@ -837,7 +838,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withCode().thatEquals("EXP-TEST-1");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1");
     }
 
     @Test
@@ -845,7 +846,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/DYNA-TEST-1");
     }
 
     @Test
@@ -853,7 +854,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withType().withCode().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/DYNA-TEST-1");
     }
 
     @Test
@@ -861,7 +862,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withType().withPermId().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/DYNA-TEST-1");
     }
 
     @Test
@@ -869,7 +870,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -877,7 +878,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -885,7 +886,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withProject().withCode().thatEquals("NOE");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/CISD/NOE/CP-TEST-2", "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -893,7 +894,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -938,10 +939,10 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = searchSamples(sessionToken, criteria, new SampleFetchOptions());
         final Set<String> actualSet = samples.stream().map(sample -> sample.getIdentifier().getIdentifier()).collect(Collectors.toSet());
 
-        assertCollectionContainsAtLeast(actualSet, "/CISD/3V-125", "/CISD/3V-126", "/CISD/3VCP5", "/CISD/3VCP6",
-                "/CISD/3VCP7", "/CISD/3VCP8", "/CISD/CL-3V:A02", "/CISD/CP-TEST-1", "/CISD/CP1-A1",
-                "/CISD/CP1-A2", "/CISD/CP1-B1", "/CISD/CP2-A1", "/CISD/DP1-A", "/CISD/DP1-B", "/CISD/DP2-A",
-                "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X", "/DP", "/TEST-SPACE/EV-INVALID");
+        assertCollectionContainsAtLeast(actualSet, "/CISD/3V-125", "/CISD/3V-126", "/CISD/NEMO/3VCP5", "/CISD/NEMO/3VCP6",
+                "/CISD/3VCP7", "/CISD/3VCP8", "/CISD/CL-3V:A02", "/CISD/NEMO/CP-TEST-1", "/CISD/DEFAULT/CP1-A1",
+                "/CISD/DEFAULT/CP1-A2", "/CISD/DEFAULT/CP1-B1", "/CISD/DEFAULT/CP2-A1", "/CISD/DP1-A", "/CISD/DP1-B", "/CISD/DP2-A",
+                "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", "/CISD/DEFAULT/RP2-A1X", "/DP", "/TEST-SPACE/TEST-PROJECT/EV-INVALID");
         assertCollectionDoesntContain(actualSet, "/CISD/MP1-MIXED");
 
         v3api.logout(sessionToken);
@@ -958,8 +959,8 @@ public class SearchSampleTest extends AbstractSampleTest
         final Set<String> actualSet = samples.stream().map(sample -> sample.getIdentifier().getIdentifier()).collect(Collectors.toSet());
 
         assertCollectionContainsAtLeast(actualSet, "/CISD/3V-125", "/CISD/CL-3V:A02", "/CISD/CL1:A03",
-                "/CISD/CP-TEST-2", "/CISD/CP1-A2", "/CISD/CP1-B1", "/CISD/CP2-A1", "/CISD/DP1-A", "/CISD/DP1-B",
-                "/CISD/DP2-A", "/CISD/MP002-1", "/CISD/MP1-MIXED", "/CISD/MP2-NO-CL", "/MP", "/TEST-SPACE/EV-PARENT");
+                "/CISD/NOE/CP-TEST-2", "/CISD/DEFAULT/CP1-A2", "/CISD/DEFAULT/CP1-B1", "/CISD/DEFAULT/CP2-A1", "/CISD/DP1-A", "/CISD/DP1-B",
+                "/CISD/DP2-A", "/CISD/MP002-1", "/CISD/MP1-MIXED", "/CISD/MP2-NO-CL", "/MP", "/TEST-SPACE/TEST-PROJECT/EV-PARENT");
         assertCollectionDoesntContain(actualSet, "/CISD/B1B3", "/CISD/C1", "/CISD/C2", "/CISD/C3", "/CISD/CL-3V");
 
         v3api.logout(sessionToken);
@@ -1001,7 +1002,7 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithChildrenWithIdSetToIdentifier()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/3VCP6"));
+        criteria.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/NEMO/3VCP6"));
         testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
@@ -1035,7 +1036,7 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatContains("WELL");
         criteria.withContainer();
-        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02");
     }
 
     @Test
@@ -1052,7 +1053,7 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatContains("A1");
         criteria.withoutContainer();
-        testSearch(TEST_USER, criteria, "/CISD/CP1-A1", "/CISD/CP2-A1", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/CP1-A1", "/CISD/DEFAULT/CP2-A1", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -1108,7 +1109,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -1116,7 +1117,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -1124,7 +1125,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withTag().withCode().thatEquals("TEST_METAPROJECTS");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -1132,7 +1133,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
     }
 
     @Test
@@ -1148,7 +1149,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withRegistrator().withUserId().thatEquals("etlserver");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -1156,7 +1157,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withRegistrator().withFirstName().thatEquals("John 2");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -1164,7 +1165,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withRegistrator().withLastName().thatEquals("ETL Server");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -1172,7 +1173,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withRegistrator().withEmail().thatEquals("etlserver@systemsx.ch");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP2-A1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP2-A1X");
     }
 
     @Test
@@ -1180,7 +1181,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withModifier().withUserId().thatEquals("etlserver");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-B1X");
     }
 
     @Test
@@ -1188,7 +1189,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withModifier().withFirstName().thatEquals("John 2");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-B1X");
     }
 
     @Test
@@ -1196,7 +1197,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withModifier().withLastName().thatEquals("ETL Server");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-B1X");
     }
 
     @Test
@@ -1204,7 +1205,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withModifier().withEmail().thatEquals("etlserver@systemsx.ch");
-        testSearch(TEST_USER, criteria, "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-B1X");
     }
 
     @Test
@@ -1231,7 +1232,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyField().thatEquals("\"very advanced stuff\"");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -1239,24 +1240,24 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria shortFormatCriteria = new SampleSearchCriteria();
         shortFormatCriteria.withAnyField().thatEquals("2009-02-09");
-        testSearch(TEST_USER, shortFormatCriteria, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1", "/TEST-SPACE/FV-TEST",
-                "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT",
-                "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE", "/CISD/CP-TEST-2",
-                "/CISD/PLATE_WELLSEARCH", "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02",
-                "/TEST-SPACE/CP-TEST-4", "/CISD/CP-TEST-3");
+        testSearch(TEST_USER, shortFormatCriteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1", "/TEST-SPACE/TEST-PROJECT/FV-TEST",
+                "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-INVALID", "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID", "/TEST-SPACE/TEST-PROJECT/EV-PARENT",
+                "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL", "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE", "/CISD/NOE/CP-TEST-2",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02",
+                "/TEST-SPACE/NOE/CP-TEST-4", "/CISD/NEMO/CP-TEST-3");
 
         final SampleSearchCriteria mediumFormatCriteria = new SampleSearchCriteria();
         mediumFormatCriteria.withAnyField().thatEquals("2009-02-09 12:09");
-        testSearch(TEST_USER, mediumFormatCriteria, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1", "/TEST-SPACE/FV-TEST",
-                "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT",
-                "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE", "/CISD/CP-TEST-2",
-                "/CISD/PLATE_WELLSEARCH", "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02",
-                "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, mediumFormatCriteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1", "/TEST-SPACE/TEST-PROJECT/FV-TEST",
+                "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/EV-INVALID", "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID", "/TEST-SPACE/TEST-PROJECT/EV-PARENT",
+                "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL", "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE", "/CISD/NOE/CP-TEST-2",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02",
+                "/TEST-SPACE/NOE/CP-TEST-4");
 
         final SampleSearchCriteria longFormatCriteria = new SampleSearchCriteria();
         longFormatCriteria.withAnyField().thatEquals("2009-02-09 12:09:50");
-        testSearch(TEST_USER, longFormatCriteria, "/CISD/CP-TEST-2", "/CISD/PLATE_WELLSEARCH",
-                "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02", "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, longFormatCriteria, "/CISD/NOE/CP-TEST-2", "/CISD/DEFAULT/PLATE_WELLSEARCH",
+                "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02", "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -1284,7 +1285,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyField().thatEquals("test_role");
-        testSearch(TEST_USER, criteria, "/CISD/CL1", "/CISD/CP-TEST-1", "/TEST-SPACE/FV-TEST");
+        testSearch(TEST_USER, criteria, "/CISD/CL1", "/CISD/NEMO/CP-TEST-1", "/TEST-SPACE/TEST-PROJECT/FV-TEST");
     }
 
     @Test
@@ -1292,27 +1293,27 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyField().thatEquals("\"CP-TEST-2\"");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2");
+        testSearch(TEST_USER, criteria, "/CISD/NOE/CP-TEST-2");
     }
 
     @Test
     public void testSearchWithAnyFieldMatchingIdentifier()
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
-        criteria1.withAnyField().withWildcards().thatEquals("/CISD/CP-TEST-*");
-        testSearch(TEST_USER, criteria1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        criteria1.withAnyField().withWildcards().thatEquals("/CISD/N*/CP-TEST-*");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withAnyField().withoutWildcards().thatEquals("/CISD/CP-TEST-*");
         testSearch(TEST_USER, criteria2);
 
         final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
-        criteria3.withAnyField().thatStartsWith("/CISD/DYNA");
-        testSearch(TEST_USER, criteria3, "/CISD/DYNA-TEST-1");
+        criteria3.withAnyField().thatStartsWith("/CISD/NEMO/DYNA");
+        testSearch(TEST_USER, criteria3, "/CISD/NEMO/DYNA-TEST-1");
 
         final SampleSearchCriteria criteria4 = new SampleSearchCriteria();
         criteria4.withAnyField().thatEndsWith("-1");
-        testSearch(TEST_USER, criteria4, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1", "/CISD/MP002-1");
+        testSearch(TEST_USER, criteria4, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1", "/CISD/MP002-1");
     }
 
     @Test
@@ -1320,11 +1321,11 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
         criteria1.withAnyField().thatEquals("etlserver");
-        testSearch(TEST_USER, criteria1, "/CISD/RP2-A1X", "/CISD/RP1-A2X", "/CISD/RP1-B1X");
+        testSearch(TEST_USER, criteria1, "/CISD/DEFAULT/RP2-A1X", "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
         criteria2.withAnyField().thatEquals("test_role");
-        testSearch(TEST_USER, criteria2, "/CISD/CL1", "/CISD/CP-TEST-1", "/TEST-SPACE/FV-TEST");
+        testSearch(TEST_USER, criteria2, "/CISD/CL1", "/CISD/NEMO/CP-TEST-1", "/TEST-SPACE/TEST-PROJECT/FV-TEST");
     }
 
     @Test
@@ -1332,7 +1333,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyField().thatEquals("DYNAMIC_PLATE");
-        testSearch(TEST_USER, criteria, "/CISD/DYNA-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/DYNA-TEST-1");
     }
 
     @Test
@@ -1340,7 +1341,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyProperty().thatStartsWith("HUM");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -1350,7 +1351,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withAndOperator();
         criteria.withCode().thatStartsWith("CP");
         criteria.withCode().thatEndsWith("-1");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1");
     }
 
     @Test
@@ -1360,7 +1361,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withOrOperator();
         criteria.withPermId().thatEquals("200902091219327-1025");
         criteria.withPermId().thatEquals("200902091250077-1026");
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
     }
 
     @Test
@@ -1391,9 +1392,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-2"));
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-3"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NOE/CP-TEST-2"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-3"));
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -1401,11 +1402,11 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().code().asc();
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         fo.sortBy().code().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+        assertSampleIdentifiersInOrder(samples2, "/CISD/NEMO/CP-TEST-3", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-1");
 
         v3api.logout(sessionToken);
     }
@@ -1415,8 +1416,8 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
-        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/CP-TEST-4"));
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
         criteria.withId().thatEquals(new SampleIdentifier("/CISD/3V-125"));
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1425,11 +1426,11 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().identifier().asc();
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/CP-TEST-1", "/TEST-SPACE/CP-TEST-4");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/NEMO/CP-TEST-1", "/TEST-SPACE/NOE/CP-TEST-4");
 
         fo.sortBy().identifier().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples2, "/TEST-SPACE/CP-TEST-4", "/CISD/CP-TEST-1", "/CISD/3V-125");
+        assertSampleIdentifiersInOrder(samples2, "/TEST-SPACE/NOE/CP-TEST-4", "/CISD/NEMO/CP-TEST-1", "/CISD/3V-125");
 
         v3api.logout(sessionToken);
     }
@@ -1439,8 +1440,8 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
-        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/CP-TEST-4"));
-        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4"));
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
         criteria.withId().thatEquals(new SampleIdentifier("/CISD/3V-125"));
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1451,12 +1452,12 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().type().asc();
         fo.sortBy().code().asc();
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/TEST-SPACE/CP-TEST-4", "/CISD/3V-125");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/NEMO/CP-TEST-1", "/TEST-SPACE/NOE/CP-TEST-4", "/CISD/3V-125");
 
         fo.sortBy().type().desc();
         fo.sortBy().code().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/TEST-SPACE/CP-TEST-4", "/CISD/CP-TEST-1");
+        assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/TEST-SPACE/NOE/CP-TEST-4", "/CISD/NEMO/CP-TEST-1");
 
         v3api.logout(sessionToken);
     }
@@ -1545,7 +1546,6 @@ public class SearchSampleTest extends AbstractSampleTest
         {
             // No exception should be thrown because both properties exist in the result set.
             final List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-            assertEquals(samples1.size(), 3);
             assertEquals(samples1.get(0).getProperty("COMMENT"), "extremely simple stuff");
             assertEquals(samples1.get(1).getProperty("COMMENT"), "stuff like others");
             assertEquals(samples1.get(2).getProperty("COMMENT"), "very advanced stuff");
@@ -1555,32 +1555,45 @@ public class SearchSampleTest extends AbstractSampleTest
         }
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "Sorting by multiple fields when one or more properties are missing " +
-                    "in the result set entities is not supported\\..*")
-    public void testSearchWithSortingByMultiplePropertiesMissingProperty()
+    @Test
+    public void testSearchWithSortingByMultiplePropertiesWithMissingProperties()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050919915-8");
+        criteria.withPermId().thatEquals("201206191219327-1054");
         criteria.withPermId().thatEquals("200902091219327-1025");
         criteria.withPermId().thatEquals("200902091225616-1027");
         criteria.withPermId().thatEquals("200902091250077-1026");
         criteria.withPermId().thatEquals("200902091250077-1051");
         criteria.withPermId().thatEquals("200811050945092-976");
         criteria.withPermId().thatEquals("200811050945092-977");
+        criteria.withPermId().thatEquals("200811050946559-981");
 
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final SampleFetchOptions fo = new SampleFetchOptions();
         fo.withProperties();
 
-        fo.sortBy().property("COMMENT").asc();
+        fo.sortBy().property("BACTERIUM").asc();
         fo.sortBy().property("OFFSET").desc();
+        fo.sortBy().property("COMMENT").asc();
+        fo.sortBy().property("ORGANISM").asc();
+        fo.sortBy().property("SIZE").asc();
 
         try
         {
-            searchSamples(sessionToken, criteria, fo);
-            fail("Expected exception to be thrown.");
+            final List<Sample> samples = searchSamples(sessionToken, criteria, fo);
+            assertEquals(samples.size(), 9);
+            assertEquals(samples.get(0).getPermId().toString(), "200902091219327-1025");
+            assertEquals(samples.get(1).getPermId().toString(), "201206191219327-1054");
+            assertEquals(samples.get(2).getPermId().toString(), "200902091250077-1026");
+            assertEquals(samples.get(3).getPermId().toString(), "200902091250077-1051");
+            assertEquals(samples.get(4).getPermId().toString(), "200811050945092-976");
+            assertEquals(samples.get(5).getPermId().toString(), "200811050945092-977");
+            assertEquals(samples.get(6).getPermId().toString(), "200902091225616-1027");
+            assertEquals(samples.get(7).getPermId().toString(), "200811050946559-981");
+            assertEquals(samples.get(8).getPermId().toString(), "200811050919915-8");
         } finally
         {
             v3api.logout(sessionToken);
@@ -1656,11 +1669,11 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().modificationDate().asc();
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples1, "/CISD/MP2-NO-CL:B02", "/CISD/DYNA-TEST-1");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/MP2-NO-CL:B02", "/CISD/NEMO/DYNA-TEST-1");
 
         fo.sortBy().modificationDate().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
-        assertSampleIdentifiersInOrder(samples2, "/CISD/DYNA-TEST-1", "/CISD/MP2-NO-CL:B02");
+        assertSampleIdentifiersInOrder(samples2, "/CISD/NEMO/DYNA-TEST-1", "/CISD/MP2-NO-CL:B02");
 
         v3api.logout(sessionToken);
     }
@@ -1707,12 +1720,12 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().code().asc();
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
 
-        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samples1, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         fo.sortBy().code().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
 
-        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+        assertSampleIdentifiersInOrder(samples2, "/CISD/NEMO/CP-TEST-3", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-1");
 
         v3api.logout(sessionToken);
     }
@@ -1734,14 +1747,14 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5", "/CISD/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5", "/CISD/NEMO/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A", "/CISD/DP1-B");
 
         fo.withChildren().sortBy().code().desc();
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/3VCP6", "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/NEMO/3VCP6", "/CISD/NEMO/3VCP5");
         assertSampleIdentifiersInOrder(samples2.get(1).getChildren(), "/CISD/DP1-B", "/CISD/DP1-A");
 
         v3api.logout(sessionToken);
@@ -1764,17 +1777,17 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.from(0).count(1);
         final SearchResult<Sample> searchResult1 = v3api.searchSamples(sessionToken, criteria, fo);
         assertEquals(searchResult1.getTotalCount(), 3);
-        assertSampleIdentifiersInOrder(searchResult1.getObjects(), "/CISD/CP-TEST-1");
+        assertSampleIdentifiersInOrder(searchResult1.getObjects(), "/CISD/NEMO/CP-TEST-1");
 
         fo.from(1).count(1);
         final SearchResult<Sample> searchResult2 = v3api.searchSamples(sessionToken, criteria, fo);
         assertEquals(searchResult2.getTotalCount(), 3);
-        assertSampleIdentifiersInOrder(searchResult2.getObjects(), "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(searchResult2.getObjects(), "/CISD/NOE/CP-TEST-2");
 
         fo.from(2).count(1);
         final SearchResult<Sample> searchResult3 = v3api.searchSamples(sessionToken, criteria, fo);
         assertEquals(searchResult3.getTotalCount(), 3);
-        assertSampleIdentifiersInOrder(searchResult3.getObjects(), "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(searchResult3.getObjects(), "/CISD/NEMO/CP-TEST-3");
 
         v3api.logout(sessionToken);
     }
@@ -1796,7 +1809,7 @@ public class SearchSampleTest extends AbstractSampleTest
         fo1.count(2);
         final SearchResult<Sample> searchResult1 = v3api.searchSamples(sessionToken, criteria, fo1);
         assertEquals(searchResult1.getTotalCount(), 3);
-        assertSampleIdentifiersInOrder(searchResult1.getObjects(), "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(searchResult1.getObjects(), "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         final SampleFetchOptions fo2 = new SampleFetchOptions();
         fo2.sortBy().code().asc();
@@ -1804,7 +1817,7 @@ public class SearchSampleTest extends AbstractSampleTest
         fo2.from(1);
         final SearchResult<Sample> searchResult2 = v3api.searchSamples(sessionToken, criteria, fo2);
         assertEquals(searchResult2.getTotalCount(), 3);
-        assertSampleIdentifiersInOrder(searchResult2.getObjects(), "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(searchResult2.getObjects(), "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
     }
 
     @Test
@@ -1825,14 +1838,14 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A");
 
         fo.withChildren().from(1).count(1);
         List<Sample> samples2 = searchSamples(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP6");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/NEMO/3VCP6");
         assertSampleIdentifiersInOrder(samples2.get(1).getChildren(), "/CISD/DP1-B");
 
         v3api.logout(sessionToken);
@@ -1857,7 +1870,7 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = searchSamples(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5");
 
         fo.from(1).count(1);
         fo.withChildren().from(1).count(1);
@@ -1886,58 +1899,58 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
         criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(321.0);
         List<Sample> samplesGOE1 = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria();
         criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(320.9);
         List<Sample> samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria();
         criteriaGOE.withProperty("SIZE").thatIsGreaterThanOrEqualTo("321.0");
         samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         // Greater - Giving integer as real
         SampleSearchCriteria criteriaG = new SampleSearchCriteria();
         criteriaG.withNumberProperty("SIZE").thatIsGreaterThan(321.0);
         List<Sample> samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         criteriaG = new SampleSearchCriteria();
         criteriaG.withProperty("SIZE").thatIsGreaterThan("321.0");
         samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         // Equals As Text - Real
         SampleSearchCriteria criteriaETxt2 = new SampleSearchCriteria();
         criteriaETxt2.withProperty("SIZE").thatEquals("666.0");
         List<Sample> samplesETxt2 = searchSamples(sessionToken, criteriaETxt2, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesETxt2, "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesETxt2, "/CISD/NEMO/CP-TEST-3");
 
         // Equals As Text - Integer
         SampleSearchCriteria criteriaETxt = new SampleSearchCriteria();
         criteriaETxt.withProperty("SIZE").thatEquals("666");
         List<Sample> samplesETxt = searchSamples(sessionToken, criteriaETxt, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesETxt, "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesETxt, "/CISD/NEMO/CP-TEST-3");
 
         // Equals
         SampleSearchCriteria criteriaE = new SampleSearchCriteria();
         criteriaE.withNumberProperty("SIZE").thatEquals(666);
         List<Sample> samplesE = searchSamples(sessionToken, criteriaE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesE, "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesE, "/CISD/NEMO/CP-TEST-3");
 
         // Less
         SampleSearchCriteria criteriaL = new SampleSearchCriteria();
         criteriaL.withNumberProperty("SIZE").thatIsLessThan(666);
         List<Sample> samplesL = searchSamples(sessionToken, criteriaL, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         // Less or Equals
         SampleSearchCriteria criteriaLOE = new SampleSearchCriteria();
         criteriaLOE.withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321);
         List<Sample> samplesLOE = searchSamples(sessionToken, criteriaLOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         v3api.logout(sessionToken);
     }
@@ -1952,16 +1965,16 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples = searchSamples(sessionToken, criteria, fo);
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, "
-                + "/TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, "
+                + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST]");
         criteria.withType().withListable().thatEquals(true);
 
         samples = searchSamples(sessionToken, criteria, fo);
 
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-PARENT, "
-                + "/TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
+                + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST]");
     }
 
     @Test
@@ -1974,26 +1987,26 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples = searchSamples(sessionToken, criteria, fo);
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-INVALID, /TEST-SPACE/EV-NOT_INVALID, "
-                + "/TEST-SPACE/EV-PARENT, /TEST-SPACE/EV-PARENT-NORMAL, /TEST-SPACE/EV-TEST]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, "
+                + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST]");
         criteria.withType().withListable().thatEquals(false);
 
         samples = searchSamples(sessionToken, criteria, fo);
 
         identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/TEST-SPACE/EV-NOT_INVALID]");
+        assertEquals(identifiers.toString(), "[/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID]");
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
     public void testSearchWithProjectAuthorization(ProjectAuthorizationUser user)
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
+        criteria.withId().thatEquals(new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST"));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            testSearch(user.getUserId(), criteria, "/TEST-SPACE/EV-TEST");
+            testSearch(user.getUserId(), criteria, "/TEST-SPACE/TEST-PROJECT/EV-TEST");
         } else
         {
             testSearch(user.getUserId(), criteria);
@@ -2348,7 +2361,7 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples = v3api.searchSamples(sessionToken, criteria, new SampleFetchOptions()).getObjects();
 
         // Then
-        assertSampleIdentifiers(samples, "/CISD/CP-TEST-1", "/CISD/SAMPLE_WITH_DATE_PROPERTY");
+        assertSampleIdentifiers(samples, "/CISD/NEMO/CP-TEST-1", "/CISD/SAMPLE_WITH_DATE_PROPERTY");
         assertEquals(samples.size(), 2);
     }
 
@@ -2377,9 +2390,9 @@ public class SearchSampleTest extends AbstractSampleTest
         // Then
         List<String> identifiers = extractIndentifiers(samples);
         Collections.sort(identifiers);
-        assertEquals(identifiers.toString(), "[/CISD/3V-125, /CISD/3V-126, /CISD/3VCP7, /CISD/CL1, /CISD/CP-TEST-1, "
-                + "/CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, "
-                + "/CISD/SAMPLE_WITH_DATE_PROPERTY]");
+        assertEquals(identifiers.toString(), "[/CISD/3V-125, /CISD/3V-126, /CISD/3VCP7, /CISD/CL1, "
+                + "/CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /CISD/NEMO/CP-TEST-1, "
+                + "/CISD/NEMO/CP-TEST-3, /CISD/NOE/CP-TEST-2, /CISD/SAMPLE_WITH_DATE_PROPERTY]");
     }
 
     @Test
@@ -3006,7 +3019,7 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = v3api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
 
         // Then
-        assertSampleIdentifiers(samples, "/CISD/CP1-A2", "/CISD/RP1-A2X");
+        assertSampleIdentifiers(samples, "/CISD/DEFAULT/CP1-A2", "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
@@ -3062,7 +3075,7 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = v3api.searchSamples(sessionToken, criteria, fetchOptions).getObjects();
 
         // Then
-        assertSampleIdentifiers(samples, "/CISD/RP1-A2X");
+        assertSampleIdentifiers(samples, "/CISD/DEFAULT/RP1-A2X");
     }
 
     @Test
@@ -3083,53 +3096,53 @@ public class SearchSampleTest extends AbstractSampleTest
         criteriaGOE.withNumberProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(321.0);
         List<Sample> samplesGOE1 = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE1, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria().withAndOperator();
         criteriaGOE.withNumberProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThan(320.9);
         List<Sample> samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         criteriaGOE = new SampleSearchCriteria().withAndOperator();
         criteriaGOE.withProperty("SIZE");
         criteriaGOE.withSubcriteria().negate().withProperty("SIZE").thatIsLessThan("321.0");
         samplesGOE = searchSamples(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
         // Greater - Giving integer as real
         SampleSearchCriteria criteriaG = new SampleSearchCriteria().withAndOperator();
         criteriaG.withNumberProperty("SIZE");
         criteriaG.withSubcriteria().negate().withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321.0);
         List<Sample> samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         criteriaG = new SampleSearchCriteria().withAndOperator();
         criteriaG.withProperty("SIZE");
         criteriaG.withSubcriteria().negate().withProperty("SIZE").thatIsLessThanOrEqualTo("321.0");
         samplesG = searchSamples(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/NEMO/CP-TEST-3");
 
         // Equals
         final SampleSearchCriteria criteriaE = new SampleSearchCriteria().withAndOperator();
         criteriaE.withNumberProperty("SIZE");
         criteriaE.withSubcriteria().negate().withNumberProperty("SIZE").thatEquals(666);
         final List<Sample> samplesE = searchSamples(sessionToken, criteriaE, sortByCodeFO);
-        samplesE.forEach(sample -> assertNotEquals(sample.getIdentifier().getIdentifier(), "/CISD/CP-TEST-3"));
+        samplesE.forEach(sample -> assertNotEquals(sample.getIdentifier().getIdentifier(), "/CISD/NEMO/CP-TEST-3"));
 
         // Less
         final SampleSearchCriteria criteriaL = new SampleSearchCriteria().withAndOperator();
         criteriaL.withNumberProperty("SIZE");
         criteriaL.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(666);
         final List<Sample> samplesL = searchSamples(sessionToken, criteriaL, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         // Less or Equals
         final SampleSearchCriteria criteriaLOE = new SampleSearchCriteria().withAndOperator();
         criteriaLOE.withNumberProperty("SIZE");
         criteriaLOE.withSubcriteria().negate().withNumberProperty("SIZE").thatIsGreaterThan(321);
         final List<Sample> samplesLOE = searchSamples(sessionToken, criteriaLOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2");
 
         v3api.logout(sessionToken);
     }
@@ -3162,7 +3175,7 @@ public class SearchSampleTest extends AbstractSampleTest
         subcriteria2.withExperiment().withProject().withCode().thatEquals("NOE");
         subcriteria2.withCode().thatEquals("RP1-A2X");
 
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/CISD/NOE/CP-TEST-2", "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -3242,7 +3255,7 @@ public class SearchSampleTest extends AbstractSampleTest
 
         criteria.withPermId().thatEndsWith("6");
 
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-INVALID", "/CISD/3V-125", "/CISD/DP2-A");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EV-INVALID", "/CISD/3V-125", "/CISD/DP2-A");
     }
 
     @Test
@@ -3271,7 +3284,7 @@ public class SearchSampleTest extends AbstractSampleTest
         testSearch(TEST_USER, criteria1, "/CISD/3V-125", "/CISD/3V-126");
 
         final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
-        criteria2.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/3VCP6"));
+        criteria2.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/NEMO/3VCP6"));
         testSearch(TEST_USER, criteria2, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
@@ -3300,7 +3313,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withTextAttribute().thatMatches("cp-test-1 cp-test-2 cp-test-3 cp-test-4");
         criteria.withPermId().thatContains("7-");
 
-        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/TEST-SPACE/NOE/CP-TEST-4");
     }
 
     @Test
@@ -3369,7 +3382,7 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withAnyField().thatMatches("test cp-test-1 cp-test-2");
         criteria.withPermId().thatContains("19");
 
-        testSearch(TEST_USER, criteria, "/CISD/CL1", "/TEST-SPACE/EV-TEST", "/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/CL1", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/CISD/NEMO/CP-TEST-1");
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)

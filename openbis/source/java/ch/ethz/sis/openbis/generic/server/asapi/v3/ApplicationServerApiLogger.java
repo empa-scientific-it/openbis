@@ -1023,6 +1023,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override public SearchResult<Event> searchEvents(final String sessionToken, final EventSearchCriteria searchCriteria,
             final EventFetchOptions fetchOptions)
     {
+        logAccess(sessionToken, "search-events", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
     }
 

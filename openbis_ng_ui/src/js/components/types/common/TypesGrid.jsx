@@ -62,7 +62,10 @@ class TypesGrid extends React.PureComponent {
     columns.push({
       name: 'description',
       label: messages.get(messages.DESCRIPTION),
-      getValue: ({ row }) => row.description
+      getValue: ({ row }) => row.description,
+      renderValue: ({ value, classes }) => (
+        <span className={classes.wrap}>{value}</span>
+      )
     })
 
     columns.push({

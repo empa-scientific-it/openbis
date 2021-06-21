@@ -111,14 +111,14 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testSampleAdaptor()
     {
-        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/CP-TEST-1", "sample_adaptor_test.py");
+        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/NEMO/CP-TEST-1", "sample_adaptor_test.py");
         assertEntitiesReleased(EntityKind.SAMPLE, 1);
     }
 
     @Test
     public void testSampleAdaptorExperiment()
     {
-        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/3VCP6", "sample_adaptor_test__experiment.py");
+        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/NEMO/3VCP6", "sample_adaptor_test__experiment.py");
         assertEntitiesReleased(EntityKind.SAMPLE, 1);
         assertEntitiesReleased(EntityKind.EXPERIMENT, 1);
     }
@@ -126,7 +126,7 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testSampleAdaptorParents()
     {
-        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/3VCP6", "sample_adaptor_test__parents.py");
+        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/NEMO/3VCP6", "sample_adaptor_test__parents.py");
         assertEntitiesReleased(EntityKind.SAMPLE, 5);
         // scrollable result is not created for empty result
         assertScrollableResultsReleased(3);
@@ -144,7 +144,7 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testSampleAdaptorDataSets()
     {
-        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/CP-TEST-3", "sample_adaptor_test__datasets.py");
+        testAdaptorCommon(EntityKind.SAMPLE, "/CISD/NEMO/CP-TEST-3", "sample_adaptor_test__datasets.py");
         assertEntitiesReleased(EntityKind.SAMPLE, 1);
         assertEntitiesReleased(EntityKind.DATA_SET, 0);
         assertScrollableResultsReleased(0);

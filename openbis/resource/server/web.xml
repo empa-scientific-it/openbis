@@ -7,27 +7,27 @@
     <listener>
         <listener-class>ch.systemsx.cisd.common.servlet.CISDContextLoaderListener</listener-class>
     </listener>
-    
+
     <servlet>
         <servlet-name>spring</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-        
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext.xml</param-value>
         <description>File for Spring beans.</description>
     </context-param>
-        
+
     <context-param>
         <param-name>infoClass</param-name>
         <param-value>ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo</param-value>
     </context-param>
 
     <context-param>
-        <!-- 
-        The path of cookie with openBIS session id needs to be set explicitly here. Otherwise 
+        <!--
+        The path of cookie with openBIS session id needs to be set explicitly here. Otherwise
         this cookie will be overwritten with a cookie created for the openBIS-DSS session.
         -->
         <param-name>org.mortbay.jetty.servlet.SessionPath</param-name>
@@ -40,7 +40,7 @@
             ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
         </listener-class>
     </listener>
-    
+
     <filter>
         <filter-name>MethodFilter</filter-name>
         <filter-class>ch.systemsx.cisd.common.servlet.MethodFilter</filter-class>
@@ -53,7 +53,7 @@
         <filter-name>MethodFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>HeaderFilter</filter-name>
         <filter-class>ch.systemsx.cisd.common.servlet.HeaderFilter</filter-class>
@@ -66,7 +66,7 @@
         <filter-name>HeaderFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>CacheFilter</filter-name>
         <filter-class>ch.systemsx.cisd.openbis.generic.server.CacheFilter</filter-class>
@@ -84,7 +84,12 @@
         <filter-name>CrossOriginFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
+    <init-param>
+        <param-name>gzip</param-name>
+        <param-value>true</param-value>
+    </init-param>
+
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
         <servlet-name>spring</servlet-name>

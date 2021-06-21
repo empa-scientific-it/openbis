@@ -158,7 +158,7 @@ public class SampleImmutable implements ISampleImmutable
     @Override
     public String getSpace()
     {
-        return sample.getSpace().getCode();
+        return sample.getSpace() == null ? null : sample.getSpace().getCode();
     }
 
     @Override

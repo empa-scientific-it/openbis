@@ -86,7 +86,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         // (union of property values is displayed).
 
         // 'ORGANISM' is assigned only to 'CELL_PLATE' sample type
-        Sample s1 = getSample(list, createSampleIdentifier("CP-TEST-1"));
+        Sample s1 = getSample(list, createSampleIdentifier("NEMO/CP-TEST-1"));
         assertEquals("CELL_PLATE", s1.getSampleType().getCode());
         assertEquals(5, s1.getProperties().size());
         checkUserProperty(s1.getProperties(), "ORGANISM", "HUMAN");
@@ -98,9 +98,9 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         checkInternalProperty(s2.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
 
         // test that 3 parents of a 'REINFECT_PLATE' are loaded
-        Sample s3 = getSample(list, createSampleIdentifier("RP1-A2X"));
+        Sample s3 = getSample(list, createSampleIdentifier("DEFAULT/RP1-A2X"));
         assertEquals("REINFECT_PLATE", s3.getSampleType().getCode());
-        assertEquals("/CISD/CP1-A2", s3.getGeneratedFrom().getIdentifier());
+        assertEquals("/CISD/DEFAULT/CP1-A2", s3.getGeneratedFrom().getIdentifier());
         assertEquals("/CISD/DP1-A", s3.getGeneratedFrom().getGeneratedFrom().getIdentifier());
         assertEquals("/CISD/MP1-MIXED", s3.getGeneratedFrom().getGeneratedFrom().getGeneratedFrom()
                 .getIdentifier());
@@ -168,7 +168,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
-        Sample s = getSample(list, createSampleIdentifier("3VCP5"));
+        Sample s = getSample(list, createSampleIdentifier("NEMO/3VCP5"));
         // assertNotNull(s.getDeletion());
         assertEquals("/CISD/NEMO/EXP10", s.getExperiment().getIdentifier());
         assertEquals("/CISD/3V-125", s.getGeneratedFrom().getIdentifier());

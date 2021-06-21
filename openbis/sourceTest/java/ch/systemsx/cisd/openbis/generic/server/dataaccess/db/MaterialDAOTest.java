@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -156,8 +157,9 @@ public final class MaterialDAOTest extends AbstractDAOTest
         assertNotNull(usedMaterial);
 
         // Assert that BACTERIUM-X has been used as a property value
+        ProjectPE project = daoFactory.getProjectDAO().tryFindProject("CISD", "NEMO");
         SamplePE sample =
-                daoFactory.getSampleDAO().tryFindByCodeAndSpace("CP-TEST-1", daoFactory.getSpaceDAO().tryFindSpaceByCode("CISD"));
+                daoFactory.getSampleDAO().tryfindByCodeAndProject("CP-TEST-1", project);
         assertNotNull(sample);
         boolean bacteriumFound = false;
         for (SamplePropertyPE property : sample.getProperties())

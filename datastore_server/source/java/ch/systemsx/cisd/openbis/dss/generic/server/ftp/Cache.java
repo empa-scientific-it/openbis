@@ -50,6 +50,8 @@ public class Cache
         }
     }
 
+    private final Map<String, Node> nodesByPath = new HashMap<>();
+
     private final Map<String, TimeStampedObject<FtpFile>> filesByPath = new HashMap<>();
 
     private final Map<String, TimeStampedObject<DataSet>> dataSetsByCode = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
@@ -72,6 +74,16 @@ public class Cache
     public Cache(ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
+    }
+
+    public void putNode(Node node, String path)
+    {
+        nodesByPath.put(path, node);
+    }
+
+    public Node getNode(String path)
+    {
+        return nodesByPath.get(path);
     }
 
     public void putFile(FtpFile file, String path)
@@ -162,9 +174,16 @@ public class Cache
     private <T> T getObject(Map<String, TimeStampedObject<T>> map, String key)
     {
         TimeStampedObject<T> timeStampedObject = map.get(key);
-        return timeStampedObject == null
-                || timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME ? null
-                        : timeStampedObject.object;
+        if (timeStampedObject == null)
+        {
+            return null;
+        }
+        if (timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME)
+        {
+            map.remove(key);
+            return null;
+        }
+        return timeStampedObject.object;
     }
 
 }

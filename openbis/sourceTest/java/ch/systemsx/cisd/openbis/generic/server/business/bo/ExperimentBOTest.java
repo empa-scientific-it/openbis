@@ -102,6 +102,13 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         entityAsPropertiesHolder = context.mock(IEntityPropertiesHolder.class);
         entityAsModifiableBean = context.mock(IModifierAndModificationDateBean.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleDAO).tryfindByCodeAndProject(with(any(String.class)), with(any(ProjectPE.class)));
+                    will(returnValue(null));
+                }
+            });
     }
 
     @Test
@@ -733,7 +740,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
         { "S1", "S2" });
-        prepareAddSamplesToExperiment(experiment, false, "S2");
+        prepareAddSamplesToExperiment(experiment, false, true, "S2");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
         experimentBO.update(update);
@@ -752,7 +759,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
         { "S1", "S2" });
-        prepareAddSamplesToExperiment(experiment, true, "S2");
+        prepareAddSamplesToExperiment(experiment, true, true, "S2");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
         experimentBO.update(update);
@@ -761,7 +768,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     @Test(expectedExceptionsMessageRegExp = "Samples with following codes do not exist "
-            + "in the space 'HOME_GROUP': '\\[S2\\]'\\.", expectedExceptions = UserFailureException.class)
+            + "in the project '/HOME_GROUP/PROJECT_EVOLUTION' nor in the space 'HOME_GROUP': '\\[S2\\]'\\.", expectedExceptions = UserFailureException.class)
     public void testUpdateByAddingAnUnknownSample()
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
@@ -776,7 +783,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     SpacePE space = experiment.getProject().getSpace();
-                    one(sampleDAO).tryFindByCodeAndSpace("S2", space);
+                    one(sampleDAO).tryFindByCodeAndSpace("S2", space, true);
                 }
             });
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
@@ -799,7 +806,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         update.setSampleCodes(new String[]
         { "S3", "S2" });
         prepareRemoveSamplesFromExperiment(experiment, false, "S1");
-        prepareAddSamplesToExperiment(experiment, false, "S3");
+        prepareAddSamplesToExperiment(experiment, false, true, "S1", "S3");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
         experimentBO.update(update);
@@ -819,6 +826,15 @@ public final class ExperimentBOTest extends AbstractBOTest
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
         { "S2" });
+        context.checking(new Expectations()
+            {
+                {
+                    SpacePE space = experiment.getProject().getSpace();
+                    one(sampleDAO).tryFindByCodeAndSpace("S1", space, true);
+                    SamplePE sample = createSampleWithCode("S1");
+                    will(returnValue(sample));
+                }
+            });
         prepareRemoveSamplesFromExperiment(experiment, true, "S1");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
@@ -863,7 +879,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     private void prepareAddSamplesToExperiment(final ExperimentPE experiment,
-            final boolean alreadyAssignedToAnExperiment, final String... sampleCodes)
+            final boolean alreadyAssignedToAnExperiment, boolean ignoringProject, final String... sampleCodes)
     {
         context.checking(new Expectations()
             {
@@ -871,7 +887,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     SpacePE space = experiment.getProject().getSpace();
                     for (String sampleCode : sampleCodes)
                     {
-                        one(sampleDAO).tryFindByCodeAndSpace(sampleCode, space);
+                        one(sampleDAO).tryFindByCodeAndSpace(sampleCode, space, ignoringProject);
                         SamplePE sample = createSampleWithCode(sampleCode);
                         if (alreadyAssignedToAnExperiment)
                         {
@@ -885,7 +901,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                         {
                             break;
                         }
-                        one(relationshipService).assignSampleToExperiment(EXAMPLE_SESSION, sample,
+                        allowing(relationshipService).assignSampleToExperiment(EXAMPLE_SESSION, sample,
                                 experiment);
                     }
                 }
@@ -901,7 +917,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     SpacePE space = experiment.getProject().getSpace();
                     for (String sampleCode : sampleCodes)
                     {
-                        one(sampleDAO).tryFindByCodeAndSpace(sampleCode, space);
+                        allowing(sampleDAO).tryFindByCodeAndSpace(sampleCode, space);
                         SamplePE sample = createSampleWithCode(sampleCode);
                         will(returnValue(sample));
 
