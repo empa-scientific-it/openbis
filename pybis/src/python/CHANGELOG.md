@@ -1,4 +1,4 @@
-## Changes with pybis-1.19.0
+## Changes with pybis-1.19.1
 
 - add set_token() method to set a token and also store it locally
 ## Changes with pybis-1.19.0
