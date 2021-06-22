@@ -173,11 +173,18 @@ def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, contex
     addNodes("DATASET", entitiesByName, path, response, context)
 
 def gatherEntity(entitiesByName, entity):
-    name = entity.getProperties().get("$NAME")
-    nodeName = name if name is not None else entity.getCode()
+    nodeName = getNodeName(entity)
     if nodeName not in entitiesByName:
         entitiesByName[nodeName] = []
     entitiesByName[nodeName].append(entity)
+
+def getNodeName(entity):
+    nodeName = entity.getCode()
+    name = entity.getProperties().get("$NAME")
+    if name is not None:
+        # replacing normal slash character by a 'division slash' in order to avoid interpretation as path delimiter
+        nodeName = name.replace("/", u"\u2215")
+    return nodeName
 
 def addNodes(nodeType, entitiesByName, parentPath, response, context):
     for name in sorted(entitiesByName.keys()):
