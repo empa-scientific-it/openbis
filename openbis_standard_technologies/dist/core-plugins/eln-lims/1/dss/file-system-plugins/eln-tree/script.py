@@ -98,9 +98,6 @@ def listExperiments(space, project, acceptor, context):
 def listExperimentContent(subPath, acceptor, context):
     path = "/".join(subPath)
     node = getNode(subPath, acceptor, context)
-    if node is None:
-        print("====== EC:No node for '%s'" % path)
-        return context.createNonExistingFileResponse("Unable to locate requested file")
     response = context.createDirectoryResponse()
     experimentPermId = node.getPermId()
     addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
@@ -109,9 +106,6 @@ def listExperimentContent(subPath, acceptor, context):
 def listChildren(subPath, acceptor, context):
     path = "/".join(subPath)
     node = getNode(subPath, acceptor, context)
-    if node is None:
-        print("===== C:No node for '%s'" % path)
-        return context.createNonExistingFileResponse("Unable to locate requested file")
     nodeType = node.getType()
     permId = node.getPermId()
     if nodeType == "DATASET":
@@ -131,7 +125,6 @@ def getNode(subPath, acceptor, context):
     path = "/".join(subPath)
     node = context.getCache().getNode(path)
     if node is None:
-#        print(">>> PATH: %s" % subPath)
         if len(subPath) == 3:
             addExperimentNodes(subPath[0], subPath[1], None, acceptor, context)
         else:
@@ -139,7 +132,6 @@ def getNode(subPath, acceptor, context):
             parentNode = getNode(parentPath, acceptor, context)
             parentPathString = "/".join(parentPath)
             nodeType = parentNode.getType()
-#            print(">>>> NODE TYPE: %s, parent:%s" % (nodeType, parentPath))
             if nodeType == "EXPERIMENT":
                 addExperimentChildNodes(parentPathString, parentNode.getPermId(), None, acceptor, context)
             elif nodeType == "SAMPLE":
@@ -148,8 +140,10 @@ def getNode(subPath, acceptor, context):
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
             else:
-                raise BaseException("Couldn't resolve '%s'" % path)
+                raise BaseException("Couldn't resolve '%s' because of invalid node type: %s" % (path, nodeType))
         node = context.getCache().getNode(path)
+        if node is None:
+            raise BaseException("Couldn't resolve '%s'" % path)
     return node
 
 def addExperimentNodes(space, project, response, acceptor, context):
@@ -205,7 +199,6 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
         filePermId = "%s:%s" % (dataSetCode, childNode.getRelativePath())
-        print(">>>> DATASET: %s = %s" % (filePath, filePermId))
         context.getCache().putNode(Node("DATASET", filePermId), filePath)
         if response is not None:
             if childNode.isDirectory():
