@@ -71,7 +71,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
             super(fileNode.getFullPath());
             setSize(fileNode.getSize());
             this.ftpPathResolverRegistry = ftpPathResolverRegistry;
-            this.resolverContext = resolverContext;
+            this.resolverContext = resolverContext.cloneForPath(getAbsolutePath());
         }
 
         @Override
@@ -122,7 +122,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         {
             super(concatenatePathElements(parentAbsolutePath, node.getFullPath()));
             this.ftpPathResolverRegistry = ftpPathResolverRegistry;
-            this.resolverContext = resolverContext;
+            this.resolverContext = resolverContext.cloneForPath(getAbsolutePath());
         }
 
         @Override
