@@ -29,15 +29,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 
 public class LoadBenchmark extends Benchmark {
 	
-	private enum Parameters { SPACES_TO_CREATE, SAMPLES_TO_CREATE, USE_DATABASE, DATABASE_URL, DATABASE_USER, DATABASE_PASS, SET_SAMPLES_RELATIONSHIPS }
+	private enum Parameters { SPACES_TO_CREATE, SAMPLES_TO_CREATE, PROPERTIES_NUMBER, USE_DATABASE, DATABASE_URL, DATABASE_USER, DATABASE_PASS, SET_SAMPLES_RELATIONSHIPS }
 	private enum Prefix { SPACE_, COLLECTION_, PROJECT_, OBJECT_ }
 	
 	@Override
 	public void startInternal() throws Exception {
         login();
         
-        String propertyTypeCode1 = "BENCHMARK_STRING_1";
-        String propertyTypeCode2 = "BENCHMARK_STRING_2";
+        String propertyTypeCode = "BENCHMARK_STRING_";
         EntityTypePermId sampleTypeCode = new EntityTypePermId("BENCHMARK_OBJECT");
         EntityTypePermId experimentTypeCode = new EntityTypePermId("BENCHMARK_COLLECTION");
         
@@ -45,26 +44,25 @@ public class LoadBenchmark extends Benchmark {
         stsc.withCode().thatEquals(sampleTypeCode.getPermId());
         SampleTypeFetchOptions stfo = new SampleTypeFetchOptions();
         List<SampleType> types = v3.searchSampleTypes(sessionToken, stsc, stfo).getObjects();
-        
+
+        int propertiesNumber = Integer.parseInt(Optional.ofNullable(this.getConfiguration().getParameters().get(Parameters.PROPERTIES_NUMBER.name())).orElse("2"));
+
         if(types.isEmpty()) {
         	//
             // Setup - Create Property Types
             //
+            List<PropertyTypeCreation> propertyTypeCreations = new ArrayList<>(propertiesNumber);
+            for(int i = 0; i < propertiesNumber; i++) {
+                int propertyNumber = i + 1;
+                PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+                propertyTypeCreation.setCode(propertyTypeCode + propertyNumber);
+                propertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
+                propertyTypeCreation.setLabel("Benchmark String " + propertyNumber + " label");
+                propertyTypeCreation.setDescription("Benchmark String " + propertyNumber + " description");
+                propertyTypeCreations.add(propertyTypeCreation);
+            }
             
-            PropertyTypeCreation propertyTypeCreation1 = new PropertyTypeCreation();
-            propertyTypeCreation1.setCode(propertyTypeCode1);
-            propertyTypeCreation1.setDataType(DataType.MULTILINE_VARCHAR);
-            propertyTypeCreation1.setLabel("Benchmark String 1 label");
-            propertyTypeCreation1.setDescription("Benchmark String 1 description");
-            
-            
-            PropertyTypeCreation propertyTypeCreation2 = new PropertyTypeCreation();
-            propertyTypeCreation2.setCode(propertyTypeCode2);
-            propertyTypeCreation2.setDataType(DataType.MULTILINE_VARCHAR);
-            propertyTypeCreation2.setLabel("Benchmark String 2 label");
-            propertyTypeCreation2.setDescription("Benchmark String 2 description");
-            
-            v3.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation1, propertyTypeCreation2));
+            v3.createPropertyTypes(sessionToken, propertyTypeCreations);
             
             //
             // Setup - Create Sample Type
@@ -72,14 +70,16 @@ public class LoadBenchmark extends Benchmark {
             
             SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
             sampleTypeCreation.setCode(sampleTypeCode.getPermId());
+
+            List<PropertyAssignmentCreation> propertyAssignments = new ArrayList<>(propertiesNumber);
+            for(int i = 0; i < propertiesNumber; i++) {
+                int propertyNumber = i + 1;
+                PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
+                propertyAssignmentCreation.setPropertyTypeId(new PropertyTypePermId(propertyTypeCode + propertyNumber));
+                propertyAssignments.add(propertyAssignmentCreation);
+            }
             
-            PropertyAssignmentCreation propertyAssignmentCreation1 = new PropertyAssignmentCreation();
-            propertyAssignmentCreation1.setPropertyTypeId(new PropertyTypePermId(propertyTypeCode1));
-            
-            PropertyAssignmentCreation propertyAssignmentCreation2 = new PropertyAssignmentCreation();
-            propertyAssignmentCreation2.setPropertyTypeId(new PropertyTypePermId(propertyTypeCode2));
-            
-            sampleTypeCreation.setPropertyAssignments(Arrays.asList(propertyAssignmentCreation1, propertyAssignmentCreation2));
+            sampleTypeCreation.setPropertyAssignments(propertyAssignments);
             
             v3.createSampleTypes(sessionToken, Arrays.asList(sampleTypeCreation));
             
@@ -176,9 +176,12 @@ public class LoadBenchmark extends Benchmark {
                 sampleCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
         		sampleCreation.setTypeId(sampleTypeCode);
         		sampleCreation.setCode(sampleCode);
-        		sampleCreation.setProperty(propertyTypeCode1, RandomWord.getRandomWord() + " " + RandomWord.getRandomWord());
-        		sampleCreation.setProperty(propertyTypeCode2, RandomWord.getRandomWord() + " " + RandomWord.getRandomWord());
-        		
+
+                for(int j = 0; j < propertiesNumber; j++) {
+                    int propertyNumber = j + 1;
+                    sampleCreation.setProperty(propertyTypeCode + propertyNumber, RandomWord.getRandomWord() + " " + RandomWord.getRandomWord());
+                }
+
         		String code = randomValueGenerator.getRandom();
         		sampleCreation.setSpaceId(new SpacePermId(Prefix.SPACE_ + code)); // Spaces are distributed randomly
         		sampleCreation.setProjectId(new ProjectIdentifier("/" + Prefix.SPACE_ + code + "/" + Prefix.PROJECT_ + code));
