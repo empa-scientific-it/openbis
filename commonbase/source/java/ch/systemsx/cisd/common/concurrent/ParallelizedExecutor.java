@@ -120,7 +120,7 @@ public class ParallelizedExecutor
         if (numberOfWorkers == 1)
         {
             processInTheSameThread(itemsToProcessOrNull, taskExecutor,
-                    retriesNumberWhenExecutionFails);
+                    retriesNumberWhenExecutionFails, failed);
         } else
         {
             processInParallel(taskExecutor, retriesNumberWhenExecutionFails, workerQueue, failed,
@@ -131,7 +131,7 @@ public class ParallelizedExecutor
     }
 
     private static <T> void processInTheSameThread(List<T> itemsToProcess,
-            ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails)
+            ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails, Collection<FailureRecord<T>> failed)
     {
         for (T item : itemsToProcess)
         {
@@ -142,6 +142,10 @@ public class ParallelizedExecutor
                 status = taskExecutor.execute(item);
                 counter--;
             } while (counter > 0 && status.isError());
+            if (status.isError())
+            {
+                failed.add(new FailureRecord<T>(item, status));
+            }
         }
     }
 
