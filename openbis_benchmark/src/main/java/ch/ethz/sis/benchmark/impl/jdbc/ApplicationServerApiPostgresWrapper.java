@@ -11,6 +11,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthoriza
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.TableModel;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -94,6 +95,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecut
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -102,6 +104,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -128,15 +132,21 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.QueryDatabase;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.create.QueryCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.delete.QueryDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.execute.QueryExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.execute.SqlExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryDatabaseFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryDatabaseId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QueryDatabaseSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QuerySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.QueryUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
@@ -208,10 +218,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import lombok.SneakyThrows;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,10 +233,9 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     private String databasePass;
     private Connection connection;
 
-    @SneakyThrows
     public ApplicationServerApiPostgresWrapper(String databaseURL,
                                                String databaseUser,
-                                               String databasePass) {
+                                               String databasePass) throws SQLException {
         //
         this.databaseURL = databaseURL;
         this.databaseUser = databaseUser;
@@ -240,11 +249,14 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
         this.instance = instance;
     }
 
-    @SneakyThrows
     @Override
     public String login(String s, String s1) {
         //
-        connection = DriverManager.getConnection(databaseURL, databaseUser, databasePass);
+        try {
+            connection = DriverManager.getConnection(databaseURL, databaseUser, databasePass);
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
         //
         return instance.login(s, s1);
     }
@@ -259,11 +271,14 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
         return instance.loginAsAnonymousUser();
     }
 
-    @SneakyThrows
     @Override
     public void logout(String s) {
         //
-        connection.close();
+        try {
+            connection.close();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
         //
         instance.logout(s);
     }
@@ -577,6 +592,11 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     }
 
     @Override
+    public Map<IObjectId, Rights> getRights(String s, List<? extends IObjectId> list, RightsFetchOptions rightsFetchOptions) {
+        return instance.getRights(s, list, rightsFetchOptions);
+    }
+
+    @Override
     public Map<ISpaceId, Space> getSpaces(String s, List<? extends ISpaceId> list, SpaceFetchOptions spaceFetchOptions) {
         return instance.getSpaces(s, list, spaceFetchOptions);
     }
@@ -684,6 +704,11 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     @Override
     public Map<IQueryId, Query> getQueries(String s, List<? extends IQueryId> list, QueryFetchOptions queryFetchOptions) {
         return instance.getQueries(s, list, queryFetchOptions);
+    }
+
+    @Override
+    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(String s, List<? extends IQueryDatabaseId> list, QueryDatabaseFetchOptions queryDatabaseFetchOptions) {
+        return instance.getQueryDatabases(s, list, queryDatabaseFetchOptions);
     }
 
     @Override
@@ -842,6 +867,11 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     }
 
     @Override
+    public SearchResult<QueryDatabase> searchQueryDatabases(String s, QueryDatabaseSearchCriteria queryDatabaseSearchCriteria, QueryDatabaseFetchOptions queryDatabaseFetchOptions) {
+        return instance.searchQueryDatabases(s, queryDatabaseSearchCriteria, queryDatabaseFetchOptions);
+    }
+
+    @Override
     public void deleteSpaces(String s, List<? extends ISpaceId> list, SpaceDeletionOptions spaceDeletionOptions) {
         instance.deleteSpaces(s, list, spaceDeletionOptions);
     }
@@ -947,6 +977,11 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     }
 
     @Override
+    public void deletePersons(String s, List<? extends IPersonId> list, PersonDeletionOptions personDeletionOptions) {
+        instance.deletePersons(s, list, personDeletionOptions);
+    }
+
+    @Override
     public SearchResult<Deletion> searchDeletions(String s, DeletionSearchCriteria deletionSearchCriteria, DeletionFetchOptions deletionFetchOptions) {
         return instance.searchDeletions(s, deletionSearchCriteria, deletionFetchOptions);
     }
@@ -994,6 +1029,11 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
     @Override
     public TableModel executeSql(String s, String s1, SqlExecutionOptions sqlExecutionOptions) {
         return instance.executeSql(s, s1, sqlExecutionOptions);
+    }
+
+    @Override
+    public PluginEvaluationResult evaluatePlugin(String s, PluginEvaluationOptions pluginEvaluationOptions) {
+        return instance.evaluatePlugin(s, pluginEvaluationOptions);
     }
 
     @Override
