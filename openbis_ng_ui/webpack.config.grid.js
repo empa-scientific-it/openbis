@@ -4,11 +4,15 @@ const path = require('path')
 module.exports = {
   entry: './src/js/components/common/grid/index.js',
   output: {
-    path: __dirname + '/build/js',
-    filename: 'grid.js'
+    path:
+      __dirname +
+      '/../openbis_standard_technologies/dist/core-plugins/eln-lims/1/as/webapps/eln-lims/html/react',
+    filename: 'Grid.js',
+    libraryTarget: 'var',
+    library: 'Grid'
   },
 
-  mode: 'production',
+  mode: 'development',
 
   module: {
     rules: [
@@ -40,4 +44,10 @@ module.exports = {
       '@srcV3': path.resolve(__dirname, 'srcV3/')
     }
   }
+  /*
+  externals: {
+    react: 'react',
+    'react-dom': 'react-dom'
+  }
+*/
 }
