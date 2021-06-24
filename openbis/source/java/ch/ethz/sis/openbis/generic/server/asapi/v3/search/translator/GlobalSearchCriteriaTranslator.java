@@ -797,18 +797,33 @@ public class GlobalSearchCriteriaTranslator
                     .append(PERM_ID_COLUMN).append(COMMA).append(SP)
                     .append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
                     .append(COMMA).append(SP);
-            buildTsRank(sqlBuilder, MAIN_TABLE_ALIAS, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
         } else
         {
             sqlBuilder.append(prefix).append(getPermId(tableMapper)).append(COMMA).append(SP)
                     .append(objectKindOrdinal).append(SP).append(OBJECT_KIND_ORDINAL_ALIAS)
                     .append(COMMA).append(SP);
-            buildTsRank(sqlBuilder, PROPERTIES_TABLE_ALIAS, () -> buildTsQueryPart(sqlBuilder, stringValue, args));
+        }
+
+        appendRankCalculation(sqlBuilder, tableMapper, forAttributes, stringValue, args, MAIN_TABLE_ALIAS,
+                PROPERTIES_TABLE_ALIAS, MATERIALS_TABLE_ALIAS, SAMPLES_TABLE_ALIAS);
+        sqlBuilder.append(SP).append(RANK_ALIAS).append(NL);
+    }
+
+    public static void appendRankCalculation(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final boolean forAttributes, final AbstractStringValue stringValue, final List<Object> args,
+            final String mainTableAlias, final String propertiesTableAlias, final String materialsTableAlias,
+            final String samplesTableAlias)
+    {
+        if (forAttributes)
+        {
+            buildTsRank(sqlBuilder, mainTableAlias, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
+        } else
+        {
+            buildTsRank(sqlBuilder, propertiesTableAlias, () -> buildTsQueryPart(sqlBuilder, stringValue, args));
 
             sqlBuilder.append(SP).append(PLUS).append(SP);
             sqlBuilder.append(COALESCE).append(LP);
-            buildTsRank(sqlBuilder, MATERIALS_TABLE_ALIAS,
-                    () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
+            buildTsRank(sqlBuilder, materialsTableAlias, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
             sqlBuilder.append(COMMA).append(SP).append(0).append(RP);
 
             if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
@@ -816,13 +831,11 @@ public class GlobalSearchCriteriaTranslator
             {
                 sqlBuilder.append(SP).append(PLUS).append(SP);
                 sqlBuilder.append(COALESCE).append(LP);
-                buildTsRank(sqlBuilder, SAMPLES_TABLE_ALIAS,
+                buildTsRank(sqlBuilder, samplesTableAlias,
                         () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
                 sqlBuilder.append(COMMA).append(SP).append(0).append(RP);
             }
         }
-
-        sqlBuilder.append(SP).append(RANK_ALIAS).append(NL);
     }
 
     private static void buildTsRank(final StringBuilder sqlBuilder, final String tsVectorReference,

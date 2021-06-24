@@ -591,9 +591,14 @@ public class TranslatorUtils
         }
     }
 
-    public static boolean isPropertySearchFieldName(final String sortingCriteriaFieldName)
+    public static boolean isPropertySortingFieldName(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY);
+    }
+
+    public static boolean isPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
+    {
+        return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY_SCORE);
     }
 
     public static Object convertStringToType(final String value, final Class<?> klass)

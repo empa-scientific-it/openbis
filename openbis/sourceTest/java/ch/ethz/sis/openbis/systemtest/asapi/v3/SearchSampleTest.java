@@ -19,7 +19,9 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsAtLeast;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionDoesntContain;
 import static org.junit.Assert.fail;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotSame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -368,7 +370,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatIsGreaterThan("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", 
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X",
                 "/CISD/DEFAULT/RP2-A1X", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02",
                 "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
     }
@@ -3384,6 +3386,71 @@ public class SearchSampleTest extends AbstractSampleTest
 
         testSearch(TEST_USER, criteria, "/CISD/CL1", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/CISD/NEMO/CP-TEST-1");
     }
+
+    @Test
+    public void testSearchFullTextSearchSortingByScore()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+
+        criteria.withStringProperty("COMMENT").thatMatches("simple stuff");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.sortBy().stringMatchPropertyScore("COMMENT", "simple stuff").desc();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        assertSampleIdentifiers(samples, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
+
+        // "/CISD/CP-TEST-1" -> "very advanced stuff"
+        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
+        // "/CISD/CP-TEST-3" -> "stuff like others"
+
+        assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/NOE/CP-TEST-2");
+
+        v3api.logout(sessionToken);
+    }
+
+// TODO: with any property is not working correctly and with any <type> property is not working at all.
+//    @Test
+//    public void testSearchSamplesWithAnyProperty()
+//    {
+//        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+//        criteria.withAnyProperty();
+//
+//        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+//        fetchOptions.withProperties();
+//
+//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+//        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+//
+//        try {
+//            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+//        } finally
+//        {
+//            v3api.logout(sessionToken);
+//        }
+//    }
+//
+//    @Test
+//    public void testSearchSamplesWithAnyStringProperty()
+//    {
+//        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+//        criteria.withAnyStringProperty();
+//
+//        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+//        fetchOptions.withProperties();
+//
+//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+//        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+//
+//        try {
+//            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+//        } finally
+//        {
+//            v3api.logout(sessionToken);
+//        }
+//    }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {
