@@ -91,7 +91,7 @@
 	<script src="./react/react.development.js" crossorigin></script>
 	<script src="./react/react-dom.development.js" crossorigin></script>
 	<script src="./react/babel.min.js" crossorigin></script>
-	<script src="./react/LikeButton.js" type="text/babel" crossorigin></script>
+	<script src="./react/NgUiGrid.js" crossorigin></script>
 
 	<!-- First party libraries -->
 	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
@@ -494,14 +494,39 @@
 
 	<div id="react-container">React container</div>
 
+	<script type="text/babel">
+		const NgUiGrid = window.NgUiGrid.default
+		const domContainer = document.querySelector('#react-container');
+		ReactDOM.render(<NgUiGrid
+			header='Test'
+			columns={[
+			  {
+				name: 'code',
+				label: 'Code',
+				sort: 'asc',
+				getValue: ({ row }) => row.code
+			  },
+			  {
+				name: 'description',
+				label: 'Description',
+				getValue: ({ row }) => row.description
+			  }
+			]}
+			rows={[{
+				id: 1,
+				code: '1',
+				description: 'abc'
+			},{
+				id: 2,
+				code: '2',
+				description: 'def'
+			}]}
+		/>, domContainer);
+	</script>
+
 	<div class="container-fluid">
 		<div id='mainContainer' class="row"></div>
 	</div>
-
-	<script type="text/babel">
-		const domContainer = document.querySelector('#react-container');
-		ReactDOM.render(<LikeButton/>, domContainer);
-	</script>
 
 	<script type="text/javascript" src="./etc/config.js"></script>
 

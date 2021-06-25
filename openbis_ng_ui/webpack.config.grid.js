@@ -7,9 +7,9 @@ module.exports = {
     path:
       __dirname +
       '/../openbis_standard_technologies/dist/core-plugins/eln-lims/1/as/webapps/eln-lims/html/react',
-    filename: 'Grid.js',
+    filename: 'NgUiGrid.js',
     libraryTarget: 'var',
-    library: 'Grid'
+    library: 'NgUiGrid'
   },
 
   mode: 'development',
