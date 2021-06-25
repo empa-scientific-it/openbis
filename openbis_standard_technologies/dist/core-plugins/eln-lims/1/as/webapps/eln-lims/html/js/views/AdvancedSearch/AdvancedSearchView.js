@@ -36,6 +36,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this.beforeRenderingHook = null;
 	this.extraOptions = null;
 
+	this.NgUiGridState = {
+	    rows: [],
+	    totalCount: 0
+	}
+
 	//
 	// Main Repaint Method
 	//
@@ -856,16 +861,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				});
 			}
 
-			columns.push({
-			    name: 'separator',
-				label : '---------------',
-				getValue: ({ row }) => null,
-				sortable : false,
-				// not supported
-				property : null,
-				isExportable: false,
-			});
-
 			//Add properties as columns dynamically depending on the results
 			var dynamicColumnsFunc = function(entities) {
 				//1. Get properties with actual data
@@ -957,17 +952,39 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
-			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-
-			// var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
-
             const NgUiGrid = window.NgUiGrid.default
+
 			return React.createElement(NgUiGrid, {
-            	header: 'Test',
+            	header: this.resultsTitle,
             	columns:columns,
-            	rows:[]
+            	rows:this.NgUiGridState.rows,
+            	totalCount:this.NgUiGridState.totalCount,
+            	load: (options) => { return this._loadNgUiGridState(criteria, isGlobalSearch, options) }
             });
 	}
+
+    this._loadNgUiGridState = function(criteria, isGlobalSearch, options) {
+        return new Promise(resolve => {
+            var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
+            getDataRows(result => {
+                this.NgUiGridState = {
+                    rows : result.objects.map(object => {
+                        object.id = object.permId
+                        return object;
+                    }),
+                    totalCount: result.totalCount
+                }
+                this.renderResults(criteria)
+                resolve()
+            }, {
+                pageIndex: options.page,
+                pageSize: options.pageSize,
+                sortProperty: options.sort,
+                sortDirection: options.sortDirection,
+                search: null
+            })
+        });
+    }
 
 	this._getLinkOnClick = function(code, data, paginationInfo, id) {
 		if(data.entityKind !== "Sample") {
