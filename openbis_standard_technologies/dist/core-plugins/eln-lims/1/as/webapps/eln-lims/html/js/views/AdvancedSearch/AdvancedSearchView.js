@@ -36,11 +36,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this.beforeRenderingHook = null;
 	this.extraOptions = null;
 
-	this.NgUiGridState = {
-	    rows: [],
-	    totalCount: 0
-	}
-
 	//
 	// Main Repaint Method
 	//
@@ -699,7 +694,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $minusButton;
 	}
 
-	this.renderResults = function(criteria) {
+	this.renderResults = function(criteria, NgUiGridState) {
 		if (this.beforeRenderingHook) {
 			this.beforeRenderingHook();
 		}
@@ -707,11 +702,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
 
-		var DataGridElement = this._getGridForResults(criteria, isGlobalSearch);
+        if(!NgUiGridState){
+            NgUiGridState = {
+                rows: [],
+                totalCount: 0
+            }
+            ReactDOM.unmountComponentAtNode(this._$dataGridContainer.get(0))
+        }
+		var DataGridElement = this._getGridForResults(criteria, isGlobalSearch, NgUiGridState);
         ReactDOM.render(DataGridElement, this._$dataGridContainer.get(0));
 	}
 
-	this._getGridForResults = function(criteria, isGlobalSearch) {
+	this._getGridForResults = function(criteria, isGlobalSearch, NgUiGridState) {
 			var _this = this;
 
 			var columns = _this.firstColumns.concat([ {
@@ -957,8 +959,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			return React.createElement(NgUiGrid, {
             	header: this.resultsTitle,
             	columns:columns,
-            	rows:this.NgUiGridState.rows,
-            	totalCount:this.NgUiGridState.totalCount,
+            	rows:NgUiGridState.rows,
+            	totalCount:NgUiGridState.totalCount,
             	load: (options) => { return this._loadNgUiGridState(criteria, isGlobalSearch, options) }
             });
 	}
@@ -967,14 +969,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         return new Promise(resolve => {
             var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
             getDataRows(result => {
-                this.NgUiGridState = {
+                var NgUiGridState = {
                     rows : result.objects.map(object => {
                         object.id = object.permId
                         return object;
                     }),
                     totalCount: result.totalCount
                 }
-                this.renderResults(criteria)
+                this.renderResults(criteria, NgUiGridState)
                 resolve()
             }, {
                 pageIndex: options.page,
