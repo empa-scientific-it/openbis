@@ -72,7 +72,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		//Search Results Panel
 		this._$dataGridContainer = $("<div>");
 		$mainPanel.append(this._$dataGridContainer);
-		//
+
+        const NgUiGrid = window.NgUiGrid.default
+		ReactDOM.render(React.createElement(NgUiGrid, {
+			header: 'Test',
+			columns:[
+			  {
+				name: 'code',
+				label: 'Code',
+				sort: 'asc',
+				getValue: ({ row }) => row.code
+			  },
+			  {
+				name: 'description',
+				label: 'Description',
+				getValue: ({ row }) => row.description
+			  }
+			],
+			rows:[{
+				id: 1,
+				code: '1',
+				description: 'abc'
+			},{
+				id: 2,
+				code: '2',
+				description: 'def'
+			}]
+		}), this._$dataGridContainer.get(0));
 
 		//Triggers Layout refresh
 		$container.append($mainPanel);
@@ -702,8 +728,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
-		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
-		dataGridController.init(this._$dataGridContainer, this.extraOptions);
+
+		//var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
+		//dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
 
 	this._getGridForResults = function(criteria, isGlobalSearch) {
