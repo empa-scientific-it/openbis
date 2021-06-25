@@ -73,33 +73,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._$dataGridContainer = $("<div>");
 		$mainPanel.append(this._$dataGridContainer);
 
-        const NgUiGrid = window.NgUiGrid.default
-		ReactDOM.render(React.createElement(NgUiGrid, {
-			header: 'Test',
-			columns:[
-			  {
-				name: 'code',
-				label: 'Code',
-				sort: 'asc',
-				getValue: ({ row }) => row.code
-			  },
-			  {
-				name: 'description',
-				label: 'Description',
-				getValue: ({ row }) => row.description
-			  }
-			],
-			rows:[{
-				id: 1,
-				code: '1',
-				description: 'abc'
-			},{
-				id: 2,
-				code: '2',
-				description: 'def'
-			}]
-		}), this._$dataGridContainer.get(0));
-
 		//Triggers Layout refresh
 		$container.append($mainPanel);
 
@@ -729,18 +702,21 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
 
-		//var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
-		//dataGridController.init(this._$dataGridContainer, this.extraOptions);
+		var DataGridElement = this._getGridForResults(criteria, isGlobalSearch);
+        ReactDOM.render(DataGridElement, this._$dataGridContainer.get(0));
 	}
 
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
 
 			var columns = _this.firstColumns.concat([ {
+			    name: 'entityKind',
 				label : 'Entity Kind',
+				getValue: ({ row }) => row['entityKind'],
+				sortable : false,
+				// not supported
 				property : 'entityKind',
 				isExportable: true,
-				sortable : false,
 				render : function(data) {
 					if(data.entityKind === "Sample") {
 						return ELNDictionary.Sample;
@@ -751,10 +727,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					}
 				}
 			}, {
+			    name: '$NAME',
                 label : 'Name',
+                getValue: ({ row }) => row['$NAME'],
+                sortable : !isGlobalSearch,
+                // not supported
                 property : '$NAME',
                 isExportable: true,
-                sortable : !isGlobalSearch,
                 render : function(data) {
                     if(data[profile.propertyReplacingCode]) {
                         return _this._getLinkOnClick(data[profile.propertyReplacingCode], data);
@@ -763,10 +742,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     }
                 }
             }, {
+                name: 'identifier',
                 label : 'Identifier',
+                getValue: ({ row }) => row['identifier'],
+                sortable : !isGlobalSearch,
+                // not supported
                 property : 'identifier',
                 isExportable: true,
-                sortable : !isGlobalSearch,
                 render : function(data, grid) {
                     var paginationInfo = null;
                	    if(!isGlobalSearch) {
@@ -791,15 +773,21 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						data, paginationInfo);
                 }
             }, {
+                name: 'entityType',
 				label : 'Entity Type',
+				getValue: ({ row }) => row['entityType'],
+				sortable : !isGlobalSearch,
+				// not supported
 				property : 'entityType',
 				isExportable: true,
-				sortable : !isGlobalSearch
 			}, {
+			    name: 'code',
 				label : 'Code',
+				getValue: ({ row }) => row['code'],
+				sortable : !isGlobalSearch,
+				// not supported
 				property : 'code',
 				isExportable: true,
-				sortable : !isGlobalSearch,
 				render : function(data, grid) {
 					var paginationInfo = null;
 					if(!isGlobalSearch) {
@@ -824,27 +812,36 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					return _this._getLinkOnClick(data.code, data, paginationInfo, id);
 				}
 			}, {
+			    name: 'experiment',
 				label : ELNDictionary.getExperimentDualName(),
+				getValue: ({ row }) => row['experiment'],
+				sortable : false,
+				// not supported
 				property : 'experiment',
 				isExportable: false,
-				sortable : false
 			}]);
 
 			columns = columns.concat(_this.additionalColumns);
 
 			if(isGlobalSearch) {
 				columns.push({
+				    name: 'matched',
 					label : 'Matched',
+					getValue: ({ row }) => row['matched'],
+					sortable : false,
+					// not supported
 					property : 'matched',
 					isExportable: true,
-					sortable : false
 				});
 
 				columns.push({
+				    name: 'rank',
 					label : 'Rank',
+					getValue: ({ row }) => row['rank'],
+					sortable : false,
+					// not supported
 					property : 'rank',
 					isExportable: true,
-					sortable : false,
                     render : function(data, grid) {
                         var indexFound = null;
                         for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
@@ -860,10 +857,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}
 
 			columns.push({
+			    name: 'separator',
 				label : '---------------',
+				getValue: ({ row }) => null,
+				sortable : false,
+				// not supported
 				property : null,
 				isExportable: false,
-				sortable : false
 			});
 
 			//Add properties as columns dynamically depending on the results
@@ -959,8 +959,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
-			return dataGrid;
+			// var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
+
+            const NgUiGrid = window.NgUiGrid.default
+			return React.createElement(NgUiGrid, {
+            	header: 'Test',
+            	columns:columns,
+            	rows:[]
+            });
 	}
 
 	this._getLinkOnClick = function(code, data, paginationInfo, id) {
