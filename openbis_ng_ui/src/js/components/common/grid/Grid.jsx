@@ -1,7 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
@@ -13,7 +11,6 @@ import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import ColumnConfig from '@src/js/components/common/grid/ColumnConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -45,12 +42,6 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   }
 })
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class Grid extends React.PureComponent {
   constructor(props) {
@@ -176,4 +167,4 @@ class Grid extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(mapStateToProps, null), withStyles(styles))(Grid)
+export default withStyles(styles)(Grid)

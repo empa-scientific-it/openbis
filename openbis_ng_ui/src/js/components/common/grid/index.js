@@ -1,3 +1,3 @@
-import TestGrid from '@src/js/components/common/grid/TestGrid.jsx'
+import Grid from '@src/js/components/common/grid/GridWrapper.jsx'
 
-export default TestGrid
+export default Grid

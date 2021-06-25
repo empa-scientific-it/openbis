@@ -43,11 +43,10 @@ module.exports = {
       '@srcTest': path.resolve(__dirname, 'srcTest/'),
       '@srcV3': path.resolve(__dirname, 'srcV3/')
     }
-  }
-  /*
+  },
+
   externals: {
-    react: 'react',
-    'react-dom': 'react-dom'
+    react: 'React',
+    'react-dom': 'ReactDOM'
   }
-*/
 }

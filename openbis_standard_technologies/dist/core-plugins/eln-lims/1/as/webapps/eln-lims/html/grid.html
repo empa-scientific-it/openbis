@@ -28,7 +28,31 @@
 	<script type="text/babel">
 		const Grid = window.Grid.default
 		const domContainer = document.querySelector('#react-container');
-		ReactDOM.render(<Grid text='Hello'/>, domContainer);
+		ReactDOM.render(<Grid
+			header='Test'
+			columns={[
+			  {
+				name: 'code',
+				label: 'Code',
+				sort: 'asc',
+				getValue: ({ row }) => row.code
+			  },
+			  {
+				name: 'description',
+				label: 'Description',
+				getValue: ({ row }) => row.description
+			  }
+			]}
+			rows={[{
+				id: 1,
+				code: '1',
+				description: 'abc'
+			},{
+				id: 2,
+				code: '2',
+				description: 'def'
+			}]}
+		/>, domContainer);
 	</script>
 </body>
 </html>
