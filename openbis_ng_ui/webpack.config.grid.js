@@ -12,7 +12,7 @@ module.exports = {
     library: 'NgUiGrid'
   },
 
-  mode: 'development',
+  mode: 'production',
 
   module: {
     rules: [

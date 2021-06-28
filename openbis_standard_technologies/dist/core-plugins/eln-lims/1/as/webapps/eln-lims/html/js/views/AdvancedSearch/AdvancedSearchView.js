@@ -716,10 +716,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getGridForResults = function(criteria, isGlobalSearch, NgUiGridState) {
 			var _this = this;
 
-			var columns = _this.firstColumns.concat([ {
+			var NgUi = window.NgUiGrid.default
+
+			var columns = _this.firstColumns.concat([{
 			    name: 'entityKind',
 				label : 'Entity Kind',
 				getValue: ({ row }) => row['entityKind'],
+				renderFilter: ({value, onChange}) => {
+				    return React.createElement(NgUi.SelectField, {
+				        label: 'Entity Kind',
+				        value: value,
+				        onChange: onChange,
+				        emptyOption: {},
+				        options: [{value: "Sample"}, {value: "Experiment"}, {value: "DataSet"}],
+				        variant: 'standard'
+				    }, null)
+				},
 				sortable : false,
 				// not supported
 				property : 'entityKind',
@@ -954,15 +966,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
-            const NgUiGrid = window.NgUiGrid.default
-
-			return React.createElement(NgUiGrid, {
-            	header: this.resultsTitle,
-            	columns:columns,
-            	rows:NgUiGridState.rows,
-            	totalCount:NgUiGridState.totalCount,
-            	load: (options) => { return this._loadNgUiGridState(criteria, isGlobalSearch, options) }
-            });
+            return React.createElement(NgUi.ThemeProvider, {},
+                React.createElement(NgUi.Grid, {
+                    header: this.resultsTitle,
+                    columns:columns,
+                    rows:NgUiGridState.rows,
+                    totalCount:NgUiGridState.totalCount,
+                    load: (options) => { return this._loadNgUiGridState(criteria, isGlobalSearch, options) }
+                })
+            )
 	}
 
     this._loadNgUiGridState = function(criteria, isGlobalSearch, options) {
