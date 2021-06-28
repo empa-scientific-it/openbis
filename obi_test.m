@@ -4,8 +4,11 @@ function pass = obi_test
 %   returns true if all the tests pass successfully and fasle otherwise.
 pass = true;
 
-%% 1. Login to openBIS
+%% 0. Check if pyversion is setup correctly
 
+%% 1. Login to openBIS
+obi = OpenBis();
+assert(obi.is_session_active(), 'Session not active')
 
 %% 2. Create space for test
 
