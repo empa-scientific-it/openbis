@@ -17,6 +17,11 @@ function format(millis) {
   )
 }
 
+function timezone() {
+  return -(new Date().getTimezoneOffset() / 60)
+}
+
 export default {
-  format
+  format,
+  timezone
 }
