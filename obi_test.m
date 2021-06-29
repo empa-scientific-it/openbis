@@ -8,10 +8,18 @@ pass = true;
 
 %% 1. Login to openBIS
 obi = OpenBis();
-assert(obi.is_session_active(), 'Session not active')
+assert(obi.is_session_active(), 'Session not active');
 
 %% 2. Create space for test
-
+space_name = 'TESTING_SPACE';
+try
+    space = obi.new_space(space_name, 'a space for tests of the Matlab openBIS Toolbox');
+catch
+    disp('Could not create requested space')
+    rethrow(lasterror)
+end
+spaces = obi.get_spaces();
+assert(any(ismember(spaces.code, space_name)), 'Space has not been created');
 
 %% 3. Create project for test
 
@@ -29,7 +37,7 @@ assert(obi.is_session_active(), 'Session not active')
 
 
 %% 8. Logout
-
+obi.logout()
 
 end
 
