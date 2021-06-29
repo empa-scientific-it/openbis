@@ -389,7 +389,7 @@ function MainController(profile) {
 					document.title = "Jupyter Workspace";
 					var views = this._getNewViewModel(false, true, false);
 					var userId = this.serverFacade.getUserId();
-					var url = profile.jupyterEndpoint + "hub/login?token=" + mainController.serverFacade.getSession();
+					var url = JupyterUtil.getJupyterURL();
 					views.content.append("Opening new tab/window with your Jupyter Workspace, please allow pop ups: " + url);
 					var win = window.open(url, '_blank');
 					win.focus(); 
