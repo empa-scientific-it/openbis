@@ -601,6 +601,11 @@ public class TranslatorUtils
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY_SCORE);
     }
 
+    public static boolean isAnyPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
+    {
+        return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE);
+    }
+
     public static Object convertStringToType(final String value, final Class<?> klass)
     {
         // Integer numbers need to be converted from string to a real number first, because they can be presented with decimal point.

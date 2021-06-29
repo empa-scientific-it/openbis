@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContain
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionDoesntContain;
 import static org.junit.Assert.fail;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotSame;
 
@@ -3388,7 +3389,7 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testSearchFullTextSearchSortingByScore()
+    public void testSearchFullTextSearchStringPropertyMatchSortingByScore()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
 
@@ -3411,46 +3412,70 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-// TODO: with any property is not working correctly and with any <type> property is not working at all.
-//    @Test
-//    public void testSearchSamplesWithAnyProperty()
-//    {
-//        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
-//        criteria.withAnyProperty();
-//
-//        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
-//        fetchOptions.withProperties();
-//
-//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-//        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
-//
-//        try {
-//            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
-//        } finally
-//        {
-//            v3api.logout(sessionToken);
-//        }
-//    }
-//
-//    @Test
-//    public void testSearchSamplesWithAnyStringProperty()
-//    {
-//        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
-//        criteria.withAnyStringProperty();
-//
-//        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
-//        fetchOptions.withProperties();
-//
-//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-//        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
-//
-//        try {
-//            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
-//        } finally
-//        {
-//            v3api.logout(sessionToken);
-//        }
-//    }
+    @Test
+    public void testSearchFullTextSearchAnyStringPropertyMatchSortingByScore()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+
+        criteria.withAnyStringProperty().thatMatches("test control");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.sortBy().stringMatchAnyPropertyScore("test control").desc();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        assertSampleIdentifiers(samples, "/CISD/CL1", "/CISD/3VCP7", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
+
+        // "/CISD/CP-TEST-1" -> "very advanced stuff"
+        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
+        // "/CISD/CP-TEST-3" -> "stuff like others"
+
+        assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/CL1");
+
+        v3api.logout(sessionToken);
+    }
+
+    // TODO: with any property is not working correctly and with any <type> property is not working at all.
+    @Test(enabled = false)
+    public void testSearchSamplesWithAnyProperty()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+
+        try {
+            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
+
+    @Test(enabled = false)
+    public void testSearchSamplesWithAnyStringProperty()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyStringProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+
+        try {
+            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {

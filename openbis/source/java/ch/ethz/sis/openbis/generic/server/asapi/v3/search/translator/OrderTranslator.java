@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.MATCH_VALUE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.PREFIX_MATCH_VALUE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
@@ -137,7 +138,8 @@ public class OrderTranslator
         final Sorting sorting = sortings.get(i - 1);
 
         final String field = sorting.getField();
-        if (TranslatorUtils.isPropertyScoreSortingFieldName(field))
+        if (TranslatorUtils.isPropertyScoreSortingFieldName(field) ||
+                TranslatorUtils.isAnyPropertyScoreSortingFieldName(field))
         {
             queryBuilder.append(RANK_ALIAS).append(SP).append(sorting.getOrder());
         } else
@@ -151,27 +153,22 @@ public class OrderTranslator
             final TranslationContext translationContext, final Sorting sorting)
     {
         final Map<SortParameter, String> parameters = sorting.getParameters();
-        if (parameters != null)
-        {
-            sqlBuilder.append(COMMA).append(SP);
-            final String matchValue = parameters.get(MATCH_VALUE);
-            final String prefixMatchValue = parameters.get(PREFIX_MATCH_VALUE);
-            final AbstractStringValue stringValue = matchValue != null
-                    ? new StringMatchesValue(matchValue)
-                    : new StringStartsWithValue(prefixMatchValue);
+        final String matchValue = parameters.get(MATCH_VALUE);
+        final String prefixMatchValue = parameters.get(PREFIX_MATCH_VALUE);
+        final AbstractStringValue stringValue = matchValue != null
+                ? new StringMatchesValue(matchValue)
+                : new StringStartsWithValue(prefixMatchValue);
 
-            final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(sorting,
-                    translationContext.getAliases());
+        final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(sorting,
+                translationContext.getAliases());
 
-            final TableMapper tableMapper = translationContext.getTableMapper();
-            final JoinInformation samplesTableJoinInformation = joinInformationMap.get(SAMPLE_PROP_COLUMN);
-            GlobalSearchCriteriaTranslator.appendRankCalculation(sqlBuilder, tableMapper,
-                    false, stringValue, translationContext.getArgs(), MAIN_TABLE_ALIAS,
-                    joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias(),
-                    joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias(),
-                    samplesTableJoinInformation != null ? samplesTableJoinInformation.getSubTableAlias() : null);
-            sqlBuilder.append(SP).append(AS).append(SP).append(RANK_ALIAS);
-        }
+        final TableMapper tableMapper = translationContext.getTableMapper();
+        final JoinInformation samplesTableJoinInformation = joinInformationMap.get(SAMPLE_PROP_COLUMN);
+        GlobalSearchCriteriaTranslator.appendRankCalculation(sqlBuilder, tableMapper,
+                false, stringValue, translationContext.getArgs(), MAIN_TABLE_ALIAS,
+                joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias(),
+                joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias(),
+                samplesTableJoinInformation != null ? samplesTableJoinInformation.getSubTableAlias() : null);
     }
 
     private static void appendIdsCoalesce(final StringBuilder query, final int count)
@@ -187,11 +184,22 @@ public class OrderTranslator
     private static void appendOrderSubquery(final StringBuilder sqlBuilder, final TranslationContext translationContext,
             final Sorting sorting)
     {
+        final boolean anyPropertySortingFieldName = TranslatorUtils.isAnyPropertyScoreSortingFieldName(
+                sorting.getField());
+
         final String from = buildSubqueryFrom(translationContext, sorting);
         final String select = buildSubquerySelect(translationContext, sorting);
         final String where = buildSubqueryWhere(translationContext, sorting);
 
-        sqlBuilder.append(select).append(NL).append(from).append(NL).append(where);
+        sqlBuilder.append(select).append(NL).append(from).append(NL);
+
+        if (anyPropertySortingFieldName)
+        {
+            final String groupBy = GROUP_BY + SP + MAIN_TABLE_ALIAS + PERIOD + ID_COLUMN;
+            sqlBuilder.append(groupBy).append(NL);
+        }
+
+        sqlBuilder.append(where);
     }
 
     private static String buildSubquerySelect(final TranslationContext translationContext, final Sorting sorting)
@@ -203,58 +211,88 @@ public class OrderTranslator
         final Map<Object, Map<String, JoinInformation>> aliases = translationContext.getAliases();
 
         final String sortingCriterionFieldName = sorting.getField();
-        final boolean propertyScoreSortingFieldName = TranslatorUtils.isPropertyScoreSortingFieldName(sortingCriterionFieldName);
+        final boolean propertyScoreSortingFieldName = TranslatorUtils.isPropertyScoreSortingFieldName(
+                sortingCriterionFieldName);
         final boolean propertySortingFieldName = TranslatorUtils.isPropertySortingFieldName(sortingCriterionFieldName);
-        if (propertyScoreSortingFieldName || propertySortingFieldName)
+        final boolean anyPropertySortingFieldName = TranslatorUtils.isAnyPropertyScoreSortingFieldName(
+                sortingCriterionFieldName);
+        if (!anyPropertySortingFieldName)
         {
-            final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(sorting, aliases);
-            sqlBuilder.append(COMMA).append(SP);
-
-            final String sortingCriteriaFieldName = sorting.getField();
-            final String propertyName = trimFieldName(propertyScoreSortingFieldName, sortingCriteriaFieldName);
-            final String casting = translationContext.getDataTypeByPropertyName().get(propertyName);
-            if (casting != null)
+            if (propertyScoreSortingFieldName || propertySortingFieldName)
             {
-                sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
-                        .append(VALUE_COLUMN).append(DOUBLE_COLON).append(casting.toLowerCase());
+                final Map<String, JoinInformation> joinInformationMap = getJoinInformationMap(sorting, aliases);
+                sqlBuilder.append(COMMA).append(SP);
+
+                final String sortingCriteriaFieldName = sorting.getField();
+                final String propertyName = trimFieldName(sortingCriteriaFieldName);
+                final String casting = translationContext.getDataTypeByPropertyName().get(propertyName);
+                if (casting != null)
+                {
+                    sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                            .append(VALUE_COLUMN).append(DOUBLE_COLON).append(casting.toLowerCase());
+                } else
+                {
+                    sqlBuilder.append(COALESCE).append(LP);
+                    sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                            .append(VALUE_COLUMN);
+                    sqlBuilder.append(COMMA).append(SP);
+                    sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
+                            .append(CODE_COLUMN);
+                    sqlBuilder.append(COMMA).append(SP);
+                    sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
+                            .append(CODE_COLUMN);
+                    if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
+                    {
+                        sqlBuilder.append(COMMA).append(SP);
+                        sqlBuilder.append(joinInformationMap.get(SAMPLE_PROP_COLUMN).getSubTableAlias()).append(PERIOD)
+                                .append(CODE_COLUMN);
+                    }
+                    sqlBuilder.append(RP);
+                }
             } else
             {
-                sqlBuilder.append(COALESCE).append(LP);
-                sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
-                        .append(VALUE_COLUMN);
                 sqlBuilder.append(COMMA).append(SP);
-                sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
-                        .append(CODE_COLUMN);
-                sqlBuilder.append(COMMA).append(SP);
-                sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
-                        .append(CODE_COLUMN);
-                if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
-                {
-                    sqlBuilder.append(COMMA).append(SP);
-                    sqlBuilder.append(joinInformationMap.get(SAMPLE_PROP_COLUMN).getSubTableAlias()).append(PERIOD)
-                            .append(CODE_COLUMN);
-                }
-                sqlBuilder.append(RP);
+                appendSortingColumn(translationContext, sqlBuilder, sorting);
             }
-        } else
-        {
-            sqlBuilder.append(COMMA).append(SP);
-            appendSortingColumn(translationContext, sqlBuilder, sorting);
+
+            sqlBuilder.append(SP).append(AS).append(SP).append(VALUE_ALIAS);
         }
 
-        sqlBuilder.append(SP).append(AS).append(SP).append(VALUE_ALIAS);
+        if (sorting.getParameters() != null)
+        {
+            sqlBuilder.append(COMMA).append(SP);
 
-        appendRankCalculation(sqlBuilder, translationContext, sorting);
+            if (anyPropertySortingFieldName)
+            {
+                sqlBuilder.append(SUM).append(LP);
+            }
+
+            appendRankCalculation(sqlBuilder, translationContext, sorting);
+
+            if (anyPropertySortingFieldName)
+            {
+                sqlBuilder.append(RP);
+            }
+
+            sqlBuilder.append(SP).append(AS).append(SP).append(RANK_ALIAS);
+        }
 
         return sqlBuilder.toString();
     }
 
-    private static String trimFieldName(final boolean propertyScoreSortingFieldName,
-            final String sortingCriteriaFieldName)
+    private static String trimFieldName(final String sortingCriterionFieldName)
     {
-        return sortingCriteriaFieldName.substring(propertyScoreSortingFieldName
-                ? EntityWithPropertiesSortOptions.PROPERTY_SCORE.length()
-                : EntityWithPropertiesSortOptions.PROPERTY.length());
+        if (TranslatorUtils.isAnyPropertyScoreSortingFieldName(sortingCriterionFieldName))
+        {
+            return sortingCriterionFieldName;
+        } else
+        {
+            final boolean propertyScoreSortingFieldName = TranslatorUtils.isPropertyScoreSortingFieldName(
+                    sortingCriterionFieldName);
+            return sortingCriterionFieldName.substring(propertyScoreSortingFieldName
+                    ? EntityWithPropertiesSortOptions.PROPERTY_SCORE.length()
+                    : EntityWithPropertiesSortOptions.PROPERTY.length());
+        }
     }
 
     private static String buildSubqueryFrom(final TranslationContext translationContext, final Sorting sorting)
@@ -268,14 +306,21 @@ public class OrderTranslator
         final Map<Object, Map<String, JoinInformation>> aliases = translationContext.getAliases();
         final Map<String, JoinInformation> joinInformationMap;
         final Object aliasesMapKey;
-        final boolean propertyScoreSortingFieldName = TranslatorUtils.isPropertyScoreSortingFieldName(sortingCriterionFieldName);
+        final boolean propertyScoreSortingFieldName =
+                TranslatorUtils.isPropertyScoreSortingFieldName(sortingCriterionFieldName);
         final boolean propertySortingFieldName = TranslatorUtils.isPropertySortingFieldName(sortingCriterionFieldName);
+        final boolean anyPropertyScoreSortingFieldName =
+                TranslatorUtils.isAnyPropertyScoreSortingFieldName(sortingCriterionFieldName);
         if (propertyScoreSortingFieldName || propertySortingFieldName)
         {
-            final String propertyName = trimFieldName(propertyScoreSortingFieldName, sortingCriterionFieldName).toLowerCase();
             joinInformationMap = TranslatorUtils.getPropertyJoinInformationMap(tableMapper,
                     () -> getOrderingAlias(indexCounter));
-            aliasesMapKey = propertyName;
+            aliasesMapKey = trimFieldName(sortingCriterionFieldName).toLowerCase();
+        } else if (anyPropertyScoreSortingFieldName)
+        {
+            joinInformationMap = TranslatorUtils.getPropertyJoinInformationMap(tableMapper,
+                    () -> getOrderingAlias(indexCounter));
+            aliasesMapKey = ANY_PROPERTY_SCORE;
         } else if (isTypeSearchCriterion(sortingCriterionFieldName) ||
                 isSortingByMaterialPermId(translationContext, sortingCriterionFieldName))
         {
@@ -314,7 +359,7 @@ public class OrderTranslator
         final boolean propertySortingFieldName = TranslatorUtils.isPropertySortingFieldName(sortingCriterionFieldName);
         if (propertyScoreSortingFieldName || propertySortingFieldName)
         {
-            final String fullPropertyName = trimFieldName(propertyScoreSortingFieldName, sorting.getField());
+            final String fullPropertyName = trimFieldName(sorting.getField());
             sqlBuilder.append(getJoinInformationMap(sorting, translationContext.getAliases())
                     .get(tableMapper.getAttributeTypesTable()).getSubTableAlias())
                     .append(PERIOD).append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
@@ -330,8 +375,8 @@ public class OrderTranslator
             final Map<Object, Map<String, JoinInformation>> aliases)
     {
         final String field = sorting.getField();
-        final boolean propertyScoreSortingFieldName = TranslatorUtils.isPropertyScoreSortingFieldName(field);
-        final String trimmedField = trimFieldName(propertyScoreSortingFieldName, field).toLowerCase();
+        final String trimmedField = field.equals(ANY_PROPERTY_SCORE) ? ANY_PROPERTY_SCORE
+                : trimFieldName(field).toLowerCase();
         return aliases.get(trimmedField);
     }
 
