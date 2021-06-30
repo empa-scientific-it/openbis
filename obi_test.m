@@ -1,8 +1,16 @@
-function pass = obi_test
+function pass = obi_test(varargin)
 %obi_test Testing function for the Matlab openBIS Toolbox
 %   This function runs a few tests for the Matlab openBIS Toolbox. It
 %   returns true if all the tests pass successfully and fasle otherwise.
+%   Input argumtents (all optional):
+%   teardown ... delete everything at the end (true)
 pass = true;
+
+if nargin == 1
+    teardown = varargin{1};
+else
+    teardown = true;
+end
 
 %% 0. Check if pyversion is setup correctly
 
@@ -22,7 +30,15 @@ spaces = obi.get_spaces();
 assert(any(ismember(spaces.code, space_name)), 'Space has not been created');
 
 %% 3. Create project for test
-
+project_name = 'TESTING_PROJECT';
+try
+    project = obi.new_project(space, project_name, 'a project for tests of the Matlab openBIS Toolbox');
+catch
+    disp('Could not create requested project')
+    rethrow(lasterror)
+end
+projects = obi.get_projects(space_name, project_name);
+assert(any(ismember(projects.identifier, sprintf('/%s/%s', space_name, project_name))), 'Project has not been created');
 
 %% 4. Create experiment for test
 
@@ -34,7 +50,12 @@ assert(any(ismember(spaces.code, space_name)), 'Space has not been created');
 
 
 %% 7. Tear-down (delete everything, optional)
-
+if teardown
+    % delete project
+    obi.delete_project(project_name, 'created by Matlab-openBIS toolbox test function')
+    % delete space
+    obi.delete_space(space, 'created by Matlab-openBIS toolbox test function')
+end
 
 %% 8. Logout
 obi.logout()
