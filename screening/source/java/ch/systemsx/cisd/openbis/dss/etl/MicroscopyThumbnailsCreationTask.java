@@ -224,11 +224,15 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
             if (numberOfCreatedThumbnailDataSets > 0)
             {
                 DataSet youngestNotFailedDataSet = tryGetYoungestNotFailedDataSet(containerDataSets, oldestFailedDataSet);
-                operationLog.info("Oldest failed data set: " + oldestFailedDataSet.getCode() + ", youngest not failed data set: "
-                        + youngestNotFailedDataSet.getCode());
                 if (youngestNotFailedDataSet != null)
                 {
+                    operationLog.info("Oldest failed data set: " + oldestFailedDataSet.getCode()
+                            + ", youngest not failed data set: " + youngestNotFailedDataSet.getCode());
                     updateTimeStampFile(renderForComparison(youngestNotFailedDataSet));
+                } else
+                {
+                    operationLog.info("Oldest failed data set: " + oldestFailedDataSet.getCode()
+                            + ", time stamp file not updated.");
                 }
             } else
             {
