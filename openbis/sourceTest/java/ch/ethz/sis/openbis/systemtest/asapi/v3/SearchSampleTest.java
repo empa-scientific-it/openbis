@@ -3436,7 +3436,6 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    // TODO: with any property is not working correctly and with any <type> property is not working at all.
     @Test
     public void testSearchSamplesWithAnyProperty()
     {
