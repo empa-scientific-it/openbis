@@ -1076,7 +1076,7 @@ var FormUtil = new function() {
                                     componentOnChange(event, newData); // Store changes on original model
                                 } else {
                                     editor.setData(editor.acceptedData);
-                                    Util.showUserError("Images should be uploaded");
+                                    Util.showUserError("It is not possible to copy an image directly from a website.");
                                 }
                             }
                         });
