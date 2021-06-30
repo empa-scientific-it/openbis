@@ -36,9 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.MATCH_VALUE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.PREFIX_MATCH_VALUE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.RANK_ALIAS;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
@@ -232,22 +229,7 @@ public class OrderTranslator
                             .append(VALUE_COLUMN).append(DOUBLE_COLON).append(casting.toLowerCase());
                 } else
                 {
-                    sqlBuilder.append(COALESCE).append(LP);
-                    sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
-                            .append(VALUE_COLUMN);
-                    sqlBuilder.append(COMMA).append(SP);
-                    sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
-                            .append(CODE_COLUMN);
-                    sqlBuilder.append(COMMA).append(SP);
-                    sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
-                            .append(CODE_COLUMN);
-                    if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
-                    {
-                        sqlBuilder.append(COMMA).append(SP);
-                        sqlBuilder.append(joinInformationMap.get(SAMPLE_PROP_COLUMN).getSubTableAlias()).append(PERIOD)
-                                .append(CODE_COLUMN);
-                    }
-                    sqlBuilder.append(RP);
+                    TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, joinInformationMap);
                 }
             } else
             {

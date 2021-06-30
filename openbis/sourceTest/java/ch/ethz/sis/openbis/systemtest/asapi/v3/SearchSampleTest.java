@@ -3437,7 +3437,7 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     // TODO: with any property is not working correctly and with any <type> property is not working at all.
-    @Test(enabled = false)
+    @Test
     public void testSearchSamplesWithAnyProperty()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
@@ -3457,7 +3457,7 @@ public class SearchSampleTest extends AbstractSampleTest
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSearchSamplesWithAnyStringProperty()
     {
         final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();

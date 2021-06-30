@@ -39,6 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.*;
@@ -882,6 +885,27 @@ public class TranslatorUtils
     public static String getAlias(final AtomicInteger num)
     {
         return "t" + num.getAndIncrement();
+    }
+
+    public static void appendPropertyValueCoalesce(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final Map<String, JoinInformation> joinInformationMap)
+    {
+        sqlBuilder.append(COALESCE).append(LP);
+        sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                .append(VALUE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
+        {
+            sqlBuilder.append(COMMA).append(SP);
+            sqlBuilder.append(joinInformationMap.get(SAMPLE_PROP_COLUMN).getSubTableAlias()).append(PERIOD)
+                    .append(CODE_COLUMN);
+        }
+        sqlBuilder.append(RP);
     }
 
 }
