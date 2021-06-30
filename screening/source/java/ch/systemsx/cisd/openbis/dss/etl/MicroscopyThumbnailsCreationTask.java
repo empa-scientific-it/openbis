@@ -110,7 +110,7 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
 
     private Properties properties;
 
-    private ThreadLocal<IJythonEvaluator> evaluator = new ThreadLocal<>();
+    private ThreadLocal<IJythonEvaluator> evaluator;
 
     private String dataSetContainerType;
 
@@ -148,7 +148,7 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         operationLog.info(totalCount + " data sets found."
                 + (totalCount > containerDataSets.size() ? " Handle the first " + containerDataSets.size() : ""));
         AtomicInteger numberOfCreatedThumbnailDataSets = new AtomicInteger(0);
-        evaluator.set(null); // allow to re-compile script
+        evaluator = new ThreadLocal<>(); // allow to re-compile script
         Collection<FailureRecord<DataSet>> result = ParallelizedExecutor.process(containerDataSets,
                 new ITaskExecutor<DataSet>()
                     {
