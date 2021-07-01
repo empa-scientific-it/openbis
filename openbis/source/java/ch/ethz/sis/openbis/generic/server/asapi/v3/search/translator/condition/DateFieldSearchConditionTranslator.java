@@ -130,14 +130,7 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases,
             final Map<String, String> dataTypeByPropertyCode, boolean isAnyProperty)
     {
-        final String fullPropertyName;
-        if (isAnyProperty)
-        {
-            fullPropertyName = null;
-        } else
-        {
-            fullPropertyName = criterion.getFieldName();
-        }
+        final String fullPropertyName = isAnyProperty ? null : criterion.getFieldName();
 
         final IDate value = criterion.getFieldValue();
         final ITimeZone timeZone = criterion.getTimeZone();
@@ -156,24 +149,31 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
         {
             // Search by any date/timestamp field
 
-            if (value instanceof AbstractDateObjectValue)
+            if (value != null)
             {
-                appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        null, entityTypesSubTableAlias, true, DataType.DATE.toString());
-                appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
-            } else
-            {
-                if (bareDateValue)
+                if (value instanceof AbstractDateObjectValue)
                 {
                     appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                            null, entityTypesSubTableAlias, true,
-                            DataType.DATE.toString(), DataType.TIMESTAMP.toString());
-                } else
-                {
+                            null, entityTypesSubTableAlias, true, DataType.DATE.toString());
                     appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
                             null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                } else
+                {
+                    if (bareDateValue)
+                    {
+                        appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
+                                null, entityTypesSubTableAlias, true,
+                                DataType.DATE.toString(), DataType.TIMESTAMP.toString());
+                    } else
+                    {
+                        appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
+                                null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                    }
                 }
+            } else
+            {
+                appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
+                        null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString(), DataType.DATE.toString());
             }
         } else
         {

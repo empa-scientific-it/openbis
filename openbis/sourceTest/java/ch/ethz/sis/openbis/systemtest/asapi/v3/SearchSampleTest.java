@@ -3506,6 +3506,26 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchSamplesWithAnyDateProperty()
     {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAPropertyType(sessionToken, DataType.DATE);
+        final EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1);
+        final SampleCreation creation1 = new SampleCreation();
+        creation1.setCode("SAMPLE_WITH_DATE_PROPERTY");
+        creation1.setTypeId(sampleType1);
+        creation1.setSpaceId(new SpacePermId("CISD"));
+        creation1.setProperty(propertyType1.getPermId(), "2020-02-17");
+        v3api.createSamples(sessionToken, Collections.singletonList(creation1));
+
+        final PropertyTypePermId propertyType2 = createAPropertyType(sessionToken, DataType.TIMESTAMP);
+        final EntityTypePermId sampleType2 = createASampleType(sessionToken, true, propertyType2);
+        final SampleCreation creation2 = new SampleCreation();
+        creation2.setCode("SAMPLE_WITH_TIMESTAMP_PROPERTY");
+        creation2.setTypeId(sampleType2);
+        creation2.setSpaceId(new SpacePermId("CISD"));
+        creation2.setProperty(propertyType2.getPermId(), "2020-02-17 10:00:00");
+        v3api.createSamples(sessionToken, Collections.singletonList(creation2));
+
         final List<Sample> allSamples = getAllSamplesWithProperties();
         final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
                 !sample.getProperties().isEmpty() &&
@@ -3519,7 +3539,49 @@ public class SearchSampleTest extends AbstractSampleTest
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProperties();
 
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyBooleanProperty()
+    {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        final EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1);
+        final SampleCreation creation1 = new SampleCreation();
+        creation1.setCode("SAMPLE_WITH_BOOLEAN_PROPERTY_1");
+        creation1.setTypeId(sampleType1);
+        creation1.setSpaceId(new SpacePermId("CISD"));
+        creation1.setProperty(propertyType1.getPermId(), Boolean.TRUE.toString());
+        v3api.createSamples(sessionToken, Collections.singletonList(creation1));
+
+        final PropertyTypePermId propertyType2 = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        final EntityTypePermId sampleType2 = createASampleType(sessionToken, true, propertyType2);
+        final SampleCreation creation2 = new SampleCreation();
+        creation2.setCode("SAMPLE_WITH_BOOLEAN_PROPERTY_2");
+        creation2.setTypeId(sampleType2);
+        creation2.setSpaceId(new SpacePermId("CISD"));
+        creation2.setProperty(propertyType2.getPermId(), Boolean.FALSE.toString());
+        v3api.createSamples(sessionToken, Collections.singletonList(creation2));
+
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isBoolean)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyBooleanProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
         final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
                 collect(Collectors.toSet());
@@ -3562,6 +3624,12 @@ public class SearchSampleTest extends AbstractSampleTest
                     : new Object[]{ AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
                     .get(dateFormat.getClass()), formattedValue};
         }).filter(Objects::nonNull).findFirst().isPresent();
+    }
+
+    private static boolean isBoolean(final String property)
+    {
+        return property.equalsIgnoreCase(Boolean.TRUE.toString()) ||
+                property.equalsIgnoreCase(Boolean.FALSE.toString());
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
