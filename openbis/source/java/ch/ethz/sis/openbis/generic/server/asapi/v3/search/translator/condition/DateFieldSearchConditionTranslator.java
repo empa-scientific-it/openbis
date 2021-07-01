@@ -234,17 +234,23 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
             sqlBuilder.append(LP);
         }
 
-        sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(DOUBLE_COLON)
-                .append(TIMESTAMP_WITH_TZ.toString()).append(SP);
-        TranslatorUtils.appendTimeZoneConversion(value, sqlBuilder, timeZone);
-
-        if (castToDate)
+        if (value != null)
         {
-            sqlBuilder.append(RP).append(DOUBLE_COLON).append(DATE).append(SP);
-        }
+            sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias())
+                    .append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(DOUBLE_COLON)
+                    .append(TIMESTAMP_WITH_TZ).append(SP);
+            TranslatorUtils.appendTimeZoneConversion(value, sqlBuilder, timeZone);
 
-        TranslatorUtils.appendDateComparatorOp(value, sqlBuilder, args, castToDate);
+            if (castToDate)
+            {
+                sqlBuilder.append(RP).append(DOUBLE_COLON).append(DATE).append(SP);
+            }
+
+            TranslatorUtils.appendDateComparatorOp(value, sqlBuilder, args, castToDate);
+        } else
+        {
+            sqlBuilder.append(TRUE);
+        }
     }
 
 }

@@ -27,11 +27,13 @@ import static org.testng.Assert.assertNotSame;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -59,6 +61,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.sql.ISQLExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.AnyFieldSearchConditionTranslator;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -3474,6 +3477,91 @@ public class SearchSampleTest extends AbstractSampleTest
         {
             v3api.logout(sessionToken);
         }
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyNumberProperty()
+    {
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isNumber)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyNumberProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyDateProperty()
+    {
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isDate)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyDateProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    private List<Sample> getAllSamplesWithProperties()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        v3api.logout(sessionToken);
+
+        return samples;
+    }
+
+    private static boolean isNumber(final String property)
+    {
+        try
+        {
+            Double.parseDouble(property);
+        } catch (final NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isDate(final String property)
+    {
+        return DateFieldSearchCriteria.DATE_FORMATS.stream().map(dateFormat ->
+        {
+            final Date formattedValue = DateFieldSearchCriteria.formatValue(property, dateFormat);
+            return (formattedValue == null) ? null
+                    : new Object[]{ AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
+                    .get(dateFormat.getClass()), formattedValue};
+        }).filter(Objects::nonNull).findFirst().isPresent();
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
