@@ -215,19 +215,14 @@ public class MicroscopyThumbnailsCreationTaskTest extends AbstractFileSystemTest
                 + "INFO  OPERATION.MicroscopyThumbnailsCreationTask - 3 thumbnail data sets have been created.",
                 logContent);
         AssertionUtil.assertContains("Started up 2 worker threads.", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 14:02:34-0'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 14:02:34-0", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 15:03:45-2'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 15:03:45-2", logContent);
         AssertionUtil.assertContains("Generating thumbnails for data set 2021-06-28 15:03:45-2 failed", logContent);
         AssertionUtil.assertContains("ERROR: \"java.lang.RuntimeException: Failed 1\"", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 15:03:45-4'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 15:03:45-4", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 15:13:38-6'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 15:13:38-6", logContent);
         AssertionUtil.assertContains("Generating thumbnails for data set 2021-06-28 15:13:38-6 failed", logContent);
         AssertionUtil.assertContains("ERROR: \"java.lang.RuntimeException: Failed 2\"", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-29 05:23:33-8'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-29 05:23:33-8", logContent);
         assertTimestampFile("2021-06-28 14:02:34 [2021-06-28 14:02:34-0]\n");
         assertEquals("[DATASET\n"
@@ -309,11 +304,9 @@ public class MicroscopyThumbnailsCreationTaskTest extends AbstractFileSystemTest
                 + "INFO  OPERATION.ParallelizedExecutor - Found 4 items to process.\n",
                 logContent);
         AssertionUtil.assertContains("Started up 2 worker threads.", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 15:03:45-0'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 15:03:45-0", logContent);
         AssertionUtil.assertContains("Generating thumbnails for data set 2021-06-28 15:03:45-0 failed", logContent);
         AssertionUtil.assertContains("ERROR: \"java.lang.RuntimeException: Failed 1\"", logContent);
-        AssertionUtil.assertContains("Processing 'DataSet 2021-06-28 15:13:38-5'", logContent);
         AssertionUtil.assertContains("Generate thumbnails for data set 2021-06-28 15:13:38-5", logContent);
         AssertionUtil.assertContains("Generating thumbnails for data set 2021-06-28 15:13:38-5 failed", logContent);
         AssertionUtil.assertContains("ERROR: \"java.lang.RuntimeException: Failed 2\"", logContent);
