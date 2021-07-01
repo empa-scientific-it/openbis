@@ -31,19 +31,19 @@ class Acceptor(object):
         self.hiddenExperimentTypes[typeCode] = True
 
     def acceptExperiment(self, experiment):
-        return experiment.getType().getCode not in self.hiddenExperimentTypes
+        return experiment.getType().getCode() not in self.hiddenExperimentTypes
 
     def hideSampleType(self, typeCode):
         self.hiddenSampleTypes[typeCode] = True
 
     def acceptSample(self, sample):
-        return sample.getType().getCode not in self.hiddenSampleTypes
+        return sample.getType().getCode() not in self.hiddenSampleTypes
 
     def hideDataSetType(self, typeCode):
         self.hiddenDataSetTypes[typeCode] = True
 
     def acceptDataSet(self, dataSet):
-        return dataSet.getType().getCode not in self.hiddenDataSetTypes
+        return dataSet.getType().getCode() not in self.hiddenDataSetTypes
 
 def resolve(subPath, context):
     acceptor = createAcceptor()
