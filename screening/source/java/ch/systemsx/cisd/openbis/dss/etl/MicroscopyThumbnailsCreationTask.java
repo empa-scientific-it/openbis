@@ -172,10 +172,15 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
                             return Status.OK;
                         }
                     },
-                0.5, maxNumberOfWorkers, "thumbnail creation", 0, false);
+                getMachineLoad(), maxNumberOfWorkers, "thumbnail creation", 0, false);
         List<DataSet> failedDataSets = extractFailedDataSets(result);
         updateTimeStampFile(numberOfCreatedThumbnailDataSets.get(), containerDataSets, failedDataSets);
         operationLog.info(numberOfCreatedThumbnailDataSets + " thumbnail data sets have been created.");
+    }
+
+    double getMachineLoad()
+    {
+        return 0.5;
     }
 
     private SearchResult<DataSet> searchForNewDataSets(String sessionToken, Date lastRegistrationDate, String lastCode)

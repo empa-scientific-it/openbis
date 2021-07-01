@@ -457,6 +457,12 @@ public class MicroscopyThumbnailsCreationTaskTest extends AbstractFileSystemTest
         }
 
         @Override
+        double getMachineLoad()
+        {
+            return 2;
+        }
+
+        @Override
         TableModel createThumbnailDataSetViaIngestionService(String sessionToken, DataSet containerDataSet)
         {
             sessionTokens.add(sessionToken);
