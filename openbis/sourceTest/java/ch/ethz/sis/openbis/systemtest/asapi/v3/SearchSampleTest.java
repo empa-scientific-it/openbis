@@ -3621,9 +3621,9 @@ public class SearchSampleTest extends AbstractSampleTest
         {
             final Date formattedValue = DateFieldSearchCriteria.formatValue(property, dateFormat);
             return (formattedValue == null) ? null
-                    : new Object[]{ AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
+                    : new Object[] { AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
                     .get(dateFormat.getClass()), formattedValue};
-        }).filter(Objects::nonNull).findFirst().isPresent();
+        }).anyMatch(Objects::nonNull);
     }
 
     private static boolean isBoolean(final String property)
