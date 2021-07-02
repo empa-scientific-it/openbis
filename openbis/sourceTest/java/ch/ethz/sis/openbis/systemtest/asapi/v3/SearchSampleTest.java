@@ -19,16 +19,21 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsAtLeast;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionDoesntContain;
 import static org.junit.Assert.fail;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotSame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
@@ -56,6 +61,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.sql.ISQLExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.AnyFieldSearchConditionTranslator;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -368,7 +374,7 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatIsGreaterThan("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X", 
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT/RP1-A2X", "/CISD/DEFAULT/RP1-B1X",
                 "/CISD/DEFAULT/RP2-A1X", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A02",
                 "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE");
     }
@@ -3383,6 +3389,247 @@ public class SearchSampleTest extends AbstractSampleTest
         criteria.withPermId().thatContains("19");
 
         testSearch(TEST_USER, criteria, "/CISD/CL1", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/CISD/NEMO/CP-TEST-1");
+    }
+
+    @Test
+    public void testSearchFullTextSearchStringPropertyMatchSortingByScore()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+
+        criteria.withStringProperty("COMMENT").thatMatches("simple stuff");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.sortBy().stringMatchPropertyScore("COMMENT", "simple stuff").desc();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        assertSampleIdentifiers(samples, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
+
+        // "/CISD/CP-TEST-1" -> "very advanced stuff"
+        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
+        // "/CISD/CP-TEST-3" -> "stuff like others"
+
+        assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/NOE/CP-TEST-2");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchFullTextSearchAnyStringPropertyMatchSortingByScore()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+
+        criteria.withAnyStringProperty().thatMatches("test control");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.sortBy().stringMatchAnyPropertyScore("test control").desc();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        assertSampleIdentifiers(samples, "/CISD/CL1", "/CISD/3VCP7", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
+
+        // "/CISD/CP-TEST-1" -> "very advanced stuff"
+        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
+        // "/CISD/CP-TEST-3" -> "stuff like others"
+
+        assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/CL1");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyProperty()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+
+        try {
+            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyStringProperty()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyStringProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+
+        try {
+            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyNumberProperty()
+    {
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isNumber)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyNumberProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyDateProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAPropertyType(sessionToken, DataType.DATE);
+        final EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1);
+        final SampleCreation creation1 = new SampleCreation();
+        creation1.setCode("SAMPLE_WITH_DATE_PROPERTY");
+        creation1.setTypeId(sampleType1);
+        creation1.setSpaceId(new SpacePermId("CISD"));
+        creation1.setProperty(propertyType1.getPermId(), "2020-02-17");
+        v3api.createSamples(sessionToken, Collections.singletonList(creation1));
+
+        final PropertyTypePermId propertyType2 = createAPropertyType(sessionToken, DataType.TIMESTAMP);
+        final EntityTypePermId sampleType2 = createASampleType(sessionToken, true, propertyType2);
+        final SampleCreation creation2 = new SampleCreation();
+        creation2.setCode("SAMPLE_WITH_TIMESTAMP_PROPERTY");
+        creation2.setTypeId(sampleType2);
+        creation2.setSpaceId(new SpacePermId("CISD"));
+        creation2.setProperty(propertyType2.getPermId(), "2020-02-17 10:00:00");
+        v3api.createSamples(sessionToken, Collections.singletonList(creation2));
+
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isDate)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyDateProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyBooleanProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        final EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1);
+        final SampleCreation creation1 = new SampleCreation();
+        creation1.setCode("SAMPLE_WITH_BOOLEAN_PROPERTY_1");
+        creation1.setTypeId(sampleType1);
+        creation1.setSpaceId(new SpacePermId("CISD"));
+        creation1.setProperty(propertyType1.getPermId(), Boolean.TRUE.toString());
+        v3api.createSamples(sessionToken, Collections.singletonList(creation1));
+
+        final PropertyTypePermId propertyType2 = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        final EntityTypePermId sampleType2 = createASampleType(sessionToken, true, propertyType2);
+        final SampleCreation creation2 = new SampleCreation();
+        creation2.setCode("SAMPLE_WITH_BOOLEAN_PROPERTY_2");
+        creation2.setTypeId(sampleType2);
+        creation2.setSpaceId(new SpacePermId("CISD"));
+        creation2.setProperty(propertyType2.getPermId(), Boolean.FALSE.toString());
+        v3api.createSamples(sessionToken, Collections.singletonList(creation2));
+
+        final List<Sample> allSamples = getAllSamplesWithProperties();
+        final Set<String> expectedSampleIds = allSamples.stream().filter(sample ->
+                !sample.getProperties().isEmpty() &&
+                        sample.getProperties().values().stream().anyMatch(SearchSampleTest::isBoolean)).
+                        map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withAndOperator();
+        criteria.withAnyBooleanProperty();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        final Set<String> samplePermIds = samples.stream().map(sample -> sample.getPermId().toString()).
+                collect(Collectors.toSet());
+
+        assertEquals(samplePermIds, expectedSampleIds);
+    }
+
+    private List<Sample> getAllSamplesWithProperties()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria();
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+        v3api.logout(sessionToken);
+
+        return samples;
+    }
+
+    private static boolean isNumber(final String property)
+    {
+        try
+        {
+            Double.parseDouble(property);
+        } catch (final NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isDate(final String property)
+    {
+        return DateFieldSearchCriteria.DATE_FORMATS.stream().map(dateFormat ->
+        {
+            final Date formattedValue = DateFieldSearchCriteria.formatValue(property, dateFormat);
+            return (formattedValue == null) ? null
+                    : new Object[] { AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
+                    .get(dateFormat.getClass()), formattedValue};
+        }).anyMatch(Objects::nonNull);
+    }
+
+    private static boolean isBoolean(final String property)
+    {
+        return property.equalsIgnoreCase(Boolean.TRUE.toString()) ||
+                property.equalsIgnoreCase(Boolean.FALSE.toString());
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)

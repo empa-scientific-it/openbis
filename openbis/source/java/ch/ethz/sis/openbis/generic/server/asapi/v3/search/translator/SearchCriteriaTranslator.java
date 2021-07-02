@@ -133,6 +133,13 @@ public class SearchCriteriaTranslator
         if (isSearchAllCriteria(criteria))
         {
             return WHERE + SP + TRUE;
+        } else if (isSearchAnyPropertyCriteria(criteria))
+        {
+            final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
+            TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, translationContext.getTableMapper(),
+                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next()));
+            resultSqlBuilder.append(SP).append(IS_NOT_NULL);
+            return resultSqlBuilder.toString();
         } else
         {
             final String logicalOperator = translationContext.getOperator().toString();
@@ -412,6 +419,12 @@ public class SearchCriteriaTranslator
                 return false;
             }
         }
+    }
+
+    private static boolean isSearchAnyPropertyCriteria(final Collection<ISearchCriteria> criteria)
+    {
+        return criteria.stream().allMatch(criterion -> criterion instanceof AnyPropertySearchCriteria &&
+                ((AnyPropertySearchCriteria) criterion).getFieldValue() instanceof AnyStringValue);
     }
 
 }

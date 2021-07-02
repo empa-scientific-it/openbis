@@ -134,9 +134,9 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(SP).append(AND).append(SP);
             sqlBuilder.append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
                     .append(SP).append(IN).append(SP).append(LP)
-                        .append(SQ).append(DataTypeCode.VARCHAR).append(SQ).append(SP).append(COMMA)
-                        .append(SQ).append(DataTypeCode.MULTILINE_VARCHAR).append(SQ).append(SP).append(COMMA)
-                        .append(SQ).append(DataTypeCode.HYPERLINK).append(SQ).append(SP).append(COMMA)
+                        .append(SQ).append(DataTypeCode.VARCHAR).append(SQ).append(COMMA).append(SP)
+                        .append(SQ).append(DataTypeCode.MULTILINE_VARCHAR).append(SQ).append(COMMA).append(SP)
+                        .append(SQ).append(DataTypeCode.HYPERLINK).append(SQ).append(COMMA).append(SP)
                         .append(SQ).append(DataTypeCode.XML).append(SQ)
                     .append(RP);
         }
@@ -144,7 +144,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         final String casting;
-        if (value.getClass() != AnyStringValue.class)
+        if (!(value instanceof AnyStringValue))
         {
             casting = dataTypeByPropertyCode.get(fullPropertyName);
 
@@ -208,10 +208,14 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
                     .append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
             args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+        } else if (value instanceof AnyStringValue)
+        {
+            TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
+            sqlBuilder.append(SP).append(IS_NOT_NULL);
         }
 
         final boolean useWildcards = criterion.isUseWildcards();
-        if (value.getClass() != AnyStringValue.class)
+        if (!(value instanceof AnyStringValue))
         {
             sqlBuilder.append(SP).append(THEN).append(NL);
 
