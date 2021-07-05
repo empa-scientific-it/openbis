@@ -78,6 +78,19 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
             });
 		}
 
+        // deletion
+        if (this._allowedToDeleteSpace()) {
+            dropdownOptionsModel.push({
+                label : "Delete",
+                action : function() {
+                    var modalView = new DeleteEntityController(function(reason) {
+                        _this._spaceFormController.deleteSpace(reason);
+                    }, true);
+                    modalView.init();
+                }
+            });
+        }
+
 		//Freeze
 		if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
 			var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
@@ -105,6 +118,10 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 	this._allowedToCreateProject = function() {
 		var space = this._spaceFormModel.v3_space;
 		return space.frozenForProjects == false && this._spaceFormModel.projectRights.rights.indexOf("CREATE") >= 0;
-	}
+	};
 	
+    this._allowedToDeleteSpace = function() {
+        var space = this._spaceFormModel.v3_space;
+        return space.frozen == false && profile.isAdmin;
+    };
 }

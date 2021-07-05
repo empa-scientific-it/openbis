@@ -46,5 +46,23 @@ function SpaceFormController(mainController, space) {
 	this.createProject = function() {
 		this._mainController.changeView('showCreateProjectPage', this._spaceFormModel.space);
 	}
+	
+    this.deleteSpace = function(reason) {
+        var _this = this;
+        require(["as/dto/space/delete/SpaceDeletionOptions" ], function(SpaceDeletionOptions) {
+            var options = new SpaceDeletionOptions();
+            options.setReason(reason);
+            var spaceId = _this._spaceFormModel.v3_space.getPermId()
+            _this._mainController.openbisV3.deleteSpaces([spaceId], options)
+                .done(function(deletionId) {
+                    Util.showSuccess("Space Deleted");
+                    mainController.sideMenu.deleteNodeByEntityPermId(spaceId.getPermId(), true);
+                })
+                .fail(function(error) {
+                    Util.showFailedServerCallError(error);
+                    Util.unblockUI();
+                });
+        });
+    }
 
 }
