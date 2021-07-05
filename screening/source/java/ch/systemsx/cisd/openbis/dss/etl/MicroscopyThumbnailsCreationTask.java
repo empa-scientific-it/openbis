@@ -110,8 +110,6 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
 
     private Properties properties;
 
-    private ThreadLocal<IJythonEvaluator> evaluator;
-
     private String dataSetContainerType;
 
     private Pattern dataSetThumbnailTypePattern;
@@ -148,7 +146,6 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         operationLog.info(totalCount + " data sets found."
                 + (totalCount > containerDataSets.size() ? " Handle the first " + containerDataSets.size() : ""));
         AtomicInteger numberOfCreatedThumbnailDataSets = new AtomicInteger(0);
-        evaluator = new ThreadLocal<>(); // allow to re-compile script
         Collection<FailureRecord<DataSet>> result = ParallelizedExecutor.process(containerDataSets,
                 new ITaskExecutor<DataSet>()
                     {
@@ -417,20 +414,10 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
                 protected IJythonEvaluator createEvaluator(String scriptString, String[] jythonPath,
                         DataSetProcessingContext context)
                 {
-                    IJythonEvaluator evaluator = getEvaluator(scriptString, jythonPath, context);
+                    IJythonEvaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
                     evaluator.set("image_data_set_structure", imageDataSetStructure);
                     evaluator.set("image_config", config);
                     return evaluator;
-                }
-
-                private IJythonEvaluator getEvaluator(String scriptString, String[] jythonPath,
-                        DataSetProcessingContext context)
-                {
-                    if (evaluator.get() == null)
-                    {
-                        evaluator.set(super.createEvaluator(scriptString, jythonPath, context));
-                    }
-                    return evaluator.get();
                 }
             };
         return scriptRunnerFactory;
