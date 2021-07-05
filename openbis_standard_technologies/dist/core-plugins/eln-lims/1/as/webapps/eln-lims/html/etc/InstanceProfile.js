@@ -1,4 +1,3 @@
-alert("Instance Profile");
 function InstanceProfile(serverFacade) {
 	this.init(serverFacade);
 }
