@@ -2531,3 +2531,11 @@ with Entity Space Id
 isNegated
 setNegated
 negate
+ANY_PROPERTY_SCORE
+MATCH_VALUE
+PREFIX_MATCH_VALUE
+PROPERTY_SCORE
+string Match Any Property Score
+string Match Property Score
+string Prefix Match Any Property Score
+string Prefix Match Property Score
