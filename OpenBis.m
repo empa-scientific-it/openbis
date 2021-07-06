@@ -320,7 +320,7 @@ classdef OpenBis
             % code ... new experiment code
             % project ... project for new experiment ('/SPACE/Project')
             % Usage:
-            % exp = obi.new_experiment('type', 'EXP1234', '/SPACE/Project')
+            % exp = obi.new_experiment('DEFAULT_EXPERIMENT', 'EXP1234', '/SPACE/Project')
             
             % determine type object
             t = obj.pybis.get_experiment_type(type);

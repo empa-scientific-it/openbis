@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of user_url_pw_inputdlg</title>
+  <meta name="keywords" content="user_url_pw_inputdlg">
+  <meta name="description" content="user_url_pw_inputdlg">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">matlab-openbis</a> &gt; user_url_pw_inputdlg.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for matlab-openbis&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>user_url_pw_inputdlg
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>user_url_pw_inputdlg</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [url, user, pw] = user_url_pw_inputdlg </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">user_url_pw_inputdlg
+   Return the URL, user name and password for the openBIS server</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="passcode.html" class="code" title="function pass = passcode">passcode</a>	PASSCODE  password input dialog box.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="OpenBis.html" class="code" title="">OpenBis</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [url, user, pw] = user_url_pw_inputdlg</a>
+0002 <span class="comment">%user_url_pw_inputdlg</span>
+0003 <span class="comment">%   Return the URL, user name and password for the openBIS server</span>
+0004 
+0005 prompt = {<span class="string">'openBIS URL:'</span>, <span class="string">'openBIS user:'</span>};
+0006 title = <span class="string">'openBIS connection details'</span>;
+0007 definput = {<span class="string">'https://XYZ.ethz.ch/openbis:8443'</span>, <span class="string">''</span>};
+0008 answer = inputdlg(prompt, title, 1, definput);
+0009 
+0010 url = answer{1};
+0011 user = answer{2};
+0012 
+0013 <span class="comment">% pw = passwordEntryDialog('CheckPasswordLength',0);</span>
+0014 pw = <a href="passcode.html" class="code" title="function pass = passcode">passcode</a>;
+0015 
+0016 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 06-Jul-2021 16:01:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
