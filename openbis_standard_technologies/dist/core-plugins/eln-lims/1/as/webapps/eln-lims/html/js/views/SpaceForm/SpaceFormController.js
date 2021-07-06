@@ -70,7 +70,8 @@ function SpaceFormController(mainController, mode, isInventory, space) {
                 Util.showError("Invalid inventory space code: The code has to end with one of the following post fixes: "
                         + postFixes.join(", "));
                 return;
-            } else if (this._spaceFormModel.isInventory === false && postFix !== null) {
+            }
+            if (!this._spaceFormModel.isInventory && postFix !== null) {
                 Util.showError("Invalid space code: The code shouldn't end with " + postFix);
                 return;
             }
