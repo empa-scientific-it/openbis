@@ -1174,9 +1174,9 @@ function MainController(profile) {
 		});
 	}
 	
-    this._showCreateSpacePage = function() {
+    this._showCreateSpacePage = function(isInventory) {
         //Show Form
-        var spaceFormController = new SpaceFormController(this, FormMode.CREATE);
+        var spaceFormController = new SpaceFormController(this, FormMode.CREATE, isInventory);
         var views = this._getNewViewModel(true, true, false);
         spaceFormController.init(views);
         this.currentView = spaceFormController;
@@ -1184,7 +1184,7 @@ function MainController(profile) {
     
 	this._showSpacePage = function(space) {
 		//Show Form
-		var spaceFormController = new SpaceFormController(this, FormMode.VIEW, space);
+		var spaceFormController = new SpaceFormController(this, FormMode.VIEW, false, space);
 		var views = this._getNewViewModel(true, true, false);
 		spaceFormController.init(views);
 		this.currentView = spaceFormController;
@@ -1192,7 +1192,7 @@ function MainController(profile) {
 	
     this._showEditSpacePage = function(space) {
         //Show Form
-        var spaceFormController = new SpaceFormController(this, FormMode.EDIT, space);
+        var spaceFormController = new SpaceFormController(this, FormMode.EDIT, false, space);
         var views = this._getNewViewModel(true, true, false);
         spaceFormController.init(views);
         this.currentView = spaceFormController;

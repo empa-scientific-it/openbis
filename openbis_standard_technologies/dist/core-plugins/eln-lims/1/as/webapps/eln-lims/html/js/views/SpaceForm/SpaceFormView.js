@@ -27,7 +27,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			
 		$form.append($formColumn);
 		
-		var typeTitle = "Space: ";
+		var typeTitle = (spaceFormModel.isInventory ? "Inventory " : "") + "Space: ";
 		
         if (this._spaceFormModel.mode === FormMode.CREATE) {
             title = "Create " + typeTitle;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function SpaceFormController(mainController, mode, space) {
+function SpaceFormController(mainController, mode, isInventory, space) {
 	this._mainController = mainController;
-	this._spaceFormModel = new SpaceFormModel(mode, space);
+	this._spaceFormModel = new SpaceFormModel(mode, isInventory, space);
 	this._spaceFormView = new SpaceFormView(this, this._spaceFormModel);
 
 	this.init = function(views) {
@@ -51,11 +51,11 @@ function SpaceFormController(mainController, mode, space) {
     this.createProject = function() {
         this._mainController.changeView('showCreateProjectPage', this._spaceFormModel.space);
     }
-    
+
     this.enableEditing = function() {
         this._mainController.changeView('showEditSpacePage', this._spaceFormModel.space);
     }
-    
+
     this.updateSpace = function() {
         Util.blockUI();
         var _this = this;
@@ -64,8 +64,19 @@ function SpaceFormController(mainController, mode, space) {
                 Util.showError("Code Missing.");
                 return;
             }
+            var postFixes = profile.inventorySpaces.concat(profile.inventorySpacesReadOnly);
+            var postFix = this.getMatchIngPostfix(this._spaceFormModel.space, postFixes);
+            if (this._spaceFormModel.isInventory && postFix === null) {
+                Util.showError("Invalid inventory space code: The code has to end with one of the following post fixes: "
+                        + postFixes.join(", "));
+                return;
+            } else if (this._spaceFormModel.isInventory === false && postFix !== null) {
+                Util.showError("Invalid space code: The code shouldn't end with " + postFix);
+                return;
+            }
+            
             require(["as/dto/space/create/SpaceCreation"], function(SpaceCreation) {
-                var spaceCreation = new SpaceCreation();
+                var spaceCreation = new SpaceCreation();    
                 spaceCreation.setCode(_this._spaceFormModel.space);
                 if (_this._spaceFormModel.description) {
                     spaceCreation.setDescription(_this._spaceFormModel.description);
@@ -122,6 +133,15 @@ function SpaceFormController(mainController, mode, space) {
                     Util.unblockUI();
                 });
         });
+    }
+
+    this.getMatchIngPostfix = function(code, postfixes) {
+        for(var iIdx = 0; iIdx < postfixes.length; iIdx++) {
+            if(code.endsWith(postfixes[iIdx])) {
+                return postfixes[iIdx];
+            }
+        }
+        return null;
     }
 
 }

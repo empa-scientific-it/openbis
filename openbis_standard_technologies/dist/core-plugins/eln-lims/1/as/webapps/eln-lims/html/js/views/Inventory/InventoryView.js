@@ -15,11 +15,11 @@
  */
 
 function InventoryView(inventoryController, inventoryView) {
-	var inventoryController = inventoryController;
-	var inventoryView = inventoryView;
+	this.inventoryController = inventoryController;
+	this.inventoryView = inventoryView;
 	
 	this.repaint = function(views) {
-		
+        var _this = this;
 		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
@@ -41,6 +41,12 @@ function InventoryView(inventoryController, inventoryView) {
 	                }
 	            }
 	            
+	            if (profile.isAdmin) {
+	                var $createSpace = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+	                    _this.inventoryController.createSpace();
+	                }, "New Inventory Space", null, "create-btn");
+	                toolbarModel.push({component : $createSpace});
+	            }
 				//Export
 				var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
 				toolbarModel.push({ component : $exportAll });
