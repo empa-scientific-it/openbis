@@ -15,8 +15,16 @@ end
 %% 0. Check if pyversion is setup correctly
 
 %% 1. Login to openBIS
-obi = OpenBis();
+url = 'https://127.0.0.1'; % URL of test server
+user = 'hluetcke'; % user name for test server
+% enter password on command line (only works with bash shells!)
+disp('Enter openBIS password:')
+[~, pw] = system('read -s password; echo $password');
+pw = strtrim(pw);
+
+obi = OpenBis(url, user, pw);
 assert(obi.is_session_active(), 'Session not active');
+clear pw
 
 %% 2. Create space for test
 space_name = 'TESTING_SPACE';
@@ -41,8 +49,13 @@ projects = obi.get_projects(space_name, project_name);
 assert(any(ismember(projects.identifier, sprintf('/%s/%s', space_name, project_name))), 'Project has not been created');
 
 %% 4. Create experiment for test
-experiment_name = 'TESTING_EXPERIMENT';
-
+exp_name = 'TESTING_EXPERIMENT';
+try
+    exp = obi.new_experiment('DEFAULT_EXPERIMENT', exp_name, sprintf('/%s/%s', space_name, project_name));
+catch
+    disp('Could not create requested experiment')
+    rethrow(lasterror)
+end
 
 %% 5. Create dataset with dummy files
 
