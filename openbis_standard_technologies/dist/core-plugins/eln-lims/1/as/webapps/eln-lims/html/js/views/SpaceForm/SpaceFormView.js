@@ -29,98 +29,193 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		
 		var typeTitle = "Space: ";
 		
-		var $formTitle = $("<h2>").append(typeTitle + Util.getDisplayNameFromCode(this._spaceFormModel.space));
+        if (this._spaceFormModel.mode === FormMode.CREATE) {
+            title = "Create " + typeTitle;
+        } else if (this._spaceFormModel.mode === FormMode.EDIT) {
+            title = "Update " + typeTitle + Util.getDisplayNameFromCode(this._spaceFormModel.space);
+        } else {
+            title = typeTitle + Util.getDisplayNameFromCode(this._spaceFormModel.space);
+        }
+        var $formTitle = $("<h2>").append(title);
 		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
 		var dropdownOptionsModel = [];
-
-		if (_this._allowedToCreateProject()) {
-			var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-				_this._spaceFormController.createProject();
-			}, "New Project", null, "create-btn");
-			toolbarModel.push({ component : $createProj});
-		}
-
-		//Export
-		dropdownOptionsModel.push({
-            label : "Export Metadata",
-            action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
-        });
-
-        dropdownOptionsModel.push({
-            label : "Export Metadata & Data",
-            action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
-        });
-
-		//Jupyter Button
-		if(profile.jupyterIntegrationServerEndpoint) {
-			dropdownOptionsModel.push({
-                label : "New Jupyter notebook",
-                action : function () {
-                    var jupyterNotebook = new JupyterNotebookController(_this._spaceFormModel.space);
-                    jupyterNotebook.init();
-                }
-            });
-		}
-
-		// authorization
-		if (this._spaceFormModel.roles.indexOf("ADMIN") > -1 ) {
-			dropdownOptionsModel.push({
-                label : "Manage access",
-                action : function () {
-                    FormUtil.showAuthorizationDialog({
-                        space: _this._spaceFormModel.space,
-                    });
-                }
-            });
-		}
-
-        // deletion
-        if (this._allowedToDeleteSpace()) {
+        if (this._spaceFormModel.mode === FormMode.VIEW) {
+            
+            if (_this._allowedToCreateProject()) {
+                var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+                    _this._spaceFormController.createProject();
+                }, "New Project", null, "create-btn");
+                toolbarModel.push({ component : $createProj});
+            }
+            
+            //Export
             dropdownOptionsModel.push({
-                label : "Delete",
-                action : function() {
-                    var modalView = new DeleteEntityController(function(reason) {
-                        _this._spaceFormController.deleteSpace(reason);
-                    }, true);
-                    modalView.init();
-                }
+                label : "Export Metadata",
+                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
             });
-        }
-
-		//Freeze
-		if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
-			var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
-            if(isEntityFrozen) {
-			    var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
-			    toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
-            } else {
+            
+            dropdownOptionsModel.push({
+                label : "Export Metadata & Data",
+                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
+            });
+            
+            //Jupyter Button
+            if(profile.jupyterIntegrationServerEndpoint) {
                 dropdownOptionsModel.push({
-                    label : "Freeze Entity (Disable further modifications)",
-                    action : function() {
-                        FormUtil.showFreezeForm("SPACE", _this._spaceFormModel.v3_space.permId.permId);
+                    label : "New Jupyter notebook",
+                    action : function () {
+                        var jupyterNotebook = new JupyterNotebookController(_this._spaceFormModel.space);
+                        jupyterNotebook.init();
                     }
                 });
             }
-		}
+            
+            // authorization
+            if (this._spaceFormModel.roles.indexOf("ADMIN") > -1 ) {
+                dropdownOptionsModel.push({
+                    label : "Manage access",
+                    action : function () {
+                        FormUtil.showAuthorizationDialog({
+                            space: _this._spaceFormModel.space,
+                        });
+                    }
+                });
+            }
+            
+            if (this._allowedToEditOrDeleteSpace()) {
+                // edit
+                var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+                    _this._spaceFormController.enableEditing();
+                }, "Edit", null, "edit-btn");
+                toolbarModel.push({ component : $editBtn });
+                // deletion
+                dropdownOptionsModel.push({
+                    label : "Delete",
+                    action : function() {
+                        var modalView = new DeleteEntityController(function(reason) {
+                            _this._spaceFormController.deleteSpace(reason);
+                        }, true);
+                        modalView.init();
+                    }
+                });
+            }
+            
+            //Freeze
+            if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
+                var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
+                if(isEntityFrozen) {
+                    var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
+                    toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
+                } else {
+                    dropdownOptionsModel.push({
+                        label : "Freeze Entity (Disable further modifications)",
+                        action : function() {
+                            FormUtil.showFreezeForm("SPACE", _this._spaceFormModel.v3_space.permId.permId);
+                        }
+                    });
+                }
+            }
+        } else {
+            var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+                _this._spaceFormController.updateSpace();
+            }, "Save", null, "save-btn");
+            $saveBtn.removeClass("btn-default");
+            $saveBtn.addClass("btn-primary");
+            toolbarModel.push({ component : $saveBtn });
+        }
 
 		var $header = views.header;
 		$header.append($formTitle);
-        FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, [], "SPACE-VIEW");
+
+        var hideShowOptionsModel = [];
+        $formColumn.append(this._createIdentificationInfoSection(hideShowOptionsModel));
+        $formColumn.append(this._createDescriptionSection(hideShowOptionsModel));
+        FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "SPACE-VIEW");
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		$container.append($form);
 	}
 	
+    this._createIdentificationInfoSection = function(hideShowOptionsModel) {
+        hideShowOptionsModel.push({
+            forceToShow : this._spaceFormModel.mode === FormMode.CREATE,
+            label : "Identification Info",
+            section : "#space-identification-info"
+        });
+        var _this = this;
+        var $identificationInfo = $("<div>", { id : "space-identification-info" });
+        $identificationInfo.append($("<legend>").append("Identification Info"));
+        if (this._spaceFormModel.mode !== FormMode.CREATE) {
+            var space = this._spaceFormModel.v3_space;
+            $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId", space.getCode()));
+            var $registrator = FormUtil.getFieldForLabelWithText("Registrator", space.getRegistrator().userId);
+            $identificationInfo.append($registrator);
+
+            var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", 
+                   Util.getFormatedDate(new Date(space.registrationDate)));
+            $identificationInfo.append($registationDate);
+        } else {
+            var $textField = FormUtil._getInputField('text', "space-code-id", "Space Code", null, true);
+            $textField.keyup(function(event){
+                var textField = $(this);
+                var caretPosition = this.selectionStart;
+                textField.val(textField.val().toUpperCase());
+                this.selectionStart = caretPosition;
+                this.selectionEnd = caretPosition;
+                _this._spaceFormModel.space = textField.val();
+                _this._spaceFormModel.isFormDirty = true;
+            });
+            $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+        }
+        $identificationInfo.hide();
+        return $identificationInfo;
+    }
+    this._createDescriptionSection = function(hideShowOptionsModel) {
+        hideShowOptionsModel.push({
+            forceToShow : this._spaceFormModel.mode === FormMode.CREATE,
+            label : "Description",
+            section : "#space-description"
+        });
+        
+        var _this = this;
+        var $description = $("<div>", { id : "space-description" });
+        $description.append($("<legend>").append("General"));
+        var space = this._spaceFormModel.v3_space;
+        var description = space ? space.getDescription() : "";
+        if (this._spaceFormModel.mode !== FormMode.VIEW) {
+            var $textBox = FormUtil._getTextBox("description-id", "Description", false);
+            var textBoxEvent = function(jsEvent, newValue) {
+                var valueToUse = null;
+                if (newValue !== undefined && newValue !== null) {
+                    valueToUse = newValue;
+                } else {
+                    valueToUse = $(this).val();
+                }
+                _this._spaceFormModel.description = valueToUse;
+                _this._spaceFormModel.isFormDirty = true;
+            };
+            $textBox.val(description);
+            $textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent, null, description, false);
+            $description.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
+        } else {
+            var $textBox = FormUtil._getTextBox(null, "Description", false);
+            $textBox = FormUtil.activateRichTextProperties($textBox, undefined, null, description, true);
+            $description.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
+        }
+        $description.hide();
+        return $description;
+    }
+    
 	this._allowedToCreateProject = function() {
 		var space = this._spaceFormModel.v3_space;
 		return space.frozenForProjects == false && this._spaceFormModel.projectRights.rights.indexOf("CREATE") >= 0;
 	};
 	
-    this._allowedToDeleteSpace = function() {
+    this._allowedToEditOrDeleteSpace = function() {
         var space = this._spaceFormModel.v3_space;
         return space.frozen == false && profile.isAdmin;
     };

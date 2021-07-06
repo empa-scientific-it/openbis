@@ -519,6 +519,13 @@ function MainController(profile) {
 						//window.scrollTo(0,0);
 					});
 					break;
+                case "showEditSpacePage":
+                    var _this = this;
+                    this.serverFacade.getSpaceFromCode(arg, function(space) {
+                        document.title = "Space " + space;
+                        _this._showEditSpacePage(space);
+                    });
+                    break;
 				case "showProjectPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.getProjectFromIdentifier(arg, function(project) {
@@ -543,6 +550,10 @@ function MainController(profile) {
 						//window.scrollTo(0,0);
 					});
 					break;
+                case "showCreateSpacePage":
+                    document.title = "Create Space";
+                    this._showCreateSpacePage(arg);
+                    break;
 				case "showCreateProjectPage":
 					document.title = "Create Project";
 					this._showCreateProjectPage(arg);
@@ -1163,14 +1174,30 @@ function MainController(profile) {
 		});
 	}
 	
+    this._showCreateSpacePage = function() {
+        //Show Form
+        var spaceFormController = new SpaceFormController(this, FormMode.CREATE);
+        var views = this._getNewViewModel(true, true, false);
+        spaceFormController.init(views);
+        this.currentView = spaceFormController;
+    }
+    
 	this._showSpacePage = function(space) {
 		//Show Form
-		var spaceFormController = new SpaceFormController(this, space);
+		var spaceFormController = new SpaceFormController(this, FormMode.VIEW, space);
 		var views = this._getNewViewModel(true, true, false);
 		spaceFormController.init(views);
 		this.currentView = spaceFormController;
 	}
 	
+    this._showEditSpacePage = function(space) {
+        //Show Form
+        var spaceFormController = new SpaceFormController(this, FormMode.EDIT, space);
+        var views = this._getNewViewModel(true, true, false);
+        spaceFormController.init(views);
+        this.currentView = spaceFormController;
+    }
+    
 	this._showCreateProjectPage = function(spaceCode) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.CREATE, {spaceCode : spaceCode});

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function SpaceFormModel(space, roles) {
+function SpaceFormModel(mode, space, roles) {
+    this.mode = mode;
 	this.space = space;
 	this.roles = roles;
 }
