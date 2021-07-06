@@ -41,6 +41,7 @@ projects = obi.get_projects(space_name, project_name);
 assert(any(ismember(projects.identifier, sprintf('/%s/%s', space_name, project_name))), 'Project has not been created');
 
 %% 4. Create experiment for test
+experiment_name = 'TESTING_EXPERIMENT';
 
 
 %% 5. Create dataset with dummy files

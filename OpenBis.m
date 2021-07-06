@@ -312,18 +312,27 @@ classdef OpenBis
             experiment = obj.pybis.get_experiment(id);
         end
         
-        function experiment = new_experiment(obj, type, code, project)
+        function exp = new_experiment(obj, type, code, project)
             %new_experiment
             % Create a new experiment of specific type in a defined project
             % Required input arguments:
-            % type ... new experiment type
+            % type ... new experiment type - see: obi.get_experiment_types()
             % code ... new experiment code
-            % project ... project for new experiment ('SPACE/Project')
+            % project ... project for new experiment ('/SPACE/Project')
             % Usage:
-            % experiment = obi.new_experiment('type', 'space', 'Space/Project')
+            % exp = obi.new_experiment('type', 'EXP1234', '/SPACE/Project')
             
-            experiment = obj.pybis.new_experiment(pyargs('type', type, 'code', code, 'project', project));
-            experiment.save();
+            % determine type object
+            t = obj.pybis.get_experiment_type(type);
+            
+            % determine project type
+            p = obj.get_project(project);
+            
+            % instantiate a new experiment object
+            exp = py.pybis.pybis.Experiment(obj.pybis, pyargs('type', t, 'code', code, 'project', p));
+            
+            % save experiment
+            exp.save();
         end
         
         
