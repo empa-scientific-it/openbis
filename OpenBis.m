@@ -50,18 +50,18 @@ classdef OpenBis
         end
         
         function logout(obj)
-            %logout 
+            %logout
             % Log out of openBIS.
             % Usage:
             % obi.logout()
-            % 
+            %
             % After logout, the session token is no longer valid.
             
             obj.pybis.logout();
         end
         
         function tf= is_session_active(obj)
-            %is_session_active 
+            %is_session_active
             % Check if the session token is still active. Returns true or false.
             % Usage:
             % true_false = obi.is_session_active()
@@ -70,7 +70,7 @@ classdef OpenBis
         end
         
         function token = token(obj)
-            %token 
+            %token
             % Returns the current session token.
             % Usage:
             % token = obi.token()
@@ -272,6 +272,7 @@ classdef OpenBis
         %   get_experiments
         %   get_experiment
         %   new_experiment
+        %   delete_experiment
         
         function experiments = get_experiments(obj, varargin)
             %get_experiments
@@ -335,6 +336,19 @@ classdef OpenBis
             exp.save();
         end
         
+        function experiment = delete_experiment(obj, experiment, reason)
+            %delete_experiment
+            % Delete experiment and provide a reason for deletion
+            % Note that the experiment will be moved to the openBIS trashcan
+            % Required input arguments:
+            % experiment... experiment returned by get_experiment / new_experiment methods
+            % reason ... reason for deletion
+            % Usage:
+            % obi.delete_experiment(experiment, 'reason')
+            
+            experiment.delete(reason)
+        end
+        
         
         %% Object methods
         % this section defines following Matlab methods related to openBIS objects / samples:
@@ -359,7 +373,7 @@ classdef OpenBis
             addParameter(p, 'id', defaultId, @ischar);
             parse(p, obj, varargin{:});
             a = p.Results;
-           
+            
             objects = obj.pybis.get_objects(a.id);
             objects = df_to_table(objects.df);
         end
@@ -403,7 +417,7 @@ classdef OpenBis
             
             object.delete(reason)
         end
-
+        
         
         %% Dataset methods
         % this section defines following Matlab methods:
@@ -420,7 +434,7 @@ classdef OpenBis
             % Optional input arguments:
             % code ... dataset code / permId
             % type ... dataset type
-            % experiment ... datasets in experiment 
+            % experiment ... datasets in experiment
             % project ... datasets in project
             % tags ... datasets with tags
             % Usage:
@@ -466,7 +480,7 @@ classdef OpenBis
             parse(p, obj, permid, varargin{:});
             a = p.Results;
             
-%             dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
+            %             dataset = obj.pybis.get_dataset(pyargs('permid', a.permid, 'only_data', a.only_data));
             dataset = obj.pybis.get_dataset(a.permid);
         end
         

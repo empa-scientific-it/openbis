@@ -30,6 +30,7 @@ clear pw
 space_name = 'TESTING_SPACE';
 try
     space = obi.new_space(space_name, 'a space for tests of the Matlab openBIS Toolbox');
+    fprintf('\n%s - Successfully created Space %s\n', datestr(clock,31), space_name)
 catch
     disp('Could not create requested space')
     rethrow(lasterror)
@@ -41,6 +42,7 @@ assert(any(ismember(spaces.code, space_name)), 'Space has not been created');
 project_name = 'TESTING_PROJECT';
 try
     project = obi.new_project(space, project_name, 'a project for tests of the Matlab openBIS Toolbox');
+    fprintf('\n%s - Successfully created Project %s\n', datestr(clock,31), project_name)
 catch
     disp('Could not create requested project')
     rethrow(lasterror)
@@ -52,6 +54,7 @@ assert(any(ismember(projects.identifier, sprintf('/%s/%s', space_name, project_n
 exp_name = 'TESTING_EXPERIMENT';
 try
     exp = obi.new_experiment('DEFAULT_EXPERIMENT', exp_name, sprintf('/%s/%s', space_name, project_name));
+    fprintf('\n%s - Successfully created Experiment %s\n', datestr(clock,31), exp_name)
 catch
     disp('Could not create requested experiment')
     rethrow(lasterror)
@@ -65,10 +68,16 @@ end
 
 %% 7. Tear-down (delete everything, optional)
 if teardown
+    fprintf('\n\n%s - Starting tear-down', datestr(clock,31))
+    % delete experiment
+    obi.delete_experiment(exp, 'created by Matlab-openBIS toolbox test function');
+    fprintf('\n%s - Successfully deleted Experiment %s\n', datestr(clock,31), exp_name)
     % delete project
-    obi.delete_project(project_name, 'created by Matlab-openBIS toolbox test function')
+    obi.delete_project(project_name, 'created by Matlab-openBIS toolbox test function');
+    fprintf('\n%s - Successfully deleted Project %s\n', datestr(clock,31), project_name)
     % delete space
-    obi.delete_space(space, 'created by Matlab-openBIS toolbox test function')
+    obi.delete_space(space, 'created by Matlab-openBIS toolbox test function');
+    fprintf('\n%s - Successfully deleted Space %s\n', datestr(clock,31), space_name)
 end
 
 %% 8. Logout
