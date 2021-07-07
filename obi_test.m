@@ -61,6 +61,32 @@ catch
 end
 
 %% 5. Create dataset with dummy files
+% first create the dummy files
+file1 = sprintf('test_%d%d%d%d%d.txt',randi(9,1,5));
+file2 = sprintf('test_%d%d%d%d%d.txt',randi(9,1,5));
+    function create_file(fname)
+        fid = fopen(fname, 'w+');
+        fprintf(fid, 'Hello world!');
+        fclose(fid);
+    end
+create_file(file1);
+create_file(file2);
+
+% then create the dataset in the TESTING_EXPERIMENT
+dataset_type = 'RAW_DATA';
+dataset_object = sprintf('/%s/%s/%s', space_name, project_name, exp_name);
+file_list = {file1, file2};
+try
+    dataset = obi.new_dataset(dataset_type, dataset_object, file_list);
+    fprintf('\n%s - Successfully created new Dataset with permId %s\n', datestr(clock,31), char(dataset.permId))
+catch
+    disp('Could not create new dataset')
+    rethrow(lasterror)
+end
+
+% delete the dummy files
+delete(file1);  delete(file2);
+
 
 
 %% 6. Download the created dataset
