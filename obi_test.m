@@ -84,24 +84,38 @@ catch
     rethrow(lasterror)
 end
 
-% delete the dummy files
-delete(file1);  delete(file2);
-
-
 
 %% 6. Download the created dataset
+try
+    files = obi.get_dataset_files(dataset);
+    file_list = files.pathInDataSet(files.fileSize>0);
+    destination = sprintf('temp_%d%d%d%d%d', randi(9,1,5));
+    path_to_files = obi.dataset_download(dataset, file_list, 'destination', destination, ...
+        'wait_until_finished', true);
+    fprintf('\n%s - Successfully downloaded Dataset with permId %s to folder %s\n', ...
+        datestr(clock,31), char(dataset.permId), destination)
+catch
+    disp('Could not download dataset')
+    rethrow(lasterror)
+end
 
 
 %% 7. Tear-down (delete everything, optional)
 if teardown
     fprintf('\n\n%s - Starting tear-down', datestr(clock,31))
-    % delete experiment
+    % delete the created local files
+    delete(file1);  delete(file2); rmdir(destination, 's');
+    fprintf('\n%s - Successfully deleted local files\n', datestr(clock,31))
+    
+    % delete openBIS experiment
     obi.delete_experiment(exp, 'created by Matlab-openBIS toolbox test function');
     fprintf('\n%s - Successfully deleted Experiment %s\n', datestr(clock,31), exp_name)
-    % delete project
+    
+    % delete openBIS project
     obi.delete_project(project_name, 'created by Matlab-openBIS toolbox test function');
     fprintf('\n%s - Successfully deleted Project %s\n', datestr(clock,31), project_name)
-    % delete space
+    
+    % delete openBIS space
     obi.delete_space(space, 'created by Matlab-openBIS toolbox test function');
     fprintf('\n%s - Successfully deleted Space %s\n', datestr(clock,31), space_name)
 end

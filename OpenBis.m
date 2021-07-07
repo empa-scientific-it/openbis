@@ -533,6 +533,10 @@ classdef OpenBis
             parse(p, obj, dataset, files, varargin{:});
             a = p.Results;
             
+            % ensure that files are passed as 1-N cell array (required for
+            % Matlab to Python conversion)
+            a.files = reshape(a.files, 1, numel(a.files));
+            
             dataset.download(pyargs('files', a.files, 'destination', a.destination, 'wait_until_finished', a.wait_until_finished, 'workers', int16(a.workers)));
             
             path_to_file = fullfile(a.destination, dataset.char, a.files);
