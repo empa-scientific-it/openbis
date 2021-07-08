@@ -1,10 +1,9 @@
-function pass = obi_test(varargin)
+function obi_test(varargin)
 %obi_test Testing function for the Matlab openBIS Toolbox
 %   This function runs a few tests for the Matlab openBIS Toolbox. It
 %   returns true if all the tests pass successfully and fasle otherwise.
 %   Input argumtents (all optional):
 %   teardown ... delete everything at the end (true)
-pass = true;
 
 if nargin == 1
     teardown = varargin{1};
@@ -101,6 +100,11 @@ end
 
 
 %% 7. Tear-down (delete everything, optional)
+% Note: it is currently not possible to delete all openBIS automatically.
+% The reason is that pyBIS can only delete experiments / datasets by moving
+% them to the openBIS trashcan. Emptying the trashcan can only be done
+% manually. As long as the experiment is still in the trashscan, the
+% corresponding project and space cannot be deleted.
 if teardown
     fprintf('\n\n%s - Starting tear-down', datestr(clock,31))
     % delete the created local files
@@ -110,6 +114,9 @@ if teardown
     % delete openBIS experiment
     obi.delete_experiment(exp, 'created by Matlab-openBIS toolbox test function');
     fprintf('\n%s - Successfully deleted Experiment %s\n', datestr(clock,31), exp_name)
+    
+    fprintf('\n\nPlease empty experiment %s manually from the openBIS trashcan, then press any key to continue.\n', exp_name)
+    pause()
     
     % delete openBIS project
     obi.delete_project(project_name, 'created by Matlab-openBIS toolbox test function');
