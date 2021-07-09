@@ -8,6 +8,7 @@ import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import EntityType from '@src/js/components/common/dto/EntityType.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -165,6 +166,7 @@ class HistoryGrid extends React.PureComponent {
             label: messages.get(messages.ENTITY_TYPE),
             sortable: false,
             getValue: ({ row }) => row.entityType.value,
+            renderValue: ({ value }) => new EntityType(value).getLabel(),
             renderFilter: ({ value, onChange }) => {
               return (
                 <SelectField
@@ -172,6 +174,7 @@ class HistoryGrid extends React.PureComponent {
                   value={value}
                   emptyOption={{}}
                   options={openbis.EntityType.values.map(entityType => ({
+                    label: new EntityType(entityType).getLabel(),
                     value: entityType
                   }))}
                   onChange={onChange}
