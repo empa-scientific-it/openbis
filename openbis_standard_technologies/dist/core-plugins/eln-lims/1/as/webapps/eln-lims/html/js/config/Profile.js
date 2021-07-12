@@ -340,8 +340,12 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
-        this.showDatasetOnNav = function(datasetTypeCode) {
+        this.showDataset = function(datasetTypeCode) {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
+        }
+
+        this.showDatasetOnNav = function(datasetTypeCode) {
+            return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW_ON_NAV"] === true;
         }
 
 		this.showOnNav = function(sampleTypeCode) {

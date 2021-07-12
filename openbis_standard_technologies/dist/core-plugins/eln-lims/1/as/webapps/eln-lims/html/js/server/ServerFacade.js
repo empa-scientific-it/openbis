@@ -532,9 +532,14 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listVocabularies(callbackFunction);
 	}
 
-	this.listDataSetTypes = function(callbackFunction) {
-		this.openbisServer.listDataSetTypes(callbackFunction);
-	}
+    this.listDataSetTypes = function(callbackFunction) {
+        this.openbisServer.listDataSetTypes(function(data) {
+            data.result = data.result.filter(function(dataSetType) {
+                return profile.showDataset(dataSetType.code);
+            });
+            callbackFunction(data);
+        });
+    }
 
 	this.listSpaces = function(callbackFunction) {
 		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
