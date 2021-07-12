@@ -15,17 +15,23 @@ from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
 class Acceptor(object):
     def __init__(self):
-        self.hiddenSpaces = {}
-        self.hideSpace("NAGIOS")
+        self.endingsOfHiddenSpaces = []
+        self.hideSpaceEndingWith("ELN_SETTINGS")
+        self.hideSpaceEndingWith("NAGIOS")
+        self.hideSpaceEndingWith("STORAGE")
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
 
-    def hideSpace(self, spaceCode):
-        self.hiddenSpaces[spaceCode] = True
+    def hideSpaceEndingWith(self, spaceCodeEnding):
+        self.endingsOfHiddenSpaces.append(spaceCodeEnding)
 
     def acceptSpace(self, space):
-        return space.getCode() not in self.hiddenSpaces
+        code = space.getCode()
+        for ending in self.endingsOfHiddenSpaces:
+            if code.endswith(ending):
+                return False
+        return True
 
     def hideExperimentType(self, typeCode):
         self.hiddenExperimentTypes[typeCode] = True
@@ -48,17 +54,19 @@ class Acceptor(object):
 def resolve(subPath, context):
     acceptor = createAcceptor()
     if len(subPath) == 0:
-        return listSpaces(acceptor, context)
-    space = subPath[0]
+        return listSections(context)
+    section = subPath[0]
     if len(subPath) == 1:
-        return listProjects(space, acceptor, context)
-    project = subPath[1]
+        return listSpaces(section, acceptor, context)
+    space = subPath[1]
     if len(subPath) == 2:
-        return listExperiments(space, project, acceptor, context)
-    experiment = subPath[2]
+        return listProjects(space, acceptor, context)
+    project = subPath[2]
     if len(subPath) == 3:
+        return listExperiments(section, space, project, acceptor, context)
+    if len(subPath) == 4:
         return listExperimentContent(subPath, acceptor, context)
-    if len(subPath) > 3:
+    if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
 
 def createAcceptor():
@@ -67,13 +75,25 @@ def createAcceptor():
     for pluginFileName in os.listdir(pluginsFolder):
         file = "%s/%s" % (pluginsFolder, pluginFileName)
         execfile(file, {"acceptor":acceptor})
-#    print("HIDDEN SAMPLE TYPES: %s" % acceptor.hiddenSampleTypes)
-#    print("HIDDEN DATASET TYPES: %s" % acceptor.hiddenDataSetTypes)
     return acceptor
 
-def listSpaces(acceptor, context):
+def listSections(context):
+    response = context.createDirectoryResponse()
+    response.addDirectory("Lab Notebook")
+    response.addDirectory("Inventory")
+    response.addDirectory("Stock")
+    return response
+
+def listSpaces(section, acceptor, context):
     fetchOptions = SpaceFetchOptions()
-    spaces = context.getApi().searchSpaces(context.getSessionToken(), SpaceSearchCriteria(), fetchOptions).getObjects()
+    searchCriteria = SpaceSearchCriteria()
+    spaceEndingsBySection = {"Lab Notebook": [],
+                             "Inventory": ["MATERIALS", "METHODS", "PUBLICATIONS"], 
+                             "Stock" : ["STOCK_CATALOG", "STOCK_ORDERS"]}
+    searchCriteria.withOrOperator()
+    for ending in spaceEndingsBySection[section]:
+        searchCriteria.withCode().thatEndsWith(ending)
+    spaces = context.getApi().searchSpaces(context.getSessionToken(), searchCriteria, fetchOptions).getObjects()
     response = context.createDirectoryResponse()
     for space in spaces:
         if acceptor.acceptSpace(space):
@@ -90,9 +110,9 @@ def listProjects(space, acceptor, context):
         response.addDirectory(project.getCode(), project.getModificationDate())
     return response
 
-def listExperiments(space, project, acceptor, context):
+def listExperiments(section, space, project, acceptor, context):
     response = context.createDirectoryResponse()
-    addExperimentNodes(space, project, response, acceptor, context)
+    addExperimentNodes(section, space, project, response, acceptor, context)
     return response
 
 def listExperimentContent(subPath, acceptor, context):
@@ -125,8 +145,8 @@ def getNode(subPath, acceptor, context):
     path = "/".join(subPath)
     node = context.getCache().getNode(path)
     if node is None:
-        if len(subPath) == 3:
-            addExperimentNodes(subPath[0], subPath[1], None, acceptor, context)
+        if len(subPath) == 4:
+            addExperimentNodes(subPath[0], subPath[1], subPath[2], None, acceptor, context)
         else:
             parentPath = subPath[:-1]
             parentNode = getNode(parentPath, acceptor, context)
@@ -146,7 +166,7 @@ def getNode(subPath, acceptor, context):
             raise BaseException("Couldn't resolve '%s'" % path)
     return node
 
-def addExperimentNodes(space, project, response, acceptor, context):
+def addExperimentNodes(section, space, project, response, acceptor, context):
     searchCriteria = ExperimentSearchCriteria()
     searchCriteria.withProject().withCode().thatEquals(project)
     searchCriteria.withProject().withSpace().withCode().thatEquals(space)
@@ -158,7 +178,7 @@ def addExperimentNodes(space, project, response, acceptor, context):
     for experiment in experiments:
         if acceptor.acceptExperiment(experiment):
             gatherEntity(entitiesByName, experiment)
-    addNodes("EXPERIMENT", entitiesByName, "%s/%s" % (space, project), response, context)
+    addNodes("EXPERIMENT", entitiesByName, "%s/%s/%s" % (section, space, project), response, context)
 
 def addExperimentChildNodes(path, experimentPermId, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
