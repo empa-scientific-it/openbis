@@ -19,6 +19,8 @@ class Acceptor(object):
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
         self.hideSpaceEndingWith("STORAGE")
+        self.spaceEndingsBySection = {"Inventory": ["MATERIALS", "METHODS", "PUBLICATIONS"], 
+                                      "Stock" : ["STOCK_CATALOG", "STOCK_ORDERS"]}
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
@@ -26,11 +28,20 @@ class Acceptor(object):
     def hideSpaceEndingWith(self, spaceCodeEnding):
         self.endingsOfHiddenSpaces.append(spaceCodeEnding)
 
-    def acceptSpace(self, space):
+    def acceptSpace(self, section, space):
         code = space.getCode()
         for ending in self.endingsOfHiddenSpaces:
             if code.endswith(ending):
                 return False
+        if section in self.spaceEndingsBySection:
+            for ending in self.spaceEndingsBySection[section]:
+                if code.endswith(ending):
+                    return True
+            return False
+        for endings in self.spaceEndingsBySection.values():
+            for ending in endings:
+                if code.endswith(ending):
+                    return False
         return True
 
     def hideExperimentType(self, typeCode):
@@ -86,17 +97,10 @@ def listSections(context):
 
 def listSpaces(section, acceptor, context):
     fetchOptions = SpaceFetchOptions()
-    searchCriteria = SpaceSearchCriteria()
-    spaceEndingsBySection = {"Lab Notebook": [],
-                             "Inventory": ["MATERIALS", "METHODS", "PUBLICATIONS"], 
-                             "Stock" : ["STOCK_CATALOG", "STOCK_ORDERS"]}
-    searchCriteria.withOrOperator()
-    for ending in spaceEndingsBySection[section]:
-        searchCriteria.withCode().thatEndsWith(ending)
-    spaces = context.getApi().searchSpaces(context.getSessionToken(), searchCriteria, fetchOptions).getObjects()
+    spaces = context.getApi().searchSpaces(context.getSessionToken(), SpaceSearchCriteria(), fetchOptions).getObjects()
     response = context.createDirectoryResponse()
     for space in spaces:
-        if acceptor.acceptSpace(space):
+        if acceptor.acceptSpace(section, space):
             response.addDirectory(space.getCode(), space.getModificationDate())
     return response
 
