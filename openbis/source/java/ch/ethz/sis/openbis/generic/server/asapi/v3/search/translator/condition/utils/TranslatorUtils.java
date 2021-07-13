@@ -826,14 +826,20 @@ public class TranslatorUtils
 
     public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue, final String alias, final List<Object> args)
     {
-        final String tsQueryValue = toTsQueryText(stringValue);
-        sqlBuilder.append(alias).append(PERIOD)
-                .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
-                .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
-                .append(SP).append(BARS).append(SP)
-                .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
-        args.add(tsQueryValue);
-        args.add(tsQueryValue);
+        if ("".equals(stringValue.getValue()))
+        {
+            sqlBuilder.append(true);
+        } else
+        {
+            final String tsQueryValue = toTsQueryText(stringValue);
+            sqlBuilder.append(alias).append(PERIOD)
+            .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+            .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
+            .append(SP).append(BARS).append(SP)
+            .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
+            args.add(tsQueryValue);
+            args.add(tsQueryValue);
+        }
     }
 
     public static Map<String, JoinInformation> getFieldJoinInformationMap(final TableMapper tableMapper,

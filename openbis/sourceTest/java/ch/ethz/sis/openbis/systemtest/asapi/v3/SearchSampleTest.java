@@ -33,13 +33,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -54,6 +53,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
@@ -3406,9 +3406,9 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
         assertSampleIdentifiers(samples, "/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2", "/CISD/NEMO/CP-TEST-3");
 
-        // "/CISD/CP-TEST-1" -> "very advanced stuff"
-        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
-        // "/CISD/CP-TEST-3" -> "stuff like others"
+        // "/CISD/NEMO/CP-TEST-1" -> "very advanced stuff"
+        // "/CISD/NOE/CP-TEST-2" -> "extremely simple stuff"
+        // "/CISD/NEMO/CP-TEST-3" -> "stuff like others"
 
         assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/NOE/CP-TEST-2");
 
@@ -3430,9 +3430,9 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
         assertSampleIdentifiers(samples, "/CISD/CL1", "/CISD/3VCP7", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
 
-        // "/CISD/CP-TEST-1" -> "very advanced stuff"
-        // "/CISD/CP-TEST-2" -> "extremely simple stuff"
-        // "/CISD/CP-TEST-3" -> "stuff like others"
+        // "/CISD/CL1" -> "test control layout"
+        // "/CISD/3VCP7" -> "test comment"
+        // "/TEST-SPACE/TEST-PROJECT/EV-TEST" -> "test comment"
 
         assertEquals(samples.get(0).getIdentifier().toString(), "/CISD/CL1");
 
@@ -3471,8 +3471,33 @@ public class SearchSampleTest extends AbstractSampleTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
 
+        assertEquals(samples.size(), 6);
         try {
             samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty()));
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
+
+    @Test
+    public void testSearchSamplesWithAnyStringPropertyThatMatchesEmptyString()
+    {
+        // Given
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAnyStringProperty().thatMatches("");
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // When
+        final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
+
+        // Then
+        assertEquals(samples.size(), 6);
+        System.err.println(samples);
+        try {
+            samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty(), sample + " has unexpected properties"));
         } finally
         {
             v3api.logout(sessionToken);
