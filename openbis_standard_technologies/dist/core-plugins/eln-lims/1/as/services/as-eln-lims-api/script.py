@@ -98,7 +98,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         storage = sampleSearchResults.get(0);
         storageValidationLevel = storage.getProperty("$STORAGE.STORAGE_VALIDATION_LEVEL");
     else:
-        raise UserFailureException("Found: " + sampleSearchResults.size() + " storages for storage code: " + storageCode);
+        raise UserFailureException("Found: " + str(sampleSearchResults.size()) + " storages for storage code: " + storageCode);
 
     # 2. Check that the state of the sample is valid for the Storage Validation Level
     if storageRackRow is None or storageRackColumn is None:
