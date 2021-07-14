@@ -1304,6 +1304,9 @@ function ServerFacade(openbisServer) {
 							childrenFetchOptions.withProperties();
 						}
 					}
+                    if (advancedFetchOptions.withPhysicalData && fetchOptions.withPhysicalData) {
+                        fetchOptions.withPhysicalData();
+                    }
 				} else if(advancedFetchOptions.only) {
 					if(advancedFetchOptions.withSample) {
 						fetchOptions.withSample();
