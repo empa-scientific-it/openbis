@@ -64,7 +64,7 @@ function SpaceFormController(mainController, mode, isInventory, space) {
                 Util.showError("Code Missing.");
                 return;
             }
-            var postFixes = profile.inventorySpaces.concat(profile.inventorySpacesReadOnly);
+            var postFixes = profile.getSpaceEndingsForInventory();
             var postFix = this.getMatchIngPostfix(this._spaceFormModel.space, postFixes);
             if (this._spaceFormModel.isInventory && postFix === null) {
                 Util.showError("Invalid inventory space code: The code has to end with one of the following post fixes: "
