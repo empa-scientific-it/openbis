@@ -67,7 +67,7 @@ function AdvancedSearchController(mainController, forceSearch) {
                 label : "Size",
                 property : "size",
                 isExportable : true,
-                sortable : true,
+                sortable : false,
                 render : function(data, grid) {
                     return data.size && data.size !== "" ? PrintUtil.renderNumberOfBytes(data.size) : "";
                 }
@@ -77,7 +77,7 @@ function AdvancedSearchController(mainController, forceSearch) {
                     label : "Status",
                     property : "status",
                     isExportable : true,
-                    sortable : true
+                    sortable : false
                 });
             }
         }
