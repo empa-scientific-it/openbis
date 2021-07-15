@@ -850,7 +850,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		var $requestButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Request archiving', 'id' : 'request_archiving'});
 		$requestButton.click(function() {
-			_this.requestArchiving();
+			Util.requestArchiving([_this._dataSetFormModel.dataSetV3], Util.unblockUI);
 		});
 		var $lockButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Disallow archiving', 'id' : 'lock_archiving'});
 		$lockButton.click(function() {
@@ -873,43 +873,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		Util.blockUI($window, css);
 	}
 
-	this.requestArchiving = function() {
-		var _this = this;
-
-		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
-		$window.submit(function() {
-		    _this._dataSetFormController.setArchivingRequested(true);
-		    Util.unblockUI();
-		});
-
-		$window.append($('<legend>').append('Request archiving'));
-
-		var warning = "Your dataset will be queued for archiving and will only be archived when the minimum size" +
-				" is reached from other archiving requests.";
-		var $warning = $('<p>').text(warning);
-		$window.append($warning);
-
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
-		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-		$btnCancel.click(function() {
-		    Util.unblockUI();
-		});
-
-		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
-
-		var css = {
-		        'text-align' : 'left',
-		        'top' : '15%',
-		        'width' : '70%',
-		        'left' : '15%',
-		        'right' : '20%',
-		        'overflow' : 'hidden',
-				'background' : '#ffffbf'
-		};
-
-		Util.blockUI($window, css);
-	}
-	
 	this.lockArchiving = function() {
 		var _this = this;
 

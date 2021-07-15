@@ -793,6 +793,61 @@ var Util = new function() {
     this.isMapEmpty = function(map) {
         return Object.entries(map).length === 0 && map.constructor === Object;
     }
+    
+    this.requestArchiving = function(dataSets, callback) {
+        if (dataSets.length === 0) {
+            return;
+        }
+        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+        $window.submit(function() {
+            var permIds = dataSets.map(dataSet => dataSet.permId.permId);
+            require([ "as/dto/dataset/update/DataSetUpdate", "as/dto/dataset/update/PhysicalDataUpdate"],
+                    function(DataSetUpdate, PhysicalDataUpdate) {
+                        var updates = dataSets.map(function(dataSet) {
+                            var update = new DataSetUpdate();
+                            update.setDataSetId(dataSet.permId);
+                            var physicalDataUpdate = new PhysicalDataUpdate();
+                            physicalDataUpdate.setArchivingRequested(true);
+                            update.setPhysicalData(physicalDataUpdate);
+                            return update;
+                        });
+                        mainController.openbisV3.updateDataSets(updates).done(function(result) {
+                            callback();
+                        }).fail(function(result) {
+                            Util.showFailedServerCallError(result);
+                            callback();
+                        });
+                    });
+            });
+
+        $window.append($('<legend>').append('Request archiving'));
+
+        var description = dataSets.length === 1 ? "data set" : dataSets.length + " data sets";
+        var warning = "Your " + description + " will be queued for archiving " +
+                "and will only be archived when the minimum size" +
+                " is reached from this or other archiving requests.";
+        var $warning = $('<p>').text(warning);
+        $window.append($warning);
+
+        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+        $btnCancel.click(function() {
+            Util.unblockUI();
+        });
+
+        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+
+        var css = {
+                'text-align' : 'left',
+                'top' : '15%',
+                'width' : '70%',
+                'left' : '15%',
+                'right' : '20%',
+                'overflow' : 'hidden',
+                'background' : '#ffffbf'
+        };
+
+        Util.blockUI($window, css);    }
 }
 
 
