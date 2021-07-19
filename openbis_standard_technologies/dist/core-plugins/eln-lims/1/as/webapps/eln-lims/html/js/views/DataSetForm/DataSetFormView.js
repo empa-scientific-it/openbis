@@ -676,6 +676,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
+				profile.fixV1PropertyTypeVocabulary(propertyType);
 				FormUtil.fixStringPropertiesForForm(propertyType, this._dataSetFormModel.dataSet);
 				
 				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip

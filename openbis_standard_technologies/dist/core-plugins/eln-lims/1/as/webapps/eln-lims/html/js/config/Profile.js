@@ -841,7 +841,15 @@ $.extend(DefaultProfile.prototype, {
 		this.getPropertyTypes = function() {
 			return this.allPropertyTypes;
 		}
-		
+
+		this.fixV1PropertyTypeVocabulary = function(propertyType) {
+		    var initialisedProperty = this.getPropertyType(propertyType.code);
+		    if(initialisedProperty.dataType === "CONTROLLEDVOCABULARY") {
+		        propertyType.terms = initialisedProperty.terms;
+		        propertyType.vocabulary = initialisedProperty.vocabulary;
+		    }
+		}
+
 		this.getPropertyTypeFromSampleType = function(sampleType, propertyTypeCode) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
