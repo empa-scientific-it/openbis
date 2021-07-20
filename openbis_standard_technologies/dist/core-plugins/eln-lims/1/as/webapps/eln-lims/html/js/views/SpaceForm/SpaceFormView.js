@@ -52,6 +52,27 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 toolbarModel.push({ component : $createProj});
             }
             
+            if (this._allowedToEditSpace()) {
+                // edit
+                var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+                    _this._spaceFormController.enableEditing();
+                }, "Edit", null, "edit-btn");
+                toolbarModel.push({ component : $editBtn });
+            }
+            
+            if (this._allowedToDeleteSpace()) {
+                // deletion
+                dropdownOptionsModel.push({
+                    label : "Delete",
+                    action : function() {
+                        var modalView = new DeleteEntityController(function(reason) {
+                            _this._spaceFormController.deleteSpace(reason);
+                        }, true);
+                        modalView.init();
+                    }
+                });
+            }
+            
             //Export
             dropdownOptionsModel.push({
                 label : "Export Metadata",
@@ -82,24 +103,6 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                         FormUtil.showAuthorizationDialog({
                             space: _this._spaceFormModel.space,
                         });
-                    }
-                });
-            }
-            
-            if (this._allowedToEditOrDeleteSpace()) {
-                // edit
-                var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-                    _this._spaceFormController.enableEditing();
-                }, "Edit", null, "edit-btn");
-                toolbarModel.push({ component : $editBtn });
-                // deletion
-                dropdownOptionsModel.push({
-                    label : "Delete",
-                    action : function() {
-                        var modalView = new DeleteEntityController(function(reason) {
-                            _this._spaceFormController.deleteSpace(reason);
-                        }, true);
-                        modalView.init();
                     }
                 });
             }
@@ -215,8 +218,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		return space.frozenForProjects == false && this._spaceFormModel.projectRights.rights.indexOf("CREATE") >= 0;
 	};
 	
-    this._allowedToEditOrDeleteSpace = function() {
+    this._allowedToEditSpace = function() {
         var space = this._spaceFormModel.v3_space;
-        return space.frozen == false && profile.isAdmin;
+        return space.frozen == false && this._spaceFormModel.projectRights.rights.indexOf("CREATE") >= 0;
+    };
+    this._allowedToDeleteSpace = function() {
+        var space = this._spaceFormModel.v3_space;
+        return space.frozen == false && profile.isAdmin && profile.inventorySpacesReadOnlyPostFixes.indexOf(space.code) < 0;
     };
 }

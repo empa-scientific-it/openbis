@@ -26,6 +26,7 @@ function AdvancedSearchModel(forceSearch) {
 	this.savedSearches = []; // [{ sample: v3Sample, name: "name", criteria: { see this.criteria }}, ...]
 	this.selcetedSavedSearchIndex = -1;
 	this.searchStoreAvailable = null;
+    this.selectedDataSets = [];
 
 	if(typeof forceSearch === 'object') {
 		this.criteria = forceSearch;

@@ -414,10 +414,13 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
                 protected IJythonEvaluator createEvaluator(String scriptString, String[] jythonPath,
                         DataSetProcessingContext context)
                 {
-                    IJythonEvaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
-                    evaluator.set("image_data_set_structure", imageDataSetStructure);
-                    evaluator.set("image_config", config);
-                    return evaluator;
+                    synchronized(MicroscopyThumbnailsCreationTask.this)
+                    {
+                        IJythonEvaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
+                        evaluator.set("image_data_set_structure", imageDataSetStructure);
+                        evaluator.set("image_config", config);
+                        return evaluator;
+                    }
                 }
             };
         return scriptRunnerFactory;
