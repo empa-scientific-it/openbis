@@ -157,8 +157,8 @@ var Util = new function() {
 		});
 	}
 	
-	this.showUserError = function(withHTML, andCallback, noBlock) {
-		this.showError(withHTML, andCallback, noBlock, true, false, true);
+	this.showUserError = function(message, andCallback, noBlock) {
+		this.showError(message, andCallback, noBlock, true, false, true);
 	}
 	
 	this.showFailedServerCallError = function(error) {
@@ -166,14 +166,14 @@ var Util = new function() {
 		this.showError("Call failed to server: " + (msg ? msg : JSON.stringify(error)));
 	}
 	
-	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
+	this.showError = function(message, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
 		var userErrorWarning = "";
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";
 		}
 		
 		var withHTMLToShow = "<div style=\"width:100%;\">"
-            + "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + withHTML 
+            + "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + message
             + "</textarea><br><a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a></div>";
 		
 		if(!noBlock) {
@@ -182,7 +182,7 @@ var Util = new function() {
 		
 		var localReference = this;
 		var popUp = jError(
-				withHTMLToShow,
+				DOMPurify.sanitize(withHTMLToShow),
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -205,10 +205,10 @@ var Util = new function() {
 		});
 	}
 	
-	this.showSuccess = function(withHTML, andCallback, forceAutoHide) {
+	this.showSuccess = function(message, andCallback, forceAutoHide) {
 		var localReference = this;
 		jSuccess(
-				withHTML,
+				DOMPurify.sanitize(message),
 				{
 				  autoHide : true,
 				  clickOverlay : true,
@@ -227,18 +227,20 @@ var Util = new function() {
 		});
 	}
 	
-	this.showInfo = function(withHTML, andCallback, noBlock, buttonLabel) {
+	this.showInfo = function(message, andCallback, noBlock, buttonLabel) {
 		
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
 		if (!buttonLabel) {
-			buttonLabel = "Dismiss";
+			var buttonLabel = "Dismiss";
 		}
-		
+
+		var withHTMLToShow = message + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>" + buttonLabel + "</a>";
+
 		var localReference = this;
 		var popUp = jNotify(
-				withHTML + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>" + buttonLabel + "</a>",
+				DOMPurify.sanitize(withHTMLToShow),
 				{
 				  autoHide : false,
 				  clickOverlay : false,
