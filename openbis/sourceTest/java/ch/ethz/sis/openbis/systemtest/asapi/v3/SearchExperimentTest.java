@@ -458,14 +458,14 @@ public class SearchExperimentTest extends AbstractExperimentTest
             final PropertyTypePermId propertyType3, final String propertyValue1, final String propertyValue2,
             final String propertyValue3)
     {
-        final ExperimentCreation experimentCreation1 = new ExperimentCreation();
-        experimentCreation1.setCode(code);
-        experimentCreation1.setTypeId(experimentType);
-        experimentCreation1.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
-        experimentCreation1.setProperty(propertyType1.getPermId(), propertyValue1);
-        experimentCreation1.setProperty(propertyType2.getPermId(), propertyValue2);
-        experimentCreation1.setProperty(propertyType3.getPermId(), propertyValue3);
-        return experimentCreation1;
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode(code);
+        creation.setTypeId(experimentType);
+        creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setProperty(propertyType1.getPermId(), propertyValue1);
+        creation.setProperty(propertyType2.getPermId(), propertyValue2);
+        creation.setProperty(propertyType3.getPermId(), propertyValue3);
+        return creation;
     }
 
     @Test
