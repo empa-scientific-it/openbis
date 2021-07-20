@@ -31,7 +31,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -389,6 +388,84 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
         criteria.withProperty("COMMENT");
         testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
+    }
+
+    /**
+     * Sorting is done first by PROP1 then by PROP2 then by PROP3. The following order is expected.
+     * Code  | PROP1            | PROP2 | PROP3
+     * EXP-4 | Simple test      | T1    | P2
+     * EXP-2 | Simple test      | T1    | P3
+     * EXP-7 | Simple test      | T2    | P4
+     * EXP-1 | Simple test      | T2    | -
+     * EXP-5 | Simple test      | -     | P2
+     * EXP-6 | Simple test      | -     | P3
+     * EXP-8 | Simple test      | -     | -
+     * EXP-3 | Very simple test | T1    | P2
+     */
+    @Test
+    public void testSearchWithSortingByMultiplePropertiesWithMissingProperties()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAVarcharPropertyType(sessionToken, "PROP1");
+        final PropertyTypePermId propertyType2 = createAVarcharPropertyType(sessionToken, "PROP2");
+        final PropertyTypePermId propertyType3 = createAVarcharPropertyType(sessionToken, "PROP3");
+        final EntityTypePermId experimentType = createAnExperimentType(sessionToken, false, propertyType1,
+                propertyType2, propertyType3);
+
+        final ExperimentCreation experimentCreation1 = createExperiment("EXP-1", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", null);
+        final ExperimentCreation experimentCreation2 = createExperiment("EXP-2", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P3");
+        final ExperimentCreation experimentCreation3 = createExperiment("EXP-3", experimentType,
+                propertyType1, propertyType2, propertyType3, "Very simple test", "T1", "P2");
+        final ExperimentCreation experimentCreation4 = createExperiment("EXP-4", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P2");
+        final ExperimentCreation experimentCreation5 = createExperiment("EXP-5", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P2");
+        final ExperimentCreation experimentCreation6 = createExperiment("EXP-6", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P3");
+        final ExperimentCreation experimentCreation7 = createExperiment("EXP-7", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", "P4");
+        final ExperimentCreation experimentCreation8 = createExperiment("EXP-8", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, null);
+
+        v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation1, experimentCreation2,
+                experimentCreation3, experimentCreation4, experimentCreation5, experimentCreation6, experimentCreation7,
+                experimentCreation8));
+
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withStringProperty("PROP1");
+
+        final ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.sortBy().property("PROP1").asc();
+        fetchOptions.sortBy().property("PROP2").asc();
+        fetchOptions.sortBy().property("PROP3").asc();
+
+        final List<Experiment> experiments = searchExperiments(sessionToken, criteria, fetchOptions);
+        assertEquals(experiments.get(0).getCode(), "EXP-4");
+        assertEquals(experiments.get(1).getCode(), "EXP-2");
+        assertEquals(experiments.get(2).getCode(), "EXP-7");
+        assertEquals(experiments.get(3).getCode(), "EXP-1");
+        assertEquals(experiments.get(4).getCode(), "EXP-5");
+        assertEquals(experiments.get(5).getCode(), "EXP-6");
+        assertEquals(experiments.get(6).getCode(), "EXP-8");
+        assertEquals(experiments.get(7).getCode(), "EXP-3");
+    }
+
+    private ExperimentCreation createExperiment(final String code, final EntityTypePermId experimentType,
+            final PropertyTypePermId propertyType1, final PropertyTypePermId propertyType2,
+            final PropertyTypePermId propertyType3, final String propertyValue1, final String propertyValue2,
+            final String propertyValue3)
+    {
+        final ExperimentCreation experimentCreation1 = new ExperimentCreation();
+        experimentCreation1.setCode(code);
+        experimentCreation1.setTypeId(experimentType);
+        experimentCreation1.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        experimentCreation1.setProperty(propertyType1.getPermId(), propertyValue1);
+        experimentCreation1.setProperty(propertyType2.getPermId(), propertyValue2);
+        experimentCreation1.setProperty(propertyType3.getPermId(), propertyValue3);
+        return experimentCreation1;
     }
 
     @Test
