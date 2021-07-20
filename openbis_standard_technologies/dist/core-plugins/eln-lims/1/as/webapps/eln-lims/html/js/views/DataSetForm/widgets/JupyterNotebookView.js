@@ -36,9 +36,10 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 				'text-align' : 'left',
 				'top' : '15%',
 				'width' : '50%',
-				'left' : '15%',
-				'right' : '20%',
-				'overflow' : 'hidden'
+				'left' : '25%',
+				'right' : '25%',
+				'max-height' : '70%',
+				'overflow' : 'auto'
 		};
 		Util.blockUI($window, css);
 	};
