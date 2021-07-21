@@ -10,6 +10,7 @@ import selectors from '@src/js/store/selectors/selectors.js'
 import actions from '@src/js/store/actions/actions.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import routes from '@src/js/common/consts/routes.js'
+import cookie from '@src/js/common/cookie.js'
 import history from '@src/js/store/history.js'
 
 export default function* appSaga() {
@@ -31,6 +32,27 @@ function* init() {
     try {
       yield put(actions.setLoading(true))
       yield call([openbis, openbis.init])
+
+      let sessionToken = cookie.read(cookie.OPENBIS_COOKIE)
+
+      if (sessionToken) {
+        openbis.useSession(sessionToken)
+        let sessionInformation = yield call([
+          openbis,
+          openbis.getSessionInformation
+        ])
+        if (sessionInformation) {
+          yield put(
+            actions.setSession({
+              sessionToken: sessionToken,
+              userName: sessionInformation.userName
+            })
+          )
+        } else {
+          openbis.useSession(null)
+        }
+      }
+
       yield put(actions.setInitialized(true))
     } catch (e) {
       yield put(actions.setError(e))
@@ -50,12 +72,15 @@ function* login(action) {
     )
 
     if (loginResponse.payload.result) {
+      let sessionToken = loginResponse.payload.result
+
       yield put(
         actions.setSession({
-          sessionToken: loginResponse.payload.result,
+          sessionToken: sessionToken,
           userName: username
         })
       )
+      cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
 
       let path = yield select(selectors.getRoute)
       let route = routes.parse(path)
@@ -75,6 +100,7 @@ function* logout() {
     yield put(actions.setLoading(true))
     yield putAndWait(actions.apiRequest({ method: 'logout' }))
     yield put(actions.clear())
+    cookie.erase(cookie.OPENBIS_COOKIE)
     yield put(actions.routeChange('/'))
   } catch (e) {
     yield put(actions.setError(e))
