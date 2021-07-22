@@ -31,6 +31,7 @@ const styles = theme => ({
 function mapStateToProps() {
   return (state, ownProps) => {
     return {
+      session: selectors.getSession(state),
       selectedObject: selectors.getSelectedObject(
         state,
         ownProps.controller.getPage()

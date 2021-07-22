@@ -1,19 +1,28 @@
+import _ from 'lodash'
 import React from 'react'
+import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
+import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
+import selectors from '@src/js/store/selectors/selectors.js'
 import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-
 const styles = theme => ({
   field: {
     paddingBottom: theme.spacing(1)
   }
 })
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class VocabularyFormParametersVocabulary extends React.PureComponent {
   constructor(props) {
@@ -22,6 +31,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
     this.references = {
       code: React.createRef(),
       description: React.createRef(),
+      internal: React.createRef(),
       urlTemplate: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
@@ -83,10 +93,11 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
     return (
       <Container>
         {this.renderHeader(vocabulary)}
-        {this.renderMessageSystemInternal(vocabulary)}
+        {this.renderMessageInternal(vocabulary)}
         {this.renderCode(vocabulary)}
         {this.renderDescription(vocabulary)}
         {this.renderUrlTemplate(vocabulary)}
+        {this.renderInternal(vocabulary)}
       </Container>
     )
   }
@@ -98,17 +109,18 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
     return <Header>{messages.get(message)}</Header>
   }
 
-  renderMessageSystemInternal(vocabulary) {
-    const { classes } = this.props
+  renderMessageInternal(vocabulary) {
+    const { classes, session } = this.props
 
-    if (
-      vocabulary.internal.value &&
-      vocabulary.registrator.value === users.SYSTEM
-    ) {
+    if (vocabulary.internal.value) {
       return (
         <div className={classes.field}>
           <Message type='lock'>
-            {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}
+            {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}{' '}
+            {session.userName !== users.SYSTEM &&
+              messages.get(
+                messages.VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED
+              )}
           </Message>
         </div>
       )
@@ -170,6 +182,32 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
     )
   }
 
+  renderInternal(vocabulary) {
+    const { visible, enabled, error, value } = { ...vocabulary.internal }
+
+    if (!visible) {
+      return null
+    }
+
+    const { mode, classes } = this.props
+    return (
+      <div className={classes.field}>
+        <CheckboxField
+          reference={this.references.internal}
+          label={messages.get(messages.INTERNAL)}
+          name='internal'
+          error={error}
+          disabled={!enabled}
+          value={value}
+          mode={mode}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        />
+      </div>
+    )
+  }
+
   renderUrlTemplate(vocabulary) {
     const { visible, enabled, error, value } = { ...vocabulary.urlTemplate }
 
@@ -210,4 +248,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(VocabularyFormParametersVocabulary)
+export default _.flow(
+  connect(mapStateToProps),
+  withStyles(styles)
+)(VocabularyFormParametersVocabulary)

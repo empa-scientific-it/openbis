@@ -19,13 +19,8 @@ export default class VocabularyFormControllerAdd {
       official: FormUtil.createField({
         value: true
       }),
-      internal: FormUtil.createField({
-        value: false,
-        visible: false,
-        enabled: false
-      }),
       registrator: FormUtil.createField({
-        value: null,
+        value: this.getCurrentUser(),
         visible: false,
         enabled: false
       }),
@@ -53,5 +48,11 @@ export default class VocabularyFormControllerAdd {
     if (this.gridController) {
       await this.gridController.showSelectedRow()
     }
+  }
+
+  getCurrentUser() {
+    return this.context.getProps().session
+      ? this.context.getProps().session.userName
+      : null
   }
 }
