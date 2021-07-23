@@ -350,7 +350,7 @@
 			$("#login-button").focus();
 		}
 	
-		$('#login-form').submit(function() {
+		$('#openbis-login-service').submit(function() {
 			Util.blockUI();
 			$("#mainContainer").show();
 			var username = $('#username').val();
@@ -361,11 +361,47 @@
 					function(data) { mainController.enterApp(data, username, password) });
 		});
 		var singleSignOnUrlTemplate = mainController.profile.singleSignOnUrlTemplate;
-		if (singleSignOnUrlTemplate) {
-			var $container = $("#single-sign-on-login");
+		if (singleSignOnUrlTemplate) { // Single sign on login service enabled
+			// Hide the openbis login service
+			var $openbisLoginService = $("#openbis-login-service")
+			$openbisLoginService.css('margin-top', '0px');
+			$openbisLoginService.css('margin-bottom', '6px');
+			$openbisLoginService.hide();
+
+			// Show the single sign on login service
+			var $container = $("#single-sign-on-login-service");
 			$container.empty();
+			$container.css('text-align', 'center');
+			$container.css('min-height', '62px');
+			$container.css('margin-top', '20px');
+			$container.css('margin-bottom', '20px');
 			var url = mainController.profile.singleSignOnUrlTemplate.replace("${host}", window.location.hostname);
 			$container.append($("<a>", {href: url, text: mainController.profile.singleSignOnLinkLabel}));
+			$container.show();
+
+			// Show login selector
+			var $loginServicesContainer = $("#login-service-selector");
+			var $loginServices = FormUtil.getDropdown([
+				{ label: 'Single Sign On Login Service', value: 'SSO', selected: true },
+				{ label: 'openBIS Login Service', value: 'OPENBIS' }
+			]);
+			$loginServices.change(function() {
+				$("#single-sign-on-login-service").hide();
+				$("#openbis-login-service").hide();
+
+				switch($loginServices.val()) {
+					case 'SSO':
+							$("#single-sign-on-login-service").show();
+						break;
+					case 'OPENBIS':
+							$("#openbis-login-service").show();
+						break;
+				}
+			});
+			$loginServicesContainer.append($loginServices);
+
+		} else { // Only openbis login service enabled
+			// Do nothing
 		}
 
 		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
@@ -385,7 +421,7 @@
 
 		
 		// Make the ENTER key the default button
-		$("login-form input").keypress(function (e) {
+		$("openbis-login-service input").keypress(function (e) {
 			if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
 				$('button[type=submit].default').click();
 				return false;
@@ -462,24 +498,26 @@
 	<div id="login-form-div" class="loginForm" visibility="hidden">
 			<img id="mainLogo" class="loginLogo" src="" alt="openBIS" />
 			<h1 id="mainLogoTitle"></h1>
-			
-			<form id="login-form" action="javascript:">
-				<fieldset>
-						<div class='loginInputBox'>
-							<input placeholder="Account" id="username" type="text" required="required">
-						</div>
-					
-						<div class='loginInputBox'>
-							<input placeholder="Password" id="password" type="password" required="required">
-						</div>
-					
-						<button class="btn btn-default" id="login-button" type="submit"><span class="glyphicon glyphicon-arrow-right"></span></button>
-				</fieldset>
-			</form>
 
+			<div id="login-wrapper">
+				<div id="login-service-selector"></div>
+				<div id="single-sign-on-login-service"></div>
+				<form id="openbis-login-service" action="javascript:">
+					<fieldset>
+							<div class='loginInputBox'>
+								<input placeholder="Account" id="username" type="text" required="required">
+							</div>
+
+							<div class='loginInputBox'>
+								<input placeholder="Password" id="password" type="password" required="required">
+							</div>
+
+							<button class="btn btn-default" id="login-button" type="submit"><span class="glyphicon glyphicon-arrow-right"></span></button>
+					</fieldset>
+				</form>
+			</div>
 
 			<center>
-				<div id="single-sign-on-login"></div>
 				<div id="password-reset-container"></div>
 				<div id="help"></div>
 				<div style="margin-bottom: 5px;">Compatible With:</div>
