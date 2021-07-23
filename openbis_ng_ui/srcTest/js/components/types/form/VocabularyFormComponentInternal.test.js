@@ -68,7 +68,7 @@ async function doTestInternal(
               {
                 type: 'lock',
                 text:
-                  'This is a system internal vocabulary. The vocabulary parameters cannot be changed.'
+                  'This is a system internal vocabulary. The vocabulary parameters cannot be changed. The vocabulary cannot be removed.'
               }
             ]
           : [],

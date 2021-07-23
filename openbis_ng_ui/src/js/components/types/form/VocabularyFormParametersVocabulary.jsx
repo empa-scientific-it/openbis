@@ -113,17 +113,26 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
     const { classes, session } = this.props
 
     if (vocabulary.internal.value) {
-      return (
-        <div className={classes.field}>
-          <Message type='lock'>
-            {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}{' '}
-            {session.userName !== users.SYSTEM &&
-              messages.get(
+      if (session && session.userName === users.SYSTEM) {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}
+            </Message>
+          </div>
+        )
+      } else {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}{' '}
+              {messages.get(
                 messages.VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED
               )}
-          </Message>
-        </div>
-      )
+            </Message>
+          </div>
+        )
+      }
     } else {
       return null
     }
