@@ -243,7 +243,7 @@ test {
 
     systemProperty "ant.project.name", project.name
 
-    maxHeapSize = "8192m"
+    maxHeapSize = "4096m"
     jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog'
     
     testLogging.showStandardStreams = true
