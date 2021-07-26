@@ -733,7 +733,6 @@ var FormUtil = new function() {
 	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
-			debugger;
 			if(propertyType.vocabulary.urlTemplate) {
 			    hyperlinkLabel = propertyValue;
 			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
