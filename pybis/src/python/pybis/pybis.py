@@ -85,9 +85,10 @@ import errno
 
 import requests
 
-requests.packages.urllib3.disable_warnings(
-    requests.packages.urlib3.exceptions.InsecureRequestWarning
-)
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 # import the various openBIS entities
 
