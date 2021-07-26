@@ -729,17 +729,24 @@ var FormUtil = new function() {
 	}
 	
 	this.createPropertyField = function(propertyType, propertyValue) {
+	    var isLink = propertyType.dataType === "HYPERLINK";
+	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
+			if(propertyType.vocabulary.urlTemplate) {
+			    hyperlinkLabel = propertyValue;
+			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
+			    isLink = true;
+			}
 		}
-		return this._createField(propertyType.dataType === "HYPERLINK", propertyType.label, propertyValue, propertyType.code);
+		return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel);
 	}
 	
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
 		return this._createField(false, label, text, id, postComponent, cssForText);
 	}
 	
-	this._createField = function(hyperlink, label, text, id, postComponent, cssForText) {
+	this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -769,7 +776,7 @@ var FormUtil = new function() {
 		}
 		//text = html.sanitize(text);
 		text = DOMPurify.sanitize(text);
-		$component.html(hyperlink ? this.asHyperlink(text) : text);
+		$component.html(hyperlink ? this.asHyperlink(text, hyperlinkLabel) : text);
 		
 		if(id) {
 			$component.attr('id', this.prepareId(id));
@@ -779,8 +786,8 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.asHyperlink = function(text) {
-		return $("<a>", { "href" : text, "target" : "_blank"}).append(text);
+	this.asHyperlink = function(text, label) {
+		return $("<a>", { "href" : text, "target" : "_blank"}).append((label ? label : text));
 	}
 
 	//
