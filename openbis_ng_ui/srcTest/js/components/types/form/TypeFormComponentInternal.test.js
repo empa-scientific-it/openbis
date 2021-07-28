@@ -109,7 +109,7 @@ async function doTestInternal(
           value: propertyAssignment.isMandatory(),
           enabled: !assignmentInternal
         },
-        visible: {
+        editable: {
           value: propertyAssignment.isShowInEditView(),
           enabled: !assignmentInternal
         }

@@ -120,8 +120,8 @@ async function testAddLocalProperty() {
           enabled: true,
           mode: 'edit'
         },
-        visible: {
-          label: 'Visible',
+        editable: {
+          label: 'Editable',
           value: true,
           enabled: true,
           mode: 'edit'
@@ -244,8 +244,8 @@ async function testAddNewGlobalProperty() {
           enabled: true,
           mode: 'edit'
         },
-        visible: {
-          label: 'Visible',
+        editable: {
+          label: 'Editable',
           value: true,
           enabled: true,
           mode: 'edit'
@@ -288,7 +288,7 @@ async function testAddNewGlobalProperty() {
     .getProperty()
     .getPlugin()
     .change(fixture.ANOTHER_PLUGIN_DTO.getName())
-  form.getParameters().getProperty().getVisible().change(false)
+  form.getParameters().getProperty().getEditable().change(false)
   form.getParameters().getProperty().getMandatory().change(true)
   await form.update()
 
@@ -341,8 +341,8 @@ async function testAddNewGlobalProperty() {
           enabled: true,
           mode: 'edit'
         },
-        visible: {
-          label: 'Visible',
+        editable: {
+          label: 'Editable',
           value: false,
           enabled: true,
           mode: 'edit'
@@ -473,8 +473,8 @@ async function testAddExistingGlobalProperty() {
           enabled: true,
           mode: 'edit'
         },
-        visible: {
-          label: 'Visible',
+        editable: {
+          label: 'Editable',
           value: true,
           enabled: true,
           mode: 'edit'
@@ -514,7 +514,7 @@ async function testAddExistingGlobalProperty() {
     .getProperty()
     .getPlugin()
     .change(fixture.ANOTHER_PLUGIN_DTO.getName())
-  form.getParameters().getProperty().getVisible().change(false)
+  form.getParameters().getProperty().getEditable().change(false)
   form.getParameters().getProperty().getMandatory().change(true)
   await form.update()
 
@@ -573,8 +573,8 @@ async function testAddExistingGlobalProperty() {
           enabled: true,
           mode: 'edit'
         },
-        visible: {
-          label: 'Visible',
+        editable: {
+          label: 'Editable',
           value: false,
           enabled: true,
           mode: 'edit'

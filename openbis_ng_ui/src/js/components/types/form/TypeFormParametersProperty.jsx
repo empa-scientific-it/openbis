@@ -750,7 +750,7 @@ class TypeFormParametersProperty extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.showInEditView}
-          label={messages.get(messages.VISIBLE)}
+          label={messages.get(messages.EDITABLE)}
           name='showInEditView'
           error={error}
           disabled={!enabled}
