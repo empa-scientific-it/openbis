@@ -42,6 +42,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -91,7 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtiliti
 
 /**
  * Main class of the service. Starts up jetty with {@link DatasetDownloadServlet}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class DataStoreServer
@@ -242,6 +243,8 @@ public class DataStoreServer
         ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
         thisServer.setHandler(contextHandlers);
 
+        configureGzipHandler(thisServer);
+
         // Register the handler that returns the webstart jars
         registerDssUploadClientHandler(thisServer, contextHandlers, configParams);
 
@@ -273,6 +276,20 @@ public class DataStoreServer
         registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
         registerImageOverviewServlet(servletContextHandler, configParams);
         registerStreamHandlingServlet(servletContextHandler);
+    }
+
+    private static void configureGzipHandler(final Server thisServer)
+    {
+        final GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setMinGzipSize(2048);
+        gzipHandler.setCheckGzExists(false);
+        gzipHandler.setCompressionLevel(-1);
+        gzipHandler.setInflateBufferSize(0);
+        gzipHandler.setSyncFlush(false);
+        gzipHandler.setExcludedAgentPatterns(".*MSIE.6\\.0.*");
+        gzipHandler.setExcludedMethodList("");
+        gzipHandler.setIncludedMethodList("");
+        thisServer.insertHandler(gzipHandler);
     }
 
     /**
@@ -440,8 +457,8 @@ public class DataStoreServer
         context.addServlet(IdentifiedStreamHandlingServlet.class, "/"
                 + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
                 + IdentifiedStreamHandlingServlet.SERVLET_NAME + "/*");
-        context.addServlet(FileTransferServerServlet.class, "/" 
-                + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/" 
+        context.addServlet(FileTransferServerServlet.class, "/"
+                + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
                 + FileTransferServerServlet.SERVLET_NAME + "/*");
     }
 
