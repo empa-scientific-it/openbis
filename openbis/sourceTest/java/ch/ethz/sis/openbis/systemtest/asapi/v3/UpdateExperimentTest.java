@@ -129,7 +129,6 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    @Rollback(value = false)
     public void testUpdateWithProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
