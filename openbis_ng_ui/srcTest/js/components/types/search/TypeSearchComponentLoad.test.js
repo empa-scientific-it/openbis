@@ -93,10 +93,6 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'showParentMetadata',
             label: 'Show Parent Metadata'
-          },
-          {
-            name: 'listable',
-            label: 'Listable'
           }
         ],
         rows: [
@@ -110,8 +106,7 @@ async function testLoadWithSearchText(resultsFound) {
               subcodeUnique: String(testObjectType.isSubcodeUnique()),
               showParents: String(testObjectType.isShowParents()),
               showContainer: String(testObjectType.isShowContainer()),
-              showParentMetadata: String(testObjectType.isShowParentMetadata()),
-              listable: String(testObjectType.isListable())
+              showParentMetadata: String(testObjectType.isShowParentMetadata())
             }
           }
         ]
@@ -299,10 +294,6 @@ async function testLoadWithObjectType(resultsFound) {
         {
           name: 'showParentMetadata',
           label: 'Show Parent Metadata'
-        },
-        {
-          name: 'listable',
-          label: 'Listable'
         }
       ],
       rows: resultsFound
@@ -317,8 +308,7 @@ async function testLoadWithObjectType(resultsFound) {
                 subcodeUnique: null,
                 showParents: null,
                 showContainer: null,
-                showParentMetadata: null,
-                listable: null
+                showParentMetadata: null
               }
             },
             {
@@ -333,8 +323,7 @@ async function testLoadWithObjectType(resultsFound) {
                 showContainer: String(testObjectType.isShowContainer()),
                 showParentMetadata: String(
                   testObjectType.isShowParentMetadata()
-                ),
-                listable: String(testObjectType.isListable())
+                )
               }
             }
           ]

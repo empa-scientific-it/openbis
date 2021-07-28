@@ -24,7 +24,6 @@ class TypeFormParametersType extends React.PureComponent {
       code: React.createRef(),
       description: React.createRef(),
       validationPlugin: React.createRef(),
-      listable: React.createRef(),
       showContainer: React.createRef(),
       showParents: React.createRef(),
       showParentMetadata: React.createRef(),
@@ -100,7 +99,6 @@ class TypeFormParametersType extends React.PureComponent {
         {this.renderShowParents(type)}
         {this.renderShowContainer(type)}
         {this.renderShowParentMetadata(type)}
-        {this.renderListable(type)}
         {this.renderMainDataSetPattern(type)}
         {this.renderMainDataSetPath(type)}
         {this.renderDisallowDeletion(type)}
@@ -208,32 +206,6 @@ class TypeFormParametersType extends React.PureComponent {
           value={value}
           options={options}
           emptyOption={{}}
-          mode={mode}
-          onChange={this.handleChange}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-        />
-      </div>
-    )
-  }
-
-  renderListable(type) {
-    const { visible, enabled, error, value } = { ...type.listable }
-
-    if (!visible) {
-      return null
-    }
-
-    const { mode, classes } = this.props
-    return (
-      <div className={classes.field}>
-        <CheckboxField
-          reference={this.references.listable}
-          label={messages.get(messages.LISTABLE)}
-          name='listable'
-          error={error}
-          disabled={!enabled}
-          value={value}
           mode={mode}
           onChange={this.handleChange}
           onFocus={this.handleFocus}

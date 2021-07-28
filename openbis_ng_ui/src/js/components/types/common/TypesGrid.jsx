@@ -118,12 +118,6 @@ class TypesGrid extends React.PureComponent {
         label: messages.get(messages.SHOW_PARENT_METADATA),
         getValue: ({ row }) => row.showParentMetadata
       })
-
-      columns.push({
-        name: 'listable',
-        label: messages.get(messages.LISTABLE),
-        getValue: ({ row }) => row.listable
-      })
     }
 
     if (kind === openbis.EntityKind.DATA_SET) {
