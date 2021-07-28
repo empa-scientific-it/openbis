@@ -112,12 +112,6 @@ class TypesGrid extends React.PureComponent {
         label: messages.get(messages.SHOW_CONTAINER),
         getValue: ({ row }) => row.showContainer
       })
-
-      columns.push({
-        name: 'showParentMetadata',
-        label: messages.get(messages.SHOW_PARENT_METADATA),
-        getValue: ({ row }) => row.showParentMetadata
-      })
     }
 
     if (kind === openbis.EntityKind.DATA_SET) {
