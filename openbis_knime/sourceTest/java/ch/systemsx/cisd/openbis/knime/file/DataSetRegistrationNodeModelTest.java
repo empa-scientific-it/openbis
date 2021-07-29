@@ -116,7 +116,6 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
     public void beforeMethod() throws Exception
     {
         LogInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         facadeFactory = context.mock(IOpenbisServiceFacadeFactory.class);
         serviceFacade = context.mock(IOpenbisServiceFacade.class);
@@ -144,6 +143,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         model = new MockDataSetRegistrationNodeModel(queryFacade, facadeFactory, flowVariables);
         file = new File(workingDirectory, "hello.txt");
         FileUtilities.writeToFile(file, "hello");
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod
