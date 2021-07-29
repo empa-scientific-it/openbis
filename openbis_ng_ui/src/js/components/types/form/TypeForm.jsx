@@ -11,9 +11,16 @@ import TypeFormParameters from '@src/js/components/types/form/TypeFormParameters
 import TypeFormPreview from '@src/js/components/types/form/TypeFormPreview.jsx'
 import TypeFormDialogRemoveSection from '@src/js/components/types/form/TypeFormDialogRemoveSection.jsx'
 import TypeFormDialogRemoveProperty from '@src/js/components/types/form/TypeFormDialogRemoveProperty.jsx'
+import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({})
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class TypeForm extends React.PureComponent {
   constructor(props) {
@@ -140,4 +147,4 @@ class TypeForm extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(TypeForm)
+export default _.flow(connect(mapStateToProps), withStyles(styles))(TypeForm)

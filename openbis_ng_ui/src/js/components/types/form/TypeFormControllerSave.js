@@ -4,6 +4,7 @@ import TypeFormControllerStrategies from '@src/js/components/types/form/TypeForm
 import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import TypeFormUtil from '@src/js/components/types/form/TypeFormUtil.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import users from '@src/js/common/consts/users.js'
 import openbis from '@src/js/services/openbis.js'
 
 export default class TypeFormControllerSave extends PageControllerSave {
@@ -27,7 +28,7 @@ export default class TypeFormControllerSave extends PageControllerSave {
           )
           if (
             originalProperty.assignments === 1 &&
-            !originalProperty.internal.value
+            (!originalProperty.internal.value || this.isSystemUser())
           ) {
             operations.push(this._deletePropertyTypeOperation(originalProperty))
           }
@@ -254,6 +255,13 @@ export default class TypeFormControllerSave extends PageControllerSave {
     update.getPropertyAssignments().set(assignments.reverse())
     strategy.setTypeAttributes(update, type)
     return strategy.createTypeUpdateOperation([update])
+  }
+
+  isSystemUser() {
+    return (
+      this.context.getProps().session &&
+      this.context.getProps().session.userName === users.SYSTEM
+    )
   }
 
   _getStrategy() {

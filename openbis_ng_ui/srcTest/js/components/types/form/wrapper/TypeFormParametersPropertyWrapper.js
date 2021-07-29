@@ -89,7 +89,7 @@ export default class TypeFormParametersPropertyWrapper extends PageParametersPan
     )
   }
 
-  getVisible() {
+  getEditable() {
     return new CheckboxFieldWrapper(
       this.findComponent(CheckboxField).filter({ name: 'showInEditView' })
     )
@@ -110,7 +110,7 @@ export default class TypeFormParametersPropertyWrapper extends PageParametersPan
       schema: this.getSchema().toJSON(),
       transformation: this.getTransformation().toJSON(),
       mandatory: this.getMandatory().toJSON(),
-      visible: this.getVisible().toJSON()
+      editable: this.getEditable().toJSON()
     }
   }
 }

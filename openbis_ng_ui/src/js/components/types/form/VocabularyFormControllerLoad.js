@@ -43,7 +43,6 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
   _createVocabulary(loadedVocabulary) {
     const registrator = _.get(loadedVocabulary, 'registrator.userId', null)
     const internal = _.get(loadedVocabulary, 'managedInternally', false)
-    const systemInternal = internal && registrator === users.SYSTEM
 
     const vocabulary = {
       id: _.get(loadedVocabulary, 'code', null),
@@ -53,16 +52,16 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
       }),
       description: FormUtil.createField({
         value: _.get(loadedVocabulary, 'description', null),
-        enabled: !systemInternal
+        enabled: !internal || this.isSystemUser()
       }),
       urlTemplate: FormUtil.createField({
         value: _.get(loadedVocabulary, 'urlTemplate', null),
-        enabled: !systemInternal
+        enabled: !internal || this.isSystemUser()
       }),
       internal: FormUtil.createField({
         value: internal,
-        visible: false,
-        enabled: false
+        visible: this.isSystemUser(),
+        enabled: loadedVocabulary === null && this.isSystemUser()
       }),
       registrator: FormUtil.createField({
         value: registrator,
@@ -79,8 +78,12 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
   _createTerm(id, loadedVocabulary, loadedTerm) {
     const official = _.get(loadedTerm, 'official', false)
     const registrator = _.get(loadedTerm, 'registrator.userId', null)
-    const internal = _.get(loadedVocabulary, 'managedInternally', false)
-    const systemInternal = internal && registrator === users.SYSTEM
+    const internalVocabulary = _.get(
+      loadedVocabulary,
+      'managedInternally',
+      false
+    )
+    const internalTerm = internalVocabulary && registrator === users.SYSTEM
 
     const term = {
       id: id,
@@ -90,20 +93,15 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
       }),
       label: FormUtil.createField({
         value: _.get(loadedTerm, 'label', null),
-        enabled: !systemInternal
+        enabled: !internalTerm || this.isSystemUser()
       }),
       description: FormUtil.createField({
         value: _.get(loadedTerm, 'description', null),
-        enabled: !systemInternal
+        enabled: !internalTerm || this.isSystemUser()
       }),
       official: FormUtil.createField({
         value: official,
-        enabled: !official && !systemInternal
-      }),
-      internal: FormUtil.createField({
-        value: internal,
-        visible: false,
-        enabled: false
+        enabled: !official && (!internalTerm || this.isSystemUser())
       }),
       registrator: FormUtil.createField({
         value: registrator,
@@ -141,5 +139,12 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
     } else {
       return null
     }
+  }
+
+  isSystemUser() {
+    return (
+      this.context.getProps().session &&
+      this.context.getProps().session.userName === users.SYSTEM
+    )
   }
 }

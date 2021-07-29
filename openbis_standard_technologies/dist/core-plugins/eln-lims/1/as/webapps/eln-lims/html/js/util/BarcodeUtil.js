@@ -168,7 +168,7 @@ var BarcodeUtil = new function() {
                 format = {
                     orientation: ((layout === 'split')?'l':'p'),
                     unit: 'mm',
-                    format: [width, height * ((layout === 'split')?1:value) + ((layout === 'split')?0:2*value)],
+                    format: [width, height * ((layout === 'split')?1:barcodes.length) + ((layout === 'split')?0:2*barcodes.length)],
                     putOnlyUsedFonts:true
                 };
 

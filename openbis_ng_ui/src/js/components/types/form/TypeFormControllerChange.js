@@ -5,6 +5,7 @@ import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelecti
 import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import TypeFormUtil from '@src/js/components/types/form/TypeFormUtil.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import users from '@src/js/common/consts/users.js'
 
 export default class TypeFormControllerChange extends PageControllerChange {
   async execute(type, params) {
@@ -164,6 +165,15 @@ export default class TypeFormControllerChange extends PageControllerChange {
         (assignments && assignments[propertyCode]) || 0
 
       _.assign(newProperty, {
+        internal: {
+          ...newProperty.internal,
+          visible:
+            newScope === TypeFormPropertyScope.GLOBAL && this.isSystemUser(),
+          enabled:
+            newScope === TypeFormPropertyScope.GLOBAL &&
+            !isGlobal &&
+            this.isSystemUser()
+        },
         label: {
           ...newProperty.label,
           enabled: !newProperty.internal.value
@@ -367,5 +377,12 @@ export default class TypeFormControllerChange extends PageControllerChange {
         value: _.get(src, 'initialValueForExistingEntities.value', null)
       }
     })
+  }
+
+  isSystemUser() {
+    return (
+      this.context.getProps().session &&
+      this.context.getProps().session.userName === users.SYSTEM
+    )
   }
 }
