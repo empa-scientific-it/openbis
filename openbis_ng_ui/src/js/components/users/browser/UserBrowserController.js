@@ -91,7 +91,21 @@ export default class UserBrowserController extends BrowserController {
         this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
       })
       .catch(error => {
-        this.context.dispatch(actions.errorChange(error))
+        if (
+          error &&
+          error.message &&
+          error.message.startsWith('Could not commit Hibernate transaction')
+        ) {
+          this.context.dispatch(
+            actions.errorChange(
+              messages.get(
+                messages.USERS_WHO_REGISTERED_SOME_DATA_CANNOT_BE_REMOVED
+              )
+            )
+          )
+        } else {
+          this.context.dispatch(actions.errorChange(error))
+        }
       })
   }
 

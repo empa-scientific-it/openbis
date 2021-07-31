@@ -46,7 +46,11 @@ export default class TypeFormControllerAddProperty {
         value: TypeFormPropertyScope.LOCAL
       }),
       code: FormUtil.createField(),
-      internal: FormUtil.createField(),
+      internal: FormUtil.createField({
+        value: false,
+        visible: false,
+        enabled: false
+      }),
       assignmentInternal: FormUtil.createField(),
       label: FormUtil.createField(),
       description: FormUtil.createField(),

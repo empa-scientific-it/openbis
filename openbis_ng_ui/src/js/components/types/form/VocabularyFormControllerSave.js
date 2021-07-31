@@ -86,6 +86,7 @@ export default class VocabularyFormControllerSave extends PageControllerSave {
     creation.setCode(vocabulary.code.value)
     creation.setDescription(vocabulary.description.value)
     creation.setUrlTemplate(vocabulary.urlTemplate.value)
+    creation.setManagedInternally(vocabulary.internal.value)
     creation.setChosenFromList(true)
     return new openbis.CreateVocabulariesOperation([creation])
   }

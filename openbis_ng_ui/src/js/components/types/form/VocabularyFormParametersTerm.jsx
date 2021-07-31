@@ -1,4 +1,6 @@
+import _ from 'lodash'
 import React from 'react'
+import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
@@ -6,6 +8,7 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
+import selectors from '@src/js/store/selectors/selectors.js'
 import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -15,6 +18,12 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1)
   }
 })
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class VocabularyFormParametersTerm extends React.PureComponent {
   constructor(props) {
@@ -88,7 +97,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       <Container>
         <Header>{messages.get(messages.TERM)}</Header>
         {this.renderMessageVisible(term)}
-        {this.renderMessageSystemInternal(term)}
+        {this.renderMessageInternal(term)}
         {this.renderCode(term)}
         {this.renderLabel(term)}
         {this.renderDescription(term)}
@@ -115,17 +124,28 @@ class VocabularyFormParametersTerm extends React.PureComponent {
     }
   }
 
-  renderMessageSystemInternal(term) {
-    const { classes, vocabulary } = this.props
+  renderMessageInternal(term) {
+    const { classes, vocabulary, session } = this.props
 
     if (vocabulary.internal.value && term.registrator.value === users.SYSTEM) {
-      return (
-        <div className={classes.field}>
-          <Message type='lock'>
-            {messages.get(messages.TERM_IS_INTERNAL)}
-          </Message>
-        </div>
-      )
+      if (session && session.userName === users.SYSTEM) {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.TERM_IS_INTERNAL)}
+            </Message>
+          </div>
+        )
+      } else {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.TERM_IS_INTERNAL)}{' '}
+              {messages.get(messages.TERM_CANNOT_BE_CHANGED_OR_REMOVED)}
+            </Message>
+          </div>
+        )
+      }
     } else {
       return null
     }
@@ -249,4 +269,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(VocabularyFormParametersTerm)
+export default _.flow(
+  connect(mapStateToProps),
+  withStyles(styles)
+)(VocabularyFormParametersTerm)

@@ -1,5 +1,7 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import { connect } from 'react-redux'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import AutocompleterField from '@src/js/components/common/form/AutocompleterField.jsx'
@@ -11,6 +13,8 @@ import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelecti
 import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import DataType from '@src/js/components/common/dto/DataType.js'
 import openbis from '@src/js/services/openbis.js'
+import users from '@src/js/common/consts/users.js'
+import selectors from '@src/js/store/selectors/selectors.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -19,6 +23,12 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1)
   }
 })
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class TypeFormParametersProperty extends React.PureComponent {
   constructor(props) {
@@ -36,6 +46,7 @@ class TypeFormParametersProperty extends React.PureComponent {
       transformation: React.createRef(),
       initialValueForExistingEntities: React.createRef(),
       mandatory: React.createRef(),
+      internal: React.createRef(),
       plugin: React.createRef(),
       showInEditView: React.createRef()
     }
@@ -116,6 +127,7 @@ class TypeFormParametersProperty extends React.PureComponent {
         {this.renderLabel(property)}
         {this.renderDescription(property)}
         {this.renderDynamicPlugin(property)}
+        {this.renderInternal(property)}
         {this.renderVisible(property)}
         {this.renderMandatory(property)}
         {this.renderInitialValue(property)}
@@ -159,22 +171,33 @@ class TypeFormParametersProperty extends React.PureComponent {
 
   renderMessageSystemInternal(property) {
     if (property.internal.value || property.assignmentInternal.value) {
-      const { classes } = this.props
-      return (
-        <div className={classes.field}>
-          <Message type='lock'>
-            {messages.get(messages.PROPERTY_IS_INTERNAL)}
-            {property.internal.value
-              ? ' ' +
-                messages.get(messages.PROPERTY_PARAMETERS_CANNOT_BE_CHANGED)
-              : ''}
-            {property.assignmentInternal.value
-              ? ' ' +
-                messages.get(messages.PROPERTY_ASSIGNMENT_CANNOT_BE_REMOVED)
-              : ''}
-          </Message>
-        </div>
-      )
+      const { classes, session } = this.props
+
+      if (session && session.userName === users.SYSTEM) {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.PROPERTY_IS_INTERNAL)}
+            </Message>
+          </div>
+        )
+      } else {
+        return (
+          <div className={classes.field}>
+            <Message type='lock'>
+              {messages.get(messages.PROPERTY_IS_INTERNAL)}
+              {property.internal.value
+                ? ' ' +
+                  messages.get(messages.PROPERTY_PARAMETERS_CANNOT_BE_CHANGED)
+                : ''}
+              {property.assignmentInternal.value
+                ? ' ' +
+                  messages.get(messages.PROPERTY_ASSIGNMENT_CANNOT_BE_REMOVED)
+                : ''}
+            </Message>
+          </div>
+        )
+      }
     } else {
       return null
     }
@@ -634,6 +657,32 @@ class TypeFormParametersProperty extends React.PureComponent {
     )
   }
 
+  renderInternal(property) {
+    const { visible, enabled, error, value } = { ...property.internal }
+
+    if (!visible) {
+      return null
+    }
+
+    const { mode, classes } = this.props
+    return (
+      <div className={classes.field}>
+        <CheckboxField
+          reference={this.references.internal}
+          label={messages.get(messages.INTERNAL)}
+          name='internal'
+          error={error}
+          disabled={!enabled}
+          value={value}
+          mode={mode}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        />
+      </div>
+    )
+  }
+
   renderMandatory(property) {
     const { visible, enabled, error, value } = { ...property.mandatory }
 
@@ -701,7 +750,7 @@ class TypeFormParametersProperty extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.showInEditView}
-          label={messages.get(messages.VISIBLE)}
+          label={messages.get(messages.EDITABLE)}
           name='showInEditView'
           error={error}
           disabled={!enabled}
@@ -733,4 +782,7 @@ class TypeFormParametersProperty extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(TypeFormParametersProperty)
+export default _.flow(
+  connect(mapStateToProps),
+  withStyles(styles)
+)(TypeFormParametersProperty)

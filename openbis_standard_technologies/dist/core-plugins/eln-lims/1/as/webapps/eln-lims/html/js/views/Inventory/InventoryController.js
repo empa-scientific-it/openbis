@@ -15,11 +15,15 @@
  */
 
 function InventoryController(parentController) {
-	var parentController = parentController;
+    this._mainController = parentController;
 	var inventoryModel = new InventoryModel();
 	var inventoryView = new InventoryView(this, inventoryModel);
 	
 	this.init = function(views) {
 		inventoryView.repaint(views);
 	}
+    
+    this.createSpace = function() {
+        this._mainController.changeView('showCreateSpacePage', true);
+    }
 }

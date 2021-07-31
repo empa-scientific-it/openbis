@@ -1,0 +1,15 @@
+[{
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "admin",
+	"password" : "changeit",
+	"openbisURL" : "http://localhost:8888/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "http://localhost:8888/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 1,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 1,
+		"SAMPLES_TO_CREATE" : 50000,
+		"PROPERTIES_NUMBER" : 50
+	}
+}]

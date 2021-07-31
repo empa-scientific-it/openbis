@@ -28,11 +28,11 @@ public class Main
         File configFile;
         if (args.length < 1)
         {
-            configFile = new File("../openbis_benchmark/conf/config-SSDM-9478.json");
+            configFile = new File("../openbis_benchmark/conf/config-dev.json");
             if(configFile.exists()) {
             		logger.info("No arguments given, starting with development config file: " + (configFile.getAbsolutePath()));
             } else {
-            		configFile = new File("./config.json");
+            		configFile = new File("./config-default.json");
             		if(configFile.exists()) {
                 		logger.info("No arguments given, starting with default config file: " + (configFile.getAbsolutePath()));
                 }

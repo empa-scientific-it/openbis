@@ -1,0 +1,186 @@
+[{
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 1,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 4,
+		"SAMPLES_TO_CREATE" : 20000
+	}
+}, {
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 5,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 4,
+		"SAMPLES_TO_CREATE" : 20000
+	}
+}, {
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 10,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 4,
+		"SAMPLES_TO_CREATE" : 20000
+	}
+}, {
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 20,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 4,
+		"SAMPLES_TO_CREATE" : 20000
+	}
+}, {
+	"className" : "ch.ethz.sis.benchmark.impl.LoadBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 50,
+	"parameters" : {
+		"SPACES_TO_CREATE" : 4,
+		"SAMPLES_TO_CREATE" : 20000
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.GlobalSearchBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 1,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.GlobalSearchBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 5,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.GlobalSearchBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 10,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.GlobalSearchBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 20,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.GlobalSearchBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 50,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.ListBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 1,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.ListBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 5,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.ListBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 10,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.ListBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 20,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}, {	
+	"className" : "ch.ethz.sis.benchmark.impl.ListBenchmark",
+	"user" : "test",
+	"password" : "test",
+	"openbisURL" : "https://openbis-polyhub.ethz.ch/openbis/openbis/rmi-application-server-v3",
+	"openbisTimeout" : "3600000",
+	"datastoreURL" : "https://openbis-polyhub.ethz.ch/datastore_server/rmi-data-store-server-v3",
+	"datastoreTimeout" : "3600000",
+	"threads" : 50,
+	"parameters" : {
+		"ITERATIONS" : 10
+	}
+}]

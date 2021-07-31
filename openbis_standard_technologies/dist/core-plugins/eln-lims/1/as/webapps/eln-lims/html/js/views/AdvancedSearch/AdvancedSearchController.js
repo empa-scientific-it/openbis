@@ -62,7 +62,27 @@ function AdvancedSearchController(mainController, forceSearch) {
 			}
 		}
 
-		var _this = this;
+        if (criteria.entityKind === "DATASET") {
+            this._advancedSearchView.additionalColumns = [{
+                label : "Size",
+                property : "size",
+                isExportable : true,
+                sortable : false,
+                render : function(data, grid) {
+                    return data.size && data.size !== "" ? PrintUtil.renderNumberOfBytes(data.size) : "";
+                }
+            }];
+            if (profile.showDatasetArchivingButton) {
+                this._advancedSearchView.additionalColumns.push({
+                    label : "Status",
+                    property : "status",
+                    isExportable : true,
+                    sortable : false
+                });
+            }
+        }
+		
+        var _this = this;
 		var trueSearch = function() {
 			_this._advancedSearchView.renderResults(criteria);
 		}
@@ -139,6 +159,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;
 					}
+                    if (entity.physicalData) {
+                        rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
+                        rowData.status = entity.physicalData.status;
+                    }
 
 					for(var propertyCode in entity.properties) {
 						rowData[propertyCode] = entity.properties[propertyCode];
@@ -257,7 +281,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 					mainController.serverFacade.searchForExperimentsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 					break;
 				case "DATASET":
-					mainController.serverFacade.searchForDataSetsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
+                    fetchOptions["withPhysicalData"] = true;
+                    mainController.serverFacade.searchForDataSetsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 					break;
 			}
 		}

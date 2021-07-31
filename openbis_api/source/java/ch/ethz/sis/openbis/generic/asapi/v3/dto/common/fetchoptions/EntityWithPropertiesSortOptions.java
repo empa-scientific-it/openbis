@@ -16,6 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.MATCH_VALUE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.PREFIX_MATCH_VALUE;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,15 +41,21 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     @JsonIgnore
     public static final String FETCHED_FIELDS_SCORE = "FETCHED_FIELDS_SCORE";
-    
+
     @JsonIgnore
     public static final String TYPE = "TYPE";
 
     @JsonIgnore
     public static final String PROPERTY = "PROPERTY";
+
+    @JsonIgnore
+    public static final String PROPERTY_SCORE = "PROP_SCORE";
+
+    @JsonIgnore
+    public static final String ANY_PROPERTY_SCORE = "ANY_PR_SCORE";
 
     /**
      *
@@ -62,12 +72,12 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
         parameters.put(SortParameter.PARTIAL_MATCH_PROPERTY_BOOST, "100");
 		return getOrCreateSortingWithParameters(FETCHED_FIELDS_SCORE, parameters);
     }
-    
+
     public SortOrder getFetchedFieldsScore()
     {
         return getSorting(FETCHED_FIELDS_SCORE);
     }
-    
+
     public SortOrder type()
     {
         return getOrCreateSorting(TYPE);
@@ -86,6 +96,32 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
     public SortOrder getProperty(String propertyName)
     {
         return getSorting(PROPERTY + propertyName);
+    }
+
+    public SortOrder stringMatchPropertyScore(final String propertyName, final String propertyValue)
+    {
+
+        return getOrCreateSortingWithParameters(PROPERTY_SCORE + propertyName,
+                Collections.singletonMap(MATCH_VALUE, propertyValue));
+    }
+
+    public SortOrder stringPrefixMatchPropertyScore(final String propertyName, final String propertyValue)
+    {
+
+        return getOrCreateSortingWithParameters(PROPERTY_SCORE + propertyName,
+                Collections.singletonMap(PREFIX_MATCH_VALUE, propertyValue));
+    }
+
+    public SortOrder stringMatchAnyPropertyScore(final String propertyValue)
+    {
+        return getOrCreateSortingWithParameters(ANY_PROPERTY_SCORE,
+                Collections.singletonMap(MATCH_VALUE, propertyValue));
+    }
+
+    public SortOrder stringPrefixMatchAnyPropertyScore(final String propertyValue)
+    {
+        return getOrCreateSortingWithParameters(ANY_PROPERTY_SCORE,
+                Collections.singletonMap(PREFIX_MATCH_VALUE, propertyValue));
     }
 
 }

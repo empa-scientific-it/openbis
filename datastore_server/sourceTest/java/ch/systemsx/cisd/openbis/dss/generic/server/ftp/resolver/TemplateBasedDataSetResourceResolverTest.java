@@ -48,7 +48,6 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
@@ -215,10 +214,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         // in productive code we always create a new context for each request and we have a
         // requested path for request in the context.
         // As it doesn't affect resolvers tested in here I don't modify the tests accordingly
-        ResolverContext dssfsResolverContext = new ResolverContext(SESSION_TOKEN, cache, v3api, null);
-
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null, cache, dssfsResolverContext);
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null, cache, null);
         context.checking(new Expectations()
             {
                 {

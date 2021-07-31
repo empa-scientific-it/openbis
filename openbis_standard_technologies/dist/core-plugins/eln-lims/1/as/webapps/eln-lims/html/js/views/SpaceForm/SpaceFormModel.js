@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-function SpaceFormModel(space, roles) {
+function SpaceFormModel(mode, isInventory, space, roles) {
+    this.mode = mode;
+    this.isInventory = isInventory;
 	this.space = space;
 	this.roles = roles;
 }

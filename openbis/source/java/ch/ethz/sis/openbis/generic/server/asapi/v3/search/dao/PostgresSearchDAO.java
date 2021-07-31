@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.*;
@@ -366,7 +365,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         translationContext.setSortOptions(sortOptions);
 
         final boolean containsProperties = sortOptions.getSortings().stream().anyMatch(
-                (sorting) -> TranslatorUtils.isPropertySearchFieldName(sorting.getField()));
+                (sorting) -> TranslatorUtils.isPropertySortingFieldName(sorting.getField()));
 
         updateWithDataTypes(translationContext, containsProperties);
 

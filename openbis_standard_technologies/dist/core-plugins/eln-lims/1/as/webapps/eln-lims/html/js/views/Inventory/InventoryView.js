@@ -15,11 +15,11 @@
  */
 
 function InventoryView(inventoryController, inventoryView) {
-	var inventoryController = inventoryController;
-	var inventoryView = inventoryView;
+	this.inventoryController = inventoryController;
+	this.inventoryView = inventoryView;
 	
 	this.repaint = function(views) {
-		
+        var _this = this;
 		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
@@ -36,11 +36,17 @@ function InventoryView(inventoryController, inventoryView) {
 	            var labSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
 	                var space = spaces[i];
-	                if(profile.isInventorySpace(space) && !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS")) {
-	                		labSpaces.push({ type: "SPACE", permId : space, expand : true });
-	                }
+                    if (Util.elementEndsWithArrayElement(space, profile.getSpaceEndingsForInventory)) {
+                        labSpaces.push({ type: "SPACE", permId : space, expand : true });
+                    }
 	            }
 	            
+	            if (profile.isAdmin) {
+	                var $createSpace = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+	                    _this.inventoryController.createSpace();
+	                }, "New Inventory Space", null, "create-btn");
+	                toolbarModel.push({component : $createSpace});
+	            }
 				//Export
 				var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
 				toolbarModel.push({ component : $exportAll });

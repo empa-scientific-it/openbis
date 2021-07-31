@@ -2,5 +2,4 @@ includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentica
     'datastore_server', 'screening', 'deep_sequencing_unit', 'rtd_yeastx',
     'openbis_standard_technologies', 'installation', 'image_readers', 'ui-test', 'js-test', 'datamover',
     'plasmid', 'rtd_cina', 'openbis_oai_pmh', 'big_data_link_server', 'openbis_ng_ui', 'microservice_server_template',
-    'openbis_statistics_server', 'openbis-monitor-tool'
-
+    'openbis_statistics_server', 'openbis-monitor-tool', 'openbis_benchmark'

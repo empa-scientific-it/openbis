@@ -160,6 +160,33 @@ public class ParallelizedExecutorTest extends AssertJUnit
         assertEquals(0, errors.size());
     }
 
+    @Test
+    public void testExecutedInTheSameThreadWithFailure()
+    {
+        final int numberOfTries = 3;
+        List<Integer> items = createTaskItems(5);
+        final long mainThreadId = getCurrentThreadId();
+        ITaskExecutor<Integer> taskExecutor = new ITaskExecutor<Integer>()
+        {
+            @Override
+            public Status execute(Integer item)
+            {
+                assertEquals(mainThreadId, getCurrentThreadId());
+                work(item, 10);
+                if (item.intValue() % 2 == 0)
+                {
+                    return Status.createError();
+                } else
+                {
+                    return Status.OK;
+                }
+            }
+        };
+        Collection<FailureRecord<Integer>> errors =
+                ParallelizedExecutor.process(items, taskExecutor, 1, 1, "test", numberOfTries, false);
+        assertEquals(3, errors.size());
+    }
+    
     private long getCurrentThreadId()
     {
         return Thread.currentThread().getId();

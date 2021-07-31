@@ -11,16 +11,13 @@ repositories {
 }
 
 dependencies {
-	compile 'lombok:lombok:1.18.12',
-			'log4j:log4j-api:2.10.0',
+	compile 'log4j:log4j-api:2.10.0',
 			'log4j:log4j-core:2.10.0',
 			'fasterxml:jackson-annotations:2.0.2',
 			'fasterxml:jackson-core:2.0.2',
 			'fasterxml:jackson-databind:2.0.2',
-            'postgresql:postgresql:42.1.4.jre7',
-			'openbis:openbis-v3-api-batteries-included:S300'
-
-    annotationProcessor 'lombok:lombok:1.18.12'
+			'postgresql:postgresql:42.1.4.jre7',
+			'openbis:openbis-v3-api-batteries-included:20.10.1'
 }
 
 mainClassName = "ch.ethz.sis.startup.Main"

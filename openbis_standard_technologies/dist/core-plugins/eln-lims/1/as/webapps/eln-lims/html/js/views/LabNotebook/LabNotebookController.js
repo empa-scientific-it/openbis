@@ -15,11 +15,15 @@
  */
 
 function LabNotebookController(parentController) {
-	var parentController = parentController;
+    this._mainController = parentController;
 	var labNotebookModel = new LabNotebookModel();
 	var labNotebookView = new LabNotebookView(this, labNotebookModel);
 	
 	this.init = function(views) {
 		labNotebookView.repaint(views);
 	}
+    
+    this.createSpace = function() {
+        this._mainController.changeView('showCreateSpacePage');
+    }
 }

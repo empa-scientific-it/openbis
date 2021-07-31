@@ -11,6 +11,6 @@ $.extend(InstanceProfile.prototype, StandardProfile.prototype, {
 //		this.jupyterEndpoint = "https://jupyterhub-demo.labnotebook.ch/";
 // END ANSIBLE MANAGED BLOCK
 		this.hideSectionsByDefault = true;
-
+        this.minBarcodeLength = 15;
 }
 })	

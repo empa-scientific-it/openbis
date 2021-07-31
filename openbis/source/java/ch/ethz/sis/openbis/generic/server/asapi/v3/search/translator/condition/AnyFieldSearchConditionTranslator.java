@@ -38,7 +38,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
 public class AnyFieldSearchConditionTranslator implements IConditionTranslator<AnyFieldSearchCriteria>
 {
 
-    private static final Map<Class<? extends IDateFormat>, String> TRUNCATION_INTERVAL_BY_DATE_FORMAT =
+    public static final Map<Class<? extends IDateFormat>, String> TRUNCATION_INTERVAL_BY_DATE_FORMAT =
             new HashMap<>(3);
 
     private static final String OR_SEPARATOR = SP + OR + SP;

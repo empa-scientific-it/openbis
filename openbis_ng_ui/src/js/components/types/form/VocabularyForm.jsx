@@ -12,6 +12,7 @@ import VocabularyFormController from '@src/js/components/types/form/VocabularyFo
 import VocabularyFormFacade from '@src/js/components/types/form/VocabularyFormFacade.js'
 import VocabularyFormParameters from '@src/js/components/types/form/VocabularyFormParameters.jsx'
 import VocabularyFormButtons from '@src/js/components/types/form/VocabularyFormButtons.jsx'
+import selectors from '@src/js/store/selectors/selectors.js'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -41,6 +42,12 @@ const columns = [
     getValue: ({ row }) => row.official.value
   }
 ]
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class VocabularyForm extends React.PureComponent {
   constructor(props) {
@@ -164,4 +171,7 @@ class VocabularyForm extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(VocabularyForm)
+export default _.flow(
+  connect(mapStateToProps),
+  withStyles(styles)
+)(VocabularyForm)

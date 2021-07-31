@@ -60,7 +60,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     public FtpPathResolverContext(String sessionToken, IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
-            IFtpPathResolverRegistry resolverRegistry, Cache cache, ResolverContext resolverContext)
+            IFtpPathResolverRegistry resolverRegistry, Cache cache, String path)
     {
         this.sessionToken = sessionToken;
         this.service = service;
@@ -68,7 +68,13 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         this.resolverRegistry = resolverRegistry;
         this.v3api = v3api;
         this.cache = cache;
-        this.resolverContext = resolverContext;
+        this.resolverContext = new ResolverContext(sessionToken, cache, v3api, path);
+    }
+
+    public FtpPathResolverContext cloneForPath(String path)
+    {
+        return new FtpPathResolverContext(sessionToken, service, generalInfoService, v3api, resolverRegistry,
+                cache, path);
     }
 
     @Override

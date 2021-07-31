@@ -30,10 +30,6 @@ async function doTestInternal(
   vocabularyRegistrator,
   termRegistrator
 ) {
-  const isSystemInternalVocabulary =
-    vocabularyInternal &&
-    vocabularyRegistrator.userId === fixture.SYSTEM_USER_DTO.userId
-
   const isSystemInternalTerm =
     vocabularyInternal &&
     termRegistrator.userId === fixture.SYSTEM_USER_DTO.userId
@@ -67,12 +63,12 @@ async function doTestInternal(
     parameters: {
       vocabulary: {
         title: 'Vocabulary Type',
-        messages: isSystemInternalVocabulary
+        messages: vocabularyInternal
           ? [
               {
                 type: 'lock',
                 text:
-                  'This is a system internal vocabulary. The vocabulary parameters cannot be changed.'
+                  'This is a system internal vocabulary. The vocabulary parameters cannot be changed. The vocabulary cannot be removed.'
               }
             ]
           : [],
@@ -82,11 +78,11 @@ async function doTestInternal(
         },
         description: {
           value: vocabulary.getDescription(),
-          enabled: !isSystemInternalVocabulary
+          enabled: !vocabularyInternal
         },
         urlTemplate: {
           value: vocabulary.getUrlTemplate(),
-          enabled: !isSystemInternalVocabulary
+          enabled: !vocabularyInternal
         }
       }
     }

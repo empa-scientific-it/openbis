@@ -15,11 +15,11 @@
  */
 
 function LabNotebookView(labNotebookController, labNotebookView) {
-	var labNotebookController = labNotebookController;
-	var labNotebookView = labNotebookView;
+	this.labNotebookController = labNotebookController;
+	this.labNotebookView = labNotebookView;
 	
 	this.repaint = function(views) {
-		
+        var _this = this;
 		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
@@ -41,6 +41,12 @@ function LabNotebookView(labNotebookController, labNotebookView) {
 	         	}
 	       	}
 	            
+            if (profile.isAdmin) {
+                var $createSpace = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+                    _this.labNotebookController.createSpace();
+                }, "New Space", null, "create-btn");
+                toolbarModel.push({component : $createSpace});
+            }
 	        //Export
 			var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
 			toolbarModel.push({ component : $exportAll });

@@ -8,6 +8,7 @@ import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import EntityType from '@src/js/components/common/dto/EntityType.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -53,14 +54,14 @@ class HistoryGrid extends React.PureComponent {
         filterName === 'entityRegistrationDate'
       ) {
         if (filterValue.from && filterValue.from.value) {
-          criteria[
-            'with' + _.upperFirst(filterName)
-          ]().thatIsLaterThanOrEqualTo(filterValue.from.valueString)
+          criteria['with' + _.upperFirst(filterName)]()
+            .withTimeZone(date.timezone())
+            .thatIsLaterThanOrEqualTo(filterValue.from.valueString)
         }
         if (filterValue.to && filterValue.to.value) {
-          criteria[
-            'with' + _.upperFirst(filterName)
-          ]().thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
+          criteria['with' + _.upperFirst(filterName)]()
+            .withTimeZone(date.timezone())
+            .thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
         }
       } else {
         criteria['with' + _.upperFirst(filterName)]().thatContains(filterValue)
@@ -165,6 +166,7 @@ class HistoryGrid extends React.PureComponent {
             label: messages.get(messages.ENTITY_TYPE),
             sortable: false,
             getValue: ({ row }) => row.entityType.value,
+            renderValue: ({ value }) => new EntityType(value).getLabel(),
             renderFilter: ({ value, onChange }) => {
               return (
                 <SelectField
@@ -172,6 +174,7 @@ class HistoryGrid extends React.PureComponent {
                   value={value}
                   emptyOption={{}}
                   options={openbis.EntityType.values.map(entityType => ({
+                    label: new EntityType(entityType).getLabel(),
                     value: entityType
                   }))}
                   onChange={onChange}

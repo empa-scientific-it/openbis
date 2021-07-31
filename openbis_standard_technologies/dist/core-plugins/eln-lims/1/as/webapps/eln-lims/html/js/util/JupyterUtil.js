@@ -15,7 +15,15 @@
  */
 
 var JupyterUtil = new function() {
-	
+
+	this.getJupyterURL = function(path) {
+	    var url = profile.jupyterEndpoint + "hub/login?token=" + mainController.serverFacade.getSession();
+	    if(path) {
+	        url = url + "&next=" + path;
+	    }
+	    return url;
+	}
+
 	this.copyNotebook = function(datasetCode, notebookURL) {
 		var jupyterNotebook = new JupyterCopyNotebookController(datasetCode, notebookURL);
 		jupyterNotebook.init();
@@ -24,7 +32,7 @@ var JupyterUtil = new function() {
 	this.openJupyterNotebookFromTemplate = function(folder, fileName, template, dataSetId, keepHistory) {
 		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
-		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
+		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/");
 		
 		$.ajax({
             url : jupyterURL + "&test=True",
@@ -86,7 +94,7 @@ var JupyterUtil = new function() {
             success : function(result) {
             	var fileName = result.fileName
             	var newJupyterNotebook = _this.createJupyterNotebookContent(dataSets, ownerEntity, fileName);
-        		var jupyterNotebookURL = profile.jupyterEndpoint + "user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/";
+        		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/");
         		
         		$.ajax({
                     url : jupyterURL + "&test=False",

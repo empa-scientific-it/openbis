@@ -47,10 +47,11 @@ function JupyterCopyNotebookView(jupyterNotebookController, jupyterNotebookModel
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
-				'width' : '70%',
-				'left' : '15%',
-				'right' : '20%',
-				'overflow' : 'hidden'
+				'width' : '50%',
+				'left' : '25%',
+				'right' : '25%',
+				'max-height' : '70%',
+				'overflow' : 'auto'
 		};
 		
 		Util.blockUI($window, css);

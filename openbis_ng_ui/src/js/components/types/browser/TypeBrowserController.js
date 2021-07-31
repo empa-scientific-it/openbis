@@ -15,7 +15,6 @@ export default class TypeBrowserController extends BrowserController {
 
   async doLoadNodes() {
     const vocabularyFetchOptions = new openbis.VocabularyFetchOptions()
-    vocabularyFetchOptions.withRegistrator()
 
     return Promise.all([
       openbis.searchSampleTypes(
@@ -82,9 +81,7 @@ export default class TypeBrowserController extends BrowserController {
           vocabularyTypes.getObjects(),
           objectType.VOCABULARY_TYPE,
           (type, node) => {
-            node.canRemove = !(
-              type.managedInternally && type.registrator.userId === users.SYSTEM
-            )
+            node.canRemove = !type.managedInternally || this.isSystemUser()
           }
         )
 
@@ -277,5 +274,12 @@ export default class TypeBrowserController extends BrowserController {
         objectOperation.DELETE
       ]
     }
+  }
+
+  isSystemUser() {
+    return (
+      this.context.getProps().session &&
+      this.context.getProps().session.userName === users.SYSTEM
+    )
   }
 }

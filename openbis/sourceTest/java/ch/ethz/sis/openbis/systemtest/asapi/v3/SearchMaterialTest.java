@@ -24,9 +24,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -522,6 +520,83 @@ public class SearchMaterialTest extends AbstractTest
         assertEquals(materials2.get(2).getProperty("VOLUME"), "22.22");
         assertEquals(materials2.get(3).getProperty("VOLUME"), "3.0");
         assertEquals(materials2.get(4).getProperty("VOLUME"), "2.2");
+    }
+
+    /**
+     * Sorting is done first by PROP1 then by PROP2 then by PROP3. The following order is expected.
+     * Code  | PROP1            | PROP2 | PROP3
+     * MAT-4 | Simple test      | T1    | P2
+     * MAT-2 | Simple test      | T1    | P3
+     * MAT-7 | Simple test      | T2    | P4
+     * MAT-1 | Simple test      | T2    | -
+     * MAT-5 | Simple test      | -     | P2
+     * MAT-6 | Simple test      | -     | P3
+     * MAT-8 | Simple test      | -     | -
+     * MAT-3 | Very simple test | T1    | P2
+     */
+    @Test
+    public void testSearchWithSortingByMultiplePropertiesWithMissingProperties()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAVarcharPropertyType(sessionToken, "PROP1");
+        final PropertyTypePermId propertyType2 = createAVarcharPropertyType(sessionToken, "PROP2");
+        final PropertyTypePermId propertyType3 = createAVarcharPropertyType(sessionToken, "PROP3");
+        final EntityTypePermId experimentType = createAMaterialType(sessionToken, false, propertyType1,
+                propertyType2, propertyType3);
+
+        final MaterialCreation materialCreation1 = createMaterial("MAT-1", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", null);
+        final MaterialCreation materialCreation2 = createMaterial("MAT-2", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P3");
+        final MaterialCreation materialCreation3 = createMaterial("MAT-3", experimentType,
+                propertyType1, propertyType2, propertyType3, "Very simple test", "T1", "P2");
+        final MaterialCreation materialCreation4 = createMaterial("MAT-4", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P2");
+        final MaterialCreation materialCreation5 = createMaterial("MAT-5", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P2");
+        final MaterialCreation materialCreation6 = createMaterial("MAT-6", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P3");
+        final MaterialCreation materialCreation7 = createMaterial("MAT-7", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", "P4");
+        final MaterialCreation materialCreation8 = createMaterial("MAT-8", experimentType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, null);
+
+        v3api.createMaterials(sessionToken, Arrays.asList(materialCreation1, materialCreation2,
+                materialCreation3, materialCreation4, materialCreation5, materialCreation6, materialCreation7,
+                materialCreation8));
+
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withStringProperty("PROP1");
+
+        final MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.sortBy().property("PROP1").asc();
+        fetchOptions.sortBy().property("PROP2").asc();
+        fetchOptions.sortBy().property("PROP3").asc();
+
+        final List<Material> materials = searchMaterials(sessionToken, criteria, fetchOptions);
+        assertEquals(materials.get(0).getCode(), "MAT-4");
+        assertEquals(materials.get(1).getCode(), "MAT-2");
+        assertEquals(materials.get(2).getCode(), "MAT-7");
+        assertEquals(materials.get(3).getCode(), "MAT-1");
+        assertEquals(materials.get(4).getCode(), "MAT-5");
+        assertEquals(materials.get(5).getCode(), "MAT-6");
+        assertEquals(materials.get(6).getCode(), "MAT-8");
+        assertEquals(materials.get(7).getCode(), "MAT-3");
+    }
+
+    private MaterialCreation createMaterial(final String code, final EntityTypePermId experimentType,
+            final PropertyTypePermId propertyType1, final PropertyTypePermId propertyType2,
+            final PropertyTypePermId propertyType3, final String propertyValue1, final String propertyValue2,
+            final String propertyValue3)
+    {
+        final MaterialCreation creation = new MaterialCreation();
+        creation.setCode(code);
+        creation.setTypeId(experimentType);
+        creation.setProperty(propertyType1.getPermId(), propertyValue1);
+        creation.setProperty(propertyType2.getPermId(), propertyValue2);
+        creation.setProperty(propertyType3.getPermId(), propertyValue3);
+        return creation;
     }
 
     @Test

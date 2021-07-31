@@ -389,7 +389,7 @@ function MainController(profile) {
 					document.title = "Jupyter Workspace";
 					var views = this._getNewViewModel(false, true, false);
 					var userId = this.serverFacade.getUserId();
-					var url = profile.jupyterEndpoint + "/user/" + userId + "/";
+					var url = JupyterUtil.getJupyterURL();
 					views.content.append("Opening new tab/window with your Jupyter Workspace, please allow pop ups: " + url);
 					var win = window.open(url, '_blank');
 					win.focus(); 
@@ -519,6 +519,13 @@ function MainController(profile) {
 						//window.scrollTo(0,0);
 					});
 					break;
+                case "showEditSpacePage":
+                    var _this = this;
+                    this.serverFacade.getSpaceFromCode(arg, function(space) {
+                        document.title = "Space " + space;
+                        _this._showEditSpacePage(space);
+                    });
+                    break;
 				case "showProjectPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.getProjectFromIdentifier(arg, function(project) {
@@ -543,6 +550,10 @@ function MainController(profile) {
 						//window.scrollTo(0,0);
 					});
 					break;
+                case "showCreateSpacePage":
+                    document.title = "Create Space";
+                    this._showCreateSpacePage(arg);
+                    break;
 				case "showCreateProjectPage":
 					document.title = "Create Project";
 					this._showCreateProjectPage(arg);
@@ -1163,14 +1174,30 @@ function MainController(profile) {
 		});
 	}
 	
+    this._showCreateSpacePage = function(isInventory) {
+        //Show Form
+        var spaceFormController = new SpaceFormController(this, FormMode.CREATE, isInventory);
+        var views = this._getNewViewModel(true, true, false);
+        spaceFormController.init(views);
+        this.currentView = spaceFormController;
+    }
+    
 	this._showSpacePage = function(space) {
 		//Show Form
-		var spaceFormController = new SpaceFormController(this, space);
+		var spaceFormController = new SpaceFormController(this, FormMode.VIEW, false, space);
 		var views = this._getNewViewModel(true, true, false);
 		spaceFormController.init(views);
 		this.currentView = spaceFormController;
 	}
 	
+    this._showEditSpacePage = function(space) {
+        //Show Form
+        var spaceFormController = new SpaceFormController(this, FormMode.EDIT, false, space);
+        var views = this._getNewViewModel(true, true, false);
+        spaceFormController.init(views);
+        this.currentView = spaceFormController;
+    }
+    
 	this._showCreateProjectPage = function(spaceCode) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.CREATE, {spaceCode : spaceCode});

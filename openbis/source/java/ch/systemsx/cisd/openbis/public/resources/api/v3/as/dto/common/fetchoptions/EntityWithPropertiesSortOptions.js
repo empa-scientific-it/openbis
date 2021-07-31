@@ -6,7 +6,9 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions", "as/
 	var fields = {
 		FETCHED_FIELDS_SCORE : "FETCHED_FIELDS_SCORE",
 		TYPE : "TYPE",
-		PROPERTY : "PROPERTY"
+		PROPERTY : "PROPERTY",
+		PROPERTY_SCORE : "PROP_SCORE",
+		ANY_PROPERTY_SCORE : "ANY_PR_SCORE"
 	};
     
 	stjs.extend(EntityWithPropertiesSortOptions, EntitySortOptions, [ EntitySortOptions ], function(constructor, prototype) {
@@ -38,6 +40,26 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions", "as/
 		prototype.getProperty = function(propertyName) {
 			return this.getSorting(fields.PROPERTY + propertyName);
 		};
+        prototype.stringMatchPropertyScore = function(propertyName, propertyValue) {
+            var parameters = {};
+            parameters[SortParameter.MATCH_VALUE] = propertyValue;
+            return this.getOrCreateSortingWithParameters(fields.PROPERTY_SCORE + propertyName, parameters);
+        };
+        prototype.stringPrefixMatchPropertyScore = function(propertyName, propertyValue) {
+            var parameters = {};
+            parameters[SortParameter.PREFIX_MATCH_VALUE] = propertyValue;
+            return this.getOrCreateSortingWithParameters(fields.PROPERTY_SCORE + propertyName, parameters);
+        };
+        prototype.stringMatchAnyPropertyScore = function(propertyValue) {
+            var parameters = {};
+            parameters[SortParameter.MATCH_VALUE] = propertyValue;
+            return this.getOrCreateSortingWithParameters(fields.ANY_PROPERTY_SCORE, parameters);
+        };
+        prototype.stringPrefixMatchAnyPropertyScore = function(propertyValue) {
+            var parameters = {};
+            parameters[SortParameter.PREFIX_MATCH_VALUE] = propertyValue;
+            return this.getOrCreateSortingWithParameters(fields.ANY_PROPERTY_SCORE, parameters);
+        };
 
 	}, {});
 	return EntityWithPropertiesSortOptions;

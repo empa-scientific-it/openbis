@@ -26,6 +26,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._$dataGridContainer = null;
 	this._$saveLoadContainer = null;
 	this._$savedSearchesDropdown = null;
+    this._dataGridController = null;
 	this.configKeyPrefix = "ADVANCED_SEARCH_OPENBIS_";
 	this.suppressedColumns = [];
 	this.hideByDefaultColumns = [];
@@ -702,13 +703,59 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
-		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
-		dataGridController.init(this._$dataGridContainer, this.extraOptions);
+        this._dataGridController = this._getGridForResults(criteria, isGlobalSearch);
+        this._dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
 
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
-
+            if (criteria.entityKind === "DATASET") {
+                if (profile.showDatasetArchivingButton) {
+                    _this.extraOptions = [{name:"Request archiving of selected data sets", action:function() {
+                        Util.requestArchiving(_this._advancedSearchModel.selectedDataSets, function() {
+                            _this._advancedSearchModel.selectedDataSets = [];
+                            _this._dataGridController.refresh();
+                            Util.unblockUI();
+                        });
+                    }}];
+                }
+                _this.firstColumns.push({
+                    showByDefault: true,
+                    label : function() {
+                        return "";
+                    },
+                    property : '$selected',
+                    isExportable: false,
+                    sortable : false,
+                    render : function(data) {
+                        var dataSet = data.entityObject;
+                        if (dataSet.physicalData && dataSet.physicalData.status === 'AVAILABLE') {
+                            var selectedDataSets = _this._advancedSearchModel.selectedDataSets;
+                            var $checkbox = $("<input>", { type : 'checkbox' , class: "repeater-checkbox multi-selectable-checkbox"});
+                            for (var idx = 0; idx < selectedDataSets.length; idx++) {
+                                if (selectedDataSets[idx].permId.permId === data.entityObject.permId.permId) {
+                                    $checkbox.prop('checked', true);
+                                }
+                            }
+                            $checkbox.change(function() {
+                                if ($(this).is(":checked")) {
+                                    selectedDataSets.push(data.entityObject);
+                                } else { //remove data set
+                                    for (var idx = 0; idx < _this._advancedSearchModel.selectedDataSets.length; idx++) {
+                                        if (selectedDataSets[idx].permId.permId === data.entityObject.permId.permId) {
+                                            selectedDataSets.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                            });
+                            $checkbox.click(function(e) {
+                                e.stopPropagation();
+                            });
+                            return $checkbox;
+                        }
+                    }
+                });
+            }
 			var columns = _this.firstColumns.concat([ {
 				label : 'Entity Kind',
 				property : 'entityKind',

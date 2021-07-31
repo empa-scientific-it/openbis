@@ -235,7 +235,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					var experimentIdentifierOrDelete = experimentIdentifier;
 					if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 						experimentIdentifierOrDelete = "__DELETE__";
-						forcedSpace = profile.getStorageSpaceForSpace(spaceCodeFromIdentifier);
+						forcedSpace = "/" + profile.getStorageSpaceForSpace(spaceCodeFromIdentifier);
 					}
 					if(infoData.result.identifiersPressent) { //If identifiers are present they should match the space of the experiment
 						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null, finalCallback);
@@ -285,7 +285,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			var experimentIdentifierOrDelete = experimentIdentifier;
 			if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 				experimentIdentifierOrDelete = "__DELETE__";
-				forcedSpace = profile.getStorageSpaceForSpace(spaceCodeFromIdentifier);
+				forcedSpace = "/" + profile.getStorageSpaceForSpace(spaceCodeFromIdentifier);
 			}
 			
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {

@@ -1,11 +1,20 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import PageButtons from '@src/js/components/common/page/PageButtons.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import TypeFormControllerStrategies from '@src/js/components/types/form/TypeFormControllerStrategies.js'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
+import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
+
+function mapStateToProps(state) {
+  return {
+    session: selectors.getSession(state)
+  }
+}
 
 class TypeFormButtons extends React.PureComponent {
   constructor(props) {
@@ -58,7 +67,8 @@ class TypeFormButtons extends React.PureComponent {
             disabled={
               !(
                 this.isNonSystemInternalSectionSelected() ||
-                this.isNonSystemInternalPropertySelected()
+                this.isNonSystemInternalPropertySelected() ||
+                this.isSystemUser()
               )
             }
             onClick={onRemove}
@@ -107,6 +117,10 @@ class TypeFormButtons extends React.PureComponent {
       return false
     }
   }
+
+  isSystemUser() {
+    return this.props.session && this.props.session.userName === users.SYSTEM
+  }
 }
 
-export default TypeFormButtons
+export default connect(mapStateToProps)(TypeFormButtons)

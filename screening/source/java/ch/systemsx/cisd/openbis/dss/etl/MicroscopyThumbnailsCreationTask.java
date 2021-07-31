@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -37,6 +40,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
+import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -95,7 +101,7 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
 
     private static final int MAX_NUMBER_OF_DATA_SETS_DEFAULT = 1000;
 
-    private static final String MAX_NUMBER_OF_WORKERS = "maximum-number-of-workers";
+    private static final String MAX_NUMBER_OF_WORKERS_KEY = "maximum-number-of-workers";
 
     private static final int MAX_NUMBER_OF_WORKERS_DEFAULT = 1;
 
@@ -103,8 +109,6 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
             MicroscopyThumbnailsCreationTask.class);
 
     private Properties properties;
-
-    private ThreadLocal<IJythonEvaluator> evaluator = new ThreadLocal<>();
 
     private String dataSetContainerType;
 
@@ -125,19 +129,61 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         dataSetThumbnailTypePattern = PropertyUtils.getPattern(properties, DATA_SET_THUMBNAIL_TYPE_REGEX_KEY, DATA_SET_THUMBNAIL_TYPE_REGEX_DEFAULT);
         mainDataSetTypePattern = PropertyUtils.getPattern(properties, MAIN_DATA_SET_TYPE_REGEX_KEY, MAIN_DATA_SET_TYPE_REGEX_DEFAULT);
         maxCount = PropertyUtils.getInt(properties, MAX_NUMBER_OF_DATA_SETS_KEY, MAX_NUMBER_OF_DATA_SETS_DEFAULT);
-        maxNumberOfWorkers = PropertyUtils.getInt(properties, MAX_NUMBER_OF_WORKERS, MAX_NUMBER_OF_WORKERS_DEFAULT);
+        maxNumberOfWorkers = PropertyUtils.getInt(properties, MAX_NUMBER_OF_WORKERS_KEY, MAX_NUMBER_OF_WORKERS_DEFAULT);
     }
 
     @Override
     public void execute()
     {
         String sessionToken = login();
-        DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
-        searchCriteria.withType().withCode().thatEquals(dataSetContainerType);
         Date lastRegistrationDate = getLastRegistrationDate(new Date(0));
         String lastCode = getLastCode();
         operationLog.info("Search for data sets of type " + dataSetContainerType + " which are younger than "
                 + renderTimeStamp(lastRegistrationDate) + (lastCode != null ? " and code after " + lastCode : ""));
+        SearchResult<DataSet> searchResult = searchForNewDataSets(sessionToken, lastRegistrationDate, lastCode);
+        List<DataSet> containerDataSets = searchResult.getObjects();
+        int totalCount = searchResult.getTotalCount();
+        operationLog.info(totalCount + " data sets found."
+                + (totalCount > containerDataSets.size() ? " Handle the first " + containerDataSets.size() : ""));
+        AtomicInteger numberOfCreatedThumbnailDataSets = new AtomicInteger(0);
+        Collection<FailureRecord<DataSet>> result = ParallelizedExecutor.process(containerDataSets,
+                new ITaskExecutor<DataSet>()
+                    {
+                        @Override
+                        public Status execute(DataSet containerDataSet)
+                        {
+                            if (hasNoThumbnails(containerDataSet) && containerDataSet.getComponents().isEmpty() == false)
+                            {
+                                operationLog.info("Generate thumbnails for data set " + containerDataSet.getCode());
+                                try
+                                {
+                                    int numberOfDataSets = createThumbnailDataSet(sessionToken, containerDataSet);
+                                    numberOfCreatedThumbnailDataSets.addAndGet(numberOfDataSets);
+                                } catch (Throwable t)
+                                {
+                                    operationLog.error("Generating thumbnails for data set "
+                                            + containerDataSet.getCode() + " failed:", t);
+                                    return Status.createError(t.toString());
+                                }
+                            }
+                            return Status.OK;
+                        }
+                    },
+                getMachineLoad(), maxNumberOfWorkers, "thumbnail creation", 0, false);
+        List<DataSet> failedDataSets = extractFailedDataSets(result);
+        updateTimeStampFile(numberOfCreatedThumbnailDataSets.get(), containerDataSets, failedDataSets);
+        operationLog.info(numberOfCreatedThumbnailDataSets + " thumbnail data sets have been created.");
+    }
+
+    double getMachineLoad()
+    {
+        return 0.5;
+    }
+
+    private SearchResult<DataSet> searchForNewDataSets(String sessionToken, Date lastRegistrationDate, String lastCode)
+    {
+        DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
+        searchCriteria.withType().withCode().thatEquals(dataSetContainerType);
         searchCriteria.withRegistrationDate().thatIsLaterThanOrEqualTo(lastRegistrationDate);
         if (lastCode != null)
         {
@@ -154,36 +200,119 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
             fetchOptions.from(0);
             fetchOptions.count(maxCount);
         }
-        SearchResult<DataSet> searchResult = getService().searchDataSets(sessionToken, searchCriteria, fetchOptions);
-        List<DataSet> containerDataSets = searchResult.getObjects();
-        int totalCount = searchResult.getTotalCount();
-        operationLog.info(totalCount + " data sets found."
-                + (totalCount > containerDataSets.size() ? " Handle the first " + containerDataSets.size() : ""));
-        AtomicInteger numberOfCreatedThumbnailDataSets = new AtomicInteger(0);
-        evaluator.set(null); // allow to re-compile script
-        ParallelizedExecutor.process(containerDataSets, new ITaskExecutor<DataSet>()
+        return getService().searchDataSets(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    private List<DataSet> extractFailedDataSets(Collection<FailureRecord<DataSet>> result)
+    {
+        if (result == null)
+        {
+            return null;
+        }
+        List<DataSet> failedDataSets = result.stream().map(FailureRecord::getFailedItem).collect(Collectors.toList());
+        sortDataSets(failedDataSets);
+        return failedDataSets;
+    }
+
+    private void updateTimeStampFile(int numberOfCreatedThumbnailDataSets, List<DataSet> containerDataSets,
+            List<DataSet> failedDataSets)
+    {
+        if (failedDataSets.isEmpty())
+        {
+            updateTimeStampFileWithLastDataSet(containerDataSets);
+        } else
+        {
+            DataSet oldestFailedDataSet = failedDataSets.get(0);
+            if (numberOfCreatedThumbnailDataSets > 0)
             {
-                @Override
-                public Status execute(DataSet containerDataSet)
+                DataSet youngestNotFailedDataSet = tryGetYoungestNotFailedDataSet(containerDataSets, oldestFailedDataSet);
+                if (youngestNotFailedDataSet != null)
                 {
-                    if (hasNoThumbnails(containerDataSet) && containerDataSet.getComponents().isEmpty() == false)
-                    {
-                        operationLog.info("Generate thumbnails for data set " + containerDataSet.getCode());
-                        int numberOfDataSets = createThumbnailDataSet(sessionToken, containerDataSet);
-                        numberOfCreatedThumbnailDataSets.addAndGet(numberOfDataSets);
-                    }
-                    return Status.OK;
+                    operationLog.info("Oldest failed data set: " + oldestFailedDataSet.getCode()
+                            + ", youngest not failed data set: " + youngestNotFailedDataSet.getCode());
+                    updateTimeStampFile(renderForComparison(youngestNotFailedDataSet));
+                } else
+                {
+                    operationLog.info("Oldest failed data set: " + oldestFailedDataSet.getCode()
+                            + ", time stamp file not updated.");
                 }
-            }, 0.5, maxNumberOfWorkers, "thumbnail creation", 0, true);
+            } else
+            {
+                operationLog.info("Ignoring failed data sets " + CollectionUtils.abbreviate(failedDataSets, 10));
+                updateTimeStampFileWithLastDataSet(containerDataSets);
+            }
+        }
+    }
+
+    private void updateTimeStampFileWithLastDataSet(List<DataSet> containerDataSets)
+    {
         if (containerDataSets.isEmpty() == false)
         {
             DataSet lastDataSet = containerDataSets.get(containerDataSets.size() - 1);
-            updateTimeStampFile(renderTimeStampAndCode(lastDataSet.getRegistrationDate(), lastDataSet.getCode()));
+            operationLog.info("Update time stamp file with data set " + lastDataSet.getCode());
+            updateTimeStampFile(renderForComparison(lastDataSet));
         }
-        operationLog.info(numberOfCreatedThumbnailDataSets + " thumbnail data sets have been created.");
+    }
+
+    private DataSet tryGetYoungestNotFailedDataSet(List<DataSet> dataSets, DataSet oldestFailedDataSet)
+    {
+        Object renderedOldestFailedDataSet = renderForComparison(oldestFailedDataSet);
+        for (int i = 0; i < dataSets.size(); i++)
+        {
+            DataSet dataSet = dataSets.get(i);
+            if (renderForComparison(dataSet).equals(renderedOldestFailedDataSet))
+            {
+                return i > 0 ? dataSets.get(i - 1) : null;
+            }
+        }
+        return null;
+    }
+
+    private void sortDataSets(List<DataSet> dataSets)
+    {
+        Collections.sort(dataSets, new SimpleComparator<DataSet, String>()
+            {
+                @Override
+                public String evaluate(DataSet dataSet)
+                {
+                    return renderForComparison(dataSet);
+                }
+            });
+    }
+
+    private String renderForComparison(DataSet dataSet)
+    {
+        return renderTimeStampAndCode(dataSet.getRegistrationDate(), dataSet.getCode());
     }
 
     private int createThumbnailDataSet(String sessionToken, DataSet containerDataSet)
+    {
+        TableModel tableModel = createThumbnailDataSetViaIngestionService(sessionToken, containerDataSet);
+        List<TableModelRow> rows = tableModel.getRows();
+        if (rows.isEmpty() == false)
+        {
+            List<ISerializableComparable> row = rows.get(0).getValues();
+            if (row.isEmpty() == false)
+            {
+                List<TableModelColumnHeader> headers = tableModel.getHeader();
+                if (headers.size() > 1 && headers.get(1).getTitle().equals("Error"))
+                {
+                    throw new RuntimeException(row.get(1).toString());
+                } else
+                {
+                    ISerializableComparable cell = row.get(0);
+                    if (cell instanceof IntegerTableCell)
+                    {
+                        return (int) ((IntegerTableCell) cell).getNumber();
+                    }
+                    operationLog.warn("Not an integer: " + cell);
+                }
+            }
+        }
+        return 0;
+    }
+
+    TableModel createThumbnailDataSetViaIngestionService(String sessionToken, DataSet containerDataSet)
     {
         String containerCode = containerDataSet.getCode();
         IImagingReadonlyQueryDAO imageDb = getImageDb();
@@ -214,22 +343,7 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
         IHierarchicalContentProvider contentProvider = getHierarchicalContentProvider();
         DataSetProcessingContext context =
                 new DataSetProcessingContext(contentProvider, null, null, null, null, null, sessionToken);
-        TableModel tableModel = ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
-        List<TableModelRow> rows = tableModel.getRows();
-        if (rows.isEmpty() == false)
-        {
-            List<ISerializableComparable> row = rows.get(0).getValues();
-            if (row.isEmpty() == false)
-            {
-                ISerializableComparable cell = row.get(0);
-                if (cell instanceof IntegerTableCell)
-                {
-                    return (int) ((IntegerTableCell) cell).getNumber();
-                }
-                operationLog.warn("Not an integer: " + cell);
-            }
-        }
-        return 0;
+        return ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
     }
 
     private int composeThumbnailDataSet(IDataSetRegistrationTransactionV2 transaction, DataSet containerDataSet,
@@ -300,20 +414,13 @@ public class MicroscopyThumbnailsCreationTask extends AbstractMaintenanceTaskWit
                 protected IJythonEvaluator createEvaluator(String scriptString, String[] jythonPath,
                         DataSetProcessingContext context)
                 {
-                    IJythonEvaluator evaluator = getEvaluator(scriptString, jythonPath, context);
-                    evaluator.set("image_data_set_structure", imageDataSetStructure);
-                    evaluator.set("image_config", config);
-                    return evaluator;
-                }
-
-                private IJythonEvaluator getEvaluator(String scriptString, String[] jythonPath,
-                        DataSetProcessingContext context)
-                {
-                    if (evaluator.get() == null)
+                    synchronized(MicroscopyThumbnailsCreationTask.this)
                     {
-                        evaluator.set(super.createEvaluator(scriptString, jythonPath, context));
+                        IJythonEvaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
+                        evaluator.set("image_data_set_structure", imageDataSetStructure);
+                        evaluator.set("image_config", config);
+                        return evaluator;
                     }
-                    return evaluator.get();
                 }
             };
         return scriptRunnerFactory;

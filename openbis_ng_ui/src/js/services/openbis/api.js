@@ -23,6 +23,14 @@ class Facade {
     })
   }
 
+  useSession(sessionToken) {
+    this.v3._private.sessionToken = sessionToken
+  }
+
+  getSessionInformation() {
+    return this.promise(this.v3.getSessionInformation())
+  }
+
   login(user, password) {
     return this.promise(this.v3.login(user, password))
   }
