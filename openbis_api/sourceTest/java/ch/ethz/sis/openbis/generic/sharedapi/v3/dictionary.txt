@@ -2539,3 +2539,6 @@ string Match Any Property Score
 string Match Property Score
 string Prefix Match Any Property Score
 string Prefix Match Property Score
+get Server Public Information
+Get Server Public Information Operation
+Get Server Public Information Operation Result

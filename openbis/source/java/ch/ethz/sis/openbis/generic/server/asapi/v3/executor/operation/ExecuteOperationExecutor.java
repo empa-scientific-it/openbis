@@ -41,9 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class ExecuteOperationExecutor implements IExecuteOperationExecutor
 {
 
-    @Resource(name = ComponentNames.SESSION_MANAGER)
-    private IOpenBisSessionManager sessionManager;
-
     @Autowired
     private ISynchronousOperationExecutor synchronousExecutor;
 
@@ -52,10 +49,8 @@ public class ExecuteOperationExecutor implements IExecuteOperationExecutor
 
     @Override
     @Transactional
-    public IOperationExecutionResults execute(String sessionToken, List<? extends IOperation> operations, IOperationExecutionOptions options)
+    public IOperationExecutionResults execute(Session session, List<? extends IOperation> operations, IOperationExecutionOptions options)
     {
-        Session session = sessionManager.getSession(sessionToken);
-
         if (options instanceof SynchronousOperationExecutionOptions)
         {
             return synchronousExecutor.execute(new OperationContext(session, false), operations, (SynchronousOperationExecutionOptions) options);

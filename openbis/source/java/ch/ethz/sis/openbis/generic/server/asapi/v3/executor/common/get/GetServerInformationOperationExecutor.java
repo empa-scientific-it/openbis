@@ -16,23 +16,25 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.annotation.Resource;
 
-import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -46,12 +48,15 @@ public class GetServerInformationOperationExecutor
 {
     @Autowired
     private IApplicationServerInternalApi server;
-    
+
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
     private IServer basicServer;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
+
+    @Autowired
+    private IGetServerPublicInformationOperationExecutor getPublicInformationExecutor;
 
     @Override
     protected Class<? extends GetServerInformationOperation> getOperationClass()
@@ -63,20 +68,25 @@ public class GetServerInformationOperationExecutor
     protected GetServerInformationOperationResult doExecute(IOperationContext context, GetServerInformationOperation operation)
     {
         Map<String, String> info = new TreeMap<>();
+        info.putAll(getPublicInformation(context));
+
         info.put("api-version", server.getMajorVersion() + "." + server.getMinorVersion());
         info.put("project-samples-enabled", Boolean.toString(basicServer.isProjectSamplesEnabled(null)));
         info.put("archiving-configured", Boolean.toString(basicServer.isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
-        info.put("authentication-service", configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE));
         info.put("create-continuous-sample-codes", configurer.getResolvedProps().getProperty(Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY));
         info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
 
-        // String disabledText = server.tryGetDisabledText();
-        // if (disabledText != null)
-        // {
-        // info.put("server-disabled-info", disabledText);
-        // }
         return new GetServerInformationOperationResult(info);
+    }
+
+    private Map<String, String> getPublicInformation(IOperationContext context)
+    {
+        GetServerPublicInformationOperation operation = new GetServerPublicInformationOperation();
+        GetServerPublicInformationOperationResult result =
+                (GetServerPublicInformationOperationResult) getPublicInformationExecutor.execute(context, Collections.singletonList(operation))
+                        .get(operation);
+        return result.getServerInformation();
     }
 
 }

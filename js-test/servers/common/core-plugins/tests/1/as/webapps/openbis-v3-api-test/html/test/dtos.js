@@ -127,6 +127,8 @@ var sources = [
 	'as/dto/common/fetchoptions/SortOrder',
 	'as/dto/common/get/GetServerInformationOperation',
 	'as/dto/common/get/GetServerInformationOperationResult',
+	'as/dto/common/get/GetServerPublicInformationOperation',
+	'as/dto/common/get/GetServerPublicInformationOperationResult',
 	'as/dto/common/id/CreationId',
 	'as/dto/common/search/AnyFieldSearchCriteria',
 	'as/dto/common/search/AnyPropertySearchCriteria',

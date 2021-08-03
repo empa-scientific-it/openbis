@@ -2098,6 +2098,8 @@ public interface IApplicationServerApi extends IRpcService
      * <li>archiving-configured : true/false</li>
      * <li>enabled-technologies : comma-separated list of enabled technologies (core-plugins modules)</li>
      * <li>authentication-service : currently used authenticated service (e.g. "ldap-authentication-service")</li>
+     * <li>authentication-service.switch-aai.link : link for SSO authentication via SWITCHaai</li>
+     * <li>authentication-service.switch-aai.label : label for SSO authentication via SWITCHaai</li>
      * </ul>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
@@ -2106,6 +2108,21 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems
      */
     public Map<String, String> getServerInformation(String sessionToken);
+
+    /**
+     * Returns a map with additional server public information:
+     * <ul>
+     * <li>authentication-service : currently used authenticated service (e.g. "ldap-authentication-service")</li>
+     * <li>authentication-service.switch-aai.link : link for SSO authentication via SWITCHaai</li>
+     * <li>authentication-service.switch-aai.label : label for SSO authentication via SWITCHaai</li>
+     * </ul>
+     * <p>
+     * Required access rights: none
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public Map<String, String> getServerPublicInformation();
 
     /**
      * Generates globally unique identifiers that consist of a timestamp and a sequence generated number (e.g. "20180531170854641-944"). This method
