@@ -61,26 +61,6 @@ function AdvancedSearchController(mainController, forceSearch) {
 				numberOfWords += rule.value.toString().trim().split(/\s+/).length;
 			}
 		}
-
-        if (criteria.entityKind === "DATASET") {
-            this._advancedSearchView.additionalColumns = [{
-                label : "Size",
-                property : "size",
-                isExportable : true,
-                sortable : false,
-                render : function(data, grid) {
-                    return data.size && data.size !== "" ? PrintUtil.renderNumberOfBytes(data.size) : "";
-                }
-            }];
-            if (profile.showDatasetArchivingButton) {
-                this._advancedSearchView.additionalColumns.push({
-                    label : "Status",
-                    property : "status",
-                    isExportable : true,
-                    sortable : false
-                });
-            }
-        }
 		
         var _this = this;
 		var trueSearch = function() {
@@ -162,6 +142,7 @@ function AdvancedSearchController(mainController, forceSearch) {
                     if (entity.physicalData) {
                         rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
                         rowData.status = entity.physicalData.status;
+                        rowData.archivingRequested = entity.physicalData.archivingRequested;
                     }
 
 					for(var propertyCode in entity.properties) {
