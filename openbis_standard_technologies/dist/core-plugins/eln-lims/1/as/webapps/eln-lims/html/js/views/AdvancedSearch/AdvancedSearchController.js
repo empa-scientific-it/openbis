@@ -142,6 +142,7 @@ function AdvancedSearchController(mainController, forceSearch) {
                     if (entity.physicalData) {
                         rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
                         rowData.status = entity.physicalData.status;
+                        rowData.archivingRequested = entity.physicalData.archivingRequested;
                     }
 
 					for(var propertyCode in entity.properties) {

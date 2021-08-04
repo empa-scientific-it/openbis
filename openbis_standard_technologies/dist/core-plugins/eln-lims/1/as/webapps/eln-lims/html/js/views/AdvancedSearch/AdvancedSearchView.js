@@ -870,6 +870,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     isExportable : true,
                     sortable : false
                 });
+                _this.additionalColumns.push({
+                    label : "Archiving Requested",
+                    property : "archivingRequested",
+                    isExportable : true,
+                    sortable : false
+                });
             }
         }
 

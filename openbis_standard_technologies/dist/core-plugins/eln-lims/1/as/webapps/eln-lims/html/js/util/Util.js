@@ -801,6 +801,17 @@ var Util = new function() {
             Util.showInfo("No datasets selected, nothing will be done.", callback);
             return;
         }
+
+        var archivingRequested = false;
+        for(var aIdx = 0; aIdx < dataSets.length; aIdx++) {
+            archivingRequested = archivingRequested || dataSets[aIdx].physicalData.archivingRequested;
+        }
+
+        if(archivingRequested) {
+            Util.showInfo("Some selected datasets are already queued for archiving, please unselect them before making the request, nothing will be done now.", callback);
+            return;
+        }
+
         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
         $window.submit(function() {
             var permIds = dataSets.map(dataSet => dataSet.permId.permId);
