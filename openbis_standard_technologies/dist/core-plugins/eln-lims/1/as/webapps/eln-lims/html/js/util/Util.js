@@ -798,6 +798,7 @@ var Util = new function() {
     
     this.requestArchiving = function(dataSets, callback) {
         if (dataSets.length === 0) {
+            Util.showInfo("No datasets selected, nothing will be done.", callback);
             return;
         }
         var $window = $('<form>', { 'action' : 'javascript:void(0);' });

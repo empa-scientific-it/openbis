@@ -852,6 +852,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				sortable : false
 			}]);
 
+        _this.additionalColumns = []; // additionalColumns is build dynamically that is not usual but helps to only when datasets are selected.
+        if (criteria.entityKind === "DATASET") {
+            _this.additionalColumns = [{
+                label : "Size",
+                property : "size",
+                isExportable : true,
+                sortable : false,
+                render : function(data, grid) {
+                    return data.size && data.size !== "" ? PrintUtil.renderNumberOfBytes(data.size) : "";
+                }
+            }];
+            if (profile.showDatasetArchivingButton) {
+                _this.additionalColumns.push({
+                    label : "Status",
+                    property : "status",
+                    isExportable : true,
+                    sortable : false
+                });
+            }
+        }
+
 			columns = columns.concat(_this.additionalColumns);
 
 			if(isGlobalSearch) {
