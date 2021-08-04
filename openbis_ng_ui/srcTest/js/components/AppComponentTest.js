@@ -18,6 +18,7 @@ export default class AppComponentTest extends ComponentTest {
     super.beforeEach()
 
     openbis.login.mockReturnValue(Promise.resolve('testSession'))
+    openbis.getServerPublicInformation.mockReturnValue({})
     openbis.mockSearchSampleTypes([])
     openbis.mockSearchExperimentTypes([])
     openbis.mockSearchDataSetTypes([])
