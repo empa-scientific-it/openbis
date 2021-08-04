@@ -813,9 +813,12 @@ var Util = new function() {
                             update.setPhysicalData(physicalDataUpdate);
                             return update;
                         });
+                        Util.blockUI();
                         mainController.openbisV3.updateDataSets(updates).done(function(result) {
-                            callback();
+                            Util.unblockUI();
+                            Util.showSuccess("Archiving requested successfully", callback);
                         }).fail(function(result) {
+                            Util.unblockUI();
                             Util.showFailedServerCallError(result);
                             callback();
                         });

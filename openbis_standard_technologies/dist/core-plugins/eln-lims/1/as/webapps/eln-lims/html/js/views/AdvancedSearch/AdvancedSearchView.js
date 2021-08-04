@@ -709,6 +709,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
+
+			_this.firstColumns = []; // firstColumns is build dynamically that is not usual but helps to only show the multi select checkbox if datasets are selected.
             if (criteria.entityKind === "DATASET") {
                 if (profile.showDatasetArchivingButton) {
                     _this.extraOptions = [{name:"Request archiving of selected data sets", action:function() {
