@@ -242,7 +242,7 @@ class WithLogin extends React.Component {
 
       options.push({
         value: AUTHENTICATION_SERVICE_SWITCH_AAI,
-        label: this.getSwitchAaiLabel()
+        label: this.getSwitchAaiLabel(serverInformation)
       })
       options.push({
         value: AUTHENTICATION_SERVICE_OPENBIS,
