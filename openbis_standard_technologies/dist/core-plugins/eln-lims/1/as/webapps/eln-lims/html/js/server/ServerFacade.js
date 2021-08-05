@@ -3027,6 +3027,17 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
+	this.getServerPublicInformation = function(callbackFunction) {
+		this.getOpenbisV3(function(openbisV3){
+			openbisV3.getServerPublicInformation().done(function(serverInfo) {
+				callbackFunction(serverInfo);
+			}).fail(function(result) {
+				Util.showFailedServerCallError(result);
+				callbackFunction(false);
+			});
+		})
+	}
+
 	this.searchCustomASServices = function(code, callbackFunction) {
 		require(['as/dto/service/search/CustomASServiceSearchCriteria', 'as/dto/service/fetchoptions/CustomASServiceFetchOptions'],
 			function(CustomASServiceSearchCriteria, CustomASServiceFetchOptions) {
