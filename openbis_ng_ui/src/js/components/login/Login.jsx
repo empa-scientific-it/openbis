@@ -188,6 +188,7 @@ class WithLogin extends React.Component {
       : null
     if (link) {
       link = link.replaceAll('${host}', window.location.hostname)
+      link = link.replaceAll('${current-url}', window.location.href)
     }
     return link
   }

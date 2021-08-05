@@ -375,7 +375,11 @@
 				$container.css('min-height', '62px');
 				$container.css('margin-top', '20px');
 				$container.css('margin-bottom', '20px');
-				var url = mainController.profile.singleSignOnUrlTemplate.replace("${host}", window.location.hostname);
+				
+				var url = mainController.profile.singleSignOnUrlTemplate
+				var url = url.replaceAll("${host}", window.location.hostname);
+				var url = url.replaceAll("${current-url}", window.location.href);
+
 				var link = $("<a>", {href: url, text: "Login"})
 				link.css('font-weight', 'bold')
 				link.css('font-size', '18px')
