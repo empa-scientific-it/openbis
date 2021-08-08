@@ -4028,7 +4028,7 @@ class Openbis:
         if os.environ.get("OPENBIS_URL") == self.url:
             os.environ["OPENBIS_TOKEN"] = self.token
 
-    def get_dataset(self, permIds, only_data=False, props=None):
+    def get_dataset(self, permIds, only_data=False, props=None, **kvals):
         """fetch a dataset and some metadata attached to it:
         - properties
         - sample
@@ -4252,7 +4252,7 @@ class Openbis:
         )
 
     def get_sample(
-        self, sample_ident, only_data=False, withAttachments=False, props=None
+        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
