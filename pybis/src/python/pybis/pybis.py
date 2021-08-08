@@ -1031,8 +1031,6 @@ class Openbis:
             "new_material_type()",
             "new_semantic_annotation()",
             "new_transaction()",
-            "update_sample()",
-            "update_object()",
             "set_token()",
         ]
 
@@ -2636,28 +2634,6 @@ class Openbis:
 
     new_collection = new_experiment  # Alias
 
-    def update_experiment(
-        self, experimentId, properties=None, tagIds=None, attachments=None
-    ):
-        params = {
-            "experimentId": {
-                "permId": experimentId,
-                "@type": "as.dto.experiment.id.ExperimentPermId",
-            },
-            "@type": "as.dto.experiment.update.ExperimentUpdate",
-        }
-        if properties is not None:
-            params["properties"] = properties
-        if tagIds is not None:
-            params["tagIds"] = tagIds
-        if attachments is not None:
-            params["attachments"] = attachments
-
-        request = {"method": "updateExperiments", "params": [self.token, [params]]}
-        self._post_request(self.as_v3, request)
-
-    update_collection = update_experiment  # Alias
-
     def create_external_data_management_system(
         self, code, label, address, address_type="FILE_SYSTEM"
     ):
@@ -2686,38 +2662,6 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
         return self.get_external_data_management_system(resp[0]["permId"])
 
-    def update_sample(
-        self,
-        sampleId,
-        space=None,
-        project=None,
-        experiment=None,
-        parents=None,
-        children=None,
-        components=None,
-        properties=None,
-        tagIds=None,
-        attachments=None,
-    ):
-        params = {
-            "sampleId": {"permId": sampleId, "@type": "as.dto.sample.id.SamplePermId"},
-            "@type": "as.dto.sample.update.SampleUpdate",
-        }
-        if space is not None:
-            params["spaceId"] = space
-        if project is not None:
-            params["projectId"] = project
-        if properties is not None:
-            params["properties"] = properties
-        if tagIds is not None:
-            params["tagIds"] = tagIds
-        if attachments is not None:
-            params["attachments"] = attachments
-
-        request = {"method": "updateSamples", "params": [self.token, [params]]}
-        self._post_request(self.as_v3, request)
-
-    update_object = update_sample  # Alias
 
     def delete_entity(self, entity, id, reason, id_name="permId"):
         """Deletes Spaces, Projects, Experiments, Samples and DataSets"""
