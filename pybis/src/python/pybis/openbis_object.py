@@ -205,7 +205,9 @@ class OpenBisObject:
             resp = self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE:
                 print("{} successfully updated.".format(self.entity))
-            new_entity_data = get_single_item(self.permId, only_data=True)
+            new_entity_data = get_single_item(
+                self.permId, only_data=True, use_cache=False
+            )
             self._set_data(new_entity_data)
             return self
 
