@@ -229,7 +229,7 @@ class AttrHolder:
                     ],
                     "@type": "as.dto.common.update.IdListUpdateValue",
                 }
-            elif attr in "metaData".split():
+            elif attr == "metaData":
                 # ListUpdateMapValues
                 metaData = self.__dict__["_" + attr]
                 if metaData:
@@ -240,14 +240,7 @@ class AttrHolder:
                     items = ["custom_widget"]
                     data_type = "as.dto.common.update.ListUpdateActionRemove"
                 up_obj[attr] = {
-                    "actions": [
-                        {
-                            "items": items,
-                            "@type": data_type
-                            # "@type": "as.dto.common.update.ListUpdateActionSet",
-                            # "@type": "as.dto.common.update.ListUpdateActionRemove",
-                        }
-                    ],
+                    "actions": [{"items": items, "@type": data_type}],
                     "@type": "as.dto.common.update.ListUpdateMapValues",
                 }
             elif attr == "userIds":
@@ -431,6 +424,8 @@ class AttrHolder:
                     return self.__dict__[int_name]["permId"]
                 elif "id" in self.__dict__[int_name]:
                     return self.__dict__[int_name]["id"]
+                else:
+                    return self.__dict__[int_name]
 
             else:
                 return self.__dict__[int_name]
