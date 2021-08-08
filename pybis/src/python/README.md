@@ -208,19 +208,18 @@ o.get_tags()
 The first step in creating a new entity type is to create a so called **property type**:
 
 ```
-pt = o.new_property_type(
+pt_text = o.new_property_type(
     code        = 'MY_NEW_PROPERTY_TYPE', 
     label       = 'yet another property type', 
     description = 'my first property',
     dataType    = 'VARCHAR',
 )
-pt.save()
+pt_text.save()
 
 pt_int = o.new_property_type(
-    code        = '$DEFAULT_OBJECT_TYPE', 
-    label       = 'default object type for ELN-LIMS', 
-    dataType    = 'VARCHAR',
-    managedInternally = True,
+    code        = 'MY_NUMBER', 
+    label       = 'property contains a number', 
+    dataType    = 'INTEGER',
 )
 pt_int.save()
 
@@ -232,6 +231,24 @@ pt_voc = o.new_property_type(
     vocabulary  = 'STORAGE',
 )
 pt_voc.save()
+
+pt_richtext = o.new_property_type(
+    code        = 'MY_RICHTEXT_PROPERTY', 
+    label       = 'richtext data', 
+    description = 'property contains rich text',
+    dataType    = 'MULTILINE_VARCHAR',
+    metaData    = {'custom_widget' : 'Word Processor'}
+)
+pt_richtext.save()
+
+pt_spread = o.new_property_type(
+    code        = 'MY_TABULAR_DATA', 
+    label       = 'data in a table', 
+    description = 'property contains a spreadsheet',
+    dataType    = 'XML',
+    metaData    = {'custom_widget': 'Spreadsheet'}
+)
+pt_spread.save()
 ```
 
 The `dataType` attribute can contain any of these values:
@@ -247,7 +264,13 @@ The `dataType` attribute can contain any of these values:
 * `CONTROLLEDVOCABULARY`
 * `MATERIAL`
 
-When choosing `CONTROLLEDVOCABULARY`, you must specify a `vocabulary` attribute (see example). Likewise, when choosing `MATERIAL`, a `materialType` attribute must be provided. PropertyTypes that start with a \$ are by definition `managedInternally` and therefore this attribute must be set to True.
+When choosing `CONTROLLEDVOCABULARY`, you must specify a `vocabulary` attribute (see example). Likewise, when choosing `MATERIAL`, a `materialType` attribute must be provided.
+
+To create a **richtext property**, use `MULTILINE_VARCHAR` as `dataType` and set `metaData` to `{'custom_widget' : 'Word Processor'}` as shown in the example above.
+
+To create a **tabular, spreadsheet-like property**, use `XML` as `dataType` and set `metaData` to `{'custom_widget' : 'Spreadhseet'}`as shown in the example above.
+
+**Note**: PropertyTypes that start with a \$ are by definition `managedInternally` and therefore this attribute must be set to True.
 
 
 ## create sample types / object types
@@ -271,9 +294,6 @@ sample_type = o.new_sample_type(
 )
 sample_type.save()
 ```
-
-
-
 
 ## assign and revoke properties to sample type / object type
 
@@ -1078,7 +1098,7 @@ ds_new.save()
 * relative path will be shortened to its basename. For example:
 
 | local                      | openBIS    |
-|----------------------------|------------|
+| -------------------------- | ---------- |
 | `../../myData/`            | `myData/`  |
 | `some/experiment/results/` | `results/` |
 
@@ -1302,3 +1322,89 @@ term.move_after_term('-40')
 term.save()
 term.delete()
 ```
+
+## Change ELN Settings via pyBIS
+
+### Main Menu
+
+The ELN settings are stored as a **JSON string** in the `$eln_settings` property of the `GENERAL_ELN_SETTINGS` sample. You can show the **Main Menu settings** like this:
+
+```python
+import json
+settings_sample = o.get_sample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS")
+settings = json.loads(settings_sample.props["$eln_settings"])
+print(settings["mainMenu"])
+{'showLabNotebook': True,
+ 'showInventory': True,
+ 'showStock': True,
+ 'showObjectBrowser': True,
+ 'showExports': True,
+ 'showStorageManager': True,
+ 'showAdvancedSearch': True,
+ 'showUnarchivingHelper': True,
+ 'showTrashcan': False,
+ 'showVocabularyViewer': True,
+ 'showUserManager': True,
+ 'showUserProfile': True,
+ 'showZenodoExportBuilder': False,
+ 'showBarcodes': False,
+ 'showDatasets': True}
+ ```
+
+To modify the **Main Menu settings**, you have to change the settings dictionary, convert it back to json and save the sample:
+
+```python
+settings['mainMenu']['showTrashcan'] = False
+settings_sample.props['$eln_settings'] = json.dumps(settings)
+settings_sample.save()
+```
+
+### Storages
+
+The **ELN storages settings** can be found in the samples of project `/ELN_SETTINGS/STORAGES`
+
+```python
+o.get_samples(project='/ELN_SETTINGS/STORAGES')
+```
+To change the settings, just change the sample's properties and save the sample:
+
+```python
+sto = o.get_sample('/ELN_SETTINGS/STORAGES/BENCH')
+sto.props()
+{'$name': 'Bench',
+ '$storage.row_num': '1',
+ '$storage.column_num': '1',
+ '$storage.box_num': '9999',
+ '$storage.storage_space_warning': '80',
+ '$storage.box_space_warning': '80',
+ '$storage.storage_validation_level': 'BOX_POSITION',
+ '$xmlcomments': None,
+ '$annotations_state': None}
+ sto.props['$storage.box_space_warning']= '80'
+ sto.save()
+ ```
+ 
+### Templates
+
+The **ELN templates settings** can be found in the samples of project `/ELN_SETTINGS/TEMPLATES`
+
+```python
+o.get_samples(project='/ELN_SETTINGS/TEMPLATES')
+```
+
+To change the settings, use the same technique as shown above with the storages settings. 
+
+### Custom Widgets
+
+To change the **Custom Widgets settings**, get the `property_type` and set the `metaData` attribute:
+
+
+```python
+pt = o.get_property_type('YEAST.SOURCE')
+pt.metaData = {'custom_widget': 'Spreadsheet'}
+pt.save()
+```
+
+Currently, the value of the `custom_widget` key can be set to either 
+- `Spreadsheet` (for tabular, Excel-like data) 
+- `Word Processor` (for rich text data)
