@@ -174,6 +174,10 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		var $fieldsetOwner = $("<div>");
 		var $legend = $("<legend>");
+		    $legend.css({
+		        'padding-top':'5px',
+		        'padding-bottom':'5px'
+		    });
 		var $fieldset = $("<div>");
 		$fieldsetOwner.append($legend).append($fieldset);
 		
@@ -191,7 +195,7 @@ function LinksView(linksController, linksModel) {
 		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
 
 		if(!linksModel.disableAddAnyType && profile.mainMenu.showBarcodes) {
-			$legend.append(linksView.getAddAnyBarcode());
+			$legend.append("&nbsp;").append(linksView.getAddAnyBarcode());
 		}
 
 		$fieldset.append($samplePicker);
@@ -413,52 +417,63 @@ function LinksView(linksController, linksModel) {
 			"padding" : "5px",
 			"background-color" : "#f6f6f6"
 		});
-		
-		//Close Button
-		var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
-			$container.empty().hide();
-		});
-		var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
-		$container.append($closeBtnContainer);
-		
-		//Title
-		$container.append($("<div>").append("Select " + sampleTypeCode + ":"));
-		
-		//Grid Contaienr
+
+		//Grid Layout
 		var $gridContainer = $("<div>");
 		$container.append($gridContainer);
-		
-		//Show Table Logic
-		var extraOptions = [];
-		extraOptions.push({ name : "Add selected", action : function(selected) {
-			for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-				linksController.addSample(selected[sIdx]);
-			}
-			$container.empty().hide();
-		}});
-		
-		var advancedSampleSearchCriteria = {
-				entityKind : "SAMPLE",
-				logicalOperator : "AND",
-				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode } }
-		}
-		
-		if(sampleTypeCode === "REQUEST") {
-			// This property is missing the $ because the search uses V1 instead of V3
-			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
-		}
-		if(sampleTypeCode === "ORGANIZATION_UNIT") {
-			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
-			advancedSampleSearchCriteria.rules["2"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
-		}
-		
-		var rowClick = function(e) {
-			linksController.addSample(e.data["$object"]);
-			$container.empty().hide();
-		}
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true, false, 60);
-		dataGrid.init($gridContainer, extraOptions);
-		dataGrids.push(dataGrid);
+
+        var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
+            $container.empty().hide();
+        });
+        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
+        $gridContainer.append($closeBtnContainer);
+
+        var $searchDropdownContainer = $("<div>");
+        $gridContainer.append($searchDropdownContainer);
+
+        // Search Dropdown
+		var searchDropdown = new AdvancedEntitySearchDropdown(false, true, "Code or Name of the Object", false, true, false, false, false, '50%');
+		searchDropdown.onChange(function(selected) {
+            linksController.addSample({ identifier : selected[0].identifier.identifier });
+            $container.empty().hide();
+        });
+		searchDropdown.setGetSelectsSamplesCriteria(function() {
+                var advancedSampleSearchCriteria = {
+                    entityKind : "SAMPLE",
+                    logicalOperator : "OR",
+                    rules : {},
+                    subCriteria : {
+                        "1": {
+                                        entityKind : "SAMPLE",
+                                        logicalOperator : "AND",
+                                        rules : {
+                                            "1-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                                            "1-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: searchDropdown.getParams().data.q }
+                                        }
+                        },
+                        "2": {
+                                        entityKind : "SAMPLE",
+                                        logicalOperator : "AND",
+                                        rules : {
+                                            "2-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                                            "2-2": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
+                                        }
+                        }
+                    }
+                }
+        		if(sampleTypeCode === "REQUEST") {
+        			// This property is missing the $ because the search uses V1 instead of V3
+        			advancedSampleSearchCriteria.subCriteria.rules["1-3"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
+        			advancedSampleSearchCriteria.subCriteria.rules["2-3"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
+        		}
+        		if(sampleTypeCode === "ORGANIZATION_UNIT") {
+        			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
+        			advancedSampleSearchCriteria.subCriteria.rules["1-3"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
+        			advancedSampleSearchCriteria.subCriteria.rules["2-3"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
+        		}
+                return advancedSampleSearchCriteria;
+            });
+		searchDropdown.init($searchDropdownContainer);
 	}
 			
 	linksView.getAddBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
@@ -466,8 +481,8 @@ function LinksView(linksController, linksModel) {
 			linksView.showSamplePicker($container, sampleTypeCode);
 		};
 
-		var id = "plus-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var id = "search-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
 		if(linksModel.isDisabled) {
 			return "";
 		} else {
@@ -491,7 +506,7 @@ function LinksView(linksController, linksModel) {
 			});
 		};
 		var id = "plus-btn-" + linksModel.title.split(" ").join("-").toLowerCase() + "-type-selector";
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
 		
 		if(linksModel.isDisabled) {
 			return "";
