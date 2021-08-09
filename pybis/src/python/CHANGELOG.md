@@ -1,3 +1,12 @@
+## Changes with pybis-1.20.0
+
+- metadata for property_types can now be changed to:
+    - {'custom_widget' : 'Word Processor'}
+    - {'custom_widget' : 'Spreadsheet'}
+- added documentation how to change the ELN settings
+- removed deprecated update_sample()
+- removed deprecated update_experiment()
+
 ## Changes with pybis-1.19.1
 
 - add set_token() method to set a token and also store it locally

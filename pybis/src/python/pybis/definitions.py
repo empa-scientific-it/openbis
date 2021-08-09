@@ -121,7 +121,7 @@ def openbis_definitions(entity):
             "identifier": "typeId",
         },
         "propertyType": {
-            "attrs": "code permId label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData".split(),
+            "attrs": "code label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData".split(),
             "attrs_new": "code label description managedInternally dataType vocabulary materialType schema transformation metaData".split(),
             "attrs_up": "label description schema transformation metaData".split(),
             "search": {"@type": "as.dto.property.search.PropertyTypeSearchCriteria"},

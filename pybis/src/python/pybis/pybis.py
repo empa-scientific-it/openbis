@@ -1031,8 +1031,6 @@ class Openbis:
             "new_material_type()",
             "new_semantic_annotation()",
             "new_transaction()",
-            "update_sample()",
-            "update_object()",
             "set_token()",
         ]
 
@@ -1939,7 +1937,7 @@ class Openbis:
 
     get_user = get_person  # Alias
 
-    def get_spaces(self, code=None, start_with=None, count=None):
+    def get_spaces(self, code=None, start_with=None, count=None, use_cache=True):
         """Get a list of all available spaces (DataFrame object). To create a sample or a
         dataset, you need to specify in which space it should live.
         """
@@ -1979,11 +1977,15 @@ class Openbis:
             totalCount=resp.get("totalCount"),
         )
 
-    def get_space(self, code, only_data=False):
+    def get_space(self, code, only_data=False, use_cache=True):
         """Returns a Space object for a given identifier."""
 
         code = str(code).upper()
-        space = not only_data and self._object_cache(entity="space", code=code)
+        space = (
+            not only_data
+            and use_cache
+            and self._object_cache(entity="space", code=code)
+        )
         if space:
             return space
 
@@ -2563,11 +2565,15 @@ class Openbis:
             objects=datasets,
         )
 
-    def get_experiment(self, code, withAttachments=False, only_data=False):
+    def get_experiment(
+        self, code, withAttachments=False, only_data=False, use_cache=True
+    ):
         """Returns an experiment object for a given identifier (code)."""
 
-        experiment = not only_data and self._object_cache(
-            entity="experiment", code=code
+        experiment = (
+            not only_data
+            and use_cache
+            and self._object_cache(entity="experiment", code=code)
         )
         if experiment:
             return experiment
@@ -2628,28 +2634,6 @@ class Openbis:
 
     new_collection = new_experiment  # Alias
 
-    def update_experiment(
-        self, experimentId, properties=None, tagIds=None, attachments=None
-    ):
-        params = {
-            "experimentId": {
-                "permId": experimentId,
-                "@type": "as.dto.experiment.id.ExperimentPermId",
-            },
-            "@type": "as.dto.experiment.update.ExperimentUpdate",
-        }
-        if properties is not None:
-            params["properties"] = properties
-        if tagIds is not None:
-            params["tagIds"] = tagIds
-        if attachments is not None:
-            params["attachments"] = attachments
-
-        request = {"method": "updateExperiments", "params": [self.token, [params]]}
-        self._post_request(self.as_v3, request)
-
-    update_collection = update_experiment  # Alias
-
     def create_external_data_management_system(
         self, code, label, address, address_type="FILE_SYSTEM"
     ):
@@ -2677,39 +2661,6 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
         return self.get_external_data_management_system(resp[0]["permId"])
-
-    def update_sample(
-        self,
-        sampleId,
-        space=None,
-        project=None,
-        experiment=None,
-        parents=None,
-        children=None,
-        components=None,
-        properties=None,
-        tagIds=None,
-        attachments=None,
-    ):
-        params = {
-            "sampleId": {"permId": sampleId, "@type": "as.dto.sample.id.SamplePermId"},
-            "@type": "as.dto.sample.update.SampleUpdate",
-        }
-        if space is not None:
-            params["spaceId"] = space
-        if project is not None:
-            params["projectId"] = project
-        if properties is not None:
-            params["properties"] = properties
-        if tagIds is not None:
-            params["tagIds"] = tagIds
-        if attachments is not None:
-            params["attachments"] = attachments
-
-        request = {"method": "updateSamples", "params": [self.token, [params]]}
-        self._post_request(self.as_v3, request)
-
-    update_object = update_sample  # Alias
 
     def delete_entity(self, entity, id, reason, id_name="permId"):
         """Deletes Spaces, Projects, Experiments, Samples and DataSets"""
@@ -2774,10 +2725,14 @@ class Openbis:
             fo[option] = fetch_option[option]
         return fo
 
-    def get_project(self, projectId, only_data=False):
+    def get_project(self, projectId, only_data=False, use_cache=True):
         """Returns a Project object for a given identifier, code or permId."""
 
-        project = not only_data and self._object_cache(entity="project", code=projectId)
+        project = (
+            not only_data
+            and use_cache
+            and self._object_cache(entity="project", code=projectId)
+        )
         if project:
             return project
 
@@ -2947,13 +2902,14 @@ class Openbis:
 
             self.cache[entity][code] = value
 
-    def get_terms(self, vocabulary=None, start_with=None, count=None):
+    def get_terms(self, vocabulary=None, start_with=None, count=None, use_cache=True):
         """Returns information about existing vocabulary terms.
         If a vocabulary code is provided, it only returns the terms of that vocabulary.
         """
 
         if (
-            self.use_cache
+            use_cache
+            and self.use_cache
             and vocabulary is not None
             and start_with is None
             and count is None
@@ -3104,11 +3060,15 @@ class Openbis:
             totalCount=resp.get("totalCount"),
         )
 
-    def get_vocabulary(self, code, only_data=False):
+    def get_vocabulary(self, code, only_data=False, use_cache=True):
         """Returns the details of a given vocabulary (including vocabulary terms)"""
 
         code = str(code).upper()
-        voc = not only_data and self._object_cache(entity="vocabulary", code=code)
+        voc = (
+            not only_data
+            and use_cache
+            and self._object_cache(entity="vocabulary", code=code)
+        )
         if voc:
             return voc
 
@@ -3164,7 +3124,7 @@ class Openbis:
             response=resp["objects"], totalCount=resp["totalCount"]
         )
 
-    def get_tag(self, permId, only_data=False):
+    def get_tag(self, permId, only_data=False, use_cache=True):
         """Returns a specific tag"""
 
         just_one = True
@@ -3174,7 +3134,11 @@ class Openbis:
             for ident in permId:
                 identifiers.append(_type_for_id(ident, "tag"))
         else:
-            tag = not only_data and self._object_cache(entity="tag", code=permId)
+            tag = (
+                not only_data
+                and use_cache
+                and self._object_cache(entity="tag", code=permId)
+            )
             if tag:
                 return tag
             identifiers.append(_type_for_id(permId, "tag"))
@@ -3523,6 +3487,7 @@ class Openbis:
         materialType=None,
         schema=None,
         transformation=None,
+        metaData=None,
     ):
         """Creates a new property type.
 
@@ -3539,7 +3504,9 @@ class Openbis:
         materialType       --
         schema             --
         transformation     --
-
+        metaData           -- used to create properties that contain either RichText or tabular, spreadsheet-like data.
+                              use {'custom_widget' : 'Word Processor'} and MULTILINE_VARCHAR for RichText
+                              use {'custom_widget' : 'Spreadhseet'} and XML for tabular data.
         PropertyTypes can be assigned to
         - sampleTypes
         - dataSetTypes
@@ -3558,14 +3525,19 @@ class Openbis:
             materialType=materialType,
             schema=schema,
             transformation=transformation,
+            metaData=metaData,
         )
 
-    def get_property_type(self, code, only_data=False, start_with=None, count=None):
+    def get_property_type(
+        self, code, only_data=False, start_with=None, count=None, use_cache=True
+    ):
 
         if not isinstance(code, list) and start_with is None and count is None:
             code = str(code).upper()
-            pt = self.use_cache and self._object_cache(
-                entity="property_type", code=code
+            pt = (
+                use_cache
+                and self.use_cache
+                and self._object_cache(entity="property_type", code=code)
             )
             if pt:
                 if only_data:
@@ -3812,11 +3784,13 @@ class Openbis:
         method=None,
         only_data=False,
         with_vocabulary=False,
+        use_cache=True,
     ):
 
         et = (
             not only_data
             and not isinstance(identifier, list)
+            and use_cache
             and self._object_cache(entity=entity, code=identifier)
         )
         if et:
@@ -3997,7 +3971,7 @@ class Openbis:
         if os.environ.get("OPENBIS_URL") == self.url:
             os.environ["OPENBIS_TOKEN"] = self.token
 
-    def get_dataset(self, permIds, only_data=False, props=None):
+    def get_dataset(self, permIds, only_data=False, props=None, **kvals):
         """fetch a dataset and some metadata attached to it:
         - properties
         - sample
@@ -4221,7 +4195,7 @@ class Openbis:
         )
 
     def get_sample(
-        self, sample_ident, only_data=False, withAttachments=False, props=None
+        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access

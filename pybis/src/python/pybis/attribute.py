@@ -229,7 +229,20 @@ class AttrHolder:
                     ],
                     "@type": "as.dto.common.update.IdListUpdateValue",
                 }
-
+            elif attr == "metaData":
+                # ListUpdateMapValues
+                metaData = self.__dict__["_" + attr]
+                if metaData:
+                    items = [metaData]
+                    data_type = "as.dto.common.update.ListUpdateActionSet"
+                elif metaData is not None and len(metaData) == 0:
+                    # metaData needs to be set to {} in order to remove it.
+                    items = ["custom_widget"]
+                    data_type = "as.dto.common.update.ListUpdateActionRemove"
+                up_obj[attr] = {
+                    "actions": [{"items": items, "@type": data_type}],
+                    "@type": "as.dto.common.update.ListUpdateMapValues",
+                }
             elif attr == "userIds":
                 actions = []
                 if "_changed_users" not in self.__dict__:
@@ -286,9 +299,6 @@ class AttrHolder:
                 else:
                     # handle single attributes (space, experiment, project, container, etc.)
                     value = self.__dict__.get("_" + attr, {})
-                    import pdb
-
-                    pdb.set_trace()
                     if value is None:
                         pass
                     elif isinstance(value, bool):
