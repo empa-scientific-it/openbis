@@ -424,41 +424,55 @@ function LinksView(linksController, linksModel) {
 		//Title
 		$container.append($("<div>").append("Select " + sampleTypeCode + ":"));
 		
-		//Grid Contaienr
+		//Grid Container
 		var $gridContainer = $("<div>");
 		$container.append($gridContainer);
-		
-		//Show Table Logic
-		var extraOptions = [];
-		extraOptions.push({ name : "Add selected", action : function(selected) {
-			for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-				linksController.addSample(selected[sIdx]);
-			}
-			$container.empty().hide();
-		}});
-		
-		var advancedSampleSearchCriteria = {
-				entityKind : "SAMPLE",
-				logicalOperator : "AND",
-				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode } }
-		}
-		
-		if(sampleTypeCode === "REQUEST") {
-			// This property is missing the $ because the search uses V1 instead of V3
-			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
-		}
-		if(sampleTypeCode === "ORGANIZATION_UNIT") {
-			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
-			advancedSampleSearchCriteria.rules["2"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
-		}
-		
-		var rowClick = function(e) {
-			linksController.addSample(e.data["$object"]);
+
+		var onSelect = function(selected) {
+			linksController.addSample({ identifier : selected[0].identifier.identifier });
 			$container.empty().hide();
 		}
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true, false, 60);
-		dataGrid.init($gridContainer, extraOptions);
-		dataGrids.push(dataGrid);
+
+        var $searchDropdownContainer = $("<div>");
+        $gridContainer.append($searchDropdownContainer);
+
+		var searchDropdown = new AdvancedEntitySearchDropdown(false, true, "Code or Name of the Object", false, true, false, false, false);
+		searchDropdown.onChange(onSelect);
+		searchDropdown.setGetSelectsSamplesCriteria(function() {
+                var advancedSampleSearchCriteria = {
+                    entityKind : "SAMPLE",
+                    logicalOperator : "OR",
+                    rules : {},
+                    subCriteria : {
+                        "1": {
+                                        entityKind : "SAMPLE",
+                                        logicalOperator : "AND",
+                                        rules : {
+                                            "1-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                                            "1-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: searchDropdown.getParams().data.q }
+                                        }
+                        },
+                        "2": {
+                                        entityKind : "SAMPLE",
+                                        logicalOperator : "AND",
+                                        rules : {
+                                            "2-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                                            "2-2": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
+                                        }
+                        }
+                    }
+                }
+        		if(sampleTypeCode === "REQUEST") {
+        			// This property is missing the $ because the search uses V1 instead of V3
+        			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
+        		}
+        		if(sampleTypeCode === "ORGANIZATION_UNIT") {
+        			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
+        			advancedSampleSearchCriteria.rules["2"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
+        		}
+                return advancedSampleSearchCriteria;
+            });
+		searchDropdown.init($searchDropdownContainer);
 	}
 			
 	linksView.getAddBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {

@@ -27,6 +27,7 @@ function AdvancedEntitySearchDropdown(isMultiple,
 	var placeholder = placeholder;
 	var selectsExperiments = selectsExperiments;
 	var selectsSamples = selectsSamples;
+	var getSelectsSamplesCriteria = null;
 	var selectsDatasets = selectsDatasets;
 	var selectsProjects = selectsProjects;
 	var selectSpaces = selectSpaces;
@@ -41,6 +42,14 @@ function AdvancedEntitySearchDropdown(isMultiple,
 	
 	this.onChange = function(onChangeCallbackGiven) {
 		onChangeCallback = onChangeCallbackGiven
+	}
+
+	this.setGetSelectsSamplesCriteria = function(newGetSelectsSamplesCriteria) {
+	    getSelectsSamplesCriteria = newGetSelectsSamplesCriteria;
+	}
+
+	this.getParams = function() {
+	    return storedParams;
 	}
 	
 	this.addSelectedProject = function(projectIdentifier) {
@@ -176,14 +185,20 @@ function AdvancedEntitySearchDropdown(isMultiple,
 	}
 	
 	var searchSample = function(action) {
-		var criteria = { 	
-						entityKind : "SAMPLE", 
-						logicalOperator : "OR", 
+        var criteria = null;
+
+		if(getSelectsSamplesCriteria) {
+		    criteria = getSelectsSamplesCriteria();
+		} else {
+		    criteria = {
+						entityKind : "SAMPLE",
+						logicalOperator : "OR",
 						rules : {
 							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
 							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q }
 						}
 					};
+		}
 		mainController.serverFacade.searchForSamplesAdvanced(criteria, {
 			only : true,
 			withType : true,
