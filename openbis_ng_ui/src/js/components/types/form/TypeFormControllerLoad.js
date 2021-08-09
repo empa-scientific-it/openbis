@@ -340,7 +340,7 @@ class ObjectTypeStrategy {
         value: _.get(loadedType, 'listable', true)
       }),
       showContainer: FormUtil.createField({
-        value: _.get(loadedType, 'showContainer', false)
+        value: _.get(loadedType, 'showContainer', true)
       }),
       showParents: FormUtil.createField({
         value: _.get(loadedType, 'showParents', true)

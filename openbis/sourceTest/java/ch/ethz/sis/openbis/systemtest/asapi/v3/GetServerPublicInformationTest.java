@@ -22,34 +22,19 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
-
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public class GetServerInformationTest extends AbstractTest
+public class GetServerPublicInformationTest extends AbstractTest
 {
     @Test
-    public void testGetServerInformation()
+    public void testGetServerPublicInformation()
     {
-        // Given
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<String, String> result = v3api.getServerPublicInformation();
 
-        // When
-        Map<String, String> result = v3api.getServerInformation(sessionToken);
-
-        // Then
-        assertEquals(result.size(), 9);
-        assertEquals(result.get("api-version"), "3.5");
-        assertEquals(result.get("archiving-configured"), "false");
+        assertEquals(result.size(), 3);
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
         assertEquals(result.get("authentication-service.switch-aai.link"), null);
         assertEquals(result.get("authentication-service.switch-aai.label"), null);
-        assertEquals(result.get("enabled-technologies"), "test-.*");
-        assertEquals(result.get("project-samples-enabled"), "true");
-        assertEquals(result.get("create-continuous-sample-codes"), "false");
-        assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
-
-        v3api.logout(sessionToken);
     }
 }

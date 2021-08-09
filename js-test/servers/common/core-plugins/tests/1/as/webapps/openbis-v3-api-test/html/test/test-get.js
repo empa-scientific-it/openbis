@@ -866,7 +866,26 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.finish();
 			});
 		});
-		
+
+		QUnit.test("getServerPublicInformation()", function(assert) {
+			var c = new common(assert);
+			c.start();
+
+			c.createFacadeAndLogin().then(function(facade) {
+				return facade.getServerPublicInformation().then(function(serverInformation) {
+					c.assertTrue(serverInformation != null);
+					c.assertEqual(Object.keys(serverInformation).length, 3);
+					c.assertEqual(serverInformation["authentication-service"], "dummy-authentication-service", "authentication-service");
+					c.assertEqual(serverInformation["authentication-service.switch-aai.link"], "testSwitchAaiLink", "authentication-service.switch-aai.link");
+					c.assertEqual(serverInformation["authentication-service.switch-aai.label"], "testSwitchAaiLabel", "authentication-service.switch-aai.label");
+					c.finish();
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
+		});
+
 	}
 
 	return function() {

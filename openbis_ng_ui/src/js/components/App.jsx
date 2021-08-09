@@ -44,6 +44,7 @@ const pageToComponent = {
 
 function mapStateToProps(state) {
   return {
+    initialized: selectors.getInitialized(state),
     loading: selectors.getLoading(state),
     session: selectors.getSession(state),
     currentPage: selectors.getCurrentPage(state),
@@ -73,7 +74,7 @@ class App extends React.Component {
     return (
       <Loading loading={this.props.loading}>
         <Error error={this.props.error} errorClosed={this.props.errorClosed}>
-          {this.renderPage()}
+          {this.props.initialized && this.renderPage()}
         </Error>
       </Loading>
     )

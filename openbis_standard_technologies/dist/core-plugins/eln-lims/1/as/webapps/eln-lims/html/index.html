@@ -323,147 +323,155 @@
 	
 	var startELNLIMS = function() {
 		mainController = new MainController(profile);
-
-		// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
-		$(document).click(function(e) {
-			var elementClasses = $(e.target).attr('class');
-			var isLeftClick = e.which === 1;
-			if(isLeftClick && elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
-				e.preventDefault();
-				e.stopPropagation();
-			}
-		});
-		
-		$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
-			try {
-				Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url);
-			} catch(err) {
-				Util.showError("Unknown AJAX Error");
-			}
-		});
-		
-		$('#main').hide();
-		var username = $("#username").value;
-		if(username == null || username.length==0) {
-			$("#username").focus();
-		} else {
-			$("#login-button").focus();
-		}
-	
-		$('#openbis-login-service').submit(function() {
-			Util.blockUI();
-			$("#mainContainer").show();
-			var username = $('#username').val();
-			var password = $('#password').val();
-			mainController.serverFacade.login(
-					$.trim($('#username').val()), 
-					$.trim($('#password').val()), 
-					function(data) { mainController.enterApp(data, username, password) });
-		});
-		var singleSignOnUrlTemplate = mainController.profile.singleSignOnUrlTemplate;
-		if (singleSignOnUrlTemplate) { // Single sign on login service enabled
-			// Hide the openbis login service
-			var $openbisLoginService = $("#openbis-login-service")
-			$openbisLoginService.css('margin-top', '0px');
-			$openbisLoginService.css('margin-bottom', '6px');
-			$openbisLoginService.hide();
-
-			// Show the single sign on login service
-			var $container = $("#single-sign-on-login-service");
-			$container.empty();
-			$container.css('text-align', 'center');
-			$container.css('min-height', '62px');
-			$container.css('margin-top', '20px');
-			$container.css('margin-bottom', '20px');
-			var url = mainController.profile.singleSignOnUrlTemplate.replace("${host}", window.location.hostname);
-			$container.append($("<a>", {href: url, text: mainController.profile.singleSignOnLinkLabel}));
-			$container.show();
-
-			// Show login selector
-			var $loginServicesContainer = $("#login-service-selector");
-			var $loginServices = FormUtil.getDropdown([
-				{ label: 'Single Sign On Login Service', value: 'SSO', selected: true },
-				{ label: 'openBIS Login Service', value: 'OPENBIS' }
-			]);
-			$loginServices.change(function() {
-				$("#single-sign-on-login-service").hide();
-				$("#openbis-login-service").hide();
-
-				switch($loginServices.val()) {
-					case 'SSO':
-							$("#single-sign-on-login-service").show();
-						break;
-					case 'OPENBIS':
-							$("#openbis-login-service").show();
-						break;
+		mainController.initAppBeforeLogin(function(){
+			// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
+			$(document).click(function(e) {
+				var elementClasses = $(e.target).attr('class');
+				var isLeftClick = e.which === 1;
+				if(isLeftClick && elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
+					e.preventDefault();
+					e.stopPropagation();
 				}
 			});
-			$loginServicesContainer.append($loginServices);
-
-		} else { // Only openbis login service enabled
-			// Do nothing
-		}
-
-		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
-        if (sessionStorage.getItem("forceNormalLogin") != "true") {
-            mainController.serverFacade.getOpenbisV3(function(openbisV3) {
-                openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
-                    mainController.serverFacade.openbisServer.useSession(sessionToken);
-                    mainController.serverFacade.openbisServer.rememberSession();
-                    mainController.loggedInAnonymously = true;
-                    mainController.enterApp({"result":true});
-                });
-            });
-        } else {
-            sessionStorage.setItem("normalLoginHasBeenForces", "true");
-        }
-        sessionStorage.removeItem("forceNormalLogin");
-
-		
-		// Make the ENTER key the default button
-		$("openbis-login-service input").keypress(function (e) {
-			if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-				$('button[type=submit].default').click();
-				return false;
+			
+			$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+				try {
+					Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url);
+				} catch(err) {
+					Util.showError("Unknown AJAX Error");
+				}
+			});
+			
+			$('#main').hide();
+			var username = $("#username").value;
+			if(username == null || username.length==0) {
+				$("#username").focus();
 			} else {
-				return true;
+				$("#login-button").focus();
 			}
-		});
 		
-		//Automatic login if special parameters are given
-		var queryString = Util.queryString();
-		var user = queryString.user;
-		var pass = queryString.pass;
-		if(user && pass) {
-			Util.blockUI();
-			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
-		}
-		//Reset password
-		if (mainController.resetPasswordRequested()) {
-		    mainController.resetPassword();
-		}
+			$('#openbis-login-service').submit(function() {
+				Util.blockUI();
+				$("#mainContainer").show();
+				var username = $('#username').val();
+				var password = $('#password').val();
+				mainController.serverFacade.login(
+						$.trim($('#username').val()), 
+						$.trim($('#password').val()), 
+						function(data) { mainController.enterApp(data, username, password) });
+			});
+			var singleSignOnUrlTemplate = mainController.profile.singleSignOnUrlTemplate;
+			if (singleSignOnUrlTemplate) { // Single sign on login service enabled
+				// Hide the openbis login service
+				var $openbisLoginService = $("#openbis-login-service")
+				$openbisLoginService.css('margin-top', '0px');
+				$openbisLoginService.css('margin-bottom', '6px');
+				$openbisLoginService.hide();
 
-		var jenkins = queryString.jenkins;
-		if (jenkins == "true") {
-			$.cookie("report-to-jenkins", "true");
-		}
+				// Show the single sign on login service
+				var $container = $("#single-sign-on-login-service");
+				$container.empty();
+				$container.css('text-align', 'center');
+				$container.css('min-height', '62px');
+				$container.css('margin-top', '20px');
+				$container.css('margin-bottom', '20px');
+				
+				var url = mainController.profile.singleSignOnUrlTemplate
+				var url = url.replaceAll("${host}", window.location.hostname);
+				var url = url.replaceAll("${current-url}", window.location.href);
 
-		var test = queryString.test;
-		var testWithLogin = queryString.testWithLogin;
+				var link = $("<a>", {href: url, text: "Login"})
+				link.css('font-weight', 'bold')
+				link.css('font-size', '18px')
+				$container.append(link);
+				$container.show();
 
-		if (testWithLogin == "true") {
-			TestProtocol.startAdminTests(true);
-		} else if (test == "true") {
-			TestProtocol.startAdminTests(false);
-		}
+				// Show login selector
+				var $loginServicesContainer = $("#login-service-selector");
+				var $loginServices = FormUtil.getDropdown([
+					{ label: mainController.profile.singleSignOnLinkLabel, value: 'SSO', selected: true },
+					{ label: 'Default Login Service', value: 'OPENBIS' }
+				]);
+				$loginServices.change(function() {
+					$("#single-sign-on-login-service").hide();
+					$("#openbis-login-service").hide();
 
-		if ($.cookie("suitename") == "testId") {
-			TestProtocol.startUserTests();
-		}
+					switch($loginServices.val()) {
+						case 'SSO':
+								$("#single-sign-on-login-service").show();
+							break;
+						case 'OPENBIS':
+								$("#openbis-login-service").show();
+							break;
+					}
+				});
+				$loginServicesContainer.append($loginServices);
 
-		if ($.cookie("suitename") == "finishTest") {
-			TestProtocol.finishTests();
-		}
+			} else { // Only openbis login service enabled
+				// Do nothing
+			}
+
+			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+			if (sessionStorage.getItem("forceNormalLogin") != "true") {
+				mainController.serverFacade.getOpenbisV3(function(openbisV3) {
+					openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
+						mainController.serverFacade.openbisServer.useSession(sessionToken);
+						mainController.serverFacade.openbisServer.rememberSession();
+						mainController.loggedInAnonymously = true;
+						mainController.enterApp({"result":true});
+					});
+				});
+			} else {
+				sessionStorage.setItem("normalLoginHasBeenForces", "true");
+			}
+			sessionStorage.removeItem("forceNormalLogin");
+
+			
+			// Make the ENTER key the default button
+			$("openbis-login-service input").keypress(function (e) {
+				if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+					$('button[type=submit].default').click();
+					return false;
+				} else {
+					return true;
+				}
+			});
+			
+			//Automatic login if special parameters are given
+			var queryString = Util.queryString();
+			var user = queryString.user;
+			var pass = queryString.pass;
+			if(user && pass) {
+				Util.blockUI();
+				mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
+			}
+			//Reset password
+			if (mainController.resetPasswordRequested()) {
+				mainController.resetPassword();
+			}
+
+			var jenkins = queryString.jenkins;
+			if (jenkins == "true") {
+				$.cookie("report-to-jenkins", "true");
+			}
+
+			var test = queryString.test;
+			var testWithLogin = queryString.testWithLogin;
+
+			if (testWithLogin == "true") {
+				TestProtocol.startAdminTests(true);
+			} else if (test == "true") {
+				TestProtocol.startAdminTests(false);
+			}
+
+			if ($.cookie("suitename") == "testId") {
+				TestProtocol.startUserTests();
+			}
+
+			if ($.cookie("suitename") == "finishTest") {
+				TestProtocol.finishTests();
+			}
+		})
 	}
 
 	$(document).ready(function() {

@@ -6,12 +6,15 @@ import flow from 'lodash/flow'
 
 import Card from '@material-ui/core/Card'
 import Typography from '@material-ui/core/Typography'
+import Collapse from '@material-ui/core/Collapse'
 
 import FormValidator from '@src/js/components/common/form/FormValidator.js'
 import Container from '@src/js/components/common/form/Container.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
+import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 
+import openbis from '@src/js/services/openbis.js'
 import actions from '@src/js/store/actions/actions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -49,10 +52,17 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
+const AUTHENTICATION_SERVICE_OPENBIS = 'openBIS'
+const AUTHENTICATION_SERVICE_SWITCH_AAI = 'SWITCHaai'
+
 class WithLogin extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      loaded: false,
+      authenticationService: {
+        value: null
+      },
       user: {
         value: null,
         error: null
@@ -61,10 +71,11 @@ class WithLogin extends React.Component {
         value: null,
         error: null
       },
-      selection: 'user',
+      selection: null,
       validate: FormValidator.MODE_BASIC
     }
     this.references = {
+      authenticationService: React.createRef(),
       user: React.createRef(),
       password: React.createRef()
     }
@@ -75,9 +86,27 @@ class WithLogin extends React.Component {
     this.handleLogin = this.handleLogin.bind(this)
   }
 
-  componentDidMount() {
-    if (this.state.selection) {
-      this.focus()
+  async componentDidMount() {
+    const serverInformation = await openbis.getServerPublicInformation()
+
+    if (this.getSwitchAaiLink(serverInformation)) {
+      this.setState({
+        loaded: true,
+        authenticationService: {
+          value: AUTHENTICATION_SERVICE_SWITCH_AAI
+        },
+        selection: 'authenticationService',
+        serverInformation
+      })
+    } else {
+      this.setState({
+        loaded: true,
+        authenticationService: {
+          value: AUTHENTICATION_SERVICE_OPENBIS
+        },
+        selection: 'user',
+        serverInformation
+      })
     }
   }
 
@@ -89,7 +118,7 @@ class WithLogin extends React.Component {
 
   focus() {
     const reference = this.references[this.state.selection]
-    if (reference) {
+    if (reference && reference.current) {
       reference.current.focus()
     }
   }
@@ -153,8 +182,35 @@ class WithLogin extends React.Component {
     )
   }
 
+  getSwitchAaiLink(serverInformation) {
+    let link = serverInformation
+      ? serverInformation['authentication-service.switch-aai.link']
+      : null
+    if (link) {
+      link = link.replaceAll('${host}', window.location.hostname)
+      link = link.replaceAll('${current-url}', window.location.href)
+    }
+    return link
+  }
+
+  getSwitchAaiLabel(serverInformation) {
+    let label = serverInformation
+      ? serverInformation['authentication-service.switch-aai.label']
+      : null
+    if (!label) {
+      label = messages.get(messages.AUTHENTICATION_SERVICE_SWITCH_AAI)
+    }
+    return label
+  }
+
   render() {
     logger.log(logger.DEBUG, 'Login.render')
+
+    const { loaded } = this.state
+
+    if (!loaded) {
+      return null
+    }
 
     const { classes } = this.props
 
@@ -167,48 +223,132 @@ class WithLogin extends React.Component {
                 <Typography variant='h6' classes={{ root: classes.header }}>
                   Login
                 </Typography>
-                <div className={classes.field}>
-                  <TextField
-                    reference={this.references.user}
-                    id='standard-name'
-                    name='user'
-                    label={messages.get(messages.USER)}
-                    value={this.state.user.value}
-                    error={this.state.user.error}
-                    mandatory={true}
-                    autoComplete='username'
-                    onKeyPress={this.handleKeyPress}
-                    onChange={this.handleChange}
-                    onBlur={this.handleBlur}
-                  />
-                </div>
-                <div className={classes.field}>
-                  <TextField
-                    reference={this.references.password}
-                    id='standard-password-input'
-                    name='password'
-                    label={messages.get(messages.PASSWORD)}
-                    type='password'
-                    value={this.state.password.value}
-                    error={this.state.password.error}
-                    mandatory={true}
-                    autoComplete='current-password'
-                    onKeyPress={this.handleKeyPress}
-                    onChange={this.handleChange}
-                    onBlur={this.handleBlur}
-                  />
-                </div>
-                <Button
-                  label={messages.get(messages.LOGIN)}
-                  type='final'
-                  styles={{ root: classes.button }}
-                  onClick={this.handleLogin}
-                />
+                {this.renderAuthenticationServiceChoice()}
+                {this.renderOpenBISAuthentication()}
+                {this.renderSwitchAaiAuthentication()}
               </Container>
             </Card>
           </form>
         </div>
       </div>
+    )
+  }
+
+  renderAuthenticationServiceChoice() {
+    const { classes } = this.props
+    const { serverInformation } = this.state
+
+    if (this.getSwitchAaiLink(serverInformation)) {
+      const options = []
+
+      options.push({
+        value: AUTHENTICATION_SERVICE_SWITCH_AAI,
+        label: this.getSwitchAaiLabel(serverInformation)
+      })
+      options.push({
+        value: AUTHENTICATION_SERVICE_OPENBIS,
+        label: messages.get(messages.AUTHENTICATION_SERVICE_OPENBIS)
+      })
+
+      return (
+        <div className={classes.field}>
+          <SelectField
+            reference={this.references.authenticationService}
+            id='authenticationService'
+            name='authenticationService'
+            label={messages.get(messages.AUTHENTICATION_SERVICE)}
+            value={this.state.authenticationService.value}
+            options={options}
+            sort={false}
+            mandatory={true}
+            onChange={this.handleChange}
+            onBlur={this.handleBlur}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderOpenBISAuthentication() {
+    const { classes } = this.props
+
+    return (
+      <div>
+        <Collapse
+          in={
+            this.state.authenticationService.value ===
+            AUTHENTICATION_SERVICE_OPENBIS
+          }
+          mountOnEnter={true}
+          unmountOnExit={true}
+        >
+          <div className={classes.field}>
+            <TextField
+              reference={this.references.user}
+              id='standard-name'
+              name='user'
+              label={messages.get(messages.USER)}
+              value={this.state.user.value}
+              error={this.state.user.error}
+              mandatory={true}
+              autoComplete='username'
+              onKeyPress={this.handleKeyPress}
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+            />
+          </div>
+          <div className={classes.field}>
+            <TextField
+              reference={this.references.password}
+              id='standard-password-input'
+              name='password'
+              label={messages.get(messages.PASSWORD)}
+              type='password'
+              value={this.state.password.value}
+              error={this.state.password.error}
+              mandatory={true}
+              autoComplete='current-password'
+              onKeyPress={this.handleKeyPress}
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+            />
+          </div>
+          <Button
+            label={messages.get(messages.LOGIN)}
+            type='final'
+            styles={{ root: classes.button }}
+            onClick={this.handleLogin}
+          />
+        </Collapse>
+      </div>
+    )
+  }
+
+  renderSwitchAaiAuthentication() {
+    const { classes } = this.props
+
+    return (
+      <Collapse
+        in={
+          this.state.authenticationService.value ===
+          AUTHENTICATION_SERVICE_SWITCH_AAI
+        }
+        mountOnEnter={true}
+        unmountOnExit={true}
+      >
+        <Button
+          label={messages.get(messages.LOGIN)}
+          type='final'
+          styles={{ root: classes.button }}
+          onClick={() =>
+            (window.location.href = this.getSwitchAaiLink(
+              this.state.serverInformation
+            ))
+          }
+        />
+      </Collapse>
     )
   }
 }

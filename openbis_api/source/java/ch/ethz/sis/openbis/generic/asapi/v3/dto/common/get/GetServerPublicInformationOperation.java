@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation;
-
-import java.util.List;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionResults;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
+ *
  */
-public interface IExecuteOperationExecutor
+@JsonObject("as.dto.common.get.GetServerPublicInformationOperation")
+public class GetServerPublicInformationOperation implements IOperation
 {
+    private static final long serialVersionUID = 1L;
 
-    public IOperationExecutionResults execute(Session session, List<? extends IOperation> operations, IOperationExecutionOptions options);
+    @Override
+    public String getMessage()
+    {
+        return toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return getClass().getSimpleName();
+    }
 
 }

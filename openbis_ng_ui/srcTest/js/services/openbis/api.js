@@ -1,5 +1,6 @@
 import dto from './dto.js'
 
+const init = jest.fn()
 const login = jest.fn()
 const logout = jest.fn()
 const deleteDataSetTypes = jest.fn()
@@ -17,6 +18,7 @@ const getMaterialTypes = jest.fn()
 const getPersons = jest.fn()
 const getPropertyTypes = jest.fn()
 const getSampleTypes = jest.fn()
+const getServerPublicInformation = jest.fn()
 const getVocabularies = jest.fn()
 const getPlugins = jest.fn()
 const getQueries = jest.fn()
@@ -111,6 +113,7 @@ const mockSearchQueryDatabases = databases => {
 }
 
 export default {
+  init,
   login,
   logout,
   deleteDataSetTypes,
@@ -128,6 +131,7 @@ export default {
   getPersons,
   getPropertyTypes,
   getSampleTypes,
+  getServerPublicInformation,
   getVocabularies,
   getPlugins,
   getQueries,

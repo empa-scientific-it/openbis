@@ -108,6 +108,14 @@ function MainController(profile) {
 	    }
 	}
 
+	this.initAppBeforeLogin = function(callback){
+		this.serverFacade.getServerPublicInformation(function(serverInformation){
+			this.profile.singleSignOnUrlTemplate = serverInformation['authentication-service.switch-aai.link'] || this.profile.singleSignOnUrlTemplate
+			this.profile.singleSignOnLinkLabel = serverInformation['authentication-service.switch-aai.label'] || this.profile.singleSignOnLinkLabel || 'SWITCHaai Single Sign On Login Service'
+			callback()
+		})
+	}
+
 	this.initApp = function(data, username, password) {
 		var localReference = this;
 		//

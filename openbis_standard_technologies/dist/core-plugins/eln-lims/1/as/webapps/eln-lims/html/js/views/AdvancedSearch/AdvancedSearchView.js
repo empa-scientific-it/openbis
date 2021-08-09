@@ -709,6 +709,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
+
+			_this.firstColumns = []; // firstColumns is build dynamically that is not usual but helps to only show the multi select checkbox if datasets are selected.
             if (criteria.entityKind === "DATASET") {
                 if (profile.showDatasetArchivingButton) {
                     _this.extraOptions = [{name:"Request archiving of selected data sets", action:function() {
@@ -849,6 +851,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: false,
 				sortable : false
 			}]);
+
+        _this.additionalColumns = []; // additionalColumns is build dynamically that is not usual but helps to only when datasets are selected.
+        if (criteria.entityKind === "DATASET") {
+            _this.additionalColumns = [{
+                label : "Size",
+                property : "size",
+                isExportable : true,
+                sortable : false,
+                render : function(data, grid) {
+                    return data.size && data.size !== "" ? PrintUtil.renderNumberOfBytes(data.size) : "";
+                }
+            }];
+            if (profile.showDatasetArchivingButton) {
+                _this.additionalColumns.push({
+                    label : "Status",
+                    property : "status",
+                    isExportable : true,
+                    sortable : false
+                });
+                _this.additionalColumns.push({
+                    label : "Archiving Requested",
+                    property : "archivingRequested",
+                    isExportable : true,
+                    sortable : false
+                });
+            }
+        }
 
 			columns = columns.concat(_this.additionalColumns);
 

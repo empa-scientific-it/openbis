@@ -2102,6 +2102,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.getServerPublicInformation = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getServerPublicInformation",
+					"params" : []
+				}
+			});
+		}
+
 		this.createPermIdStrings = function(count) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

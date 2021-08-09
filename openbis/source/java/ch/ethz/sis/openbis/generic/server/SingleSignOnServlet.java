@@ -38,6 +38,7 @@ import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
@@ -75,6 +76,10 @@ public class SingleSignOnServlet extends AbstractServlet
     public static final String EMAIL_KEY = "email-key";
 
     public static final String DEFAULT_EMAIL_KEY = "mail";
+
+    public static final String REDIRECT_URL_PARAMETER_NAME = "redirect-url";
+
+    public static final String REDIRECT_URL_TEMPLATE_PARAMETER_NAME = "redirect-url-template";
 
     public static final String REDIRECT_URL_KEY = "redirect-url";
 
@@ -158,13 +163,13 @@ public class SingleSignOnServlet extends AbstractServlet
         String email = getHeader(request, EMAIL_KEY, DEFAULT_EMAIL_KEY);
         Principal principal = new Principal(userId, firstName, lastName, email, true);
         sessionToken = sessionManager.tryToOpenSession(userId, new IPrincipalProvider()
+        {
+            @Override
+            public Principal tryToGetPrincipal(String userID)
             {
-                @Override
-                public Principal tryToGetPrincipal(String userID)
-                {
-                    return principal;
-                }
-            });
+                return principal;
+            }
+        });
         applicationServerApi.registerUser(sessionToken);
         sessionTokenBySessionId.put(sessionId, sessionToken);
 
@@ -193,11 +198,27 @@ public class SingleSignOnServlet extends AbstractServlet
 
     private void redirectToApp(HttpServletRequest request, HttpServletResponse response, String sessionToken) throws IOException
     {
-        String host = request.getHeader("X-Forwarded-Host");
-        Template template = this.template.createFreshCopy();
-        template.bind("host", host);
-        String redirectUrl = configurer.getResolvedProps().getProperty(REDIRECT_URL_KEY, template.createText());
+        String redirectUrl = null;
+
+        if (StringUtils.isNotBlank(request.getParameter(REDIRECT_URL_PARAMETER_NAME)))
+        {
+            redirectUrl = request.getParameter(REDIRECT_URL_PARAMETER_NAME);
+        } else if (StringUtils.isNotBlank(request.getParameter(REDIRECT_URL_TEMPLATE_PARAMETER_NAME)))
+        {
+            String host = request.getHeader("X-Forwarded-Host");
+            Template template = new Template(request.getParameter(REDIRECT_URL_TEMPLATE_PARAMETER_NAME)).createFreshCopy();
+            template.bind("host", host);
+            redirectUrl = template.createText();
+        } else
+        {
+            String host = request.getHeader("X-Forwarded-Host");
+            Template template = this.template.createFreshCopy();
+            template.bind("host", host);
+            redirectUrl = configurer.getResolvedProps().getProperty(REDIRECT_URL_KEY, template.createText());
+        }
+
         operationLog.info("redirect to " + redirectUrl);
+
         removeOpenbisCookies(request, response);
         Cookie cookie = new Cookie(OPENBIS_COOKIE, sessionToken);
         cookie.setPath("/");

@@ -100,18 +100,6 @@ class TypesGrid extends React.PureComponent {
         label: messages.get(messages.SUBCODES_UNIQUE),
         getValue: ({ row }) => row.subcodeUnique
       })
-
-      columns.push({
-        name: 'showParents',
-        label: messages.get(messages.SHOW_PARENTS),
-        getValue: ({ row }) => row.showParents
-      })
-
-      columns.push({
-        name: 'showContainer',
-        label: messages.get(messages.SHOW_CONTAINER),
-        getValue: ({ row }) => row.showContainer
-      })
     }
 
     if (kind === openbis.EntityKind.DATA_SET) {

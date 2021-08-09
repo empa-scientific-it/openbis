@@ -31,6 +31,10 @@ class Facade {
     return this.promise(this.v3.getSessionInformation())
   }
 
+  getServerPublicInformation() {
+    return this.promise(this.v3.getServerPublicInformation())
+  }
+
   login(user, password) {
     return this.promise(this.v3.login(user, password))
   }

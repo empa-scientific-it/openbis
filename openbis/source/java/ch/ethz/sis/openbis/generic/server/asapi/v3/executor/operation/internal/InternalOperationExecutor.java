@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,24 +60,24 @@ public class InternalOperationExecutor implements IInternalOperationExecutor
                 {
                     operationLimiter.executeLimitedWithTimeoutAsync(operation.getClass().getSimpleName(),
                             new ConcurrentOperation<IOperationResult>()
+                            {
+                                @Override
+                                public IOperationResult execute()
                                 {
-                                    @Override
-                                    public IOperationResult execute()
-                                    {
-                                        return ((IInternalOperation) operation).execute();
-                                    }
-                                });
+                                    return ((IInternalOperation) operation).execute();
+                                }
+                            });
                 } else
                 {
                     operationLimiter.executeLimitedWithTimeout(operation.getClass().getSimpleName(),
                             new ConcurrentOperation<IOperationResult>()
+                            {
+                                @Override
+                                public IOperationResult execute()
                                 {
-                                    @Override
-                                    public IOperationResult execute()
-                                    {
-                                        return ((IInternalOperation) operation).execute();
-                                    }
-                                });
+                                    return ((IInternalOperation) operation).execute();
+                                }
+                            });
                 }
 
                 results.put(operation, result);
@@ -88,7 +89,9 @@ public class InternalOperationExecutor implements IInternalOperationExecutor
 
     private boolean isInstanceAdmin(IOperationContext context)
     {
-        Set<RoleAssignmentPE> roles = context.getSession().tryGetPerson().getAllPersonRoles();
+        Set<RoleAssignmentPE> roles = context.getSession() != null && context.getSession().tryGetPerson() != null ?
+                context.getSession().tryGetPerson().getAllPersonRoles() :
+                Collections.emptySet();
 
         for (RoleAssignmentPE role : roles)
         {

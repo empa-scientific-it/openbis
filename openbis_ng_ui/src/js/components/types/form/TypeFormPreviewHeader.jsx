@@ -34,8 +34,6 @@ class TypeFormPreviewHeader extends React.PureComponent {
       <div>
         {this.renderTitle()}
         {this.renderCode()}
-        {this.renderParents()}
-        {this.renderContainer()}
       </div>
     )
   }
@@ -68,48 +66,6 @@ class TypeFormPreviewHeader extends React.PureComponent {
         />
       </div>
     )
-  }
-
-  renderParents() {
-    const { mode, type, preview, classes } = this.props
-
-    if (type.showParents && type.showParents.value) {
-      return (
-        <div className={classes.field}>
-          <TextField
-            name='parents'
-            label={messages.get(messages.PARENTS)}
-            value={_.get(preview, 'parents.value')}
-            disabled={mode !== PageMode.EDIT}
-            mode={PageMode.EDIT}
-            onChange={this.handleChange}
-          />
-        </div>
-      )
-    } else {
-      return null
-    }
-  }
-
-  renderContainer() {
-    const { mode, type, preview, classes } = this.props
-
-    if (type.showContainer && type.showContainer.value) {
-      return (
-        <div className={classes.field}>
-          <TextField
-            name='container'
-            label={messages.get(messages.CONTAINER)}
-            value={_.get(preview, 'container.value')}
-            disabled={mode !== PageMode.EDIT}
-            mode={PageMode.EDIT}
-            onChange={this.handleChange}
-          />
-        </div>
-      )
-    } else {
-      return null
-    }
   }
 }
 

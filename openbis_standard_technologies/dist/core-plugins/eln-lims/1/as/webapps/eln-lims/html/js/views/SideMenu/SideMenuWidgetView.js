@@ -832,7 +832,15 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
                         mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
                             
-                            var datasets = searchResult.objects;
+                            var datasets = [];
+
+                            for (var i = 0; i < searchResult.objects.length; i++) {
+                                var dataset = searchResult.objects[i];
+                                var datasetTypeCode = dataset.getType().getCode();
+                                if(profile.showDatasetOnNav(datasetTypeCode)) {
+                                    datasets.push(dataset);
+                                }
+                            }
 
                             if(profile.mainMenu.showDatasets) {
                                 if(datasets.length > 50) {
