@@ -51,8 +51,8 @@ function ServerFacade(openbisServer) {
 	var responseInterceptor = function(response, action){
 		var isError = false;
 		if(response && response.error) {
-			if(response.error.message === "Session no longer available. Please login again."
-					|| response.error.message.endsWith("is invalid: user is not logged in.")) {
+			if(response.error.message && (response.error.message === "Session no longer available. Please login again."
+					|| response.error.message.endsWith("is invalid: user is not logged in."))) {
 				isError = true;
 				Util.showError(response.error.message, function() {
 					location.reload(true);
