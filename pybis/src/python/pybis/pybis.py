@@ -87,8 +87,6 @@ import requests
 
 import urllib3
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 # import the various openBIS entities
 
@@ -899,6 +897,8 @@ class Openbis:
         self.as_v1 = "/openbis/openbis/rmi-general-information-v1.json"
         self.reg_v1 = "/openbis/openbis/rmi-query-v1.json"
         self.verify_certificates = verify_certificates
+        if not verify_certificates:
+            urllib3.disable_warnings()
 
         if url is None:
             url = os.environ.get("OPENBIS_URL") or os.environ.get("OPENBIS_HOST")

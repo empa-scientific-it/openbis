@@ -1,38 +1,43 @@
 from .attribute import AttrHolder
-from .openbis_object import OpenBisObject 
+from .openbis_object import OpenBisObject
 from .utils import VERBOSE
 
 
 class Person(OpenBisObject):
-    """ managing openBIS persons
-    """
+    """managing openBIS persons"""
 
     def __init__(self, openbis_obj, data=None, **kwargs):
-        self.__dict__['openbis'] = openbis_obj
-        self.__dict__['a'] = AttrHolder(openbis_obj, 'person' )
+        self.__dict__["openbis"] = openbis_obj
+        self.__dict__["a"] = AttrHolder(openbis_obj, "person")
 
         if data is not None:
             self.a(data)
-            self.__dict__['data'] = data
+            self.__dict__["data"] = data
 
         if kwargs is not None:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
-
 
     def __dir__(self):
         """all the available methods and attributes that should be displayed
         when using the autocompletion feature (TAB) in Jupyter
         """
         return [
-            'permId', 'userId', 'firstName', 'lastName', 'email',
-            'registrator', 'registrationDate','space',
-            'get_roles()', 'assign_role(role, space)', 'revoke_role(role)',
+            "permId",
+            "userId",
+            "firstName",
+            "lastName",
+            "email",
+            "registrator",
+            "registrationDate",
+            "space",
+            "get_roles()",
+            "assign_role(role, space)",
+            "revoke_role(role)",
         ]
 
-
     def get_roles(self, **search_args):
-        """ Get all roles that are assigned to this person.
+        """Get all roles that are assigned to this person.
         Provide additional search arguments to refine your search.
 
         Usage::
@@ -41,66 +46,72 @@ class Person(OpenBisObject):
         """
         return self.openbis.get_role_assignments(person=self, **search_args)
 
-
     def assign_role(self, role, **kwargs):
         try:
             self.openbis.assign_role(role=role, person=self, **kwargs)
             if VERBOSE:
                 print(
-                    "Role {} successfully assigned to person {}".format(role, self.userId)
-                ) 
+                    "Role {} successfully assigned to person {}".format(
+                        role, self.userId
+                    )
+                )
         except ValueError as e:
-            if 'exists' in str(e):
+            if "exists" in str(e):
                 if VERBOSE:
                     print(
-                        "Role {} already assigned to person {}".format(role, self.userId)
+                        "Role {} already assigned to person {}".format(
+                            role, self.userId
+                        )
                     )
             else:
                 raise ValueError(str(e))
 
-
-    def revoke_role(self, role, space=None, project=None, reason='no reason specified'):
-        """ Revoke a role from this person. 
-        """
+    def revoke_role(self, role, space=None, project=None, reason="no reason specified"):
+        """Revoke a role from this person."""
 
         techId = None
         if isinstance(role, int):
             techId = role
         else:
-            query = { "role": role }
+            query = {"role": role}
             if space is None:
-                query['space'] = ''
+                query["space"] = ""
             else:
-                query['space'] = space.code.upper()
+                if isinstance(space, str):
+                    query["space"] = space.upper()
+                else:
+                    query["space"] = space.code.upper()
 
             if project is None:
-                query['project'] = ''
+                query["project"] = ""
             else:
-                query['project'] = project.code.upper()
+                if isinstance(project, str):
+                    query["project"] = project.upper()
+                else:
+                    query["project"] = project.code.upper()
 
             # build a query string for dataframe
-            querystr = " & ".join( 
-                    '{} == "{}"'.format(key, value) for key, value in query.items()
-                    )
+            querystr = " & ".join(
+                '{} == "{}"'.format(key, value) for key, value in query.items()
+            )
             roles = self.get_roles().df
             if len(roles) == 0:
                 if VERBOSE:
-                    print(f"Role {role} has already been revoked from person {self.code}")
+                    print(
+                        f"Role {role} has already been revoked from person {self.code}"
+                    )
                 return
-            techId = roles.query(querystr)['techId'].values[0]
+            techId = roles.query(querystr)["techId"].values[0]
 
         # finally delete the role assignment
         ra = self.openbis.get_role_assignment(techId)
         ra.delete(reason)
         if VERBOSE:
-            print(
-                "Role {} successfully revoked from person {}".format(role, self.code)
-            ) 
+            print("Role {} successfully revoked from person {}".format(role, self.code))
         return
 
-
     def __str__(self):
-        return "{} {}".format(self.get('firstName'), self.get('lastName'))
+        return "{} {}".format(self.get("firstName"), self.get("lastName"))
 
     def delete(self, reason):
         raise ValueError("Persons cannot be deleted")
@@ -109,15 +120,16 @@ class Person(OpenBisObject):
         if self.is_new:
             request = self._new_attrs()
             resp = self.openbis._post_request(self.openbis.as_v3, request)
-            if VERBOSE: print("Person successfully created.")
-            new_person_data = self.openbis.get_person(resp[0]['permId'], only_data=True)
+            if VERBOSE:
+                print("Person successfully created.")
+            new_person_data = self.openbis.get_person(resp[0]["permId"], only_data=True)
             self._set_data(new_person_data)
             return self
 
         else:
             request = self._up_attrs()
             self.openbis._post_request(self.openbis.as_v3, request)
-            if VERBOSE: print("Person successfully updated.")
+            if VERBOSE:
+                print("Person successfully updated.")
             new_person_data = self.openbis.get_person(self.permId, only_data=True)
             self._set_data(new_person_data)
-
