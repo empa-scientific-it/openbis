@@ -174,6 +174,10 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		var $fieldsetOwner = $("<div>");
 		var $legend = $("<legend>");
+		    $legend.css({
+		        'padding-top':'5px',
+		        'padding-bottom':'5px'
+		    });
 		var $fieldset = $("<div>");
 		$fieldsetOwner.append($legend).append($fieldset);
 		
@@ -191,7 +195,7 @@ function LinksView(linksController, linksModel) {
 		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
 
 		if(!linksModel.disableAddAnyType && profile.mainMenu.showBarcodes) {
-			$legend.append(linksView.getAddAnyBarcode());
+			$legend.append("&nbsp;").append(linksView.getAddAnyBarcode());
 		}
 
 		$fieldset.append($samplePicker);
