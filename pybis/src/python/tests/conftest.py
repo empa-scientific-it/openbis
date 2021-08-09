@@ -36,7 +36,7 @@ def other_openbis_instance():
     print("LOGGED OUT...")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def space():
     o = Openbis(
         url=openbis_url,
@@ -49,8 +49,7 @@ def space():
     space_name = "test_space_" + timestamp
     space = o.new_space(code=space_name)
     space.save()
-    space_exists = o.get_space(code=space_name)
-    yield space_exists
+    yield space
 
     # teardown
     o.logout()

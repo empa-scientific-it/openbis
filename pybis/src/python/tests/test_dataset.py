@@ -1,6 +1,7 @@
 import json
 import random
 import re
+import os
 
 import pytest
 import time
@@ -18,11 +19,12 @@ def test_get_datasets(space):
 def test_create_delete_dataset(space):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     o = space.openbis
+    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
 
     dataset = o.new_dataset(
         type="RAW_DATA",
         sample="/DEFAULT/DEFAULT/DEFAULT",
-        files=["testfile"],
+        files=[testfile_path],
         props={"$name": "some good name", "notes": "my notes"},
     )
 
