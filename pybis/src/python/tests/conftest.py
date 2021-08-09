@@ -7,12 +7,12 @@ openbis_url = 'https://localhost:8443'
 admin_username = 'admin'
 admin_password = 'changeit'
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def openbis_instance():
     instance = Openbis(
         url=openbis_url, 
         verify_certificates=False, 
-        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
+        #allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     print("\nLOGGING IN...")
     instance.login(admin_username, admin_password)
@@ -21,12 +21,12 @@ def openbis_instance():
     print("LOGGED OUT...")
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def space():
     o = Openbis(
         url=openbis_url, 
         verify_certificates=False, 
-        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
+        #allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     o.login(admin_username, admin_password)
 
