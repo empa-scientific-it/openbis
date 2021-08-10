@@ -425,7 +425,7 @@ function LinksView(linksController, linksModel) {
         var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
             $container.empty().hide();
         });
-        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
+        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "margin-bottom" : "5px"});
         $gridContainer.append($closeBtnContainer);
 
         var $searchDropdownContainer = $("<div>");
