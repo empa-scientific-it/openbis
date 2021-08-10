@@ -579,7 +579,7 @@ function LinksView(linksController, linksModel) {
 			});
 		};
 		var id = "plus-btn-" + linksModel.title.split(" ").join("-").toLowerCase() + "-type-selector";
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search", null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search Any", null, id);
 		
 		if(linksModel.isDisabled) {
 			return "";
