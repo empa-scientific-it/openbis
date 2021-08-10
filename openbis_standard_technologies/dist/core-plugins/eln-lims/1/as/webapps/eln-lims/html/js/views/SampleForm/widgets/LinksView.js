@@ -55,6 +55,8 @@ function LinksView(linksController, linksModel) {
 				$sampleTableContainer.append($("<div>").append(sampleTableContainerLabel + ":")
 						.append("&nbsp;")
 						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
+						.append("&nbsp;")
+						.append(linksView.getAddPasteBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
 						.css("margin","5px"));
 			}
 			
@@ -415,7 +417,8 @@ function LinksView(linksController, linksModel) {
 		$container.css({
 			"margin" : "5px",
 			"padding" : "5px",
-			"background-color" : "#f6f6f6"
+			"background-color" : "rgb(248, 248, 248)",
+			"border-radius" : "4px"
 		});
 
 		//Grid Layout
@@ -475,20 +478,90 @@ function LinksView(linksController, linksModel) {
             });
 		searchDropdown.init($searchDropdownContainer);
 	}
-			
+
+	linksView.showSamplePaster = function($container, sampleTypeCode) {
+		$container.empty().show();
+		$container.css({
+			"margin" : "5px",
+			"padding" : "5px",
+			"background-color" : "rgb(248, 248, 248)",
+			"border-radius" : "4px"
+		});
+
+		//Grid Layout
+		var $gridContainer = $("<div>");
+		$container.append($gridContainer);
+
+        var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
+            $container.empty().hide();
+        });
+        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "margin-bottom" : "5px"});
+        $gridContainer.append($closeBtnContainer);
+
+        var $pasteContainer = $("<div>");
+        $gridContainer.append($pasteContainer);
+
+        var $textArea = FormUtil._getTextBox(null, "Object Identifiers separated by space or coma", false);
+        $textArea.css( { 'width' : '100%', "height" : "20%", "min-height" : "100px"});
+        $pasteContainer.append($textArea);
+
+        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+            var identifiers = null;
+            if($textArea.val().indexOf(",") > -1) {
+                identifiers = $textArea.val().split(",");
+            } else {
+                identifiers = $textArea.val().split(" ");
+            }
+
+            var validIdentifiers = [];
+            for(var vIdx = 0; vIdx < identifiers.length; vIdx++) {
+                if(identifiers[vIdx].indexOf("/") > -1) {
+                    validIdentifiers.push(identifiers[vIdx].trim());
+                }
+            }
+            if(validIdentifiers.length == 0) {
+                return;
+            }
+            Util.blockUI();
+            mainController.serverFacade.searchWithIdentifiers(validIdentifiers, function(results) {
+                for(var sIdx = 0; sIdx < results.length; sIdx++) {
+                    linksView.updateSample(results[sIdx], true);
+                }
+                Util.unblockUI();
+                $container.empty().hide();
+           });
+        }, "Add");
+        $addObjectsBtn.css({"margin-top" : "5px"});
+        $pasteContainer.append($addObjectsBtn);
+	}
+
 	linksView.getAddBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
 		var enabledFunction = function() {
 			linksView.showSamplePicker($container, sampleTypeCode);
 		};
 
 		var id = "search-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search", null, id);
 		if(linksModel.isDisabled) {
 			return "";
 		} else {
 			return $addBtn;
 		}
 	}
+
+	linksView.getAddPasteBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
+    		var enabledFunction = function() {
+    			linksView.showSamplePaster($container, sampleTypeCode);
+    		};
+
+    		var id = "paste-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
+    		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-paste", (linksModel.isDisabled)?null:enabledFunction, "Paste", null, id);
+    		if(linksModel.isDisabled) {
+    			return "";
+    		} else {
+    			return $addBtn;
+    		}
+    	}
 	
 	linksView.getAddAnyBtn = function() {
 		var enabledFunction = function() {
@@ -506,7 +579,7 @@ function LinksView(linksController, linksModel) {
 			});
 		};
 		var id = "plus-btn-" + linksModel.title.split(" ").join("-").toLowerCase() + "-type-selector";
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search", null, id);
 		
 		if(linksModel.isDisabled) {
 			return "";
