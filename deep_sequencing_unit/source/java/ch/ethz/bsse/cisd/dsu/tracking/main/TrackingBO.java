@@ -322,7 +322,7 @@ public class TrackingBO
             Long newDataSetID = d.getId();
             Sample lane = d.getSample();
             String lanePermId = lane.getPermId();
-            String laneSpace = lane.getSpace().getCode();
+            String laneSpace = lane.getIdentifier().split("/")[1]; // Bugfix for 20.10.X that is not returning the space object
             Long maxDatasetIdForSample = getMaxDataSetIdForSample(trackingState, lanePermId);
 
             // Check if the given lanes/samples have data sets which are newer than the last seen one (= maxDatasetIdForSample)
