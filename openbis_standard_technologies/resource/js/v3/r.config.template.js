@@ -1,5 +1,4 @@
 ({
-  baseUrl: '../../',
   include: [
     //
     __FILES__

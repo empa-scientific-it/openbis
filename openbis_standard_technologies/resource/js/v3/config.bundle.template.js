@@ -18,6 +18,10 @@ var require = (function () {
     baseUrl: getBaseUrl(),
     bundles: {
       'openbis.bundle': [
+        'jquery',
+        'stjs',
+        'underscore',
+        'moment',
         //
         __FILES__
         //

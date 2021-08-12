@@ -6,12 +6,14 @@ buildscript {
     dependencies {
         classpath 'apache:commons-codec:1.10',
                   'owasp:dependency-check-gradle:3.1.2',
-				  'paleozogt:symzip-plugin:0.10.1'
+				  'paleozogt:symzip-plugin:0.10.1',
+				  'com.moowork.gradle:gradle-node-plugin:1.2.0'
     }
 }
 
 apply plugin: org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 apply plugin: "org.paleozogt.symzip"
+apply plugin: "com.moowork.node"
 
 dependencyCheck {
   failBuildOnCVSS = 7 // 0 - 4 = low, 4 - 7 = medium, 7 - 9 = high, 9-10 = critical
@@ -185,7 +187,21 @@ task untarGwt(type: Copy) {
 	into gwtBuildDir
 }
 
-task copyOpenbisStaticResources(type: Copy, dependsOn: untarGwt) {
+node {
+	download = true
+	version = '10.22.0'
+	workDir = file("${projectDir}/node/nodejs")
+	nodeModulesDir = file("${projectDir}")
+}
+
+task bundleOpenbisStaticResources(type: Exec) {
+	dependsOn 'untarGwt'
+	dependsOn 'npmInstall'
+	commandLine 'bash', '-c', "${projectDir}/resource/js/v3/build.sh"
+}
+
+task copyOpenbisStaticResources(type: Copy) {
+	dependsOn 'bundleOpenbisStaticResources'
 	from "${project(':openbis').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
 	into gwtModuleBuildDir
 }
