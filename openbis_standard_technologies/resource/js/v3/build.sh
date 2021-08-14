@@ -22,11 +22,13 @@ find ./as ./dss ./util -name "*.js" | sed 's/^.\//"/g' | sed 's/.js$/",/g' > $TE
 cd $CURRENT_DIR
 cat r.config.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/r.config.js
 cat config.bundle.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.js
+cat config.bundle.min.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.min.js
 
 # create a JS bundle using NodeJS binary installed by NodeJS gradle plugin
-$OPENBIS_STANDARD_TECHNOLOGIES_DIR/node/nodejs/node-*/bin/node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR
+$OPENBIS_STANDARD_TECHNOLOGIES_DIR/node/nodejs/node-*/bin/node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
+$OPENBIS_STANDARD_TECHNOLOGIES_DIR/node/nodejs/node-*/bin/node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=uglify out=$TEMP_DIR/openbis.bundle.min.js
 
 # copy relevant files to the V3 public folder
-cp $TEMP_DIR/config.bundle.js $TEMP_DIR/openbis.bundle.js $V3_DIR
+cp $TEMP_DIR/config.bundle.js $TEMP_DIR/config.bundle.min.js $TEMP_DIR/openbis.bundle.js $TEMP_DIR/openbis.bundle.min.js $V3_DIR
 
 popd > /dev/null

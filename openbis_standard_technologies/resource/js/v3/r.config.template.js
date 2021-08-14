@@ -18,7 +18,5 @@
     underscore: {
       exports: '_'
     }
-  },
-  out: 'openbis.bundle.js',
-  optimize: 'none'
+  }
 })
