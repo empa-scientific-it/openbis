@@ -22,6 +22,7 @@ var require = (function () {
         'stjs',
         'underscore',
         'moment',
+        'openbis',
         //
         __FILES__
         //

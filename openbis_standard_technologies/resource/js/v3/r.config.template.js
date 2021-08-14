@@ -1,5 +1,6 @@
 ({
   include: [
+    'openbis',
     //
     __FILES__
     //
