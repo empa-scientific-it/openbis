@@ -16,18 +16,19 @@ class Things():
     Because the order of the elements cannot be ensured, you should choose the identifier instead:
         openbis.get_samples()['/SOME_SPACE/SAMPLE_CODE']
 
-    Of course, if you know the identifier already, you would rather do: 
+    Of course, if you know the identifier already, you would rather do:
         openbis.get_sample('/SOME_SPACE/SAMPLE_CODE')
-    
-    
+
+
     """
 
     def __init__(
         self, openbis_obj, entity, df,
-        identifier_name='code', additional_identifier=None, 
+        identifier_name='code', additional_identifier=None,
         start_with=None, count=None, totalCount=None,
         single_item_method=None,
-        objects=None
+        objects=None,
+        response=None
     ):
         self.openbis = openbis_obj
         self.entity = entity
@@ -39,6 +40,7 @@ class Things():
         self.totalCount=totalCount
         self.single_item_method=single_item_method
         self.objects=objects
+        self.response = response
 
     def __repr__(self):
         return tabulate(self.df, headers=list(self.df))

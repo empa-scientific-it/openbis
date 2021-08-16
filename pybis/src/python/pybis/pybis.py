@@ -86,6 +86,8 @@ import errno
 import requests
 
 import urllib3
+import logging
+import sys
 
 
 # import the various openBIS entities
@@ -101,6 +103,8 @@ LOG_DEBUG = 7
 
 DEBUG_LEVEL = LOG_NONE
 
+def now():
+    return time.time_ns() // 1000000
 
 def get_search_type_for_entity(entity, operator=None):
     """Returns a dictionary containing the correct search criteria type
@@ -2034,6 +2038,7 @@ class Openbis:
         attrs=None,
         props=None,
         where=None,
+        thingsFetchOptions={"withDataFrame": True, "withObjects": True},
         **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination)
@@ -2067,6 +2072,10 @@ class Openbis:
                         a) property is not present
                         b) property is not defined for this sampleType
         """
+
+        logger = logging.getLogger('get_samples')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler(sys.stdout))
 
         if collection is not None:
             experiment = collection
@@ -2150,27 +2159,39 @@ class Openbis:
                 fetchopts,
             ],
         }
+
+        time1 = now()
+        logger.debug("get_samples posting request")
         resp = self._post_request(self.as_v3, request)
 
-        samples = []
-        parse_jackson(resp)
-        for obj in resp["objects"]:
-            sample = Sample(
-                openbis_obj=self,
-                type=self.get_sample_type(obj["type"]["code"]),
-                data=obj,
-            )
-            samples.append(sample)
+        time2 = now()
 
-        return self._sample_list_for_response(
-            response=resp["objects"],
-            attrs=attrs,
-            props=props,
-            start_with=start_with,
-            count=count,
-            totalCount=resp["totalCount"],
-            objects=samples,
-        )
+        logger.debug(f"get_samples got response. Delay: {time2 - time1}")
+        parse_jackson(resp)
+
+        time3 = now()
+
+        response = resp["objects"]
+        # samples = range(len(objects))
+        logger.debug(f"get_samples got JSON. Delay: {time3 - time2}")
+
+        objects = None
+        if thingsFetchOptions["withObjects"]:
+            objects = list(map(lambda obj: Sample(openbis_obj=self, type=self.get_sample_type(obj["type"]["code"]),
+                                              data=obj), response))
+
+        time4 = now()
+
+        logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
+
+        result = self._sample_list_for_response(response=response, thingsFetchOptions=thingsFetchOptions,
+                                                attrs=attrs, props=props, start_with=start_with, count=count,
+                                                totalCount=resp["totalCount"], objects=objects, parsed=True)
+
+        time5 = now()
+
+        logger.debug(f"get_samples computed final result. Delay: {time5 - time4}")
+        return result
 
     get_objects = get_samples  # Alias
 
@@ -2534,7 +2555,6 @@ class Openbis:
                 )
             fetchopts["kind"] = kind
             raise NotImplementedError("you cannot search for dataSet kinds yet")
-
         request = {
             "method": "searchDataSets",
             "params": [
@@ -2749,7 +2769,11 @@ class Openbis:
             if only_data:
                 return resp[projectId]
 
-            project = Project(openbis_obj=self, type=None, data=resp[projectId])
+            project = Project(
+                openbis_obj=self,
+                type=None,
+                data=resp[projectId]
+            )
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -2771,7 +2795,11 @@ class Openbis:
             if only_data:
                 return resp["objects"][0]
 
-            project = Project(openbis_obj=self, type=None, data=resp["objects"][0])
+            project = Project(
+                openbis_obj=self,
+                type=None,
+                data=resp["objects"][0]
+            )
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -3330,7 +3358,6 @@ class Openbis:
                         "code"
                     ]
                 obj["creationDate"] = format_timestamp(obj["creationDate"])
-
             return objects
 
     def get_semantic_annotations(self):
@@ -3466,7 +3493,6 @@ class Openbis:
 
     def new_plugin(self, name, pluginType, **kwargs):
         """Creates a new Plugin in openBIS.
-
         name        -- name of the plugin
         description --
         pluginType  -- DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION
@@ -4195,7 +4221,13 @@ class Openbis:
         )
 
     def get_sample(
-        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
+            self,
+            sample_ident,
+            only_data=False,
+            withAttachments=False,
+            props=None,
+            thingsFetchOptions={"withDataFrame": True, "withObjects": True},
+            **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4258,8 +4290,148 @@ class Openbis:
         else:
             return self._sample_list_for_response(
                 response=list(resp.values()),
+                thingsFetchOptions=thingsFetchOptions,
                 props=props,
             )
+
+    def _sample_list_for_response(
+        self,
+        response,
+        thingsFetchOptions,
+        attrs=None,
+        props=None,
+        start_with=None,
+        count=None,
+        totalCount=0,
+        objects=None,
+        parsed=False,
+    ):
+        """returns a Things object, containing a DataFrame plus additional information"""
+
+        def extract_attribute(attribute_to_extract):
+            def return_attribute(obj):
+                if obj is None:
+                    return ""
+                return obj.get(attribute_to_extract, "")
+
+            return return_attribute
+
+        logger = logging.getLogger('_sample_list_for_response')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler(sys.stdout))
+
+        time1 = now()
+
+        logger.debug("_sample_list_for_response before parsing JSON")
+        if not parsed:
+            parse_jackson(response)
+
+        time2 = now()
+
+        logger.debug(f"_sample_list_for_response got response. Delay: {time2 - time1}")
+
+        dataFrame = None
+        if thingsFetchOptions["withDataFrame"]:
+            if attrs is None:
+                attrs = []
+            default_attrs = [
+                "identifier",
+                "permId",
+                "type",
+                "registrator",
+                "registrationDate",
+                "modifier",
+                "modificationDate",
+            ]
+            display_attrs = default_attrs + attrs
+
+            if props is None:
+                props = []
+            else:
+                if isinstance(props, str):
+                    props = [props]
+
+            if len(response) == 0:
+                for prop in props:
+                    if prop == "*":
+                        continue
+                    display_attrs.append(prop)
+                samples = DataFrame(columns=display_attrs)
+            else:
+                time3 = now()
+                logger.debug(f"_sample_list_for_response computing attributes. Delay: {time3 - time2}")
+
+                samples = DataFrame(response)
+                for attr in attrs:
+                    if "." in attr:
+                        entity, attribute_to_extract = attr.split(".")
+                        samples[attr] = samples[entity].map(
+                            extract_attribute(attribute_to_extract)
+                        )
+                    # if no dot supplied, just display the code of the space, project or experiment
+                    elif attr in ["project", "experiment"]:
+                        samples[attr] = samples[attr].map(extract_nested_identifier)
+                    elif attr in ["space"]:
+                        samples[attr] = samples[attr].map(extract_code)
+
+                samples["registrationDate"] = samples["registrationDate"].map(
+                    format_timestamp
+                )
+                samples["modificationDate"] = samples["modificationDate"].map(
+                    format_timestamp
+                )
+                samples["registrator"] = samples["registrator"].map(extract_person)
+                samples["modifier"] = samples["modifier"].map(extract_person)
+                samples["identifier"] = samples["identifier"].map(extract_identifier)
+                samples["container"] = samples["container"].map(extract_nested_identifier)
+                for column in ["parents", "children", "components"]:
+                    if column in samples:
+                        samples[column] = samples[column].map(extract_identifiers)
+                samples["permId"] = samples["permId"].map(extract_permid)
+                samples["type"] = samples["type"].map(extract_nested_permid)
+
+                time4 = now()
+                logger.debug(f"_sample_list_for_response computed attributes. Delay: {time4 - time3}")
+
+                for prop in props:
+                    if prop == "*":
+                        # include all properties in dataFrame.
+                        # expand the dataFrame by adding new columns
+                        columns = []
+                        for i, sample in enumerate(response):
+                            for prop_name, val in sample.get("properties", {}).items():
+                                samples.loc[i, prop_name.upper()] = val
+                                columns.append(prop_name.upper())
+
+                        display_attrs += set(columns)
+                        continue
+                    else:
+                        # property name is provided
+                        for i, sample in enumerate(response):
+                            if "properties" in sample:
+                                properties = sample["properties"]
+                                val = properties.get(prop, "") or properties.get(prop.upper(), "")
+                                samples.loc[i, prop.upper()] = val
+                            else:
+                                samples.loc[i, prop.upper()] = ""
+                        display_attrs.append(prop.upper())
+
+                time5 = now()
+                logger.debug(f"_sample_list_for_response computed properties. Delay: {time5 - time4}")
+
+            dataFrame = samples[display_attrs]
+
+        time6 = now()
+        logger.debug("_sample_list_for_response computing result.")
+
+        result = Things(openbis_obj=self, entity="sample",
+                        df=dataFrame,
+                        identifier_name="identifier", start_with=start_with,
+                        count=count, totalCount=totalCount, objects=objects, response=response)
+
+        time7 = now()
+        logger.debug(f"_sample_list_for_response computed result. Delay: {time7 - time6}")
+        return result
 
     @staticmethod
     def decode_attribute(entity, attribute):
@@ -4327,118 +4499,6 @@ class Openbis:
             params["alias"] = params["alias_alternative"]
 
         return params
-
-    def _sample_list_for_response(
-        self,
-        response,
-        attrs=None,
-        props=None,
-        start_with=None,
-        count=None,
-        totalCount=0,
-        objects=None,
-    ):
-        """returns a Things object, containing a DataFrame plus additional information"""
-
-        def extract_attribute(attribute_to_extract):
-            def return_attribute(obj):
-                if obj is None:
-                    return ""
-                return obj.get(attribute_to_extract, "")
-
-            return return_attribute
-
-        parse_jackson(response)
-
-        if attrs is None:
-            attrs = []
-        default_attrs = [
-            "identifier",
-            "permId",
-            "type",
-            "registrator",
-            "registrationDate",
-            "modifier",
-            "modificationDate",
-        ]
-        display_attrs = default_attrs + attrs
-
-        if props is None:
-            props = []
-        else:
-            if isinstance(props, str):
-                props = [props]
-
-        if len(response) == 0:
-            for prop in props:
-                if prop == "*":
-                    continue
-                display_attrs.append(prop)
-            samples = DataFrame(columns=display_attrs)
-        else:
-            samples = DataFrame(response)
-            for attr in attrs:
-                if "." in attr:
-                    entity, attribute_to_extract = attr.split(".")
-                    samples[attr] = samples[entity].map(
-                        extract_attribute(attribute_to_extract)
-                    )
-
-            for attr in attrs:
-                # if no dot supplied, just display the code of the space, project or experiment
-                if attr in ["project", "experiment"]:
-                    samples[attr] = samples[attr].map(extract_nested_identifier)
-                if attr in ["space"]:
-                    samples[attr] = samples[attr].map(extract_code)
-
-            samples["registrationDate"] = samples["registrationDate"].map(
-                format_timestamp
-            )
-            samples["modificationDate"] = samples["modificationDate"].map(
-                format_timestamp
-            )
-            samples["registrator"] = samples["registrator"].map(extract_person)
-            samples["modifier"] = samples["modifier"].map(extract_person)
-            samples["identifier"] = samples["identifier"].map(extract_identifier)
-            samples["container"] = samples["container"].map(extract_nested_identifier)
-            for column in ["parents", "children", "components"]:
-                if column in samples:
-                    samples[column] = samples[column].map(extract_identifiers)
-            samples["permId"] = samples["permId"].map(extract_permid)
-            samples["type"] = samples["type"].map(extract_nested_permid)
-
-            for prop in props:
-                if prop == "*":
-                    # include all properties in dataFrame.
-                    # expand the dataFrame by adding new columns
-                    columns = []
-                    for i, sample in enumerate(response):
-                        for prop_name, val in sample.get("properties", {}).items():
-                            samples.loc[i, prop_name.upper()] = val
-                            columns.append(prop_name.upper())
-
-                    display_attrs += set(columns)
-                    continue
-
-                else:
-                    # property name is provided
-                    for i, sample in enumerate(response):
-                        val = sample.get("properties", {}).get(prop, "") or sample.get(
-                            "properties", {}
-                        ).get(prop.upper(), "")
-                        samples.loc[i, prop.upper()] = val
-                    display_attrs.append(prop.upper())
-
-        return Things(
-            openbis_obj=self,
-            entity="sample",
-            df=samples[display_attrs],
-            identifier_name="identifier",
-            start_with=start_with,
-            count=count,
-            totalCount=totalCount,
-            objects=objects,
-        )
 
     get_object = get_sample  # Alias
 
