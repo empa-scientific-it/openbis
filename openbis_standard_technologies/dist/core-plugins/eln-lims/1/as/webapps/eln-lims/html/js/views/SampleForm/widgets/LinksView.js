@@ -56,7 +56,7 @@ function LinksView(linksController, linksModel) {
 						.append("&nbsp;")
 						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
 						.append("&nbsp;")
-						.append(linksView.getAddPasteBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
+						.append(linksView.getAddPasteAnyBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
 						.css("margin","5px"));
 			}
 			
@@ -187,14 +187,17 @@ function LinksView(linksController, linksModel) {
 		$container.append($fieldsetOwner);
 		$savedContainer = $fieldset;
 		
-		var addAnyBtn = null;
+		var addSearchAnyBtn = null;
+		var addPasteAnyBtn = null;
 		if(linksModel.disableAddAnyType) {
-			addAnyBtn = "";
+			addSearchAnyBtn = "";
+			addPasteAnyBtn = "";
 		} else {
-			addAnyBtn = linksView.getAddAnyBtn();
+			addSearchAnyBtn = linksView.getAddSearchAnyBtn();
+			addPasteAnyBtn = linksView.getAddPasteAnyBtn();
 		}
 		
-		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
+		$legend.append(linksModel.title).append("&nbsp;").append(addSearchAnyBtn).append("&nbsp;").append(addPasteAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
 
 		if(!linksModel.disableAddAnyType && profile.mainMenu.showBarcodes) {
 			$legend.append("&nbsp;").append(linksView.getAddAnyBarcode());
@@ -523,10 +526,21 @@ function LinksView(linksController, linksModel) {
             }
             Util.blockUI();
             mainController.serverFacade.searchWithIdentifiers(validIdentifiers, function(results) {
+                var added = 0;
+                var incorrectType = 0;
+
                 for(var sIdx = 0; sIdx < results.length; sIdx++) {
-                    linksView.updateSample(results[sIdx], true);
+                    if(sampleTypeCode === undefined || (results[sIdx].sampleTypeCode === sampleTypeCode)) {
+                        linksView.updateSample(results[sIdx], true);
+                        added++;
+                    } else {
+                        incorrectType++;
+                    }
                 }
+
                 Util.unblockUI();
+                var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
+                Util.showInfo(message);
                 $container.empty().hide();
            });
         }, "Add");
@@ -548,21 +562,34 @@ function LinksView(linksController, linksModel) {
 		}
 	}
 
-	linksView.getAddPasteBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
-    		var enabledFunction = function() {
-    			linksView.showSamplePaster($container, sampleTypeCode);
-    		};
+	linksView.getAddPasteAnyBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
+    	var enabledFunction = function() {
+    	    if(sampleTypeCode) {
+                linksView.showSamplePaster($container, sampleTypeCode);
+    	    } else {
+    	        linksView.showSamplePaster($samplePicker, sampleTypeCode);
+    	    }
+    	};
 
-    		var id = "paste-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
-    		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-paste", (linksModel.isDisabled)?null:enabledFunction, "Paste", null, id);
-    		if(linksModel.isDisabled) {
-    			return "";
-    		} else {
-    			return $addBtn;
-    		}
+        var id = "paste-btn-";
+        var label = null;
+    	if(sampleTypeCode) {
+            id += sampleTableContainerLabel.toLowerCase().split(" ").join("-");
+            label = "Paste";
+    	} else {
+            id += linksModel.title.split(" ").join("-").toLowerCase();
+            label = "Paste Any";
     	}
+
+    	var $addBtn = FormUtil.getButtonWithIcon("glyphicon-paste", (linksModel.isDisabled)?null:enabledFunction, label, null, id);
+    	if(linksModel.isDisabled) {
+    		return "";
+    	} else {
+    		return $addBtn;
+    	}
+    }
 	
-	linksView.getAddAnyBtn = function() {
+	linksView.getAddSearchAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
 			Util.showDropdownAndBlockUI("sampleTypeSelector", $sampleTypesDropdown);
