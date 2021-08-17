@@ -870,8 +870,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
         if (this._sampleFormModel.mode !== FormMode.CREATE) {
             $fieldset.append(FormUtil.getFieldForLabelWithText("PermId", this._sampleFormModel.sample.permId));
-		}
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+            $fieldset.append(FormUtil.getFieldForLabelWithText("Identifier", this._sampleFormModel.sample.identifier));
 			$fieldset.append(FormUtil.getFieldForComponentWithLabel(entityPath, "Path"));
 		}
 		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
