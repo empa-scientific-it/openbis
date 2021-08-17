@@ -437,10 +437,17 @@ function LinksView(linksController, linksModel) {
         var $searchDropdownContainer = $("<div>");
         $gridContainer.append($searchDropdownContainer);
 
+        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() { }, "Add");
+        $addObjectsBtn.css({"margin-top" : "5px"});
+        $gridContainer.append($addObjectsBtn);
+
         // Search Dropdown
-		var searchDropdown = new AdvancedEntitySearchDropdown(false, true, "Code or Name of the Object", false, true, false, false, false, '50%');
-		searchDropdown.onChange(function(selected) {
-            linksController.addSample({ identifier : selected[0].identifier.identifier });
+		var searchDropdown = new AdvancedEntitySearchDropdown(true, true, "Code or Name of the Object", false, true, false, false, false, '50%');
+		$addObjectsBtn.click(function() {
+		    var selected = searchDropdown.getSelected();
+		    for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+                linksController.addSample({ identifier : selected[sIdx].identifier.identifier });
+            }
             $container.empty().hide();
         });
 		searchDropdown.setGetSelectsSamplesCriteria(function() {
