@@ -1446,7 +1446,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._allowedToCreateChild();
+		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
 	
 	this._allowedToRegisterDataSet = function() {
