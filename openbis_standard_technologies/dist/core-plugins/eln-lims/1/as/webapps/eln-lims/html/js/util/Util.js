@@ -804,7 +804,8 @@ var Util = new function() {
 
         var archivingRequested = false;
         for(var aIdx = 0; aIdx < dataSets.length; aIdx++) {
-            archivingRequested = archivingRequested || dataSets[aIdx].physicalData.archivingRequested;
+            var dataSet = dataSets[aIdx];
+            archivingRequested = archivingRequested || dataSet.archivingRequested || (dataSet.physicalData && dataSet.physicalData.archivingRequested);
         }
 
         if(archivingRequested) {
@@ -814,12 +815,12 @@ var Util = new function() {
 
         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
         $window.submit(function() {
-            var permIds = dataSets.map(dataSet => dataSet.permId.permId);
-            require([ "as/dto/dataset/update/DataSetUpdate", "as/dto/dataset/update/PhysicalDataUpdate"],
-                    function(DataSetUpdate, PhysicalDataUpdate) {
+            require([ "as/dto/dataset/update/DataSetUpdate", "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/update/PhysicalDataUpdate"],
+                    function(DataSetUpdate, DataSetPermId, PhysicalDataUpdate) {
                         var updates = dataSets.map(function(dataSet) {
                             var update = new DataSetUpdate();
-                            update.setDataSetId(dataSet.permId);
+                            var permId = dataSet.permId.permId ? dataSet.permId.permId : dataSet.permId;
+                            update.setDataSetId(new DataSetPermId(permId));
                             var physicalDataUpdate = new PhysicalDataUpdate();
                             physicalDataUpdate.setArchivingRequested(true);
                             update.setPhysicalData(physicalDataUpdate);
@@ -864,7 +865,8 @@ var Util = new function() {
                 'background' : '#ffffbf'
         };
 
-        Util.blockUI($window, css);    }
+        Util.blockUI($window, css);
+    }
 }
 
 

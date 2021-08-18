@@ -23,13 +23,15 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 		$explanationBox.css("border", "none");
 		$container.append(this._createStepExplanationElement("1. Search for the datasets you want to unarchive:"));
 		
-		this._advancedSearch($container, $infoSummary, this._unarchivingHelperController._mainController);
+		searchController = this._advancedSearch($container, $infoSummary, this._unarchivingHelperController._mainController);
 		$unarchiveButton.click(function() {
 			var dataSetCodes = Object.keys(_this._unarchivingHelperModel.dataSetsForUnarchiving);
 			if (dataSetCodes.length > 0) {
 				_this._unarchivingHelperController.unarchive(dataSetCodes, function(success) {
 					if (success) {
-						Util.showSuccess("Unarchiving has been triggered.");
+						Util.showSuccess("Unarchiving has been triggered.", function() {
+                            searchController.search();
+						});
 					}
 				});
 			}
@@ -145,9 +147,6 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 		searchView._$entityTypeDropdown.attr("disabled", "disabled");
 		searchView._$andOrDropdownComponent.attr("disabled", "disabled");
 		searchView._$dataGridContainer = $("<div>");
-		searchView._getLinkOnClick = function(code, data, paginationInfo) {
-			return code;
-		};
 		searchView.beforeRenderingHook = function() {
 			_this._unarchivingHelperModel.dataSetsForUnarchiving = {};
 			$explanationBox.show();
@@ -198,6 +197,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 		}
 		$container.append($explanationBox);
 		$container.append(searchView._$dataGridContainer);
+		return searchController;
 	}
 	
 	this._createStepExplanationElement = function(text) {
