@@ -1441,12 +1441,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
+		return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false)) && this._allowedToMove();
 	}
 	
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return !sample.experiment || sample.experiment.frozenForSamples == false;
+		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._allowedToCreateChild();
 	}
 	
 	this._allowedToRegisterDataSet = function() {
