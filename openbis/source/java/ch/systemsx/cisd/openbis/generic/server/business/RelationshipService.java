@@ -140,7 +140,6 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         }
 
         sample.setExperiment(experiment);
-        sample.setSpace(experiment.getProject().getSpace());
         RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
         RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experiment, currentProject,
                 session, timeStamp);
