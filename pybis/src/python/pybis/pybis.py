@@ -3413,17 +3413,17 @@ class Openbis:
                 "descriptorAccessionId",
                 "creationDate",
             ]
-            if len(objects) == 0:
+            if len(response) == 0:
                 annotations = DataFrame(columns=attrs)
             else:
-                annotations = DataFrame(objects)
+                annotations = DataFrame(response)
             return annotations[attrs]
 
         return Things(
             openbis_obj=self,
             entity="semantic_annotation",
             identifier_name="permId",
-            objects=objects,
+            response=objects,
             df_initializer=create_data_frame
         )
 
