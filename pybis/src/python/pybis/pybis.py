@@ -3399,27 +3399,32 @@ class Openbis:
                 "@type": "as.dto.semanticannotation.search.SemanticAnnotationSearchCriteria"
             }
         )
-        attrs = [
-            "permId",
-            "entityType",
-            "propertyType",
-            "predicateOntologyId",
-            "predicateOntologyVersion",
-            "predicateAccessionId",
-            "descriptorOntologyId",
-            "descriptorOntologyVersion",
-            "descriptorAccessionId",
-            "creationDate",
-        ]
-        if len(objects) == 0:
-            annotations = DataFrame(columns=attrs)
-        else:
-            annotations = DataFrame(objects)
+
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "permId",
+                "entityType",
+                "propertyType",
+                "predicateOntologyId",
+                "predicateOntologyVersion",
+                "predicateAccessionId",
+                "descriptorOntologyId",
+                "descriptorOntologyVersion",
+                "descriptorAccessionId",
+                "creationDate",
+            ]
+            if len(objects) == 0:
+                annotations = DataFrame(columns=attrs)
+            else:
+                annotations = DataFrame(objects)
+            return annotations[attrs]
+
         return Things(
             openbis_obj=self,
             entity="semantic_annotation",
-            df=annotations[attrs],
             identifier_name="permId",
+            objects=objects,
+            df_initializer=create_data_frame
         )
 
     def get_semantic_annotation(self, permId, only_data=False):
