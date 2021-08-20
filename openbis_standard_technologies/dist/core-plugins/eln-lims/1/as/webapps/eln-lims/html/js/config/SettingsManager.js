@@ -56,7 +56,8 @@ function SettingsManager(serverFacade) {
 								console.log("The settings contain the following errors:");
 								console.log(errors);
 							}
-							this.applySettingsToProfile(settings, (profileToEditOrNull)?profileToEditOrNull:profile);
+							var isMergeGroup = settingsObjects.length > 2;
+							this.applySettingsToProfile(settings, (profileToEditOrNull)?profileToEditOrNull:profile, isMergeGroup);
 						}
 					}
 				}
@@ -93,63 +94,128 @@ function SettingsManager(serverFacade) {
 		return profile.allPropertyTypes.map( function(_) { return _.code; } );
 	}
 
-	this.applySettingsToProfile = function(settings, targetProfile) {
-		// fields that get overwritten with settings if found
-		var fieldsToOverride = [
-			"dataSetTypeForFileNameMap",
-			"forcedDisableRTF",
-			"forceMonospaceFont",
-			"showDatasetArchivingButton",
-			"hideSectionsByDefault"
-		];
-		for (var field of fieldsToOverride) {
-			if (settings[field] !== null && settings[field] !== undefined) {
-				targetProfile[field] = settings[field];
-			}
-		}
-		
-		// array fields to add/remove values to defaults
-		var fieldsToAdd = [
-			"inventorySpaces", "inventorySpacesReadOnly"
-		];
+    /*
+     * Overall settings should work following these use cases:
+     *  Single Instance: Only the "General Settings" are applied
+     *  User belongs to one group: "General Settings" are applied first, the only group second, both with isMergeGroup = false
+     *  User belongs to more than one group: "General Settings" are applied first, any additional group with isMergeGroup = true
+     */
+   this.applySettingsToProfile = function(settings, targetProfile, isMergeGroup) {
 
-		for (var field of fieldsToAdd) {
-		    // We add fields only if they have been populated, to avoid overriding new ones
-		    if(settings[field] !== null && settings[field] !== undefined) {
-			    targetProfile[field] = settings[field];
-			}
-		}
-		
-		// main menu, checks menu items one by one to keep new ones
-		for (var menuItem of Object.keys(targetProfile.mainMenu)) {
-			if (settings.mainMenu[menuItem] != undefined) {
-				targetProfile.mainMenu[menuItem] = settings.mainMenu[menuItem];
-			}
-		}
-		
-		
-		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
-			// sampleTypeDefinitionsExtension gets overwritten with settings if found
-			if(!targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]) {
-			    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode] = {};
-			}
+     	    // Main menu Items
+     	    for(var menuItem in settings.mainMenu) {
+     	        if(isMergeGroup && targetProfile.mainMenu[menuItem] !== undefined) { // Merge found values
+     	            targetProfile.mainMenu[menuItem] = targetProfile.mainMenu[menuItem] || settings.mainMenu[menuItem];
+     	        } else { // Replaces or sets value
+     	            targetProfile.mainMenu[menuItem] = settings.mainMenu[menuItem];
+     	        }
 
-			for(var key in settings.sampleTypeDefinitionsExtension[sampleTypeCode]) { // Key by Key, in case there is new Keys not available in the old config
-                targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
-            }
+     	    }
 
-			// Remove current profile show config
-			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
-				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
-				targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
-			}
-			
-			// Add current profile show config
-			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
-				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
-			}
-		}
-	}
+             // Miscellaneous
+             var miscellaneousFields = ["hideSectionsByDefault", "showDatasetArchivingButton"]
+             for(var miscellaneousField of miscellaneousFields) {
+                if(isMergeGroup && targetProfile[miscellaneousField] != undefined) { // Merge found values
+                    targetProfile[miscellaneousField] = targetProfile[miscellaneousField] || settings[miscellaneousField];
+                } else { // Replaces or sets value
+     	            targetProfile[miscellaneousField] = settings[miscellaneousField];
+     	        }
+     	    }
+
+             // Forced Disable RTF
+             if(isMergeGroup) { // Merge found values
+                targetProfile["forcedDisableRTF"] = targetProfile["forcedDisableRTF"].concat(settings["forcedDisableRTF"]).unique();
+             } else { // Replaces or sets values
+                targetProfile["forcedDisableRTF"] = settings["forcedDisableRTF"];
+             }
+
+             // Forced Monospace Font
+             if(isMergeGroup) { // Merge found values
+                targetProfile["forceMonospaceFont"] = targetProfile["forceMonospaceFont"].concat(settings["forceMonospaceFont"]).unique();
+             } else { // Replaces or sets values
+                targetProfile["forceMonospaceFont"] = settings["forceMonospaceFont"];
+             }
+
+
+
+             // Inventory Spaces
+             if(isMergeGroup) { // Merge found values
+                targetProfile["inventorySpaces"] = targetProfile["inventorySpaces"].concat(settings["inventorySpaces"]).unique();
+                targetProfile["inventorySpacesReadOnly"] = targetProfile["inventorySpacesReadOnly"].concat(settings["inventorySpacesReadOnly"]).unique();
+             } else { // Replaces or sets values
+                targetProfile["inventorySpaces"] = settings["inventorySpaces"];
+                targetProfile["inventorySpacesReadOnly"] = settings["inventorySpacesReadOnly"];
+             }
+
+
+             // Dataset Types from File Extension
+             if(isMergeGroup) { // Merge found values
+                for(var idxTp = 0; idxTp < settings.dataSetTypeForFileNameMap.length; idxTp++) {
+                     targetProfile.dataSetTypeForFileNameMap.push(settings.dataSetTypeForFileNameMap[idxTp]);
+                 }
+             } else { // Replaces or sets values
+                targetProfile.dataSetTypeForFileNameMap = settings.dataSetTypeForFileNameMap;
+             }
+
+
+            // Object Type definitions Extension : Gets values merged and exiting sampleTypeDefinitionsExtension values replaced with last settings found and found boolean values merged with OR
+
+                 // For every key on the settings to apply, merge with logic OR
+                 var sampleTypeDefinitionBooleans = {
+                     "ENABLE_STORAGE" : true,
+                     "SAMPLE_CHILDREN_ANY_TYPE_DISABLED" : true,
+                     "SAMPLE_CHILDREN_DISABLED" : true,
+                     "SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+                     "SAMPLE_PARENTS_DISABLED" : true,
+                     "SHOW" : true,
+                     "SHOW_ON_NAV" : true,
+                     "USE_AS_PROTOCOL" : true,
+                 }
+
+     		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
+
+     			// If doesn't exist, it is created
+     			if(!targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]) {
+     			    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode] = {};
+     			}
+
+     			for(var key in settings.sampleTypeDefinitionsExtension[sampleTypeCode]) { // Key by Key, in case there is new Keys not available in the old config
+                     // Known boolean values are merged, others are replaced
+
+                     // Missing values are just replaced
+                     if(targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] === undefined) {
+                         targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
+                     } else { // Existing values are merged or replaced
+                        if(isMergeGroup) {
+                            if(key in sampleTypeDefinitionBooleans) { // Merge with logic OR
+                                targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] || settings.sampleTypeDefinitionsExtension[sampleTypeCode][key]
+                            } else { // Random to keep or to use new one
+                                var keep = Math.random() < 0.5;
+                                if(keep) {
+                                    // Keep current
+                                } else { // Replace
+                                    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
+                                }
+                            }
+                        } else { // Replace
+                            targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
+                        }
+                     }
+
+                 }
+
+     			// Remove current type from hideTypes, if present
+     			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
+     				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
+     				targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
+     			}
+
+     			// Add current type to hideTypes, if not SHOW
+     			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
+     				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
+     			}
+     		}
+     }
 
     this._validateSettings = function(settings) {
 		var errors = [];
