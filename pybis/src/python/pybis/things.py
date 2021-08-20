@@ -52,14 +52,12 @@ class Things():
     @property
     def df(self):
         if self.__df is None and self.__df_initializer is not None:
-            print(">>>__df INITIALIZED<<<")
             self.__df = self.__df_initializer(attrs=self.__attrs, props=self.__props, response=self.response)
         return self.__df
 
     @property
     def objects(self):
         if self.__objects is None and self.__objects_initializer is not None:
-            print(">>>__objects INITIALIZED<<<")
             self.__objects = self.__objects_initializer(response=self.response)
         return self.__objects
 

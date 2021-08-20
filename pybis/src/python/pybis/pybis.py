@@ -104,7 +104,7 @@ LOG_DEBUG = 7
 DEBUG_LEVEL = LOG_NONE
 
 def now():
-    return time.time_ns() // 1000000
+    return time.time()
 
 def get_search_type_for_entity(entity, operator=None):
     """Returns a dictionary containing the correct search criteria type
