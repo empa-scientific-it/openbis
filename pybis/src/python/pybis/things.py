@@ -23,24 +23,45 @@ class Things():
     """
 
     def __init__(
-        self, openbis_obj, entity, df,
+        self, openbis_obj, entity,
         identifier_name='code', additional_identifier=None,
         start_with=None, count=None, totalCount=None,
         single_item_method=None,
-        objects=None,
-        response=None
+        response=None,
+        df_initializer=None,
+        objects_initializer=None,
+        attrs=None,
+        props=None
     ):
         self.openbis = openbis_obj
         self.entity = entity
-        self.df = df
+        self.__df = None
         self.identifier_name = identifier_name
         self.additional_identifier = additional_identifier
         self.start_with = start_with
         self.count = count
         self.totalCount=totalCount
         self.single_item_method=single_item_method
-        self.objects=objects
+        self.__objects = None
         self.response = response
+        self.__objects_initializer = objects_initializer
+        self.__df_initializer = df_initializer
+        self.__attrs = attrs
+        self.__props = props
+
+    @property
+    def df(self):
+        if self.__df is None and self.__df_initializer is not None:
+            print(">>>__df INITIALIZED<<<")
+            self.__df = self.__df_initializer(attrs=self.__attrs, props=self.__props, response=self.response)
+        return self.__df
+
+    @property
+    def objects(self):
+        if self.__objects is None and self.__objects_initializer is not None:
+            print(">>>__objects INITIALIZED<<<")
+            self.__objects = self.__objects_initializer(response=self.response)
+        return self.__objects
 
     def __repr__(self):
         return tabulate(self.df, headers=list(self.df))
@@ -50,6 +71,13 @@ class Things():
 
     def _repr_html_(self):
         return self.df._repr_html_()
+
+    @staticmethod
+    def __create_data_frame(attrs, props, response):
+        if len(response) > 0:
+            return pd.concat(response)
+        else:
+            return DataFrame()
 
     def get_parents(self, **kwargs):
         if self.entity not in ['sample', 'dataset']:
@@ -64,11 +92,9 @@ class Things():
                     dfs.append(parents.df)
                 except ValueError:
                     pass
+            return Things(self.openbis, self.entity, self.identifier_name, response=dfs,
+                          df_initializer=self.__create_data_frame)
 
-            if len(dfs) > 0:
-                return Things(self.openbis, self.entity, pd.concat(dfs), self.identifier_name)
-            else:
-                return Things(self.openbis, self.entity, DataFrame(), self.identifier_name)
 
     def get_children(self, **kwargs):
         if self.entity not in ['sample', 'dataset']:
@@ -84,10 +110,8 @@ class Things():
                 except ValueError:
                     pass
 
-            if len(dfs) > 0:
-                return Things(self.openbis, self.entity, pd.concat(dfs), self.identifier_name)
-            else:
-                return Things(self.openbis, self.entity, DataFrame(), self.identifier_name)
+                return Things(self.openbis, self.entity, self.identifier_name, response=dfs,
+                              df_initializer=self.__create_data_frame)
 
     def get_samples(self, **kwargs):
         if self.entity not in ['space', 'project', 'experiment']:
@@ -104,10 +128,8 @@ class Things():
                 except ValueError:
                     pass
 
-            if len(dfs) > 0:
-                return Things(self.openbis, 'sample', pd.concat(dfs), 'identifier')
-            else:
-                return Things(self.openbis, 'sample', DataFrame(), 'identifier')
+            return Things(self.openbis, 'sample', 'identifier', response=dfs,
+                          df_initializer=self.__create_data_frame)
 
     get_objects = get_samples # Alias
 
@@ -126,10 +148,8 @@ class Things():
                 except ValueError:
                     pass
 
-            if len(dfs) > 0:
-                return Things(self.openbis, 'dataset', pd.concat(dfs), 'permId')
-            else:
-                return Things(self.openbis, 'dataset', DataFrame(), 'permId')
+            return Things(self.openbis, 'dataset', 'permId', response=dfs,
+                          df_initializer=self.__create_data_frame)
 
     def __getitem__(self, key):
         """ elegant way to fetch a certain element from the displayed list.
