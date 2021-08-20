@@ -23,21 +23,19 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this.init = function(views) {
 	    var _this = this;
 	    mainController.serverFacade.getCustomWidgetSettings(function(customWidgetSettings) {
-	        var runningProfile = jQuery.extend(true, {}, profile);
-            var profileToEdit = null;
-
+	        var profileToEdit = null;
             if(settingsSample.properties["$ELN_SETTINGS"]) {
                 profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
             } else {
-                profileToEdit = runningProfile;
+                var newProfile = jQuery.extend(true, {}, profile);
+                profileToEdit = newProfile;
             }
             require(["as/dto/sample/id/SampleIdentifier"], function(SampleIdentifier) {
 				var sampId = new SampleIdentifier(settingsSample.identifier);
-				mainController.openbisV3.getRights([ sampId], null).done(function(rightsByIds) {
+				mainController.openbisV3.getRights([sampId], null).done(function(rightsByIds) {
 					_this._settingsFormModel.sampleRights = rightsByIds[sampId];
 					_this._settingsFormModel.customWidgetSettings = customWidgetSettings;
-					_this._settingsManager.applySettingsToProfile(profileToEdit, runningProfile);
-					_this._settingsFormView.repaint(views, runningProfile);
+					_this._settingsFormView.repaint(views, profileToEdit);
 				});
 			});
 	    });
