@@ -224,6 +224,6 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
     };
     this._allowedToDeleteSpace = function() {
         var space = this._spaceFormModel.v3_space;
-        return space.frozen == false && profile.isAdmin && profile.inventorySpacesReadOnlyPostFixes.indexOf(space.code) < 0;
+        return (space.frozen == false && profile.isAdmin && profile.inventorySpacesReadOnlyPostFixes.indexOf(space.code) < 0) && this._allowedToEditSpace();
     };
 }

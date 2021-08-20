@@ -816,6 +816,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
         if (newExperiment != null)
         {
+            sample.setSpace(newExperiment.getProject().getSpace());
             relationshipService.assignSampleToExperiment(session, sample, newExperiment);
         } else
         {

@@ -48,18 +48,26 @@ def setCustomWidgetSettings(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update import PropertyTypeUpdate
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id import PropertyTypePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue import ListUpdateActionAdd
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search import PropertyTypeSearchCriteria
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions import PropertyTypeFetchOptions
 
-    widgetSettings = parameters.get("widgetSettings");
+    widgetSettingsById = {PropertyTypePermId(ws["Property Type"]):ws for ws in parameters.get("widgetSettings")}
+    sessionToken = context.applicationService.loginAsSystem();
+    searchCriteria = PropertyTypeSearchCriteria()
+    fetchOptions = PropertyTypeFetchOptions()
     ptus = [];
-    for widgetSetting in widgetSettings:
+    propertyTypes = context.applicationService.searchPropertyTypes(sessionToken, searchCriteria, fetchOptions)
+    for propertyType in propertyTypes.getObjects():
+        id = propertyType.getPermId()
         ptu = PropertyTypeUpdate();
-        ptu.setTypeId(PropertyTypePermId(widgetSetting["Property Type"]));
-        luaa = ListUpdateActionAdd();
-        luaa.setItems([{"custom_widget" : widgetSetting["Widget"] }])
-        ptu.setMetaDataActions([luaa]);
+        ptu.setTypeId(id);
+        metaData = ptu.getMetaData()
+        if id in widgetSettingsById:
+            metaData.add([{"custom_widget" : widgetSettingsById[id]["Widget"] }])
+        else:
+            metaData.remove(["custom_widget"])
         ptus.append(ptu);
 
-    sessionToken = context.applicationService.loginAsSystem();
     context.applicationService.updatePropertyTypes(sessionToken, ptus);
     return True
 

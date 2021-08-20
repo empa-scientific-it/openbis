@@ -473,11 +473,16 @@ function MainController(profile) {
 					this._showAdvancedSearchPage(argToUse);
 					//window.scrollTo(0,0);
 					break;
-				case "showUnarchivingHelperPage":
-					document.title = "Unarchiving Helper";
-					this._showUnarchivingHelper();
+				case "showArchivingHelperPage":
+					document.title = "Archiving Helper";
+					this._showArchivingHelper();
 					//window.scrollTo(0,0);
 					break;
+				case "showUnarchivingHelperPage":
+				    document.title = "Unarchiving Helper";
+				    this._showUnarchivingHelper();
+				    //window.scrollTo(0,0);
+				    break;
 				case "showUserManagerPage":
 					document.title = "User Manager";
 					this._showUserManager();
@@ -1054,6 +1059,14 @@ function MainController(profile) {
 		this.currentView = userManagerController;
 	}
 	
+    this._showArchivingHelper = function() {
+        var views = this._getNewViewModel(true, true, false);
+        
+        var archivingHelperController = new ArchivingHelperController(this);
+        archivingHelperController.init(views);
+        this.currentView = archivingHelperController;
+    }
+    
 	this._showUnarchivingHelper = function() {
 		var views = this._getNewViewModel(true, true, false);
 		

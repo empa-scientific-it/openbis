@@ -1,5 +1,7 @@
+import site
 import sys
 
+site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 if sys.version_info < (3, 6):
     sys.exit("Sorry, Python < 3.6 is not supported")
 

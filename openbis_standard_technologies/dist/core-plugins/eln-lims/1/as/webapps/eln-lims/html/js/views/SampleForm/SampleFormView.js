@@ -870,8 +870,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
         if (this._sampleFormModel.mode !== FormMode.CREATE) {
             $fieldset.append(FormUtil.getFieldForLabelWithText("PermId", this._sampleFormModel.sample.permId));
-		}
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+            $fieldset.append(FormUtil.getFieldForLabelWithText("Identifier", this._sampleFormModel.sample.identifier));
 			$fieldset.append(FormUtil.getFieldForComponentWithLabel(entityPath, "Path"));
 		}
 		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
@@ -1442,12 +1441,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
+		return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false)) && this._allowedToMove();
 	}
 	
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return !sample.experiment || sample.experiment.frozenForSamples == false;
+		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
 	
 	this._allowedToRegisterDataSet = function() {

@@ -55,6 +55,8 @@ function LinksView(linksController, linksModel) {
 				$sampleTableContainer.append($("<div>").append(sampleTableContainerLabel + ":")
 						.append("&nbsp;")
 						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
+						.append("&nbsp;")
+						.append(linksView.getAddPasteAnyBtn($samplePickerContainer, sampleTypeCode, sampleTableContainerLabel))
 						.css("margin","5px"));
 			}
 			
@@ -185,14 +187,17 @@ function LinksView(linksController, linksModel) {
 		$container.append($fieldsetOwner);
 		$savedContainer = $fieldset;
 		
-		var addAnyBtn = null;
+		var addSearchAnyBtn = null;
+		var addPasteAnyBtn = null;
 		if(linksModel.disableAddAnyType) {
-			addAnyBtn = "";
+			addSearchAnyBtn = "";
+			addPasteAnyBtn = "";
 		} else {
-			addAnyBtn = linksView.getAddAnyBtn();
+			addSearchAnyBtn = linksView.getAddSearchAnyBtn();
+			addPasteAnyBtn = linksView.getAddPasteAnyBtn();
 		}
 		
-		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
+		$legend.append(linksModel.title).append("&nbsp;").append(addSearchAnyBtn).append("&nbsp;").append(addPasteAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
 
 		if(!linksModel.disableAddAnyType && profile.mainMenu.showBarcodes) {
 			$legend.append("&nbsp;").append(linksView.getAddAnyBarcode());
@@ -415,7 +420,8 @@ function LinksView(linksController, linksModel) {
 		$container.css({
 			"margin" : "5px",
 			"padding" : "5px",
-			"background-color" : "#f6f6f6"
+			"background-color" : "rgb(248, 248, 248)",
+			"border-radius" : "4px"
 		});
 
 		//Grid Layout
@@ -425,16 +431,23 @@ function LinksView(linksController, linksModel) {
         var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
             $container.empty().hide();
         });
-        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
+        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "margin-bottom" : "5px"});
         $gridContainer.append($closeBtnContainer);
 
         var $searchDropdownContainer = $("<div>");
         $gridContainer.append($searchDropdownContainer);
 
+        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() { }, "Add");
+        $addObjectsBtn.css({"margin-top" : "5px"});
+        $gridContainer.append($addObjectsBtn);
+
         // Search Dropdown
-		var searchDropdown = new AdvancedEntitySearchDropdown(false, true, "Code or Name of the Object", false, true, false, false, false, '50%');
-		searchDropdown.onChange(function(selected) {
-            linksController.addSample({ identifier : selected[0].identifier.identifier });
+		var searchDropdown = new AdvancedEntitySearchDropdown(true, true, "Code or Name of the Object", false, true, false, false, false, '50%');
+		$addObjectsBtn.click(function() {
+		    var selected = searchDropdown.getSelected();
+		    for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+                linksController.addSample({ identifier : selected[sIdx].identifier.identifier });
+            }
             $container.empty().hide();
         });
 		searchDropdown.setGetSelectsSamplesCriteria(function() {
@@ -462,35 +475,128 @@ function LinksView(linksController, linksModel) {
                     }
                 }
         		if(sampleTypeCode === "REQUEST") {
-        			// This property is missing the $ because the search uses V1 instead of V3
-        			advancedSampleSearchCriteria.subCriteria.rules["1-3"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
-        			advancedSampleSearchCriteria.subCriteria.rules["2-3"] = { type : "Property", name : "PROP.$ORDERING.ORDER_STATUS", value : "NOT_YET_ORDERED" };
+        			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
+        			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         		}
         		if(sampleTypeCode === "ORGANIZATION_UNIT") {
         			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
-        			advancedSampleSearchCriteria.subCriteria.rules["1-3"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
-        			advancedSampleSearchCriteria.subCriteria.rules["2-3"] = { type : "Attribute", name : "ATTR.SPACE", value : spaceCode };
+        			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "ATTR.SPACE", value : spaceCode };
+        			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "ATTR.SPACE", value : spaceCode };
         		}
                 return advancedSampleSearchCriteria;
             });
 		searchDropdown.init($searchDropdownContainer);
 	}
-			
+
+	linksView.showSamplePaster = function($container, sampleTypeCode) {
+		$container.empty().show();
+		$container.css({
+			"margin" : "5px",
+			"padding" : "5px",
+			"background-color" : "rgb(248, 248, 248)",
+			"border-radius" : "4px"
+		});
+
+		//Grid Layout
+		var $gridContainer = $("<div>");
+		$container.append($gridContainer);
+
+        var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
+            $container.empty().hide();
+        });
+        var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "margin-bottom" : "5px"});
+        $gridContainer.append($closeBtnContainer);
+
+        var $pasteContainer = $("<div>");
+        $gridContainer.append($pasteContainer);
+
+        var $textArea = FormUtil._getTextBox(null, "Object Identifiers separated by space or coma", false);
+        $textArea.css( { 'width' : '100%', "height" : "20%", "min-height" : "100px"});
+        $pasteContainer.append($textArea);
+
+        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+            var identifiers = null;
+            if($textArea.val().indexOf(",") > -1) {
+                identifiers = $textArea.val().split(",");
+            } else {
+                identifiers = $textArea.val().split(" ");
+            }
+
+            var validIdentifiers = [];
+            for(var vIdx = 0; vIdx < identifiers.length; vIdx++) {
+                if(identifiers[vIdx].indexOf("/") > -1) {
+                    validIdentifiers.push(identifiers[vIdx].trim());
+                }
+            }
+            if(validIdentifiers.length == 0) {
+                return;
+            }
+            Util.blockUI();
+            mainController.serverFacade.searchWithIdentifiers(validIdentifiers, function(results) {
+                var added = 0;
+                var incorrectType = 0;
+
+                for(var sIdx = 0; sIdx < results.length; sIdx++) {
+                    if(sampleTypeCode === undefined || (results[sIdx].sampleTypeCode === sampleTypeCode)) {
+                        linksView.updateSample(results[sIdx], true);
+                        added++;
+                    } else {
+                        incorrectType++;
+                    }
+                }
+
+                Util.unblockUI();
+                var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
+                Util.showInfo(message);
+                $container.empty().hide();
+           });
+        }, "Add");
+        $addObjectsBtn.css({"margin-top" : "5px"});
+        $pasteContainer.append($addObjectsBtn);
+	}
+
 	linksView.getAddBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
 		var enabledFunction = function() {
 			linksView.showSamplePicker($container, sampleTypeCode);
 		};
 
 		var id = "search-btn-" + sampleTableContainerLabel.toLowerCase().split(" ").join("-");
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search", null, id);
 		if(linksModel.isDisabled) {
 			return "";
 		} else {
 			return $addBtn;
 		}
 	}
+
+	linksView.getAddPasteAnyBtn = function($container, sampleTypeCode, sampleTableContainerLabel) {
+    	var enabledFunction = function() {
+    	    if(sampleTypeCode) {
+                linksView.showSamplePaster($container, sampleTypeCode);
+    	    } else {
+    	        linksView.showSamplePaster($samplePicker, sampleTypeCode);
+    	    }
+    	};
+
+        var id = "paste-btn-";
+        var label = null;
+    	if(sampleTypeCode) {
+            id += sampleTableContainerLabel.toLowerCase().split(" ").join("-");
+            label = "Paste";
+    	} else {
+            id += linksModel.title.split(" ").join("-").toLowerCase();
+            label = "Paste Any";
+    	}
+
+    	var $addBtn = FormUtil.getButtonWithIcon("glyphicon-paste", (linksModel.isDisabled)?null:enabledFunction, label, null, id);
+    	if(linksModel.isDisabled) {
+    		return "";
+    	} else {
+    		return $addBtn;
+    	}
+    }
 	
-	linksView.getAddAnyBtn = function() {
+	linksView.getAddSearchAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
 			Util.showDropdownAndBlockUI("sampleTypeSelector", $sampleTypesDropdown);
@@ -506,7 +612,7 @@ function LinksView(linksController, linksModel) {
 			});
 		};
 		var id = "plus-btn-" + linksModel.title.split(" ").join("-").toLowerCase() + "-type-selector";
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-search", (linksModel.isDisabled)?null:enabledFunction, "Search Any", null, id);
 		
 		if(linksModel.isDisabled) {
 			return "";

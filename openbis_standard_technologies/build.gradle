@@ -61,9 +61,9 @@ def jettyVersion = '9.4.30'
 
 dependencies {
 	compile project(':screening')
-	
+
 	providedCompile 'google:gwt-user:2.4'
-					
+
 	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20200611@jar",
                     "eclipse:jetty-xml:${jettyVersion}.v20200611@jar",
                     "eclipse:jetty-webapp:${jettyVersion}.v20200611@jar",
@@ -71,12 +71,12 @@ dependencies {
                     "eclipse:jetty-security:${jettyVersion}.v20200611@jar",
                     "eclipse:jetty-server:${jettyVersion}.v20200611@jar",
                     "eclipse:jetty-continuation:${jettyVersion}.v20200611@jar"
-		
+
 	gwt 'reveregroup:gwt-image-loader:1.1.4',
                 'google:gwt-dev:2.4'
-	
+
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
-	
+
 	datastore_server project(':deep_sequencing_unit'),
 					 project(':rtd_yeastx'),
 					 project(':screening'),
@@ -88,7 +88,7 @@ dependencies {
 					 'slf4j:slf4j:1.6.2',
 					 'slf4j:slf4j-log4j12:1.6.2',
 					 'sybit:image-viewer:0.3.6'
-					 
+
 	javadoc_sources	project(path:':commonbase', configuration: 'archives'),
 		    	project(path:':common', configuration: 'archives'),
 		    	project(path:':openbis_api', configuration: 'archives'),
@@ -126,22 +126,22 @@ def gwtArchiveFileName = 'gwt.tar.gz'
 task compileGwt (dependsOn: classes, type: JavaExec) {
 	ext.buildDir = gwtBuildDir
 	def extraDir = "${project.buildDir}/extra"
-     
+
 	// inputs.source
 	sourceSets.main.java.srcDirs
 	// inputs.dir
 	sourceSets.main.output.resourcesDir
 	outputs.dir buildDir
-     
+
 	doFirst {
 		file(buildDir).mkdirs()
 	}
-     
+
 	main = 'com.google.gwt.dev.Compiler'
- 
+
 	classpath {
 		[
-			sourceSets.main.java.srcDirs,		
+			sourceSets.main.java.srcDirs,
 			project(":openbis").sourceSets.main.java.srcDirs,
 			project(":openbis").sourceSets.main.output.resourcesDir,
 			project(":openbis").sourceSets.main.output.classesDirs,
@@ -151,21 +151,21 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 			project(":screening").sourceSets.main.java.srcDirs,
 			project(":screening").sourceSets.main.output.resourcesDir,
 			configurations.gwt
-		]   
+		]
 	}
-     
+
 	args =
 		[
 			gwtModuleName,
 			'-war', buildDir,
 			'-logLevel', 'INFO',
 			'-localWorkers', '2',
-			'-compileReport', 
+			'-compileReport',
 			'-extra', extraDir,
 		]
-	
+
 	maxHeapSize = '1024m'
-	
+
 	systemProperty "javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl"
 }
 
@@ -212,7 +212,7 @@ ext.zipEntries = files(
 	project(':openbis').file('dist/server/export-master-data.sh'),
 	project(':openbis').file('dist/server/install.sh'),
 	project(':openbis').file('dist/server/openBIS.keystore'),
-	project(':openbis').file('dist/server/openbis.conf'),	
+	project(':openbis').file('dist/server/openbis.conf'),
 	project(':openbis').file('dist/server/passwd.sh'),
 	project(':openbis').file('dist/server/register-master-data.sh'),
 	project(':openbis').file('dist/server/setup-env'),
@@ -223,7 +223,7 @@ ext.zipEntries = files(
 	project(':openbis').file('dist/server/watchdog.sh'),
 	project(':openbis').fileTree(dir: 'dist/server').matching {
 	   include 'base/**'
-	}, 	
+	},
 	file('dist/server/service.properties'),
 	file('dist/server/web-client.properties')
 )
@@ -236,7 +236,7 @@ task checkFilesExist {
     }
     zipEntries.each {
    	  x -> assert x.exists()
-    }    
+    }
   }
 }
 
@@ -247,7 +247,7 @@ war.dependsOn checkFilesExist
 war.dependsOn signWebStartJars
 war {
     rootSpec.eachFile { file ->
-        if (file.name.startsWith('cisd-cifex') 
+        if (file.name.startsWith('cisd-cifex')
                 || file.name.startsWith('datastore_server')
                 || file.name.startsWith('bioformats')
                 || file.name.startsWith('cisd-image-readers')
@@ -266,34 +266,34 @@ war {
         file('resource/server/jetty-web.xml'),
         project(':common').file('resource/server/web-common.xml')
     }
-    
+
     from (classpathEntries) {
-        into("WEB-INF/classes") 
+        into("WEB-INF/classes")
     }
 
-    from('dist/server'){ 
-        into("WEB-INF/classes") 
-        include "etc/log.xml" 
-    } 
+    from('dist/server'){
+        into("WEB-INF/classes")
+        include "etc/log.xml"
+    }
 
-    from('targets/dist'){ 
-        into("WEB-INF/classes") 
-        include 'BUILD*INFO' 
+    from('targets/dist'){
+        into("WEB-INF/classes")
+        include 'BUILD*INFO'
         rename 'BUILD.*INFO', 'BUILD-openbis.INFO'
-    } 
+    }
 
-    from('../screening/source'){ 
-        into("WEB-INF/classes") 
-        include "sql/**/*.sql" 
-        exclude "sql/imaging/postgresql/_ERD"        
-    } 
+    from('../screening/source'){
+        into("WEB-INF/classes")
+        include "sql/**/*.sql"
+        exclude "sql/imaging/postgresql/_ERD"
+    }
 
-    from('../openbis/source'){ 
-        into("WEB-INF/classes") 
-        include "sql/**/*.sql" 
+    from('../openbis/source'){
+        into("WEB-INF/classes")
+        include "sql/**/*.sql"
         exclude "sql/generic/_ERD"
-        duplicatesStrategy 'exclude' 
-    } 
+        duplicatesStrategy 'exclude'
+    }
 }
 
 def downloadCorePlugin(url, pluginname) {
@@ -310,7 +310,7 @@ import org.paleozogt.gradle.zip.SymZip;
 task zipCorePlugins(type: SymZip) {
   includeEmptyDirs = false
   archiveName 'core-plugins.zip'
-  
+
   downloadCorePlugin('https://github.com/aarpon/obit_flow_core_technology/archive/release/20.x.zip', 'flow')
   downloadCorePlugin('https://github.com/aarpon/obit_microscopy_core_technology/archive/release/20.x.zip', 'microscopy')
   downloadCorePlugin('https://github.com/aarpon/obit_shared_core_technology/archive/release/20.x.zip', 'shared')
@@ -348,7 +348,7 @@ task checksums {
 			destFile.delete()
 		}
 		destFile.createNewFile()
-		
+
 		def configFiles = classpathEntries.filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')})
 		configFiles.each {file ->
 			destFile.text += generateMD5(file)+" webapps/openbis/WEB-INF/classes/"+file.name+"\n"
@@ -357,7 +357,7 @@ task checksums {
 		configFiles = war.getSource().filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')}).minus(classpathEntries)
 		configFiles.each {file ->
 			destFile.text += generateMD5(file)+" webapps/openbis/WEB-INF/"+file.name+"\n"
-		}		
+		}
 	}
 }
 checksums.dependsOn war
@@ -375,11 +375,11 @@ task zip(type: Zip, dependsOn: createJettyVersionFile) {
     from war
 	from zipEntries
 	from checksums
-	from configurations.zipping	
+	from configurations.zipping
     from zipCorePlugins.archivePath
 	from zipAdminConsole.archivePath
 	rename 'jetty-distribution(.*).zip', 'jetty.zip'
-	rename 'openBIS(.*).war', 'openBIS.war'	
+	rename 'openBIS(.*).war', 'openBIS.war'
 }
 zip.dependsOn war
 zip.dependsOn zipCorePlugins
@@ -389,7 +389,7 @@ zip.dependsOn checksums
 task zipDss(type: Zip, dependsOn: signWebStartJars) {
 	baseName 'datastore_server-standard-technologies'
 	includeEmptyDirs true
-	
+
 	from (configurations.datastore_server) {
 		into 'datastore_server/lib'
 		exclude '**/antlr*.jar'
@@ -405,13 +405,13 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 		rename 'common-.*jar', 'common.jar'
 		rename 'commonbase-.*jar', 'commonbase.jar'
 	}
-	
+
 	from (signedJarsFolder) {
 	   into 'datastore_server/lib/dss_upload_gui'
 	   exclude openbisClientJarName
 	   exclude dssCliClientJarName
 	}
-	
+
 	from (project(':datastore_server').fileTree(dir: 'dist', includes: ['**/*'], excludes:['dss_client.sh', 'etc/**'])) {
 		into 'datastore_server';
 	}
@@ -419,15 +419,15 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 	from (project(':datastore_server').files('dist/etc/datastore_server.conf', 'dist/etc/openBIS.keystore')) {
 		into 'datastore_server/etc';
 	}
-	
+
 	from (fileTree(dir: 'dist', includes: ['etc/service.properties', 'etc/log.xml'])) {
 		into 'datastore_server'
 	}
-	
+
 	from (project(':screening').file('dist/etc/tabular-data-graph.properties')) {
 		into 'datastore_server/etc';
 	}
-	
+
 }
 
 task zipBdlServer(type: Zip, dependsOn: project(':big_data_link_server').tasks.distZip) {
@@ -454,10 +454,10 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from pybisZip.archivePath
   from obisZip.archivePath
   from ('dist/client/readme.txt')
-  rename { filename -> 
+  rename { filename ->
     if (filename.startsWith('pybis-')) {
       def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll {it.path.endsWith('src/python/setup.py') }.iterator().next().text
-      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*'(.*)'/)[0][1]
+      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*"(.*)"/)[0][1]
       'pybis-' + pybisVersion + '.zip'
     } else {
       filename
@@ -482,7 +482,7 @@ task generateJavadoc(type: Javadoc) {
 		include "**/ch/ethz/sis/openbis/generic/dssapi/**/*.java"
 		include "**/ch/systemsx/cisd/**/api/**/*.java"
 		include "**/ch/systemsx/cisd/common/annotation/*.java"
-		include "**/ch/systemsx/cisd/base/**/*.java"		
+		include "**/ch/systemsx/cisd/base/**/*.java"
 		include "**/OpenBISScreeningML.java"
 		include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
 		include "**/ch/systemsx/cisd/**/etlserver/registrator/*.java"
