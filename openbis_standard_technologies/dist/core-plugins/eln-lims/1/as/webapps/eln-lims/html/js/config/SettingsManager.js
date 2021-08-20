@@ -42,6 +42,9 @@ function SettingsManager(serverFacade) {
     this.loadSettingsAndApplyToProfile = function(doneCallback, profileToEditOrNull) {
 		this.loadSettings((function(settingsObjects) {
 			if(settingsObjects) {
+			    // Store settings objects globally to use latter
+			    profile.settingsObjects = settingsObjects;
+			    profile.isMultiGroup = settingsObjects.length > 2;
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
 					var settingsObject = settingsObjects[sIdx];
 					if (settingsObject && settingsObject.properties && (settingsObject.properties["ELN_SETTINGS"] || settingsObject.properties["$ELN_SETTINGS"])) {
@@ -56,8 +59,7 @@ function SettingsManager(serverFacade) {
 								console.log("The settings contain the following errors:");
 								console.log(errors);
 							}
-							var isMergeGroup = settingsObjects.length > 2;
-							this.applySettingsToProfile(settings, (profileToEditOrNull)?profileToEditOrNull:profile, isMergeGroup);
+							this.applySettingsToProfile(settings, (profileToEditOrNull)?profileToEditOrNull:profile, (profile.isMultiGroup && sIdx > 0));
 						}
 					}
 				}

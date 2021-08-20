@@ -237,7 +237,10 @@ $.extend(DefaultProfile.prototype, {
 //		Jupyter integration config
 //		this.jupyterIntegrationServerEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8002";
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
-		
+
+		this.settingsObjects = [];
+        this.isMultiGroup = false;
+
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = [];
 		this.forceMonospaceFont = [];
