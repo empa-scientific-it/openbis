@@ -2053,7 +2053,6 @@ class Openbis:
         attrs=None,
         props=None,
         where=None,
-        thingsFetchOptions={"withDataFrame": True, "withObjects": True},
         **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination)
@@ -2193,10 +2192,8 @@ class Openbis:
 
         logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
 
-        result = self._sample_list_for_response(response=response, thingsFetchOptions=thingsFetchOptions,
-                                                attrs=attrs, props=props, start_with=start_with, count=count,
-                                                totalCount=resp["totalCount"],
-                                                parsed=True)
+        result = self._sample_list_for_response(response=response, attrs=attrs, props=props, start_with=start_with,
+                                                count=count, totalCount=resp["totalCount"], parsed=True)
 
         time5 = now()
 
@@ -4284,7 +4281,6 @@ class Openbis:
             only_data=False,
             withAttachments=False,
             props=None,
-            thingsFetchOptions={"withDataFrame": True, "withObjects": True},
             **kvals
     ):
         """Retrieve metadata for the sample.
@@ -4346,16 +4342,11 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
-            return self._sample_list_for_response(
-                response=list(resp.values()),
-                thingsFetchOptions=thingsFetchOptions,
-                props=props,
-            )
+            return self._sample_list_for_response(response=list(resp.values()), props=props)
 
     def _sample_list_for_response(
         self,
         response,
-        thingsFetchOptions,
         attrs=None,
         props=None,
         start_with=None,
