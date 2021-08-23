@@ -97,6 +97,10 @@ def generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFil
 
     try:
         generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath)
+    except BaseException as e:
+        operationLog.error("Error occurred: %s" % e)
+    except Throwable as e:
+        operationLog.error("Error occurred: %s" % e, e)
     finally:
         zos.close()
         fos.close()
