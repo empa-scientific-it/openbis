@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,11 +39,13 @@ function SideMenuWidgetController(mainController) {
     
     this.deleteNodeByEntityPermId = function(key, isMoveToParent) {
     	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-    	if(isMoveToParent) {
-    		var parent = node.getParent();
-    		this._showNodeView(parent);
-    	}
-    	node.remove();
+        if (node) {
+            if(isMoveToParent) {
+                var parent = node.getParent();
+                this._showNodeView(parent);
+            }
+            node.remove();
+        }
     };
     
     this.refreshCurrentNode = function() {
