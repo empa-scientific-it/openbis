@@ -36,19 +36,23 @@ function* init() {
       let sessionToken = cookie.read(cookie.OPENBIS_COOKIE)
 
       if (sessionToken) {
-        openbis.useSession(sessionToken)
-        let sessionInformation = yield call([
-          openbis,
-          openbis.getSessionInformation
-        ])
-        if (sessionInformation) {
-          yield put(
-            actions.setSession({
-              sessionToken: sessionToken,
-              userName: sessionInformation.userName
-            })
-          )
-        } else {
+        try {
+          openbis.useSession(sessionToken)
+          let sessionInformation = yield call([
+            openbis,
+            openbis.getSessionInformation
+          ])
+          if (sessionInformation) {
+            yield put(
+              actions.setSession({
+                sessionToken: sessionToken,
+                userName: sessionInformation.userName
+              })
+            )
+          } else {
+            openbis.useSession(null)
+          }
+        } catch (e) {
           openbis.useSession(null)
         }
       }

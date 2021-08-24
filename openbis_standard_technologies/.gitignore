@@ -1,6 +1,7 @@
 /targets
 /bin
 /build/
+/node/
 /.idea/
 *.iml
 *.eml
