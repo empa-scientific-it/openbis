@@ -319,8 +319,9 @@ var BarcodeUtil = new function() {
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
             var $barcodeReader = $('<input>', { 'type': 'text', 'placeholder': 'barcode', 'style' : 'min-width: 50%;' });
             $barcodeReaders.push($barcodeReader);
-            if(entities[eIdx].properties["$BARCODE"]) {
+            if (entities[eIdx].properties && entities[eIdx].properties["$BARCODE"]) {
                 $barcodeReader.val(entities[eIdx].properties["$BARCODE"]);
+                $barcodeReader.select();
             }
         }
 
