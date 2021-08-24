@@ -15,7 +15,7 @@
 #
 
 import threading
-
+import traceback
 import time
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.common.mail import EMailAddress
@@ -98,7 +98,7 @@ def generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFil
     try:
         generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath)
     except BaseException as e:
-        operationLog.error("Error occurred: %s" % e)
+        operationLog.error("Error occurred: %s" % traceback.format_exc())
     except Throwable as e:
         operationLog.error("Error occurred: %s" % e, e)
     finally:

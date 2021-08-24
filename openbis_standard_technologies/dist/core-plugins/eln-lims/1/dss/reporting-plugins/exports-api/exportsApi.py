@@ -496,7 +496,7 @@ def getDOCX(entityObj, v3, sessionToken, isHTML):
                 if propertyType.getDataType() is DataType.XML and propertyType.getMetaData().get("custom_widget") == "Spreadsheet" \
                         and propertyValue.upper().startswith("<DATA>") and propertyValue.upper().endswith("</DATA>"):
                     propertyValue = propertyValue[6:-7].decode('base64')
-                    propertyValue = convertJsonToHtml(json.loads(propertyValue))
+                    propertyValue = convertJsonToHtml(json.loads(propertyValue.encode("utf8")))
 
                 if propertyValue != u"\uFFFD(undefined)":
                     docxBuilder.addProperty(propertyType.getLabel(), propertyValue);
@@ -613,7 +613,7 @@ def getTXT(entityObj, v3, sessionToken, isRichText):
                     if propertyType.getDataType() is DataType.XML and propertyType.getMetaData().get("custom_widget") == "Spreadsheet" \
                             and propertyValue.upper().startswith("<DATA>") and propertyValue.upper().endswith("</DATA>"):
                         propertyValue = propertyValue[6:-7].decode('base64')
-                        propertyValue = "\n" + convertJsonToText(json.loads(propertyValue))
+                        propertyValue = "\n" + convertJsonToText(json.loads(propertyValue.encode("utf8")))
                     elif(propertyType.getDataType() == DataType.MULTILINE_VARCHAR and isRichText is False):
                         propertyValue = strip_tags(propertyValue).strip();
                     txtBuilder.append("- ").append(propertyType.getLabel()).append(": ").append(propertyValue).append("\n");
@@ -643,7 +643,7 @@ def objToStrArray(objArray):
     for subObjArray in objArray:
         row = []
         for obj in subObjArray:
-            row.append(str(obj))
+            row.append(obj)
         result.append(row)
     return result
 
