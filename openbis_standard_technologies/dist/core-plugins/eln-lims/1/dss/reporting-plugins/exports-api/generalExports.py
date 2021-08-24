@@ -17,6 +17,7 @@
 import threading
 import traceback
 import time
+from java.lang import Throwable
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.common.mail import EMailAddress
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
@@ -61,23 +62,28 @@ def expandAndExport(tr, params):
     return True
 
 def export(sessionToken, entities, includeRoot, userEmail, mailClient):
-    #Create temporal folder
-    tempDirName = "export_" + str(time.time())
-    tempDirPathFile = File.createTempFile(tempDirName, None)
-    tempDirPathFile.delete()
-    tempDirPathFile.mkdir()
-    tempDirPath = tempDirPathFile.getCanonicalPath()
-    tempZipFileName = tempDirName + ".zip"
-    tempZipFilePath = tempDirPath + ".zip"
+    try:
+        #Create temporal folder
+        tempDirName = "export_" + str(time.time())
+        tempDirPathFile = File.createTempFile(tempDirName, None)
+        tempDirPathFile.delete()
+        tempDirPathFile.mkdir()
+        tempDirPath = tempDirPathFile.getCanonicalPath()
+        tempZipFileName = tempDirName + ".zip"
+        tempZipFilePath = tempDirPath + ".zip"
+    
+        generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFilePath)
+        tempZipFileWorkspaceURL = generateDownloadUrl(sessionToken, tempZipFileName, tempZipFilePath)
+    
+        #Send Email
+        sendMail(mailClient, userEmail, tempZipFileWorkspaceURL)
 
-    generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFilePath)
-    tempZipFileWorkspaceURL = generateDownloadUrl(sessionToken, tempZipFileName, tempZipFilePath)
-
-    #Send Email
-    sendMail(mailClient, userEmail, tempZipFileWorkspaceURL)
-
-    cleanUp(tempDirPath, tempZipFilePath)
-    return True
+        cleanUp(tempDirPath, tempZipFilePath)
+        return True
+    except BaseException as e:
+        operationLog.error("Error occurred: %s" % traceback.format_exc())
+    except Throwable as e:
+        operationLog.error("Error occurred: %s" % e, e)
 
 def sendMail(mailClient, userEmail, downloadURL):
     replyTo = None
@@ -97,10 +103,6 @@ def generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFil
 
     try:
         generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath)
-    except BaseException as e:
-        operationLog.error("Error occurred: %s" % traceback.format_exc())
-    except Throwable as e:
-        operationLog.error("Error occurred: %s" % e, e)
     finally:
         zos.close()
         fos.close()
