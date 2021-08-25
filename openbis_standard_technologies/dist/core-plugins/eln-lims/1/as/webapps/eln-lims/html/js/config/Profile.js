@@ -240,9 +240,9 @@ $.extend(DefaultProfile.prototype, {
 
 		this.settingsObjects = [];
 
-        this.isMultiGroup  = function() {
-            return this.settingsObjects.length > 1;
-        }
+		this.isMultiGroup = function() {
+			return this.settingsObjects.length > 1;
+		}
 
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = [];
