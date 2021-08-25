@@ -652,11 +652,11 @@ function ServerFacade(openbisServer) {
                 "sampleTypeCode" : sampleType.code
             }
             this.customELNASAPI(parameters, function(nextInSequence) {
-                action(sampleType.codePrefix + nextInSequence);
+                action(sampleType.codePrefix.toUpperCase() + nextInSequence);
             });
 		} else {
 		    mainController.openbisV3.createCodes(sampleType.codePrefix, "SAMPLE", 1).done(function(codes) {
-                action(codes[0]);
+                action(codes[0].toUpperCase());
 		    });
 		}
 	}
