@@ -86,18 +86,29 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var texts = ELNDictionary.settingsView.sections;
 
-			this._paintMainMenuSection($formColumn, texts.mainMenu);
-			this._paintStoragesSection($formColumn, texts.storages);
-			this._paintTemplateSection($formColumn, texts.templates);
-			if(profile.isAdmin) {
+            if(profile.isAdmin) {
+                $formColumn.append($("<h2>").append("Instance Settings"));
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 			}
+
+            $formColumn.append($("<h2>").append("Group Settings"));
+
+            if(profile.isMultiGroup()) {
+                $formColumn.append(FormUtil.getWarningText("Storages and Templates need to belong to the settings space of the group they are assigned. Creation of them from this settings page is currently well not supported on multi group instances, needs to be done manually."));
+            }
+
+            this._paintStoragesSection($formColumn, texts.storages);
+			this._paintTemplateSection($formColumn, texts.templates);
+
+			this._paintMainMenuSection($formColumn, texts.mainMenu);
+			this._paintMiscellaneous($formColumn, texts.miscellaneous)
+
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
 			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
 			this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
-			this._paintMiscellaneous($formColumn, texts.miscellaneous)
+
 
 			$container.append($form);
 
@@ -222,7 +233,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
     this._paintCustomWidgetsSection = function($container, text) {
-    		var $fieldset = this._getFieldset($container, text.title, "settings-section-custom-widgets");
+    		var $fieldset = this._getFieldset($container, text.title, "settings-section-custom-widgets", true);
     		$fieldset.append(FormUtil.getInfoText(text.info));
     		this._customWidgetsTableModel = this._getCustomWidgetsTableModel();
     		$fieldset.append(this._getTable(this._customWidgetsTableModel));
