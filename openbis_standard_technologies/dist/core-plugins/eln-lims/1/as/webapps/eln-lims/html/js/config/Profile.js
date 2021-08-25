@@ -239,7 +239,10 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
 
 		this.settingsObjects = [];
-        this.isMultiGroup = false;
+
+        this.isMultiGroup  = function() {
+            return this.settingsObjects.length > 1;
+        }
 
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = [];
