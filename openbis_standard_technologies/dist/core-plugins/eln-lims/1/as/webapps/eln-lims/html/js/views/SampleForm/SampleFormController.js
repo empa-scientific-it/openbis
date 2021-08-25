@@ -242,7 +242,10 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
 		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete, newChangesToDo) {
-			
+		    if (!sample.code) {
+		        Util.showUserError("Code is undefined.");
+		        return;
+		    }
 			//
 			// TODO : Remove this hack without removing the New Producs Widget 
 			//
