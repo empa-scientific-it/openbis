@@ -244,9 +244,7 @@ def _tagIds_for_tags(tags=None, action="Add"):
     if not isinstance(tags, list):
         tags = [tags]
 
-    items = []
-    for tag in tags:
-        items.append({"code": tag, "@type": "as.dto.tag.id.TagCode"})
+    items = list(map(lambda tag: {"code": tag, "@type": "as.dto.tag.id.TagCode"}, tags))
 
     tagIds = {
         "actions": [
@@ -269,11 +267,7 @@ def _list_update(ids=None, entity=None, action="Add"):
     if not isinstance(ids, list):
         ids = [ids]
 
-    items = []
-    for ids in ids:
-        items.append(
-            {"code": ids, "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity)}
-        )
+    items = list(map(lambda id: {"code": id, "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity)}, ids))
 
     list_update = {
         "actions": [
@@ -385,10 +379,7 @@ def _gen_search_criteria(req):
     sreq = {}
     for key, val in req.items():
         if key == "criteria":
-            items = []
-            for item in req["criteria"]:
-                items.append(_gen_search_criteria(item))
-            sreq["criteria"] = items
+            sreq["criteria"] = list(map(lambda item: _gen_search_criteria(item), req["criteria"]))
         elif key == "code":
             sreq["criteria"] = [
                 _common_search("as.dto.common.search.CodeSearchCriteria", val.upper())
@@ -435,19 +426,15 @@ def _subcriteria_for_tags(tags):
     if not isinstance(tags, list):
         tags = [tags]
 
-    criteria = []
-    for tag in tags:
-        criteria.append(
-            {
-                "fieldName": "code",
-                "fieldType": "ATTRIBUTE",
-                "fieldValue": {
-                    "value": tag,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "@type": "as.dto.common.search.CodeSearchCriteria",
-            }
-        )
+    criteria = list(map(lambda tag: {
+        "fieldName": "code",
+        "fieldType": "ATTRIBUTE",
+        "fieldValue": {
+            "value": tag,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "@type": "as.dto.common.search.CodeSearchCriteria",
+    }, tags))
 
     return {
         "@type": "as.dto.tag.search.TagSearchCriteria",
@@ -729,19 +716,15 @@ def _subcriteria_for_identifier(ids, entity, parents_or_children="", operator="A
     if not isinstance(ids, list):
         ids = [ids]
 
-    criteria = []
-    for id in ids:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.IdentifierSearchCriteria",
-                "fieldValue": {
-                    "value": id,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "identifier",
-            }
-        )
+    criteria = list(map(lambda id: {
+        "@type": "as.dto.common.search.IdentifierSearchCriteria",
+        "fieldValue": {
+            "value": id,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "identifier",
+    }, ids))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -751,19 +734,15 @@ def _subcriteria_for_permid(permids, entity, parents_or_children="", operator="A
     if not isinstance(permids, list):
         permids = [permids]
 
-    criteria = []
-    for permid in permids:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.PermIdSearchCriteria",
-                "fieldValue": {
-                    "value": permid,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "perm_id",
-            }
-        )
+    criteria = list(map(lambda permid: {
+        "@type": "as.dto.common.search.PermIdSearchCriteria",
+        "fieldValue": {
+            "value": permid,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "perm_id",
+    }, permids))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -773,19 +752,15 @@ def _subcriteria_for_permid_new(codes, entity, parents_or_children="", operator=
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = []
-    for code in codes:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.PermIdSearchCriteria",
-                "fieldValue": {
-                    "value": code,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "perm_id",
-            }
-        )
+    criteria = list(map(lambda code: {
+        "@type": "as.dto.common.search.PermIdSearchCriteria",
+        "fieldValue": {
+            "value": code,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "perm_id",
+    }, codes))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -795,19 +770,15 @@ def _subcriteria_for_code_new(codes, entity, parents_or_children="", operator="A
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = []
-    for code in codes:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.CodeSearchCriteria",
-                "fieldValue": {
-                    "value": code,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "code",
-            }
-        )
+    criteria = list(map(lambda code: {
+        "@type": "as.dto.common.search.CodeSearchCriteria",
+        "fieldValue": {
+            "value": code,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "code",
+    }, codes))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -2303,12 +2274,9 @@ class Openbis:
             else:
                 properties = {**where, **properties}
         if properties is not None:
-            for prop in properties:
-                sub_criteria.append(
-                    _subcriteria_for_properties(
-                        prop, properties[prop], entity="experiment"
-                    )
-                )
+            sub_criteria.extend(list(map(
+                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="experiment"), properties
+            )))
 
         search_criteria = get_search_type_for_entity("experiment")
         search_criteria["criteria"] = sub_criteria
@@ -2405,7 +2373,6 @@ class Openbis:
 
                         display_attrs += set(columns)
                         continue
-
                     else:
                         # property name is provided
                         for i, experiment in enumerate(response):
@@ -2529,12 +2496,9 @@ class Openbis:
                 properties = {**where, **properties}
 
         if properties is not None:
-            for prop in properties:
-                sub_criteria.append(
-                    _subcriteria_for_properties(
-                        prop, properties[prop], entity="dataset"
-                    )
-                )
+            sub_criteria.extend(list(map(
+                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="dataset"), properties
+            )))
 
         search_criteria = get_search_type_for_entity("dataset")
         search_criteria["criteria"] = sub_criteria
@@ -4367,10 +4331,6 @@ class Openbis:
         time2 = now()
 
         logger.debug(f"_sample_list_for_response got response. Delay: {time2 - time1}")
-
-        # dataFrame = None
-        # if thingsFetchOptions["withDataFrame"]:
-        #     dataFrame = self.__create_data_frame(attrs, props, response)
 
         time6 = now()
         logger.debug("_sample_list_for_response computing result.")
