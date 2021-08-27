@@ -769,7 +769,8 @@ var Util = new function() {
     
     this.elementEndsWithArrayElement = function(element, elementsToEndWith) {
     		for(var aIdx = 0; aIdx < elementsToEndWith.length; aIdx++) {
-    			if(element.endsWith(elementsToEndWith[aIdx])) {
+    		    var elementToEndWith = elementsToEndWith[aIdx];
+    			if((typeof elementToEndWith === 'string' || elementToEndWith instanceof String) && element.endsWith(elementToEndWith)) {
     				return true;
     			}
     		}
