@@ -263,7 +263,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showUserProfile) {
-            // && profile.isFileAuthenticationService && profile.isFileAuthenticationUser
             var userProfileLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null, null);
             treeModelUtils.push({ title : userProfileLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
         }

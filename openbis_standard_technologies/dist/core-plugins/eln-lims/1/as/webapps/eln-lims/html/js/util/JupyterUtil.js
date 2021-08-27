@@ -148,7 +148,7 @@ var JupyterUtil = new function() {
 		content.push(this.getMarkdownCell("## Connect to openBIS"));
 		content.push(this.getCodeCell([ "from pybis import Openbis\n", "o = Openbis()" ]));
 		content.push(this.getMarkdownCell("## openBIS session refresh (optional)"));
-		content.push(this.getCodeCell([ "# Use this code to reconnect in case your openBIS session expires and you get an error on the previous step.\n", "from pybis import Openbis\n", "import getpass\n", "u = \"write your username here\"\n", "p = getpass.getpass()\n", "o.login(username=u,password=p)"  ]));
+		content.push(this.getCodeCell([ "# Use this code to reconnect in case your openBIS session expires and you an error on the previous step.\n", "sessionToken = \"write your session token here\"\n", "o.set_token(token=sessionToken)"  ]));
 		content.push(this.getMarkdownCell("## Datasets Information"));
 		
 		for(var cIdx = 0; cIdx < dataSetIds.length; cIdx++) {
