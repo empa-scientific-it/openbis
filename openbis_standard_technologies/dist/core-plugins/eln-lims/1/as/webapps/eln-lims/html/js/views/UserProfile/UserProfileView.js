@@ -73,8 +73,8 @@ function UserProfileView(userProfileController, userProfileModel) {
             this._$emailInput.val(getUserInformation.email);
             $formColumn.append(this._getFormGroup(this._$emailInput, "Email:"));
             // session token
-            this._$sessionTokenInput = $("<input>", { type : "text", class : "form-control" });
-            this._$sessionTokenInput.val(mainController.serverFacade.openbisServer.getSession());
+            this._$sessionTokenInput = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word;'});
+            this._$sessionTokenInput.text(mainController.serverFacade.openbisServer.getSession());
             $formColumn.append(this._getFormGroup(this._$sessionTokenInput, "openBIS session token:"));
             // personal Zenodo API token
             this._$zenodoToken = $("<input>", { type : "text", class : "form-control" });
@@ -92,7 +92,6 @@ function UserProfileView(userProfileController, userProfileModel) {
                 this._$firstNameInput.prop("disabled", true);
                 this._$lastNameInput.prop("disabled", true);
                 this._$emailInput.prop("disabled", true);
-                this._$sessionTokenInput.prop("disabled", true);
             }
 
             if (this._userProfileModel.mode === FormMode.VIEW) {
