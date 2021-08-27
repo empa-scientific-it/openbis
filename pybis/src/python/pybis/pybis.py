@@ -2561,6 +2561,7 @@ class Openbis:
             count=count,
             totalCount=resp["totalCount"],
             objects=datasets,
+            parsed=True
         )
 
     def get_experiment(
@@ -4072,7 +4073,7 @@ class Openbis:
                     )
         else:
             return self._dataset_list_for_response(
-                response=list(resp.values()), props=props
+                response=list(resp.values()), props=props, parsed=False
             )
 
     def _dataset_list_for_response(
@@ -4084,6 +4085,7 @@ class Openbis:
         count=None,
         totalCount=0,
         objects=None,
+        parsed=False
     ):
         """returns a Things object, containing a DataFrame plus some additional information"""
 
@@ -4095,7 +4097,8 @@ class Openbis:
 
             return return_attribute
 
-        parse_jackson(response)
+        if not parsed:
+            parse_jackson(response)
 
         if attrs is None:
             attrs = []
@@ -4306,7 +4309,7 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
-            return self._sample_list_for_response(response=list(resp.values()), props=props)
+            return self._sample_list_for_response(response=list(resp.values()), props=props, parsed=False)
 
     def _sample_list_for_response(
         self,
