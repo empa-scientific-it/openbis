@@ -108,20 +108,24 @@ class EntityType:
         ]
 
         pas = self.__dict__["_propertyAssignments"]
-        df = DataFrame(pas, columns=attrs)
-        df["propertyType"] = df["propertyType"].map(extract_code)
-        df["plugin"] = df["plugin"].map(extract_name)
-        df["registrationDate"] = df["registrationDate"].map(format_timestamp)
+
+        def create_data_frame(attrs, props, response):
+            df = DataFrame(response, columns=attrs)
+            df["propertyType"] = df["propertyType"].map(extract_code)
+            df["plugin"] = df["plugin"].map(extract_name)
+            df["registrationDate"] = df["registrationDate"].map(format_timestamp)
+            return df
 
         return Things(
             openbis_obj=self.openbis,
             entity="propertyType",
             single_item_method=self.openbis.get_property_type,
             identifier_name="propertyType",
-            df=df,
             start_with=1,
             count=len(pas),
             totalCount=len(pas),
+            response=pas,
+            df_initializer=create_data_frame
         )
 
     def assign_property(

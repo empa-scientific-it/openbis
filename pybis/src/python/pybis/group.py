@@ -1,5 +1,5 @@
 from .attribute import AttrHolder
-from .openbis_object import OpenBisObject 
+from .openbis_object import OpenBisObject
 from .utils import VERBOSE, extract_permid, extract_nested_permid,format_timestamp
 from .things import Things
 from pandas import DataFrame
@@ -8,11 +8,11 @@ class Group(
     OpenBisObject,
     entity='authorizationGroup',
     single_item_method_name='get_group'
-    
+
 ):
     """ Managing openBIS authorization groups
     """
-    
+
     def __dir__(self):
         return [
             'code','description','users','roleAssignments',
@@ -25,17 +25,22 @@ class Group(
         that belong to this group.
         """
 
-        columns = ['permId', 'userId', 'firstName', 'lastName', 'email', 'space', 'registrationDate', 'active']
-        persons = DataFrame(self._users)
-        if len(persons) == 0:
-            persons = DataFrame(columns=columns)
-        persons['permId'] = persons['permId'].map(extract_permid)
-        persons['registrationDate'] = persons['registrationDate'].map(format_timestamp)
-        persons['space'] = persons['space'].map(extract_nested_permid)
+        def create_data_frame(attrs, props, response):
+            columns = ['permId', 'userId', 'firstName', 'lastName', 'email', 'space', 'registrationDate', 'active']
+            persons = DataFrame(response)
+            if len(persons) == 0:
+                persons = DataFrame(columns=columns)
+            persons['permId'] = persons['permId'].map(extract_permid)
+            persons['registrationDate'] = persons['registrationDate'].map(format_timestamp)
+            persons['space'] = persons['space'].map(extract_nested_permid)
+
+            return persons[columns]
+
         p = Things(
-            self.openbis, entity='person', 
-            df=persons[columns],
-            identifier_name='permId'
+            self.openbis, entity='person',
+            identifier_name='permId',
+            response=self._users,
+            df_initializer=create_data_frame
         )
         return p
 
@@ -70,7 +75,7 @@ class Group(
             if VERBOSE:
                 print(
                     "Role {} successfully assigned to group {}".format(role, self.code)
-                ) 
+                )
         except ValueError as e:
             if 'exists' in str(e):
                 if VERBOSE:
@@ -82,7 +87,7 @@ class Group(
 
 
     def revoke_role(self, role, space=None, project=None, reason='no reason specified'):
-        """ Revoke a role from this group. 
+        """ Revoke a role from this group.
         """
 
         techId = None
@@ -101,7 +106,7 @@ class Group(
                 query['project'] = project.upper()
 
             # build a query string for dataframe
-            querystr = " & ".join( 
+            querystr = " & ".join(
                     '{} == "{}"'.format(key, value) for key, value in query.items()
                     )
             roles = self.get_roles().df
@@ -115,7 +120,7 @@ class Group(
         ra = self.openbis.get_role_assignment(techId)
         ra.delete(reason)
         if VERBOSE:
-            print(f"Role {role} successfully revoked from group {self.code}") 
+            print(f"Role {role} successfully revoked from group {self.code}")
         return
 
     def save(self):

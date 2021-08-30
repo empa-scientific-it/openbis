@@ -1,6 +1,6 @@
 from .property import PropertyHolder
 from .attribute import AttrHolder
-from .openbis_object import OpenBisObject 
+from .openbis_object import OpenBisObject
 from .definitions import openbis_definitions
 from .utils import VERBOSE
 
@@ -23,11 +23,13 @@ class Sample(
         if data is not None:
             self._set_data(data)
 
+        # TODO: Why are we using getattr() and setattr() here? They are considerably slower.
         if project is not None:
-            setattr(self, 'project', project)
+            self.project = project
 
         if props is not None:
             for key in props:
+                # self.p[key] = props[key]
                 setattr(self.p, key, props[key])
 
         if kwargs is not None:
@@ -36,10 +38,10 @@ class Sample(
 
             if 'experiment' in kwargs:
                 try:
-                    experiment = getattr(self, 'experiment')
+                    experiment = self.experiment
                     if not 'space' in kwargs:
                         project = experiment.project
-                        setattr(self.a, 'space', project.space)
+                        self.a.space = project.space
                 except Exception:
                     pass
 
@@ -77,10 +79,10 @@ class Sample(
         return [
             'type',
             'get_parents()', 'get_children()', 'get_components()',
-            'add_parents()', 'add_children()', 'add_components()', 
+            'add_parents()', 'add_children()', 'add_components()',
             'del_parents()', 'del_children()', 'del_components()',
             'set_parents()', 'set_children()', 'set_components()',
-            'get_datasets()', 
+            'get_datasets()',
             'space', 'project', 'experiment', 'container', 'tags',
             'set_tags()', 'add_tags()', 'del_tags()',
             'add_attachment()', 'get_attachments()', 'download_attachments()',

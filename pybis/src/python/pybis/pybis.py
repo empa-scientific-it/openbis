@@ -86,6 +86,8 @@ import errno
 import requests
 
 import urllib3
+import logging
+import sys
 
 
 # import the various openBIS entities
@@ -101,6 +103,8 @@ LOG_DEBUG = 7
 
 DEBUG_LEVEL = LOG_NONE
 
+def now():
+    return time.time()
 
 def get_search_type_for_entity(entity, operator=None):
     """Returns a dictionary containing the correct search criteria type
@@ -240,9 +244,7 @@ def _tagIds_for_tags(tags=None, action="Add"):
     if not isinstance(tags, list):
         tags = [tags]
 
-    items = []
-    for tag in tags:
-        items.append({"code": tag, "@type": "as.dto.tag.id.TagCode"})
+    items = list(map(lambda tag: {"code": tag, "@type": "as.dto.tag.id.TagCode"}, tags))
 
     tagIds = {
         "actions": [
@@ -265,11 +267,7 @@ def _list_update(ids=None, entity=None, action="Add"):
     if not isinstance(ids, list):
         ids = [ids]
 
-    items = []
-    for ids in ids:
-        items.append(
-            {"code": ids, "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity)}
-        )
+    items = list(map(lambda id: {"code": id, "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity)}, ids))
 
     list_update = {
         "actions": [
@@ -381,10 +379,7 @@ def _gen_search_criteria(req):
     sreq = {}
     for key, val in req.items():
         if key == "criteria":
-            items = []
-            for item in req["criteria"]:
-                items.append(_gen_search_criteria(item))
-            sreq["criteria"] = items
+            sreq["criteria"] = list(map(lambda item: _gen_search_criteria(item), req["criteria"]))
         elif key == "code":
             sreq["criteria"] = [
                 _common_search("as.dto.common.search.CodeSearchCriteria", val.upper())
@@ -431,19 +426,15 @@ def _subcriteria_for_tags(tags):
     if not isinstance(tags, list):
         tags = [tags]
 
-    criteria = []
-    for tag in tags:
-        criteria.append(
-            {
-                "fieldName": "code",
-                "fieldType": "ATTRIBUTE",
-                "fieldValue": {
-                    "value": tag,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "@type": "as.dto.common.search.CodeSearchCriteria",
-            }
-        )
+    criteria = list(map(lambda tag: {
+        "fieldName": "code",
+        "fieldType": "ATTRIBUTE",
+        "fieldValue": {
+            "value": tag,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "@type": "as.dto.common.search.CodeSearchCriteria",
+    }, tags))
 
     return {
         "@type": "as.dto.tag.search.TagSearchCriteria",
@@ -725,19 +716,15 @@ def _subcriteria_for_identifier(ids, entity, parents_or_children="", operator="A
     if not isinstance(ids, list):
         ids = [ids]
 
-    criteria = []
-    for id in ids:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.IdentifierSearchCriteria",
-                "fieldValue": {
-                    "value": id,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "identifier",
-            }
-        )
+    criteria = list(map(lambda id: {
+        "@type": "as.dto.common.search.IdentifierSearchCriteria",
+        "fieldValue": {
+            "value": id,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "identifier",
+    }, ids))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -747,19 +734,15 @@ def _subcriteria_for_permid(permids, entity, parents_or_children="", operator="A
     if not isinstance(permids, list):
         permids = [permids]
 
-    criteria = []
-    for permid in permids:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.PermIdSearchCriteria",
-                "fieldValue": {
-                    "value": permid,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "perm_id",
-            }
-        )
+    criteria = list(map(lambda permid: {
+        "@type": "as.dto.common.search.PermIdSearchCriteria",
+        "fieldValue": {
+            "value": permid,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "perm_id",
+    }, permids))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -769,19 +752,15 @@ def _subcriteria_for_permid_new(codes, entity, parents_or_children="", operator=
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = []
-    for code in codes:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.PermIdSearchCriteria",
-                "fieldValue": {
-                    "value": code,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "perm_id",
-            }
-        )
+    criteria = list(map(lambda code: {
+        "@type": "as.dto.common.search.PermIdSearchCriteria",
+        "fieldValue": {
+            "value": code,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "perm_id",
+    }, codes))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -791,19 +770,15 @@ def _subcriteria_for_code_new(codes, entity, parents_or_children="", operator="A
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = []
-    for code in codes:
-        criteria.append(
-            {
-                "@type": "as.dto.common.search.CodeSearchCriteria",
-                "fieldValue": {
-                    "value": code,
-                    "@type": "as.dto.common.search.StringEqualToValue",
-                },
-                "fieldType": "ATTRIBUTE",
-                "fieldName": "code",
-            }
-        )
+    criteria = list(map(lambda code: {
+        "@type": "as.dto.common.search.CodeSearchCriteria",
+        "fieldValue": {
+            "value": code,
+            "@type": "as.dto.common.search.StringEqualToValue",
+        },
+        "fieldType": "ATTRIBUTE",
+        "fieldName": "code",
+    }, codes))
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -1666,28 +1641,32 @@ class Openbis:
             "params": [self.token, search_criteria, fetchopts],
         }
 
-        attrs = ["techId", "role", "roleLevel", "user", "group", "space", "project"]
         resp = self._post_request(self.as_v3, request)
-        if len(resp["objects"]) == 0:
-            roles = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
-            roles = DataFrame(objects)
-            roles["techId"] = roles["id"].map(extract_id)
-            roles["user"] = roles["user"].map(extract_userId)
-            roles["group"] = roles["authorizationGroup"].map(extract_code)
-            roles["space"] = roles["space"].map(extract_code)
-            roles["project"] = roles["project"].map(extract_code)
+
+        def create_data_frame(attrs, props, response):
+            attrs = ["techId", "role", "roleLevel", "user", "group", "space", "project"]
+            if len(response["objects"]) == 0:
+                roles = DataFrame(columns=attrs)
+            else:
+                objects = response["objects"]
+                parse_jackson(objects)
+                roles = DataFrame(objects)
+                roles["techId"] = roles["id"].map(extract_id)
+                roles["user"] = roles["user"].map(extract_userId)
+                roles["group"] = roles["authorizationGroup"].map(extract_code)
+                roles["space"] = roles["space"].map(extract_code)
+                roles["project"] = roles["project"].map(extract_code)
+            return roles[attrs]
 
         return Things(
             openbis_obj=self,
             entity="role_assignment",
-            df=roles[attrs],
             identifier_name="techId",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_role_assignment(self, techId, only_data=False):
@@ -1819,39 +1798,43 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = [
-            "permId",
-            "code",
-            "description",
-            "users",
-            "registrator",
-            "registrationDate",
-            "modificationDate",
-        ]
-        if len(resp["objects"]) == 0:
-            groups = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
-            groups = DataFrame(objects)
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "permId",
+                "code",
+                "description",
+                "users",
+                "registrator",
+                "registrationDate",
+                "modificationDate",
+            ]
+            if len(response["objects"]) == 0:
+                groups = DataFrame(columns=attrs)
+            else:
+                objects = response["objects"]
+                parse_jackson(objects)
+                groups = DataFrame(objects)
 
-            groups["permId"] = groups["permId"].map(extract_permid)
-            groups["registrator"] = groups["registrator"].map(extract_person)
-            groups["users"] = groups["users"].map(extract_userId)
-            groups["registrationDate"] = groups["registrationDate"].map(
-                format_timestamp
-            )
-            groups["modificationDate"] = groups["modificationDate"].map(
-                format_timestamp
-            )
+                groups["permId"] = groups["permId"].map(extract_permid)
+                groups["registrator"] = groups["registrator"].map(extract_person)
+                groups["users"] = groups["users"].map(extract_userId)
+                groups["registrationDate"] = groups["registrationDate"].map(
+                    format_timestamp
+                )
+                groups["modificationDate"] = groups["modificationDate"].map(
+                    format_timestamp
+                )
+            return groups[attrs]
+
         return Things(
             openbis_obj=self,
             entity="group",
-            df=groups[attrs],
             identifier_name="permId",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_persons(self, start_with=None, count=None, **search_args):
@@ -1869,37 +1852,40 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = [
-            "permId",
-            "userId",
-            "firstName",
-            "lastName",
-            "email",
-            "space",
-            "registrationDate",
-            "active",
-        ]
-        if len(resp["objects"]) == 0:
-            persons = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "permId",
+                "userId",
+                "firstName",
+                "lastName",
+                "email",
+                "space",
+                "registrationDate",
+                "active",
+            ]
+            objects = response["objects"]
+            if len(objects) == 0:
+                persons = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
 
-            persons = DataFrame(resp["objects"])
-            persons["permId"] = persons["permId"].map(extract_permid)
-            persons["registrationDate"] = persons["registrationDate"].map(
-                format_timestamp
-            )
-            persons["space"] = persons["space"].map(extract_nested_permid)
+                persons = DataFrame(objects)
+                persons["permId"] = persons["permId"].map(extract_permid)
+                persons["registrationDate"] = persons["registrationDate"].map(
+                    format_timestamp
+                )
+                persons["space"] = persons["space"].map(extract_nested_permid)
+            return persons[attrs]
 
         return Things(
             openbis_obj=self,
             entity="person",
-            df=persons[attrs],
             identifier_name="permId",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     get_users = get_persons  # Alias
@@ -1957,24 +1943,28 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = ["code", "description", "registrationDate", "modificationDate"]
-        if len(resp["objects"]) == 0:
-            spaces = DataFrame(columns=attrs)
-        else:
-            spaces = DataFrame(resp["objects"])
-            spaces["registrationDate"] = spaces["registrationDate"].map(
-                format_timestamp
-            )
-            spaces["modificationDate"] = spaces["modificationDate"].map(
-                format_timestamp
-            )
+        def create_data_frame(attrs, props, response):
+            attrs = ["code", "description", "registrationDate", "modificationDate"]
+            if len(resp["objects"]) == 0:
+                spaces = DataFrame(columns=attrs)
+            else:
+                spaces = DataFrame(resp["objects"])
+                spaces["registrationDate"] = spaces["registrationDate"].map(
+                    format_timestamp
+                )
+                spaces["modificationDate"] = spaces["modificationDate"].map(
+                    format_timestamp
+                )
+            return spaces[attrs]
+
         return Things(
             openbis_obj=self,
             entity="space",
-            df=spaces[attrs],
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_space(self, code, only_data=False, use_cache=True):
@@ -2068,6 +2058,10 @@ class Openbis:
                         b) property is not defined for this sampleType
         """
 
+        logger = logging.getLogger('get_samples')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler(sys.stdout))
+
         if collection is not None:
             experiment = collection
 
@@ -2150,27 +2144,32 @@ class Openbis:
                 fetchopts,
             ],
         }
+
+        time1 = now()
+        logger.debug("get_samples posting request")
         resp = self._post_request(self.as_v3, request)
 
-        samples = []
-        parse_jackson(resp)
-        for obj in resp["objects"]:
-            sample = Sample(
-                openbis_obj=self,
-                type=self.get_sample_type(obj["type"]["code"]),
-                data=obj,
-            )
-            samples.append(sample)
+        time2 = now()
 
-        return self._sample_list_for_response(
-            response=resp["objects"],
-            attrs=attrs,
-            props=props,
-            start_with=start_with,
-            count=count,
-            totalCount=resp["totalCount"],
-            objects=samples,
-        )
+        logger.debug(f"get_samples got response. Delay: {time2 - time1}")
+        parse_jackson(resp)
+
+        time3 = now()
+
+        response = resp["objects"]
+        logger.debug(f"get_samples got JSON. Delay: {time3 - time2}")
+
+        time4 = now()
+
+        logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
+
+        result = self._sample_list_for_response(response=response, attrs=attrs, props=props, start_with=start_with,
+                                                count=count, totalCount=resp["totalCount"], parsed=True)
+
+        time5 = now()
+
+        logger.debug(f"get_samples computed final result. Delay: {time5 - time4}")
+        return result
 
     get_objects = get_samples  # Alias
 
@@ -2275,12 +2274,9 @@ class Openbis:
             else:
                 properties = {**where, **properties}
         if properties is not None:
-            for prop in properties:
-                sub_criteria.append(
-                    _subcriteria_for_properties(
-                        prop, properties[prop], entity="experiment"
-                    )
-                )
+            sub_criteria.extend(list(map(
+                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="experiment"), properties
+            )))
 
         search_criteria = get_search_type_for_entity("experiment")
         search_criteria["criteria"] = sub_criteria
@@ -2305,93 +2301,99 @@ class Openbis:
             ],
         }
         resp = self._post_request(self.as_v3, request)
-        response = resp["objects"]
-        parse_jackson(response)
 
-        default_attrs = [
-            "identifier",
-            "permId",
-            "type",
-            "registrator",
-            "registrationDate",
-            "modifier",
-            "modificationDate",
-        ]
-        display_attrs = default_attrs + attrs
+        def create_data_frame(attrs, props, response):
+            response = response["objects"]
+            parse_jackson(response)
 
-        if props is None:
-            props = []
-        else:
-            if isinstance(props, str):
-                props = [props]
+            default_attrs = [
+                "identifier",
+                "permId",
+                "type",
+                "registrator",
+                "registrationDate",
+                "modifier",
+                "modificationDate",
+            ]
 
-        if len(response) == 0:
-            for prop in props:
-                if prop == "*":
-                    continue
-                display_attrs.append(prop)
-            experiments = DataFrame(columns=display_attrs)
-        else:
-            experiments = DataFrame(response)
-            experiments["space"] = experiments["project"].map(extract_space)
-            for attr in attrs:
-                if "." in attr:
-                    entity, attribute_to_extract = attr.split(".")
-                    experiments[attr] = experiments[entity].map(
-                        extract_attribute(attribute_to_extract)
-                    )
-            for attr in attrs:
-                # if no dot supplied, just display the code of the space, project or experiment
-                if attr in ["project"]:
-                    experiments[attr] = experiments[attr].map(extract_nested_identifier)
-                if attr in ["space"]:
-                    experiments[attr] = experiments[attr].map(extract_code)
+            display_attrs = default_attrs + attrs
 
-            experiments["registrationDate"] = experiments["registrationDate"].map(
-                format_timestamp
-            )
-            experiments["modificationDate"] = experiments["modificationDate"].map(
-                format_timestamp
-            )
-            experiments["project"] = experiments["project"].map(extract_code)
-            experiments["registrator"] = experiments["registrator"].map(extract_person)
-            experiments["modifier"] = experiments["modifier"].map(extract_person)
-            experiments["identifier"] = experiments["identifier"].map(
-                extract_identifier
-            )
-            experiments["permId"] = experiments["permId"].map(extract_permid)
-            experiments["type"] = experiments["type"].map(extract_code)
+            if props is None:
+                props = []
+            else:
+                if isinstance(props, str):
+                    props = [props]
 
-            for prop in props:
-                if prop == "*":
-                    # include all properties in dataFrame.
-                    # expand the dataFrame by adding new columns
-                    columns = []
-                    for i, experiment in enumerate(response):
-                        for prop_name, val in experiment.get("properties", {}).items():
-                            experiments.loc[i, prop_name.upper()] = val
-                            columns.append(prop_name.upper())
+            if len(response) == 0:
+                for prop in props:
+                    if prop == "*":
+                        continue
+                    display_attrs.append(prop)
+                experiments = DataFrame(columns=display_attrs)
+            else:
+                experiments = DataFrame(response)
+                experiments["space"] = experiments["project"].map(extract_space)
+                for attr in attrs:
+                    if "." in attr:
+                        entity, attribute_to_extract = attr.split(".")
+                        experiments[attr] = experiments[entity].map(
+                            extract_attribute(attribute_to_extract)
+                        )
+                for attr in attrs:
+                    # if no dot supplied, just display the code of the space, project or experiment
+                    if attr in ["project"]:
+                        experiments[attr] = experiments[attr].map(extract_nested_identifier)
+                    if attr in ["space"]:
+                        experiments[attr] = experiments[attr].map(extract_code)
 
-                    display_attrs += set(columns)
-                    continue
+                experiments["registrationDate"] = experiments["registrationDate"].map(
+                    format_timestamp
+                )
+                experiments["modificationDate"] = experiments["modificationDate"].map(
+                    format_timestamp
+                )
+                experiments["project"] = experiments["project"].map(extract_code)
+                experiments["registrator"] = experiments["registrator"].map(extract_person)
+                experiments["modifier"] = experiments["modifier"].map(extract_person)
+                experiments["identifier"] = experiments["identifier"].map(
+                    extract_identifier
+                )
+                experiments["permId"] = experiments["permId"].map(extract_permid)
+                experiments["type"] = experiments["type"].map(extract_code)
 
-                else:
-                    # property name is provided
-                    for i, experiment in enumerate(response):
-                        val = experiment.get("properties", {}).get(
-                            prop, ""
-                        ) or experiment.get("properties", {}).get(prop.upper(), "")
-                        experiments.loc[i, prop.upper()] = val
-                    display_attrs.append(prop.upper())
+                for prop in props:
+                    if prop == "*":
+                        # include all properties in dataFrame.
+                        # expand the dataFrame by adding new columns
+                        columns = []
+                        for i, experiment in enumerate(response):
+                            for prop_name, val in experiment.get("properties", {}).items():
+                                experiments.loc[i, prop_name.upper()] = val
+                                columns.append(prop_name.upper())
+
+                        display_attrs += set(columns)
+                        continue
+                    else:
+                        # property name is provided
+                        for i, experiment in enumerate(response):
+                            val = experiment.get("properties", {}).get(
+                                prop, ""
+                            ) or experiment.get("properties", {}).get(prop.upper(), "")
+                            experiments.loc[i, prop.upper()] = val
+                        display_attrs.append(prop.upper())
+            return experiments[display_attrs]
 
         return Things(
             openbis_obj=self,
             entity="experiment",
-            df=experiments[display_attrs],
             identifier_name="identifier",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            attrs=attrs,
+            props=props,
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     get_collections = get_experiments  # Alias
@@ -2494,12 +2496,9 @@ class Openbis:
                 properties = {**where, **properties}
 
         if properties is not None:
-            for prop in properties:
-                sub_criteria.append(
-                    _subcriteria_for_properties(
-                        prop, properties[prop], entity="dataset"
-                    )
-                )
+            sub_criteria.extend(list(map(
+                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="dataset"), properties
+            )))
 
         search_criteria = get_search_type_for_entity("dataset")
         search_criteria["criteria"] = sub_criteria
@@ -2534,7 +2533,6 @@ class Openbis:
                 )
             fetchopts["kind"] = kind
             raise NotImplementedError("you cannot search for dataSet kinds yet")
-
         request = {
             "method": "searchDataSets",
             "params": [
@@ -2563,6 +2561,7 @@ class Openbis:
             count=count,
             totalCount=resp["totalCount"],
             objects=datasets,
+            parsed=True
         )
 
     def get_experiment(
@@ -2749,7 +2748,11 @@ class Openbis:
             if only_data:
                 return resp[projectId]
 
-            project = Project(openbis_obj=self, type=None, data=resp[projectId])
+            project = Project(
+                openbis_obj=self,
+                type=None,
+                data=resp[projectId]
+            )
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -2771,7 +2774,11 @@ class Openbis:
             if only_data:
                 return resp["objects"][0]
 
-            project = Project(openbis_obj=self, type=None, data=resp["objects"][0])
+            project = Project(
+                openbis_obj=self,
+                type=None,
+                data=resp["objects"][0]
+            )
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -2813,43 +2820,46 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = [
-            "identifier",
-            "permId",
-            "leader",
-            "registrator",
-            "registrationDate",
-            "modifier",
-            "modificationDate",
-        ]
-        if len(resp["objects"]) == 0:
-            projects = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "identifier",
+                "permId",
+                "leader",
+                "registrator",
+                "registrationDate",
+                "modifier",
+                "modificationDate",
+            ]
+            objects = response["objects"]
+            if len(objects) == 0:
+                projects = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
 
-            projects = DataFrame(objects)
+                projects = DataFrame(objects)
 
-            projects["registrationDate"] = projects["registrationDate"].map(
-                format_timestamp
-            )
-            projects["modificationDate"] = projects["modificationDate"].map(
-                format_timestamp
-            )
-            projects["leader"] = projects["leader"].map(extract_person)
-            projects["registrator"] = projects["registrator"].map(extract_person)
-            projects["modifier"] = projects["modifier"].map(extract_person)
-            projects["permId"] = projects["permId"].map(extract_permid)
-            projects["identifier"] = projects["identifier"].map(extract_identifier)
+                projects["registrationDate"] = projects["registrationDate"].map(
+                    format_timestamp
+                )
+                projects["modificationDate"] = projects["modificationDate"].map(
+                    format_timestamp
+                )
+                projects["leader"] = projects["leader"].map(extract_person)
+                projects["registrator"] = projects["registrator"].map(extract_person)
+                projects["modifier"] = projects["modifier"].map(extract_person)
+                projects["permId"] = projects["permId"].map(extract_permid)
+                projects["identifier"] = projects["identifier"].map(extract_identifier)
+            return projects[attrs]
 
         return Things(
             openbis_obj=self,
             entity="project",
-            df=projects[attrs],
             identifier_name="identifier",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def _create_get_request(self, method_name, entity, permids, options, foType):
@@ -2940,29 +2950,32 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = "code vocabularyCode label description registrationDate modificationDate official ordinal".split()
+        def create_data_frame(attrs, props, response):
+            attrs = "code vocabularyCode label description registrationDate modificationDate official ordinal".split()
 
-        if len(resp["objects"]) == 0:
-            terms = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
-            terms = DataFrame(objects)
-            terms["vocabularyCode"] = terms["permId"].map(
-                extract_attr("vocabularyCode")
-            )
-            terms["registrationDate"] = terms["registrationDate"].map(format_timestamp)
-            terms["modificationDate"] = terms["modificationDate"].map(format_timestamp)
+            objects = response["objects"]
+            if len(objects) == 0:
+                terms = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+                terms = DataFrame(objects)
+                terms["vocabularyCode"] = terms["permId"].map(
+                    extract_attr("vocabularyCode")
+                )
+                terms["registrationDate"] = terms["registrationDate"].map(format_timestamp)
+                terms["modificationDate"] = terms["modificationDate"].map(format_timestamp)
+            return terms[attrs]
 
         things = Things(
             openbis_obj=self,
             entity="term",
-            df=terms[attrs],
             identifier_name="code",
             additional_identifier="vocabularyCode",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
         if (
             self.use_cache
@@ -3038,26 +3051,29 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
-        attrs = "code description managedInternally chosenFromList urlTemplate registrator registrationDate modificationDate".split()
+        def create_data_frame(attrs, props, response):
+            attrs = "code description managedInternally chosenFromList urlTemplate registrator registrationDate modificationDate".split()
 
-        if len(resp["objects"]) == 0:
-            vocs = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(resp)
-            vocs = DataFrame(objects)
-            vocs["registrationDate"] = vocs["registrationDate"].map(format_timestamp)
-            vocs["modificationDate"] = vocs["modificationDate"].map(format_timestamp)
-            vocs["registrator"] = vocs["registrator"].map(extract_person)
+            objects = response["objects"]
+            if len(objects) == 0:
+                vocs = DataFrame(columns=attrs)
+            else:
+                parse_jackson(response)
+                vocs = DataFrame(objects)
+                vocs["registrationDate"] = vocs["registrationDate"].map(format_timestamp)
+                vocs["modificationDate"] = vocs["modificationDate"].map(format_timestamp)
+                vocs["registrator"] = vocs["registrator"].map(extract_person)
+            return vocs[attrs]
 
         return Things(
             openbis_obj=self,
             entity="vocabulary",
-            df=vocs[attrs],
             identifier_name="code",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_vocabulary(self, code, only_data=False, use_cache=True):
@@ -3170,33 +3186,35 @@ class Openbis:
             return self._tag_list_for_response(response=list(resp.values()))
 
     def _tag_list_for_response(self, response, totalCount=0):
-
-        parse_jackson(response)
-        attrs = [
-            "permId",
-            "code",
-            "description",
-            "owner",
-            "private",
-            "registrationDate",
-        ]
-        if len(response) == 0:
-            tags = DataFrame(columns=attrs)
-        else:
-            tags = DataFrame(response)
-            tags["registrationDate"] = tags["registrationDate"].map(format_timestamp)
-            tags["permId"] = tags["permId"].map(extract_permid)
-            tags["description"] = tags["description"].map(
-                lambda x: "" if x is None else x
-            )
-            tags["owner"] = tags["owner"].map(extract_person)
+        def create_data_frame(attrs, props, response):
+            parse_jackson(response)
+            attrs = [
+                "permId",
+                "code",
+                "description",
+                "owner",
+                "private",
+                "registrationDate",
+            ]
+            if len(response) == 0:
+                tags = DataFrame(columns=attrs)
+            else:
+                tags = DataFrame(response)
+                tags["registrationDate"] = tags["registrationDate"].map(format_timestamp)
+                tags["permId"] = tags["permId"].map(extract_permid)
+                tags["description"] = tags["description"].map(
+                    lambda x: "" if x is None else x
+                )
+                tags["owner"] = tags["owner"].map(extract_person)
+            return tags[attrs]
 
         return Things(
             openbis_obj=self,
             entity="tag",
-            df=tags[attrs],
             identifier_name="permId",
             totalCount=totalCount,
+            response=response,
+            df_initializer=create_data_frame
         )
 
     def search_semantic_annotations(
@@ -3261,28 +3279,31 @@ class Openbis:
         if only_data:
             return objects
 
-        attrs = [
-            "permId",
-            "entityType",
-            "propertyType",
-            "predicateOntologyId",
-            "predicateOntologyVersion",
-            "predicateAccessionId",
-            "descriptorOntologyId",
-            "descriptorOntologyVersion",
-            "descriptorAccessionId",
-            "creationDate",
-        ]
-        if len(objects) == 0:
-            annotations = DataFrame(columns=attrs)
-        else:
-            annotations = DataFrame(objects)
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "permId",
+                "entityType",
+                "propertyType",
+                "predicateOntologyId",
+                "predicateOntologyVersion",
+                "predicateAccessionId",
+                "descriptorOntologyId",
+                "descriptorOntologyVersion",
+                "descriptorAccessionId",
+                "creationDate",
+            ]
+            if len(response) == 0:
+                annotations = DataFrame(columns=attrs)
+            else:
+                annotations = DataFrame(response)
+            return annotations[attrs]
 
         return Things(
             openbis_obj=self,
             entity="semantic_annotation",
-            df=annotations[attrs],
             identifier_name="permId",
+            response=objects,
+            df_initializer=create_data_frame
         )
 
     def _search_semantic_annotations(self, criteria):
@@ -3330,7 +3351,6 @@ class Openbis:
                         "code"
                     ]
                 obj["creationDate"] = format_timestamp(obj["creationDate"])
-
             return objects
 
     def get_semantic_annotations(self):
@@ -3341,27 +3361,32 @@ class Openbis:
                 "@type": "as.dto.semanticannotation.search.SemanticAnnotationSearchCriteria"
             }
         )
-        attrs = [
-            "permId",
-            "entityType",
-            "propertyType",
-            "predicateOntologyId",
-            "predicateOntologyVersion",
-            "predicateAccessionId",
-            "descriptorOntologyId",
-            "descriptorOntologyVersion",
-            "descriptorAccessionId",
-            "creationDate",
-        ]
-        if len(objects) == 0:
-            annotations = DataFrame(columns=attrs)
-        else:
-            annotations = DataFrame(objects)
+
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "permId",
+                "entityType",
+                "propertyType",
+                "predicateOntologyId",
+                "predicateOntologyVersion",
+                "predicateAccessionId",
+                "descriptorOntologyId",
+                "descriptorOntologyVersion",
+                "descriptorAccessionId",
+                "creationDate",
+            ]
+            if len(response) == 0:
+                annotations = DataFrame(columns=attrs)
+            else:
+                annotations = DataFrame(response)
+            return annotations[attrs]
+
         return Things(
             openbis_obj=self,
             entity="semantic_annotation",
-            df=annotations[attrs],
             identifier_name="permId",
+            response=objects,
+            df_initializer=create_data_frame
         )
 
     def get_semantic_annotation(self, permId, only_data=False):
@@ -3397,44 +3422,48 @@ class Openbis:
             ],
         }
         resp = self._post_request(self.as_v3, request)
-        attrs = [
-            "name",
-            "description",
-            "pluginType",
-            "pluginKind",
-            "entityKinds",
-            "registrator",
-            "registrationDate",
-            "permId",
-        ]
 
-        if len(resp["objects"]) == 0:
-            plugins = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
+        def create_data_frame(attrs, props, response):
+            attrs = [
+                "name",
+                "description",
+                "pluginType",
+                "pluginKind",
+                "entityKinds",
+                "registrator",
+                "registrationDate",
+                "permId",
+            ]
 
-            plugins = DataFrame(objects)
-            plugins["permId"] = plugins["permId"].map(extract_permid)
-            plugins["registrator"] = plugins["registrator"].map(extract_person)
-            plugins["registrationDate"] = plugins["registrationDate"].map(
-                format_timestamp
-            )
-            plugins["description"] = plugins["description"].map(
-                lambda x: "" if x is None else x
-            )
-            plugins["entityKinds"] = plugins["entityKinds"].map(
-                lambda x: "" if x is None else x
-            )
+            objects = response["objects"]
+            if len(objects) == 0:
+                plugins = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+
+                plugins = DataFrame(objects)
+                plugins["permId"] = plugins["permId"].map(extract_permid)
+                plugins["registrator"] = plugins["registrator"].map(extract_person)
+                plugins["registrationDate"] = plugins["registrationDate"].map(
+                    format_timestamp
+                )
+                plugins["description"] = plugins["description"].map(
+                    lambda x: "" if x is None else x
+                )
+                plugins["entityKinds"] = plugins["entityKinds"].map(
+                    lambda x: "" if x is None else x
+                )
+            return plugins[attrs]
 
         return Things(
             openbis_obj=self,
             entity="plugin",
-            df=plugins[attrs],
             identifier_name="name",
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_plugin(self, permId, only_data=False, with_script=True):
@@ -3466,7 +3495,6 @@ class Openbis:
 
     def new_plugin(self, name, pluginType, **kwargs):
         """Creates a new Plugin in openBIS.
-
         name        -- name of the plugin
         description --
         pluginType  -- DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION
@@ -3621,26 +3649,29 @@ class Openbis:
         self, objects, start_with=None, count=None, totalCount=None
     ):
         """takes a list of objects and returns a Things object"""
-        attrs = openbis_definitions("propertyType")["attrs"]
-        if len(objects) == 0:
-            df = DataFrame(columns=attrs)
-        else:
-            df = DataFrame(objects)
-            df["registrationDate"] = df["registrationDate"].map(format_timestamp)
-            df["registrator"] = df["registrator"].map(extract_person)
-            df["vocabulary"] = df["vocabulary"].map(extract_code)
-            df["semanticAnnotations"] = df["semanticAnnotations"].map(
-                extract_nested_permids
-            )
+        def create_data_frame(attrs, props, response):
+            attrs = openbis_definitions("propertyType")["attrs"]
+            if len(response) == 0:
+                df = DataFrame(columns=attrs)
+            else:
+                df = DataFrame(response)
+                df["registrationDate"] = df["registrationDate"].map(format_timestamp)
+                df["registrator"] = df["registrator"].map(extract_person)
+                df["vocabulary"] = df["vocabulary"].map(extract_code)
+                df["semanticAnnotations"] = df["semanticAnnotations"].map(
+                    extract_nested_permids
+                )
+            return df[attrs]
 
         return Things(
             openbis_obj=self,
             entity="propertyType",
             single_item_method=self.get_property_type,
-            df=df[attrs],
             start_with=start_with,
             count=count,
             totalCount=totalCount,
+            response=objects,
+            df_initializer=create_data_frame
         )
 
     def get_material_types(self, type=None, start_with=None, count=None):
@@ -3746,34 +3777,36 @@ class Openbis:
             "params": [self.token, search_request, fetch_options],
         }
         resp = self._post_request(self.as_v3, request)
-        parse_jackson(resp)
 
-        entity_types = []
-        defs = get_definition_for_entity(entity)
-        attrs = defs["attrs"]
-        if len(resp["objects"]) == 0:
-            entity_types = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
-            entity_types = DataFrame(objects)
-            entity_types["permId"] = entity_types["permId"].map(extract_permid)
-            entity_types["modificationDate"] = entity_types["modificationDate"].map(
-                format_timestamp
-            )
-            entity_types["validationPlugin"] = entity_types["validationPlugin"].map(
-                extract_nested_permid
-            )
+        def create_data_frame(attrs, props, response):
+            parse_jackson(response)
+            entity_types = []
+            defs = get_definition_for_entity(entity)
+            attrs = defs["attrs"]
+            objects = response["objects"]
+            if len(objects) == 0:
+                entity_types = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+                entity_types = DataFrame(objects)
+                entity_types["permId"] = entity_types["permId"].map(extract_permid)
+                entity_types["modificationDate"] = entity_types["modificationDate"].map(
+                    format_timestamp
+                )
+                entity_types["validationPlugin"] = entity_types["validationPlugin"].map(
+                    extract_nested_permid
+                )
+            return entity_types[attrs]
 
-        single_item_method = getattr(self, cls._single_item_method_name)
         return Things(
             openbis_obj=self,
             entity=entity,
-            df=entity_types[attrs],
             start_with=start_with,
-            single_item_method=single_item_method,
+            single_item_method=getattr(self, cls._single_item_method_name),
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def get_entity_type(
@@ -3885,38 +3918,43 @@ class Openbis:
             "params": [self.token, search_request, fetch_options],
         }
         resp = self._post_request(self.as_v3, request)
-        parse_jackson(resp)
 
-        if type_name is not None:
-            if len(resp["objects"]) == 1:
-                return EntityType(openbis_obj=self, data=resp["objects"][0])
-            elif len(resp["objects"]) == 0:
-                raise ValueError("No such {} type: {}".format(entity, type_name))
-            else:
-                raise ValueError(
-                    "There is more than one entry for entity={} and type={}".format(
-                        entity, type_name
+        def create_data_frame(attrs, props, response):
+            parse_jackson(response)
+
+            if type_name is not None:
+                if len(response["objects"]) == 1:
+                    return EntityType(openbis_obj=self, data=response["objects"][0])
+                elif len(response["objects"]) == 0:
+                    raise ValueError("No such {} type: {}".format(entity, type_name))
+                else:
+                    raise ValueError(
+                        "There is more than one entry for entity={} and type={}".format(
+                            entity, type_name
+                        )
                     )
-                )
 
-        types = []
-        attrs = self._get_attributes(
-            type_name, types, additional_attributes, optional_attributes
-        )
-        if len(resp["objects"]) == 0:
-            types = DataFrame(columns=attrs)
-        else:
-            objects = resp["objects"]
-            parse_jackson(objects)
-            types = DataFrame(objects)
-            types["modificationDate"] = types["modificationDate"].map(format_timestamp)
+            types = []
+            attrs = self._get_attributes(
+                type_name, types, additional_attributes, optional_attributes
+            )
+            objects = response["objects"]
+            if len(objects) == 0:
+                types = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+                types = DataFrame(objects)
+                types["modificationDate"] = types["modificationDate"].map(format_timestamp)
+            return types[attrs]
+
         return Things(
             openbis_obj=self,
             entity=entity.lower() + "_type",
-            df=types[attrs],
             start_with=start_with,
             count=count,
             totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame
         )
 
     def _get_attributes(
@@ -4035,7 +4073,7 @@ class Openbis:
                     )
         else:
             return self._dataset_list_for_response(
-                response=list(resp.values()), props=props
+                response=list(resp.values()), props=props, parsed=False
             )
 
     def _dataset_list_for_response(
@@ -4047,6 +4085,7 @@ class Openbis:
         count=None,
         totalCount=0,
         objects=None,
+        parsed=False
     ):
         """returns a Things object, containing a DataFrame plus some additional information"""
 
@@ -4058,23 +4097,11 @@ class Openbis:
 
             return return_attribute
 
-        parse_jackson(response)
+        if not parsed:
+            parse_jackson(response)
 
         if attrs is None:
             attrs = []
-        default_attrs = [
-            "permId",
-            "type",
-            "experiment",
-            "sample",
-            "registrationDate",
-            "modificationDate",
-            "location",
-            "status",
-            "presentInArchive",
-            "size",
-        ]
-        display_attrs = default_attrs + attrs
 
         def extract_project(attr):
             entity, _, attr = attr.partition(".")
@@ -4104,98 +4131,124 @@ class Openbis:
 
             return extract_attr
 
-        if props is None:
-            props = []
-        else:
-            if isinstance(props, str):
-                props = [props]
+        def create_data_frame(attrs, props, response):
+            default_attrs = [
+                "permId",
+                "type",
+                "experiment",
+                "sample",
+                "registrationDate",
+                "modificationDate",
+                "location",
+                "status",
+                "presentInArchive",
+                "size",
+            ]
+            display_attrs = default_attrs + attrs
 
-        if len(response) == 0:
-            for prop in props:
-                if prop == "*":
-                    continue
-                display_attrs.append(prop)
-            datasets = DataFrame(columns=display_attrs)
-        else:
-            datasets = DataFrame(response)
-            for attr in attrs:
-                if "project" in attr:
-                    datasets[attr] = datasets["experiment"].map(extract_project(attr))
-                elif "space" in attr:
-                    datasets[attr] = datasets["experiment"].map(extract_space(attr))
-                elif "." in attr:
-                    entity, attribute_to_extract = attr.split(".")
-                    datasets[attr] = datasets[entity].map(
-                        extract_attribute(attribute_to_extract)
-                    )
-            for attr in attrs:
-                # if no dot supplied, just display the code of the space, project or experiment
-                if any(entity == attr for entity in ["experiment", "sample"]):
-                    datasets[attr] = datasets[attr].map(extract_nested_identifier)
+            if props is None:
+                props = []
+            else:
+                if isinstance(props, str):
+                    props = [props]
 
-            datasets["registrationDate"] = datasets["registrationDate"].map(
-                format_timestamp
-            )
-            datasets["modificationDate"] = datasets["modificationDate"].map(
-                format_timestamp
-            )
-            datasets["experiment"] = datasets["experiment"].map(
-                extract_nested_identifier
-            )
-            datasets["sample"] = datasets["sample"].map(extract_nested_identifier)
-            datasets["type"] = datasets["type"].map(extract_code)
-            datasets["permId"] = datasets["code"]
-            for column in ["parents", "children", "components", "containers"]:
-                if column in datasets:
-                    datasets[column] = datasets[column].map(extract_identifiers)
-            datasets["size"] = datasets["physicalData"].map(
-                lambda x: x.get("size") if x else ""
-            )
-            datasets["status"] = datasets["physicalData"].map(
-                lambda x: x.get("status") if x else ""
-            )
-            datasets["presentInArchive"] = datasets["physicalData"].map(
-                lambda x: x.get("presentInArchive") if x else ""
-            )
-            datasets["location"] = datasets["physicalData"].map(
-                lambda x: x.get("location") if x else ""
-            )
+            if len(response) == 0:
+                for prop in props:
+                    if prop == "*":
+                        continue
+                    display_attrs.append(prop)
+                datasets = DataFrame(columns=display_attrs)
+            else:
+                datasets = DataFrame(response)
+                for attr in attrs:
+                    if "project" in attr:
+                        datasets[attr] = datasets["experiment"].map(extract_project(attr))
+                    elif "space" in attr:
+                        datasets[attr] = datasets["experiment"].map(extract_space(attr))
+                    elif "." in attr:
+                        entity, attribute_to_extract = attr.split(".")
+                        datasets[attr] = datasets[entity].map(
+                            extract_attribute(attribute_to_extract)
+                        )
+                for attr in attrs:
+                    # if no dot supplied, just display the code of the space, project or experiment
+                    if any(entity == attr for entity in ["experiment", "sample"]):
+                        datasets[attr] = datasets[attr].map(extract_nested_identifier)
 
-            for prop in props:
-                if prop == "*":
-                    # include all properties in dataFrame.
-                    # expand the dataFrame by adding new columns
-                    columns = []
-                    for i, dataSet in enumerate(response):
-                        for prop_name, val in dataSet.get("properties", {}).items():
-                            datasets.loc[i, prop_name.upper()] = val
-                            columns.append(prop_name.upper())
+                datasets["registrationDate"] = datasets["registrationDate"].map(
+                    format_timestamp
+                )
+                datasets["modificationDate"] = datasets["modificationDate"].map(
+                    format_timestamp
+                )
+                datasets["experiment"] = datasets["experiment"].map(
+                    extract_nested_identifier
+                )
+                datasets["sample"] = datasets["sample"].map(extract_nested_identifier)
+                datasets["type"] = datasets["type"].map(extract_code)
+                datasets["permId"] = datasets["code"]
+                for column in ["parents", "children", "components", "containers"]:
+                    if column in datasets:
+                        datasets[column] = datasets[column].map(extract_identifiers)
+                datasets["size"] = datasets["physicalData"].map(
+                    lambda x: x.get("size") if x else ""
+                )
+                datasets["status"] = datasets["physicalData"].map(
+                    lambda x: x.get("status") if x else ""
+                )
+                datasets["presentInArchive"] = datasets["physicalData"].map(
+                    lambda x: x.get("presentInArchive") if x else ""
+                )
+                datasets["location"] = datasets["physicalData"].map(
+                    lambda x: x.get("location") if x else ""
+                )
 
-                    display_attrs += set(columns)
-                    continue
+                for prop in props:
+                    if prop == "*":
+                        # include all properties in dataFrame.
+                        # expand the dataFrame by adding new columns
+                        columns = []
+                        for i, dataSet in enumerate(response):
+                            for prop_name, val in dataSet.get("properties", {}).items():
+                                datasets.loc[i, prop_name.upper()] = val
+                                columns.append(prop_name.upper())
 
-                else:
-                    # property name is provided
-                    for i, dataSet in enumerate(response):
-                        val = dataSet.get("properties", {}).get(
-                            prop, ""
-                        ) or dataSet.get("properties", {}).get(prop.upper(), "")
-                        datasets.loc[i, prop.upper()] = val
-                    display_attrs.append(prop.upper())
+                        display_attrs += set(columns)
+                        continue
+
+                    else:
+                        # property name is provided
+                        for i, dataSet in enumerate(response):
+                            val = dataSet.get("properties", {}).get(
+                                prop, ""
+                            ) or dataSet.get("properties", {}).get(prop.upper(), "")
+                            datasets.loc[i, prop.upper()] = val
+                        display_attrs.append(prop.upper())
+            return datasets[display_attrs]
+
+        def create_objects(response):
+            return objects
 
         return Things(
             openbis_obj=self,
             entity="dataset",
-            df=datasets[display_attrs],
             identifier_name="permId",
             start_with=start_with,
             count=count,
             totalCount=totalCount,
-            objects=objects,
+            attrs=attrs,
+            response=response,
+            df_initializer=create_data_frame,
+            objects_initializer=create_objects
         )
 
     def get_sample(
-        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
+            self,
+            sample_ident,
+            only_data=False,
+            withAttachments=False,
+            props=None,
+            **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4256,10 +4309,155 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
-            return self._sample_list_for_response(
-                response=list(resp.values()),
-                props=props,
-            )
+            return self._sample_list_for_response(response=list(resp.values()), props=props, parsed=False)
+
+    def _sample_list_for_response(
+        self,
+        response,
+        attrs=None,
+        props=None,
+        start_with=None,
+        count=None,
+        totalCount=0,
+        parsed=False,
+    ):
+        logger = logging.getLogger('_sample_list_for_response')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler(sys.stdout))
+
+        time1 = now()
+
+        logger.debug("_sample_list_for_response before parsing JSON")
+        if not parsed:
+            parse_jackson(response)
+
+        time2 = now()
+
+        logger.debug(f"_sample_list_for_response got response. Delay: {time2 - time1}")
+
+        time6 = now()
+        logger.debug("_sample_list_for_response computing result.")
+
+        def create_data_frame(attrs, props, response):
+            """returns a Things object, containing a DataFrame plus additional information"""
+
+            def extract_attribute(attribute_to_extract):
+                def return_attribute(obj):
+                    if obj is None:
+                        return ""
+                    return obj.get(attribute_to_extract, "")
+
+                return return_attribute
+
+            logger = logging.getLogger('create_data_frame')
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(logging.StreamHandler(sys.stdout))
+
+            time2 = now()
+
+            if attrs is None:
+                attrs = []
+            default_attrs = [
+                "identifier",
+                "permId",
+                "type",
+                "registrator",
+                "registrationDate",
+                "modifier",
+                "modificationDate",
+            ]
+            display_attrs = default_attrs + attrs
+            if props is None:
+                props = []
+            else:
+                if isinstance(props, str):
+                    props = [props]
+            if len(response) == 0:
+                for prop in props:
+                    if prop == "*":
+                        continue
+                    display_attrs.append(prop)
+                samples = DataFrame(columns=display_attrs)
+            else:
+                time3 = now()
+                logger.debug(f"createDataFrame computing attributes. Delay: {time3 - time2}")
+
+                samples = DataFrame(response)
+                for attr in attrs:
+                    if "." in attr:
+                        entity, attribute_to_extract = attr.split(".")
+                        samples[attr] = samples[entity].map(
+                            extract_attribute(attribute_to_extract)
+                        )
+                    # if no dot supplied, just display the code of the space, project or experiment
+                    elif attr in ["project", "experiment"]:
+                        samples[attr] = samples[attr].map(extract_nested_identifier)
+                    elif attr in ["space"]:
+                        samples[attr] = samples[attr].map(extract_code)
+
+                samples["registrationDate"] = samples["registrationDate"].map(
+                    format_timestamp
+                )
+                samples["modificationDate"] = samples["modificationDate"].map(
+                    format_timestamp
+                )
+                samples["registrator"] = samples["registrator"].map(extract_person)
+                samples["modifier"] = samples["modifier"].map(extract_person)
+                samples["identifier"] = samples["identifier"].map(extract_identifier)
+                samples["container"] = samples["container"].map(extract_nested_identifier)
+                for column in ["parents", "children", "components"]:
+                    if column in samples:
+                        samples[column] = samples[column].map(extract_identifiers)
+                samples["permId"] = samples["permId"].map(extract_permid)
+                samples["type"] = samples["type"].map(extract_nested_permid)
+
+                time4 = now()
+                logger.debug(f"_sample_list_for_response computed attributes. Delay: {time4 - time3}")
+
+                for prop in props:
+                    if prop == "*":
+                        # include all properties in dataFrame.
+                        # expand the dataFrame by adding new columns
+                        columns = []
+                        for i, sample in enumerate(response):
+                            for prop_name, val in sample.get("properties", {}).items():
+                                samples.loc[i, prop_name.upper()] = val
+                                columns.append(prop_name.upper())
+
+                        display_attrs += set(columns)
+                        continue
+                    else:
+                        # property name is provided
+                        for i, sample in enumerate(response):
+                            if "properties" in sample:
+                                properties = sample["properties"]
+                                val = properties.get(prop, "") or properties.get(prop.upper(), "")
+                                samples.loc[i, prop.upper()] = val
+                            else:
+                                samples.loc[i, prop.upper()] = ""
+                        display_attrs.append(prop.upper())
+
+                time5 = now()
+                logger.debug(f"_sample_list_for_response computed properties. Delay: {time5 - time4}")
+            return samples[display_attrs]
+
+        def create_objects(response):
+            return list(map(lambda obj: Sample(openbis_obj=self, type=self.get_sample_type(obj["type"]["code"]),
+                                               data=obj), response))
+
+        result = Things(openbis_obj=self, entity="sample",
+                        identifier_name="identifier", start_with=start_with,
+                        count=count, totalCount=totalCount,
+                        response=response,
+                        df_initializer=create_data_frame,
+                        objects_initializer=create_objects,
+                        attrs=attrs,
+                        props=props
+                        )
+
+        time7 = now()
+        logger.debug(f"_sample_list_for_response computed result. Delay: {time7 - time6}")
+        return result
 
     @staticmethod
     def decode_attribute(entity, attribute):
@@ -4328,118 +4526,6 @@ class Openbis:
 
         return params
 
-    def _sample_list_for_response(
-        self,
-        response,
-        attrs=None,
-        props=None,
-        start_with=None,
-        count=None,
-        totalCount=0,
-        objects=None,
-    ):
-        """returns a Things object, containing a DataFrame plus additional information"""
-
-        def extract_attribute(attribute_to_extract):
-            def return_attribute(obj):
-                if obj is None:
-                    return ""
-                return obj.get(attribute_to_extract, "")
-
-            return return_attribute
-
-        parse_jackson(response)
-
-        if attrs is None:
-            attrs = []
-        default_attrs = [
-            "identifier",
-            "permId",
-            "type",
-            "registrator",
-            "registrationDate",
-            "modifier",
-            "modificationDate",
-        ]
-        display_attrs = default_attrs + attrs
-
-        if props is None:
-            props = []
-        else:
-            if isinstance(props, str):
-                props = [props]
-
-        if len(response) == 0:
-            for prop in props:
-                if prop == "*":
-                    continue
-                display_attrs.append(prop)
-            samples = DataFrame(columns=display_attrs)
-        else:
-            samples = DataFrame(response)
-            for attr in attrs:
-                if "." in attr:
-                    entity, attribute_to_extract = attr.split(".")
-                    samples[attr] = samples[entity].map(
-                        extract_attribute(attribute_to_extract)
-                    )
-
-            for attr in attrs:
-                # if no dot supplied, just display the code of the space, project or experiment
-                if attr in ["project", "experiment"]:
-                    samples[attr] = samples[attr].map(extract_nested_identifier)
-                if attr in ["space"]:
-                    samples[attr] = samples[attr].map(extract_code)
-
-            samples["registrationDate"] = samples["registrationDate"].map(
-                format_timestamp
-            )
-            samples["modificationDate"] = samples["modificationDate"].map(
-                format_timestamp
-            )
-            samples["registrator"] = samples["registrator"].map(extract_person)
-            samples["modifier"] = samples["modifier"].map(extract_person)
-            samples["identifier"] = samples["identifier"].map(extract_identifier)
-            samples["container"] = samples["container"].map(extract_nested_identifier)
-            for column in ["parents", "children", "components"]:
-                if column in samples:
-                    samples[column] = samples[column].map(extract_identifiers)
-            samples["permId"] = samples["permId"].map(extract_permid)
-            samples["type"] = samples["type"].map(extract_nested_permid)
-
-            for prop in props:
-                if prop == "*":
-                    # include all properties in dataFrame.
-                    # expand the dataFrame by adding new columns
-                    columns = []
-                    for i, sample in enumerate(response):
-                        for prop_name, val in sample.get("properties", {}).items():
-                            samples.loc[i, prop_name.upper()] = val
-                            columns.append(prop_name.upper())
-
-                    display_attrs += set(columns)
-                    continue
-
-                else:
-                    # property name is provided
-                    for i, sample in enumerate(response):
-                        val = sample.get("properties", {}).get(prop, "") or sample.get(
-                            "properties", {}
-                        ).get(prop.upper(), "")
-                        samples.loc[i, prop.upper()] = val
-                    display_attrs.append(prop.upper())
-
-        return Things(
-            openbis_obj=self,
-            entity="sample",
-            df=samples[display_attrs],
-            identifier_name="identifier",
-            start_with=start_with,
-            count=count,
-            totalCount=totalCount,
-            objects=objects,
-        )
-
     get_object = get_sample  # Alias
 
     def get_external_data_management_systems(
@@ -4458,26 +4544,29 @@ class Openbis:
             ],
         }
         response = self._post_request(self.as_v3, request)
-        parse_jackson(response)
-        attrs = "code label address addressType urlTemplate openbis".split()
 
-        if len(response["objects"]) == 0:
-            entities = DataFrame(columns=attrs)
-        else:
-            objects = response["objects"]
-            parse_jackson(objects)
-            entities = DataFrame(objects)
-            entities["permId"] = entities["permId"].map(extract_permid)
+        def create_data_frame(attrs, props, response):
+            parse_jackson(response)
+            attrs = "code label address addressType urlTemplate openbis".split()
 
-        totalCount = response.get("totalCount")
+            if len(response["objects"]) == 0:
+                entities = DataFrame(columns=attrs)
+            else:
+                objects = response["objects"]
+                parse_jackson(objects)
+                entities = DataFrame(objects)
+                entities["permId"] = entities["permId"].map(extract_permid)
+            return entities[attrs]
+
         return Things(
             openbis_obj=self,
             entity="externalDms",
-            df=entities[attrs],
             identifier_name="permId",
             start_with=start_with,
             count=count,
-            totalCount=totalCount,
+            totalCount=response.get("totalCount"),
+            response=response,
+            df_initializer=create_data_frame
         )
 
     def get_external_data_management_system(self, permId, only_data=False):

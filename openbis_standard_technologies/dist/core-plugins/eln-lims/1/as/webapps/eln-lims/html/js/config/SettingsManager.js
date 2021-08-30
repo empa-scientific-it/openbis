@@ -44,7 +44,6 @@ function SettingsManager(serverFacade) {
 			if(settingsObjects) {
 			    // Store settings objects globally to use latter
 			    profile.settingsObjects = settingsObjects;
-			    profile.isMultiGroup = settingsObjects.length > 2;
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
 					var settingsObject = settingsObjects[sIdx];
 					if (settingsObject && settingsObject.properties && (settingsObject.properties["ELN_SETTINGS"] || settingsObject.properties["$ELN_SETTINGS"])) {

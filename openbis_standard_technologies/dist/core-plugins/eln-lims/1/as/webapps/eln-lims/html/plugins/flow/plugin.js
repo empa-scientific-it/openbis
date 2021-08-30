@@ -203,34 +203,42 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
     },
     dataSetTypeDefinitionsExtension: {
         "CYTOFLEX_S_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "FACS_ARIA_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "INFLUX_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "LSR_FORTESSA_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "MOFLO_XDP_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "S3E_ARIA_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "SONY_SH800S_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "SONY_MA900_FCSFILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         }

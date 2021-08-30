@@ -31,6 +31,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
     },
     dataSetTypeDefinitionsExtension: {
         "MICROSCOPY_ACCESSORY_FILE": {
+            "SHOW_ON_NAV": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },

@@ -19,7 +19,7 @@ var JupyterUtil = new function() {
 	this.getJupyterURL = function(path) {
 	    var url = profile.jupyterEndpoint + "hub/login?token=" + mainController.serverFacade.getSession();
 	    if(path) {
-	        url = url + "&next=" + path;
+	        url = url + "&next=" + encodeURIComponent(path);
 	    }
 	    return url;
 	}
@@ -32,7 +32,7 @@ var JupyterUtil = new function() {
 	this.openJupyterNotebookFromTemplate = function(folder, fileName, template, dataSetId, keepHistory) {
 		fileName = fileName + ".ipynb";
 		var jupyterURL = profile.jupyterIntegrationServerEndpoint + "?token=" + mainController.serverFacade.openbisServer.getSession() + "&folder=" + folder + "&filename=" + fileName;
-		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/");
+		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/" + fileName);
 		
 		$.ajax({
             url : jupyterURL + "&test=True",
@@ -67,7 +67,7 @@ var JupyterUtil = new function() {
                     crossDomain: true,
                     data : JSON.stringify(jupyterNotebookJson),
                     success : function(result) {
-                    	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+                    	var win = window.open(jupyterNotebookURL, '_blank');
         				win.focus(); 
                     },
                     error : function(result) {
@@ -94,7 +94,7 @@ var JupyterUtil = new function() {
             success : function(result) {
             	var fileName = result.fileName
             	var newJupyterNotebook = _this.createJupyterNotebookContent(dataSets, ownerEntity, fileName);
-        		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/");
+        		var jupyterNotebookURL = JupyterUtil.getJupyterURL("/user/" + mainController.serverFacade.getUserId() + "/notebooks/" + folder + "/" + fileName);
         		
         		$.ajax({
                     url : jupyterURL + "&test=False",
@@ -102,7 +102,7 @@ var JupyterUtil = new function() {
                     crossDomain: true,
                     data : JSON.stringify(newJupyterNotebook),
                     success : function(result) {
-                    	var win = window.open(jupyterNotebookURL + result.fileName, '_blank');
+                    	var win = window.open(jupyterNotebookURL, '_blank');
         				win.focus(); 
                     },
                     error : function(result) {
@@ -148,7 +148,7 @@ var JupyterUtil = new function() {
 		content.push(this.getMarkdownCell("## Connect to openBIS"));
 		content.push(this.getCodeCell([ "from pybis import Openbis\n", "o = Openbis()" ]));
 		content.push(this.getMarkdownCell("## openBIS session refresh (optional)"));
-		content.push(this.getCodeCell([ "# Use this code to reconnect in case your openBIS session expires and you get an error on the previous step.\n", "from pybis import Openbis\n", "import getpass\n", "u = \"write your username here\"\n", "p = getpass.getpass()\n", "o.login(username=u,password=p)"  ]));
+		content.push(this.getCodeCell([ "# Use this code to reconnect in case your openBIS session expires and you an error on the previous step.\n", "sessionToken = \"write your session token here\"\n", "o.set_token(token=sessionToken)"  ]));
 		content.push(this.getMarkdownCell("## Datasets Information"));
 		
 		for(var cIdx = 0; cIdx < dataSetIds.length; cIdx++) {

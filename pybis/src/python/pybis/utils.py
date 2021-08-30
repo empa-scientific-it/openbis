@@ -16,14 +16,14 @@ def parse_jackson(input_json):
        Any further findings only carry this reference id.
        This function is used to dereference the output.
     """
-    interesting=['tags', 'registrator', 'modifier', 'owner', 'type', 
-        'parents', 'children', 'containers', # 'container', 
+    interesting=['tags', 'registrator', 'modifier', 'owner', 'type',
+        'parents', 'children', 'containers', # 'container',
         'properties', 'experiment', 'sample',
         'project', 'space', 'propertyType', 'entityType', 'propertyType', 'propertyAssignment',
         'externalDms', 'roleAssignments', 'user', 'users', 'authorizationGroup', 'vocabulary',
         'validationPlugin', 'dataSetPermId', 'dataStore'
     ]
-    found = {} 
+    found = {}
     def build_cache(graph):
         if isinstance(graph, list):
             for item in graph:
@@ -45,15 +45,17 @@ def parse_jackson(input_json):
                     build_cache(value)
                 elif isinstance(value, list):
                     build_cache(value)
-                    
-    def deref_graph(graph):            
+
+    def deref_graph(graph):
         if isinstance(graph, list):
             for i, list_item in enumerate(graph):
                 if isinstance(list_item, int):
-                    try:
-                        graph[i] = found[list_item]
-                    except KeyError:
-                        pass
+                    # try: # TODO: use "if list_item in found" with found.get()
+                    #     graph[i] = found[list_item]
+                    # except KeyError:
+                    #     pass
+                    if list_item in found:
+                        graph[i] = found.get(list_item)
                 else:
                     deref_graph(list_item)
         elif isinstance(graph, dict) and len(graph) > 0:
@@ -63,7 +65,6 @@ def parse_jackson(input_json):
                         deref_graph(value)
                     elif isinstance(value, int):
                         graph[key] = found.get(value)
-
                     elif isinstance(value, list):
                         for i, list_item in enumerate(value):
                             if isinstance(list_item, int):
@@ -189,9 +190,9 @@ def extract_identifiers(items):
         return []
     try:
         return [
-            data['identifier']['identifier'] 
-            if 'identifier' in data 
-            else data['permId']['permId'] 
+            data['identifier']['identifier']
+            if 'identifier' in data
+            else data['permId']['permId']
             for data in items
         ]
     except TypeError:
@@ -206,8 +207,8 @@ def extract_nested_identifier(ident):
 def extract_nested_permid(permid):
     if not isinstance(permid, dict):
         return '' if permid is None else str(permid)
-    return '' if permid['permId']['permId'] is None else permid['permId']['permId'] 
-    
+    return '' if permid['permId']['permId'] is None else permid['permId']['permId']
+
 def extract_nested_permids(items):
     if not isinstance(items, list):
         return []

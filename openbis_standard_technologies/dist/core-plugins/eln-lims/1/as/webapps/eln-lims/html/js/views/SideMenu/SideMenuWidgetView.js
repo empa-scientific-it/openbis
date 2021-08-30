@@ -263,7 +263,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showUserProfile) {
-            // && profile.isFileAuthenticationService && profile.isFileAuthenticationUser
             var userProfileLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null, null);
             treeModelUtils.push({ title : userProfileLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
         }
@@ -341,7 +340,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ displayName: "Storage Manager", title : storageManagerLink, entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
         }
         
-        if(profile.mainMenu.showUserManager && profile.isAdmin && !profile.isMultiGroup) {
+        if(profile.mainMenu.showUserManager && profile.isAdmin && !(profile.isMultiGroup())) {
             var userManagerLink = _this.getLinkForNode("User Manager", "USER_MANAGER", "showUserManagerPage", null, null);
             treeModelUtils.push({ displayName: "User Manager", title : userManagerLink, entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
