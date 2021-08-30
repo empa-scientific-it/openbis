@@ -19,7 +19,7 @@ class FormFieldView extends React.PureComponent {
   render() {
     const { label, value, classes } = this.props
     return (
-      <div>
+      <div className={classes.container}>
         <Typography variant='body2' component='div' className={classes.label}>
           {label}
         </Typography>

@@ -14,10 +14,13 @@ import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
+  container: {
+    overflowX: 'auto'
+  },
   view: {
     fontFamily: theme.typography.sourceCode.fontFamily,
     fontSize: theme.typography.body2.fontSize,
-    whiteSpace: 'pre-wrap',
+    whiteSpace: 'pre',
     tabSize: 4
   },
 
@@ -31,6 +34,7 @@ const styles = theme => ({
       background: 'none !important'
     },
     '& textarea': {
+      whiteSpace: 'pre !important',
       padding: '23px 12px 6px 12px !important',
       border: `1px solid ${theme.palette.border.primary} !important`,
       borderBottom: `1px solid ${theme.palette.border.field} !important`,
@@ -40,6 +44,7 @@ const styles = theme => ({
       borderBottom: `2px solid ${theme.palette.primary.main} !important`
     },
     '& pre': {
+      whiteSpace: 'pre !important',
       padding: '23px 12px 6px 12px !important'
     }
   },
@@ -138,6 +143,9 @@ class SourceCodeField extends React.PureComponent {
       <FormFieldView
         label={label}
         value={<div className={classes.view} dangerouslySetInnerHTML={html} />}
+        classes={{
+          container: classes.container
+        }}
       />
     )
   }
@@ -165,6 +173,9 @@ class SourceCodeField extends React.PureComponent {
         error={error}
         styles={styles}
         onClick={onClick}
+        classes={{
+          container: classes.container
+        }}
       >
         <div
           ref={this.containerRef}
@@ -192,6 +203,7 @@ class SourceCodeField extends React.PureComponent {
             value={value || ''}
             highlight={code => highlight(code, this.getLanguageDefinition())}
             disabled={disabled}
+            tabSize={4}
             onValueChange={this.handleValueChange}
             onFocus={this.handleFocus}
             onBlur={this.handleBlur}
