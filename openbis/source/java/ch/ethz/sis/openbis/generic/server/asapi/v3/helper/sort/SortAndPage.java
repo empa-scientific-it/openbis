@@ -175,6 +175,12 @@ public class SortAndPage {
                                 sortAndPage(((Map) value).values(), c, subFo);
                             } else
                             {
+                                if (subFo.getSortBy() != null && subFo.getSortBy().getSortings() != null &&
+                                        !subFo.getSortBy().getSortings().isEmpty())
+                                {
+                                    throw new IllegalArgumentException("Only collection and map types can be sorted.");
+                                }
+
                                 Collection newValue = sortAndPage(Collections.singleton(value), c, subFo);
                                 if (setMethod != null)
                                 {
