@@ -91,7 +91,9 @@ class ErrorDialog extends React.Component {
           onClick={this.handleStackVisibleChange}
           className={classes.stackLink}
         >
-          {stackVisible ? 'hide stack trace' : 'show stack trace'}
+          {stackVisible
+            ? messages.get(messages.HIDE_STACK_TRACE)
+            : messages.get(messages.SHOW_STACK_TRACE)}
         </Link>
         <Collapse in={stackVisible} mountOnEnter={true} unmountOnExit={true}>
           <pre className={classes.stackContent}>{stack}</pre>

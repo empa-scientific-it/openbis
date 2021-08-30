@@ -245,7 +245,9 @@ class HistoryGrid extends React.PureComponent {
                         this.handleVisibilityChange(row, 'content')
                       }}
                     >
-                      {visible ? 'hide' : 'show'}
+                      {visible
+                        ? messages.get(messages.HIDE)
+                        : messages.get(messages.SHOW)}
                     </Link>
                     <Collapse
                       in={visible}
