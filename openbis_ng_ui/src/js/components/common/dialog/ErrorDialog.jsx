@@ -3,6 +3,8 @@ import { withStyles } from '@material-ui/core/styles'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
+import Link from '@material-ui/core/Link'
+import Collapse from '@material-ui/core/Collapse'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -12,12 +14,32 @@ const styles = theme => ({
   },
   content: {
     whiteSpace: 'pre'
+  },
+  stackContainer: {
+    marginTop: theme.spacing(1)
+  },
+  stackLink: {
+    cursor: 'pointer'
+  },
+  stackContent: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   }
 })
 
 class ErrorDialog extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      stackVisible: false
+    }
+    this.handleStackVisibleChange = this.handleStackVisibleChange.bind(this)
+  }
+
+  handleStackVisibleChange() {
+    this.setState(state => ({
+      stackVisible: !state.stackVisible
+    }))
   }
 
   render() {
@@ -40,14 +62,40 @@ class ErrorDialog extends React.Component {
     const { classes } = this.props
 
     const message = this.getErrorMessage()
-    const stack = this.getErrorStack()
 
     return (
       <div className={classes.content}>
         <Message type='error'>
-          {message && <div>{message}</div>}
-          {stack && <div>{stack}</div>}
+          <div>
+            {message && <div>{message}</div>}
+            {this.renderStack()}
+          </div>
         </Message>
+      </div>
+    )
+  }
+
+  renderStack() {
+    const stack = this.getErrorStack()
+
+    if (!stack) {
+      return null
+    }
+
+    const { classes } = this.props
+    const { stackVisible } = this.state
+
+    return (
+      <div className={classes.stackContainer}>
+        <Link
+          onClick={this.handleStackVisibleChange}
+          className={classes.stackLink}
+        >
+          {stackVisible ? 'hide stack trace' : 'show stack trace'}
+        </Link>
+        <Collapse in={stackVisible} mountOnEnter={true} unmountOnExit={true}>
+          <pre className={classes.stackContent}>{stack}</pre>
+        </Collapse>
       </div>
     )
   }
@@ -82,8 +130,8 @@ class ErrorDialog extends React.Component {
   getErrorStack() {
     const { error } = this.props
 
-    if (error && error.stack) {
-      return error.stack
+    if (error && error.data && error.data.stackTrace) {
+      return error.data.stackTrace
     } else {
       return null
     }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.openbis.common.api.server.json.resolver.JsonErrorResolver;
 
 /**
  * Abstract super class of all classes make an API available via {@link JsonServiceExporter}.
@@ -57,13 +58,6 @@ public abstract class AbstractApiJsonServiceExporter extends JsonServiceExporter
                 new RpcServiceInterfaceVersionDTO(serviceName, serviceURL, majorVersion,
                         minorVersion);
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
-        setErrorResolver(new ErrorResolver()
-            {
-                @Override
-                public JsonError resolveError(Throwable t, Method method, List<JsonNode> arguments)
-                {
-                    return new JsonError(0, t.getMessage(), new ErrorData(t.getClass().getName(), t.getMessage()));
-                }
-            });
+        setErrorResolver(new JsonErrorResolver());
     }
 }
