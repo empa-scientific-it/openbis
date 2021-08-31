@@ -60,11 +60,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 						mainController.changeView("showEditSettingsPage", _this._settingsFormModel.settingsSample.identifier);
 					}, "Edit", null, "edit-btn");
 					toolbarModel.push({ component : $editButton });
-					
-					var $diskSpaceButton = FormUtil.getButtonWithIcon("glyphicon-hdd", function () {
-						FormUtil.showDiskSpaceDialog();
-					}, "Show available storage space");
-					toolbarModel.push({ component : $diskSpaceButton });
 				}
 			} else { //Create and Edit
 				//Save
