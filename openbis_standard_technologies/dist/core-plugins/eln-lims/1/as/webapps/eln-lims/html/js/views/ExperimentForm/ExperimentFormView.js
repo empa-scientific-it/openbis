@@ -543,7 +543,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 								_this._experimentFormModel.experiment.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
 							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
+								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
+								if(!isValidValue.isValid) {
+								    Util.showUserError(isValidValue.error);
+								} else {
+								    _this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
+								}
 							} else {
 								if(newValue !== undefined && newValue !== null) {
 									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
