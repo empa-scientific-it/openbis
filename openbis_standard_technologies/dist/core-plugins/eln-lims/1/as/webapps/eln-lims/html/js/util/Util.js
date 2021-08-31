@@ -486,7 +486,7 @@ var Util = new function() {
 
             if(timeValueObject.getFullYear() !== parseInt(dateAsString.substring(0,4))) {
                 isValid = false;
-    			error = "Incorrect Date Format. Please follow the format " + (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY) : (HOUR-MINUTE-SECOND)') + ".";
+    			error = "Incorrect Date Format. Please follow the format " + (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)') + ".";
     	    } else {
     		    isValid = true;
     	    }
