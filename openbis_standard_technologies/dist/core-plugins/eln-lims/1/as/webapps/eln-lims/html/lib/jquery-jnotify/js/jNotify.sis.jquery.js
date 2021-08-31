@@ -12,6 +12,8 @@
 (function($){
 
 	$.jNotify = {
+	    sequence : 0,
+
 		defaults: {
 			/** VARS - OPTIONS **/
 			autoHide : true,				// Notify box auto-close after 'TimeShown' ms ?
@@ -32,15 +34,18 @@
 			onCompleted : null
 		},
 
+        overlay : [], // Empty overlay
+        div : null, //Empty div
+
 		/*****************/
 		/** Init Method **/
 		/*****************/
 		init:function(msg, options, id) {
-			opts = $.extend({}, $.jNotify.defaults, options);
+			this.opts = $.extend({}, this.defaults, options);
 
 			/** Box **/
 			if($("#"+id).length == 0)
-				$Div = $.jNotify._construct(id, msg);
+				this.div = this._construct(id, msg);
 
 			// Width of the Brower
 			WidthDoc = parseInt($(window).width());
@@ -51,14 +56,14 @@
 			ScrollLeft = parseInt($(window).scrollLeft());
 
 			// Position of the jNotify Box
-			posTop = $.jNotify.vPos(opts.VerticalPosition);
-			posLeft = $.jNotify.hPos(opts.HorizontalPosition);
+			posTop = this.vPos(this.opts.VerticalPosition);
+			posLeft = this.hPos(this.opts.HorizontalPosition);
 
 			// Show the jNotify Box
-			if(opts.ShowOverlay && $("#jOverlay").length == 0)
-				$.jNotify._showOverlay($Div);
+			if(this.opts.ShowOverlay && this.overlay.length == 0)
+				this._showOverlay(this.div);
 
-			$.jNotify._show(msg);
+			this._show(msg);
 			return this;
 		},
 
@@ -66,12 +71,12 @@
 		/** Construct DOM **/
 		/*******************/
 		_construct:function(id, msg) {
-			$Div = 
+			this.div =
 			$('<div id="'+id+'"/>')
-			.css({opacity : 0,minWidth : opts.MinWidth})
+			.css({opacity : 0,minWidth : this.opts.MinWidth})
 			.html(msg)
 			.appendTo('body');
-			return $Div;
+			return this.div;
 		},
 
 		/**********************/
@@ -80,13 +85,13 @@
 		vPos:function(pos) {
 			switch(pos) {
 				case 'top':
-					var vPos = ScrollTop + parseInt($Div.outerHeight(true)/2);
+					var vPos = ScrollTop + parseInt(this.div.outerHeight(true)/2);
 					break;
 				case 'center':
-					var vPos = ScrollTop + (HeightDoc/2) - (parseInt($Div.outerHeight(true))/2);
+					var vPos = ScrollTop + (HeightDoc/2) - (parseInt(this.div.outerHeight(true))/2);
 					break;
 				case 'bottom':
-					var vPos = ScrollTop + HeightDoc - parseInt($Div.outerHeight(true));
+					var vPos = ScrollTop + HeightDoc - parseInt(this.div.outerHeight(true));
 					break;
 			}
 			return vPos;
@@ -98,10 +103,10 @@
 					var hPos = ScrollLeft;
 					break;
 				case 'center':
-					var hPos = ScrollLeft + (WidthDoc/2) - (parseInt($Div.outerWidth(true))/2);
+					var hPos = ScrollLeft + (WidthDoc/2) - (parseInt(this.div.outerWidth(true))/2);
 					break;
 				case 'right':
-					var hPos = ScrollLeft + WidthDoc - parseInt($Div.outerWidth(true));
+					var hPos = ScrollLeft + WidthDoc - parseInt(this.div.outerWidth(true));
 					break;
 			}
 			return hPos;
@@ -111,50 +116,51 @@
 		/** Show Div Method **/
 		/*********************/
 		_show:function(msg) {
-			$Div
+		    var opts = this.opts;
+			this.div
 			.css({
 				top: posTop,
 				left : posLeft
 			});
 			switch (opts.VerticalPosition) {
 				case 'top':
-					$Div.animate({
+					this.div.animate({
 						top: posTop + opts.LongTrip,
 						opacity:1
 					},opts.ShowTimeEffect,function(){
 						if(opts.onCompleted) opts.onCompleted();
 					});
 					if(opts.autoHide)
-						$.jNotify._close();
+						this._close();
 					else
-						$Div.css('cursor','pointer').click(function(e){
+						this.div.css('cursor','pointer').click(function(e){
 							// $.jNotify._close();
 						});
 					break;
 				case 'center':
-					$Div.animate({
+					this.div.animate({
 						opacity:1
 					},opts.ShowTimeEffect,function(){
 						if(opts.onCompleted) opts.onCompleted();
 					});
 					if(opts.autoHide)
-						$.jNotify._close();
+						this._close();
 					else
-						$Div.css('cursor','pointer').click(function(e){
+						this.div.css('cursor','pointer').click(function(e){
 							// $.jNotify._close();
 						});
 					break;
 				case 'bottom' :
-					$Div.animate({
+					this.div.animate({
 						top: posTop - opts.LongTrip,
 						opacity:1
 					},opts.ShowTimeEffect,function(){
 						if(opts.onCompleted) opts.onCompleted();
 					});
 					if(opts.autoHide)
-						$.jNotify._close();
+						this._close();
 					else
-						$Div.css('cursor','pointer').click(function(e){
+						this.div.css('cursor','pointer').click(function(e){
 							// $.jNotify._close();
 						});
 					break;
@@ -162,8 +168,9 @@
 		},
 
 		_showOverlay:function(el){
-			var overlay = 
-			$('<div id="jOverlay" />')
+		    var opts = this.opts;
+			this.overlay =
+			$('<div>')
 			.css({
 				backgroundColor : opts.ColorOverlay,
 				opacity: opts.OpacityOverlay
@@ -172,7 +179,7 @@
 			.show();
 
 			if(opts.clickOverlay)
-			overlay.click(function(e){
+			this.overlay.click(function(e){
 				e.preventDefault();
 				opts.TimeShown = 0;
 				// $.jNotify._close();
@@ -181,74 +188,69 @@
 
 
 		_close:function(){
+	    var opts = this.opts;
+		var overlay = this.overlay;
 				switch (opts.VerticalPosition) {
 					case 'top':
 						if(!opts.autoHide)
 							opts.TimeShown = 0;
-						$Div.stop(true, true).delay(opts.TimeShown).animate({
+						this.div.stop(true, true).delay(opts.TimeShown).animate({
 							top: posTop-opts.LongTrip,
 							opacity:0
 						},opts.HideTimeEffect,function(){
 							$(this).remove();
-							if(opts.ShowOverlay && $("#jOverlay").length > 0)
-								$("#jOverlay").remove();
+							if(opts.ShowOverlay && overlay.length > 0)
+								overlay.remove();
 								if(opts.onClosed) opts.onClosed();
 						});
 						break;
 					case 'center':
 						if(!opts.autoHide)
 							opts.TimeShown = 0;
-						$Div.stop(true, true).delay(opts.TimeShown).animate({
+						this.div.stop(true, true).delay(opts.TimeShown).animate({
 							opacity:0
 						},opts.HideTimeEffect,function(){
 							$(this).remove();
-							if(opts.ShowOverlay && $("#jOverlay").length > 0)
-								$("#jOverlay").remove();
+							if(opts.ShowOverlay && overlay.length > 0)
+								overlay.remove();
 								if(opts.onClosed) opts.onClosed();
 						});
 						break;
 					case 'bottom' :
 						if(!opts.autoHide)
 							opts.TimeShown = 0;
-						$Div.stop(true, true).delay(opts.TimeShown).animate({
+						this.div.stop(true, true).delay(opts.TimeShown).animate({
 							top: posTop+opts.LongTrip,
 							opacity:0
 						},opts.HideTimeEffect,function(){
 							$(this).remove();
-							if(opts.ShowOverlay && $("#jOverlay").length > 0)
-								$("#jOverlay").remove();
+							if(opts.ShowOverlay && overlay.length > 0)
+								overlay.remove();
 								if(opts.onClosed) opts.onClosed();
 						});
 						break;
 				}
-		},
-
-		_isReadable:function(id){
-			if($('#'+id).length > 0)
-				return false;
-			else
-				return true;
 		}
 	};
 
 	/** Init method **/
 	jNotify = function(msg,options) {
-		if($.jNotify._isReadable('jNotify'))
-			return $.jNotify.init(msg,options,'jNotify');
+	    var jnotify = $.extend({}, $.jNotify);
+		return jnotify.init(msg,options,'jNotify');
 	};
 
 	jNotifyImage = function(msg,options) {
-		if($.jNotify._isReadable('jNotifyImage'))
-			return $.jNotify.init(msg,options,'jNotifyImage');
+	    var jnotify = $.extend({}, $.jNotify);
+		return jnotify.init(msg,options,'jNotifyImage');
 	};
 	
 	jSuccess = function(msg,options) {
-		if($.jNotify._isReadable('jSuccess'))
-			return $.jNotify.init(msg,options,'jSuccess');
+	    var jnotify = $.extend({}, $.jNotify);
+		return jnotify.init(msg,options,'jSuccess');
 	};
 
 	jError = function(msg,options) {
-		if($.jNotify._isReadable('jError'))
-			return $.jNotify.init(msg,options,'jError');
+	    var jnotify = $.extend({}, $.jNotify);
+		return jnotify.init(msg,options,'jError');
 	};
 })(jQuery);
