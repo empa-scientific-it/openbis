@@ -480,6 +480,22 @@ var Util = new function() {
 		}
 		return null;
 	}
+
+	this.isDateValid = function(dateAsString, isDateOnly) {
+	        var timeValueObject = Util.parseDate(dateAsString);
+
+            if(timeValueObject.getFullYear() !== parseInt(dateAsString.substring(0,4))) {
+                isValid = false;
+    			error = "Incorrect Date Format. Please follow the format " + (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY) : (HOUR-MINUTE-SECOND)') + ".";
+    	    } else {
+    		    isValid = true;
+    	    }
+
+    	    return {
+    	        isValid : isValid,
+    	        error : error
+    	    };
+	}
 	
 	this.getFormatedDate = function(date) {
 		var day = date.getDate();
