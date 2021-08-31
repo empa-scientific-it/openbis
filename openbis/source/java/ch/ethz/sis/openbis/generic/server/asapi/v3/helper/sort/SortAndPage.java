@@ -178,7 +178,8 @@ public class SortAndPage {
                                 if (subFo.getSortBy() != null && subFo.getSortBy().getSortings() != null &&
                                         !subFo.getSortBy().getSortings().isEmpty())
                                 {
-                                    throw new IllegalArgumentException("Only collection and map types can be sorted.");
+                                    throw new IllegalArgumentException("Nested sort options can be used only "
+                                            + "for sorting nested collection or map types.");
                                 }
 
                                 Collection newValue = sortAndPage(Collections.singleton(value), c, subFo);
