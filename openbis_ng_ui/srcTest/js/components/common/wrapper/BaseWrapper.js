@@ -1,5 +1,3 @@
-import { unwrap } from '@material-ui/core/test-utils'
-
 export default class BaseWrapper {
   constructor(wrapper) {
     this.wrapper = wrapper
@@ -43,7 +41,7 @@ export default class BaseWrapper {
     // using a wrapped component definition e.g. in "find()" method
     // makes the tests operate on a wrapper "instance" (i.e. functional component)
     // which cannot be used to access React methods like "handleClick" or default props.
-    const unwrapped = unwrap(component)
+    const unwrapped = component.Naked
     return unwrapped ? unwrapped : component
   }
 
