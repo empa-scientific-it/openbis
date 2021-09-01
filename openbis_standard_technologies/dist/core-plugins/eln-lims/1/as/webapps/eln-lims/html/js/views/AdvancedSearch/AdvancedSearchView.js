@@ -323,32 +323,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		var $newFieldNameContainer = $("<td>");
 		var $newFieldOperatorContainer = $("<td>");
+		var $newFieldValueContainer = $("<td>");
+//        $newFieldValueContainer.append(this._createValueField(uuidValue));
 		var $newRow = $("<tr>", { id : uuidValue });
-		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
-		var $fieldValue = $("<input>", { class : "form-control", type: "text" });
-		$fieldValue.css({width : "100%" });
-
-		$fieldValue.keyup(function() {
-			var $thisComponent = $(this);
-			//Get uuid and value and update model (type only)
-			var uuid = $($($thisComponent.parent()).parent()).attr("id");
-			var selectedValue = $thisComponent.val();
-			_this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
-		});
-
-		$fieldValue.keypress(function (e) {
-       	 var key = e.which;
-       	 if(key == 13)  // the enter key code
-       	  {
-       		 _this._advancedSearchController.search();
-       	    return false;
-       	  }
-       });
+		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 
 		$newRow.append($("<td>").append($fieldTypeDropdown))
 					.append($newFieldNameContainer)
 					.append($("<td>").append($newFieldOperatorContainer))
-					.append($("<td>").append($fieldValue))
+					.append($("<td>").append($newFieldValueContainer))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
 
 		this._$tbody.append($newRow);
@@ -369,13 +352,63 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 	}
 
+    this._createValueField = function(uuid) {
+        var _this = this;
+        var $fieldValue = $("<input>", { class : "form-control", type: "text" });
+        $fieldValue.css({width : "100%" });
+
+        $fieldValue.keyup(function() {
+            var $thisComponent = $(this);
+            var selectedValue = $thisComponent.val();
+            _this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
+        });
+
+        $fieldValue.keypress(function (e) {
+            var key = e.which;
+            if(key == 13)  // the enter key code
+             {
+                _this._advancedSearchController.search();
+               return false;
+             }
+          });
+        return $fieldValue;
+    }
+
+    this._addUserDropdownField = function($container, uuid) {
+        var _this = this;
+        require([ "as/dto/person/search/PersonSearchCriteria", "as/dto/person/fetchoptions/PersonFetchOptions" ],
+                function(PersonSearchCriteria, PersonFetchOptions) {
+            mainController.openbisV3.searchPersons(new PersonSearchCriteria(), new PersonFetchOptions()).done(function (result) {
+                var users = [];
+                result.getObjects().forEach(function(user) {
+                    var userId = user.getUserId();
+                    var label = userId;
+                    if (user.getLastName()) {
+                        label = user.getLastName();
+                        if (user.getFirstName()) {
+                            label = user.getFirstName() + " " + user.getLastName() 
+                        }
+                    }
+                    users.push({value:userId, label:label});
+                });
+                var $valueDropdown = FormUtil.getDropdown(users, "Select a person");
+                $valueDropdown.change(function() {
+                    _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
+                });
+                $container.append($valueDropdown);
+            });
+        });
+    }
+
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
-	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, entityKind, uuid) {
+	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, entityKind, uuid) {
 		//Update dropdown component
 		this._$andOrDropdownComponent.val("AND").trigger('change');
 		this._advancedSearchModel.criteria.logicalOperator = "AND";
 		this._$andOrDropdownComponent.removeAttr("disabled");
+        $newFieldValueContainer.empty();
+        $newFieldValueContainer.append(this._createValueField(uuid));
 		//
 		var _this = this;
 		var fieldTypeOptions = null;
@@ -424,30 +457,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var $mergedDropdown = null;
 			switch(selectedValue) {
 				case "All":
-					//Do Nothing
-				break;
-				case "Property/Attribute":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "OWN", $newFieldOperatorContainer);
-					$newFieldNameContainer.append($mergedDropdown);
-					break;
-				case "Sample":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE", $newFieldOperatorContainer);
-					$newFieldNameContainer.append($mergedDropdown);
-					break;
-				case "Experiment":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT", $newFieldOperatorContainer);
-					$newFieldNameContainer.append($mergedDropdown);
-					break;
-				case "Parent":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT", $newFieldOperatorContainer);
-					$newFieldNameContainer.append($mergedDropdown);
-					break;
-				case "Children":
-					$mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN", $newFieldOperatorContainer);
-					$newFieldNameContainer.append($mergedDropdown);
-					break;
-				default:
-					//Do Nothing
+                    $newFieldOperatorContainer.empty();
+                    $newFieldValueContainer.empty();
+                    $newFieldValueContainer.append(_this._createValueField(uuid));
+                    break;
+                default:
+                    $mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, 
+                            selectedValue, $newFieldOperatorContainer, $newFieldValueContainer, uuid);
+                    $newFieldNameContainer.append($mergedDropdown);
 			}
 		});
 
@@ -459,12 +476,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $fieldTypeComponent;
 	}
 
-	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample, $newFieldOperatorContainer) {
+	this._getNewMergedDropdown = function(entityKind, fieldType, $newFieldOperatorContainer, $newFieldValueContainer, uuid) {
 		var _this = this;
 		var attributesModel = null;
-		if(parentOrChildrenOrExperimentOrSample === "EXPERIMENT") {
+		if(fieldType === "Experiment") {
 			attributesModel = this._getFieldNameAttributesByEntityKind("EXPERIMENT");
-		} else if(parentOrChildrenOrExperimentOrSample === "SAMPLE") {
+		} else if(fieldType === "Sample") {
 			attributesModel = this._getFieldNameAttributesByEntityKind("SAMPLE");
 		} else {
 			attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
@@ -540,6 +557,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var $thisComponent = $(this);
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+                    $newFieldValueContainer.empty();
+                    if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
+                        _this._addUserDropdownField($newFieldValueContainer, uuid);
+                    } else {
+                        $newFieldValueContainer.append(_this._createValueField(uuid));
+                    }
 				});
 				comparisonDropdown.trigger("change");
 
@@ -656,7 +679,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				for(var rIdx = 0; rIdx < rows.length; rIdx++) {
 					var $row = $(rows[rIdx]);
 					var tds = $row.children();
-					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), $(tds[2]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
+					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), $(tds[2]), $(tds[3]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
 					$(tds[0]).empty();
 					$(tds[0]).append($newFieldTypeComponent);
 				}
