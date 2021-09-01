@@ -5,7 +5,7 @@ buildscript {
 
     dependencies {
         classpath 'apache:commons-codec:1.10',
-                  'owasp:dependency-check-gradle:3.1.2',
+                  'owasp:dependency-check-gradle:6.2.2',
 				  'paleozogt:symzip-plugin:0.10.1',
 				  'com.moowork.gradle:gradle-node-plugin:1.2.0'
     }

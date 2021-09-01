@@ -355,6 +355,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ displayName: "Settings", title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
         }
 
+        var otherToolsLink = _this.getLinkForNode("Other Tools", "OTHERTOOLS", "showOtherToolsPage", null, null);
+        treeModelUtils.push({ displayName: "Other Tools", title : otherToolsLink, entityType: "OTHERTOOLS", key : "OTHERTOOLS", folder : false, lazy : false, view : "showOtherToolsPage", icon : "glyphicon glyphicon-wrench" });
+        
         var extraPluginUtilities = profile.getPluginUtilities();
         for(var ePIdx = 0; ePIdx < extraPluginUtilities.length; ePIdx++) {
             var extraPluginUtility = extraPluginUtilities[ePIdx];

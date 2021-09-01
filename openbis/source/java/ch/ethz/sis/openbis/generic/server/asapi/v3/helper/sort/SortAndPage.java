@@ -175,6 +175,13 @@ public class SortAndPage {
                                 sortAndPage(((Map) value).values(), c, subFo);
                             } else
                             {
+                                if (subFo.getSortBy() != null && subFo.getSortBy().getSortings() != null &&
+                                        !subFo.getSortBy().getSortings().isEmpty())
+                                {
+                                    throw new IllegalArgumentException("Nested sort options can be used only "
+                                            + "for sorting nested collection or map types.");
+                                }
+
                                 Collection newValue = sortAndPage(Collections.singleton(value), c, subFo);
                                 if (setMethod != null)
                                 {

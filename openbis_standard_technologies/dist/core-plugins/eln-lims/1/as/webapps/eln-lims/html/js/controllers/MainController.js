@@ -415,10 +415,14 @@ function MainController(profile) {
 					document.title = "Edit User Profile";
 					this._showUserProfilePage(FormMode.EDIT);
 					break;
-				case "showSettingsPage":
-					document.title = "Settings";
-					this._showSettingsPage(FormMode.VIEW, arg);
+				case "showOtherToolsPage":
+					document.title = "Other Tools";
+					this._showOtherToolsPage();
 					break;
+				case "showSettingsPage":
+				    document.title = "Settings";
+				    this._showSettingsPage(FormMode.VIEW, arg);
+				    break;
 				case "showEditSettingsPage":
 					document.title = "Edit Settings";
 					this._showSettingsPage(FormMode.EDIT, arg);
@@ -982,6 +986,17 @@ function MainController(profile) {
 			});
 		}
 	}
+	
+    this._showOtherToolsPage = function() {
+        var views = this._getNewViewModel(true, true, false);
+        var $header = views.header;
+        $header.append($("<h1>").append("Other Tools"));
+        var $diskSpaceButton = FormUtil.getButtonWithIcon("glyphicon-hdd", function () {
+            FormUtil.showDiskSpaceDialog();
+        }, "Show available storage space");
+        $header.append(FormUtil.getToolbar([{ component : $diskSpaceButton }]));
+    }
+
 	
 	this._selectSettings = function() {
 		this.serverFacade.searchSamples({ 	"sampleTypeCode" : "GENERAL_ELN_SETTINGS",

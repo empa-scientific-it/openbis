@@ -96,7 +96,7 @@ function LinksView(linksController, linksModel) {
 				if(samplesOnGrid[sIdx].permId === sample.permId) {
 					foundAtIndex = sIdx;
 					if(isAdd) {
-						Util.showUserError("Sample " + sample.code + " already present, it will not be added again.");
+						Util.showUserError(ELNDictionary.Sample + " " + sample.code + " already present, it will not be added again.");
 						return;
 					} else {
 						linksModel.samplesRemoved.push(sample.identifier);

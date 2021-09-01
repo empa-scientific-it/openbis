@@ -98,11 +98,20 @@ $.extend(GenericTechnology.prototype, ELNLIMSPlugin.prototype, {
 				"ANNOTATION_PROPERTIES" : [{"TYPE" : "ANNOTATION.SYSTEM.COMMENTS", "MANDATORY" : false }]
 			}],
 		},
+		"UNKNOWN" : {
+			"SHOW" : false,
+			"SHOW_ON_NAV" : false,
+			"SAMPLE_PARENTS_HINT" : [],
+		},
 	},
 	dataSetTypeDefinitionsExtension : {
         "NAGIOS" : {
             "SHOW" : false,
             "SHOW_ON_NAV" : false
+        },
+        "UNKNOWN" : {
+            "SHOW" : false,
+            "SHOW_ON_NAV" : false,
         },
 	},
 	sampleFormTop : function($container, model) {

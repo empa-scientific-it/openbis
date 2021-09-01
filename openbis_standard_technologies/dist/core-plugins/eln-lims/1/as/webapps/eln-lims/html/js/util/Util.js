@@ -171,18 +171,20 @@ var Util = new function() {
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";
 		}
-		
-		var withHTMLToShow = "<div style=\"width:100%;\">"
-            + "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + message
-            + "</textarea><br><a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a></div>";
-		
+
+		var $dismissButton = $("<a>", { id : 'jNotifyDismiss', class : 'btn btn-default'}).append('Dismiss');
+        var $withHTMLToShow = $("<div>", {style : 'width:100%;'})
+                                    .append($("<textarea>", { style : 'background: transparent; border: none; width:100%;', rows : '1'}).append(DOMPurify.sanitize(message)))
+                                    .append($("<br>"))
+                                    .append($dismissButton);
+
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
 		
 		var localReference = this;
 		var popUp = jError(
-				DOMPurify.sanitize(withHTMLToShow),
+				$withHTMLToShow,
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -200,7 +202,7 @@ var Util = new function() {
 				  onCompleted : function(){ }
 		});
 		
-		$("#jNotifyDismiss").click(function(e) {
+		$dismissButton.click(function(e) {
 			popUp._close();
 		});
 	}
@@ -236,11 +238,12 @@ var Util = new function() {
 			var buttonLabel = "Dismiss";
 		}
 
-		var withHTMLToShow = message + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>" + buttonLabel + "</a>";
+		var $dismissButton = $("<a>", { id : 'jNotifyDismiss', class : 'btn btn-default'}).append(buttonLabel);
+		var $withHTMLToShow = $("<span>").append(DOMPurify.sanitize(message)).append($("<br>")).append($dismissButton);
 
 		var localReference = this;
 		var popUp = jNotify(
-				DOMPurify.sanitize(withHTMLToShow),
+				$withHTMLToShow,
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -258,7 +261,7 @@ var Util = new function() {
 				  onCompleted : function(){ }
 		});
 		
-		$("#jNotifyDismiss").click(function(e) {
+		$dismissButton.click(function(e) {
 			popUp._close();
 		});
 	}
@@ -476,6 +479,22 @@ var Util = new function() {
 			return new Date(yearParts[0],parseInt(yearParts[1])-1,yearParts[2], timeParts[0], timeParts[1], timeParts[2]);
 		}
 		return null;
+	}
+
+	this.isDateValid = function(dateAsString, isDateOnly) {
+	        var timeValueObject = Util.parseDate(dateAsString);
+
+            if(timeValueObject.getFullYear() !== parseInt(dateAsString.substring(0,4))) {
+                isValid = false;
+    			error = "Incorrect Date Format. Please follow the format " + (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)') + ".";
+    	    } else {
+    		    isValid = true;
+    	    }
+
+    	    return {
+    	        isValid : isValid,
+    	        error : error
+    	    };
 	}
 	
 	this.getFormatedDate = function(date) {

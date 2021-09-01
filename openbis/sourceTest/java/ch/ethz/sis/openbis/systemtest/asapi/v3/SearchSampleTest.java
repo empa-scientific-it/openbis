@@ -847,6 +847,21 @@ public class SearchSampleTest extends AbstractSampleTest
         testSearch(TEST_USER, criteria, "/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/DYNA-TEST-1");
     }
 
+    @Test(expectedExceptions = RuntimeException.class,
+            expectedExceptionsMessageRegExp = "Sorting and paging failed for object.*")
+    public void testSearchWithExperimentWithCodeSortingByExperiment()
+    {
+        final SampleSearchCriteria criteria = new SampleSearchCriteria().withOrOperator();
+        criteria.withExperiment().withCode().thatEquals("EXP-TEST-1");
+        criteria.withExperiment().withCode().thatEquals("EXP-TEST-2");
+
+        final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withExperiment().sortBy().code().asc();
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        searchSamples(sessionToken, criteria, fetchOptions);
+    }
+
     @Test
     public void testSearchWithExperimentWithTypeIdSetToPermId()
     {
