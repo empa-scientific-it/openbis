@@ -12,7 +12,8 @@ const styles = theme => ({
     borderBottomWidth: '1px',
     borderBottomStyle: 'solid',
     borderBottomColor: theme.palette.border.secondary
-  }
+  },
+  container: {}
 })
 
 class FormFieldView extends React.PureComponent {

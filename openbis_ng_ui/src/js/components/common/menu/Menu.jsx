@@ -8,7 +8,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
 import CloseIcon from '@material-ui/icons/Close'
 import LogoutIcon from '@material-ui/icons/PowerSettingsNew'
-import { fade } from '@material-ui/core/styles/colorManipulator'
+import { alpha } from '@material-ui/core/styles/colorManipulator'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import actions from '@src/js/store/actions/actions.js'
@@ -32,9 +32,9 @@ const styles = theme => ({
   },
   search: {
     color: theme.palette.background.paper,
-    backgroundColor: fade(theme.palette.background.paper, 0.15),
+    backgroundColor: alpha(theme.palette.background.paper, 0.15),
     '&:hover': {
-      backgroundColor: fade(theme.palette.background.paper, 0.25)
+      backgroundColor: alpha(theme.palette.background.paper, 0.25)
     },
     borderRadius: theme.shape.borderRadius,
     paddingLeft: theme.spacing(1),
@@ -144,7 +144,7 @@ class Menu extends React.Component {
   renderSearchIcon() {
     const { classes } = this.props
     return (
-      <InputAdornment>
+      <InputAdornment position='start'>
         <SearchIcon classes={{ root: classes.searchIcon }} fontSize='small' />
       </InputAdornment>
     )
@@ -154,7 +154,7 @@ class Menu extends React.Component {
     const { classes, searchText } = this.props
     if (searchText) {
       return (
-        <InputAdornment>
+        <InputAdornment position='end'>
           <CloseIcon
             classes={{ root: classes.searchClear }}
             onMouseDown={this.handleSearchClear}

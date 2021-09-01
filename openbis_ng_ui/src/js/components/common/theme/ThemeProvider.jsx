@@ -1,5 +1,5 @@
 import React from 'react'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
 import indigo from '@material-ui/core/colors/indigo'
 import lightBlue from '@material-ui/core/colors/lightBlue'
 
@@ -43,7 +43,7 @@ const config = {
   }
 }
 
-const theme = createMuiTheme(config)
+const theme = createTheme(config)
 
 class ThemeProvider extends React.Component {
   render() {
