@@ -134,7 +134,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.registrationDate = (entity.registrationDate)?Util.getFormatedDate(new Date(entity.registrationDate)):null;
 					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
-					rowData.entityObject = entity;
+					rowData.$object = entity;
 
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;

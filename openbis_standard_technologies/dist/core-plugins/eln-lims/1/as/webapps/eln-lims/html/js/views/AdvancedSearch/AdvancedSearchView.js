@@ -725,11 +725,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
-        this._dataGridController = this._getGridForResults(criteria, isGlobalSearch);
+
+		var isMultiselectable = this._advancedSearchModel.criteria.entityKind === 'SAMPLE';
+
+        this._dataGridController = this._getGridForResults(criteria, isGlobalSearch, isMultiselectable);
+
+        if(isMultiselectable) {
+            this.extraOptions = [{
+                name : "Copy Identifiers",
+                action : function(selected) {
+                    var identifiers = null;
+                    for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+                        if(identifiers === null) {
+                            identifiers = "";
+                        } else {
+                            identifiers = identifiers + " ";
+                        }
+                        identifiers = identifiers + selected[sIdx].identifier;
+                    }
+                    Util.showInfo("Please copy:<br><textarea style='background: transparent; border: none; width:100%;'>" + identifiers + "</textarea>", null, true, "Close");
+                }
+            }];
+        }
+
         this._dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
 
-	this._getGridForResults = function(criteria, isGlobalSearch) {
+	this._getGridForResults = function(criteria, isGlobalSearch, isMultiselectable) {
 			var _this = this;
 
 			var columns = _this.firstColumns.concat([ {
@@ -867,7 +889,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				//1. Get properties with actual data
 				var foundPropertyCodes = {};
 				for(var rIdx = 0; rIdx < entities.length; rIdx++) {
-					var entity = entities[rIdx].entityObject;
+					var entity = entities[rIdx].$object;
 					if(isGlobalSearch) {
 						switch(entity.objectKind) {
 							case "SAMPLE":
@@ -954,8 +976,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
+			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
 			return dataGrid;
 	}
 
