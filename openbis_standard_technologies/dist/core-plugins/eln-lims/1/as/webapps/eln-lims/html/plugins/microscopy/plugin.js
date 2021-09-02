@@ -48,6 +48,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             "TOOLBAR": { EDIT: false, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         },
         "MICROSCOPY_IMG_CONTAINER": {
+            "SHOW": true,
             "DATASET_PARENTS_DISABLED": true,
             "TOOLBAR": { EDIT: true, FREEZE: false, MOVE: false, ARCHIVE: true, DELETE: false, HIERARCHY_TABLE: true, EXPORT_ALL: true, EXPORT_METADATA: true }
         }

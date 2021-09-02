@@ -510,7 +510,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			} else if(selectedValue &&
 						(selectedValue === "ATTR.REGISTRATOR" ||
 						selectedValue === "ATTR.MODIFIER")) {
-			dataType = "PERSON";
+			    dataType = "PERSON";
 			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
 				var propertyTypeCode = selectedValue.substring(5);
 				var propertyType = profile.getPropertyType(propertyTypeCode);
