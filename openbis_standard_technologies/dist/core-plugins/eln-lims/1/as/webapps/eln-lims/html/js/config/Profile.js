@@ -491,7 +491,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		this.hideTypes = {
 				"sampleTypeCodes" : [],
-				"experimentTypeCodes" : []
+				"experimentTypeCodes" : ["UNKNOWN"]
 		}
 		
 		this._deleteSampleConnectionsByTypeIfNotVisited = function(sample, visited) {
@@ -900,7 +900,17 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
+        this.getExperimentTypes = function() {
+            var types = [];
+			for(var i = 0; i < this.allExperimentTypes.length; i++) {
+				if(!this.isExperimentTypeHidden(this.allExperimentTypes[i].code)) {
+					types.push(this.allExperimentTypes[i]);
+				}
+			}
+			return types;
+		}
+
 		this.getExperimentTypeForExperimentTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allExperimentTypes.length; i++) {
 				if(this.allExperimentTypes[i].code === typeCode) {

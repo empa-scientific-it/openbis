@@ -58,7 +58,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var experimentKindName = ELNDictionary.getExperimentKindName(projectIdentifier);
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
-				var experimentTypes = mainController.profile.allExperimentTypes;
+				var experimentTypes = mainController.profile.getExperimentTypes();
 				FormUtil.addCreationDropdown(toolbarModel, experimentTypes, ["DEFAULT_EXPERIMENT", "COLLECTION"], function(typeCode) {
 					return function() {
 						Util.blockUI();
