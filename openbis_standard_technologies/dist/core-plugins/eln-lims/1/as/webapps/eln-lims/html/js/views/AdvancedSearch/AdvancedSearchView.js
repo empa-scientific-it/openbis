@@ -726,7 +726,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL"
 			|| this._advancedSearchModel.criteria.entityKind === "ALL_PREFIX";
 
-		var isMultiselectable = this._advancedSearchModel.criteria.entityKind === 'SAMPLE';
+		var isMultiselectable = true; //this._advancedSearchModel.criteria.entityKind === 'SAMPLE';
 
         this._dataGridController = this._getGridForResults(criteria, isGlobalSearch, isMultiselectable);
 
@@ -741,7 +741,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                         } else {
                             identifiers = identifiers + " ";
                         }
-                        identifiers = identifiers + selected[sIdx].identifier;
+                        var entityKind = selected[sIdx]["@type"].substring(selected[sIdx]["@type"].lastIndexOf(".") + 1, selected[sIdx]["@type"].length);
+                        identifiers = identifiers + ((entityKind === 'DataSet') ? selected[sIdx].permId : selected[sIdx].identifier);
                     }
                     Util.showInfo("Please copy:<br><textarea style='background: transparent; border: none; width:100%;'>" + identifiers + "</textarea>", null, true, "Close");
                 }
