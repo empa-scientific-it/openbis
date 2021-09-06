@@ -26,6 +26,19 @@ cd openbis_standard_technologies/
 ./gradlew clean
 ./gradlew buildCoreUIPackageUsingJDK8 -x test
 ```
+## How to compile the V3 JS bundle used by the new Admin UI in production?
+```
+git clone https://sissource.ethz.ch/sispub/openbis.git
+cd openbis_standard_technologies/
+./gradlew clean
+./gradlew bundleOpenbisStaticResources -x test
+```
+The output can be found at: openbis/source/java/ch/systemsx/cisd/openbis/public/resources/api/v3
+
+config.bundle.js
+config.bundle.min.js
+openbis.bundle.js
+openbis.bundle.min.js
 
 # Developing openBIS
 
