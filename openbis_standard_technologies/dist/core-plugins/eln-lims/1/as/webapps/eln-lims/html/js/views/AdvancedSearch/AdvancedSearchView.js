@@ -423,6 +423,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         }
     }
 
+    this._addVocabularyDropdownField = function($container, uuid, vocabularyCode) {
+        var _this = this;
+        require([ "as/dto/vocabulary/id/VocabularyPermId", "as/dto/vocabulary/fetchoptions/VocabularyFetchOptions" ],
+                function(VocabularyPermId, VocabularyFetchOptions) {
+            var permId = new VocabularyPermId(vocabularyCode);
+            var fetchOptions = new VocabularyFetchOptions();
+            fetchOptions.withTerms();
+            mainController.openbisV3.getVocabularies([permId], fetchOptions).done(function (result) {
+                var terms = [];
+                result[permId].getTerms().forEach(function(term) {
+                    terms.push({value:term.getCode(), label:term.getLabel()});
+                });
+                var $valueDropdown = FormUtil.getDropdown(terms, "Select a term");
+                $valueDropdown.change(function() {
+                    _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
+                });
+                $container.append($valueDropdown);
+            });
+        });
+    }
+
     this._addUserDropdownField = function($container, uuid) {
         var _this = this;
         require([ "as/dto/person/search/PersonSearchCriteria", "as/dto/person/fetchoptions/PersonFetchOptions" ],
@@ -615,10 +636,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                         var $thisComponent = $(this);
                         var selectedValue = $thisComponent.val();
                         _this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+                        $newFieldValueContainer.empty();
                         if (dataType === "TIMESTAMP") {
                             $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
                         } else if (dataType === "DATE") {
                             $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
+                        } else if (dataType === "CONTROLLEDVOCABULARY" && selectedValue === "thatEqualsString") {
+                            _this._addVocabularyDropdownField($newFieldValueContainer, uuid, propertyType.vocabulary.code);
                         } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
                                 _this._addUserDropdownField($newFieldValueContainer, uuid);
                         } else {
