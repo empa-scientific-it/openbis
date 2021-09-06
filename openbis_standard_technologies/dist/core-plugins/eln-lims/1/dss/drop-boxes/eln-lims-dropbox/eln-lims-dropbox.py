@@ -9,7 +9,7 @@ FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
 SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
 MORE_THAN_ONE_FOLDER_ERROR_MESSAGE = "More than one folder found";
-NAME_PROPERTY_IN_METADATA_ERROR_MESSAGE = "$NAME property should not be specified in metadata file"
+NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
 
 def process(transaction):
 	incoming = transaction.getIncoming();
@@ -108,8 +108,8 @@ def process(transaction):
 				root = JSONObject(FileUtils.readFileToString(item, "UTF-8"))
 				properties = root.get("properties")
 				for propertyKey in properties.keys():
-					if propertyKey == "$NAME":
-						raise UserFailureException(NAME_PROPERTY_IN_METADATA_ERROR_MESSAGE)
+					if propertyKey == "$NAME" and name is not None:
+						raise UserFailureException(NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE)
 					propertyValue = properties.get(propertyKey)
 					if propertyValue is not None:
 						propertyValueString = str(propertyValue)
