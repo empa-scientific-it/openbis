@@ -49,6 +49,12 @@ class Things():
         self.__attrs = attrs
         self.__props = props
 
+    def is_df_initialised(self):
+        return self.__df is not None
+
+    def is_objects_initialised(self):
+        return self.__objects is not None
+
     @property
     def df(self):
         if self.__df is None and self.__df_initializer is not None:

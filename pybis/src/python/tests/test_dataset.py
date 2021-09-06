@@ -1,3 +1,5 @@
+from pybis.things import Things
+
 import json
 import random
 import re
@@ -105,3 +107,34 @@ def test_create_dataset_with_code(space):
     assert dataset.permId == timestamp
 
     dataset.delete("dataset creation test on {}".format(timestamp))
+
+def test_things_initialization(space):
+    data_frame_result = [1, 2, 3]
+    objects_result = [4, 5, 6]
+
+    def create_data_frame(attrs, props, response):
+        return data_frame_result
+
+    def create_objects(response):
+        return objects_result
+
+    things = Things(
+        openbis_obj = None,
+        entity = 'dataset',
+        identifier_name = 'permId',
+        start_with=0,
+        count=10,
+        totalCount=10,
+        response=None,
+        df_initializer=create_data_frame,
+        objects_initializer=create_objects
+    )
+
+    assert not things.is_df_initialised()
+    assert not things.is_objects_initialised()
+
+    assert things.df == data_frame_result
+    assert things.objects == objects_result
+
+    assert things.is_df_initialised()
+    assert things.is_objects_initialised()
