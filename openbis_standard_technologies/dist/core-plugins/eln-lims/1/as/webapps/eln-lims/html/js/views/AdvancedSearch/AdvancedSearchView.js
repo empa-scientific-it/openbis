@@ -382,8 +382,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         var $dateField = FormUtil._getDatePickerField(uuid, "", false, isDateOnly);
         var $input = $dateField.find("#" + uuid);
         this._setUpKeyHandling($input, uuid);
-        $input.change(function() {
-            alert("changed");
+        $input.blur(function() {
             _this._advancedSearchModel.criteria.rules[uuid].value = $input.val();
         });
         return $dateField;
