@@ -4,15 +4,14 @@ const path = require('path')
 module.exports = {
   entry: './src/js/components/common/grid/index.js',
   output: {
-    path:
-      __dirname +
-      '/../openbis_standard_technologies/dist/core-plugins/eln-lims/1/as/webapps/eln-lims/html/react',
-    filename: 'NgUiGrid.js',
+    path: __dirname + '/build/grid/js',
+    filename: 'Grid.js',
     libraryTarget: 'var',
     library: 'NgUiGrid'
   },
 
-  mode: 'production',
+  mode: 'development',
+  devtool: 'source-map',
 
   module: {
     rules: [
