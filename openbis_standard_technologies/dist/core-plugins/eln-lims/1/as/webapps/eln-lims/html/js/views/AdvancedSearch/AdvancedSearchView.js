@@ -353,10 +353,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 
     this._createValueField = function(uuid) {
-        var _this = this;
         var $fieldValue = $("<input>", { class : "form-control", type: "text" });
         $fieldValue.css({width : "100%" });
 
+        this._setUpKeyHandling($fieldValue, uuid);
+        return $fieldValue;
+    }
+    
+    this._setUpKeyHandling = function($fieldValue, uuid) {
+        var _this = this;
         $fieldValue.keyup(function() {
             var $thisComponent = $(this);
             var selectedValue = $thisComponent.val();
@@ -365,15 +370,25 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
         $fieldValue.keypress(function (e) {
             var key = e.which;
-            if(key == 13)  // the enter key code
-             {
+            if (key == 13) { // the enter key code
                 _this._advancedSearchController.search();
-               return false;
-             }
-          });
-        return $fieldValue;
+                return false;
+            }
+        });
     }
 
+    this._addTimestampField = function($container, uuid, isDateOnly) {
+        var _this = this;
+        var $dateField = FormUtil._getDatePickerField(uuid, "", false, isDateOnly);
+        var $input = $dateField.find("#" + uuid);
+        this._setUpKeyHandling($input, uuid);
+        $input.change(function() {
+            alert("changed");
+            _this._advancedSearchModel.criteria.rules[uuid].value = $input.val();
+        });
+        return $dateField;
+    }
+    
     this._addUserDropdownField = function($container, uuid) {
         var _this = this;
         require([ "as/dto/person/search/PersonSearchCriteria", "as/dto/person/fetchoptions/PersonFetchOptions" ],
@@ -558,8 +573,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
                     $newFieldValueContainer.empty();
-                    if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
-                        _this._addUserDropdownField($newFieldValueContainer, uuid);
+                    if (dataType === "TIMESTAMP") {
+                        $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
+                    } else if (dataType === "DATE") {
+                        $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
+                    } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
+                            _this._addUserDropdownField($newFieldValueContainer, uuid);
                     } else {
                         $newFieldValueContainer.append(_this._createValueField(uuid));
                     }
