@@ -907,7 +907,8 @@ class Openbis:
         self.token_path = token_path or self.gen_token_path()
         self.token = token or os.environ.get("OPENBIS_TOKEN") or self._get_saved_token()
         if self.is_token_valid(self.token):
-            pass
+            if token is not None:
+                self._save_token_to_disk(token=token)
         else:
             token_path = self._delete_saved_token()
             if token_path and VERBOSE:
