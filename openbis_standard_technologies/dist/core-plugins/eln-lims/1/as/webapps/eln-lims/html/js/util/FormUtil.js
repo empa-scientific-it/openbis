@@ -326,11 +326,7 @@ var FormUtil = new function() {
 				continue;
 			}
 			
-			var label = Util.getDisplayNameFromCode(sampleType.code);
-			var description = Util.getEmptyIfNull(sampleType.description);
-			if(description !== "") {
-				label += " (" + description + ")";
-			}
+			var label = Util.getDisplayLabelFromCodeAndDescription(sampleType);
 			
 			$component.append($("<option>").attr('value',sampleType.code).text(label));
 		}

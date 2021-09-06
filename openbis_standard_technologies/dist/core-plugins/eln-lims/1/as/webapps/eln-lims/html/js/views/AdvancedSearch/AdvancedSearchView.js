@@ -387,7 +387,42 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         });
         return $dateField;
     }
-    
+
+    this._addEntityTypeDropdownField = function($container, uuid, entityKind) {
+        var _this = this;
+        createDropDownField = function(result) {
+            var types = [];
+            result.getObjects().forEach(function(type) {
+                var label = Util.getDisplayLabelFromCodeAndDescription(type);
+                types.push({value:type.getCode(), label:label});
+            });
+            var $valueDropdown = FormUtil.getDropdown(types, "Select a type");
+            $valueDropdown.change(function() {
+                _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
+            });
+            $container.append($valueDropdown);
+        }
+        if (entityKind === "EXPERIMENT") {
+            require([ "as/dto/experiment/search/ExperimentTypeSearchCriteria", "as/dto/experiment/fetchoptions/ExperimentTypeFetchOptions" ],
+                    function(ExperimentTypeSearchCriteria, ExperimentTypeFetchOptions) {
+                mainController.openbisV3.searchExperimentTypes(new ExperimentTypeSearchCriteria(), 
+                        new ExperimentTypeFetchOptions()).done(createDropDownField);
+            });
+        } else if (entityKind === "SAMPLE") {
+            require([ "as/dto/sample/search/SampleTypeSearchCriteria", "as/dto/sample/fetchoptions/SampleTypeFetchOptions" ],
+                    function(SampleTypeSearchCriteria, SampleTypeFetchOptions) {
+                mainController.openbisV3.searchSampleTypes(new SampleTypeSearchCriteria(), 
+                        new SampleTypeFetchOptions()).done(createDropDownField);
+            });
+        } else if (entityKind === "DATASET") {
+            require([ "as/dto/dataset/search/DataSetTypeSearchCriteria", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions" ],
+                    function(DataSetTypeSearchCriteria, DataSetTypeFetchOptions) {
+                mainController.openbisV3.searchDataSetTypes(new DataSetTypeSearchCriteria(), 
+                        new DataSetTypeFetchOptions()).done(createDropDownField);
+            });
+        }
+    }
+
     this._addUserDropdownField = function($container, uuid) {
         var _this = this;
         require([ "as/dto/person/search/PersonSearchCriteria", "as/dto/person/fetchoptions/PersonFetchOptions" ],
@@ -525,12 +560,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						(selectedValue === "ATTR.REGISTRATOR" ||
 						selectedValue === "ATTR.MODIFIER")) {
 			    dataType = "PERSON";
+            } else if(selectedValue && 
+                    (selectedValue === "ATTR.EXPERIMENT_TYPE" || 
+                     selectedValue === "ATTR.SAMPLE_TYPE" ||
+                     selectedValue === "ATTR.DATA_SET_TYPE")) {
+                dataType = "TYPE";
 			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
 				var propertyTypeCode = selectedValue.substring(5);
 				var propertyType = profile.getPropertyType(propertyTypeCode);
 				dataType = propertyType.dataType;
 			}
 
+            $newFieldValueContainer.empty();
 			if(dataType) {
 				var operatorOptions = null;
 
@@ -550,8 +591,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
 					                       { value : "thatIsEarlierThanDate", 				label : "thatIsEarlierThan (Date)" }
 					                       ];
+                } else if(dataType === "TYPE") {
+                    operatorOptions = [];
 				} else if(dataType === "PERSON") {
-					operatorOptions = [
+				    operatorOptions = [
 					                       { value : "thatEqualsUserId", 					label : "thatEqualsUserId (UserId)", selected : true },
 					                       { value : "thatContainsFirstName", 				label : "thatContainsFirstName (First Name)" },
 					                       { value : "thatContainsLastName", 				label : "thatContainsLastName (Last Name)" }
@@ -565,27 +608,36 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					                       ];
 				}
 
-				var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
+                if (operatorOptions && operatorOptions.length > 1) {
+                    var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
 
-				comparisonDropdown.change(function() {
-					var $thisComponent = $(this);
-					var selectedValue = $thisComponent.val();
-					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
-                    $newFieldValueContainer.empty();
-                    if (dataType === "TIMESTAMP") {
-                        $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
-                    } else if (dataType === "DATE") {
-                        $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
-                    } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
-                            _this._addUserDropdownField($newFieldValueContainer, uuid);
+                    comparisonDropdown.change(function() {
+                        var $thisComponent = $(this);
+                        var selectedValue = $thisComponent.val();
+                        _this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+                        if (dataType === "TIMESTAMP") {
+                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
+                        } else if (dataType === "DATE") {
+                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
+                        } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
+                                _this._addUserDropdownField($newFieldValueContainer, uuid);
+                        } else {
+                            $newFieldValueContainer.append(_this._createValueField(uuid));
+                        }
+                    });
+                    comparisonDropdown.trigger("change");
+
+                    $newFieldOperatorContainer.append(comparisonDropdown);
+                } else {
+                    if (dataType === "TYPE") {
+                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, entityKind));
                     } else {
                         $newFieldValueContainer.append(_this._createValueField(uuid));
                     }
-				});
-				comparisonDropdown.trigger("change");
-
-				$newFieldOperatorContainer.append(comparisonDropdown);
-			}
+                }
+            } else {
+                $newFieldValueContainer.append(_this._createValueField(uuid));
+            }
 		});
 
 		return $dropdown;

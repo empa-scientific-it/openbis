@@ -645,6 +645,15 @@ var Util = new function() {
 		return text;
 	}
 	
+    this.getDisplayLabelFromCodeAndDescription = function(codeAndDescription) {
+        var label = Util.getDisplayNameFromCode(codeAndDescription.code);
+        var description = Util.getEmptyIfNull(codeAndDescription.description);
+        if (description !== "") {
+            label += " (" + description + ")";
+        }
+        return label;
+    }
+	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
 		var displayName = "";
