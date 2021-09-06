@@ -320,10 +320,17 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
         Map<String, Long> spaceIdsByCode = SQLQueries.getSpaceIds(connection, spaceCodes);
 
         Set<String> projectIdentifiers = list.stream().map(sc -> ((ProjectIdentifier) sc.getProjectId() != null)?((ProjectIdentifier) sc.getProjectId()).getIdentifier():null).collect(Collectors.toSet());
-        Map<String, Long> projectIdsByIdentifier = SQLQueries.getProjectIds(connection, projectIdentifiers, spaceIdsByCode);
 
-        Set<String> experimentIdentifiers = list.stream().map(sc -> ((ExperimentIdentifier) sc.getExperimentId()).getIdentifier()).collect(Collectors.toSet());
-        Map<String, Long> experimentIdsByIdentifier = SQLQueries.getExperimentIds(connection, experimentIdentifiers, projectIdsByIdentifier);
+        Map<String, Long> projectIdsByIdentifier = Map.of();
+        if(!projectIdentifiers.contains(null)) {
+            projectIdsByIdentifier = SQLQueries.getProjectIds(connection, projectIdentifiers, spaceIdsByCode);
+        }
+
+        Set<String> experimentIdentifiers = list.stream().map(sc -> ((ExperimentIdentifier) sc.getExperimentId() != null)?((ExperimentIdentifier) sc.getExperimentId()).getIdentifier():null).collect(Collectors.toSet());
+        Map<String, Long> experimentIdsByIdentifier = Map.of();
+        if(!experimentIdentifiers.contains(null)) {
+            experimentIdsByIdentifier = SQLQueries.getExperimentIds(connection, experimentIdentifiers, projectIdsByIdentifier);
+        }
 
         Set<String> sampleTypeCodes = list.stream().map(sc -> ((EntityTypePermId) sc.getTypeId()).getPermId()).collect(Collectors.toSet());
         Map<String, Long> sampleTypeIdsByCode = SQLQueries.getTypeIds(connection, sampleTypeCodes);
@@ -362,7 +369,10 @@ public class ApplicationServerApiPostgresWrapper implements IApplicationServerAp
             if (sampleCreation.getProjectId() != null) {
                 proj_id = projectIdsByIdentifier.get(((ProjectIdentifier) sampleCreation.getProjectId()).getIdentifier());
             }
-            Long expe_id = experimentIdsByIdentifier.get( ((ExperimentIdentifier) sampleCreation.getExperimentId()).getIdentifier());
+            Long expe_id = null;
+            if (sampleCreation.getExperimentId() != null) {
+                expe_id = experimentIdsByIdentifier.get(((ExperimentIdentifier) sampleCreation.getExperimentId()).getIdentifier());
+            }
             Long saty_id = sampleTypeIdsByCode.get(((EntityTypePermId)sampleCreation.getTypeId()).getPermId());
             Long pers_id_registerer = personId;
             Long modification_timestamp = personId;
