@@ -1061,7 +1061,7 @@ class Openbis:
         path = os.path.join(parent_folder, self.hostname + ".token")
         return path
 
-    def _save_token(self, token=None, parent_folder=None):
+    def _save_token_to_disk(self, token=None, parent_folder=None):
         """saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default."""
         if token is None:
             token = self.token
@@ -1180,7 +1180,7 @@ class Openbis:
             self.token = result
 
             if save_token:
-                self._save_token()
+                self._save_token_to_disk()
                 self._password(password)
             # update the OPENBIS_TOKEN environment variable, if OPENBIS_URL is identical to self.url
             # TODO: find out what this is good for
@@ -3972,7 +3972,6 @@ class Openbis:
     def is_session_active(self):
         """checks whether a session is still active. Returns true or false."""
         return self.is_token_valid(self.token)
-        self._save_token(token)
 
     def is_token_valid(self, token=None):
         """Check if the connection to openBIS is valid.
@@ -4003,8 +4002,10 @@ class Openbis:
         """
         if not self.is_token_valid(token):
             raise ValueError("session token seems not to be valid.")
+        else:
+            self.token = token
 
-        self._save_token(token=token)
+        self._save_token_to_disk(token=token)
         # TODO: find out what this is good for
         if os.environ.get("OPENBIS_URL") == self.url:
             os.environ["OPENBIS_TOKEN"] = self.token
