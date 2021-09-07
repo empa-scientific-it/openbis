@@ -780,7 +780,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         if(samples && samples[0] && samples[0].children) {
                             var experiment = samples[0].experiment.identifier.identifier;
                             var children = samples[0].children.filter(function(sample) {
-                                    return sample.experiment.identifier.identifier === experiment
+                                    return sample.experiment && sample.experiment.identifier.identifier === experiment
                                         && profile.showOnNav(sample.type.code)
                                 });
                             if (children.length > 50) {
