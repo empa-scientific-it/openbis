@@ -210,14 +210,8 @@ export default class GridController {
     const { load, rows } = this.context.getProps()
 
     if (load) {
-      const {
-        columns,
-        filters,
-        sort,
-        sortDirection,
-        page,
-        pageSize
-      } = this.context.getState()
+      const { columns, filters, sort, sortDirection, page, pageSize } =
+        this.context.getState()
 
       await this.context.setState(() => ({
         loading: true

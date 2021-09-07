@@ -1,24 +1,12 @@
-import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import GridCell from '@src/js/components/common/grid/GridCell.jsx'
 import logger from '@src/js/common/logger.js'
-import util from '@src/js/common/util.js'
 
-const styles = theme => ({
+const styles = () => ({
   row: {
     cursor: 'pointer'
-  },
-  cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
-  },
-  wrap: {
-    whiteSpace: 'normal'
-  },
-  nowrap: {
-    whiteSpace: 'nowrap'
   }
 })
 
@@ -50,55 +38,11 @@ class GridRow extends React.PureComponent {
           root: classes.row
         }}
       >
-        {columns.map(column => this.renderCell(column))}
+        {columns.map(column => (
+          <GridCell key={column.name} row={row} column={column} />
+        ))}
       </TableRow>
     )
-  }
-
-  renderCell(column) {
-    const { classes } = this.props
-
-    if (column.visible) {
-      let rendered = this.renderValue(column)
-
-      return (
-        <TableCell
-          key={column.name}
-          classes={{ root: util.classNames(classes.cell, classes.nowrap) }}
-        >
-          {rendered ? rendered : <span>&nbsp;</span>}
-        </TableCell>
-      )
-    } else {
-      return null
-    }
-  }
-
-  renderValue(column) {
-    const { row, classes } = this.props
-
-    const value = column.getValue({ row, column })
-    const params = {
-      value,
-      row,
-      column,
-      classes: {
-        wrap: classes.wrap,
-        nowrap: classes.nowrap
-      }
-    }
-
-    const renderedValue = column.renderValue
-      ? column.renderValue(params)
-      : value
-
-    if (renderedValue === null || renderedValue === undefined) {
-      return ''
-    } else if (_.isNumber(renderedValue) || _.isBoolean(renderedValue)) {
-      return String(renderedValue)
-    } else {
-      return renderedValue
-    }
   }
 }
 
