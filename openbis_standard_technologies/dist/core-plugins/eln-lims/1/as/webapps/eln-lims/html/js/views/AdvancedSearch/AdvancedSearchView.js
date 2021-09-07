@@ -388,7 +388,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         return $dateField;
     }
 
-    this._addEntityTypeDropdownField = function($container, uuid, entityKind) {
+    this._addEntityTypeDropdownField = function($container, uuid, selectedValue) {
         var _this = this;
         createDropDownField = function(result) {
             var types = [];
@@ -402,19 +402,19 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             });
             $container.append($valueDropdown);
         }
-        if (entityKind === "EXPERIMENT") {
+        if (selectedValue === "ATTR.EXPERIMENT_TYPE") {
             require([ "as/dto/experiment/search/ExperimentTypeSearchCriteria", "as/dto/experiment/fetchoptions/ExperimentTypeFetchOptions" ],
                     function(ExperimentTypeSearchCriteria, ExperimentTypeFetchOptions) {
                 mainController.openbisV3.searchExperimentTypes(new ExperimentTypeSearchCriteria(), 
                         new ExperimentTypeFetchOptions()).done(createDropDownField);
             });
-        } else if (entityKind === "SAMPLE") {
+        } else if (selectedValue === "ATTR.SAMPLE_TYPE") {
             require([ "as/dto/sample/search/SampleTypeSearchCriteria", "as/dto/sample/fetchoptions/SampleTypeFetchOptions" ],
                     function(SampleTypeSearchCriteria, SampleTypeFetchOptions) {
                 mainController.openbisV3.searchSampleTypes(new SampleTypeSearchCriteria(), 
                         new SampleTypeFetchOptions()).done(createDropDownField);
             });
-        } else if (entityKind === "DATASET") {
+        } else if (selectedValue === "ATTR.DATA_SET_TYPE") {
             require([ "as/dto/dataset/search/DataSetTypeSearchCriteria", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions" ],
                     function(DataSetTypeSearchCriteria, DataSetTypeFetchOptions) {
                 mainController.openbisV3.searchDataSetTypes(new DataSetTypeSearchCriteria(), 
@@ -654,7 +654,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     $newFieldOperatorContainer.append(comparisonDropdown);
                 } else {
                     if (dataType === "TYPE") {
-                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, entityKind));
+                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, selectedValue));
                     } else {
                         $newFieldValueContainer.append(_this._createValueField(uuid));
                     }
