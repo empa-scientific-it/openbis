@@ -324,7 +324,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $newFieldNameContainer = $("<td>");
 		var $newFieldOperatorContainer = $("<td>");
 		var $newFieldValueContainer = $("<td>");
-//        $newFieldValueContainer.append(this._createValueField(uuidValue));
+        var $fieldValue = this._createValueField(uuidValue);
+        $newFieldValueContainer.append($fieldValue);
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 
@@ -477,8 +478,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._$andOrDropdownComponent.val("AND").trigger('change');
 		this._advancedSearchModel.criteria.logicalOperator = "AND";
 		this._$andOrDropdownComponent.removeAttr("disabled");
-        $newFieldValueContainer.empty();
-        $newFieldValueContainer.append(this._createValueField(uuid));
+//        $newFieldValueContainer.empty();
+//        $newFieldValueContainer.append(this._createValueField(uuid));
 		//
 		var _this = this;
 		var fieldTypeOptions = null;
@@ -528,8 +529,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			switch(selectedValue) {
 				case "All":
                     $newFieldOperatorContainer.empty();
-                    $newFieldValueContainer.empty();
-                    $newFieldValueContainer.append(_this._createValueField(uuid));
+//                    $newFieldValueContainer.empty();
+//                    $newFieldValueContainer.append(_this._createValueField(uuid));
                     break;
                 default:
                     $mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, 
@@ -592,7 +593,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				dataType = propertyType.dataType;
 			}
 
-            $newFieldValueContainer.empty();
+//            $newFieldValueContainer.empty();
 			if(dataType) {
 				var operatorOptions = null;
 
@@ -636,17 +637,17 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                         var $thisComponent = $(this);
                         var selectedValue = $thisComponent.val();
                         _this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
-                        $newFieldValueContainer.empty();
+//                        $newFieldValueContainer.empty();
                         if (dataType === "TIMESTAMP") {
-                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
+//                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
                         } else if (dataType === "DATE") {
-                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
+//                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
                         } else if (dataType === "CONTROLLEDVOCABULARY" && selectedValue === "thatEqualsString") {
-                            _this._addVocabularyDropdownField($newFieldValueContainer, uuid, propertyType.vocabulary.code);
+//                            _this._addVocabularyDropdownField($newFieldValueContainer, uuid, propertyType.vocabulary.code);
                         } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
-                                _this._addUserDropdownField($newFieldValueContainer, uuid);
+//                                _this._addUserDropdownField($newFieldValueContainer, uuid);
                         } else {
-                            $newFieldValueContainer.append(_this._createValueField(uuid));
+//                            $newFieldValueContainer.append(_this._createValueField(uuid));
                         }
                     });
                     comparisonDropdown.trigger("change");
@@ -654,13 +655,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     $newFieldOperatorContainer.append(comparisonDropdown);
                 } else {
                     if (dataType === "TYPE") {
-                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, selectedValue));
+//                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, selectedValue));
                     } else {
-                        $newFieldValueContainer.append(_this._createValueField(uuid));
+//                        $newFieldValueContainer.append(_this._createValueField(uuid));
                     }
                 }
             } else {
-                $newFieldValueContainer.append(_this._createValueField(uuid));
+//                $newFieldValueContainer.append(_this._createValueField(uuid));
             }
 		});
 
