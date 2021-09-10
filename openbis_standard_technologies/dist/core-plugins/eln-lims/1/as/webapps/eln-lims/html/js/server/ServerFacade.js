@@ -2358,6 +2358,38 @@ function ServerFacade(openbisServer) {
 		searchNext();
 	}
 
+	this.searchWithCodes = function(sampleCodes, callbackFunction)
+	{
+		var _this = this;
+		var searchResults = [];
+		var searchForCodes = jQuery.extend(true, [], sampleCodes);
+
+		var searchNext = function() {
+			if(searchForCodes.length === 0) {
+				callbackFunction(searchResults);
+			} else {
+				var next = searchForCodes.pop();
+				searchFunction(next);
+			}
+		}
+
+		var searchFunction = function(sampleCode) {
+			_this.searchSamples({
+				"withProperties" : true,
+				"withParents" : true,
+				"withChildren" : true,
+				"sampleCode" : sampleCode
+			}, function(samples) {
+				samples.forEach(function(sample) {
+					searchResults.push(sample);
+				});
+				searchNext();
+			});
+		}
+
+		searchNext();
+	}
+
 	this.searchContained = function(permId, callbackFunction) {
 		this.searchSamples({
 			"sampleContainerPermId" : permId,

@@ -510,45 +510,73 @@ function LinksView(linksController, linksModel) {
         var $pasteContainer = $("<div>");
         $gridContainer.append($pasteContainer);
 
-        var $textArea = FormUtil._getTextBox(null, "Object Identifiers separated by space or coma", false);
+        var $textArea = FormUtil._getTextBox(null, "Object Identifiers or codes separated by space or coma", false);
         $textArea.css( { 'width' : '100%', "height" : "20%", "min-height" : "100px"});
         $pasteContainer.append($textArea);
 
         var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-            var identifiers = null;
+            var maybeIdentifiersOrCodes = null;
             if($textArea.val().indexOf(",") > -1) {
-                identifiers = $textArea.val().split(",");
+                maybeIdentifiersOrCodes = $textArea.val().split(",");
             } else {
-                identifiers = $textArea.val().split(" ");
+                maybeIdentifiersOrCodes = $textArea.val().split(" ");
             }
 
-            var validIdentifiers = [];
-            for(var vIdx = 0; vIdx < identifiers.length; vIdx++) {
-                if(identifiers[vIdx].indexOf("/") > -1) {
-                    validIdentifiers.push(identifiers[vIdx].trim());
+            var maybeIdentifiers = [];
+            var maybeCodes = [];
+            for(var vIdx = 0; vIdx < maybeIdentifiersOrCodes.length; vIdx++) {
+                if(maybeIdentifiersOrCodes[vIdx].indexOf("/") > -1) {
+                    maybeIdentifiers.push(maybeIdentifiersOrCodes[vIdx].trim());
+                } else {
+                    maybeCodes.push(maybeIdentifiersOrCodes[vIdx].trim());
                 }
             }
-            if(validIdentifiers.length == 0) {
+
+            var requestedObjects = (maybeIdentifiers.length + maybeCodes.length);
+            if(requestedObjects == 0) {
+                Util.showError("Nothing to paste was found.");
                 return;
             }
             Util.blockUI();
-            mainController.serverFacade.searchWithIdentifiers(validIdentifiers, function(results) {
-                var added = 0;
-                var incorrectType = 0;
 
-                for(var sIdx = 0; sIdx < results.length; sIdx++) {
-                    if(sampleTypeCode === undefined || (results[sIdx].sampleTypeCode === sampleTypeCode)) {
-                        linksView.updateSample(results[sIdx], true);
+            var finalResults = [];
+            var added = 0;
+            var incorrectType = 0;
+
+            mainController.serverFacade.searchWithIdentifiers(maybeIdentifiers, function(identifierResults) {
+                for(var sIdx = 0; sIdx < identifierResults.length; sIdx++) {
+                    if(sampleTypeCode === undefined || (identifierResults[sIdx].sampleTypeCode === sampleTypeCode)) {
+                        finalResults.push(identifierResults[sIdx]);
                         added++;
                     } else {
                         incorrectType++;
                     }
                 }
 
-                Util.unblockUI();
-                var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
-                Util.showInfo(message);
-                $container.empty().hide();
+                mainController.serverFacade.searchWithCodes(maybeCodes, function(codeResults) {
+                    for(var sIdx = 0; sIdx < codeResults.length; sIdx++) {
+                        if(sampleTypeCode === undefined || (codeResults[sIdx].sampleTypeCode === sampleTypeCode)) {
+                            finalResults.push(codeResults[sIdx]);
+                            added++;
+                        } else {
+                            incorrectType++;
+                        }
+                    }
+
+                    if(requestedObjects != finalResults.length) {
+                        Util.unblockUI();
+                        Util.showError("Requested " + requestedObjects + " but found " + finalResults.length + ", check your ids!");
+                    } else {
+                        for(var sIdx = 0; sIdx < finalResults.length; sIdx++) {
+                            linksView.updateSample(finalResults[sIdx], true);
+                        }
+                        Util.unblockUI();
+                        var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
+                        Util.showInfo(message);
+                        $container.empty().hide();
+                    }
+
+                });
            });
         }, "Add");
         $addObjectsBtn.css({"margin-top" : "5px"});
