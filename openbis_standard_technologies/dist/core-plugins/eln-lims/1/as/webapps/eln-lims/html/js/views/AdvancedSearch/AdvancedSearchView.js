@@ -475,8 +475,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, entityKind, uuid) {
 		//Update dropdown component
-		this._$andOrDropdownComponent.val("AND").trigger('change');
-		this._advancedSearchModel.criteria.logicalOperator = "AND";
+        var logicalOperator = "AND";
+        if (this._advancedSearchModel.criteria && this._advancedSearchModel.criteria.logicalOperator) {
+            logicalOperator = this._advancedSearchModel.criteria.logicalOperator;
+        }
+        this._$andOrDropdownComponent.val(logicalOperator).trigger('change');
+        this._advancedSearchModel.criteria.logicalOperator = logicalOperator;
 		this._$andOrDropdownComponent.removeAttr("disabled");
 //        $newFieldValueContainer.empty();
 //        $newFieldValueContainer.append(this._createValueField(uuid));
