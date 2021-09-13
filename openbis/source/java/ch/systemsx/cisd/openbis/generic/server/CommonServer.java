@@ -2710,7 +2710,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            String format, boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind)
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
@@ -2723,13 +2723,67 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             types.add(findEntityType(entityKind, type));
         }
-        StringBuilder sb = new StringBuilder();
+
+        if (format.equalsIgnoreCase("json"))
+        {
+            return getJsonTemplateColumns(entityKind, autoGenerate, withExperiments, withSpace, operationKind, types);
+        } else
+        {
+            return getTsvTemplateColumns(entityKind, autoGenerate, withExperiments, withSpace, operationKind, types);
+        }
+    }
+
+    private String getJsonTemplateColumns(final EntityKind entityKind, final boolean autoGenerate, final boolean withExperiments,
+            final boolean withSpace, final BatchOperationKind operationKind, final List<EntityTypePE> types)
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (EntityTypePE entityType : types)
+        {
+            final List<String> columns = new ArrayList<>();
+            final Set<? extends EntityTypePropertyTypePE> propertyTypes;
+            switch (entityKind)
+            {
+                case SAMPLE:
+                    propertyTypes = ((SampleTypePE) entityType).getSampleTypePropertyTypes();
+                    break;
+                case DATA_SET:
+                    propertyTypes = ((DataSetTypePE) entityType).getDataSetTypePropertyTypes();
+                    break;
+                case MATERIAL:
+                    propertyTypes = ((MaterialTypePE) entityType).getMaterialTypePropertyTypes();
+                    break;
+                case EXPERIMENT:
+                    propertyTypes = ((ExperimentTypePE) entityType).getExperimentTypePropertyTypes();
+                    break;
+                default:
+                    throw new UserFailureException("Unknown entity kind: " + entityKind.name());
+            }
+
+            addPropertiesToTemplateColumns(columns, propertyTypes);
+
+            for (final String column : columns)
+            {
+                if (sb.length() > 0)
+                {
+                    sb.append(",");
+                }
+                sb.append("\n    \"").append(column).append("\" : \"\"");
+            }
+        }
+        return String.format("{\n  \"properties\" : {%s\n  }\n}", sb);
+    }
+
+    private String getTsvTemplateColumns(final EntityKind entityKind, final boolean autoGenerate, final boolean withExperiments, final boolean withSpace,
+            final BatchOperationKind operationKind, final List<EntityTypePE> types)
+    {
+        final StringBuilder sb = new StringBuilder();
         boolean firstSection = true;
         for (EntityTypePE entityType : types)
         {
             String section =
                     createTemplateForType(entityKind, autoGenerate, entityType, firstSection,
                             withExperiments, withSpace, operationKind);
+
             if (types.size() != 1)
             {
                 section =
@@ -2740,6 +2794,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                         : "",
                                 section);
             }
+
             sb.append(section);
             firstSection = false;
         }

@@ -128,7 +128,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface ICommonClientServiceAsync extends IClientServiceAsync
@@ -241,7 +241,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteProjectRole(RoleWithHierarchy, String, Grantee) */
     public void deleteProjectRole(RoleWithHierarchy role, String projectIdentifier, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
-    
+
     /** @see ICommonClientService#registerSpaceRole(RoleWithHierarchy, String, Grantee) */
     public void registerSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
@@ -874,7 +874,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolderWithPermId> openEntityDetailsTabCallback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean, BatchOperationKind)
+     * @see ICommonClientService#getTemplate(EntityKind, String, String, boolean, boolean, boolean, BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind,

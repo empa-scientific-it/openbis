@@ -17,7 +17,7 @@
 function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
-	
+
 	this.repaint = function(views, loadFromTemplate) {
 		var $container = views.content;
 		var _this = this;
@@ -28,28 +28,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 
 		var $form = $("<span>");
-		
+
 		var $formColumn = $("<form>", {
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
-		
+
 		$form.append($formColumn);
-		
+
 		//
 		// Extra Metadata
 		//
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[this._sampleFormModel.sample.sampleTypeCode];
-		
+
 		//
 		// TITLE
 		//
 		var spaceCode = this._sampleFormModel.sample.spaceCode;
 		var projectCode;
 		var experimentCode;
-		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {	
+		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
 			var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
 			projectCode = IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
 			experimentCode = IdentifierUtil.getCodeFromIdentifier(experimentIdentifier);
@@ -65,7 +65,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleCode = this._sampleFormModel.sample.code;
 		var samplePermId = this._sampleFormModel.sample.permId;
 		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifier, sampleCode, samplePermId);
-		
+
 		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
 		if(nameLabel) {
@@ -86,9 +86,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else {
 			nameLabel = this._sampleFormModel.sample.code;
 		}
-		
+
 		var title = null;
-		
+
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "New " + Util.getDisplayNameFromCode(this._sampleFormModel.sample.sampleTypeCode);
@@ -100,11 +100,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	    		title = "" + Util.getDisplayNameFromCode(this._sampleFormModel.sample.sampleTypeCode) + ": " + nameLabel;
 	    		break;
 		}
-		
+
 		$formTitle
 			.append($("<h2 id='sampleFormTitle'>").append(title));
 			//.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		
+
 		//
 		// Toolbar
 		//
@@ -123,14 +123,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						Util.blockUI();
 						setTimeout(function() {
 							FormUtil.createNewSampleOfTypeWithParent(typeCode,
-									_this._sampleFormModel.sample.experimentIdentifierOrNull, 
+									_this._sampleFormModel.sample.experimentIdentifierOrNull,
 									_this._sampleFormModel.sample.identifier,
 									_this._sampleFormModel.sample);
 						}, 100);
 					}
 				});
 			}
-			
+
 			if (_this._allowedToEdit()) {
 				//Edit
 				if(this._sampleFormModel.mode === FormMode.VIEW) {
@@ -139,7 +139,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								permIdOrIdentifier : _this._sampleFormModel.sample.permId,
 								paginationInfo : _this._sampleFormModel.paginationInfo
 						}
-						
+
 						mainController.changeView('showEditSamplePageFromPermId', args);
 					}, "Edit", null, "edit-btn");
 					if(toolbarConfig.EDIT) {
@@ -165,7 +165,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                 var $component = $("<div>");
                 var childSamples = this._sampleFormModel.sample.children.filter(c => c.sampleTypeCode !== "STORAGE_POSITION");
                 if (childSamples.length > 0) {
-                    var warningText = "The " + ELNDictionary.sample + " has " + childSamples.length 
+                    var warningText = "The " + ELNDictionary.sample + " has " + childSamples.length
                             + " children " + ELNDictionary.sample + "s, these relationships will be broken "
                             + " but the children will remain:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
@@ -177,14 +177,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
                     $component.append($warning);
-                    var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants"), 
-                            "Delete also all descendant " + ELNDictionary.sample 
+                    var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants"),
+                            "Delete also all descendant " + ELNDictionary.sample
                             + "s (i.e. children, grand children etc.) including their data sets", null, true);
                     $component.append($ddf);
                 }
                 if (this._sampleFormModel.datasets.length > 0) {
-                    var warningText = "The " + ELNDictionary.sample + " has " 
-                            + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " 
+                    var warningText = "The " + ELNDictionary.sample + " has "
+                            + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the "
                             + ELNDictionary.sample + ":";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
                         warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
@@ -212,7 +212,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                         }
                     });
 				}
-				
+
 			}
 			if (_this._allowedToCopy()) {
 				//Copy
@@ -264,7 +264,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     }
                 });
 			}
-			
+
 			//Hierarchy Table
 			if(toolbarConfig.HIERARCHY_TABLE) {
 				dropdownOptionsModel.push({
@@ -274,7 +274,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     }
                 });
 			}
-			
+
 			if(_this._allowedToRegisterDataSet()) {
 				//Create Dataset
 				var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
@@ -283,7 +283,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				if(toolbarConfig.UPLOAD_DATASET) {
 					toolbarModel.push({ component : $uploadBtn, tooltip: null });
 				}
-			
+
 				//Get dropbox folder name
 				if(toolbarConfig.UPLOAD_DATASET_HELPER) {
 					dropdownOptionsModel.push({
@@ -298,9 +298,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					        FormUtil.showDropboxFolderNameDialog(nameElements);
                         }
                     });
+
+					dropdownOptionsModel.push({
+						label : "Template for metadata import",
+						action : function() {
+							var templateLink = mainController.serverFacade.getTemplateLink("SAMPLE", sampleTypeCode,
+									"REGISTRATION", "json");
+							window.open(templateLink, "_blank").focus();
+						}
+					});
 				}
 			}
-			
+
 			//Export
             if(toolbarConfig.EXPORT_METADATA) {
                 dropdownOptionsModel.push({
@@ -315,7 +324,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false)
                 });
 			}
-			
+
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
 				dropdownOptionsModel.push({
@@ -433,14 +442,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				}, pagOptionsToSend);
 			}
-			
+
 			if(this._sampleFormModel.paginationInfo.currentIndex > 0) {
 				var $backBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-left", function () {
 					moveToIndex(_this._sampleFormModel.paginationInfo.currentIndex-1);
 				}, "Previous");
 				rightToolbarModel.push({ component : $backBtn, tooltip: null });
 			}
-			
+
 			if(this._sampleFormModel.paginationInfo.currentIndex+1 < this._sampleFormModel.paginationInfo.totalCount) {
 				var $nextBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-right", function () {
 					moveToIndex(_this._sampleFormModel.paginationInfo.currentIndex+1);
@@ -448,9 +457,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				rightToolbarModel.push({ component : $nextBtn, tooltip: null });
 			}
 		}
-		
+
 		var $header = views.header;
-		
+
 		$header.append($formTitle);
 
 		var hideShowOptionsModel = [];
@@ -467,12 +476,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
 			$formColumn.append(this._createIdentificationInfoSection(hideShowOptionsModel, sampleType, entityPath));
 		}
-		
+
 		// Plugin Hook
 		var $sampleFormTop = new $('<div>');
 		$formColumn.append($sampleFormTop);
 		profile.sampleFormTop($sampleFormTop, _this._sampleFormModel);
-		
+
 		//
 		// Form Defined Properties from General Section
 		//
@@ -560,7 +569,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                 }
             }
 		}
-		
+
 		//
 		// Plate View
 		//
@@ -572,7 +581,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formColumn.append(plateContainer);
 			this._sampleFormController._plateController = plateController;
 		}
-		
+
 		//
 		// Storage
 		//
@@ -584,30 +593,30 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$fieldsetOwner.append($legend);
 			$fieldsetOwner.append(storageListContainer);
 			$formColumn.append($fieldsetOwner);
-			
+
 			$legend.prepend(FormUtil.getShowHideButton(storageListContainer, "SAMPLE-" + this._sampleFormModel.sample.sampleTypeCode + "-storage"));
-			
-			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);	
+
+			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
 			storageListController.init(storageListContainer);
 		}
-		
+
 		//
 		// Extra Content
 		//
 		$formColumn.append($("<div>", { 'id' : 'sample-form-content-extra' }));
-		
+
 		// Plugin Hook
 		var $sampleFormBottom = new $('<div>');
 		$formColumn.append($sampleFormBottom);
 		profile.sampleFormBottom($sampleFormBottom, _this._sampleFormModel);
-		
+
 		//
 		// Identification Info on View/Edit
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			$formColumn.append(this._createIdentificationInfoSection(hideShowOptionsModel, sampleType, entityPath));
 		}
-		
+
 		//
 		// PREVIEW IMAGE
 		//
@@ -632,7 +641,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
 			});
-			
+
 		    $previewImageContainer.append($previewImage);
 		}
 
@@ -673,7 +682,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             $header.append($("<br>")).append(documentEditorEditableToolbar);
         }
 		$container.append($form);
-		
+
 		//
 		// Extra content
 		//
@@ -683,21 +692,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} catch(err) {
 			Util.manageError(err);
 		}
-		
+
 		this._sampleFormModel.isFormLoaded = true;
 	}
-	
+
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i, loadFromTemplate) {
 		var _this = this;
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
+
 		var $fieldsetOwner = $('<div>');
 		var $fieldset = $('<div>');
 		var $legend = $('<legend>');
-		
+
 		$fieldsetOwner.append($legend).append($fieldset);
-		
+
 		if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 			$legend.text(propertyTypeGroup.name);
 		} else if((i === 0) || ((i !== 0) && (sampleType.propertyTypeGroups[i-1].name !== null) && (sampleType.propertyTypeGroups[i-1].name !== ""))) {
@@ -705,7 +714,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else {
 			$legend.remove();
 		}
-		
+
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
@@ -715,7 +724,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
 				continue;
 			}
-			
+
 			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
 				continue;
 			} else if(propertyType.code === "$XMLCOMMENTS") {
@@ -739,7 +748,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					this._sampleFormModel.sample.properties[propertyType.code] = value;
 					delete this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
 				}
-				
+
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
 						var customWidget = profile.customWidgetSettings[propertyType.code];
@@ -765,7 +774,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
-					
+
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
@@ -777,7 +786,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					} else {
 						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
-						
+
 					var changeEvent = function(propertyType) {
 						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
@@ -803,7 +812,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							}
 						}
 					}
-					
+
 					//Avoid modifications in properties managed by scripts
 					if(propertyType.managed || propertyType.dinamic) {
 						$component.prop('disabled', true);
@@ -838,38 +847,38 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					} else {
 						$component.change(changeEvent(propertyType));
 					}
-					
+
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				$fieldset.append($controlGroup);
 			}
-			
+
 			if(propertyType.code !== "$ANNOTATIONS_STATE") {
 				propertyGroupPropertiesOnForm++;
-			}	
+			}
 		}
-			
+
 		if(propertyGroupPropertiesOnForm === 0) {
 			$legend.remove();
 		}
-		
+
 		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + sampleTypeCode + "-" + propertyTypeGroup.name));
 		$formColumn.append($fieldsetOwner);
-			
+
 		return false;
 	}
-	
+
 	this._createIdentificationInfoSection = function(hideShowOptionsModel, sampleType, entityPath) {
 		hideShowOptionsModel.push({
 			label : "Identification Info",
 			section : "#sample-identification-info"
 		});
-		
+
 		var _this = this;
 		var $identificationInfo = $("<div>", { id : "sample-identification-info" });
 		var $legend = $("<legend>").append("Identification Info");
 		var $fieldset = $("<div>");
-		
+
 		$identificationInfo.append($legend);
 		$identificationInfo.append($fieldset);
 
@@ -882,7 +891,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
 			$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName(this._sampleFormModel.sample.experimentIdentifierOrNull), this._sampleFormModel.sample.experimentIdentifierOrNull));
 		}
-		
+
 		//
 		// Identification Info - Code
 		//
@@ -910,7 +919,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else {
 			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
 		}
-		
+
 		$fieldset.append($codeField);
 
         if(this._sampleFormModel.mode !== FormMode.CREATE && profile.mainMenu.showBarcodes) {
@@ -929,36 +938,36 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
-			
+
 			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
 			$fieldset.append($registrator);
-			
+
 			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)))
 			$fieldset.append($registationDate);
-			
+
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
 			$fieldset.append($modifier);
-			
+
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
 			$fieldset.append($modificationDate);
 		}
-		
+
 		$identificationInfo.hide();
 		return $identificationInfo;
 	}
-	
+
 	this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
 		var _this = this;
 		var requiredParents = [];
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"]) {
 			requiredParents = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"];
 		}
-		
+
 		var sampleParentsWidgetId = "sample-parents";
 		var $sampleParentsWidget = $("<div>", { "id" : sampleParentsWidgetId });
-		
+
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
-		
+
 		var currentParentsLinks = this._sampleFormModel.sample ? this._sampleFormModel.sample.parents : null;
 		var parentsTitle = "Parents";
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_TITLE"]) {
@@ -997,24 +1006,24 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$sampleParentsWidget.hide();
 		return $sampleParentsWidget;
 	}
-	
+
 	this._createChildrenSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
 		var _this = this;
 		var requiredChildren = [];
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
 			requiredChildren = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"];
 		}
-			
+
 		var sampleChildrenWidgetId = "sample-children";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
-		
+
 		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
-		
+
 		var childrenTitle = "Children";
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"]) {
 			childrenTitle = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"];
 		}
-		
+
 		var currentChildrenLinksNoStorage = [];
 		if(currentChildrenLinks != null) {
 			for(var cIdx = 0; cIdx < currentChildrenLinks.length; cIdx++) {
@@ -1044,14 +1053,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
 			});
-			
+
 			var $generateChildrenBox = $("<div>")
 											.append($("<div>", { 'class' : 'form-group' }).append($generateChildrenBtn))
 											.append($("<div>", { 'id' : 'newChildrenOnBenchDropDown' }))
 			$sampleChildrenWidget.append($generateChildrenBox);
 		}
 		$sampleChildrenWidget.hide();
-		
+
 		hideShowOptionsModel.push({
 			label : "Children",
 			section : "#sample-children",
@@ -1060,14 +1069,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				_this._sampleFormModel.sampleLinksChildren.refreshHeight();
 			}
 		});
-		
+
 		return $sampleChildrenWidget;
 	}
-	
+
 	//
 	// TO-DO: Legacy code to be refactored
 	//
-	
+
 	//
 	// Copy Sample pop up
 	//
@@ -1075,7 +1084,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var _this = this;
 		return function() {
 			Util.blockUINoMessage();
-			
+
 			var copyFunction = function(defaultCode) {
 				var component = "<div>"
 					component += "<legend>Duplicate Entity</legend>";
@@ -1101,15 +1110,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 					component += "</div>";
 					component += "</div>";
-				
+
 				Util.blockUI(component + "<a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", FormUtil.getDialogCss());
-				
+
 				$("#newSampleCodeForCopy").on("keyup", function(event) {
 					$(this).val($(this).val().toUpperCase());
 				});
-				
+
 				$("#newSampleCodeForCopy").val(defaultCode);
-				
+
 				$("#copyAccept").on("click", function(event) {
 					var newSampleCodeForCopy = $("#newSampleCodeForCopy");
 					var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
@@ -1126,12 +1135,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						Util.showError("Invalid code.", function() {}, true);
 					}
 				});
-				
-				$("#copyCancel").on("click", function(event) { 
+
+				$("#copyCancel").on("click", function(event) {
 					Util.unblockUI();
 				});
 			};
-			
+
 			var spaceCode = _this._sampleFormModel.sample.spaceCode;
 			if(profile.isInventorySpace(spaceCode)) {
 				var sampleType = profile.getSampleTypeForSampleTypeCode(_this._sampleFormModel.sample.sampleTypeCode);
@@ -1139,21 +1148,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			} else {
 				_this._sampleFormController.getNextCopyCode(copyFunction);
 			}
-			
+
 		}
 	}
-	
+
 	//
 	// Preview Image
 	//
 	this._reloadPreviewImage = function() {
 		var _this = this;
-		var previewCallback = 
+		var previewCallback =
 			function(data) {
 				if (data.result.length == 0) {
 					_this._updateLoadingToNotAvailableImage();
 				} else {
-					var listFilesForDataSetCallback = 
+					var listFilesForDataSetCallback =
 						function(dataFiles) {
 							var found = false;
 							if(!dataFiles.result) {
@@ -1163,7 +1172,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 									if(!dataFiles.result[pathIdx].isDirectory) {
 										var elementId = 'preview-image';
 										var downloadUrl = profile.getDefaultDataStoreURL() + '/' + data.result[0].code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-										
+
 										var img = $("#" + elementId);
 										img.attr('src', downloadUrl);
 										img.attr('data-preview-loaded', 'true');
@@ -1177,15 +1186,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					mainController.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
 				}
 			};
-		
+
 		mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [this._sampleFormModel.sample.permId], previewCallback);
 	}
-	
+
 	this._updateLoadingToNotAvailableImage = function() {
 		var notLoadedImages = $("[data-preview-loaded='false']");
 		notLoadedImages.attr('src', "./img/image_unavailable.png");
 	}
-	
+
 	//
 	// Children Generator
 	//
@@ -1197,7 +1206,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 		});
 	}
-	
+
 	this._generateChildren = function() {
 		var _this = this;
 		// Utility self contained methods
@@ -1221,9 +1230,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var parentSampleCode = _this._sampleFormModel.sample.code;
 			for(var sampleTypeCode in selectedParentsByType) {
 				var parentsOfType = selectedParentsByType[sampleTypeCode];
-				
+
 				var newGeneratedChildren = [];
-				
+
 				for(var i = 0; i < parentsOfType.length; i++) {
 					var parentOfType = parentsOfType[i];
 					if(generatedChildren.length === 0) {
@@ -1234,30 +1243,30 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						}
 					}
 				}
-				
+
 				generatedChildren = newGeneratedChildren;
 			}
-			
+
 			//Number of Replicas
 			var numberOfReplicas = parseInt($("#childrenReplicas").val());
 			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
 				Util.showUserError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
 				return;
 			}
-			
+
 			var generatedChildrenWithReplicas = [];
 			for(var i = 0; i < generatedChildren.length; i++) {
 				for(var j = 0; j < numberOfReplicas; j++) {
 					generatedChildrenWithReplicas.push(generatedChildren[i] + "_" + (j + 1));
 				}
 			}
-			
+
 			return generatedChildrenWithReplicas;
 		}
-		
+
 		var showPreview = function() {
 			$("#previewChildrenGenerator").empty();
-			
+
 			var generatedChildren = getGeneratedChildrenCodes();
 			//Show generated children
 			if(generatedChildren) {
@@ -1266,11 +1275,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 		}
-		
+
 		var _this = this;
 		// Buttons
 		var $generateButton = $("<a>", { "class" : "btn btn-default" }).append("Generate!");
-		$generateButton.click(function(event) { 
+		$generateButton.click(function(event) {
 			var generatedChildrenSpace = _this._sampleFormModel.sample.spaceCode;
 			var generatedChildrenProject = IdentifierUtil.getProjectCodeFromSampleIdentifier(_this._sampleFormModel.sample.identifier);
 			var numberOfReplicas = parseInt($("#childrenReplicas").val());
@@ -1292,36 +1301,36 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					virtualSample.sampleTypeCode = generatedChildrenType;
 					_this._sampleFormModel.sampleLinksChildren.addVirtualSample(virtualSample);
 				}
-				
+
 				_this._childrenAdded();
 				Util.unblockUI();
 			}
-			
-			
+
+
 		});
-		
+
 		var $cancelButton = $("<a>", { "class" : "btn btn-default" }).append("<span class='glyphicon glyphicon-remove'></span>");
-		$cancelButton.click(function(event) { 
+		$cancelButton.click(function(event) {
 			Util.unblockUI();
 		});
-		
+
 		var $selectAllButton = $("<a>", { "class" : "btn btn-default" }).append("Enable/Disable All");
 		$selectAllButton.attr("ison", "false");
-		
+
 		$selectAllButton.click(function(event) {
 			var $button = $(this);
 			var isOn = !($button.attr("ison") === "true");
 			$button.attr("ison", isOn);
-			
+
 			var $parentsFields = $("#parentsToGenerateChildren").find("input");
 			for(var i = 0; i < $parentsFields.length; i++) {
 				var $parentField = $parentsFields[i];
 				$parentField.checked = isOn;
 			}
-			
+
 			showPreview();
 		});
-		
+
 		// Parents
 		var $parents = $("<div>");
 		var parentsIdentifiers = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
@@ -1337,7 +1346,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			typeList.push(parent);
 			parentsByIdentifier[parent.identifier] = parent;
 		}
-		
+
 		var $parentsTable = $("<table>", { "class" : "table table-bordered table-compact" });
 		var $headerRow = $("<tr>");
 		$parentsTable.append($headerRow);
@@ -1358,16 +1367,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							label : parent.code,
 							dataType : "BOOLEAN"
 					};
-					
+
 					var $checkBox = $('<input>', {'style' : 'margin-bottom:7px;', 'type' : 'checkbox', 'id' : parent.identifier, 'alt' : parent.identifier, 'placeholder' : parent.identifier });
-					$checkBox.change(function() { 
+					$checkBox.change(function() {
 						showPreview();
 					});
-					
+
 					var $field = $('<div>');
 					$field.append($checkBox);
 					$field.append(" " + parent.code);
-					
+
 					$tableRow.append($("<td>").append($field));
  				} else {
  					$tableRow.append($("<td>").html("&nbsp;"));
@@ -1375,35 +1384,35 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			$parentsTable.append($tableRow);
 		}
-		
+
 		$parents.append($parentsTable);
-		
+
 		var $parentsComponent = $("<div>", { "id" : 'parentsToGenerateChildren'} );
 		$parentsComponent.append($("<legend>").append("Parents ").append($selectAllButton))
 		$parentsComponent.append($parents);
-		
+
 		// Children
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
-		
+
 		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
-		
+
 		var $childrenReplicas = FormUtil._getInputField('number', 'childrenReplicas', 'Children Replicas', '1', true);
 		$childrenReplicas.val("1");
-		$childrenReplicas.keyup(function() { 
+		$childrenReplicas.keyup(function() {
 			showPreview();
 		});
-		
+
 		var $childrenReplicasWithLabel = FormUtil.getFieldForComponentWithLabel($childrenReplicas, 'Children Replicas');
 		$childrenComponent.append($childrenReplicasWithLabel);
-		
+
 		// Preview
 		var $previewComponent = $("<div>");
 		$previewComponent.append($("<legend>").append("Preview"));
 		$previewComponent.append($("<div>", {"id" : "previewChildrenGenerator"}));
-		
+
 		// Mounting the widget with the components
 		var $childrenGenerator = $("<div>");
 		$childrenGenerator.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton));
@@ -1414,23 +1423,23 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 									.append($previewComponent)
 									.append($("<br>")).append($generateButton)
 								);
-		
+
 		// Show Widget
 		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%', 'height' : '80%', 'overflow' : 'auto'});
 	}
-	
+
 	this._allowedToCreateChild = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		return sample.frozenForChildren == false && (!sample.experiment || sample.experiment.frozenForSamples == false)
 				&& this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
-	
+
 	this._allowedToEdit = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		var updateAllowed = this._allowedToUpdate(this._sampleFormModel.rights);
 		return updateAllowed && sample.frozen == false;
 	}
-	
+
 	this._allowedToUpdate = function(rights) {
 		return rights && rights.rights.indexOf("UPDATE") >= 0;
 	}
@@ -1443,17 +1452,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		return this._allowedToUpdate(this._sampleFormModel.rights);
 	}
-	
+
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false)) && this._allowedToMove();
 	}
-	
+
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
-	
+
 	this._allowedToRegisterDataSet = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		return sample.frozenForDataSets == false && (!sample.experiment || sample.experiment.frozenForDataSets == false)

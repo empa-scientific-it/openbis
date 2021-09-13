@@ -141,7 +141,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Logger class for {@link CommonServer} which creates readable logs of method invocations.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServerForInternalUse
@@ -1176,13 +1176,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            final String format, boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind)
     {
         logAccess(sessionToken, "get_template_columns",
-                "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s) "
+                "ENTITY_KIND(%s) ENTITY_TYPE(%s) FORMAT(%s) AUTO_GENERATE(%s) WITH_EXP(%s) "
                         + "WITH_SPACE(%s) OPERATION(%s)",
-                entityKind, type, autoGenerate,
+                entityKind, type, format, autoGenerate,
                 withExperiments, withSpace, operationKind.getDescription());
         return null;
     }

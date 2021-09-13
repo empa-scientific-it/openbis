@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants
 
 /**
  * Some generic constants.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class GenericConstants
@@ -86,6 +86,9 @@ public final class GenericConstants
 
     /** The HTTP URL parameter used to specify the entity type. */
     public static final String ENTITY_TYPE_KEY_PARAMETER = "entityType";
+
+    /** The HTTP URL parameter used to specify file format. */
+    public static final String FILE_FORMAT_PARAMETER = "fileFormat";
 
     /** The HTTP URL parameter used to specify if codes are automatically generated. */
     public static final String AUTO_GENERATE = "autoGenerate";

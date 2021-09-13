@@ -130,14 +130,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
  * Each method should declare throwing {@link UserFailureException}. The authorization framework can throw it when the user has insufficient
  * privileges. If it is not marked, the GWT client will report unexpected exception.
  * </p>
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface ICommonClientService extends IClientService
 {
     /**
      * Keeps the logged in user session alive.
-     * 
+     *
      * @return <code>null</code> if session was successfully prolonged, otherwise the reason for failure.
      */
     public String keepSessionAlive() throws UserFailureException;
@@ -893,7 +893,7 @@ public interface ICommonClientService extends IClientService
 
     /**
      * Uploads the specified data sets to the specified CIFEX server using the specified parameters.
-     * 
+     *
      * @return a message or an empty string.
      */
     public String uploadDataSets(DisplayedOrSelectedDatasetCriteria criteria,
@@ -985,7 +985,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns example file format for batch operation on entities.
      */
-    public String getTemplate(EntityKind kind, String type, boolean autoGenerate,
+    public String getTemplate(EntityKind kind, String type, final String format, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind)
             throws UserFailureException;
 
