@@ -44,17 +44,17 @@ $.extend(DefaultProfile.prototype, {
 		//
 		this.mainLogo = "./img/openBIS_Logo.png";
 		this.mainLogoTitle = "Lab Notebook & Inventory Manager";
-		
+
 		//this.mainLogo = "./img/cross_Logo_alt.png";
 		//this.mainLogoTitle = "ETH RDH";
-		
+
 		this.serverFacade = serverFacade;
 
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
 		this.showDatasetArchivingButton = false;
-		
+
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
@@ -89,7 +89,7 @@ $.extend(DefaultProfile.prototype, {
 		};
 
 		this.orderLabInfo = {
-				
+
 		}
 
 		this.orderLanguage = {
@@ -99,14 +99,14 @@ $.extend(DefaultProfile.prototype, {
 					"ORDER_DATE" : "Date",
 					"ORDER_STATUS" : "Status",
 					"ORDER_CODE" : "Code",
-					
+
 					"COSTUMER_INFORMATION" : "Costumer Information",
 					"SHIP_TO" : "Ship To",
 					"BILL_TO" : "Bill To",
 					"SHIP_ADDRESS" : "Address",
 					"PHONE" : "Phone",
 					"FAX" : "Fax",
-					
+
 					"SUPPLIER_INFORMATION" : "Supplier Information",
 					"SUPPLIER" : "Supplier",
 					"SUPPLIER_ADDRESS_LINE_1" : "Address",
@@ -115,7 +115,7 @@ $.extend(DefaultProfile.prototype, {
 					"SUPPLIER_FAX" : "Fax",
 					"SUPPLIER_EMAIL" : "Email",
 					"CUSTOMER_NUMBER" : "Customer No",
-					
+
 					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
 					"PRODUCTS_COLUMN_NAMES_LABEL" : "Quantity\t\tName\t\tCatalog Num\t\tUnit Price",
 					"PRICE_TOTALS_LABEL" : "Total Price",
@@ -153,14 +153,14 @@ $.extend(DefaultProfile.prototype, {
 
 		this.isAdmin = false;
 		this.devEmail = "sis.eln.servicedesk@id.ethz.ch";
-		
+
 //		BigDataLink EDMs config
 		this.EDMSs = {
 //				"ADMIN-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
 		}
 		this.singleSignOnUrlTemplate = null;
 		this.singleSignOnLinkLabel = 'Single Sign On Login';
-		
+
         this.customWidgetSettings = {};
 
 		this.plugins = [new GenericTechnology()];
@@ -251,23 +251,23 @@ $.extend(DefaultProfile.prototype, {
 		this.isImageViewerDataSetCode = function(code) {
 			return (code && $.inArray(code, this.imageViewerDataSetCodes) !== -1);
 		}
-		
+
 		this.isRTF = function(propertytype) {
-			var isRTF = (propertytype && 
+			var isRTF = (propertytype &&
 						propertytype.dataType === "MULTILINE_VARCHAR" &&
 						$.inArray(propertytype.code, this.forcedDisableRTF) === -1);
 			for(var i = 0; i < this.plugins.length; i++) {
-				isRTF = isRTF && (propertytype && 
+				isRTF = isRTF && (propertytype &&
 						propertytype.dataType === "MULTILINE_VARCHAR" &&
 						$.inArray(propertytype.code, this.plugins[i].forcedDisableRTF) === -1);
 			}
 			return isRTF;
 		}
-		
+
 		this.isSystemProperty = function(propertytype) {
 			return (propertytype && $.inArray(propertytype.code, this.systemProperties) !== -1);
 		}
-		
+
 		this.isForcedMonospaceFont = function(propertytype) {
 			var isForcedMonospaceFont = (propertytype && $.inArray(propertytype.code, this.forceMonospaceFont) !== -1);
 			for(var i = 0; i < this.plugins.length; i++) {
@@ -275,19 +275,19 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return isForcedMonospaceFont;
 		}
-		
+
 		this.isForcedDisableRTF = function(propertytype) {
 			return (propertytype && $.inArray(propertytype.code, this.forcedDisableRTF) !== -1);
 		}
-		
+
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		
+
 		//Ending in "MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"
 		this.inventorySpacesPostFixes = ["MATERIALS", "METHODS", "STORAGE", "STOCK_CATALOG"];
-		this.inventorySpaces = []; 
+		this.inventorySpaces = [];
 		//Ending in "ELN_SETTINGS", "STOCK_ORDERS"
 		this.inventorySpacesReadOnlyPostFixes = ["ELN_SETTINGS", "STOCK_ORDERS", "PUBLICATIONS"];
-		this.inventorySpacesReadOnly = []; 
+		this.inventorySpacesReadOnly = [];
 		//Ending in "STORAGE"
 		this.storageSpacesPostFixes = ["STORAGE"];
 		this.storageSpaces = [];
@@ -297,11 +297,11 @@ $.extend(DefaultProfile.prototype, {
 		//Ending in "ELN_SETTINGS", "STORAGE"
 		this.hideSpacesPostFixes = ["ELN_SETTINGS", "STORAGE"];
 		this.hideSpaces = ["NAGIOS"];
-		
+
 		this.initSpaces = function(callback) {
 			var _this = this;
 			var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
-			
+
     	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(spacesSearchResult) {
     	    			for(var sIdx = 0; sIdx < spacesSearchResult.objects.length; sIdx++) {
     	    				var space = spacesSearchResult.objects[sIdx];
@@ -384,19 +384,19 @@ $.extend(DefaultProfile.prototype, {
 					}
 				}
 			}
-			
+
 			return prefix;
 		}
-		
+
 		this.getStorageConfigCollectionForConfigSample = function(sample) {
 			var prefix = this.getSampleConfigSpacePrefix(sample);
 			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "STORAGES", prefix + "STORAGES_COLLECTION");
 		}
-		
+
 		this.getStorageSpaceForSample = function(sample) {
 			return this.getStorageSpaceForSpace(sample.spaceCode);
 		}
-		
+
 		this.getStorageSpaceForSpace = function(spaceCode) {
 			var storageSpaceCode = null;
 			var prefixIndexOf = spaceCode.indexOf("_"); // This is a euristic that only works if the prefixes can't contain "_"
@@ -417,7 +417,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return storageSpaceCode;
 		}
-		
+
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 
@@ -442,7 +442,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return defaultToolbar;
 		}
-		
+
 		this.getSampleTypeToolbarConfiguration = function(sampleTypeCode) {
 			var defaultToolbar = { CREATE : true, EDIT : true, FREEZE : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true, TEMPLATES : true, BARCODE : true };
 			if(this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"]) {
@@ -453,36 +453,36 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return defaultToolbar;
 		}
-		
+
 		this.isSampleTypeWithStorage = function(sampleTypeCode) {
 			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["ENABLE_STORAGE"];
 		}
-		
+
 		this.isELNIdentifier = function(identifier) {
 			var space = IdentifierUtil.getSpaceCodeFromIdentifier(identifier);
 			return !this.isInventorySpace(space);
 		}
-		
+
 		this.isHiddenSpace = function(spaceCode) {
 			return $.inArray(spaceCode, this.hideSpaces) !== -1;
 		}
-		
+
         this.isInventorySpace = function(spaceCode) {
             return Util.elementEndsWithArrayElement(spaceCode, this.inventorySpaces.concat(this.inventorySpacesReadOnly));
         }
-        
+
         this.getSpaceEndingsForInventory = function() {
             return this.inventorySpaces.concat(this.inventorySpacesReadOnly).filter(function (space) {
                 return !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS");
             });
         }
-		
+
 		this.isFileAuthenticationService = false;
 		this.isFileAuthenticationUser = false;
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.sftpFileServer = null;
-		
+
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.systemTypes = {
@@ -493,33 +493,33 @@ $.extend(DefaultProfile.prototype, {
 				"sampleTypeCodes" : [],
 				"experimentTypeCodes" : ["UNKNOWN"]
 		}
-		
+
 		this._deleteSampleConnectionsByTypeIfNotVisited = function(sample, visited) {
 			var permId = null;
-			
+
 			if(sample["@type"] === "as.dto.sample.Sample") {
 				permId = sample.getPermId().getPermId();
 			} else if(sample["@type"] === "Sample") {
 				permId = sample.permId;
 			}
-					
+
 			if(visited[permId]) {
 				return;
 			} else {
 				visited[permId] = true;
 			}
-			
+
 			if(sample.parents) {
 				for(var i=0; i < sample.parents.length; i++) {
 					var sampleParent = sample.parents[i];
 					var sampleTypeCode = null;
-					
+
 					if(sample["@type"] === "as.dto.sample.Sample") {
 						sampleTypeCode = sampleParent.getType().getCode();
 					} else if(sample["@type"] === "Sample") {
 						sampleTypeCode = sampleParent.sampleTypeCode;
 					}
-					
+
 					if($.inArray(sampleTypeCode, this.systemTypes["sampleTypeCodes"]) !== -1) {
 						sample.parents.splice(i, 1);
 						i--;
@@ -532,13 +532,13 @@ $.extend(DefaultProfile.prototype, {
 				for(var i=0; i < sample.children.length; i++) {
 					var sampleChild = sample.children[i];
 					var sampleTypeCode = null;
-					
+
 					if(sample["@type"] === "as.dto.sample.Sample") {
 						sampleTypeCode = sampleChild.getType().getCode();
 					} else if(sample["@type"] === "Sample") {
 						sampleTypeCode = sampleChild.sampleTypeCode;
 					}
-					
+
 					if($.inArray(sampleTypeCode, this.systemTypes["sampleTypeCodes"]) !== -1) {
 						sample.children.splice(i, 1);
 						i--;
@@ -548,12 +548,12 @@ $.extend(DefaultProfile.prototype, {
 				}
 			}
 		}
-		
+
 		this.deleteSampleConnectionsByType = function(sample) {
 			var visited = {};
 			this._deleteSampleConnectionsByTypeIfNotVisited(sample, visited);
 		}
-		
+
 		this.propertyReplacingCode = "$NAME";
 
 		this.experimentTypeDefinitionsExtension = {
@@ -561,20 +561,20 @@ $.extend(DefaultProfile.prototype, {
         }
 
 		this.sampleTypeDefinitionsExtension = {
-		
+
 		}
-		
+
 		this.dataSetTypeDefinitionsExtension = {
-		
+
 		}
-		
+
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
 			"SAMPLE_TYPE_ATTRIBUTES" : ["sampleTypeCode", "MATCHED_TEXT", "MATCHED_FIELD", "PROPERTIES_JSON"],
-			"SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field", "Properties"],	
+			"SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field", "Properties"],
 		};
-		
+
 		this.allSpaces = [];
 		this.allSampleTypes = [];
 		this.allExperimentTypes = [];
@@ -583,21 +583,21 @@ $.extend(DefaultProfile.prototype, {
 		this.allPropertyTypes = [];
 		this.allDatasetTypeCodes = [];
 		this.displaySettings = {};
-		
+
 		this.typePropertiesForSmallTable = {};
-		
+
 		this.storagesConfiguration = {
 			"isEnabled" : false
 		};
-		
+
 		this.isDatasetTypeCode = function(datasetTypeCode) {
 			return ($.inArray(datasetTypeCode, this.allDatasetTypeCodes) !== -1);
 		}
-		
+
 		this.isSampleTypeProtocol = function(sampleTypeCode) {
 			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["USE_AS_PROTOCOL"];
 		}
-		
+
 		this.isSampleTypeHidden = function(sampleTypeCode) {
 			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
 			if(sampleType && sampleType.listable) {
@@ -606,15 +606,15 @@ $.extend(DefaultProfile.prototype, {
 				return false;
 			}
 		}
-		
+
 		this.isExperimentTypeHidden = function(experimentTypeCode) {
 			return ($.inArray(experimentTypeCode, this.hideTypes["experimentTypeCodes"]) !== -1);
 		}
-		
+
 		this.getSearchDomains = function() {
 			return this.searchDomains;
 		}
-		
+
 		this.getDefaultDataStoreCode = function() {
 			var dataStoreCode = null;
 			if(this.allDataStores.length > 0) {
@@ -622,7 +622,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return dataStoreCode;
 		}
-		
+
 		this.getDefaultDataStoreURL = function() {
 			var dataStoreURL = null;
 			if(this.allDataStores.length > 0) {
@@ -630,12 +630,12 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return dataStoreURL;
 		}
-		
+
 		this.getStoragePropertyGroup = function() {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;
 			}
-			
+
 			propertyGroup = {};
 			propertyGroup.groupDisplayName = "Physical Storage";
 			propertyGroup.nameProperty = "$STORAGE_POSITION.STORAGE_CODE";
@@ -647,7 +647,7 @@ $.extend(DefaultProfile.prototype, {
 			propertyGroup.userProperty = "$STORAGE_POSITION.STORAGE_USER";
 			return propertyGroup;
 		}
-		
+
 		this.getStorageConfigFromSample = function(sample) {
 			//
 			// !!! IMPORTANT
@@ -668,13 +668,13 @@ $.extend(DefaultProfile.prototype, {
 				boxNum : sample.properties["STORAGE.BOX_NUM"]
 			};
 		}
-		
+
 		this.getStoragesConfiguation = function(callbackFunction) {
 			var _this = this;
 			if(!this.storagesConfiguration["isEnabled"]) {
 				callbackFunction(null);
 			}
-			
+
 			mainController.serverFacade.searchByType("STORAGE", function(results) {
 				var configs = [];
 				for(var idx = 0; idx < results.length; idx++) {
@@ -683,22 +683,22 @@ $.extend(DefaultProfile.prototype, {
 				callbackFunction(configs);
 			});
 		}
-		
+
 		this.getStorageConfiguation = function(storageCode, callbackFunction) {
 			var _this = this;
 			if(!this.storagesConfiguration["isEnabled"]) {
 				callbackFunction(null);
 			}
-			
+
 			mainController.serverFacade.searchWithType("STORAGE", storageCode, null, function(results) {
 				callbackFunction(_this.getStorageConfigFromSample(results[0]));
 			});
 		}
-		
+
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Default Color
 			var defaultColor = "#ffffc0"
-		
+
 			//Convert to HSL
 			var rgb = d3.rgb(defaultColor);
 			var hsl =  rgb.hsl();
@@ -706,15 +706,15 @@ $.extend(DefaultProfile.prototype, {
 			var newColor = d3.hsl(hsl.h, hsl.s, Math.min(0.90, hsl.l + 0.75));
 			return newColor;
 		}
-		
+
 		this.searchSorter = function(searchResults) {
 			return searchResults;
 		}
-		
+
 		//
 		// Per Lab Extensions
 		//
-		
+
 		/*
 		 * Used by DataSet Form
 		 */
@@ -729,7 +729,7 @@ $.extend(DefaultProfile.prototype, {
 		 * Used by Inspector
 		 */
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
-			
+
 			if(propertyContent.indexOf("<root ") != -1) {
 				return {
 					"isSingleColumn" : true,
@@ -745,21 +745,21 @@ $.extend(DefaultProfile.prototype, {
 				};
 			}
 		}
-		
+
 		this.getHTMLTableFromManagePropertyXML = function(xmlDocument) {
 			var table_head = null;
 			var table_body = "";
 			var dom;
-	
+
 			if (window.DOMParser) {
 			  parser = new DOMParser();
 			  dom = parser.parseFromString(xmlDocument,"text/xml");
 			} else {// Internet Explorer
 			  dom = new ActiveXObject("Microsoft.XMLDOM");
 			  dom.async = false;
-			  dom.loadXML(xmlDocument); 
-			} 
-	
+			  dom.loadXML(xmlDocument);
+			}
+
 			var html = null;
 			var root = dom.childNodes[0];
 			var children = root.childNodes;
@@ -795,7 +795,7 @@ $.extend(DefaultProfile.prototype, {
 			html = "<table style='font-family:helvetica; font-size:90%; width: 100%;'><thead>" + table_head + "</thead><tbody>"+ table_body + "</tbody></table>";
 			return html;
 		}
-		
+
 		/*
 		 * Modifies sample before submit
 		 */
@@ -810,7 +810,7 @@ $.extend(DefaultProfile.prototype, {
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 		}
-	
+
 		/*
 		 * Used by DataSet Uploader
 		 */
@@ -824,7 +824,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		//
 		// Utility methods used to navigate the configuration easily
 		//
@@ -840,11 +840,11 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.isELNExperiment = function(sampleTypeCode) {
 			return false;
 		}
-	
+
 		this.getPropertyTypes = function() {
 			return this.allPropertyTypes;
 		}
@@ -869,7 +869,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.getPropertyType = function(propertyTypeCode) {
 			for (var i = 0; i < this.allPropertyTypes.length; i++) {
 				if(this.allPropertyTypes[i].code === propertyTypeCode) {
@@ -878,7 +878,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.getVocabularyByCode = function(code) {
 			for (var i = 0; i < this.allVocabularies.length; i++) {
 				var vocabulary = this.allVocabularies[i];
@@ -888,7 +888,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.getVocabularyTermByCodes = function(vocabularyCode, termCode) {
 			var vocabulary = this.getVocabularyByCode(vocabularyCode);
 			if(vocabulary) {
@@ -919,7 +919,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.getSampleTypeForSampleTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allSampleTypes.length; i++) {
 				if(this.allSampleTypes[i].code === typeCode) {
@@ -928,7 +928,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-	
+
 		this.getAllPropertiCodesForExperimentTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
 			var type = this.getExperimentTypeForExperimentTypeCode(typeCode);
@@ -941,7 +941,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return allPropertiCodes;
 		}
-		
+
 		this.getPropertiesDisplayNamesForExperimentTypeCode = function(typeCode, propertiesTypeCode) {
 			var allPropertiDisplayNames = new Array();
 			for(var i = 0; i < propertiesTypeCode.length; i++) {
@@ -951,11 +951,11 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return allPropertiDisplayNames;
 		}
-		
+
 		this.getPropertyDisplayNamesForExperimentTypeCode = function(typeCode, propertyTypeCode) {
 			var propertyDisplayName = "";
 			var type = this.getExperimentTypeForExperimentTypeCode(typeCode);
-		
+
 			for(var i = 0; i < type.propertyTypeGroups.length; i++) {
 				var propertyGroup = type.propertyTypeGroups[i].propertyTypes;
 				for(var j = 0; j < propertyGroup.length; j++) {
@@ -965,10 +965,10 @@ $.extend(DefaultProfile.prototype, {
 					}
 				}
 			}
-		
+
 			return propertyDisplayName;
 		}
-		
+
 		this.getAllPropertiCodesForTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
 			var sampleType = this.getSampleTypeForSampleTypeCode(typeCode);
@@ -981,11 +981,11 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return allPropertiCodes;
 		}
-	
+
 		this.getPropertyDisplayNamesForTypeCode = function(sampleTypeCode, propertyTypeCode) {
 			var propertyDisplayName = "";
 			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
+
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
 				for(var j = 0; j < propertyGroup.length; j++) {
@@ -995,23 +995,23 @@ $.extend(DefaultProfile.prototype, {
 					}
 				}
 			}
-		
+
 			return propertyDisplayName;
 		}
-	
+
 		this.getPropertiesDisplayNamesForTypeCode = function(sampleTypeCode, propertiesTypeCode) {
 			var allPropertiDisplayNames = new Array();
 			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
+
 			for(var i = 0; i < propertiesTypeCode.length; i++) {
 				var propertyTypeCode = propertiesTypeCode[i];
 				var propertyTypeDisplayName = this.getPropertyDisplayNamesForTypeCode(sampleTypeCode, propertyTypeCode);
 				allPropertiDisplayNames.push(propertyTypeDisplayName);
 			}
-		
+
 			return allPropertiDisplayNames;
 		}
-	
+
 		this.getPropertyTypeFrom = function(sampleType, propertyCode) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
@@ -1024,7 +1024,7 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
 		this.getAllSampleTypes = function(skipHidden) {
 			if(skipHidden) {
 				var allNonHiddenSampleTypes = [];
@@ -1046,16 +1046,16 @@ $.extend(DefaultProfile.prototype, {
 		this.archivingThreshold = "ask your administrator";
 
 		this.initPropertyTypes = function(callback) {
-			var _this = this; 
+			var _this = this;
 			this.serverFacade.listPropertyTypes(function(data) {
 				_this.allPropertyTypes = data.result;
-				
+
 				_this.serverFacade.listVocabularies(function(result) {
 					//Init Vocabularies, so we don't miss vocabularies missing on sample types used only on annotations, etc...
 					_this.allVocabularies = result.result;
 					//Fix Property Types
 					var intToVocabularyCode = {};
-					
+
 					//1. Obtain mapping from ids to codes
 					for(var pIdx = 0; pIdx < _this.allPropertyTypes.length; pIdx++) {
 						var propertyType = _this.allPropertyTypes[pIdx];
@@ -1066,7 +1066,7 @@ $.extend(DefaultProfile.prototype, {
 							}
 						}
 					}
-					
+
 					//2. Resolve ids and partial objects from the returned complete vocabularies
 					for(var pIdx = 0; pIdx < _this.allPropertyTypes.length; pIdx++) {
 						var propertyType = _this.allPropertyTypes[pIdx];
@@ -1078,7 +1078,7 @@ $.extend(DefaultProfile.prototype, {
 							} else {
 								vocabularyCode = propertyType.vocabulary.code;
 							}
-									
+
 							if(!vocabularyCode) {
 								alert("[TO-DELETE] Empty Vocabulary during init, this should never happen, tell the developers.");
 							}
@@ -1087,26 +1087,26 @@ $.extend(DefaultProfile.prototype, {
 							propertyType.terms = vocabulary.terms;
 						}
 					}
-					
+
 					//Continue Init Case
 					callback();
 				});
-				
-				
+
+
 			});
 		}
-		
+
 		this.initVocabulariesForSampleTypes = function(callback) {
 			var _this = this;
 			var getVocabularyCodeFromId = function(id) {
-				
+
 			}
 			this.serverFacade.listVocabularies(function(result) {
 				//Init Vocabularies, so we don't miss vocabularies missing on sample types used only on annotations, etc...
 				_this.allVocabularies = result.result;
 				//Fix Sample Types
 				var intToVocabularyCode = {};
-				
+
 				//1. Obtain mapping from ids to codes
 				for(var sampleTypeIdx = 0; sampleTypeIdx < _this.allSampleTypes.length; sampleTypeIdx++) {
 					var sampleType = _this.allSampleTypes[sampleTypeIdx];
@@ -1123,7 +1123,7 @@ $.extend(DefaultProfile.prototype, {
 						}
 					}
 				}
-				
+
 				//2. Resolve ids and partial objects from the returned complete vocabularies
 				for(var sampleTypeIdx = 0; sampleTypeIdx < _this.allSampleTypes.length; sampleTypeIdx++) {
 					var sampleType = _this.allSampleTypes[sampleTypeIdx];
@@ -1139,7 +1139,7 @@ $.extend(DefaultProfile.prototype, {
 								} else {
 									vocabularyCode = propertyType.vocabulary.code;
 								}
-								
+
 								if(!vocabularyCode) {
 									alert("[TO-DELETE] Empty Vocabulary during init, this should never happen, tell the developers.");
 								}
@@ -1150,7 +1150,7 @@ $.extend(DefaultProfile.prototype, {
 						}
 					}
 				}
-				
+
 				//Init Spaces
 				_this.serverFacade.listSpaces(function(spaces) {
 					if($.inArray("INVENTORY", spaces) === -1) {
@@ -1167,7 +1167,7 @@ $.extend(DefaultProfile.prototype, {
 				})
 			});
 		}
-		
+
 		this.initSearchDomains = function(callback) {
 			var _this = this;
 			this.serverFacade.listSearchDomains(function(data) {
@@ -1179,7 +1179,7 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			});
 		}
-		
+
 		this.initDirectLinkURL = function(callback) {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
@@ -1189,7 +1189,7 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			});
 		}
-		
+
 		this.initIsAdmin = function(callback) {
 			var _this = this;
 			this.serverFacade.listPersons(function(data) {
@@ -1197,7 +1197,7 @@ $.extend(DefaultProfile.prototype, {
 				callback();
 			});
 		}
-		
+
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
 			this.serverFacade.listDataSetTypes(function(data) {
@@ -1206,13 +1206,13 @@ $.extend(DefaultProfile.prototype, {
 					var datasetType = dataSetTypes[i];
 					_this.allDatasetTypeCodes.push(datasetType.code);
 				}
-				
+
 				_this.allDatasetTypeCodes.sort(function(a, b){
 				    if(a < b) return -1;
 				    if(a > b) return 1;
 				    return 0;
 				});
-				
+
 				callback();
 			});
 		}
@@ -1230,7 +1230,7 @@ $.extend(DefaultProfile.prototype, {
 					this.dataSetTypeDefinitionsExtension[key] = this.plugins[i].dataSetTypeDefinitionsExtension[key];
 				}
 			}
-			
+
 			// sampleTypeDefinitionsExtension gets overwritten with settings if found
 			for (var sampleTypeCode of Object.keys(this.sampleTypeDefinitionsExtension)) {
 				var sampleTypDefExt = this.sampleTypeDefinitionsExtension[sampleTypeCode];
@@ -1239,7 +1239,7 @@ $.extend(DefaultProfile.prototype, {
 					this.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
 				}
 			}
-			
+
 			// don't show sample types before definition extension is created
 			var sampleTypes = this.getAllSampleTypes();
 			for(var sIdx = 0; sIdx < sampleTypes.length; sIdx++) {
@@ -1248,7 +1248,7 @@ $.extend(DefaultProfile.prototype, {
 					this.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
 				}
 			}
-		
+
 			var settingsManager = new SettingsManager(this.serverFacade);
 			settingsManager.loadSettingsAndApplyToProfile((function() {
 				callback();
@@ -1265,7 +1265,7 @@ $.extend(DefaultProfile.prototype, {
 		        callback();
 		    });
 		}
-		
+
 		this.initServerInfo = function(callback) {
 			var _this = this;
 			this.serverFacade.getOpenbisV3(function(openbisV3) {
@@ -1281,7 +1281,7 @@ $.extend(DefaultProfile.prototype, {
 	            });
 			});
 		}
-		
+
 		this.isFileAuthUser = function(callback) {
 			var _this = this;
 			this.serverFacade.isFileAuthUser(function(error, result) {

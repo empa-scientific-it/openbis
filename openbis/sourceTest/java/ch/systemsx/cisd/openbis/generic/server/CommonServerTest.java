@@ -132,7 +132,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 
 /**
  * Test cases for corresponding {@link CommonServer} class.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = RoleAssignmentPE.class)
@@ -259,7 +259,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         String template =
                 createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
-                        false, false, false, BatchOperationKind.REGISTRATION);
+                        "tsv", false, false, false, BatchOperationKind.REGISTRATION);
 
         assertEquals(
                 "# Besides the full identifier of format '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE', two short formats 'EXPERIMENT_CODE' and 'PROJECT_CODE/EXPERIMENT_CODE' are accepted given that the default project (former short format) or default space (latter short format) are configured. If the proper default value is not configured when using a short format, experiment import will fail.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"

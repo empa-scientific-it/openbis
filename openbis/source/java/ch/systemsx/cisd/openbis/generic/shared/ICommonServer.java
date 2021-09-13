@@ -129,7 +129,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * Definition of the client-server interface of the openBIS core. It contains entity-type unspecific operations needed by all openBIS installations.
  * Customization for a specific use cases (i.e. specific entity types) can be achieved through implementing plugins.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface ICommonServer extends IServer
@@ -141,7 +141,7 @@ public interface ICommonServer extends IServer
     /**
      * Returns scripts of specified type compatible with selected {@link EntityKind}. If script type or entity kind is not specified no restriction on
      * them is set.
-     * 
+     *
      * @return a sorted list of {@link Script}s.
      */
     @Transactional(readOnly = true)
@@ -150,7 +150,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns deletions which belong to the specified database instance. *
-     * 
+     *
      * @return a sorted list of {@link Space}.
      */
     @Transactional(readOnly = true)
@@ -202,7 +202,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all persons from current instance.
-     * 
+     *
      * @return a sorted list of {@link Person}.
      */
     @Transactional(readOnly = true)
@@ -210,7 +210,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all active persons from current instance.
-     * 
+     *
      * @return a sorted list of {@link Person}.
      */
     @Transactional(readOnly = true)
@@ -218,7 +218,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all projects.
-     * 
+     *
      * @return a sorted list of {@link Project}.
      */
     @Transactional(readOnly = true)
@@ -285,7 +285,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists sample types which are appropriate for listing.
-     * 
+     *
      * @return a sorted list of {@link SampleType}.
      */
     @Transactional(readOnly = true)
@@ -300,7 +300,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists samples using given configuration.
-     * 
+     *
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
@@ -308,7 +308,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists samples for metaproject.
-     * 
+     *
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
@@ -317,7 +317,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists samples using given configuration on behalf of another user.
-     * 
+     *
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
@@ -332,7 +332,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments for metaproject.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -341,7 +341,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments by project.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -350,7 +350,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments by projects.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -359,7 +359,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments having data sets by project.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -368,7 +368,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments having samples by project.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -377,7 +377,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments by space.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -386,7 +386,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments by project.
-     * 
+     *
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
@@ -395,7 +395,7 @@ public interface ICommonServer extends IServer
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
-     * 
+     *
      * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
@@ -404,7 +404,7 @@ public interface ICommonServer extends IServer
 
     /**
      * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
-     * 
+     *
      * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
@@ -413,7 +413,7 @@ public interface ICommonServer extends IServer
 
     /**
      * For given metaproject {@link IMetaprojectId} returns the corresponding list of {@link AbstractExternalData}.
-     * 
+     *
      * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
@@ -422,7 +422,7 @@ public interface ICommonServer extends IServer
 
     /**
      * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding list of {@link AbstractExternalData}.
-     * 
+     *
      * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
@@ -431,7 +431,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
-     * 
+     *
      * @param maxSize
      */
     @Transactional(readOnly = true)
@@ -441,7 +441,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List experiment types.
-     * 
+     *
      * @return a sorted list of {@link ExperimentType}.
      */
     @Transactional(readOnly = true)
@@ -449,7 +449,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List property types.
-     * 
+     *
      * @return a sorted list of {@link PropertyType}.
      */
     @Transactional(readOnly = true)
@@ -464,7 +464,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List property assigments.
-     * 
+     *
      * @return a sorted list of {@link PropertyType}.
      */
     @Transactional(readOnly = true)
@@ -472,7 +472,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List property assigments for the given entity type.
-     * 
+     *
      * @return a sorted list of {@link PropertyType}.
      */
     @Transactional(readOnly = true)
@@ -481,7 +481,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists data types.
-     * 
+     *
      * @return a sorted list of {@link DataType}.
      */
     @Transactional(readOnly = true)
@@ -489,7 +489,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists file format types.
-     * 
+     *
      * @return a sorted list of {@link FileFormatType}.
      */
     @Transactional(readOnly = true)
@@ -497,7 +497,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists vocabularies.
-     * 
+     *
      * @return a sorted list of {@link Vocabulary}.
      */
     @Transactional(readOnly = true)
@@ -737,7 +737,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List material types.
-     * 
+     *
      * @return a sorted list of {@link MaterialType}.
      */
     @Transactional(readOnly = true)
@@ -745,7 +745,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns material type for given code.
-     * 
+     *
      * @return {@link MaterialType} for given code.
      */
     @Transactional(readOnly = true)
@@ -753,7 +753,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists materials using given criteria.
-     * 
+     *
      * @return a sorted list of {@link Material}.
      */
     @Transactional(readOnly = true)
@@ -768,7 +768,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists materials for metaproject.
-     * 
+     *
      * @return a sorted list of {@link Material}.
      */
     @Transactional(readOnly = true)
@@ -915,7 +915,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
-     * 
+     *
      * @return a message or an empty string
      */
     @Transactional
@@ -937,7 +937,7 @@ public interface ICommonServer extends IServer
 
     /**
      * List data set types.
-     * 
+     *
      * @return a sorted list of {@link DataSetType}.
      */
     @Transactional(readOnly = true)
@@ -950,7 +950,7 @@ public interface ICommonServer extends IServer
 
     /**
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
-     * 
+     *
      * @return never <code>null</code>.
      * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample uniquely identified by given <var>sampleId</var>
      *             does not exist.
@@ -1097,7 +1097,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public String getTemplateColumns(String sessionToken, EntityKind kind, String type,
-            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            final String format, boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind);
 
     /**
@@ -1182,7 +1182,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Schedules archiving of specified data sets.
-     * 
+     *
      * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
      *            operation.
      * @return number of data sets scheduled for archiving.
@@ -1194,7 +1194,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Schedules unarchiving of specified data sets.
-     * 
+     *
      * @return number of data sets scheduled for unarchiving.
      */
     @Transactional
@@ -1203,7 +1203,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Locks data sets.
-     * 
+     *
      * @return number of data sets scheduled for locking.
      */
     @Transactional
@@ -1212,7 +1212,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Unlocks data sets.
-     * 
+     *
      * @return number of data sets scheduled for unlocking.
      */
     @Transactional
@@ -1415,7 +1415,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all deletions.
-     * 
+     *
      * @return a sorted list of {@link Deletion}.
      */
     @Transactional(readOnly = true)
@@ -1423,7 +1423,7 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all deletions, but only including original entities.
-     * 
+     *
      * @return a sorted list of {@link Deletion}.
      */
     @Transactional(readOnly = true)

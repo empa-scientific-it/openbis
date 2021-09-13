@@ -239,7 +239,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.WebClientConfigUtils;
 
 /**
  * The {@link ICommonClientService} implementation.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class CommonClientService extends AbstractClientService implements
@@ -2025,11 +2025,11 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
+    public String getTemplate(EntityKind entityKind, String type, String format, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind)
     {
         String sessionToken = getSessionToken();
-        return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
+        return commonServer.getTemplateColumns(sessionToken, entityKind, type, format, autoGenerate,
                 withExperiments, withSpace, operationKind);
     }
 

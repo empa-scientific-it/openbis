@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Serves the template files for entity batch registration.
- * 
+ *
  * @author Izabela Adamczyk
  */
 @Controller
@@ -117,14 +117,15 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
 
         final String kind = request.getParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER);
         final String type = request.getParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER);
+        final String format = request.getParameter(GenericConstants.FILE_FORMAT_PARAMETER);
         final String autoGenerate = request.getParameter(GenericConstants.AUTO_GENERATE);
         final String withExperimentsParameter =
                 request.getParameter(GenericConstants.WITH_EXPERIMENTS);
         final boolean withExperiments =
                 withExperimentsParameter != null && Boolean.parseBoolean(withExperimentsParameter) ? true
                         : false;
-        String withSapceParameter = request.getParameter(GenericConstants.WITH_SPACE);
-        boolean withSpace = withSapceParameter == null || Boolean.parseBoolean(withSapceParameter);
+        String withSpaceParameter = request.getParameter(GenericConstants.WITH_SPACE);
+        boolean withSpace = withSpaceParameter == null || Boolean.parseBoolean(withSpaceParameter);
 
         final String operationKindParameter =
                 request.getParameter(GenericConstants.BATCH_OPERATION_KIND);
@@ -132,7 +133,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         if (StringUtils.isNotBlank(kind) && StringUtils.isNotBlank(type))
         {
             String fileContent =
-                    service.getTemplate(EntityKind.valueOf(kind), type, Boolean
+                    service.getTemplate(EntityKind.valueOf(kind), type, format != null ? format : "tsv", Boolean
                             .parseBoolean(autoGenerate), withExperiments, withSpace, operationKind);
             byte[] value = fileContent.getBytes();
             String fileName = kind + "-" + type + "-template.tsv";

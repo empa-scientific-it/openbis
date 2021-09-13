@@ -816,10 +816,11 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
-	this.getTemplateLink = function(entityType, operationKind) {
-		var GET = '/openbis/openbis/template-download?entityKind=SAMPLE';
+	this.getTemplateLink = function(entityKind, entityType, operationKind, fileFormat) {
+		var GET = '/openbis/openbis/template-download?entityKind=' + entityKind;
 			GET += '&entityType=' + entityType;
 			GET += '&autoGenerate=false';
+			GET += '&fileFormat=' + fileFormat;
 			GET += '&with_experiments=true';
 			GET += '&with_space=true';
 			GET += '&batch_operation_kind=' + operationKind;

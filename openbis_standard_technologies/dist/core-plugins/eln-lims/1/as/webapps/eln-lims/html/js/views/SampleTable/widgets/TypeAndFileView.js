@@ -19,7 +19,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 	this._typeAndFileModel = typeAndFileModel;
 	this.fileChooser = $('<input>', { 'type' : 'file', 'id' : 'fileToRegister' , 'required' : ''});
 	this.linkContainer = $("<div>");
-	
+
 	this.repaint = function() {
 		var _this = this;
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
@@ -27,7 +27,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 			Util.unblockUI();
 			_this._typeAndFileModel.actionFunction(_this._typeAndFileModel.sampleType, _this._typeAndFileModel.file);
 		});
-		
+
 		$window.append($('<legend>').append(this._typeAndFileModel.title));
 
 		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown('choose-type-btn', true, this._typeAndFileModel.allowedSampleTypes, this._typeAndFileModel.allowedSampleTypes);
@@ -37,23 +37,23 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		});
 		var $sampleTypeDropDownBoxGroup = FormUtil.getFieldForComponentWithLabel($sampleTypeDropDown, ELNDictionary.Sample + ' Type');
 		$window.append($sampleTypeDropDownBoxGroup);
-		
+
 		$window.append(this.linkContainer);
-		
+
 		this.fileChooser.change(function(event) {
 			_this._typeAndFileModel.file = _this.fileChooser[0].files[0];
 		});
 		var $fileChooserBoxGroup = FormUtil.getFieldForComponentWithLabel(this.fileChooser, 'File');
 		$window.append($fileChooserBoxGroup);
-		
+
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept', 'id' : 'accept-type-file' });
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();
 		});
-		
+
 		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
-		
+
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
@@ -62,16 +62,17 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 				'right' : '20%',
 				'overflow' : 'hidden'
 		};
-		
+
 		Util.blockUI($window, css);
 	}
-	
+
 	this.updateLink = function(sampleTypeCode) {
 		this.linkContainer.empty();
 		if(sampleTypeCode !== "") {
 			var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
-			var $link = $("<a>", { 
-				href : mainController.serverFacade.getTemplateLink(sampleTypeCode, this._typeAndFileModel.linkType),
+			var $link = $("<a>", {
+				href : mainController.serverFacade.getTemplateLink("SAMPLE", sampleTypeCode,
+					this._typeAndFileModel.linkType, 'tsv'),
 				target : "_blank"
 			}).text("Download");
 			$component.append($link);
@@ -79,5 +80,5 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 			this.linkContainer.append($linkGroup);
 		}
 	}
-	
+
 }
