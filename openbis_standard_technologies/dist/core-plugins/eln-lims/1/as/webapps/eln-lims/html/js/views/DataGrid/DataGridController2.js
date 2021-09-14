@@ -137,31 +137,37 @@ function DataGridController2(
     } else {
       loadData(function (data) {
         var openbis = window.NgUiGrid.default.openbis;
-        openbis.init().then(function(){
-            openbis.useSession(session)
-            var GridElement = React.createElement(
-                window.NgUiGrid.default.ThemeProvider,
-                {},
-                React.createElement(window.NgUiGrid.default.Grid, {
-                  settingsId: {
-                    webAppId: "ELN-LIMS",
-                    gridId: _this.gridId,
+        openbis.init().then(function () {
+          openbis.useSession(session);
+          var GridElement = React.createElement(
+            window.NgUiGrid.default.ThemeProvider,
+            {},
+            React.createElement(window.NgUiGrid.default.Grid, {
+              settingsId: {
+                webAppId: "ELN-LIMS",
+                gridId: _this.gridId,
+              },
+              header: _this.header,
+              columns: _this.columns,
+              rows: data.map(function (row, index) {
+                return Object.assign(
+                  {
+                    id: index,
                   },
-                  header: _this.header,
-                  columns: _this.columns,
-                  rows: data.map(function (row, index) {
-                    return Object.assign(
-                      {
-                        id: index,
-                      },
-                      row
-                    );
-                  }),
-                })
-            );
-      
-            ReactDOM.render(GridElement, $container.get(0));      
-        })
+                  row
+                );
+              }),
+            })
+          );
+
+          ReactDOM.render(GridElement, $container.get(0));
+        });
+        ReactDOM.render(
+          React.createElement(window.NgUiGrid.default.Loading, {
+            loading: true,
+          }),
+          $container.get(0)
+        );
       });
     }
   };
