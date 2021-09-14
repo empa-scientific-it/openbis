@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -18,17 +19,15 @@ class UsersGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'UsersGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
       <Grid
-        id={id}
+        settingsId={{
+          webAppId: ids.WEB_APP_ID,
+          gridId: id
+        }}
         controllerRef={controllerRef}
         header={messages.get(messages.USERS)}
         columns={[

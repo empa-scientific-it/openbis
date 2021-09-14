@@ -27,13 +27,8 @@ class RolesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'RolesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     let columnNames = ['level', 'space', 'project', 'role']
 
@@ -55,7 +50,10 @@ class RolesGrid extends React.PureComponent {
 
     return (
       <Grid
-        id={id}
+        settingsId={{
+          webAppId: ids.WEB_APP_ID,
+          gridId: id
+        }}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={columns}

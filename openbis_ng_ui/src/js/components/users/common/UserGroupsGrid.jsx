@@ -1,6 +1,7 @@
 import React from 'react'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -8,17 +9,15 @@ export default class GroupsGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GroupsGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
       <Grid
-        id={id}
+        settingsId={{
+          webAppId: ids.WEB_APP_ID,
+          gridId: id
+        }}
         controllerRef={controllerRef}
         header={messages.get(messages.GROUPS)}
         columns={[

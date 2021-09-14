@@ -2,7 +2,6 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import openbis from '@src/js/services/openbis.js'
 import compare from '@src/js/common/compare.js'
-import ids from '@src/js/common/consts/ids.js'
 
 export default class GridController {
   constructor() {
@@ -132,19 +131,23 @@ export default class GridController {
     const props = this.context.getProps()
     const state = this.context.getState()
 
-    if (!props.session || !props.id) {
+    if (
+      !props.settingsId ||
+      !props.settingsId.webAppId ||
+      !props.settingsId.gridId
+    ) {
       return Promise.resolve()
     }
 
-    let id = new openbis.PersonPermId(props.session.userName)
+    let id = new openbis.Me()
     let fo = new openbis.PersonFetchOptions()
-    fo.withWebAppSettings(ids.WEB_APP_ID).withAllSettings()
+    fo.withWebAppSettings(props.settingsId.webAppId).withAllSettings()
 
     return openbis.getPersons([id], fo).then(map => {
       let person = map[id]
-      let webAppSettings = person.webAppSettings[ids.WEB_APP_ID]
+      let webAppSettings = person.webAppSettings[props.settingsId.webAppId]
       if (webAppSettings && webAppSettings.settings) {
-        let gridSettings = webAppSettings.settings[props.id]
+        let gridSettings = webAppSettings.settings[props.settingsId.gridId]
         if (gridSettings) {
           let settings = JSON.parse(gridSettings.value)
           if (settings) {
@@ -179,8 +182,14 @@ export default class GridController {
     const props = this.context.getProps()
     const state = this.context.getState()
 
-    if (!props.session || !props.id) {
-      return Promise.resolve()
+    if (
+      !props.settingsId ||
+      !props.settingsId.webAppId ||
+      !props.settingsId.gridId
+    ) {
+      throw new Error(
+        'Incorrect grid component usage. Settings id is missing. Please contact a developer.'
+      )
     }
 
     let columns = state.columns.map(column => ({
@@ -196,12 +205,12 @@ export default class GridController {
     }
 
     let gridSettings = new openbis.WebAppSettingCreation()
-    gridSettings.setName(props.id)
+    gridSettings.setName(props.settingsId.gridId)
     gridSettings.setValue(JSON.stringify(settings))
 
     let update = new openbis.PersonUpdate()
-    update.setUserId(new openbis.PersonPermId(props.session.userName))
-    update.getWebAppSettings(ids.WEB_APP_ID).add(gridSettings)
+    update.setUserId(new openbis.Me())
+    update.getWebAppSettings(props.settingsId.webAppId).add(gridSettings)
 
     openbis.updatePersons([update])
   }

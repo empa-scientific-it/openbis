@@ -158,7 +158,10 @@ class HistoryGrid extends React.PureComponent {
 
     return (
       <Grid
-        id={this.getId()}
+        settingsId={{
+          webAppId: ids.WEB_APP_ID,
+          gridId: this.getId()
+        }}
         header={this.getHeader()}
         columns={[
           {

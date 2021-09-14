@@ -35,7 +35,7 @@ function DataGridController2(
 
   var _this = this;
 
-  this.id = configKey;
+  this.gridId = configKey;
   this.header = title;
 
   var columns = [];
@@ -105,13 +105,17 @@ function DataGridController2(
   this.rows = [];
   this.totalCount = 0;
 
-  this.init = function ($container, extraOptions) {
+  this.init = function (session, $container, extraOptions) {
     if (loadDataDynamic) {
+      /*
       var GridElement = React.createElement(
         window.NgUiGrid.default.ThemeProvider,
         {},
         React.createElement(window.NgUiGrid.default.Grid, {
-          id: _this.id,
+          settingsId: {
+            webAppId: "ELN-LIMS",
+            gridId: _this.gridId,
+          },
           header: _this.header,
           columns: _this.columns,
           rows: _this.rows,
@@ -129,27 +133,35 @@ function DataGridController2(
         })
       );
       ReactDOM.render(GridElement, $container.get(0));
+      */
     } else {
       loadData(function (data) {
-        var GridElement = React.createElement(
-          window.NgUiGrid.default.ThemeProvider,
-          {},
-          React.createElement(window.NgUiGrid.default.Grid, {
-            id: _this.id,
-            header: _this.header,
-            columns: _this.columns,
-            rows: data.map(function (row, index) {
-              return Object.assign(
-                {
-                  id: index,
-                },
-                row
-              );
-            }),
-          })
-        );
-
-        ReactDOM.render(GridElement, $container.get(0));
+        var openbis = window.NgUiGrid.default.openbis;
+        openbis.init().then(function(){
+            openbis.useSession(session)
+            var GridElement = React.createElement(
+                window.NgUiGrid.default.ThemeProvider,
+                {},
+                React.createElement(window.NgUiGrid.default.Grid, {
+                  settingsId: {
+                    webAppId: "ELN-LIMS",
+                    gridId: _this.gridId,
+                  },
+                  header: _this.header,
+                  columns: _this.columns,
+                  rows: data.map(function (row, index) {
+                    return Object.assign(
+                      {
+                        id: index,
+                      },
+                      row
+                    );
+                  }),
+                })
+            );
+      
+            ReactDOM.render(GridElement, $container.get(0));      
+        })
       });
     }
   };

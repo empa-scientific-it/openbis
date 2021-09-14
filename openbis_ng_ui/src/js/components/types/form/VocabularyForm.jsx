@@ -111,7 +111,10 @@ class VocabularyForm extends React.PureComponent {
     return (
       <GridContainer onClick={this.handleClickContainer}>
         <Grid
-          id={ids.VOCABULARY_TERMS_GRID_ID}
+          settingsId={{
+            webAppId: ids.WEB_APP_ID,
+            gridId: ids.VOCABULARY_TERMS_GRID_ID
+          }}
           controllerRef={this.handleGridControllerRef}
           header={messages.get(messages.TERMS)}
           columns={columns}
