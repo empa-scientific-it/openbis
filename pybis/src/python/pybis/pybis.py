@@ -4239,6 +4239,7 @@ class Openbis:
             count=count,
             totalCount=totalCount,
             attrs=attrs,
+            props=props,
             response=response,
             df_initializer=create_data_frame,
             objects_initializer=create_objects

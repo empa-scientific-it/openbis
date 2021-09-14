@@ -1,3 +1,10 @@
+## Changes with pybis-1.20.2
+- fixed omitted function parameter which could cause issues
+
+## Changes with pybis-1.20.1
+- improved search performance
+- introduced lazy loading for Things.df and Things.objects, so all necessary, and potentially costly, computation takes place only when the user requests those properties
+
 ## Changes with pybis-1.20.0
 
 - metadata for property_types can now be changed to:
