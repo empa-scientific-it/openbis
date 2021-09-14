@@ -62,7 +62,6 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		} , {
 			label : "Operations",
 			property : 'operations',
-			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
 				var $dropDownMenu = $("<span>", { class : 'dropdown' });
