@@ -8,7 +8,10 @@ import util from '@src/js/common/util.js'
 const styles = theme => ({
   cell: {
     padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
+    borderColor: theme.palette.border.secondary,
+    '&:empty:before': {
+      content: '"\\a0"'
+    }
   },
   wrap: {
     whiteSpace: 'normal'
@@ -25,39 +28,11 @@ class GridCell extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { row, column, classes } = this.props
-
-    if (column.visible && column.renderDOMValue && this.ref.current) {
-      const value = column.getValue({ row, column })
-      column.renderDOMValue({
-        container: this.ref.current,
-        value,
-        row,
-        column,
-        classes: {
-          wrap: classes.wrap,
-          nowrap: classes.nowrap
-        }
-      })
-    }
+    this.renderDOMValue()
   }
 
-  componentDidUpdate(prevProps) {
-    const { row, column, classes } = this.props
-
-    if (column.visible && column.renderDOMValue && this.ref.current) {
-      const value = column.getValue({ row, column })
-      column.renderDOMValue({
-        container: this.ref.current,
-        value,
-        row,
-        column,
-        classes: {
-          wrap: classes.wrap,
-          nowrap: classes.nowrap
-        }
-      })
-    }
+  componentDidUpdate() {
+    this.renderDOMValue()
   }
 
   render() {
@@ -66,15 +41,13 @@ class GridCell extends React.PureComponent {
     const { column, classes } = this.props
 
     if (column.visible) {
-      let rendered = this.renderValue()
-
       return (
         <TableCell
           ref={this.ref}
           key={column.name}
           classes={{ root: util.classNames(classes.cell, classes.nowrap) }}
         >
-          {rendered ? rendered : <span>&nbsp;</span>}
+          {column.renderDOMValue ? null : this.renderValue()}
         </TableCell>
       )
     } else {
@@ -84,10 +57,6 @@ class GridCell extends React.PureComponent {
 
   renderValue() {
     const { row, column, classes } = this.props
-
-    if (column.renderDOMValue) {
-      return ''
-    }
 
     const value = column.getValue({ row, column })
     const renderedValue = column.renderValue
@@ -103,11 +72,29 @@ class GridCell extends React.PureComponent {
       : value
 
     if (renderedValue === null || renderedValue === undefined) {
-      return ''
+      return null
     } else if (_.isNumber(renderedValue) || _.isBoolean(renderedValue)) {
       return String(renderedValue)
     } else {
       return renderedValue
+    }
+  }
+
+  renderDOMValue() {
+    const { row, column, classes } = this.props
+
+    if (column.visible && column.renderDOMValue && this.ref.current) {
+      const value = column.getValue({ row, column })
+      column.renderDOMValue({
+        container: this.ref.current,
+        value,
+        row,
+        column,
+        classes: {
+          wrap: classes.wrap,
+          nowrap: classes.nowrap
+        }
+      })
     }
   }
 }

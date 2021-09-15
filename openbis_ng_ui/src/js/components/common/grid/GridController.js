@@ -314,17 +314,19 @@ export default class GridController {
 
   async _recalculateSelectedRow(selectedRowId) {
     const { selectedRow, currentRows } = this.context.getState()
-    const { onSelectedRowChange } = this.context.getProps()
+    const { rows, onSelectedRowChange } = this.context.getProps()
 
     let newSelectedRow = null
 
-    if (selectedRowId) {
+    if (selectedRowId !== null && selectedRowId !== undefined) {
       const visible = _.some(
         currentRows,
         currentRow => currentRow.id === selectedRowId
       )
+      const data = _.find(rows, row => row.id === selectedRowId)
       newSelectedRow = {
         id: selectedRowId,
+        data,
         visible
       }
     }

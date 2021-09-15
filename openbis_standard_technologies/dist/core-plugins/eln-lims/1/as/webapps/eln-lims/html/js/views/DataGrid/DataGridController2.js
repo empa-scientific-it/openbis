@@ -157,6 +157,11 @@ function DataGridController2(
                   row
                 );
               }),
+              onSelectedRowChange: function (selectedRow) {
+                if (rowClickEventHandler) {
+                  rowClickEventHandler(selectedRow);
+                }
+              },
             })
           );
 
