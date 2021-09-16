@@ -324,40 +324,115 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $newFieldNameContainer = $("<td>");
 		var $newFieldOperatorContainer = $("<td>");
 		var $newFieldValueContainer = $("<td>");
-        var $fieldValue = this._createValueField(uuidValue);
-        $newFieldValueContainer.append($fieldValue);
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 
 		$newRow.append($("<td>").append($fieldTypeDropdown))
-					.append($newFieldNameContainer)
-					.append($("<td>").append($newFieldOperatorContainer))
-					.append($("<td>").append($newFieldValueContainer))
+                    .append($newFieldNameContainer)
+                    .append($newFieldOperatorContainer)
+                    .append($newFieldValueContainer)
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
 
 		this._$tbody.append($newRow);
 
 
 		if(this._advancedSearchModel.forceFreeTextSearch) {
-			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
 			this._advancedSearchModel.criteria.rules[uuidValue].value = this._advancedSearchModel.forceFreeTextSearch; //Update model
 			this._advancedSearchModel.forceFreeTextSearch = undefined;
 		}
 
 		if(this._advancedSearchModel.forceLoadCriteria) {
 			var rule = this._advancedSearchModel.criteria.rules[uuidValue];
-			$fieldTypeDropdown.val(rule.type).change();
-			$fieldValue.val(rule.value);
-			var $fieldNameDropdown = $($newFieldNameContainer.children()[0]);
-			$fieldNameDropdown.val(rule.name);
+            $fieldTypeDropdown.val(rule.type);
+            this._injectNameField($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, uuidValue);
+            this._injectOperatorField($newFieldOperatorContainer, $newFieldValueContainer, uuidValue);
 		}
+        this._injectValueField($newFieldValueContainer, uuidValue);
 	}
+
+    this._injectNameField = function($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, uuid) {
+        var _this = this;
+        $newFieldNameContainer.empty();
+        var fieldType = _this._advancedSearchModel.criteria.rules[uuid].type;
+        switch(fieldType) {
+            case "All":
+                $newFieldOperatorContainer.empty();
+                _this._injectValueField($newFieldValueContainer, uuid);
+                break;
+            default:
+                $mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, 
+                        fieldType, $newFieldOperatorContainer, $newFieldValueContainer, uuid);
+                $mergedDropdown.val(this._advancedSearchModel.criteria.rules[uuid].name);
+                $newFieldNameContainer.append($mergedDropdown);
+        }
+    }
+    
+    this._injectOperatorField = function($newFieldOperatorContainer, $newFieldValueContainer, uuid) {
+        var _this = this;
+        $newFieldOperatorContainer.empty();
+        var dataType = _this._getDataType(uuid);
+        if (dataType) {
+            var operatorOptions = null;
+
+            if (dataType === "INTEGER" || dataType === "NUMBER") {
+                operatorOptions = [ { value : "thatEqualsNumber",                    label : "thatEquals (Number)", selected : true },
+                                    { value : "thatIsLessThanNumber",                label : "thatIsLessThan (Number)" },
+                                    { value : "thatIsLessThanOrEqualToNumber",       label : "thatIsLessThanOrEqualTo (Number)" },
+                                    { value : "thatIsGreaterThanNumber",             label : "thatIsGreaterThan (Number)" },
+                                    { value : "thatIsGreaterThanOrEqualToNumber",    label : "thatIsGreaterThanOrEqualTo (Number)" }
+                                  ];
+            } else if (dataType === "TIMESTAMP" || dataType === "DATE") {
+                operatorOptions = [ { value : "thatEqualsDate",                      label : "thatEquals (Date)", selected : true },
+                                    { value : "thatIsLaterThanOrEqualToDate",        label : "thatIsLaterThanOrEqualTo (Date)" },
+                                    { value : "thatIsLaterThanDate",                 label : "thatIsLaterThan (Date)" },
+                                    { value : "thatIsEarlierThanOrEqualToDate",      label : "thatIsEarlierThanOrEqualTo (Date)" },
+                                    { value : "thatIsEarlierThanDate",               label : "thatIsEarlierThan (Date)" }
+                                  ];
+            } else if (dataType === "TYPE") {
+                operatorOptions = [];
+            } else if (dataType === "PERSON") {
+                operatorOptions = [ { value : "thatEqualsUserId",                    label : "thatEqualsUserId (UserId)", selected : true },
+                                    { value : "thatContainsFirstName",               label : "thatContainsFirstName (First Name)" },
+                                    { value : "thatContainsLastName",                label : "thatContainsLastName (Last Name)" }
+                                  ];
+            } else {
+                operatorOptions = [ { value : "thatContainsString",                  label : "thatContains (String)", selected : true },
+                                    { value : "thatEqualsString",                    label : "thatEquals (String)" },
+                                    { value : "thatStartsWithString",                label : "thatStartsWith (String)" },
+                                    { value : "thatEndsWithString",                  label : "thatEndsWith (String)" }
+                                  ];
+            }
+
+            if (operatorOptions && operatorOptions.length > 1) {
+                var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
+
+                comparisonDropdown.change(function() {
+                    var $thisComponent = $(this);
+                    var selectedValue = $thisComponent.val();
+                    _this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
+                    _this._injectValueField($newFieldValueContainer, uuid);
+                });
+                var operator = _this._getOperator(uuid);
+                if (operator) {
+                    comparisonDropdown.val(operator);
+                    operator = comparisonDropdown.val(); // null if operator is an unknown drop down option
+                }
+                if (!operator) {
+                    operator = operatorOptions[0].value;
+                    comparisonDropdown.val(operator);
+                }
+                _this._advancedSearchModel.criteria.rules[uuid].operator = operator;
+                $newFieldOperatorContainer.append(comparisonDropdown);
+            }
+        }
+    }
 
     this._createValueField = function(uuid) {
         var $fieldValue = $("<input>", { class : "form-control", type: "text" });
         $fieldValue.css({width : "100%" });
 
         this._setUpKeyHandling($fieldValue, uuid);
+        this._injectValue($fieldValue, uuid);
         return $fieldValue;
     }
     
@@ -386,7 +461,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         $input.blur(function() {
             _this._advancedSearchModel.criteria.rules[uuid].value = $input.val();
         });
-        return $dateField;
+        this._injectValue($input, uuid);
+        $container.append($dateField);
     }
 
     this._addEntityTypeDropdownField = function($container, uuid, selectedValue) {
@@ -401,6 +477,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             $valueDropdown.change(function() {
                 _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
             });
+            _this._injectValue($valueDropdown, uuid);
             $container.append($valueDropdown);
         }
         if (selectedValue === "ATTR.EXPERIMENT_TYPE") {
@@ -440,6 +517,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 $valueDropdown.change(function() {
                     _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
                 });
+                _this._injectValue($valueDropdown, uuid);
                 $container.append($valueDropdown);
             });
         });
@@ -466,9 +544,39 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 $valueDropdown.change(function() {
                     _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
                 });
+                _this._injectValue($valueDropdown, uuid);
                 $container.append($valueDropdown);
             });
         });
+    }
+
+    this._injectValue = function($valueField, uuid) {
+        var value = this._getRuleValue(uuid);
+        if (value) {
+            $valueField.val(value);
+            $valueField.val($valueField.val()); // resets drop downs if value is invalid 
+        }
+    }
+
+    this._injectValueField = function($container, uuid) {
+        $container.empty();
+        var ruleName = this._getRuleName(uuid);
+        var dataType = this._getDataType(uuid);
+        var operator = this._getOperator(uuid);
+        var propertyType = this._getPropertyType(uuid);
+        if (dataType === "TIMESTAMP") {
+            this._addTimestampField($container, uuid, false);
+        } else if (dataType === "DATE") {
+            this._addTimestampField($container, uuid, true);
+        } else if (dataType === "CONTROLLEDVOCABULARY" && operator === "thatEqualsString") {
+            this._addVocabularyDropdownField($container, uuid, propertyType.vocabulary.code);
+        } else if (dataType === "PERSON" && operator === "thatEqualsUserId") {
+            this._addUserDropdownField($container, uuid);
+        } else if (dataType === "TYPE") {
+            this._addEntityTypeDropdownField($container, uuid, ruleName);
+        } else {
+            $container.append(this._createValueField(uuid));
+        }
     }
 
 	//should make new objects every time. otherwise, using the same object will produce odd results!
@@ -482,8 +590,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         this._$andOrDropdownComponent.val(logicalOperator).trigger('change');
         this._advancedSearchModel.criteria.logicalOperator = logicalOperator;
 		this._$andOrDropdownComponent.removeAttr("disabled");
-//        $newFieldValueContainer.empty();
-//        $newFieldValueContainer.append(this._createValueField(uuid));
 		//
 		var _this = this;
 		var fieldTypeOptions = null;
@@ -495,6 +601,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				this._$andOrDropdownComponent.val("OR").trigger('change');
 				this._advancedSearchModel.criteria.logicalOperator = "OR";
 				this._$andOrDropdownComponent.attr("disabled", "").trigger('change');
+                this._injectValueField($newFieldValueContainer, uuid);
 				break;
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true },
@@ -527,20 +634,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var uuid = $($($thisComponent.parent()).parent()).attr("id");
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].type = selectedValue; //Update model
-
-			$newFieldNameContainer.empty();
-			var $mergedDropdown = null;
-			switch(selectedValue) {
-				case "All":
-                    $newFieldOperatorContainer.empty();
-//                    $newFieldValueContainer.empty();
-//                    $newFieldValueContainer.append(_this._createValueField(uuid));
-                    break;
-                default:
-                    $mergedDropdown = _this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, 
-                            selectedValue, $newFieldOperatorContainer, $newFieldValueContainer, uuid);
-                    $newFieldNameContainer.append($mergedDropdown);
-			}
+            _this._advancedSearchModel.criteria.rules[uuid].name = null;
+            _this._injectNameField($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, uuid);
 		});
 
 		if(!this._advancedSearchModel.forceLoadCriteria) {
@@ -571,106 +666,58 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var uuid = $($($thisComponent.parent()).parent()).attr("id");
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
-
-			//Reset operator
-			$newFieldOperatorContainer.empty();
-			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
-
-			var dataType = null;
-
-			if(selectedValue &&
-							(selectedValue === "ATTR.REGISTRATION_DATE" ||
-							selectedValue === "ATTR.MODIFICATION_DATE")) {
-				dataType = "TIMESTAMP";
-			} else if(selectedValue &&
-						(selectedValue === "ATTR.REGISTRATOR" ||
-						selectedValue === "ATTR.MODIFIER")) {
-			    dataType = "PERSON";
-            } else if(selectedValue && 
-                    (selectedValue === "ATTR.EXPERIMENT_TYPE" || 
-                     selectedValue === "ATTR.SAMPLE_TYPE" ||
-                     selectedValue === "ATTR.DATA_SET_TYPE")) {
-                dataType = "TYPE";
-			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
-				var propertyTypeCode = selectedValue.substring(5);
-				var propertyType = profile.getPropertyType(propertyTypeCode);
-				dataType = propertyType.dataType;
-			}
-
-//            $newFieldValueContainer.empty();
-			if(dataType) {
-				var operatorOptions = null;
-
-				if (dataType === "INTEGER" || dataType === "NUMBER") {
-					operatorOptions = [
-					                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)", selected : true },
-					                       { value : "thatIsLessThanNumber", 				label : "thatIsLessThan (Number)" },
-					                       { value : "thatIsLessThanOrEqualToNumber", 		label : "thatIsLessThanOrEqualTo (Number)" },
-					                       { value : "thatIsGreaterThanNumber", 			label : "thatIsGreaterThan (Number)" },
-					                       { value : "thatIsGreaterThanOrEqualToNumber", 	label : "thatIsGreaterThanOrEqualTo (Number)" }
-					                       ];
-				} else if(dataType === "TIMESTAMP" || dataType === "DATE") {
-					operatorOptions = [
-					                       { value : "thatEqualsDate", 						label : "thatEquals (Date)", selected : true },
-					                       { value : "thatIsLaterThanOrEqualToDate", 		label : "thatIsLaterThanOrEqualTo (Date)" },
-					                       { value : "thatIsLaterThanDate", 				label : "thatIsLaterThan (Date)" },
-					                       { value : "thatIsEarlierThanOrEqualToDate", 		label : "thatIsEarlierThanOrEqualTo (Date)" },
-					                       { value : "thatIsEarlierThanDate", 				label : "thatIsEarlierThan (Date)" }
-					                       ];
-                } else if(dataType === "TYPE") {
-                    operatorOptions = [];
-				} else if(dataType === "PERSON") {
-				    operatorOptions = [
-					                       { value : "thatEqualsUserId", 					label : "thatEqualsUserId (UserId)", selected : true },
-					                       { value : "thatContainsFirstName", 				label : "thatContainsFirstName (First Name)" },
-					                       { value : "thatContainsLastName", 				label : "thatContainsLastName (Last Name)" }
-					                       ];
-				} else {
-					operatorOptions = [
-					                   	   { value : "thatContainsString", 					label : "thatContains (String)", selected : true },
-					                       { value : "thatEqualsString", 					label : "thatEquals (String)" },
-					                       { value : "thatStartsWithString", 				label : "thatStartsWith (String)" },
-					                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" }
-					                       ];
-				}
-
-                if (operatorOptions && operatorOptions.length > 1) {
-                    var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
-
-                    comparisonDropdown.change(function() {
-                        var $thisComponent = $(this);
-                        var selectedValue = $thisComponent.val();
-                        _this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
-//                        $newFieldValueContainer.empty();
-                        if (dataType === "TIMESTAMP") {
-//                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, false));
-                        } else if (dataType === "DATE") {
-//                            $newFieldValueContainer.append(_this._addTimestampField($newFieldValueContainer, uuid, true));
-                        } else if (dataType === "CONTROLLEDVOCABULARY" && selectedValue === "thatEqualsString") {
-//                            _this._addVocabularyDropdownField($newFieldValueContainer, uuid, propertyType.vocabulary.code);
-                        } else if (dataType === "PERSON" && selectedValue === "thatEqualsUserId") {
-//                                _this._addUserDropdownField($newFieldValueContainer, uuid);
-                        } else {
-//                            $newFieldValueContainer.append(_this._createValueField(uuid));
-                        }
-                    });
-                    comparisonDropdown.trigger("change");
-
-                    $newFieldOperatorContainer.append(comparisonDropdown);
-                } else {
-                    if (dataType === "TYPE") {
-//                        $newFieldValueContainer.append(_this._addEntityTypeDropdownField($newFieldValueContainer, uuid, selectedValue));
-                    } else {
-//                        $newFieldValueContainer.append(_this._createValueField(uuid));
-                    }
-                }
-            } else {
-//                $newFieldValueContainer.append(_this._createValueField(uuid));
-            }
-		});
-
+            _this._advancedSearchModel.criteria.rules[uuid].operator = null;
+            _this._injectOperatorField($newFieldOperatorContainer, $newFieldValueContainer, uuid);
+            _this._injectValueField($newFieldValueContainer, uuid);
+        });
 		return $dropdown;
 	}
+
+    this._getDataType = function(uuid) {
+        var ruleName = this._getRuleName(uuid);
+        if (ruleName === "ATTR.REGISTRATION_DATE" || ruleName === "ATTR.MODIFICATION_DATE") {
+            return "TIMESTAMP";
+        }
+        if (ruleName === "ATTR.REGISTRATOR" || ruleName === "ATTR.MODIFIER") {
+            return "PERSON";
+        }
+        if (ruleName === "ATTR.EXPERIMENT_TYPE" ||
+                ruleName === "ATTR.SAMPLE_TYPE" ||
+                ruleName === "ATTR.DATA_SET_TYPE") {
+            return "TYPE";
+        }
+        var propertyType = this._getPropertyType(uuid);
+        return propertyType ? propertyType.dataType : null;
+    }
+
+    this._getOperator = function(uuid) {
+        if (this._advancedSearchModel.criteria.rules[uuid].operator) {
+            return this._advancedSearchModel.criteria.rules[uuid].operator;
+        }
+        return null;
+    }
+
+    this._getPropertyType = function(uuid) {
+        var ruleName = this._getRuleName(uuid);
+        if (ruleName && ruleName.startsWith("PROP.")) {
+            return profile.getPropertyType(ruleName.substring(5));
+        }
+        return null;
+    }
+
+    this._getRuleName = function(uuid) {
+        if (this._advancedSearchModel.criteria.rules[uuid].name) {
+            return this._advancedSearchModel.criteria.rules[uuid].name;
+        }
+        return null;
+    }
+
+    this._getRuleValue = function(uuid) {
+        if (this._advancedSearchModel.criteria.rules[uuid].value) {
+            return this._advancedSearchModel.criteria.rules[uuid].value;
+        }
+        return null;
+    }
 
 	this._getFieldNameProperties = function() {
 		var model = [];
