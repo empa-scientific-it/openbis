@@ -1,7 +1,7 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'sis:sis-base:18.09.0',
+    compile 'cisd:cisd-base:r31435',
             'apache:log4j:1.2.15',
             'knime:knime:2.7.2',
             'openbis:dss:13.04.2',
