@@ -348,6 +348,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this._allowedToDelete = function() {
 		var project = this._projectFormModel.v3_project;
-		return (project.frozen == false && project.space.frozenForProjects == false) && this._allowedToMove();
+        return (project.frozen == false && project.space.frozenForProjects == false)
+                && this._projectFormModel.rights.rights.indexOf("DELETE") >= 0;
 	};
 }

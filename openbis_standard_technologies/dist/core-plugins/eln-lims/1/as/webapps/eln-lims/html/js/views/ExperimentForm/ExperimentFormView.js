@@ -695,7 +695,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 	this._allowedToDelete = function() {
 		var experiment = this._experimentFormModel.v3_experiment;
-		return (experiment.frozen == false && experiment.project.frozenForExperiments == false) && this._allowedToMove();
+        return (experiment.frozen == false && experiment.project.frozenForExperiments == false)
+                && this._experimentFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 
 	this._allowedToRegisterDataSet = function() {

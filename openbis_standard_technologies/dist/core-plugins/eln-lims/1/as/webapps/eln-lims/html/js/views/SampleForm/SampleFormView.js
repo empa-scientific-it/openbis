@@ -1455,7 +1455,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false)) && this._allowedToMove();
+        return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false))
+                && this._sampleFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 
 	this._allowedToCopy = function() {

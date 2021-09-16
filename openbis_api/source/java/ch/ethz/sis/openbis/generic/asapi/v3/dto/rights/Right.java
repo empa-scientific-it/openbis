@@ -24,5 +24,5 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("as.dto.rights.Right")
 public enum Right
 {
-    CREATE, UPDATE
+    CREATE, UPDATE, DELETE
 }

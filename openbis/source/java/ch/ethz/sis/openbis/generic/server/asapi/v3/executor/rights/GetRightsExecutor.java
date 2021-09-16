@@ -180,6 +180,13 @@ public class GetRightsExecutor implements IGetRightsExecutor
         @Override
         public void addRights(IOperationContext context, Map<IObjectId, Rights> rightsByIds)
         {
+            Set<ID> unknownIds = addRightsForKnownIdsAndReturnAllUnknownIds(context, rightsByIds);
+            addRightsForUnknownIds(context, rightsByIds, unknownIds);
+        }
+
+        private Set<ID> addRightsForKnownIdsAndReturnAllUnknownIds(IOperationContext context,
+                Map<IObjectId, Rights> rightsByIds)
+        {
             Map<ID, ENTITY> entitiesByIds = getEntitiesByIds(context, ids);
             Set<ID> unknownIds = new HashSet<>(ids);
             for (Entry<ID, ENTITY> entry : entitiesByIds.entrySet())
@@ -195,9 +202,22 @@ public class GetRightsExecutor implements IGetRightsExecutor
                 {
                     // silently ignored
                 }
+                try
+                {
+                    canDelete(context, id, entity);
+                    rights.add(Right.DELETE);
+                } catch (AuthorizationFailureException e)
+                {
+                    // silently ignored
+                }
                 rightsByIds.put(id, new Rights(rights));
                 unknownIds.remove(id);
             }
+            return unknownIds;
+        }
+
+        private void addRightsForUnknownIds(IOperationContext context, Map<IObjectId, Rights> rightsByIds, Set<ID> unknownIds)
+        {
             for (ID id : unknownIds)
             {
                 Set<Right> rights = new HashSet<>();
@@ -217,6 +237,8 @@ public class GetRightsExecutor implements IGetRightsExecutor
         abstract Map<ID, ENTITY> getEntitiesByIds(IOperationContext context, Collection<ID> ids);
 
         abstract void canUpdate(IOperationContext context, ID id, ENTITY entity);
+
+        abstract void canDelete(IOperationContext context, ID id, ENTITY entity);
 
         abstract ENTITY createDummyEntity(IOperationContext context, ID id);
 
@@ -241,6 +263,12 @@ public class GetRightsExecutor implements IGetRightsExecutor
         void canUpdate(IOperationContext context, ISampleId id, SamplePE entity)
         {
             sampleAuthorizationExecutor.canUpdate(context, id, entity);
+        }
+
+        @Override
+        void canDelete(IOperationContext context, ISampleId id, SamplePE entity)
+        {
+            sampleAuthorizationExecutor.canDelete(context, id, entity);
         }
 
         @Override
@@ -317,6 +345,12 @@ public class GetRightsExecutor implements IGetRightsExecutor
         }
 
         @Override
+        void canDelete(IOperationContext context, IExperimentId id, ExperimentPE entity)
+        {
+            experimentAuthorizationExecutor.canDelete(context, id, entity);
+        }
+
+        @Override
         ExperimentPE createDummyEntity(IOperationContext context, IExperimentId id)
         {
             if (id instanceof ExperimentPermId)
@@ -369,6 +403,12 @@ public class GetRightsExecutor implements IGetRightsExecutor
         void canUpdate(IOperationContext context, IProjectId id, ProjectPE entity)
         {
             projectAuthorizationExecutor.canUpdate(context, id, entity);
+        }
+
+        @Override
+        void canDelete(IOperationContext context, IProjectId id, ProjectPE entity)
+        {
+            projectAuthorizationExecutor.canDelete(context, id, entity);
         }
 
         @Override
@@ -430,6 +470,14 @@ public class GetRightsExecutor implements IGetRightsExecutor
                 {
                     dataSetAuthorizationExecutor.canUpdate(context, id, object);
                     rights.add(Right.UPDATE);
+                } catch (AuthorizationFailureException e)
+                {
+                    // silently ignored
+                }
+                try
+                {
+                    dataSetAuthorizationExecutor.canDelete(context, id, object);
+                    rights.add(Right.DELETE);
                 } catch (AuthorizationFailureException e)
                 {
                     // silently ignored

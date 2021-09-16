@@ -2332,6 +2332,7 @@ Rights
 Rights Fetch Options
 set Rights
 CREATE
+DELETE
 
 is Execute In Order
 set Execute In Order

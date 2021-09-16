@@ -941,6 +941,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	
 	this._allowedToDelete = function() {
 		var dataSet = this._dataSetFormModel.v3_dataset;
-		return dataSet.frozen == false && this._allowedToMove();
+		return dataSet.frozen == false && this._dataSetFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 }

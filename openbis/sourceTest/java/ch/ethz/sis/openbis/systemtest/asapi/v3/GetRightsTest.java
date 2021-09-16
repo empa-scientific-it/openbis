@@ -55,7 +55,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[UPDATE]");
+        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[]");
     }
@@ -103,7 +103,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[UPDATE]");
+        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s5).getRights().toString(), "[]");
@@ -164,7 +164,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[UPDATE]");
+        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[]");
     }
@@ -208,6 +208,6 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[UPDATE]");
+        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
     }
 }
