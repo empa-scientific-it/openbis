@@ -1,17 +1,17 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'cisd:cisd-base:+',
-            'apache:log4j:+',
-            'knime:knime:+',
-            'openbis:dss:+',
-            'openbis:query:+',
-            'rinn:restrictions:+',
+    compile 'sis:sis-base:18.09.0',
+            'apache:log4j:1.2.15',
+            'knime:knime:2.7.2',
+            'openbis:dss:13.04.2',
+            'openbis:query:13.04.2',
+            'rinn:restrictions:1.0.2',
             'javax.activation:activation:1.1.1'
     
-    testCompile 'testng:testng:+',
-            'hamcrest:hamcrest-integration:+',
-            'hamcrest:hamcrest-library:+'
+    testCompile 'testng:testng:6.8-CISD',
+            'hamcrest:hamcrest-integration:1.3',
+            'hamcrest:hamcrest-library:1.3'
 
     testCompile ('jmock:jmock:2.5.1') {
             exclude group: 'hamcrest', module: 'hamcrest-core'
