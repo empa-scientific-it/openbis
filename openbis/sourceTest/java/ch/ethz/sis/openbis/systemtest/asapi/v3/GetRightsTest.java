@@ -19,7 +19,11 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
@@ -30,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -55,7 +60,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
+        assertRights(map.get(s2).getRights(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[]");
     }
@@ -103,7 +108,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
+        assertRights(map.get(s2).getRights(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s5).getRights().toString(), "[]");
@@ -164,7 +169,7 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
+        assertRights(map.get(s2).getRights(), "[DELETE, UPDATE]");
         assertEquals(map.get(s3).getRights().toString(), "[CREATE]");
         assertEquals(map.get(s4).getRights().toString(), "[]");
     }
@@ -208,6 +213,13 @@ public class GetRightsTest extends AbstractTest
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
-        assertEquals(map.get(s2).getRights().toString(), "[DELETE, UPDATE]");
+        assertRights(map.get(s2).getRights(), "[DELETE, UPDATE]");
+    }
+
+    private void assertRights(Collection<Right> rights, String expectedRights)
+    {
+        List<String> rightsAsStrings = rights.stream().map(Right::toString).collect(Collectors.toList());
+        Collections.sort(rightsAsStrings);
+        assertEquals(rightsAsStrings.toString(), expectedRights);
     }
 }
