@@ -44,8 +44,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
-import com.sun.org.apache.xerces.internal.jaxp.JAXPConstants;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -159,8 +157,8 @@ public class XMLInfraStructure
             {
                 if (parserFactory.getSchema() == null)
                 {
-                    saxParser.setProperty(JAXPConstants.JAXP_SCHEMA_LANGUAGE,
-                            JAXPConstants.W3C_XML_SCHEMA);
+                    saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                            "http://www.w3.org/2001/XMLSchema");
                 }
                 XMLReader xmlReader = saxParser.getXMLReader();
                 xmlReader.setEntityResolver(entityResolver);
