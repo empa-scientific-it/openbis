@@ -843,7 +843,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }];
         }
 
-        this._dataGridController.init(this._$dataGridContainer, this.extraOptions);
+        this._dataGridController.init(this._advancedSearchController._mainController.serverFacade.openbisServer.getSession(), this._$dataGridContainer, this.extraOptions);
 	}
 
 	this._getGridForResults = function(criteria, isGlobalSearch, isMultiselectable) {
@@ -1071,7 +1071,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
+            getDataRows.dynamic = true;
+			var dataGrid = new DataGridController2(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
 			return dataGrid;
 	}
 

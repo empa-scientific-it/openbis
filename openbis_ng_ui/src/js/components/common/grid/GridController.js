@@ -516,8 +516,43 @@ export default class GridController {
     )
   }
 
+  getPage() {
+    const { page } = this.context.getState()
+    return page
+  }
+
+  getPageSize() {
+    const { pageSize } = this.context.getState()
+    return pageSize
+  }
+
+  getSort() {
+    const { sort } = this.context.getState()
+    return sort
+  }
+
+  getSortDirection() {
+    const { sortDirection } = this.context.getState()
+    return sortDirection
+  }
+
+  getFilters() {
+    const { filters } = this.context.getState()
+    return filters
+  }
+
+  getCurrentRows() {
+    const { currentRows } = this.context.getState()
+    return currentRows
+  }
+
   getSelectedRow() {
     const { selectedRow } = this.context.getState()
     return selectedRow
+  }
+
+  getTotalCount() {
+    const { totalCount } = this.context.getState()
+    return totalCount
   }
 }

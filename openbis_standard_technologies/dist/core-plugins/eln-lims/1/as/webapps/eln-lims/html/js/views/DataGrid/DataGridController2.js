@@ -24,8 +24,7 @@ function DataGridController2(
   showAllColumns,
   configKey,
   isMultiselectable,
-  heightPercentage,
-  loadDataDynamic
+  heightPercentage
 ) {
   if (!configKey) {
     window.alert(
@@ -41,99 +40,143 @@ function DataGridController2(
   var columns = [];
   columns = columns.concat(columnsFirst);
   columns = columns.concat(columnsLast);
-  this.columns = columns.map(function (column) {
-    return {
-      label: column.label,
-      name: column.property,
-      getValue: function (params) {
-        return params.row[column.property];
-      },
-      renderDOMValue: function (params) {
-        var maxLineLength = 200;
-        var value = null;
+  this.columns = columns
+    .filter(function (column) {
+      return column.property;
+    })
+    .map(function (column) {
+      return {
+        label: column.label,
+        name: column.property,
+        getValue: function (params) {
+          return params.row[column.property];
+        },
+        renderDOMValue: function (params) {
+          var maxLineLength = 200;
+          var value = null;
 
-        if (column.render) {
-          value = column.render(params.row);
-        } else {
-          value = params.value;
-        }
+          if (column.render) {
+            let grid = {
+              lastReceivedData: {
+                objects: _this.controller.getCurrentRows(),
+                totalCount: _this.controller.getTotalCount(),
+              },
+              lastUsedOptions: {
+                pageIndex: _this.controller.getPage(),
+                pageSize: _this.controller.getPageSize(),
+                sortProperty: _this.controller.getSort(),
+                sortDirection: _this.controller.getSortDirection(),
+                search:
+                  Object.keys(_this.controller.getFilters()).length > 0
+                    ? Object.values(_this.controller.getFilters()).join(" ")
+                    : null,
+              },
+            };
 
-        //2. Sanitize
-        var value = FormUtil.sanitizeRichHTMLText(value);
+            value = column.render(params.row, grid);
+          } else {
+            value = params.value;
+          }
 
-        //3. Shorten
-        var finalValue = null;
-        if (value && value.length > maxLineLength) {
-          finalValue = value.substring(0, maxLineLength) + "...";
-        } else {
-          finalValue = value;
-        }
+          //2. Sanitize
+          var value = FormUtil.sanitizeRichHTMLText(value);
 
-        //4. Tooltip
-        if (value !== finalValue) {
-          finalValue = $("<div>").html(finalValue);
-          finalValue.tooltipster({
-            content: $("<span>").html(value),
-          });
-        }
+          //3. Shorten
+          var finalValue = null;
+          if (value && value.length > maxLineLength) {
+            finalValue = value.substring(0, maxLineLength) + "...";
+          } else {
+            finalValue = value;
+          }
 
-        $(params.container).append(finalValue);
-      },
-      matchesValue: function (params) {
-        if (column.filter) {
-          return column.filter(params.value, params.filter);
-        } else {
-          return params.defaultMatches(params.value, params.filter);
-        }
-      },
-      compareValue: function (params) {
-        if (column.sort) {
-          return column.sort(
-            params.value1,
-            params.value2,
-            params.sortDirection === "asc"
-          );
-        } else {
-          return params.defaultCompare(params.value1, params.value2);
-        }
-      },
-      sortable: column.sortable,
-      filterable: column.filterable,
-    };
-  });
+          //4. Tooltip
+          if (value !== finalValue) {
+            finalValue = $("<div>").html(finalValue);
+            finalValue.tooltipster({
+              content: $("<span>").html(value),
+            });
+          }
+
+          $(params.container).empty();
+          $(params.container).append(finalValue);
+        },
+        matchesValue: function (params) {
+          if (column.filter) {
+            return column.filter(params.value, params.filter);
+          } else {
+            return params.defaultMatches(params.value, params.filter);
+          }
+        },
+        compareValue: function (params) {
+          if (column.sort) {
+            return column.sort(
+              params.value1,
+              params.value2,
+              params.sortDirection === "asc"
+            );
+          } else {
+            return params.defaultCompare(params.value1, params.value2);
+          }
+        },
+        sortable: column.sortable,
+        filterable: column.filterable,
+      };
+    });
 
   this.rows = [];
   this.totalCount = 0;
 
   this.init = function (session, $container, extraOptions) {
-    if (loadDataDynamic) {
-      /*
-      var GridElement = React.createElement(
-        window.NgUiGrid.default.ThemeProvider,
-        {},
-        React.createElement(window.NgUiGrid.default.Grid, {
-          settingsId: {
-            webAppId: "ELN-LIMS",
-            gridId: _this.gridId,
-          },
-          header: _this.header,
-          columns: _this.columns,
-          rows: _this.rows,
-          totalCount: _this.totalCount,
-          load: function () {
-            return new Promise(function (resolve) {
-              loadData(function (data) {
-                resolve();
-                _this.rows = data.objects;
-                _this.totalCount = data.totalCount;
-                _this.init($container, extraOptions);
-              }, options);
-            });
-          },
-        })
-      );
-      ReactDOM.render(GridElement, $container.get(0));
-      */
+    if (loadData.dynamic) {
+      var openbis = window.NgUiGrid.default.openbis;
+      openbis.init().then(function () {
+        openbis.useSession(session);
+        var GridElement = React.createElement(
+          window.NgUiGrid.default.ThemeProvider,
+          {},
+          React.createElement(window.NgUiGrid.default.Grid, {
+            settingsId: {
+              webAppId: "ELN-LIMS",
+              gridId: _this.gridId,
+            },
+            controllerRef: function (controller) {
+              _this.controller = controller;
+            },
+            header: _this.header,
+            columns: _this.columns,
+            rows: _this.rows,
+            totalCount: _this.totalCount,
+            load: function (params) {
+              var options = {
+                pageIndex: params.page,
+                pageSize: params.pageSize,
+                sortProperty: params.sort,
+                sortDirection: params.sortDirection,
+                search:
+                  Object.keys(params.filters).length > 0
+                    ? Object.values(params.filters).join(" ")
+                    : null,
+              };
+              return new Promise(function (resolve) {
+                loadData(function (data) {
+                  resolve();
+                  _this.rows = data.objects.map(function (row, index) {
+                    return Object.assign(
+                      {
+                        id: index,
+                      },
+                      row
+                    );
+                  });
+                  _this.totalCount = data.totalCount;
+                  _this.init(session, $container, extraOptions);
+                }, options);
+              });
+            },
+          })
+        );
+        ReactDOM.render(GridElement, $container.get(0));
+      });
     } else {
       loadData(function (data) {
         var openbis = window.NgUiGrid.default.openbis;
@@ -146,6 +189,9 @@ function DataGridController2(
               settingsId: {
                 webAppId: "ELN-LIMS",
                 gridId: _this.gridId,
+              },
+              controllerRef: function (controller) {
+                _this.controller = controller;
               },
               header: _this.header,
               columns: _this.columns,
