@@ -127,6 +127,17 @@ function DataGridController2(
   this.totalCount = 0;
 
   this.init = function (session, $container, extraOptions) {
+    ReactDOM.unmountComponentAtNode($container.get(0));
+    ReactDOM.render(
+      React.createElement(window.NgUiGrid.default.Loading, {
+        loading: true,
+      }),
+      $container.get(0)
+    );
+    this._init(session, $container, extraOptions);
+  };
+
+  this._init = function (session, $container, extraOptions) {
     if (loadData.dynamic) {
       var openbis = window.NgUiGrid.default.openbis;
       openbis.init().then(function () {
@@ -169,7 +180,7 @@ function DataGridController2(
                     );
                   });
                   _this.totalCount = data.totalCount;
-                  _this.init(session, $container, extraOptions);
+                  _this._init(session, $container, extraOptions);
                 }, options);
               });
             },
@@ -213,12 +224,6 @@ function DataGridController2(
 
           ReactDOM.render(GridElement, $container.get(0));
         });
-        ReactDOM.render(
-          React.createElement(window.NgUiGrid.default.Loading, {
-            loading: true,
-          }),
-          $container.get(0)
-        );
       });
     }
   };
