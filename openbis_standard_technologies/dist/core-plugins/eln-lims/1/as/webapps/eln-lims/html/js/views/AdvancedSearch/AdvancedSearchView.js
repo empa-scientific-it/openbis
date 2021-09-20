@@ -419,6 +419,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 }
                 if (!operator) {
                     operator = operatorOptions[0].value;
+                    if (_this._getDataType(uuid) === "CONTROLLEDVOCABULARY") {
+                        operator = "thatEqualsString";
+                    }
                     comparisonDropdown.val(operator);
                 }
                 _this._advancedSearchModel.criteria.rules[uuid].operator = operator;
