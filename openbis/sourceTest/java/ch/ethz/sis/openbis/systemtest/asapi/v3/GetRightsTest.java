@@ -207,13 +207,22 @@ public class GetRightsTest extends AbstractTest
         String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
         IObjectId s1 = new DataSetPermId("20120619092259000-22");
         IObjectId s2 = new DataSetPermId("20081105092259000-21");
+        IObjectId s3 = new DataSetPermId("NEW");
+        IObjectId s4 = new DataSetPermId("/CISD/NEW");
+        IObjectId s5 = new DataSetPermId("/CISD/NEMO/NEW");
+        IObjectId s6 = new DataSetPermId("/TEST-SPACE/NEW");
 
         // When
-        Map<IObjectId, Rights> map = v3api.getRights(sessionToken, Arrays.asList(s1, s2), new RightsFetchOptions());
+        Map<IObjectId, Rights> map = v3api.getRights(sessionToken, Arrays.asList(s1, s2, s3, s4, s5, s6),
+                new RightsFetchOptions());
 
         // Then
         assertEquals(map.get(s1).getRights().toString(), "[]");
         assertRights(map.get(s2).getRights(), "[DELETE, UPDATE]");
+        assertRights(map.get(s3).getRights(), "[]");
+        assertRights(map.get(s4).getRights(), "[CREATE]");
+        assertRights(map.get(s5).getRights(), "[CREATE]");
+        assertRights(map.get(s6).getRights(), "[]");
     }
 
     private void assertRights(Collection<Right> rights, String expectedRights)
