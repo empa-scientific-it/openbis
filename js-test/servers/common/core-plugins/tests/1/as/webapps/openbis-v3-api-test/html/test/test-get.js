@@ -843,7 +843,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				return facade.getRights([sampleId], new c.RightsFetchOptions()).then(function(rights) {
                     var rights = rights[sampleId].rights;
                     rights.sort();
-                    c.assertEqual(rights, ["DELETE", "UPDATE"], "Rights");
+                    c.assertEqual(rights, "DELETE,UPDATE", "Rights");
 					c.finish();
 				});
 			}).fail(function(error) {
