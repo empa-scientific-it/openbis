@@ -673,6 +673,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             _this._injectOperatorField($newFieldOperatorContainer, $newFieldValueContainer, uuid);
             _this._injectValueField($newFieldValueContainer, uuid);
         });
+        $newFieldOperatorContainer.empty();
+        $newFieldValueContainer.empty();
 		return $dropdown;
 	}
 
