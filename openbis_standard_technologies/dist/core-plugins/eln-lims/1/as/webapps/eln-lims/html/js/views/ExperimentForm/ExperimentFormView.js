@@ -701,6 +701,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 	this._allowedToRegisterDataSet = function() {
 		var experiment = this._experimentFormModel.v3_experiment;
-		return experiment.frozenForDataSets == false && this._experimentFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
+		return experiment.frozenForDataSets == false && this._experimentFormModel.dataSetRights.rights.indexOf("CREATE") >= 0;
 	}
 }

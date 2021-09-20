@@ -27,8 +27,9 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		_this._sampleFormModel.views = views;
 
 		if(mode !== FormMode.CREATE) {
-			require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
-					function(SamplePermId, SampleIdentifier, SampleFetchOptions) {
+			require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier",
+                "as/dto/dataset/id/DataSetPermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+                function(SamplePermId, SampleIdentifier, DataSetPermId, SampleFetchOptions) {
 					var id = new SamplePermId(sample.permId);
 					var fetchOptions = new SampleFetchOptions();
 					fetchOptions.withSpace();
@@ -48,7 +49,9 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 
                         if(hasExperiment) {
 						    var expeId = _this._sampleFormModel.v3_sample.getExperiment().getIdentifier().getIdentifier();
-						    var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+                            var dummyId = IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId);
+                            var dummySampleId = new SampleIdentifier(dummyId);
+                            var dummyDataSetId = new DataSetPermId(dummyId);
                         }
 
 						mainController.openbisV3.getRights([ id, dummySampleId ], null).done(function(rightsByIds) {
@@ -56,9 +59,12 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 
 							if(dummySampleId) {
 							    _this._sampleFormModel.sampleRights = rightsByIds[dummySampleId];
+                                _this._sampleFormModel.dataSetRights = rightsByIds[dummyDataSetId];
 							} else {
 							     _this._sampleFormModel.sampleRights = {};
 							     _this._sampleFormModel.sampleRights.rights = [];
+                                 _this._sampleFormModel.dataSetRights = {};
+                                 _this._sampleFormModel.dataSetRights.rights = [];
 							}
 
 
