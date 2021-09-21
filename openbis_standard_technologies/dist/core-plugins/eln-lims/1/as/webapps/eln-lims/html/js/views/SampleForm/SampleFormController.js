@@ -49,12 +49,11 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 
                         if(hasExperiment) {
 						    var expeId = _this._sampleFormModel.v3_sample.getExperiment().getIdentifier().getIdentifier();
-                            var dummyId = IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId);
-                            var dummySampleId = new SampleIdentifier(dummyId);
-                            var dummyDataSetId = new DataSetPermId(dummyId);
+                            var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+                            var dummyDataSetId = new DataSetPermId(IdentifierUtil.createDummyDataSetIdentifierFromExperimentIdentifier(expeId));
                         }
 
-						mainController.openbisV3.getRights([ id, dummySampleId ], null).done(function(rightsByIds) {
+						mainController.openbisV3.getRights([ id, dummySampleId, dummyDataSetId ], null).done(function(rightsByIds) {
 							_this._sampleFormModel.rights = rightsByIds[id];
 
 							if(dummySampleId) {

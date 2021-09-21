@@ -80,10 +80,16 @@ var IdentifierUtil = new function() {
 		return experimentIdentifier.split('/')[2];
 	};
 	
-	
-	this.createDummySampleIdentifierFromExperimentIdentifier = function(experimentIdentifier) {
-		var spaceCode = this.getSpaceCodeFromIdentifier(experimentIdentifier);
-		var projectCode = this.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
-		return "/" + spaceCode + "/" + projectCode + "/__DUMMY_FOR_RIGHTS_CALCULATION__";
-	}
+    
+    this.createDummySampleIdentifierFromExperimentIdentifier = function(experimentIdentifier) {
+        var spaceCode = this.getSpaceCodeFromIdentifier(experimentIdentifier);
+        var projectCode = this.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+        return "/" + spaceCode + "/" + projectCode + "/__DUMMY_SAMPLE_FOR_RIGHTS_CALCULATION__";
+    }
+    
+    this.createDummyDataSetIdentifierFromExperimentIdentifier = function(experimentIdentifier) {
+        var spaceCode = this.getSpaceCodeFromIdentifier(experimentIdentifier);
+        var projectCode = this.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+        return "/" + spaceCode + "/" + projectCode + "/__DUMMY_DATA_SET_FOR_RIGHTS_CALCULATION__";
+    }
 }

@@ -33,9 +33,8 @@ function ExperimentFormController(mainController, mode, experiment) {
 					mainController.openbisV3.getExperiments([ id ], fetchOptions).done(function(map) {
 						_this._experimentFormModel.v3_experiment = map[id];
 						var expeId = _this._experimentFormModel.v3_experiment.getIdentifier().getIdentifier();
-                        var dummyId = IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId);
-                        var dummySampleId = new SampleIdentifier(dummyId);
-                        var dummyDataSetId = new DataSetPermId(dummyId);
+                        var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+                        var dummyDataSetId = new DataSetPermId(IdentifierUtil.createDummyDataSetIdentifierFromExperimentIdentifier(expeId));
                         mainController.openbisV3.getRights([ id , dummySampleId, dummyDataSetId], null).done(function(rightsByIds) {
                             _this._experimentFormModel.rights = rightsByIds[id];
                             _this._experimentFormModel.sampleRights = rightsByIds[dummySampleId];
