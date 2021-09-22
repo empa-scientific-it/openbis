@@ -103,8 +103,10 @@ LOG_DEBUG = 7
 
 DEBUG_LEVEL = LOG_NONE
 
+
 def now():
     return time.time()
+
 
 def get_search_type_for_entity(entity, operator=None):
     """Returns a dictionary containing the correct search criteria type
@@ -267,7 +269,15 @@ def _list_update(ids=None, entity=None, action="Add"):
     if not isinstance(ids, list):
         ids = [ids]
 
-    items = list(map(lambda id: {"code": id, "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity)}, ids))
+    items = list(
+        map(
+            lambda id: {
+                "code": id,
+                "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity),
+            },
+            ids,
+        )
+    )
 
     list_update = {
         "actions": [
@@ -379,7 +389,9 @@ def _gen_search_criteria(req):
     sreq = {}
     for key, val in req.items():
         if key == "criteria":
-            sreq["criteria"] = list(map(lambda item: _gen_search_criteria(item), req["criteria"]))
+            sreq["criteria"] = list(
+                map(lambda item: _gen_search_criteria(item), req["criteria"])
+            )
         elif key == "code":
             sreq["criteria"] = [
                 _common_search("as.dto.common.search.CodeSearchCriteria", val.upper())
@@ -426,15 +438,20 @@ def _subcriteria_for_tags(tags):
     if not isinstance(tags, list):
         tags = [tags]
 
-    criteria = list(map(lambda tag: {
-        "fieldName": "code",
-        "fieldType": "ATTRIBUTE",
-        "fieldValue": {
-            "value": tag,
-            "@type": "as.dto.common.search.StringEqualToValue",
-        },
-        "@type": "as.dto.common.search.CodeSearchCriteria",
-    }, tags))
+    criteria = list(
+        map(
+            lambda tag: {
+                "fieldName": "code",
+                "fieldType": "ATTRIBUTE",
+                "fieldValue": {
+                    "value": tag,
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "@type": "as.dto.common.search.CodeSearchCriteria",
+            },
+            tags,
+        )
+    )
 
     return {
         "@type": "as.dto.tag.search.TagSearchCriteria",
@@ -716,15 +733,20 @@ def _subcriteria_for_identifier(ids, entity, parents_or_children="", operator="A
     if not isinstance(ids, list):
         ids = [ids]
 
-    criteria = list(map(lambda id: {
-        "@type": "as.dto.common.search.IdentifierSearchCriteria",
-        "fieldValue": {
-            "value": id,
-            "@type": "as.dto.common.search.StringEqualToValue",
-        },
-        "fieldType": "ATTRIBUTE",
-        "fieldName": "identifier",
-    }, ids))
+    criteria = list(
+        map(
+            lambda id: {
+                "@type": "as.dto.common.search.IdentifierSearchCriteria",
+                "fieldValue": {
+                    "value": id,
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "fieldType": "ATTRIBUTE",
+                "fieldName": "identifier",
+            },
+            ids,
+        )
+    )
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -734,15 +756,20 @@ def _subcriteria_for_permid(permids, entity, parents_or_children="", operator="A
     if not isinstance(permids, list):
         permids = [permids]
 
-    criteria = list(map(lambda permid: {
-        "@type": "as.dto.common.search.PermIdSearchCriteria",
-        "fieldValue": {
-            "value": permid,
-            "@type": "as.dto.common.search.StringEqualToValue",
-        },
-        "fieldType": "ATTRIBUTE",
-        "fieldName": "perm_id",
-    }, permids))
+    criteria = list(
+        map(
+            lambda permid: {
+                "@type": "as.dto.common.search.PermIdSearchCriteria",
+                "fieldValue": {
+                    "value": permid,
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "fieldType": "ATTRIBUTE",
+                "fieldName": "perm_id",
+            },
+            permids,
+        )
+    )
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -752,15 +779,20 @@ def _subcriteria_for_permid_new(codes, entity, parents_or_children="", operator=
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = list(map(lambda code: {
-        "@type": "as.dto.common.search.PermIdSearchCriteria",
-        "fieldValue": {
-            "value": code,
-            "@type": "as.dto.common.search.StringEqualToValue",
-        },
-        "fieldType": "ATTRIBUTE",
-        "fieldName": "perm_id",
-    }, codes))
+    criteria = list(
+        map(
+            lambda code: {
+                "@type": "as.dto.common.search.PermIdSearchCriteria",
+                "fieldValue": {
+                    "value": code,
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "fieldType": "ATTRIBUTE",
+                "fieldName": "perm_id",
+            },
+            codes,
+        )
+    )
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -770,15 +802,20 @@ def _subcriteria_for_code_new(codes, entity, parents_or_children="", operator="A
     if not isinstance(codes, list):
         codes = [codes]
 
-    criteria = list(map(lambda code: {
-        "@type": "as.dto.common.search.CodeSearchCriteria",
-        "fieldValue": {
-            "value": code,
-            "@type": "as.dto.common.search.StringEqualToValue",
-        },
-        "fieldType": "ATTRIBUTE",
-        "fieldName": "code",
-    }, codes))
+    criteria = list(
+        map(
+            lambda code: {
+                "@type": "as.dto.common.search.CodeSearchCriteria",
+                "fieldValue": {
+                    "value": code,
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "fieldType": "ATTRIBUTE",
+                "fieldName": "code",
+            },
+            codes,
+        )
+    )
 
     search_type = get_type_for_entity(entity, "search", parents_or_children)
     return {"criteria": criteria, **search_type, "operator": operator}
@@ -1667,7 +1704,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_role_assignment(self, techId, only_data=False):
@@ -1835,7 +1872,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_persons(self, start_with=None, count=None, **search_args):
@@ -1886,7 +1923,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     get_users = get_persons  # Alias
@@ -1965,7 +2002,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_space(self, code, only_data=False, use_cache=True):
@@ -2059,8 +2096,8 @@ class Openbis:
                         b) property is not defined for this sampleType
         """
 
-        logger = logging.getLogger('get_samples')
-        logger.setLevel(logging.DEBUG)
+        logger = logging.getLogger("get_samples")
+        logger.setLevel(logging.CRITICAL)
         logger.addHandler(logging.StreamHandler(sys.stdout))
 
         if collection is not None:
@@ -2164,8 +2201,15 @@ class Openbis:
 
         logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
 
-        result = self._sample_list_for_response(response=response, attrs=attrs, props=props, start_with=start_with,
-                                                count=count, totalCount=resp["totalCount"], parsed=True)
+        result = self._sample_list_for_response(
+            response=response,
+            attrs=attrs,
+            props=props,
+            start_with=start_with,
+            count=count,
+            totalCount=resp["totalCount"],
+            parsed=True,
+        )
 
         time5 = now()
 
@@ -2275,9 +2319,16 @@ class Openbis:
             else:
                 properties = {**where, **properties}
         if properties is not None:
-            sub_criteria.extend(list(map(
-                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="experiment"), properties
-            )))
+            sub_criteria.extend(
+                list(
+                    map(
+                        lambda prop: _subcriteria_for_properties(
+                            prop, properties[prop], entity="experiment"
+                        ),
+                        properties,
+                    )
+                )
+            )
 
         search_criteria = get_search_type_for_entity("experiment")
         search_criteria["criteria"] = sub_criteria
@@ -2343,7 +2394,9 @@ class Openbis:
                 for attr in attrs:
                     # if no dot supplied, just display the code of the space, project or experiment
                     if attr in ["project"]:
-                        experiments[attr] = experiments[attr].map(extract_nested_identifier)
+                        experiments[attr] = experiments[attr].map(
+                            extract_nested_identifier
+                        )
                     if attr in ["space"]:
                         experiments[attr] = experiments[attr].map(extract_code)
 
@@ -2354,7 +2407,9 @@ class Openbis:
                     format_timestamp
                 )
                 experiments["project"] = experiments["project"].map(extract_code)
-                experiments["registrator"] = experiments["registrator"].map(extract_person)
+                experiments["registrator"] = experiments["registrator"].map(
+                    extract_person
+                )
                 experiments["modifier"] = experiments["modifier"].map(extract_person)
                 experiments["identifier"] = experiments["identifier"].map(
                     extract_identifier
@@ -2368,7 +2423,9 @@ class Openbis:
                         # expand the dataFrame by adding new columns
                         columns = []
                         for i, experiment in enumerate(response):
-                            for prop_name, val in experiment.get("properties", {}).items():
+                            for prop_name, val in experiment.get(
+                                "properties", {}
+                            ).items():
                                 experiments.loc[i, prop_name.upper()] = val
                                 columns.append(prop_name.upper())
 
@@ -2394,7 +2451,7 @@ class Openbis:
             attrs=attrs,
             props=props,
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     get_collections = get_experiments  # Alias
@@ -2497,9 +2554,16 @@ class Openbis:
                 properties = {**where, **properties}
 
         if properties is not None:
-            sub_criteria.extend(list(map(
-                lambda prop: _subcriteria_for_properties(prop, properties[prop], entity="dataset"), properties
-            )))
+            sub_criteria.extend(
+                list(
+                    map(
+                        lambda prop: _subcriteria_for_properties(
+                            prop, properties[prop], entity="dataset"
+                        ),
+                        properties,
+                    )
+                )
+            )
 
         search_criteria = get_search_type_for_entity("dataset")
         search_criteria["criteria"] = sub_criteria
@@ -2562,7 +2626,7 @@ class Openbis:
             count=count,
             totalCount=resp["totalCount"],
             objects=datasets,
-            parsed=True
+            parsed=True,
         )
 
     def get_experiment(
@@ -2749,11 +2813,7 @@ class Openbis:
             if only_data:
                 return resp[projectId]
 
-            project = Project(
-                openbis_obj=self,
-                type=None,
-                data=resp[projectId]
-            )
+            project = Project(openbis_obj=self, type=None, data=resp[projectId])
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -2775,11 +2835,7 @@ class Openbis:
             if only_data:
                 return resp["objects"][0]
 
-            project = Project(
-                openbis_obj=self,
-                type=None,
-                data=resp["objects"][0]
-            )
+            project = Project(openbis_obj=self, type=None, data=resp["objects"][0])
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
             return project
@@ -2860,7 +2916,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def _create_get_request(self, method_name, entity, permids, options, foType):
@@ -2963,8 +3019,12 @@ class Openbis:
                 terms["vocabularyCode"] = terms["permId"].map(
                     extract_attr("vocabularyCode")
                 )
-                terms["registrationDate"] = terms["registrationDate"].map(format_timestamp)
-                terms["modificationDate"] = terms["modificationDate"].map(format_timestamp)
+                terms["registrationDate"] = terms["registrationDate"].map(
+                    format_timestamp
+                )
+                terms["modificationDate"] = terms["modificationDate"].map(
+                    format_timestamp
+                )
             return terms[attrs]
 
         things = Things(
@@ -2976,7 +3036,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
         if (
             self.use_cache
@@ -3061,8 +3121,12 @@ class Openbis:
             else:
                 parse_jackson(response)
                 vocs = DataFrame(objects)
-                vocs["registrationDate"] = vocs["registrationDate"].map(format_timestamp)
-                vocs["modificationDate"] = vocs["modificationDate"].map(format_timestamp)
+                vocs["registrationDate"] = vocs["registrationDate"].map(
+                    format_timestamp
+                )
+                vocs["modificationDate"] = vocs["modificationDate"].map(
+                    format_timestamp
+                )
                 vocs["registrator"] = vocs["registrator"].map(extract_person)
             return vocs[attrs]
 
@@ -3074,7 +3138,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_vocabulary(self, code, only_data=False, use_cache=True):
@@ -3201,7 +3265,9 @@ class Openbis:
                 tags = DataFrame(columns=attrs)
             else:
                 tags = DataFrame(response)
-                tags["registrationDate"] = tags["registrationDate"].map(format_timestamp)
+                tags["registrationDate"] = tags["registrationDate"].map(
+                    format_timestamp
+                )
                 tags["permId"] = tags["permId"].map(extract_permid)
                 tags["description"] = tags["description"].map(
                     lambda x: "" if x is None else x
@@ -3215,7 +3281,7 @@ class Openbis:
             identifier_name="permId",
             totalCount=totalCount,
             response=response,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def search_semantic_annotations(
@@ -3304,7 +3370,7 @@ class Openbis:
             entity="semantic_annotation",
             identifier_name="permId",
             response=objects,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def _search_semantic_annotations(self, criteria):
@@ -3387,7 +3453,7 @@ class Openbis:
             entity="semantic_annotation",
             identifier_name="permId",
             response=objects,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_semantic_annotation(self, permId, only_data=False):
@@ -3464,7 +3530,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_plugin(self, permId, only_data=False, with_script=True):
@@ -3542,6 +3608,9 @@ class Openbis:
         - experimentTypes
         - materialTypes (deprecated)
         """
+
+        if isinstance(vocabulary, Vocabulary):
+            vocabulary = vocabulary.code
 
         return PropertyType(
             openbis_obj=self,
@@ -3650,6 +3719,7 @@ class Openbis:
         self, objects, start_with=None, count=None, totalCount=None
     ):
         """takes a list of objects and returns a Things object"""
+
         def create_data_frame(attrs, props, response):
             attrs = openbis_definitions("propertyType")["attrs"]
             if len(response) == 0:
@@ -3672,7 +3742,7 @@ class Openbis:
             count=count,
             totalCount=totalCount,
             response=objects,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_material_types(self, type=None, start_with=None, count=None):
@@ -3807,7 +3877,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_entity_type(
@@ -3945,7 +4015,9 @@ class Openbis:
             else:
                 parse_jackson(objects)
                 types = DataFrame(objects)
-                types["modificationDate"] = types["modificationDate"].map(format_timestamp)
+                types["modificationDate"] = types["modificationDate"].map(
+                    format_timestamp
+                )
             return types[attrs]
 
         return Things(
@@ -3955,7 +4027,7 @@ class Openbis:
             count=count,
             totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def _get_attributes(
@@ -4087,7 +4159,7 @@ class Openbis:
         count=None,
         totalCount=0,
         objects=None,
-        parsed=False
+        parsed=False,
     ):
         """returns a Things object, containing a DataFrame plus some additional information"""
 
@@ -4164,7 +4236,9 @@ class Openbis:
                 datasets = DataFrame(response)
                 for attr in attrs:
                     if "project" in attr:
-                        datasets[attr] = datasets["experiment"].map(extract_project(attr))
+                        datasets[attr] = datasets["experiment"].map(
+                            extract_project(attr)
+                        )
                     elif "space" in attr:
                         datasets[attr] = datasets["experiment"].map(extract_space(attr))
                     elif "." in attr:
@@ -4242,16 +4316,11 @@ class Openbis:
             props=props,
             response=response,
             df_initializer=create_data_frame,
-            objects_initializer=create_objects
+            objects_initializer=create_objects,
         )
 
     def get_sample(
-            self,
-            sample_ident,
-            only_data=False,
-            withAttachments=False,
-            props=None,
-            **kvals
+        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4312,7 +4381,9 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
-            return self._sample_list_for_response(response=list(resp.values()), props=props, parsed=False)
+            return self._sample_list_for_response(
+                response=list(resp.values()), props=props, parsed=False
+            )
 
     def _sample_list_for_response(
         self,
@@ -4324,8 +4395,9 @@ class Openbis:
         totalCount=0,
         parsed=False,
     ):
-        logger = logging.getLogger('_sample_list_for_response')
-        logger.setLevel(logging.DEBUG)
+        logger = logging.getLogger("_sample_list_for_response")
+        logger.setLevel(logging.CRITICAL)
+        logger.disabled = True
         logger.addHandler(logging.StreamHandler(sys.stdout))
 
         time1 = now()
@@ -4352,8 +4424,8 @@ class Openbis:
 
                 return return_attribute
 
-            logger = logging.getLogger('create_data_frame')
-            logger.setLevel(logging.DEBUG)
+            logger = logging.getLogger("create_data_frame")
+            logger.setLevel(logging.CRITICAL)
             logger.addHandler(logging.StreamHandler(sys.stdout))
 
             time2 = now()
@@ -4383,7 +4455,9 @@ class Openbis:
                 samples = DataFrame(columns=display_attrs)
             else:
                 time3 = now()
-                logger.debug(f"createDataFrame computing attributes. Delay: {time3 - time2}")
+                logger.debug(
+                    f"createDataFrame computing attributes. Delay: {time3 - time2}"
+                )
 
                 samples = DataFrame(response)
                 for attr in attrs:
@@ -4407,7 +4481,9 @@ class Openbis:
                 samples["registrator"] = samples["registrator"].map(extract_person)
                 samples["modifier"] = samples["modifier"].map(extract_person)
                 samples["identifier"] = samples["identifier"].map(extract_identifier)
-                samples["container"] = samples["container"].map(extract_nested_identifier)
+                samples["container"] = samples["container"].map(
+                    extract_nested_identifier
+                )
                 for column in ["parents", "children", "components"]:
                     if column in samples:
                         samples[column] = samples[column].map(extract_identifiers)
@@ -4415,7 +4491,9 @@ class Openbis:
                 samples["type"] = samples["type"].map(extract_nested_permid)
 
                 time4 = now()
-                logger.debug(f"_sample_list_for_response computed attributes. Delay: {time4 - time3}")
+                logger.debug(
+                    f"_sample_list_for_response computed attributes. Delay: {time4 - time3}"
+                )
 
                 for prop in props:
                     if prop == "*":
@@ -4434,32 +4512,50 @@ class Openbis:
                         for i, sample in enumerate(response):
                             if "properties" in sample:
                                 properties = sample["properties"]
-                                val = properties.get(prop, "") or properties.get(prop.upper(), "")
+                                val = properties.get(prop, "") or properties.get(
+                                    prop.upper(), ""
+                                )
                                 samples.loc[i, prop.upper()] = val
                             else:
                                 samples.loc[i, prop.upper()] = ""
                         display_attrs.append(prop.upper())
 
                 time5 = now()
-                logger.debug(f"_sample_list_for_response computed properties. Delay: {time5 - time4}")
+                logger.debug(
+                    f"_sample_list_for_response computed properties. Delay: {time5 - time4}"
+                )
             return samples[display_attrs]
 
         def create_objects(response):
-            return list(map(lambda obj: Sample(openbis_obj=self, type=self.get_sample_type(obj["type"]["code"]),
-                                               data=obj), response))
+            return list(
+                map(
+                    lambda obj: Sample(
+                        openbis_obj=self,
+                        type=self.get_sample_type(obj["type"]["code"]),
+                        data=obj,
+                    ),
+                    response,
+                )
+            )
 
-        result = Things(openbis_obj=self, entity="sample",
-                        identifier_name="identifier", start_with=start_with,
-                        count=count, totalCount=totalCount,
-                        response=response,
-                        df_initializer=create_data_frame,
-                        objects_initializer=create_objects,
-                        attrs=attrs,
-                        props=props
-                        )
+        result = Things(
+            openbis_obj=self,
+            entity="sample",
+            identifier_name="identifier",
+            start_with=start_with,
+            count=count,
+            totalCount=totalCount,
+            response=response,
+            df_initializer=create_data_frame,
+            objects_initializer=create_objects,
+            attrs=attrs,
+            props=props,
+        )
 
         time7 = now()
-        logger.debug(f"_sample_list_for_response computed result. Delay: {time7 - time6}")
+        logger.debug(
+            f"_sample_list_for_response computed result. Delay: {time7 - time6}"
+        )
         return result
 
     @staticmethod
@@ -4569,7 +4665,7 @@ class Openbis:
             count=count,
             totalCount=response.get("totalCount"),
             response=response,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def get_external_data_management_system(self, permId, only_data=False):
