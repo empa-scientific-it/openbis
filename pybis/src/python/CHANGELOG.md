@@ -1,3 +1,6 @@
+## Changes with pybis-1.20.3
+- deactivated debugging logs
+- creation of property type accets vocabulary object
 ## Changes with pybis-1.20.2
 - fixed omitted function parameter which could cause issues
 
