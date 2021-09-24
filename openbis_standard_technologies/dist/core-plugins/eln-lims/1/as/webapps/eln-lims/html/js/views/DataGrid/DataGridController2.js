@@ -33,98 +33,110 @@ function DataGridController2(
   }
 
   var _this = this;
-
   this.gridId = configKey;
   this.header = title;
-
-  var columns = [];
-  columns = columns.concat(columnsFirst);
-  columns = columns.concat(columnsLast);
-  this.columns = columns
-    .filter(function (column) {
-      return column.property;
-    })
-    .map(function (column) {
-      return {
-        label: column.label,
-        name: column.property,
-        getValue: function (params) {
-          return params.row[column.property];
-        },
-        renderDOMValue: function (params) {
-          var maxLineLength = 200;
-          var value = null;
-
-          if (column.render) {
-            let grid = {
-              lastReceivedData: {
-                objects: _this.controller.getCurrentRows(),
-                totalCount: _this.controller.getTotalCount(),
-              },
-              lastUsedOptions: {
-                pageIndex: _this.controller.getPage(),
-                pageSize: _this.controller.getPageSize(),
-                sortProperty: _this.controller.getSort(),
-                sortDirection: _this.controller.getSortDirection(),
-                search:
-                  Object.keys(_this.controller.getFilters()).length > 0
-                    ? Object.values(_this.controller.getFilters()).join(" ")
-                    : null,
-              },
-            };
-
-            value = column.render(params.row, grid);
-          } else {
-            value = params.value;
-          }
-
-          //2. Sanitize
-          var value = FormUtil.sanitizeRichHTMLText(value);
-
-          //3. Shorten
-          var finalValue = null;
-          if (value && value.length > maxLineLength) {
-            finalValue = value.substring(0, maxLineLength) + "...";
-          } else {
-            finalValue = value;
-          }
-
-          //4. Tooltip
-          if (value !== finalValue) {
-            finalValue = $("<div>").html(finalValue);
-            finalValue.tooltipster({
-              content: $("<span>").html(value),
-            });
-          }
-
-          $(params.container).empty();
-          $(params.container).append(finalValue);
-        },
-        matchesValue: function (params) {
-          if (column.filter) {
-            return column.filter(params.value, params.filter);
-          } else {
-            return params.defaultMatches(params.value, params.filter);
-          }
-        },
-        compareValue: function (params) {
-          if (column.sort) {
-            return column.sort(
-              params.value1,
-              params.value2,
-              params.sortDirection === "asc"
-            );
-          } else {
-            return params.defaultCompare(params.value1, params.value2);
-          }
-        },
-        sortable: column.sortable,
-        filterable: column.filterable,
-      };
-    });
-
   this.rows = [];
   this.totalCount = 0;
+
+  this._calculateColumns = function (objects) {
+    var columns = [];
+    columns = columns.concat(columnsFirst);
+
+    if (objects) {
+      var dynamicColumns = columnsDynamicFunc(objects);
+      if (dynamicColumns !== null && dynamicColumns.length > 0) {
+        columns = columns.concat(dynamicColumns);
+      }
+    }
+
+    columns = columns.concat(columnsLast);
+    columns = columns
+      .filter(function (column) {
+        return column.property;
+      })
+      .map(function (column) {
+        return {
+          label: column.label,
+          name: column.property,
+          getValue: function (params) {
+            return params.row[column.property];
+          },
+          renderDOMValue: function (params) {
+            var maxLineLength = 200;
+            var value = null;
+
+            if (column.render) {
+              let grid = {
+                lastReceivedData: {
+                  objects: _this.controller.getCurrentRows(),
+                  totalCount: _this.controller.getTotalCount(),
+                },
+                lastUsedOptions: {
+                  pageIndex: _this.controller.getPage(),
+                  pageSize: _this.controller.getPageSize(),
+                  sortProperty: _this.controller.getSort(),
+                  sortDirection: _this.controller.getSortDirection(),
+                  search:
+                    Object.keys(_this.controller.getFilters()).length > 0
+                      ? Object.values(_this.controller.getFilters()).join(" ")
+                      : null,
+                },
+              };
+
+              value = column.render(params.row, grid);
+            } else {
+              value = params.value;
+            }
+
+            //2. Sanitize
+            var value = FormUtil.sanitizeRichHTMLText(value);
+
+            //3. Shorten
+            var finalValue = null;
+            if (value && value.length > maxLineLength) {
+              finalValue = value.substring(0, maxLineLength) + "...";
+            } else {
+              finalValue = value;
+            }
+
+            //4. Tooltip
+            if (value !== finalValue) {
+              finalValue = $("<div>").html(finalValue);
+              finalValue.tooltipster({
+                content: $("<span>").html(value),
+              });
+            }
+
+            $(params.container).empty();
+            $(params.container).append(finalValue);
+          },
+          matchesValue: function (params) {
+            if (column.filter) {
+              return column.filter(params.value, params.filter);
+            } else {
+              return params.defaultMatches(params.value, params.filter);
+            }
+          },
+          compareValue: function (params) {
+            if (column.sort) {
+              return column.sort(
+                params.value1,
+                params.value2,
+                params.sortDirection === "asc"
+              );
+            } else {
+              return params.defaultCompare(params.value1, params.value2);
+            }
+          },
+          sortable: column.sortable,
+          filterable: column.filterable,
+        };
+      });
+
+    return columns;
+  };
+
+  this.columns = this._calculateColumns();
 
   this.init = function (session, $container, extraOptions) {
     ReactDOM.unmountComponentAtNode($container.get(0));
@@ -171,6 +183,7 @@ function DataGridController2(
               return new Promise(function (resolve) {
                 loadData(function (data) {
                   resolve();
+                  _this.columns = _this._calculateColumns(data.objects);
                   _this.rows = data.objects.map(function (row, index) {
                     return Object.assign(
                       {

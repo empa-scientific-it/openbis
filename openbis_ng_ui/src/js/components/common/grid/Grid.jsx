@@ -77,6 +77,9 @@ class Grid extends React.PureComponent {
     if (this.props.selectedRowId !== prevProps.selectedRowId) {
       this.controller.updateSelectedRowId(this.props.selectedRowId)
     }
+    if (this.props.columns !== prevProps.columns) {
+      this.controller.updateColumns(this.props.columns)
+    }
   }
 
   handleClickContainer() {

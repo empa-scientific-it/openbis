@@ -9,13 +9,31 @@ export default class GridController {
   }
 
   init(context) {
-    const props = context.getProps()
+    context.initState({
+      loaded: false,
+      loading: false,
+      filters: {},
+      page: 0,
+      pageSize: 10,
+      columns: [],
+      rows: [],
+      filteredRows: [],
+      sortedRows: [],
+      currentRows: [],
+      selectedRow: null,
+      sort: null,
+      sortDirection: null,
+      totalCount: 0
+    })
+    this.context = context
+  }
 
+  async _initColumns(newColumns) {
     const columns = []
     let initialSort = null
     let initialSortDirection = null
 
-    props.columns.forEach(column => {
+    newColumns.forEach(column => {
       if (column.sort) {
         initialSort = column.name
         initialSortDirection = column.sort
@@ -31,30 +49,19 @@ export default class GridController {
         throw new Error('column.getValue cannot be empty')
       }
 
-      columns.push(this.initColumn(column))
+      columns.push(this._initColumn(column))
     })
 
-    context.initState({
-      loaded: false,
-      loading: false,
-      filters: {},
-      page: 0,
-      pageSize: 10,
-      columns,
-      rows: [],
-      filteredRows: [],
-      sortedRows: [],
-      currentRows: [],
-      selectedRow: null,
-      sort: initialSort,
-      sortDirection: initialSortDirection,
-      totalCount: 0
-    })
-
-    this.context = context
+    await this.context.setState(state => ({
+      columns: columns,
+      sort: state.sort ? state.sort : initialSort,
+      sortDirection: state.sortDirection
+        ? state.sortDirection
+        : initialSortDirection
+    }))
   }
 
-  initColumn(config) {
+  _initColumn(config) {
     const column = {}
 
     _.assign(column, {
@@ -119,6 +126,9 @@ export default class GridController {
   }
 
   async load() {
+    const { columns } = this.context.getProps()
+
+    await this._initColumns(columns)
     await this._loadSettings()
     await this._loadRows()
 
@@ -241,6 +251,11 @@ export default class GridController {
     } else {
       await this.updateRows(rows, rows.length)
     }
+  }
+
+  async updateColumns(newColumns) {
+    await this._initColumns(newColumns)
+    await this._loadSettings()
   }
 
   async updateRows(newRows, newTotalCount) {
