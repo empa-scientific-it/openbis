@@ -940,7 +940,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	}
 	
 	this._allowedToDelete = function() {
-		var dataSet = this._dataSetFormModel.v3_dataset;
-		return dataSet.frozen == false && this._dataSetFormModel.rights.rights.indexOf("DELETE") >= 0;
+        var dataSet = this._dataSetFormModel.dataSetV3;
+        return dataSet.frozen == false && dataSet.type.disallowDeletion == false 
+            && this._dataSetFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 }
