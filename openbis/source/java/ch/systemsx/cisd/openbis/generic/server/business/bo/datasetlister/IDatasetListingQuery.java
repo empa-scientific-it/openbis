@@ -246,7 +246,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = SELECT_ALL, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets();
 
-    @Select(sql = "select id, code from data_set_types")
+    @Select(sql = "select id, code, deletion_disallow from data_set_types")
     public DataSetTypeRecord[] getDatasetTypes();
 
     @Select(sql = "select id, code, download_url from data_stores")

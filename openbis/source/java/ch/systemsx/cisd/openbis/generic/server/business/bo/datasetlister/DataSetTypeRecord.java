@@ -7,4 +7,5 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
  */
 public class DataSetTypeRecord extends CodeRecord
 {
+    public boolean deletion_disallow;
 }

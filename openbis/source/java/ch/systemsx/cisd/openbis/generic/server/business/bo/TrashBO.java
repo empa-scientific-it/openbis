@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
@@ -131,6 +132,13 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         final Set<TechId> sampleIds = new HashSet<TechId>();
         for (AbstractExternalData dataSet : listDataSets(datasetLister, dataSetIds))
         {
+            DataSetType dataSetType = dataSet.getDataSetType();
+            if (dataSetType.isDeletionDisallow())
+            {
+                throw new UserFailureException("Data set " + dataSet.getCode()
+                        + " can not be deleted because it isn't allowed by its data set type "
+                        + dataSetType.getCode() + ".");
+            }
             Sample sample = dataSet.getSample();
             if (sample != null)
             {
