@@ -73,6 +73,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     protected abstract ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE> getSearchManager();
 
+    private final Map<String, ICache> cacheByUserSessionToken = new HashMap<>();
+
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
     {
