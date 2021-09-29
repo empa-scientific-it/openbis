@@ -25,7 +25,6 @@ setup(
     install_requires=[
         "pytest",
         "requests",
-        "datetime",
         "pandas",
         "click",
         "texttable",
