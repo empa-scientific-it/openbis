@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.confirm.ConfirmDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
@@ -86,7 +87,6 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         DataSetTypeCreation typeCreation = new DataSetTypeCreation();
         typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
-        typeCreation.setDisallowDeletion(true);
         v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
 
         DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
@@ -102,6 +102,11 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         assertDeletionExists(deletionId);
         assertDataSetDoesNotExist(dataSetId);
+
+        DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
+        dataSetTypeUpdate.setTypeId(new EntityTypePermId("TYPE_WITH_DELETION_DISALLOWED"));
+        dataSetTypeUpdate.setDisallowDeletion(true);
+        v3api.updateDataSetTypes(sessionToken, Arrays.asList(dataSetTypeUpdate));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -120,7 +125,6 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         DataSetTypeCreation typeCreation = new DataSetTypeCreation();
         typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
-        typeCreation.setDisallowDeletion(true);
         v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
 
         DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
@@ -136,6 +140,11 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         assertDeletionExists(deletionId);
         assertDataSetDoesNotExist(dataSetId);
+
+        DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
+        dataSetTypeUpdate.setTypeId(new EntityTypePermId("TYPE_WITH_DELETION_DISALLOWED"));
+        dataSetTypeUpdate.setDisallowDeletion(true);
+        v3api.updateDataSetTypes(sessionToken, Arrays.asList(dataSetTypeUpdate));
 
         ConfirmDeletionsOperation confirmOperation = new ConfirmDeletionsOperation(Arrays.asList(deletionId));
         confirmOperation.setForceDeletion(true);
