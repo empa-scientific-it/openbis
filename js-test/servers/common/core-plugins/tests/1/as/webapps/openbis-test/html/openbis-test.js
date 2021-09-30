@@ -370,50 +370,6 @@ test("deleteDataSetsForced()", function() {
 	});
 });
 
-test("deleteDataSets() listDeletions() deletePermanently() deletePermanentlyForced() revertDeletion()", function() {
-	createFacadeAndLogin(function(facade) {
-
-		facade.listDeletions([], function(response) {
-			ok(response.error == null, "Could list deletions.");
-			var beforeDeletions = response.result || [];
-
-			facade.deleteDataSets([ "20130415093804724-403" ], "some reason", "TRASH", function(response) {
-				ok(response.error == null, "Could move a data set to trash.");
-
-				facade.listDeletions([ "ORIGINAL_ENTITIES" ], function(response) {
-					var afterDeletions = response.result;
-					equal(beforeDeletions.length + 1, afterDeletions.length, "Moving the data set to trash created a new deletion.");
-					var dataSetDeletion = null;
-
-					afterDeletions.forEach(function(deletion) {
-						if (dataSetDeletion == null) {
-							deletion.deletedEntities.forEach(function(entity) {
-								if (entity.code == "20130415093804724-403") {
-									dataSetDeletion = deletion;
-								}
-							});
-						}
-					});
-
-					facade.deletePermanently([ dataSetDeletion.id ], function(response) {
-						ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0,
-								"Cannot delete a data set with deletion_disallow flag set to true.");
-
-						facade.deletePermanentlyForced([ dataSetDeletion.id ], function(response) {
-							ok(response.error.message.indexOf("Authorization failure") == 0, "Don't have enough privileges to use a forced version of deleting data sets.");
-
-							facade.revertDeletions([ dataSetDeletion.id ], function(response) {
-								ok(response.error == null, "Reverted deletion.");
-								facade.close();
-							})
-						});
-					});
-				});
-			});
-		});
-	});
-});
-
 test("listNamedRoleSets()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listNamedRoleSets(function(response) {
