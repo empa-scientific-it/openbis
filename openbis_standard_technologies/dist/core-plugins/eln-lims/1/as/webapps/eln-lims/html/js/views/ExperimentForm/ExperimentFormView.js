@@ -697,7 +697,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var experiment = this._experimentFormModel.v3_experiment;
         var numberOfUndeletableDataSets = 0;
         experiment.dataSets.forEach(function(dataSet) {
-            if (dataSet.type.disallowDeletion) {
+            if (dataSet.frozen || dataSet.type.disallowDeletion) {
                 numberOfUndeletableDataSets++;
             }
         });

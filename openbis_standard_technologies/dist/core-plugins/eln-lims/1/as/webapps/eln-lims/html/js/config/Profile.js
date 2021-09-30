@@ -582,7 +582,6 @@ $.extend(DefaultProfile.prototype, {
 		this.allDataStores = [];
 		this.allPropertyTypes = [];
 		this.allDatasetTypeCodes = [];
-        this.allUndeletableDatasetTypeCodes = [];
 		this.displaySettings = {};
 
 		this.typePropertiesForSmallTable = {};
@@ -594,10 +593,6 @@ $.extend(DefaultProfile.prototype, {
 		this.isDatasetTypeCode = function(datasetTypeCode) {
 			return ($.inArray(datasetTypeCode, this.allDatasetTypeCodes) !== -1);
 		}
-
-        this.isUndeletableDatasetTypeCode = function(datasetTypeCode) {
-            return ($.inArray(datasetTypeCode, this.allUndeletableDatasetTypeCodes) !== -1);
-        }
 
 		this.isSampleTypeProtocol = function(sampleTypeCode) {
 			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["USE_AS_PROTOCOL"];
@@ -1205,16 +1200,11 @@ $.extend(DefaultProfile.prototype, {
 
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
-            this.serverFacade.openbisServer.listDataSetTypes(function(data) {
+			this.serverFacade.listDataSetTypes(function(data) {
 				var dataSetTypes = data.result;
 				for(var i = 0; i < dataSetTypes.length; i++) {
 					var datasetType = dataSetTypes[i];
-                    if (_this.showDataset(datasetType.code)) {
-                        _this.allDatasetTypeCodes.push(datasetType.code);
-                    }
-                    if (datasetType.deletionDisallowed) {
-                        _this.allUndeletableDatasetTypeCodes.push(datasetType.code);
-                    }
+					_this.allDatasetTypeCodes.push(datasetType.code);
 				}
 
 				_this.allDatasetTypeCodes.sort(function(a, b){

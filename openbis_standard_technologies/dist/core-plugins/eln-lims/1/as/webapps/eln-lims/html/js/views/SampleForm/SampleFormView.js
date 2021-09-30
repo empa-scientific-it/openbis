@@ -1454,13 +1454,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 
 	this._allowedToDelete = function() {
+		var sample = this._sampleFormModel.v3_sample;
         var numberOfUndeletableDataSets = 0;
-        this._sampleFormModel.datasets.forEach(function(dataSet) {
-            if (profile.isUndeletableDatasetTypeCode(dataSet.dataSetTypeCode)) {
+        sample.dataSets.forEach(function(dataSet) {
+            if (dataSet.frozen || dataSet.type.disallowDeletion) {
                 numberOfUndeletableDataSets++;
             }
         });
-		var sample = this._sampleFormModel.v3_sample;
         return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false))
                 && numberOfUndeletableDataSets == 0
                 && this._sampleFormModel.rights.rights.indexOf("DELETE") >= 0;

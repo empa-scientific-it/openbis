@@ -37,6 +37,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					fetchOptions.withExperiment();
 					fetchOptions.withParents();
 					fetchOptions.withChildren();
+                    fetchOptions.withDataSets().withType();
 					mainController.openbisV3.getSamples([ id ], fetchOptions).done(function(map) {
 						_this._sampleFormModel.v3_sample = map[id];
 
