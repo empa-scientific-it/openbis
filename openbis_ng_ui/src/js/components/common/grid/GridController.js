@@ -86,19 +86,23 @@ export default class GridController {
       newColumn.visible = newColumnsVisibility[newColumn.name]
     })
 
-    newColumns = newColumns.sort((c1, c2) => {
+    this._sortColumns(newColumns, newColumnsSorting)
+
+    return { newColumns, newColumnsVisibility, newColumnsSorting }
+  }
+
+  _sortColumns(columns, columnsSorting) {
+    columns.sort((c1, c2) => {
       const c1Index = _.findIndex(
-        newColumnsSorting,
+        columnsSorting,
         columnName => columnName === c1.name
       )
       const c2Index = _.findIndex(
-        newColumnsSorting,
+        columnsSorting,
         columnName => columnName === c2.name
       )
       return c1Index - c2Index
     })
-
-    return { newColumns, newColumnsVisibility, newColumnsSorting }
   }
 
   _initColumn(column) {
@@ -462,7 +466,11 @@ export default class GridController {
       newColumnsSorting.splice(sourceSorting, 1)
       newColumnsSorting.splice(destinationSorting, 0, sourceColumn.name)
 
+      const newColumns = [...state.columns]
+      this._sortColumns(newColumns, newColumnsSorting)
+
       return {
+        columns: newColumns,
         columnsSorting: newColumnsSorting
       }
     })
