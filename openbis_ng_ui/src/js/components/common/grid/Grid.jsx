@@ -68,11 +68,8 @@ class Grid extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      this.props.rows !== prevProps.rows ||
-      this.props.totalCount !== prevProps.totalCount
-    ) {
-      this.controller.updateRows(this.props.rows, this.props.totalCount)
+    if (this.props.rows !== prevProps.rows) {
+      this.controller.updateRows(this.props.rows)
     }
     if (this.props.selectedRowId !== prevProps.selectedRowId) {
       this.controller.updateSelectedRowId(this.props.selectedRowId)
@@ -110,7 +107,7 @@ class Grid extends React.PureComponent {
       page,
       pageSize,
       columns,
-      currentRows,
+      rows,
       selectedRow,
       totalCount
     } = this.state
@@ -132,7 +129,7 @@ class Grid extends React.PureComponent {
                     onFilterChange={this.controller.handleFilterChange}
                   />
                   <TableBody classes={{ root: classes.tableBody }}>
-                    {currentRows.map(row => {
+                    {rows.map(row => {
                       return (
                         <GridRow
                           key={row.id}

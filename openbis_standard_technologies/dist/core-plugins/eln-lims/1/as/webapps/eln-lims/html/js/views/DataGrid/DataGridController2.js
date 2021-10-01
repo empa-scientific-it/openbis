@@ -38,7 +38,113 @@ function DataGridController2(
   this.rows = [];
   this.totalCount = 0;
 
-  this._calculateColumns = function (objects) {
+  this.init = function (session, $container, extraOptions) {
+    ReactDOM.unmountComponentAtNode($container.get(0));
+    ReactDOM.render(
+      React.createElement(window.NgUiGrid.default.Loading, {
+        loading: true,
+      }),
+      $container.get(0)
+    );
+    this._init(session, $container, extraOptions);
+  };
+
+  this._init = function (session, $container, extraOptions) {
+    if (loadData.dynamic) {
+      var openbis = window.NgUiGrid.default.openbis;
+      openbis.init().then(function () {
+        openbis.useSession(session);
+        var GridElement = React.createElement(
+          window.NgUiGrid.default.ThemeProvider,
+          {},
+          React.createElement(window.NgUiGrid.default.Grid, {
+            settingsId: {
+              webAppId: "ELN-LIMS",
+              gridId: _this.gridId,
+            },
+            controllerRef: function (controller) {
+              _this.controller = controller;
+            },
+            header: _this.header,
+            loadColumns: _this._loadColumns,
+            loadRows: function (params) {
+              var options = {
+                pageIndex: params.page,
+                pageSize: params.pageSize,
+                sortProperty: params.sort,
+                sortDirection: params.sortDirection,
+                search:
+                  Object.keys(params.filters).length > 0
+                    ? Object.values(params.filters).join(" ")
+                    : null,
+              };
+              return new Promise(function (resolve) {
+                loadData(function (data) {
+                  let rows = data.objects;
+                  let totalCount = data.totalCount;
+
+                  rows = rows.map(function (row, index) {
+                    return Object.assign(
+                      {
+                        id: index,
+                      },
+                      row
+                    );
+                  });
+
+                  resolve({
+                    rows: rows,
+                    totalCount: totalCount,
+                  });
+                }, options);
+              });
+            },
+          })
+        );
+
+        ReactDOM.render(GridElement, $container.get(0));
+      });
+    } else {
+      loadData(function (data) {
+        var openbis = window.NgUiGrid.default.openbis;
+        openbis.init().then(function () {
+          openbis.useSession(session);
+          var GridElement = React.createElement(
+            window.NgUiGrid.default.ThemeProvider,
+            {},
+            React.createElement(window.NgUiGrid.default.Grid, {
+              settingsId: {
+                webAppId: "ELN-LIMS",
+                gridId: _this.gridId,
+              },
+              controllerRef: function (controller) {
+                _this.controller = controller;
+              },
+              header: _this.header,
+              loadColumns: _this._loadColumns,
+              rows: data.map(function (row, index) {
+                return Object.assign(
+                  {
+                    id: index,
+                  },
+                  row
+                );
+              }),
+              onSelectedRowChange: function (selectedRow) {
+                if (rowClickEventHandler) {
+                  rowClickEventHandler(selectedRow);
+                }
+              },
+            })
+          );
+
+          ReactDOM.render(GridElement, $container.get(0));
+        });
+      });
+    }
+  };
+
+  this._loadColumns = function (objects) {
     var columns = [];
     columns = columns.concat(columnsFirst);
 
@@ -68,7 +174,7 @@ function DataGridController2(
             if (column.render) {
               let grid = {
                 lastReceivedData: {
-                  objects: _this.controller.getCurrentRows(),
+                  objects: _this.controller.getRows(),
                   totalCount: _this.controller.getTotalCount(),
                 },
                 lastUsedOptions: {
@@ -134,111 +240,6 @@ function DataGridController2(
       });
 
     return columns;
-  };
-
-  this.columns = this._calculateColumns();
-
-  this.init = function (session, $container, extraOptions) {
-    ReactDOM.unmountComponentAtNode($container.get(0));
-    ReactDOM.render(
-      React.createElement(window.NgUiGrid.default.Loading, {
-        loading: true,
-      }),
-      $container.get(0)
-    );
-    this._init(session, $container, extraOptions);
-  };
-
-  this._init = function (session, $container, extraOptions) {
-    if (loadData.dynamic) {
-      var openbis = window.NgUiGrid.default.openbis;
-      openbis.init().then(function () {
-        openbis.useSession(session);
-        var GridElement = React.createElement(
-          window.NgUiGrid.default.ThemeProvider,
-          {},
-          React.createElement(window.NgUiGrid.default.Grid, {
-            settingsId: {
-              webAppId: "ELN-LIMS",
-              gridId: _this.gridId,
-            },
-            controllerRef: function (controller) {
-              _this.controller = controller;
-            },
-            header: _this.header,
-            columns: _this.columns,
-            rows: _this.rows,
-            totalCount: _this.totalCount,
-            load: function (params) {
-              var options = {
-                pageIndex: params.page,
-                pageSize: params.pageSize,
-                sortProperty: params.sort,
-                sortDirection: params.sortDirection,
-                search:
-                  Object.keys(params.filters).length > 0
-                    ? Object.values(params.filters).join(" ")
-                    : null,
-              };
-              return new Promise(function (resolve) {
-                loadData(function (data) {
-                  resolve();
-                  _this.columns = _this._calculateColumns(data.objects);
-                  _this.rows = data.objects.map(function (row, index) {
-                    return Object.assign(
-                      {
-                        id: index,
-                      },
-                      row
-                    );
-                  });
-                  _this.totalCount = data.totalCount;
-                  _this._init(session, $container, extraOptions);
-                }, options);
-              });
-            },
-          })
-        );
-        ReactDOM.render(GridElement, $container.get(0));
-      });
-    } else {
-      loadData(function (data) {
-        var openbis = window.NgUiGrid.default.openbis;
-        openbis.init().then(function () {
-          openbis.useSession(session);
-          var GridElement = React.createElement(
-            window.NgUiGrid.default.ThemeProvider,
-            {},
-            React.createElement(window.NgUiGrid.default.Grid, {
-              settingsId: {
-                webAppId: "ELN-LIMS",
-                gridId: _this.gridId,
-              },
-              controllerRef: function (controller) {
-                _this.controller = controller;
-              },
-              header: _this.header,
-              columns: _this.columns,
-              rows: data.map(function (row, index) {
-                return Object.assign(
-                  {
-                    id: index,
-                  },
-                  row
-                );
-              }),
-              onSelectedRowChange: function (selectedRow) {
-                if (rowClickEventHandler) {
-                  rowClickEventHandler(selectedRow);
-                }
-              },
-            })
-          );
-
-          ReactDOM.render(GridElement, $container.get(0));
-        });
-      });
-    }
   };
 
   this.refreshHeight = function () {};
