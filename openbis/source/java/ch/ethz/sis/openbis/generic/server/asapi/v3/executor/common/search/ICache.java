@@ -1,15 +1,15 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import java.util.Collection;
-
-interface ICache
+public interface ICache<V>
 {
 
-    void add(String hashCode, Collection<Long> results);
+    void put(String key, V value);
 
-    Collection<Long> get(String hashCode);
+    V get(String key);
 
-    boolean isCacheAvailable(String hashCode);
+    void remove(String key);
+
+    boolean contains(String key);
 
     void clear();
 

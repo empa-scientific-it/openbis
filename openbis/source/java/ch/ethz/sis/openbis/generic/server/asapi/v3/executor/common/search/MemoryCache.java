@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-public class MemoryCache implements ICache
+public class MemoryCache<V> implements ICache<V>
 {
 
     private final int capacity;
 
-    private final Map<String, Collection<Long>> cachedResults;
+    private final Map<String, V> cachedResults;
 
     private final Queue<String> hashCodeQueue;
 
@@ -28,9 +28,9 @@ public class MemoryCache implements ICache
     }
 
     @Override
-    public void add(final String hashCode, final Collection<Long> results)
+    public void put(final String key, final V value)
     {
-        if (!isCacheAvailable(hashCode))
+        if (!contains(key))
         {
             final int cacheSize = cachedResults.size();
             final int queueSize = hashCodeQueue.size();
@@ -49,7 +49,7 @@ public class MemoryCache implements ICache
             if (cacheSize == capacity)
             {
                 final String removedHashCode = hashCodeQueue.remove();
-                final Collection<Long> removedValue = cachedResults.remove(removedHashCode);
+                final V removedValue = cachedResults.remove(removedHashCode);
 
                 if (removedValue == null)
                 {
@@ -58,24 +58,28 @@ public class MemoryCache implements ICache
                 }
             }
 
-            hashCodeQueue.add(hashCode);
-            cachedResults.put(hashCode, results);
-        } else
-        {
-            cachedResults.put(hashCode, results);
+            hashCodeQueue.add(key);
         }
+        cachedResults.put(key, value);
     }
 
     @Override
-    public Collection<Long> get(final String hashCode)
+    public V get(final String key)
     {
-        return cachedResults.get(hashCode);
+        return cachedResults.get(key);
     }
 
     @Override
-    public boolean isCacheAvailable(final String hashCode)
+    public void remove(final String key)
     {
-        return cachedResults.containsKey(hashCode);
+        hashCodeQueue.remove(key);
+        cachedResults.remove(key);
+    }
+
+    @Override
+    public boolean contains(final String key)
+    {
+        return cachedResults.containsKey(key);
     }
 
     @Override

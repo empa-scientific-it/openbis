@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.cache;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -25,16 +26,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author pkupczyk
  */
-public class SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS> implements Session.ISessionCleaner
+public class SearchCacheCleanupListener implements Session.ISessionCleaner
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    private ISearchCache<CRITERIA, FETCH_OPTIONS, ?> cache;
+    private final ICache<?> cache;
 
-    private SearchCacheKey<CRITERIA, FETCH_OPTIONS> key;
+    private final String key;
 
-    public SearchCacheCleanupListener(ISearchCache<CRITERIA, FETCH_OPTIONS, ?> cache, SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
+    public SearchCacheCleanupListener(final ICache<?> cache, final String key)
     {
         this.cache = cache;
         this.key = key;
@@ -43,9 +44,7 @@ public class SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS> implements Sess
     @Override
     public void cleanup()
     {
-        SearchCacheEntry<?> entry = cache.get(key);
-
-        if (entry != null)
+        if (cache.contains(key))
         {
             operationLog.info("Clean up cached search result on logout.");
             cache.remove(key);
