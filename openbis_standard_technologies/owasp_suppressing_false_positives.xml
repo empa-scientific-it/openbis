@@ -5,7 +5,17 @@
 		<packageUrl regex="true">^pkg:maven/.*$</packageUrl>
 		<cve>CVE-2018-1000873</cve>
 		<cve>CVE-2017-5929</cve>
-		<cve>CVE-2018-14718 </cve>
+		<cve>CVE-2018-14718</cve>
+		<cve>CVE-2018-14719</cve>
+		<cve>CVE-2018-14720</cve>
+		<cve>CVE-2018-14721</cve>
+		<cve>CVE-2018-19360</cve>
+		<cve>CVE-2018-19361</cve>
+		<cve>CVE-2018-19362</cve>
+		<cve>CVE-2019-12086</cve>
+		<cve>CVE-2019-12384</cve>
+		<cve>CVE-2019-12814</cve>
+		<cve>CVE-2019-14379</cve>
 		<cve>CVE-2020-8908</cve>
 	</suppress>
    <!-- GWT Development - Jetty 6 -->
