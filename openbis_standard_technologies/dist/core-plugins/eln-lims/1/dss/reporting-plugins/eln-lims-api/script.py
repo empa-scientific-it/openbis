@@ -621,11 +621,11 @@ def copySample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	#Create new Sample
 	parameters.put("method", "insertSample"); #List<String> Identifiers are in SPACE/CODE format
 	permId = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
-
 	#Copy children and attach to Sample
 	sampleIdentifierOriginal = createSampleIdentifier(sampleSpace, sampleProject, parameters.get("sampleCodeOrig"), projectSamplesEnabled)
 	sampleOriginal = getSampleByIdentifierForUpdate(tr, sampleIdentifierOriginal); #Retrieve Sample
-	if sampleChildren != None and parameters.get("copyChildrenOnCopy") != "None":
+	
+	if sampleChildren != None and parameters.get("copyChildrenOnCopy") != False:
 		for sampleChildIdentifier in sampleChildren:
 			child = getSampleByIdentifierForUpdate(tr, sampleChildIdentifier); #Retrieve Sample child to copy
 			copyChildCode = None
@@ -634,7 +634,7 @@ def copySample(tr, projectSamplesEnabled, parameters, tableBuilder):
 				copyChildCode = parameters.get("sampleCode") + child.getCode()[indexFromCopiedChildrenParentCode:];
 			except: #For all other children
 				copyChildCode = parameters.get("sampleCode") + "_" + child.getCode();
-
+			
 			if parameters.get("copyChildrenOnCopy") == "ToParentCollection":
 				copyChildIdentifier = createSampleIdentifier(sampleSpace, sampleProject, copyChildCode, projectSamplesEnabled)
 			if parameters.get("copyChildrenOnCopy") == "ToOriginalCollection":
