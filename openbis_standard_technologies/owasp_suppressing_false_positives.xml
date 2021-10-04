@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+	<!-- Bio Formats -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+		<cpe>cpe:/a:qos:logback</cpe>
+	</suppress>
    <!-- GWT Development - Jetty 6 -->
    <suppress>
       <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
