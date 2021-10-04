@@ -5,6 +5,10 @@
 		<packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
 		<cpe>cpe:/a:qos:logback</cpe>
 	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+		<vulnerabilityName>CVE-2017-5929</vulnerabilityName>
+	</suppress>
    <!-- GWT Development - Jetty 6 -->
    <suppress>
       <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
