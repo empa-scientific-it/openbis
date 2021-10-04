@@ -148,7 +148,7 @@ function DataGridController2(
     var columns = [];
     columns = columns.concat(columnsFirst);
 
-    if (objects) {
+    if (columnsDynamicFunc) {
       var dynamicColumns = columnsDynamicFunc(objects);
       if (dynamicColumns !== null && dynamicColumns.length > 0) {
         columns = columns.concat(dynamicColumns);
