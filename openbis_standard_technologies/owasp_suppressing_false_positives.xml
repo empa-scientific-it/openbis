@@ -18,27 +18,8 @@
 		<cve>CVE-2018-1000873</cve>
 	</suppress>
 	<suppress>
-		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind:2\.9\.6.*$</packageUrl>
-		<cve>CVE-2018-1000873</cve>
-		<cve>CVE-2018-14718</cve>
-		<cve>CVE-2018-14719</cve>
-		<cve>CVE-2018-14720</cve>
-		<cve>CVE-2018-14721</cve>
-		<cve>CVE-2018-19360</cve>
-		<cve>CVE-2018-19361</cve>
-		<cve>CVE-2018-19362</cve>
-		<cve>CVE-2019-12086</cve>
-		<cve>CVE-2019-12384</cve>
-		<cve>CVE-2019-12814</cve>
-		<cve>CVE-2019-14379</cve>
-		<cve>CVE-2019-14439</cve>
-		<cve>CVE-2019-14540</cve>
-		<cve>CVE-2019-14892</cve>
-		<cve>CVE-2019-14893</cve>
-		<cve>CVE-2019-16335</cve>
-		<cve>CVE-2019-16942</cve>
-		<cve>CVE-2019-16943</cve>
-		<cve>CVE-2019-17267</cve>
+		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+		<cpe>cpe:/a:fasterxml:jackson-databind:2.9.6</cpe>
 	</suppress>
    <!-- GWT Development - Jetty 6 -->
    <suppress>
