@@ -1,5 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+	<!-- Log4j 1.2 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/log4j@.*$</packageUrl>
+		<cve>CVE-2019-17571</cve>
+		<cve>CVE-2020-9488</cve>
+	</suppress>
+	<!-- Jython 2.7 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2021-35515</cve>
+		<cve>CVE-2021-35516</cve>
+		<cve>CVE-2021-35517</cve>
+		<cve>CVE-2021-36090</cve>
+	</suppress>
+	<!-- Junit 4 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
+		<cve>CVE-2020-15250</cve>
+	</suppress>
+	<!-- Hibernate 4 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/hibernate/hibernate\-validator@.*$</packageUrl>
+		<cve>CVE-2019-14900</cve>
+		<cve>CVE-2020-25638</cve>
+	</suppress>
+	<!-- Old Jackson used by ? -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/googlecode/jsonrpc4j@.*$</packageUrl>
+		<cve>CVE-2018-7489</cve>
+	</suppress>
+	<!-- Old Jetty used by GWT -->
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/org\.mortbay\.jetty/jetty@.*$</packageUrl>
 		<cve>CVE-2009-1523</cve>
@@ -20,6 +51,10 @@
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/net\.sourceforge\.htmlunit/htmlunit@.*$</packageUrl>
 		<cve>CVE-2020-5529</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpmime@.*$</packageUrl>
+		<cve>CVE-2012-6153</cve>
 	</suppress>
 	<!-- ? -->
 	<suppress>
