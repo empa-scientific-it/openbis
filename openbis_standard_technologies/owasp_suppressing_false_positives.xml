@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+	<!-- Bootstrap -->
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
+		<cve>CVE-2018-14040</cve>
+		<cve>CVE-2018-14041</cve>
+		<cve>CVE-2018-14042</cve>
+		<cve>CVE-2019-8331</cve>
+	</suppress>
+	<!-- Jquery 1.11.3 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+		<cve>CVE-2015-9251</cve>
+		<cve>CVE-2019-11358</cve>
+		<cve>CVE-2020-11022</cve>
+		<cve>CVE-2020-11023</cve>
+		<cve>CVE-2012-6708</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/moment\.js@.*$</packageUrl>
+		<vulnerabilityName>reDOS - regular expression denial of service</vulnerabilityName>
+	</suppress>
+
+	<!-- Bouncy Castle -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/bouncycastle/bcprov@.*$</packageUrl>
+		<cve>CVE-2018-1000613</cve>
+		<cve>CVE-2020-26939</cve>
+	</suppress>
+	<!-- Commons Compress 1.8 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2018-11771</cve>
+	</suppress>
 	<!-- Spring 5 -->
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/springframework/.*$</packageUrl>
@@ -15,91 +48,6 @@
 		<cve>CVE-2020-5398</cve>
 		<cve>CVE-2020-5421</cve>
 	</suppress>
-	<!--
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-aop@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-beans@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-context@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1270</cve>
-		<cve>CVE-2018-1271</cve>
-		<cve>CVE-2018-1272</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-context\-support@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-core@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-expression@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-jcl@.*$</packageUrl>
-		<cve>CVE-2018-11039</cve>
-		<cve>CVE-2018-11040</cve>
-		<cve>CVE-2018-1199</cve>
-		<cve>CVE-2018-1257</cve>
-		<cve>CVE-2018-1270</cve>
-		<cve>CVE-2018-1271</cve>
-		<cve>CVE-2018-1272</cve>
-		<cve>CVE-2018-1275</cve>
-		<cve>CVE-2018-15756</cve>
-		<cve>CVE-2020-5398</cve>
-		<cve>CVE-2020-5421</cve>
-	</suppress>
-	-->
 	<!-- Apache Poi 3.17 -->
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/apache/poi@.*$</packageUrl>
