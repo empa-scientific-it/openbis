@@ -20,7 +20,7 @@ export default class GridController {
       columns: [],
       rows: [],
       allRows: [],
-      selectedRow: null,
+      selectedRowId: null,
       sort: null,
       sortDirection: null,
       totalCount: 0
@@ -165,9 +165,8 @@ export default class GridController {
   }
 
   async load() {
-    const { columns, loadColumns, rows, loadRows } = this.context.getProps()
-    const { filters, page, pageSize, sort, sortDirection, selectedRow } =
-      this.context.getState()
+    const { columns, loadColumns, rows, loadRows, onLoad } =
+      this.context.getProps()
 
     if ((rows && loadRows) || (!rows && !loadRows)) {
       throw new Error(
@@ -184,6 +183,9 @@ export default class GridController {
     await this.context.setState(() => ({
       loading: true
     }))
+
+    const { filters, page, pageSize, sort, sortDirection } =
+      this.context.getState()
 
     let newRows,
       newAllRows,
@@ -239,7 +241,9 @@ export default class GridController {
       totalCount: newTotalCount
     }))
 
-    await this._recalculateSelectedRow(selectedRow ? selectedRow.id : null)
+    if (onLoad) {
+      onLoad()
+    }
   }
 
   _loadSettings() {
@@ -335,68 +339,43 @@ export default class GridController {
     openbis.updatePersons([update])
   }
 
-  async updateColumns() {
-    this.load()
-  }
-
-  async updateRows() {
-    this.load()
-  }
-
-  async updateSelectedRowId(selectedRowId) {
-    const { selectedRow } = this.context.getState()
-
-    if (!selectedRow || selectedRow.id !== selectedRowId) {
-      await this._recalculateSelectedRow(selectedRowId)
-    }
-  }
-
-  async _recalculateSelectedRow(selectedRowId) {
-    const { selectedRow, rows } = this.context.getState()
+  async updateSelectedRow(newSelectedRowId) {
     const { onSelectedRowChange } = this.context.getProps()
+    const { selectedRowId } = this.context.getState()
 
-    let newSelectedRow = null
-
-    if (selectedRowId !== null && selectedRowId !== undefined) {
-      const foundRow = _.find(rows, row => row.id === selectedRowId)
-      newSelectedRow = {
-        id: selectedRowId,
-        data: foundRow,
-        visible: foundRow !== undefined
-      }
-    }
-
-    if (!_.isEqual(selectedRow, newSelectedRow)) {
-      await this.context.setState({
-        selectedRow: newSelectedRow
-      })
+    if (newSelectedRowId !== selectedRowId) {
+      await this.context.setState(() => ({
+        selectedRowId: newSelectedRowId
+      }))
       if (onSelectedRowChange) {
-        await onSelectedRowChange(newSelectedRow)
+        onSelectedRowChange(this.getSelectedRow())
       }
     }
   }
 
-  async showSelectedRow() {
-    const { selectedRow, allRows, page, pageSize } = this.context.getState()
+  showSelectedRow() {
+    setTimeout(async () => {
+      const { selectedRowId, allRows, page, pageSize } = this.context.getState()
 
-    if (!selectedRow) {
-      return
-    }
+      if (!selectedRowId) {
+        return
+      }
 
-    const index = _.findIndex(allRows, ['id', selectedRow.id])
+      const index = _.findIndex(allRows, ['id', selectedRowId])
 
-    if (index === -1) {
-      return
-    }
+      if (index === -1) {
+        return
+      }
 
-    const newPage = Math.floor(index / pageSize)
+      const newPage = Math.floor(index / pageSize)
 
-    if (newPage !== page) {
-      await this.context.setState({
-        page: newPage
-      })
-      await this.load()
-    }
+      if (newPage !== page) {
+        await this.context.setState({
+          page: newPage
+        })
+        await this.load()
+      }
+    }, 1)
   }
 
   async handleFilterChange(column, filter) {
@@ -514,8 +493,8 @@ export default class GridController {
     await this.load()
   }
 
-  handleRowSelect(row) {
-    this.updateSelectedRowId(row ? row.id : null)
+  async handleRowSelect(row) {
+    await this.updateSelectedRow(row ? row.id : null)
   }
 
   _filter(rows, columns, filters) {
@@ -583,8 +562,21 @@ export default class GridController {
   }
 
   getSelectedRow() {
-    const { selectedRow } = this.context.getState()
-    return selectedRow
+    const { selectedRowId, rows, allRows } = this.context.getState()
+
+    if (selectedRowId !== null && selectedRowId !== undefined) {
+      const selectedRow = _.find(allRows, row => row.id === selectedRowId)
+      if (selectedRow !== undefined) {
+        const visible =
+          _.findIndex(rows, row => row.id === selectedRowId) !== -1
+        return {
+          id: selectedRow.id,
+          visible
+        }
+      }
+    }
+
+    return null
   }
 
   getTotalCount() {

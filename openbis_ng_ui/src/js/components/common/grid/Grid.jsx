@@ -67,15 +67,16 @@ class Grid extends React.PureComponent {
     this.controller.load()
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.rows !== prevProps.rows) {
-      this.controller.updateRows(this.props.rows)
+  async componentDidUpdate(prevProps) {
+    if (
+      this.props.rows !== prevProps.rows ||
+      this.props.columns !== prevProps.columns
+    ) {
+      await this.controller.load()
     }
+
     if (this.props.selectedRowId !== prevProps.selectedRowId) {
-      this.controller.updateSelectedRowId(this.props.selectedRowId)
-    }
-    if (this.props.columns !== prevProps.columns) {
-      this.controller.updateColumns(this.props.columns)
+      await this.controller.updateSelectedRow(this.props.selectedRowId)
     }
   }
 
@@ -108,7 +109,7 @@ class Grid extends React.PureComponent {
       pageSize,
       columns,
       rows,
-      selectedRow,
+      selectedRowId,
       totalCount
     } = this.state
 
@@ -135,9 +136,7 @@ class Grid extends React.PureComponent {
                           key={row.id}
                           columns={columns}
                           row={row}
-                          selected={
-                            selectedRow ? selectedRow.id === row.id : false
-                          }
+                          selected={row.id === selectedRowId}
                           onClick={this.controller.handleRowSelect}
                         />
                       )
