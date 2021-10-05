@@ -19,6 +19,7 @@ export default class GridController {
       columnsSorting: [],
       columns: [],
       rows: [],
+      sortedRows: [],
       allRows: [],
       selectedRowId: null,
       sort: null,
@@ -187,6 +188,7 @@ export default class GridController {
       this.context.getState()
 
     let newRows,
+      newSortedRows,
       newAllRows,
       newColumns,
       newColumnsVisibility,
@@ -208,7 +210,8 @@ export default class GridController {
 
       newPage = Math.min(page, pageCount - 1)
       newRows = this._page(sortedRows, newPage, pageSize)
-      newAllRows = sortedRows
+      newSortedRows = sortedRows
+      newAllRows = rows
       newTotalCount = filteredRows.length
     } else if (loadRows) {
       const result = await loadRows({
@@ -222,6 +225,7 @@ export default class GridController {
       const newPageCount = Math.max(Math.ceil(result.totalCount / pageSize), 1)
       newPage = Math.min(page, newPageCount - 1)
       newRows = result.rows
+      newSortedRows = result.rows
       newAllRows = result.rows
       newTotalCount = result.totalCount
       ;({ newColumns, newColumnsVisibility, newColumnsSorting } =
@@ -235,6 +239,7 @@ export default class GridController {
       columnsSorting: newColumnsSorting,
       columns: newColumns,
       rows: newRows,
+      sortedRows: newSortedRows,
       allRows: newAllRows,
       page: newPage,
       totalCount: newTotalCount
@@ -369,13 +374,14 @@ export default class GridController {
 
   showSelectedRow() {
     setTimeout(async () => {
-      const { selectedRowId, allRows, page, pageSize } = this.context.getState()
+      const { selectedRowId, sortedRows, page, pageSize } =
+        this.context.getState()
 
       if (!selectedRowId) {
         return
       }
 
-      const index = _.findIndex(allRows, ['id', selectedRowId])
+      const index = _.findIndex(sortedRows, ['id', selectedRowId])
 
       if (index === -1) {
         return
