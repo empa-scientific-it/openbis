@@ -2,7 +2,7 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 	<!-- Spring 5 -->
 	<suppress>
-		<packageUrl regex="true">^pkg:maven/springframework/spring\-.*@.*$</packageUrl>
+		<packageUrl regex="true">^pkg:maven/springframework/.*$</packageUrl>
 		<cve>CVE-2018-11039</cve>
 		<cve>CVE-2018-11040</cve>
 		<cve>CVE-2018-1199</cve>
