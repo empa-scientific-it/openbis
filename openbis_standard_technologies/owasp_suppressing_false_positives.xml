@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+	<!-- XML Beans 2.6.0 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/xmlbeans@.*$</packageUrl>
+		<cve>CVE-2021-23926</cve>
+	</suppress>
 	<!-- Bootstrap -->
 	<suppress>
 		<packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
