@@ -165,8 +165,7 @@ export default class GridController {
   }
 
   async load() {
-    const { columns, loadColumns, rows, loadRows, onLoad } =
-      this.context.getProps()
+    const { columns, loadColumns, rows, loadRows } = this.context.getProps()
 
     if ((rows && loadRows) || (!rows && !loadRows)) {
       throw new Error(
@@ -184,7 +183,7 @@ export default class GridController {
       loading: true
     }))
 
-    const { filters, page, pageSize, sort, sortDirection } =
+    const { filters, page, pageSize, sort, sortDirection, selectedRowId } =
       this.context.getState()
 
     let newRows,
@@ -241,9 +240,7 @@ export default class GridController {
       totalCount: newTotalCount
     }))
 
-    if (onLoad) {
-      onLoad()
-    }
+    this.updateSelectedRow(selectedRowId)
   }
 
   _loadSettings() {
@@ -341,14 +338,27 @@ export default class GridController {
 
   async updateSelectedRow(newSelectedRowId) {
     const { onSelectedRowChange } = this.context.getProps()
-    const { selectedRowId } = this.context.getState()
+    const { rows, selectedRow } = this.context.getState()
 
-    if (newSelectedRowId !== selectedRowId) {
-      await this.context.setState(() => ({
-        selectedRowId: newSelectedRowId
-      }))
-      if (onSelectedRowChange) {
-        onSelectedRowChange(this.getSelectedRow())
+    let newSelectedRow = null
+
+    if (newSelectedRowId !== null && newSelectedRowId !== undefined) {
+      const visible =
+        _.findIndex(rows, row => row.id === newSelectedRowId) !== -1
+      newSelectedRow = {
+        id: newSelectedRowId,
+        visible
+      }
+    }
+
+    await this.context.setState(() => ({
+      selectedRowId: newSelectedRowId,
+      selectedRow: newSelectedRow
+    }))
+
+    if (onSelectedRowChange) {
+      if (!_.isEqual(selectedRow, newSelectedRow)) {
+        onSelectedRowChange(newSelectedRow)
       }
     }
   }
@@ -562,21 +572,8 @@ export default class GridController {
   }
 
   getSelectedRow() {
-    const { selectedRowId, rows, allRows } = this.context.getState()
-
-    if (selectedRowId !== null && selectedRowId !== undefined) {
-      const selectedRow = _.find(allRows, row => row.id === selectedRowId)
-      if (selectedRow !== undefined) {
-        const visible =
-          _.findIndex(rows, row => row.id === selectedRowId) !== -1
-        return {
-          id: selectedRow.id,
-          visible
-        }
-      }
-    }
-
-    return null
+    const { selectedRow } = this.context.getState()
+    return selectedRow
   }
 
   getTotalCount() {
