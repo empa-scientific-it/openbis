@@ -208,7 +208,7 @@ export default class GridController {
 
       newPage = Math.min(page, pageCount - 1)
       newRows = this._page(sortedRows, newPage, pageSize)
-      newAllRows = rows
+      newAllRows = sortedRows
       newTotalCount = filteredRows.length
     } else if (loadRows) {
       const result = await loadRows({
@@ -338,16 +338,20 @@ export default class GridController {
 
   async updateSelectedRow(newSelectedRowId) {
     const { onSelectedRowChange } = this.context.getProps()
-    const { rows, selectedRow } = this.context.getState()
+    const { rows, allRows, selectedRow } = this.context.getState()
 
     let newSelectedRow = null
 
     if (newSelectedRowId !== null && newSelectedRowId !== undefined) {
-      const visible =
-        _.findIndex(rows, row => row.id === newSelectedRowId) !== -1
-      newSelectedRow = {
-        id: newSelectedRowId,
-        visible
+      const exists =
+        _.findIndex(allRows, row => row.id === newSelectedRowId) !== -1
+      if (exists) {
+        const visible =
+          _.findIndex(rows, row => row.id === newSelectedRowId) !== -1
+        newSelectedRow = {
+          id: newSelectedRowId,
+          visible
+        }
       }
     }
 
