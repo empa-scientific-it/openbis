@@ -2,7 +2,7 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/org\.mortbay\.jetty/jetty@.*$</packageUrl>
-		<vulnerabilityName>CVE-2009-1523</vulnerabilityName>
+		<cve>CVE-2009-1523</cve>
 		<cve>CVE-2009-1524</cve>
 		<cve>CVE-2009-5047</cve>
 		<cve>CVE-2011-4461</cve>
