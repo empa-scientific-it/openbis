@@ -49,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -524,7 +526,9 @@ public final class TrashBOTest extends AbstractBOTest
                     for (Long id : argument)
                     {
                         DataSetNode dataSetNode = dataSetNodes.get(id);
-                        dataSets.add(Utils.createExternalData(dataSetNode));
+                        AbstractExternalData dataSet = Utils.createExternalData(dataSetNode);
+                        dataSet.setDataSetType(new DataSetType());
+                        dataSets.add(dataSet);
                     }
                     print("listByDataSetIds(" + argument + ") = " + dataSets);
                     return dataSets;

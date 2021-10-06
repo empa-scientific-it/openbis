@@ -142,7 +142,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 				path = this.entity.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + pathInDataSet + "/";
 			}
 				
-			directLinkComponent += "<span onclick=\"" + "Util.showDirectLink('" + path + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
+			directLinkComponent += "<span onclick=\"" + "Util.showDirectLink('DEFAULT/" + path + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
 		}
 		return directLinkComponent;
 	}

@@ -171,16 +171,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
-				return c.createDataSet(facade, "UNKNOWN").then(function(permId) {
-					c.assertNotNull(permId, "Entity was created");
-					return c.deleteDataSet(facade, permId).then(function(deletionId) {
-						c.assertNotNull(deletionId, "Entity was moved to trash");
-						return facade.confirmDeletions([ deletionId ]).then(function() {
-							c.fail("Confirmation of deletion should fail without the force flag");
-							c.finish();
-						});
-					});
-				});
+                return c.createDataSetType(facade, "DELETION-TEST").then(function(typeId) {
+                    c.assertNotNull(typeId, "Data set type created")
+                    return c.createDataSet(facade, typeId.getPermId()).then(function(permId) {
+                        c.assertNotNull(permId, "Entity was created");
+                        return c.deleteDataSet(facade, permId).then(function(deletionId) {
+                            c.assertNotNull(deletionId, "Entity was moved to trash");
+                            var update = new c.DataSetTypeUpdate();
+                            update.setTypeId(typeId);
+                            update.setDisallowDeletion(true);
+                            return facade.updateDataSetTypes([update]).then(function() {
+                                c.ok("Data set type updated")
+                                return facade.confirmDeletions([ deletionId ]).then(function() {
+                                    c.fail("Confirmation of deletion should fail without the force flag");
+                                    c.finish();
+                                });
+                            });
+                        });
+                    });
+                });
 			}).fail(function(error) {
 				c.assertContains(error.message, "Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type", "Expected error message");
 				c.finish();
@@ -193,18 +202,27 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
-				return c.createDataSet(facade, "UNKNOWN").then(function(permId) {
-					c.assertNotNull(permId, "Entity was created");
-					return c.deleteDataSet(facade, permId).then(function(deletionId) {
-						c.assertNotNull(deletionId, "Entity was moved to trash");
-						var operation = new c.ConfirmDeletionsOperation([ deletionId ]);
-						operation.setForceDeletion(true);
-						var options = new c.SynchronousOperationExecutionOptions();
-						return facade.executeOperations([ operation ], options).then(function() {
-							c.finish();
-						});
-					});
-				});
+                return c.createDataSetType(facade, "DELETION-TEST").then(function(typeId) {
+                    c.assertNotNull(typeId, "Data set type created")
+                    return c.createDataSet(facade, typeId.getPermId()).then(function(permId) {
+                        c.assertNotNull(permId, "Entity was created");
+                        return c.deleteDataSet(facade, permId).then(function(deletionId) {
+                            c.assertNotNull(deletionId, "Entity was moved to trash");
+                            var update = new c.DataSetTypeUpdate();
+                            update.setTypeId(typeId);
+                            update.setDisallowDeletion(true);
+                            return facade.updateDataSetTypes([update]).then(function() {
+                                c.ok("Data set type updated")
+                                var operation = new c.ConfirmDeletionsOperation([ deletionId ]);
+                                operation.setForceDeletion(true);
+                                var options = new c.SynchronousOperationExecutionOptions();
+                                return facade.executeOperations([ operation ], options).then(function() {
+                                    c.finish();
+                                });
+                            });
+                        });
+                    });
+                });
 			}).fail(function(error) {
 				c.fail("Confirmation of deletion should not fail with the force flag");
 				c.finish();

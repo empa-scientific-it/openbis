@@ -29,7 +29,8 @@ function ExperimentFormController(mainController, mode, experiment) {
 					var id = new ExperimentPermId(experiment.permId);
 					var fetchOptions = new ExperimentFetchOptions();
 					fetchOptions.withProject().withSpace();
-					fetchOptions.withDataSets().withSample();
+                    fetchOptions.withDataSets().withType();
+                    fetchOptions.withDataSets().withSample();
 					mainController.openbisV3.getExperiments([ id ], fetchOptions).done(function(map) {
 						_this._experimentFormModel.v3_experiment = map[id];
 						var expeId = _this._experimentFormModel.v3_experiment.getIdentifier().getIdentifier();

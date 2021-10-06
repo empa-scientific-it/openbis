@@ -695,7 +695,14 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 	this._allowedToDelete = function() {
 		var experiment = this._experimentFormModel.v3_experiment;
+        var numberOfUndeletableDataSets = 0;
+        experiment.dataSets.forEach(function(dataSet) {
+            if (dataSet.frozen || dataSet.type.disallowDeletion) {
+                numberOfUndeletableDataSets++;
+            }
+        });
         return (experiment.frozen == false && experiment.project.frozenForExperiments == false)
+                && numberOfUndeletableDataSets == 0
                 && this._experimentFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 
