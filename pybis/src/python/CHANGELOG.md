@@ -1,3 +1,6 @@
+## Changes with pybis-1.20.4
+- fixed parents/children problem when get_samples(), get_datasets()
+- sorted imports
 ## Changes with pybis-1.20.3
 - deactivated debugging logs
 - creation of property type accets vocabulary object
