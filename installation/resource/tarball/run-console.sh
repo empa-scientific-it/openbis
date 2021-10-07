@@ -72,7 +72,7 @@ if [ -z "$install_path" ]; then
     exit 1
 fi
 	
-if [ -d "$install_path\bin" && -d "$install_path\servers" ]; then
+if [[ -d "$install_path/bin" && -d "$install_path/servers/core-plugins" && -d "$install_path/servers/datastore_server" ]]; then
   echo "Previous openBIS installation detected. Upgrading..."
 else 
   dss_root_dir=$( grep -e "^DSS_ROOT_DIR=.*$" $BASE/console.properties | sed "s/DSS_ROOT_DIR=//" )
