@@ -226,4 +226,33 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
         return entry;
     }
 
+    protected boolean isDataSet(HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return isEntityKind("DATA SET", historyRelationshipRecord);
+    }
+
+    protected boolean isExperiment(HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return isEntityKind("EXPERIMENT", historyRelationshipRecord);
+    }
+
+    protected boolean isProject(HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return isEntityKind("PROJECT", historyRelationshipRecord);
+    }
+
+    protected boolean isSample(HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return isEntityKind("SAMPLE", historyRelationshipRecord);
+    }
+
+    protected boolean isSpace(HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return isEntityKind("SPACE", historyRelationshipRecord);
+    }
+
+    private boolean isEntityKind(String entityKind, HistoryRelationshipRecord historyRelationshipRecord)
+    {
+        return entityKind.equals(historyRelationshipRecord.entityKind);
+    }
 }

@@ -104,6 +104,7 @@ public interface ExperimentQuery extends ObjectQuery
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet experimentIds);
 
     @Select(sql = "select erh.main_expe_id as objectId, erh.pers_id_author as authorId, erh.relation_type as relationType, "
+            + "erh.entity_kind as entityKind, "
             + "erh.entity_perm_id as relatedObjectId, erh.valid_from_timestamp as validFrom, erh.valid_until_timestamp as validTo, "
             + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
             + "from experiment_relationships_history erh where erh.valid_until_timestamp is not null and erh.main_expe_id = any(?{1})", parameterBindings = {
