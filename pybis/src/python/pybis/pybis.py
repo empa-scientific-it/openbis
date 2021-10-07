@@ -9,86 +9,85 @@ Work with openBIS using Python.
 """
 
 from __future__ import print_function
+
+import copy
+import errno
+import json
+import logging
+import os
+import random
+import re
+import subprocess
+import sys
+import time
+import zlib
+from collections import defaultdict, namedtuple
+from datetime import datetime
+from urllib.parse import quote, urljoin, urlparse
+
+import pandas as pd
+import requests
+import urllib3
+from pandas import DataFrame, Series
+from tabulate import tabulate
+from texttable import Texttable
+
+from . import data_set as pbds
+from .dataset import DataSet
+from .definitions import (
+    fetch_option,
+    get_definition_for_entity,
+    get_fetchoption_for_entity,
+    get_fetchoptions,
+    get_method_for_entity,
+    get_type_for_entity,
+    openbis_definitions,
+)
+from .entity_type import (
+    DataSetType,
+    EntityType,
+    ExperimentType,
+    MaterialType,
+    SampleType,
+)
+from .experiment import Experiment
+from .group import Group
+from .openbis_object import OpenBisObject, Transaction
+from .person import Person
+from .project import Project
+from .role_assignment import RoleAssignment
+from .sample import Sample
+from .semantic_annotation import SemanticAnnotation
+from .space import Space
+from .tag import Tag
+from .things import Things
 from .utils import (
+    VERBOSE,
+    check_datatype,
     extract_attr,
-    extract_permid,
     extract_code,
     extract_deletion,
+    extract_id,
     extract_identifier,
+    extract_identifiers,
     extract_nested_identifier,
     extract_nested_permid,
     extract_nested_permids,
-    extract_identifiers,
-    extract_property_assignments,
-    extract_role_assignments,
+    extract_permid,
     extract_person,
     extract_person_details,
-    extract_id,
+    extract_property_assignments,
+    extract_role_assignments,
     extract_userId,
-    is_number,
-)
-from datetime import datetime
-import pandas as pd
-from pandas import DataFrame, Series
-from .semantic_annotation import SemanticAnnotation
-from .tag import Tag
-from .role_assignment import RoleAssignment
-from .group import Group
-from .person import Person
-from .dataset import DataSet
-from .sample import Sample
-from .experiment import Experiment
-from .project import Project
-from .space import Space
-from .things import Things
-from .definitions import (
-    openbis_definitions,
-    get_definition_for_entity,
-    fetch_option,
-    get_fetchoption_for_entity,
-    get_type_for_entity,
-    get_method_for_entity,
-    get_fetchoptions,
-)
-from .openbis_object import OpenBisObject, Transaction
-from .vocabulary import Vocabulary, VocabularyTerm
-from .entity_type import (
-    EntityType,
-    SampleType,
-    DataSetType,
-    MaterialType,
-    ExperimentType,
-)
-from .utils import (
-    parse_jackson,
-    check_datatype,
-    split_identifier,
     format_timestamp,
     is_identifier,
+    is_number,
     is_permid,
     nvl,
-    VERBOSE,
+    parse_jackson,
+    split_identifier,
 )
-from . import data_set as pbds
-from tabulate import tabulate
-from texttable import Texttable
-from collections import namedtuple, defaultdict
-import zlib
-from urllib.parse import urlparse, urljoin, quote
-import re
-import json
-import time
-import os
-import random
-import subprocess
-import errno
-
-import requests
-
-import urllib3
-import logging
-import sys
-
+from .vocabulary import Vocabulary, VocabularyTerm
 
 # import the various openBIS entities
 
@@ -1376,8 +1375,8 @@ class Openbis:
             return
 
         def check_sshfs_is_installed():
-            import subprocess
             import errno
+            import subprocess
 
             try:
                 subprocess.call("sshfs --help", shell=True)
@@ -2086,8 +2085,8 @@ class Openbis:
         withParents  -- the list of parent's permIds in a column 'parents'
         withChildren -- the list of children's permIds in a column 'children'
         attrs        -- list of all desired attributes. Examples:
-                        space, project, experiment: just return their identifier
-                        parents, children, components: return a list of their identifiers
+                        space, project, experiment, container: returns identifier
+                        parents, children, components: return a list of identifiers
                         space.code, project.code, experiment.code
                         registrator.email, registrator.firstName
                         type.generatedCodePrefix
@@ -2102,6 +2101,8 @@ class Openbis:
 
         if collection is not None:
             experiment = collection
+        if attrs is None:
+            attrs = []
 
         sub_criteria = []
 
@@ -2153,7 +2154,7 @@ class Openbis:
         }
 
         # build the various fetch options
-        fetchopts = fetch_option["sample"]
+        fetchopts = copy.deepcopy(fetch_option["sample"])
         fetchopts["from"] = start_with
         fetchopts["count"] = count
 
@@ -2166,10 +2167,14 @@ class Openbis:
             "registrator",
             "modifier",
         ]
+
         if self.get_server_information().project_samples_enabled:
             options.append("project")
         for option in options:
             fetchopts[option] = fetch_option[option]
+        for relation in ["parents", "children", "components", "container"]:
+            if relation in attrs:
+                fetchopts[relation] = fetch_option["sample"]
 
         if props is not None:
             fetchopts["properties"] = fetch_option["properties"]
@@ -2502,7 +2507,8 @@ class Openbis:
         withParents  -- the list of parent's permIds in a column 'parents'
         withChildren -- the list of children's permIds in a column 'children'
         attrs        -- list of all desired attributes. Examples:
-                        project, experiment, sample: just return their identifier
+                        project, experiment, sample: returns identifier
+                        parents, children, components, containers: return a list of identifiers
                         space.code, project.code, experiment.code
                         registrator.email, registrator.firstName
                         type.generatedCodePrefix
@@ -2572,6 +2578,9 @@ class Openbis:
         fetchopts = get_fetchoptions("dataSet", including=["type"])
         fetchopts["from"] = start_with
         fetchopts["count"] = count
+        for relation in ["parents", "children", "components", "containers"]:
+            if relation in attrs:
+                fetchopts[relation] = fetch_option["dataSet"]
 
         for option in [
             "tags",
