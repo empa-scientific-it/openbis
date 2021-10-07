@@ -6,7 +6,9 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
             testChain = Promise.resolve();
-            testChain.then(() => e.waitForId("username"))
+            testChain.then(() => e.waitForId("login-service-selector"))
+                     .then(() => e.changeSelect2("login-service-selector", "Default Login Service"))
+                     .then(() => e.waitForId("username"))
                      .then(() => e.write("username", username))
                      .then(() => e.write("password", password))
                      .then(() => e.click("login-button"))
