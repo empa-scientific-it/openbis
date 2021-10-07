@@ -121,9 +121,8 @@ public class GlobalInstallationContext
         }
     }
     
-    // Note: folder servers/openBIS-server might not exists in an installation without AS
     private static final String[] FOLDERS_OF_INSTALLATION 
-            = { "bin", "servers/core-plugins", "servers/datastore_server" };
+            = { "bin", "servers/core-plugins", "servers/datastore_server", "servers/openBIS-server" };
 
     private static boolean installationExists()
     {
