@@ -137,15 +137,15 @@ public class ExperimentHistoryTranslator extends HistoryTranslator implements IE
 
         ExperimentRelationshipRecord experimentRecord = (ExperimentRelationshipRecord) record;
 
-        if (experimentRecord.projectId != null)
+        if (isProject(experimentRecord))
         {
             entry.setRelationType(ExperimentRelationType.PROJECT);
             entry.setRelatedObjectId(new ProjectPermId(experimentRecord.relatedObjectId));
-        } else if (experimentRecord.sampleId != null)
+        } else if (isSample(experimentRecord))
         {
             entry.setRelationType(ExperimentRelationType.SAMPLE);
             entry.setRelatedObjectId(new SamplePermId(experimentRecord.relatedObjectId));
-        } else if (experimentRecord.dataSetId != null)
+        } else if (isDataSet(experimentRecord))
         {
             entry.setRelationType(ExperimentRelationType.DATA_SET);
             entry.setRelatedObjectId(new DataSetPermId(experimentRecord.relatedObjectId));

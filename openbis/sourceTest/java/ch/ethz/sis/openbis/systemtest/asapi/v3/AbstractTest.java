@@ -23,7 +23,21 @@ import static org.testng.Assert.fail;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -83,6 +97,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.IRelationType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
@@ -924,6 +940,14 @@ public class AbstractTest extends SystemTestCase
             actualIds.add(deletion.getId());
         }
         assertCollectionContainsOnly(actualIds, expectedIds);
+    }
+
+    protected void assertRelationshipHistory(List<RelationHistoryEntry> history, IObjectId id, IRelationType type)
+    {
+        RelationHistoryEntry entry = history.get(0);
+        assertEquals(entry.getRelatedObjectId(), id);
+        assertEquals(entry.getRelationType(), type);
+        assertEquals(history.size(), 1);
     }
 
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)

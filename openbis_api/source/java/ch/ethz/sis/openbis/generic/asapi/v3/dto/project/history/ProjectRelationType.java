@@ -26,6 +26,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum ProjectRelationType implements IRelationType
 {
 
-    SPACE, EXPERIMENT
+    SPACE, EXPERIMENT, SAMPLE
 
 }
