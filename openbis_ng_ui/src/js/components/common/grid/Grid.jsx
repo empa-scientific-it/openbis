@@ -67,25 +67,8 @@ class Grid extends React.PureComponent {
     this.controller.load()
   }
 
-  async componentDidUpdate(prevProps) {
-    if (
-      this.props.rows !== prevProps.rows ||
-      this.props.columns !== prevProps.columns
-    ) {
-      await this.controller.load()
-    }
-
-    if (this.props.selectedRowId !== prevProps.selectedRowId) {
-      await this.controller.updateSelectedRow(this.props.selectedRowId)
-    }
-  }
-
   handleClickContainer() {
-    const { selectedRowId, onSelectedRowChange } = this.props
-
-    if (!selectedRowId && !onSelectedRowChange) {
-      this.controller.handleRowSelect(null)
-    }
+    this.controller.handleRowSelect(null)
   }
 
   handleClickTable(event) {
@@ -109,7 +92,7 @@ class Grid extends React.PureComponent {
       pageSize,
       columns,
       rows,
-      selectedRowId,
+      selectedRow,
       totalCount
     } = this.state
 
@@ -136,7 +119,7 @@ class Grid extends React.PureComponent {
                           key={row.id}
                           columns={columns}
                           row={row}
-                          selected={row.id === selectedRowId}
+                          selected={selectedRow && selectedRow.id === row.id}
                           onClick={this.controller.handleRowSelect}
                         />
                       )

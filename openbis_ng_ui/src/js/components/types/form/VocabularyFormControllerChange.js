@@ -44,7 +44,8 @@ export default class VocabularyFormControllerChange extends PageControllerChange
     })
 
     if (this.gridController) {
-      await this.gridController.showSelectedRow()
+      await this.gridController.load()
+      await this.gridController.showRow(params.id)
     }
 
     await this.controller.changed(true)

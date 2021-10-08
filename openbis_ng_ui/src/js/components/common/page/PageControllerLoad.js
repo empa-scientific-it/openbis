@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import FormValidator from '@src/js/components/common/form/FormValidator.js'
 import actions from '@src/js/store/actions/actions.js'
@@ -40,6 +41,7 @@ export default class PageControllerLoad {
     } finally {
       this.controller.changed(false)
       this.context.setState({
+        loadId: _.uniqueId('load'),
         loaded: true,
         loading: false
       })

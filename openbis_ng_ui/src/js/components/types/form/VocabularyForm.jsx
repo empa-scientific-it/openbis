@@ -91,10 +91,11 @@ class VocabularyForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'VocabularyForm.render')
 
-    const { loading, loaded, vocabulary } = this.state
+    const { loadId, loading, loaded, vocabulary } = this.state
 
     return (
       <PageWithTwoPanels
+        key={loadId}
         loading={loading}
         loaded={loaded}
         object={vocabulary}
@@ -132,11 +133,7 @@ class VocabularyForm extends React.PureComponent {
 
   renderAdditionalPanel() {
     const { controller } = this
-    const { vocabulary, terms, selection, mode } = this.state
-
-    const selectedRow = controller.gridController
-      ? controller.gridController.getSelectedRow()
-      : null
+    const { vocabulary, terms, selection, selectedRow, mode } = this.state
 
     return (
       <VocabularyFormParameters
