@@ -19,9 +19,10 @@ class TypeSearch extends React.Component {
     super(props)
     autoBind(this)
 
+    this.gridControllers = {}
+
     this.state = {
-      loaded: false,
-      selection: null
+      loaded: false
     }
   }
 
@@ -188,28 +189,17 @@ class TypeSearch extends React.Component {
     return this.props.objectType === objectType || !this.props.objectType
   }
 
-  handleClickContainer() {
-    this.setState({
-      selection: null
-    })
-  }
-
   handleSelectedRowChange(objectType) {
     return row => {
-      if (row) {
-        this.setState({
-          selection: {
-            type: objectType,
-            id: row.id
-          }
-        })
+      if (!row) {
+        return
+      }
+      for (let gridObjectType in this.gridControllers) {
+        if (gridObjectType !== objectType) {
+          this.gridControllers[gridObjectType].selectRow(null)
+        }
       }
     }
-  }
-
-  getSelectedRowId(objectType) {
-    const { selection } = this.state
-    return selection && selection.type === objectType ? selection.id : null
   }
 
   render() {
@@ -220,7 +210,7 @@ class TypeSearch extends React.Component {
     }
 
     return (
-      <GridContainer onClick={this.handleClickContainer}>
+      <GridContainer>
         {this.renderNoResultsFoundMessage()}
         {this.renderObjectTypes()}
         {this.renderCollectionTypes()}
@@ -263,12 +253,14 @@ class TypeSearch extends React.Component {
         <div>
           <TypesGrid
             id={ids.OBJECT_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.OBJECT_TYPE] = controller)
+            }
             kind={openbis.EntityKind.SAMPLE}
             rows={this.state.objectTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.OBJECT_TYPE)}
           />
         </div>
       )
@@ -285,12 +277,14 @@ class TypeSearch extends React.Component {
         <div>
           <TypesGrid
             id={ids.COLLECTION_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.COLLECTION_TYPE] = controller)
+            }
             kind={openbis.EntityKind.EXPERIMENT}
             rows={this.state.collectionTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.COLLECTION_TYPE)}
           />
         </div>
       )
@@ -305,12 +299,14 @@ class TypeSearch extends React.Component {
         <div>
           <TypesGrid
             id={ids.DATA_SET_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.DATA_SET_TYPE] = controller)
+            }
             kind={openbis.EntityKind.DATA_SET}
             rows={this.state.dataSetTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.DATA_SET_TYPE)}
           />
         </div>
       )
@@ -327,12 +323,14 @@ class TypeSearch extends React.Component {
         <div>
           <TypesGrid
             id={ids.MATERIAL_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.MATERIAL_TYPE] = controller)
+            }
             kind={openbis.EntityKind.MATERIAL}
             rows={this.state.materialTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.MATERIAL_TYPE
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.MATERIAL_TYPE)}
           />
         </div>
       )
@@ -349,11 +347,13 @@ class TypeSearch extends React.Component {
         <div>
           <VocabulariesGrid
             id={ids.VOCABULARY_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.VOCABULARY_TYPE] = controller)
+            }
             rows={this.state.vocabularyTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.VOCABULARY_TYPE
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.VOCABULARY_TYPE)}
           />
         </div>
       )
