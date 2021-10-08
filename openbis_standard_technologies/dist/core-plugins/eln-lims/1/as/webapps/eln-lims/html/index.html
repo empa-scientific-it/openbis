@@ -426,6 +426,14 @@
 				// Do nothing
 			}
 
+			var queryString = Util.queryString();
+			var test = queryString.test;
+			var testWithLogin = queryString.testWithLogin;
+
+			if (test == "true" || testWithLogin == "true") {
+				sessionStorage.setItem("forceNormalLogin", "true");
+			}
+
 			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
 			if (sessionStorage.getItem("forceNormalLogin") != "true") {
 				mainController.serverFacade.getOpenbisV3(function(openbisV3) {
@@ -453,7 +461,6 @@
 			});
 			
 			//Automatic login if special parameters are given
-			var queryString = Util.queryString();
 			var user = queryString.user;
 			var pass = queryString.pass;
 			if(user && pass) {
@@ -469,9 +476,6 @@
 			if (jenkins == "true") {
 				$.cookie("report-to-jenkins", "true");
 			}
-
-			var test = queryString.test;
-			var testWithLogin = queryString.testWithLogin;
 
 			if (testWithLogin == "true") {
 				TestProtocol.startAdminTests(true);
