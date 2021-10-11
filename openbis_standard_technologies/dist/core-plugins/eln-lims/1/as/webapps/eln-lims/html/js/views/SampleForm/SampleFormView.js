@@ -510,7 +510,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			    var titleStart = newCleanValue.indexOf("<h2>");
 			    var titleEnd = newCleanValue.indexOf("</h2>");
 			    if(titleStart !== -1 && titleEnd !== -1) {
-			        _this._sampleFormModel.sample.properties["$NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
+			        var futureName = newCleanValue.substring(titleStart+4, titleEnd);
+			        if(futureName.indexOf("<") !== -1 && futureName.indexOf(">") !== -1) {
+			            Util.showError("Entry names can't contain rich text. The current title will not be saved as Entry name.");
+			            _this._sampleFormModel.sample.properties["$NAME"] = null;
+			        } else {
+			            _this._sampleFormModel.sample.properties["$NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
+			        }
 			    } else {
 			        _this._sampleFormModel.sample.properties["$NAME"] = null;
 			    }
