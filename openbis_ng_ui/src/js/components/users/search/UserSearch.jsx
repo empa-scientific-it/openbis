@@ -273,6 +273,12 @@ class UserSearch extends React.Component {
     return this.props.objectType === objectType || !this.props.objectType
   }
 
+  handleContainerClick() {
+    for (let gridObjectType in this.gridControllers) {
+      this.gridControllers[gridObjectType].selectRow(null)
+    }
+  }
+
   handleSelectedRowChange(objectType) {
     return row => {
       if (!row) {
@@ -294,7 +300,7 @@ class UserSearch extends React.Component {
     }
 
     return (
-      <GridContainer>
+      <GridContainer onClick={this.handleContainerClick}>
         {this.renderNoResultsFoundMessage()}
         {this.renderUsers()}
         {this.renderUsersRoles()}
