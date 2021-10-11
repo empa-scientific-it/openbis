@@ -1,6 +1,6 @@
 import PageControllerSelectionChange from '@src/js/components/common/page/PageControllerSelectionChange.js'
 
-export default class VocabularyFormControllerChange extends PageControllerSelectionChange {
+export default class VocabularyFormControllerSelectionChange extends PageControllerSelectionChange {
   constructor(controller) {
     super(controller)
     this.context = controller.context

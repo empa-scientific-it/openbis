@@ -5,6 +5,7 @@ import UserGroupFormControllerAddRole from '@src/js/components/users/form/UserGr
 import UserGroupFormControllerRemove from '@src/js/components/users/form/UserGroupFormControllerRemove.js'
 import UserGroupFormControllerValidate from '@src/js/components/users/form/UserGroupFormControllerValidate.js'
 import UserGroupFormControllerChange from '@src/js/components/users/form/UserGroupFormControllerChange.js'
+import UserGroupFormControllerSelectionChange from '@src/js/components/users/form/UserGroupFormControllerSelectionChange.js'
 import UserGroupFormControllerSave from '@src/js/components/users/form/UserGroupFormControllerSave.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
@@ -48,6 +49,13 @@ export default class UserGroupFormController extends PageController {
 
   handleChange(type, params) {
     return new UserGroupFormControllerChange(this).execute(type, params)
+  }
+
+  handleSelectionChange(type, params) {
+    return new UserGroupFormControllerSelectionChange(this).execute(
+      type,
+      params
+    )
   }
 
   handleSave() {
