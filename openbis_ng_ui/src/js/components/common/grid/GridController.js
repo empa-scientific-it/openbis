@@ -59,8 +59,10 @@ export default class GridController {
       loaded: true
     }
 
+    let settings = null
+
     if (!state.loaded) {
-      const settings = await this._loadSettings()
+      settings = await this._loadSettings()
       if (settings) {
         newState.pageSize = settings.pageSize
         newState.sort = settings.sort
@@ -70,10 +72,35 @@ export default class GridController {
       }
     }
 
+    let result = {}
+
     if (props.rows) {
+      result.rows = props.rows
+      result.totalCount = props.rows.length
+      result.local = true
+    } else if (props.loadRows) {
+      const loadedResult = await props.loadRows({
+        filters: newState.filters,
+        page: newState.page,
+        pageSize: newState.pageSize,
+        sort: newState.sort,
+        sortDirection: newState.sortDirection
+      })
+      if (_.isArray(loadedResult)) {
+        result.rows = loadedResult
+        result.totalCount = loadedResult.length
+        result.local = true
+      } else {
+        result.rows = loadedResult.rows
+        result.totalCount = loadedResult.totalCount
+        result.local = false
+      }
+    }
+
+    if (result.local) {
       const { newColumns, newColumnsVisibility, newColumnsSorting } =
         await this._loadColumns(
-          props.rows,
+          result.rows,
           newState.columnsVisibility,
           newState.columnsSorting
         )
@@ -82,7 +109,7 @@ export default class GridController {
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
 
-      if (!state.loaded) {
+      if (!state.loaded && !settings) {
         newState.columns.forEach(column => {
           if (column.sort) {
             newState.sort = column.name
@@ -91,7 +118,7 @@ export default class GridController {
         })
       }
 
-      newState.allRows = props.rows
+      newState.allRows = result.rows
       newState.filteredRows = this._filterRows(
         newState.allRows,
         newState.columns,
@@ -116,15 +143,7 @@ export default class GridController {
         newState.page,
         newState.pageSize
       )
-    } else if (props.loadRows) {
-      const result = await props.loadRows({
-        filters: newState.filters,
-        page: newState.page,
-        pageSize: newState.pageSize,
-        sort: newState.sort,
-        sortDirection: newState.sortDirection
-      })
-
+    } else {
       newState.allRows = result.rows
       newState.filteredRows = result.rows
       newState.sortedRows = result.rows
@@ -394,15 +413,18 @@ export default class GridController {
 
   async selectRow(newSelectedRowId) {
     const { onSelectedRowChange } = this.context.getProps()
-    const { rows, selectedRow } = this.context.getState()
+    const { allRows, rows, selectedRow } = this.context.getState()
 
     let newSelectedRow = null
 
     if (newSelectedRowId !== null && newSelectedRowId !== undefined) {
+      const row = _.find(allRows, row => row.id === newSelectedRowId)
       const visible =
         _.findIndex(rows, row => row.id === newSelectedRowId) !== -1
+
       newSelectedRow = {
         id: newSelectedRowId,
+        data: row,
         visible
       }
     }
