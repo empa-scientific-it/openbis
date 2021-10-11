@@ -82,6 +82,15 @@ export default class GridController {
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
 
+      if (!state.loaded) {
+        newState.columns.forEach(column => {
+          if (column.sort) {
+            newState.sort = column.name
+            newState.sortDirection = column.sort
+          }
+        })
+      }
+
       newState.allRows = props.rows
       newState.filteredRows = this._filterRows(
         newState.allRows,
