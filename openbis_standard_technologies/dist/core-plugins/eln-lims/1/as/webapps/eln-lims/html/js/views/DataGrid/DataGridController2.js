@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
+/*
+
+TODO:
+
+- grid.showAllColumns
+- grid.isMultiselectable
+- grid.heightPercentage
+- column.showByDefault
+- column.hide
+- column.isExportable
+
+*/
+
 function DataGridController2(
   title,
   columnsFirst,
@@ -35,14 +48,18 @@ function DataGridController2(
   var _this = this;
 
   this.init = function ($container, extraOptions) {
-    ReactDOM.unmountComponentAtNode($container.get(0));
+    let $element = $("<div>")
+    
     ReactDOM.render(
       React.createElement(window.NgUiGrid.default.Loading, {
         loading: true,
       }),
-      $container.get(0)
+      $element.get(0)
     );
-    this._init($container, extraOptions);
+
+    this._init($element, extraOptions);
+
+    $container.empty().append($element)
   };
 
   this._init = function ($container, extraOptions) {
