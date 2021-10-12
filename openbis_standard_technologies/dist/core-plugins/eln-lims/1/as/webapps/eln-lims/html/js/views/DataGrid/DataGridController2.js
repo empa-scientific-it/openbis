@@ -33,10 +33,6 @@ function DataGridController2(
   }
 
   var _this = this;
-  this.gridId = configKey;
-  this.header = title;
-  this.rows = [];
-  this.totalCount = 0;
 
   this.init = function (session, $container, extraOptions) {
     ReactDOM.unmountComponentAtNode($container.get(0));
@@ -54,14 +50,10 @@ function DataGridController2(
       window.NgUiGrid.default.ThemeProvider,
       {},
       React.createElement(window.NgUiGrid.default.Grid, {
-        settingsId: {
-          webAppId: "ELN-LIMS",
-          gridId: _this.gridId,
-        },
         controllerRef: function (controller) {
           _this.controller = controller;
         },
-        header: _this.header,
+        header: title,
         loadSettings: _this._loadSettings,
         loadColumns: _this._loadColumns,
         loadRows: _this._loadRows,
