@@ -75,7 +75,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, 90);
-        dataGrid.init(_this._vocabularyManagerController._mainController.serverFacade.openbisServer.getSession(), this._dataGridContainer);
+        dataGrid.init(this._dataGridContainer);
 		
 		this._subtitle.empty();
 		this._subtitle.append("Vocabularies List");
@@ -111,7 +111,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, true, "VOCABULARY_TERMS_TABLE", false, 90);
-		dataGrid.init(this._vocabularyManagerController._mainController.serverFacade.openbisServer.getSession(), this._dataGridContainer);
+		dataGrid.init(this._dataGridContainer);
 		
 		this._subtitle.empty();
 		this._subtitle.append("Terms from vocabulary " + vocabulary.code);

@@ -184,7 +184,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		}
 		var dataGridContainer = $("<div>");
 		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, 90);
-		dataGrid.init(_this._trashManagerController._mainController.serverFacade.openbisServer.getSession(), dataGridContainer);
+		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
 	}
 }

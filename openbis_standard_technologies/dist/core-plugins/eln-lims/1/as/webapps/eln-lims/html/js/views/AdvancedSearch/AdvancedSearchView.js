@@ -843,7 +843,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }];
         }
 
-        this._dataGridController.init(this._advancedSearchController._mainController.serverFacade.openbisServer.getSession(), this._$dataGridContainer, this.extraOptions);
+        this._dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
 
 	this._getGridForResults = function(criteria, isGlobalSearch, isMultiselectable) {

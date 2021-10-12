@@ -34,7 +34,7 @@ function DataGridController2(
 
   var _this = this;
 
-  this.init = function (session, $container, extraOptions) {
+  this.init = function ($container, extraOptions) {
     ReactDOM.unmountComponentAtNode($container.get(0));
     ReactDOM.render(
       React.createElement(window.NgUiGrid.default.Loading, {
@@ -42,10 +42,10 @@ function DataGridController2(
       }),
       $container.get(0)
     );
-    this._init(session, $container, extraOptions);
+    this._init($container, extraOptions);
   };
 
-  this._init = function (session, $container, extraOptions) {
+  this._init = function ($container, extraOptions) {
     var GridElement = React.createElement(
       window.NgUiGrid.default.ThemeProvider,
       {},

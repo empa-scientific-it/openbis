@@ -123,7 +123,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 		}
 		
 		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
-		dataGrid.init(_this._userManagerController._mainController.serverFacade.openbisServer.getSession(), dataGridContainer);
+		dataGrid.init(dataGridContainer);
 		
 		//
 		// Render
