@@ -193,13 +193,6 @@ export default class GridController {
       if (!newColumn.name) {
         throw new Error('column.name cannot be empty')
       }
-      if (!newColumn.label) {
-        throw new Error('column.label cannot be empty')
-      }
-      if (!newColumn.getValue) {
-        throw new Error('column.getValue cannot be empty')
-      }
-
       return this._loadColumn(newColumn)
     })
 
@@ -345,7 +338,13 @@ export default class GridController {
       columns.forEach(column => {
         if (column.visible) {
           let filter = filters[column.name]
-          matchesAll = matchesAll && column.matches(row, filter)
+          if (
+            filter !== null &&
+            filter !== undefined &&
+            filter.trim().length > 0
+          ) {
+            matchesAll = matchesAll && column.matches(row, filter)
+          }
         }
       })
       return matchesAll

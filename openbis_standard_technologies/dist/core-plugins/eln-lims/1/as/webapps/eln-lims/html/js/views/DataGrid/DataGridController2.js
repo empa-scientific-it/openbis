@@ -160,7 +160,7 @@ function DataGridController2(
           },
           matchesValue: function (params) {
             if (column.filter) {
-              return column.filter(params.value, params.filter);
+              return column.filter(params.row, params.filter);
             } else {
               return params.defaultMatches(params.value, params.filter);
             }
@@ -236,5 +236,9 @@ function DataGridController2(
 
   this.refreshHeight = function () {};
 
-  this.refresh = function () {};
+  this.refresh = function () {
+    if (_this.controller) {
+      _this.controller.load();
+    }
+  };
 }
