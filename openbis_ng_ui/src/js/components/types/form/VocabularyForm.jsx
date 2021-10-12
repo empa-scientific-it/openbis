@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
 import VocabularyFormController from '@src/js/components/types/form/VocabularyFormController.js'
@@ -111,11 +111,8 @@ class VocabularyForm extends React.PureComponent {
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <Grid
-          settingsId={{
-            webAppId: ids.WEB_APP_ID,
-            gridId: ids.VOCABULARY_TERMS_GRID_ID
-          }}
+        <GridWithSettings
+          id={ids.VOCABULARY_TERMS_GRID_ID}
           controllerRef={this.handleGridControllerRef}
           header={messages.get(messages.TERMS)}
           columns={columns}

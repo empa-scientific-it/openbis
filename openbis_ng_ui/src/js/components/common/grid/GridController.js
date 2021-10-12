@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import openbis from '@src/js/services/openbis.js'
 import compare from '@src/js/common/compare.js'
 
 export default class GridController {
@@ -313,68 +312,31 @@ export default class GridController {
   }
 
   async _loadSettings() {
-    const props = this.context.getProps()
+    const { loadSettings } = this.context.getProps()
 
-    if (
-      !props.settingsId ||
-      !props.settingsId.webAppId ||
-      !props.settingsId.gridId
-    ) {
-      return Promise.resolve()
+    if (loadSettings) {
+      return await loadSettings()
+    } else {
+      return null
     }
-
-    let id = new openbis.Me()
-    let fo = new openbis.PersonFetchOptions()
-    fo.withWebAppSettings(props.settingsId.webAppId).withAllSettings()
-
-    return openbis.getPersons([id], fo).then(map => {
-      let person = map[id]
-      let webAppSettings = person.webAppSettings[props.settingsId.webAppId]
-      if (webAppSettings && webAppSettings.settings) {
-        let gridSettings = webAppSettings.settings[props.settingsId.gridId]
-        if (gridSettings) {
-          let settings = JSON.parse(gridSettings.value)
-          if (settings) {
-            return settings
-          } else {
-            return {}
-          }
-        }
-      }
-    })
   }
 
   async _saveSettings() {
-    const props = this.context.getProps()
-    const state = this.context.getState()
+    const { onSettingsChange } = this.context.getProps()
 
-    if (
-      !props.settingsId ||
-      !props.settingsId.webAppId ||
-      !props.settingsId.gridId
-    ) {
-      throw new Error(
-        'Incorrect grid component usage. Settings id is missing. Please contact a developer.'
-      )
+    if (onSettingsChange) {
+      const state = this.context.getState()
+
+      let settings = {
+        pageSize: state.pageSize,
+        sort: state.sort,
+        sortDirection: state.sortDirection,
+        columnsVisibility: state.columnsVisibility,
+        columnsSorting: state.columnsSorting
+      }
+
+      onSettingsChange(settings)
     }
-
-    let settings = {
-      pageSize: state.pageSize,
-      sort: state.sort,
-      sortDirection: state.sortDirection,
-      columnsVisibility: state.columnsVisibility,
-      columnsSorting: state.columnsSorting
-    }
-
-    let gridSettings = new openbis.WebAppSettingCreation()
-    gridSettings.setName(props.settingsId.gridId)
-    gridSettings.setValue(JSON.stringify(settings))
-
-    let update = new openbis.PersonUpdate()
-    update.setUserId(new openbis.Me())
-    update.getWebAppSettings(props.settingsId.webAppId).add(gridSettings)
-
-    await openbis.updatePersons([update])
   }
 
   _filterRows(rows, columns, filters) {

@@ -1,10 +1,9 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import EntityKind from '@src/js/components/common/dto/EntityKind.js'
 import openbis from '@src/js/services/openbis.js'
-import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -22,11 +21,8 @@ class PluginsGrid extends React.PureComponent {
     } = this.props
 
     return (
-      <Grid
-        settingsId={{
-          webAppId: ids.WEB_APP_ID,
-          gridId: id
-        }}
+      <GridWithSettings
+        id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={[

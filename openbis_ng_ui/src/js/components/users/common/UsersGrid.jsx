@@ -2,9 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -23,11 +22,8 @@ class UsersGrid extends React.PureComponent {
       this.props
 
     return (
-      <Grid
-        settingsId={{
-          webAppId: ids.WEB_APP_ID,
-          gridId: id
-        }}
+      <GridWithSettings
+        id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.USERS)}
         columns={[

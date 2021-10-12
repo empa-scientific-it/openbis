@@ -50,32 +50,47 @@ function DataGridController2(
   };
 
   this._init = function (session, $container, extraOptions) {
-    var openbis = window.NgUiGrid.default.openbis;
-    openbis.init().then(function () {
-      openbis.useSession(session);
-      var GridElement = React.createElement(
-        window.NgUiGrid.default.ThemeProvider,
-        {},
-        React.createElement(window.NgUiGrid.default.Grid, {
-          settingsId: {
-            webAppId: "ELN-LIMS",
-            gridId: _this.gridId,
-          },
-          controllerRef: function (controller) {
-            _this.controller = controller;
-          },
-          header: _this.header,
-          loadColumns: _this._loadColumns,
-          loadRows: _this._loadRows,
-          onSelectedRowChange: function (selectedRow) {
-            if (rowClickEventHandler) {
-              rowClickEventHandler(selectedRow);
-            }
-          },
-        })
-      );
+    var GridElement = React.createElement(
+      window.NgUiGrid.default.ThemeProvider,
+      {},
+      React.createElement(window.NgUiGrid.default.Grid, {
+        settingsId: {
+          webAppId: "ELN-LIMS",
+          gridId: _this.gridId,
+        },
+        controllerRef: function (controller) {
+          _this.controller = controller;
+        },
+        header: _this.header,
+        loadSettings: _this._loadSettings,
+        loadColumns: _this._loadColumns,
+        loadRows: _this._loadRows,
+        onSettingsChange: _this._onSettingsChange,
+        onSelectedRowChange: _this._onSelectedRowChange,
+      })
+    );
 
-      ReactDOM.render(GridElement, $container.get(0));
+    ReactDOM.render(GridElement, $container.get(0));
+  };
+
+  this._loadSettings = function () {
+    return new Promise(function (resolve) {
+      mainController.serverFacade.getSetting(configKey, function (settingsStr) {
+        var settingsObj = null;
+        if (settingsStr) {
+          try {
+            settingsObj = JSON.parse(settingsStr);
+          } catch (e) {
+            console.log(
+              "[WARNING] Could not parse grid settings",
+              configKey,
+              settingsStr,
+              e
+            );
+          }
+        }
+        resolve(settingsObj);
+      });
     });
   };
 
@@ -214,6 +229,17 @@ function DataGridController2(
         }
       }, options);
     });
+  };
+
+  this._onSettingsChange = function (settingsObj) {
+    let settingsStr = JSON.stringify(settingsObj);
+    mainController.serverFacade.setSetting(configKey, settingsStr);
+  };
+
+  this._onSelectedRowChange = function (selectedRow) {
+    if (rowClickEventHandler) {
+      rowClickEventHandler(selectedRow);
+    }
   };
 
   this.refreshHeight = function () {};

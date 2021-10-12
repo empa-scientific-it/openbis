@@ -1,9 +1,8 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import TypeLink from '@src/js/components/common/link/TypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
-import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -15,11 +14,8 @@ class TypesGrid extends React.PureComponent {
       this.props
 
     return (
-      <Grid
-        settingsId={{
-          webAppId: ids.WEB_APP_ID,
-          gridId: id
-        }}
+      <GridWithSettings
+        id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={this.getColumns()}

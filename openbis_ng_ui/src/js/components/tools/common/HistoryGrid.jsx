@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
@@ -121,11 +121,8 @@ class HistoryGrid extends React.PureComponent {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
     return (
-      <Grid
-        settingsId={{
-          webAppId: ids.WEB_APP_ID,
-          gridId: this.getId()
-        }}
+      <GridWithSettings
+        id={this.getId()}
         header={this.getHeader()}
         columns={[
           {

@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -49,11 +49,8 @@ class RolesGrid extends React.PureComponent {
     )
 
     return (
-      <Grid
-        settingsId={{
-          webAppId: ids.WEB_APP_ID,
-          gridId: id
-        }}
+      <GridWithSettings
+        id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={columns}
