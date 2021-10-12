@@ -63588,26 +63588,9 @@ var Grid = /*#__PURE__*/function (_React$PureComponent) {
       this.controller.load();
     }
   }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
-      if (this.props.rows !== prevProps.rows || this.props.totalCount !== prevProps.totalCount) {
-        this.controller.updateRows(this.props.rows, this.props.totalCount);
-      }
-
-      if (this.props.selectedRowId !== prevProps.selectedRowId) {
-        this.controller.updateSelectedRowId(this.props.selectedRowId);
-      }
-    }
-  }, {
     key: "handleClickContainer",
     value: function handleClickContainer() {
-      var _this$props = this.props,
-          selectedRowId = _this$props.selectedRowId,
-          onSelectedRowChange = _this$props.onSelectedRowChange;
-
-      if (!selectedRowId && !onSelectedRowChange) {
-        this.controller.handleRowSelect(null);
-      }
+      this.controller.handleRowSelect(null);
     }
   }, {
     key: "handleClickTable",
@@ -63627,9 +63610,9 @@ var Grid = /*#__PURE__*/function (_React$PureComponent) {
         });
       }
 
-      var _this$props2 = this.props,
-          header = _this$props2.header,
-          classes = _this$props2.classes;
+      var _this$props = this.props,
+          header = _this$props.header,
+          classes = _this$props.classes;
       var _this$state = this.state,
           loading = _this$state.loading,
           filters = _this$state.filters,
@@ -63638,7 +63621,7 @@ var Grid = /*#__PURE__*/function (_React$PureComponent) {
           page = _this$state.page,
           pageSize = _this$state.pageSize,
           columns = _this$state.columns,
-          currentRows = _this$state.currentRows,
+          rows = _this$state.rows,
           selectedRow = _this$state.selectedRow,
           totalCount = _this$state.totalCount;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("div", {
@@ -63665,12 +63648,12 @@ var Grid = /*#__PURE__*/function (_React$PureComponent) {
         classes: {
           root: classes.tableBody
         }
-      }, currentRows.map(function (row) {
+      }, rows.map(function (row) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement(_src_js_components_common_grid_GridRow_jsx__WEBPACK_IMPORTED_MODULE_15__["default"], {
           key: row.id,
           columns: columns,
           row: row,
-          selected: selectedRow ? selectedRow.id === row.id : false,
+          selected: selectedRow && selectedRow.id === row.id,
           onClick: _this2.controller.handleRowSelect
         });
       })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("div", {
@@ -63744,7 +63727,10 @@ var styles = function styles(theme) {
   return {
     cell: {
       padding: "".concat(theme.spacing(1), "px ").concat(theme.spacing(2), "px"),
-      borderColor: theme.palette.border.secondary
+      borderColor: theme.palette.border.secondary,
+      '&:empty:before': {
+        content: '"\\a0"'
+      }
     },
     wrap: {
       whiteSpace: 'normal'
@@ -63773,70 +63759,29 @@ var GridCell = /*#__PURE__*/function (_React$PureComponent) {
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(GridCell, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props = this.props,
-          row = _this$props.row,
-          column = _this$props.column,
-          classes = _this$props.classes;
-
-      if (column.visible && column.renderDOMValue && this.ref.current) {
-        var value = column.getValue({
-          row: row,
-          column: column
-        });
-        column.renderDOMValue({
-          container: this.ref.current,
-          value: value,
-          row: row,
-          column: column,
-          classes: {
-            wrap: classes.wrap,
-            nowrap: classes.nowrap
-          }
-        });
-      }
+      this.renderDOMValue();
     }
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
-      var _this$props2 = this.props,
-          row = _this$props2.row,
-          column = _this$props2.column,
-          classes = _this$props2.classes;
-
-      if (column.visible && column.renderDOMValue && this.ref.current) {
-        var value = column.getValue({
-          row: row,
-          column: column
-        });
-        column.renderDOMValue({
-          container: this.ref.current,
-          value: value,
-          row: row,
-          column: column,
-          classes: {
-            wrap: classes.wrap,
-            nowrap: classes.nowrap
-          }
-        });
-      }
+    value: function componentDidUpdate() {
+      this.renderDOMValue();
     }
   }, {
     key: "render",
     value: function render() {
       _src_js_common_logger_js__WEBPACK_IMPORTED_MODULE_9__["default"].log(_src_js_common_logger_js__WEBPACK_IMPORTED_MODULE_9__["default"].DEBUG, 'GridCell.render');
-      var _this$props3 = this.props,
-          column = _this$props3.column,
-          classes = _this$props3.classes;
+      var _this$props = this.props,
+          column = _this$props.column,
+          classes = _this$props.classes;
 
       if (column.visible) {
-        var rendered = this.renderValue();
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement(_material_ui_core_TableCell__WEBPACK_IMPORTED_MODULE_8__["default"], {
           ref: this.ref,
           key: column.name,
           classes: {
             root: _src_js_common_util_js__WEBPACK_IMPORTED_MODULE_10__["default"].classNames(classes.cell, classes.nowrap)
           }
-        }, rendered ? rendered : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("span", null, "\xA0"));
+        }, column.renderDOMValue ? null : this.renderValue());
       } else {
         return null;
       }
@@ -63844,15 +63789,10 @@ var GridCell = /*#__PURE__*/function (_React$PureComponent) {
   }, {
     key: "renderValue",
     value: function renderValue() {
-      var _this$props4 = this.props,
-          row = _this$props4.row,
-          column = _this$props4.column,
-          classes = _this$props4.classes;
-
-      if (column.renderDOMValue) {
-        return '';
-      }
-
+      var _this$props2 = this.props,
+          row = _this$props2.row,
+          column = _this$props2.column,
+          classes = _this$props2.classes;
       var value = column.getValue({
         row: row,
         column: column
@@ -63868,11 +63808,36 @@ var GridCell = /*#__PURE__*/function (_React$PureComponent) {
       }) : value;
 
       if (renderedValue === null || renderedValue === undefined) {
-        return '';
+        return null;
       } else if (lodash__WEBPACK_IMPORTED_MODULE_5___default.a.isNumber(renderedValue) || lodash__WEBPACK_IMPORTED_MODULE_5___default.a.isBoolean(renderedValue)) {
         return String(renderedValue);
       } else {
         return renderedValue;
+      }
+    }
+  }, {
+    key: "renderDOMValue",
+    value: function renderDOMValue() {
+      var _this$props3 = this.props,
+          row = _this$props3.row,
+          column = _this$props3.column,
+          classes = _this$props3.classes;
+
+      if (column.visible && column.renderDOMValue && this.ref.current) {
+        var value = column.getValue({
+          row: row,
+          column: column
+        });
+        column.renderDOMValue({
+          container: this.ref.current,
+          value: value,
+          row: row,
+          column: column,
+          classes: {
+            wrap: classes.wrap,
+            nowrap: classes.nowrap
+          }
+        });
       }
     }
   }]);
@@ -63896,10 +63861,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return GridController; });
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "./node_modules/@babel/runtime/helpers/toConsumableArray.js");
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/defineProperty.js");
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
@@ -63910,8 +63875,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var auto_bind__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! auto-bind */ "./node_modules/auto-bind/index.js");
 /* harmony import */ var auto_bind__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(auto_bind__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @src/js/services/openbis.js */ "./src/js/services/openbis.js");
-/* harmony import */ var _src_js_common_compare_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @src/js/common/compare.js */ "./src/js/common/compare.js");
+/* harmony import */ var _src_js_common_compare_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @src/js/common/compare.js */ "./src/js/common/compare.js");
 
 
 
@@ -63921,8 +63885,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2___default()(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1___default()(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 
 
@@ -63938,146 +63901,199 @@ var GridController = /*#__PURE__*/function () {
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4___default()(GridController, [{
     key: "init",
     value: function init(context) {
-      var _this = this;
-
-      var props = context.getProps();
-      var columns = [];
-      var initialSort = null;
-      var initialSortDirection = null;
-      props.columns.forEach(function (column) {
-        if (column.sort) {
-          initialSort = column.name;
-          initialSortDirection = column.sort;
-        }
-
-        if (!column.name) {
-          throw new Error('column.name cannot be empty');
-        }
-
-        if (!column.label) {
-          throw new Error('column.label cannot be empty');
-        }
-
-        if (!column.getValue) {
-          throw new Error('column.getValue cannot be empty');
-        }
-
-        columns.push(_this.initColumn(column));
-      });
       context.initState({
         loaded: false,
         loading: false,
         filters: {},
         page: 0,
         pageSize: 10,
-        columns: columns,
+        columnsVisibility: {},
+        columnsSorting: [],
+        columns: [],
         rows: [],
         filteredRows: [],
         sortedRows: [],
-        currentRows: [],
+        allRows: [],
         selectedRow: null,
-        sort: initialSort,
-        sortDirection: initialSortDirection,
+        sort: null,
+        sortDirection: null,
         totalCount: 0
       });
       this.context = context;
     }
   }, {
-    key: "initColumn",
-    value: function initColumn(config) {
-      var _this2 = this;
-
-      var column = {};
-
-      lodash__WEBPACK_IMPORTED_MODULE_6___default.a.assign(column, _objectSpread(_objectSpread({}, config), {}, {
-        name: config.name,
-        label: config.label,
-        getValue: config.getValue,
-        matches: function matches(row, filter) {
-          function defaultMatches(value, filter) {
-            if (filter) {
-              return value !== null && value !== undefined ? String(value).trim().toUpperCase().includes(filter.trim().toUpperCase()) : false;
-            } else {
-              return true;
-            }
-          }
-
-          var value = config.getValue({
-            row: row,
-            column: column
-          });
-
-          if (config.matchesValue) {
-            return config.matchesValue({
-              value: value,
-              row: row,
-              column: column,
-              filter: filter,
-              defaultMatches: defaultMatches
-            });
-          } else {
-            return defaultMatches(value, filter);
-          }
-        },
-        compare: function compare(row1, row2) {
-          var defaultCompare = _src_js_common_compare_js__WEBPACK_IMPORTED_MODULE_9__["default"];
-          var value1 = config.getValue({
-            row: row1,
-            column: column
-          });
-          var value2 = config.getValue({
-            row: row2,
-            column: column
-          });
-
-          var _this2$context$getSta = _this2.context.getState(),
-              sortDirection = _this2$context$getSta.sortDirection;
-
-          if (config.compareValue) {
-            return config.compareValue({
-              value1: value1,
-              value2: value2,
-              row1: row1,
-              row2: row2,
-              column: column,
-              sortDirection: sortDirection,
-              defaultCompare: defaultCompare
-            });
-          } else {
-            return defaultCompare(value1, value2);
-          }
-        },
-        sortable: config.sortable === undefined ? true : config.sortable,
-        filterable: config.filterable === undefined ? true : config.filterable,
-        visible: true
-      }));
-
-      return column;
-    }
-  }, {
     key: "load",
     value: function () {
-      var _load = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee() {
+      var _load = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee() {
+        var props, state, newState, settings, result, loadedResult, _yield$this$_loadColu, newColumns, newColumnsVisibility, newColumnsSorting, pageCount, _pageCount, _yield$this$_loadColu2, _newColumns, _newColumnsVisibility, _newColumnsSorting;
+
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return this._loadSettings();
+                props = this.context.getProps();
 
-              case 2:
-                _context.next = 4;
-                return this._loadRows();
+                if (!(props.rows && props.loadRows || !props.rows && !props.loadRows)) {
+                  _context.next = 3;
+                  break;
+                }
 
-              case 4:
-                _context.next = 6;
+                throw new Error('Incorrect grid configuration. Please set "rows" or "loadRows" property.');
+
+              case 3:
+                if (!(props.columns && props.loadColumns || !props.columns && !props.loadColumns)) {
+                  _context.next = 5;
+                  break;
+                }
+
+                throw new Error('Incorrect grid configuration. Please set "columns" or "loadColumns" property.');
+
+              case 5:
+                _context.next = 7;
                 return this.context.setState(function () {
                   return {
-                    loaded: true
+                    loading: true
                   };
                 });
 
-              case 6:
+              case 7:
+                state = this.context.getState();
+                newState = _objectSpread(_objectSpread({}, state), {}, {
+                  loading: false,
+                  loaded: true
+                });
+                settings = null;
+
+                if (state.loaded) {
+                  _context.next = 15;
+                  break;
+                }
+
+                _context.next = 13;
+                return this._loadSettings();
+
+              case 13:
+                settings = _context.sent;
+
+                if (settings) {
+                  newState.pageSize = settings.pageSize;
+                  newState.sort = settings.sort;
+                  newState.sortDirection = settings.sortDirection;
+                  newState.columnsVisibility = settings.columnsVisibility;
+                  newState.columnsSorting = settings.columnsSorting;
+                }
+
+              case 15:
+                result = {};
+
+                if (!props.rows) {
+                  _context.next = 22;
+                  break;
+                }
+
+                result.rows = props.rows;
+                result.totalCount = props.rows.length;
+                result.local = true;
+                _context.next = 27;
+                break;
+
+              case 22:
+                if (!props.loadRows) {
+                  _context.next = 27;
+                  break;
+                }
+
+                _context.next = 25;
+                return props.loadRows({
+                  filters: newState.filters,
+                  page: newState.page,
+                  pageSize: newState.pageSize,
+                  sort: newState.sort,
+                  sortDirection: newState.sortDirection
+                });
+
+              case 25:
+                loadedResult = _context.sent;
+
+                if (lodash__WEBPACK_IMPORTED_MODULE_6___default.a.isArray(loadedResult)) {
+                  result.rows = loadedResult;
+                  result.totalCount = loadedResult.length;
+                  result.local = true;
+                } else {
+                  result.rows = loadedResult.rows;
+                  result.totalCount = loadedResult.totalCount;
+                  result.local = false;
+                }
+
+              case 27:
+                if (!result.local) {
+                  _context.next = 47;
+                  break;
+                }
+
+                _context.next = 30;
+                return this._loadColumns(result.rows, newState.columnsVisibility, newState.columnsSorting);
+
+              case 30:
+                _yield$this$_loadColu = _context.sent;
+                newColumns = _yield$this$_loadColu.newColumns;
+                newColumnsVisibility = _yield$this$_loadColu.newColumnsVisibility;
+                newColumnsSorting = _yield$this$_loadColu.newColumnsSorting;
+                newState.columns = newColumns;
+                newState.columnsVisibility = newColumnsVisibility;
+                newState.columnsSorting = newColumnsSorting;
+
+                if (!state.loaded && !settings) {
+                  newState.columns.forEach(function (column) {
+                    if (column.sort) {
+                      newState.sort = column.name;
+                      newState.sortDirection = column.sort;
+                    }
+                  });
+                }
+
+                newState.allRows = result.rows;
+                newState.filteredRows = this._filterRows(newState.allRows, newState.columns, newState.filters);
+                newState.sortedRows = this._sortRows(newState.filteredRows, newState.columns, newState.sort, newState.sortDirection);
+                newState.totalCount = newState.filteredRows.length;
+                pageCount = Math.max(Math.ceil(newState.totalCount / newState.pageSize), 1);
+                newState.page = Math.min(newState.page, pageCount - 1);
+                newState.rows = this._pageRows(newState.sortedRows, newState.page, newState.pageSize);
+                _context.next = 63;
+                break;
+
+              case 47:
+                newState.allRows = result.rows;
+                newState.filteredRows = result.rows;
+                newState.sortedRows = result.rows;
+                newState.rows = result.rows;
+                newState.totalCount = result.totalCount;
+                _pageCount = Math.max(Math.ceil(result.totalCount / newState.pageSize), 1);
+                newState.page = Math.min(newState.page, _pageCount - 1);
+                _context.next = 56;
+                return this._loadColumns(newState.rows, newState.columnsVisibility, newState.columnsSorting);
+
+              case 56:
+                _yield$this$_loadColu2 = _context.sent;
+                _newColumns = _yield$this$_loadColu2.newColumns;
+                _newColumnsVisibility = _yield$this$_loadColu2.newColumnsVisibility;
+                _newColumnsSorting = _yield$this$_loadColu2.newColumnsSorting;
+                newState.columns = _newColumns;
+                newState.columnsVisibility = _newColumnsVisibility;
+                newState.columnsSorting = _newColumnsSorting;
+
+              case 63:
+                _context.next = 65;
+                return this.context.setState(newState);
+
+              case 65:
+                if (!state.loaded) {
+                  this.selectRow(props.selectedRowId);
+                } else {
+                  this.selectRow(newState.selectedRow ? newState.selectedRow.id : null);
+                }
+
+              case 66:
               case "end":
                 return _context.stop();
             }
@@ -64092,145 +64108,86 @@ var GridController = /*#__PURE__*/function () {
       return load;
     }()
   }, {
-    key: "_loadSettings",
-    value: function _loadSettings() {
-      var _this3 = this;
-
-      var props = this.context.getProps();
-      var state = this.context.getState();
-
-      if (!props.settingsId || !props.settingsId.webAppId || !props.settingsId.gridId) {
-        return Promise.resolve();
-      }
-
-      var id = new _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].Me();
-      var fo = new _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].PersonFetchOptions();
-      fo.withWebAppSettings(props.settingsId.webAppId).withAllSettings();
-      return _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].getPersons([id], fo).then(function (map) {
-        var person = map[id];
-        var webAppSettings = person.webAppSettings[props.settingsId.webAppId];
-
-        if (webAppSettings && webAppSettings.settings) {
-          var gridSettings = webAppSettings.settings[props.settingsId.gridId];
-
-          if (gridSettings) {
-            var settings = JSON.parse(gridSettings.value);
-
-            if (settings) {
-              var newColumns = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(state.columns);
-
-              newColumns.sort(function (c1, c2) {
-                var index1 = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(settings.columns, ['name', c1.name]);
-
-                var index2 = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(settings.columns, ['name', c2.name]);
-
-                return index1 - index2;
-              });
-              newColumns = newColumns.map(function (column) {
-                var setting = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.find(settings.columns, ['name', column.name]);
-
-                if (setting) {
-                  return _objectSpread(_objectSpread({}, column), {}, {
-                    visible: setting.visible
-                  });
-                } else {
-                  return column;
-                }
-              });
-
-              _this3.context.setState(function () {
-                return _objectSpread(_objectSpread({}, settings), {}, {
-                  columns: newColumns
-                });
-              });
-            }
-          }
-        }
-      });
-    }
-  }, {
-    key: "_saveSettings",
-    value: function _saveSettings() {
-      var props = this.context.getProps();
-      var state = this.context.getState();
-
-      if (!props.settingsId || !props.settingsId.webAppId || !props.settingsId.gridId) {
-        throw new Error('Incorrect grid component usage. Settings id is missing. Please contact a developer.');
-      }
-
-      var columns = state.columns.map(function (column) {
-        return {
-          name: column.name,
-          visible: column.visible
-        };
-      });
-      var settings = {
-        pageSize: state.pageSize,
-        sort: state.sort,
-        sortDirection: state.sortDirection,
-        columns: columns
-      };
-      var gridSettings = new _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].WebAppSettingCreation();
-      gridSettings.setName(props.settingsId.gridId);
-      gridSettings.setValue(JSON.stringify(settings));
-      var update = new _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].PersonUpdate();
-      update.setUserId(new _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].Me());
-      update.getWebAppSettings(props.settingsId.webAppId).add(gridSettings);
-      _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_8__["default"].updatePersons([update]);
-    }
-  }, {
-    key: "_loadRows",
+    key: "_loadColumns",
     value: function () {
-      var _loadRows2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee2() {
-        var _this$context$getProp, load, rows, _this$context$getStat, columns, filters, sort, sortDirection, page, pageSize;
+      var _loadColumns2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee2(rows, columnsVisibility, columnsSorting) {
+        var _this = this;
+
+        var _this$context$getProp, columns, loadColumns, newColumns, newColumnsVisibility, newColumnsSorting;
 
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this$context$getProp = this.context.getProps(), load = _this$context$getProp.load, rows = _this$context$getProp.rows;
+                _this$context$getProp = this.context.getProps(), columns = _this$context$getProp.columns, loadColumns = _this$context$getProp.loadColumns;
+                newColumns = [];
+                newColumnsVisibility = _objectSpread({}, columnsVisibility);
+                newColumnsSorting = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(columnsSorting);
 
-                if (!load) {
-                  _context2.next = 11;
+                if (!columns) {
+                  _context2.next = 8;
                   break;
                 }
 
-                _this$context$getStat = this.context.getState(), columns = _this$context$getStat.columns, filters = _this$context$getStat.filters, sort = _this$context$getStat.sort, sortDirection = _this$context$getStat.sortDirection, page = _this$context$getStat.page, pageSize = _this$context$getStat.pageSize;
-                _context2.next = 5;
-                return this.context.setState(function () {
-                  return {
-                    loading: true
-                  };
-                });
-
-              case 5:
-                _context2.next = 7;
-                return load({
-                  columns: columns,
-                  filters: filters,
-                  page: page,
-                  pageSize: pageSize,
-                  sort: sort,
-                  sortDirection: sortDirection
-                });
-
-              case 7:
-                _context2.next = 9;
-                return this.context.setState(function () {
-                  return {
-                    loading: false
-                  };
-                });
-
-              case 9:
-                _context2.next = 13;
+                newColumns = columns;
+                _context2.next = 12;
                 break;
 
-              case 11:
-                _context2.next = 13;
-                return this.updateRows(rows, rows.length);
+              case 8:
+                if (!loadColumns) {
+                  _context2.next = 12;
+                  break;
+                }
 
-              case 13:
+                _context2.next = 11;
+                return loadColumns(rows);
+
+              case 11:
+                newColumns = _context2.sent;
+
+              case 12:
+                newColumns = newColumns.map(function (newColumn) {
+                  if (!newColumn.name) {
+                    throw new Error('column.name cannot be empty');
+                  }
+
+                  return _this._loadColumn(newColumn);
+                });
+                newColumns.forEach(function (newColumn, newColumnIndex) {
+                  var newColumnVisibility = newColumnsVisibility[newColumn.name];
+
+                  if (newColumnVisibility === undefined) {
+                    newColumnsVisibility[newColumn.name] = true;
+                  }
+
+                  var newColumnSorting = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(newColumnsSorting, function (columnName) {
+                    return columnName === newColumn.name;
+                  });
+
+                  if (newColumnSorting === -1) {
+                    newColumnSorting = newColumns.slice(0, newColumnIndex).reduce(function (maxSorting, column) {
+                      var sorting = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(newColumnsSorting, function (columnName) {
+                        return columnName === column.name;
+                      });
+
+                      return Math.max(sorting, maxSorting);
+                    }, -1);
+                    newColumnsSorting.splice(newColumnSorting + 1, 0, newColumn.name);
+                  }
+                });
+                newColumns.forEach(function (newColumn) {
+                  newColumn.visible = newColumnsVisibility[newColumn.name];
+                });
+
+                this._sortColumns(newColumns, newColumnsSorting);
+
+                return _context2.abrupt("return", {
+                  newColumns: newColumns,
+                  newColumnsVisibility: newColumnsVisibility,
+                  newColumnsSorting: newColumnsSorting
+                });
+
+              case 17:
               case "end":
                 return _context2.stop();
             }
@@ -64238,33 +64195,121 @@ var GridController = /*#__PURE__*/function () {
         }, _callee2, this);
       }));
 
-      function _loadRows() {
-        return _loadRows2.apply(this, arguments);
+      function _loadColumns(_x, _x2, _x3) {
+        return _loadColumns2.apply(this, arguments);
       }
 
-      return _loadRows;
+      return _loadColumns;
     }()
   }, {
-    key: "updateRows",
+    key: "_loadColumn",
+    value: function _loadColumn(column) {
+      var _this2 = this;
+
+      return _objectSpread(_objectSpread({}, column), {}, {
+        name: column.name,
+        label: column.label,
+        getValue: column.getValue,
+        matches: function matches(row, filter) {
+          function defaultMatches(value, filter) {
+            if (filter) {
+              return value !== null && value !== undefined ? String(value).trim().toUpperCase().includes(filter.trim().toUpperCase()) : false;
+            } else {
+              return true;
+            }
+          }
+
+          var value = column.getValue({
+            row: row,
+            column: column
+          });
+
+          if (column.matchesValue) {
+            return column.matchesValue({
+              value: value,
+              row: row,
+              column: column,
+              filter: filter,
+              defaultMatches: defaultMatches
+            });
+          } else {
+            return defaultMatches(value, filter);
+          }
+        },
+        compare: function compare(row1, row2) {
+          var defaultCompare = _src_js_common_compare_js__WEBPACK_IMPORTED_MODULE_8__["default"];
+          var value1 = column.getValue({
+            row: row1,
+            column: column
+          });
+          var value2 = column.getValue({
+            row: row2,
+            column: column
+          });
+
+          var _this2$context$getSta = _this2.context.getState(),
+              sortDirection = _this2$context$getSta.sortDirection;
+
+          if (column.compareValue) {
+            return column.compareValue({
+              value1: value1,
+              value2: value2,
+              row1: row1,
+              row2: row2,
+              column: column,
+              sortDirection: sortDirection,
+              defaultCompare: defaultCompare
+            });
+          } else {
+            return defaultCompare(value1, value2);
+          }
+        },
+        sortable: column.sortable === undefined ? true : column.sortable,
+        filterable: column.filterable === undefined ? true : column.filterable
+      });
+    }
+  }, {
+    key: "_sortColumns",
+    value: function _sortColumns(columns, columnsSorting) {
+      columns.sort(function (c1, c2) {
+        var c1Index = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(columnsSorting, function (columnName) {
+          return columnName === c1.name;
+        });
+
+        var c2Index = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(columnsSorting, function (columnName) {
+          return columnName === c2.name;
+        });
+
+        return c1Index - c2Index;
+      });
+    }
+  }, {
+    key: "_loadSettings",
     value: function () {
-      var _updateRows = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee3(newRows, newTotalCount) {
-        var _this$context$getStat2, rows, totalCount;
+      var _loadSettings2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee3() {
+        var _this$context$getProp2, loadSettings;
 
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _this$context$getStat2 = this.context.getState(), rows = _this$context$getStat2.rows, totalCount = _this$context$getStat2.totalCount;
+                _this$context$getProp2 = this.context.getProps(), loadSettings = _this$context$getProp2.loadSettings;
 
-                if (!(newRows !== rows || newTotalCount !== totalCount)) {
-                  _context3.next = 4;
+                if (!loadSettings) {
+                  _context3.next = 7;
                   break;
                 }
 
                 _context3.next = 4;
-                return this._recalculateCurrentRows(newRows, newTotalCount);
+                return loadSettings();
 
               case 4:
+                return _context3.abrupt("return", _context3.sent);
+
+              case 7:
+                return _context3.abrupt("return", null);
+
+              case 8:
               case "end":
                 return _context3.stop();
             }
@@ -64272,33 +64317,37 @@ var GridController = /*#__PURE__*/function () {
         }, _callee3, this);
       }));
 
-      function updateRows(_x, _x2) {
-        return _updateRows.apply(this, arguments);
+      function _loadSettings() {
+        return _loadSettings2.apply(this, arguments);
       }
 
-      return updateRows;
+      return _loadSettings;
     }()
   }, {
-    key: "updateSelectedRowId",
+    key: "_saveSettings",
     value: function () {
-      var _updateSelectedRowId = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee4(selectedRowId) {
-        var _this$context$getStat3, selectedRow;
+      var _saveSettings2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee4() {
+        var _this$context$getProp3, onSettingsChange, state, settings;
 
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _this$context$getStat3 = this.context.getState(), selectedRow = _this$context$getStat3.selectedRow;
+                _this$context$getProp3 = this.context.getProps(), onSettingsChange = _this$context$getProp3.onSettingsChange;
 
-                if (!(!selectedRow || selectedRow.id !== selectedRowId)) {
-                  _context4.next = 4;
-                  break;
+                if (onSettingsChange) {
+                  state = this.context.getState();
+                  settings = {
+                    pageSize: state.pageSize,
+                    sort: state.sort,
+                    sortDirection: state.sortDirection,
+                    columnsVisibility: state.columnsVisibility,
+                    columnsSorting: state.columnsSorting
+                  };
+                  onSettingsChange(settings);
                 }
 
-                _context4.next = 4;
-                return this._recalculateSelectedRow(selectedRowId);
-
-              case 4:
+              case 2:
               case "end":
                 return _context4.stop();
             }
@@ -64306,524 +64355,32 @@ var GridController = /*#__PURE__*/function () {
         }, _callee4, this);
       }));
 
-      function updateSelectedRowId(_x3) {
-        return _updateSelectedRowId.apply(this, arguments);
+      function _saveSettings() {
+        return _saveSettings2.apply(this, arguments);
       }
 
-      return updateSelectedRowId;
+      return _saveSettings;
     }()
   }, {
-    key: "_recalculateCurrentRows",
-    value: function () {
-      var _recalculateCurrentRows2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee5(newRows, newTotalCount) {
-        var _this$context$getProp2, load, _this$context$getStat4, rows, columns, filters, sort, sortDirection, page, pageSize, totalCount, pageCount, newPage, filteredRows, _pageCount, _newPage, sortedRows, currentRows, _this$context$getStat5, selectedRow;
-
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                _this$context$getProp2 = this.context.getProps(), load = _this$context$getProp2.load;
-                _this$context$getStat4 = this.context.getState(), rows = _this$context$getStat4.rows, columns = _this$context$getStat4.columns, filters = _this$context$getStat4.filters, sort = _this$context$getStat4.sort, sortDirection = _this$context$getStat4.sortDirection, page = _this$context$getStat4.page, pageSize = _this$context$getStat4.pageSize, totalCount = _this$context$getStat4.totalCount;
-                newRows = newRows === undefined ? rows : newRows;
-                newTotalCount = newTotalCount === undefined ? totalCount : newTotalCount;
-
-                if (!load) {
-                  _context5.next = 11;
-                  break;
-                }
-
-                pageCount = Math.max(Math.ceil(newTotalCount / pageSize), 1);
-                newPage = Math.min(page, pageCount - 1);
-                _context5.next = 9;
-                return this.context.setState({
-                  rows: newRows,
-                  filteredRows: [],
-                  sortedRows: [],
-                  currentRows: newRows,
-                  page: newPage,
-                  totalCount: newTotalCount
-                });
-
-              case 9:
-                _context5.next = 18;
-                break;
-
-              case 11:
-                filteredRows = this._filter(newRows, columns, filters);
-                _pageCount = Math.max(Math.ceil(filteredRows.length / pageSize), 1);
-                _newPage = Math.min(page, _pageCount - 1);
-                sortedRows = this._sort(filteredRows, columns, sort, sortDirection);
-                currentRows = this._page(sortedRows, _newPage, pageSize);
-                _context5.next = 18;
-                return this.context.setState({
-                  rows: newRows,
-                  filteredRows: filteredRows,
-                  sortedRows: sortedRows,
-                  currentRows: currentRows,
-                  page: _newPage,
-                  totalCount: filteredRows.length
-                });
-
-              case 18:
-                _this$context$getStat5 = this.context.getState(), selectedRow = _this$context$getStat5.selectedRow;
-
-                if (!selectedRow) {
-                  _context5.next = 22;
-                  break;
-                }
-
-                _context5.next = 22;
-                return this._recalculateSelectedRow(selectedRow.id);
-
-              case 22:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function _recalculateCurrentRows(_x4, _x5) {
-        return _recalculateCurrentRows2.apply(this, arguments);
-      }
-
-      return _recalculateCurrentRows;
-    }()
-  }, {
-    key: "_recalculateSelectedRow",
-    value: function () {
-      var _recalculateSelectedRow2 = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee6(selectedRowId) {
-        var _this$context$getStat6, selectedRow, currentRows, _this$context$getProp3, onSelectedRowChange, newSelectedRow, visible;
-
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                _this$context$getStat6 = this.context.getState(), selectedRow = _this$context$getStat6.selectedRow, currentRows = _this$context$getStat6.currentRows;
-                _this$context$getProp3 = this.context.getProps(), onSelectedRowChange = _this$context$getProp3.onSelectedRowChange;
-                newSelectedRow = null;
-
-                if (selectedRowId) {
-                  visible = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.some(currentRows, function (currentRow) {
-                    return currentRow.id === selectedRowId;
-                  });
-                  newSelectedRow = {
-                    id: selectedRowId,
-                    visible: visible
-                  };
-                }
-
-                if (lodash__WEBPACK_IMPORTED_MODULE_6___default.a.isEqual(selectedRow, newSelectedRow)) {
-                  _context6.next = 10;
-                  break;
-                }
-
-                _context6.next = 7;
-                return this.context.setState({
-                  selectedRow: newSelectedRow
-                });
-
-              case 7:
-                if (!onSelectedRowChange) {
-                  _context6.next = 10;
-                  break;
-                }
-
-                _context6.next = 10;
-                return onSelectedRowChange(newSelectedRow);
-
-              case 10:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, _callee6, this);
-      }));
-
-      function _recalculateSelectedRow(_x6) {
-        return _recalculateSelectedRow2.apply(this, arguments);
-      }
-
-      return _recalculateSelectedRow;
-    }()
-  }, {
-    key: "showSelectedRow",
-    value: function () {
-      var _showSelectedRow = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee7() {
-        var _this$context$getStat7, selectedRow, sortedRows, page, pageSize, index, newPage;
-
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee7$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                _this$context$getStat7 = this.context.getState(), selectedRow = _this$context$getStat7.selectedRow, sortedRows = _this$context$getStat7.sortedRows, page = _this$context$getStat7.page, pageSize = _this$context$getStat7.pageSize;
-
-                if (selectedRow) {
-                  _context7.next = 3;
-                  break;
-                }
-
-                return _context7.abrupt("return");
-
-              case 3:
-                index = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(sortedRows, ['id', selectedRow.id]);
-
-                if (!(index === -1)) {
-                  _context7.next = 6;
-                  break;
-                }
-
-                return _context7.abrupt("return");
-
-              case 6:
-                newPage = Math.floor(index / pageSize);
-
-                if (!(newPage !== page)) {
-                  _context7.next = 12;
-                  break;
-                }
-
-                _context7.next = 10;
-                return this.context.setState({
-                  page: newPage
-                });
-
-              case 10:
-                _context7.next = 12;
-                return this._recalculateCurrentRows();
-
-              case 12:
-              case "end":
-                return _context7.stop();
-            }
-          }
-        }, _callee7, this);
-      }));
-
-      function showSelectedRow() {
-        return _showSelectedRow.apply(this, arguments);
-      }
-
-      return showSelectedRow;
-    }()
-  }, {
-    key: "handleFilterChange",
-    value: function () {
-      var _handleFilterChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee9(column, filter) {
-        var _this4 = this;
-
-        var state, filters, _this$context$getProp4, load;
-
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee9$(_context9) {
-          while (1) {
-            switch (_context9.prev = _context9.next) {
-              case 0:
-                state = this.context.getState();
-                filters = _objectSpread({}, state.filters);
-
-                if (filter && lodash__WEBPACK_IMPORTED_MODULE_6___default.a.trim(filter).length > 0) {
-                  filters[column] = filter;
-                } else {
-                  delete filters[column];
-                }
-
-                _context9.next = 5;
-                return this.context.setState(function () {
-                  return {
-                    page: 0,
-                    filters: filters
-                  };
-                });
-
-              case 5:
-                _this$context$getProp4 = this.context.getProps(), load = _this$context$getProp4.load;
-
-                if (!load) {
-                  _context9.next = 11;
-                  break;
-                }
-
-                if (this.loadTimerId) {
-                  clearTimeout(this.loadTimerId);
-                  this.loadTimerId = null;
-                }
-
-                this.loadTimerId = setTimeout( /*#__PURE__*/_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee8() {
-                  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee8$(_context8) {
-                    while (1) {
-                      switch (_context8.prev = _context8.next) {
-                        case 0:
-                          _context8.next = 2;
-                          return _this4._loadRows();
-
-                        case 2:
-                          _context8.next = 4;
-                          return _this4._recalculateCurrentRows();
-
-                        case 4:
-                        case "end":
-                          return _context8.stop();
-                      }
-                    }
-                  }, _callee8);
-                })), 500);
-                _context9.next = 15;
-                break;
-
-              case 11:
-                _context9.next = 13;
-                return this._loadRows();
-
-              case 13:
-                _context9.next = 15;
-                return this._recalculateCurrentRows();
-
-              case 15:
-              case "end":
-                return _context9.stop();
-            }
-          }
-        }, _callee9, this);
-      }));
-
-      function handleFilterChange(_x7, _x8) {
-        return _handleFilterChange.apply(this, arguments);
-      }
-
-      return handleFilterChange;
-    }()
-  }, {
-    key: "handleColumnVisibleChange",
-    value: function () {
-      var _handleColumnVisibleChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee10(name) {
-        var state, columns;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee10$(_context10) {
-          while (1) {
-            switch (_context10.prev = _context10.next) {
-              case 0:
-                state = this.context.getState();
-                columns = state.columns.map(function (column) {
-                  if (column.name === name) {
-                    return _objectSpread(_objectSpread({}, column), {}, {
-                      visible: !column.visible
-                    });
-                  } else {
-                    return column;
-                  }
-                });
-                _context10.next = 4;
-                return this.context.setState(function () {
-                  return {
-                    columns: columns
-                  };
-                });
-
-              case 4:
-                this._saveSettings();
-
-              case 5:
-              case "end":
-                return _context10.stop();
-            }
-          }
-        }, _callee10, this);
-      }));
-
-      function handleColumnVisibleChange(_x9) {
-        return _handleColumnVisibleChange.apply(this, arguments);
-      }
-
-      return handleColumnVisibleChange;
-    }()
-  }, {
-    key: "handleColumnOrderChange",
-    value: function () {
-      var _handleColumnOrderChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee11(sourceIndex, destinationIndex) {
-        var state, columns, source;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee11$(_context11) {
-          while (1) {
-            switch (_context11.prev = _context11.next) {
-              case 0:
-                state = this.context.getState();
-                columns = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(state.columns);
-                source = columns[sourceIndex];
-                columns.splice(sourceIndex, 1);
-                columns.splice(destinationIndex, 0, source);
-                _context11.next = 7;
-                return this.context.setState(function () {
-                  return {
-                    columns: columns
-                  };
-                });
-
-              case 7:
-                this._saveSettings();
-
-              case 8:
-              case "end":
-                return _context11.stop();
-            }
-          }
-        }, _callee11, this);
-      }));
-
-      function handleColumnOrderChange(_x10, _x11) {
-        return _handleColumnOrderChange.apply(this, arguments);
-      }
-
-      return handleColumnOrderChange;
-    }()
-  }, {
-    key: "handleSortChange",
-    value: function () {
-      var _handleSortChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee12(column) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee12$(_context12) {
-          while (1) {
-            switch (_context12.prev = _context12.next) {
-              case 0:
-                if (column.sortable) {
-                  _context12.next = 2;
-                  break;
-                }
-
-                return _context12.abrupt("return");
-
-              case 2:
-                _context12.next = 4;
-                return this.context.setState(function (state) {
-                  if (column.name === state.sort) {
-                    return {
-                      sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
-                    };
-                  } else {
-                    return {
-                      sort: column.name,
-                      sortDirection: 'asc'
-                    };
-                  }
-                });
-
-              case 4:
-                this._saveSettings();
-
-                _context12.next = 7;
-                return this._loadRows();
-
-              case 7:
-                _context12.next = 9;
-                return this._recalculateCurrentRows();
-
-              case 9:
-              case "end":
-                return _context12.stop();
-            }
-          }
-        }, _callee12, this);
-      }));
-
-      function handleSortChange(_x12) {
-        return _handleSortChange.apply(this, arguments);
-      }
-
-      return handleSortChange;
-    }()
-  }, {
-    key: "handlePageChange",
-    value: function () {
-      var _handlePageChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee13(page) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee13$(_context13) {
-          while (1) {
-            switch (_context13.prev = _context13.next) {
-              case 0:
-                _context13.next = 2;
-                return this.context.setState(function () {
-                  return {
-                    page: page
-                  };
-                });
-
-              case 2:
-                _context13.next = 4;
-                return this._loadRows();
-
-              case 4:
-                _context13.next = 6;
-                return this._recalculateCurrentRows();
-
-              case 6:
-              case "end":
-                return _context13.stop();
-            }
-          }
-        }, _callee13, this);
-      }));
-
-      function handlePageChange(_x13) {
-        return _handlePageChange.apply(this, arguments);
-      }
-
-      return handlePageChange;
-    }()
-  }, {
-    key: "handlePageSizeChange",
-    value: function () {
-      var _handlePageSizeChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee14(pageSize) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee14$(_context14) {
-          while (1) {
-            switch (_context14.prev = _context14.next) {
-              case 0:
-                _context14.next = 2;
-                return this.context.setState(function () {
-                  return {
-                    page: 0,
-                    pageSize: pageSize
-                  };
-                });
-
-              case 2:
-                this._saveSettings();
-
-                _context14.next = 5;
-                return this._loadRows();
-
-              case 5:
-                _context14.next = 7;
-                return this._recalculateCurrentRows();
-
-              case 7:
-              case "end":
-                return _context14.stop();
-            }
-          }
-        }, _callee14, this);
-      }));
-
-      function handlePageSizeChange(_x14) {
-        return _handlePageSizeChange.apply(this, arguments);
-      }
-
-      return handlePageSizeChange;
-    }()
-  }, {
-    key: "handleRowSelect",
-    value: function handleRowSelect(row) {
-      this.updateSelectedRowId(row ? row.id : null);
-    }
-  }, {
-    key: "_filter",
-    value: function _filter(rows, columns, filters) {
+    key: "_filterRows",
+    value: function _filterRows(rows, columns, filters) {
       return lodash__WEBPACK_IMPORTED_MODULE_6___default.a.filter(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(rows), function (row) {
         var matchesAll = true;
         columns.forEach(function (column) {
-          var filter = filters[column.name];
-          matchesAll = matchesAll && column.matches(row, filter);
+          if (column.visible) {
+            var filter = filters[column.name];
+
+            if (filter !== null && filter !== undefined && filter.trim().length > 0) {
+              matchesAll = matchesAll && column.matches(row, filter);
+            }
+          }
         });
         return matchesAll;
       });
     }
   }, {
-    key: "_sort",
-    value: function _sort(rows, columns, sort, sortDirection) {
+    key: "_sortRows",
+    value: function _sortRows(rows, columns, sort, sortDirection) {
       if (sort) {
         var column = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.find(columns, ['name', sort]);
 
@@ -64838,17 +64395,513 @@ var GridController = /*#__PURE__*/function () {
       return rows;
     }
   }, {
-    key: "_page",
-    value: function _page(rows, page, pageSize) {
+    key: "_pageRows",
+    value: function _pageRows(rows, page, pageSize) {
       return rows.slice(page * pageSize, Math.min(rows.length, (page + 1) * pageSize));
+    }
+  }, {
+    key: "selectRow",
+    value: function () {
+      var _selectRow = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee5(newSelectedRowId) {
+        var _this$context$getProp4, onSelectedRowChange, _this$context$getStat, allRows, rows, selectedRow, newSelectedRow, row, visible;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _this$context$getProp4 = this.context.getProps(), onSelectedRowChange = _this$context$getProp4.onSelectedRowChange;
+                _this$context$getStat = this.context.getState(), allRows = _this$context$getStat.allRows, rows = _this$context$getStat.rows, selectedRow = _this$context$getStat.selectedRow;
+                newSelectedRow = null;
+
+                if (newSelectedRowId !== null && newSelectedRowId !== undefined) {
+                  row = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.find(allRows, function (row) {
+                    return row.id === newSelectedRowId;
+                  });
+                  visible = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(rows, function (row) {
+                    return row.id === newSelectedRowId;
+                  }) !== -1;
+                  newSelectedRow = {
+                    id: newSelectedRowId,
+                    data: row,
+                    visible: visible
+                  };
+                }
+
+                if (lodash__WEBPACK_IMPORTED_MODULE_6___default.a.isEqual(selectedRow, newSelectedRow)) {
+                  _context5.next = 8;
+                  break;
+                }
+
+                _context5.next = 7;
+                return this.context.setState(function () {
+                  return {
+                    selectedRow: newSelectedRow
+                  };
+                });
+
+              case 7:
+                if (onSelectedRowChange) {
+                  onSelectedRowChange(newSelectedRow);
+                }
+
+              case 8:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function selectRow(_x4) {
+        return _selectRow.apply(this, arguments);
+      }
+
+      return selectRow;
+    }()
+  }, {
+    key: "showRow",
+    value: function () {
+      var _showRow = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee6(rowId) {
+        var _this$context$getStat2, sortedRows, page, pageSize, index, newPage;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _this$context$getStat2 = this.context.getState(), sortedRows = _this$context$getStat2.sortedRows, page = _this$context$getStat2.page, pageSize = _this$context$getStat2.pageSize;
+
+                if (rowId) {
+                  _context6.next = 3;
+                  break;
+                }
+
+                return _context6.abrupt("return");
+
+              case 3:
+                index = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(sortedRows, ['id', rowId]);
+
+                if (!(index === -1)) {
+                  _context6.next = 6;
+                  break;
+                }
+
+                return _context6.abrupt("return");
+
+              case 6:
+                newPage = Math.floor(index / pageSize);
+
+                if (!(newPage !== page)) {
+                  _context6.next = 12;
+                  break;
+                }
+
+                _context6.next = 10;
+                return this.context.setState({
+                  page: newPage
+                });
+
+              case 10:
+                _context6.next = 12;
+                return this.load();
+
+              case 12:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this);
+      }));
+
+      function showRow(_x5) {
+        return _showRow.apply(this, arguments);
+      }
+
+      return showRow;
+    }()
+  }, {
+    key: "handleFilterChange",
+    value: function () {
+      var _handleFilterChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee8(column, filter) {
+        var _this3 = this;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee8$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                _context8.next = 2;
+                return this.context.setState(function (state) {
+                  var newFilters = _objectSpread({}, state.filters);
+
+                  if (filter && lodash__WEBPACK_IMPORTED_MODULE_6___default.a.trim(filter).length > 0) {
+                    newFilters[column] = filter;
+                  } else {
+                    delete newFilters[column];
+                  }
+
+                  return {
+                    page: 0,
+                    filters: newFilters
+                  };
+                });
+
+              case 2:
+                if (this.loadTimerId) {
+                  clearTimeout(this.loadTimerId);
+                  this.loadTimerId = null;
+                }
+
+                this.loadTimerId = setTimeout( /*#__PURE__*/_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee7() {
+                  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee7$(_context7) {
+                    while (1) {
+                      switch (_context7.prev = _context7.next) {
+                        case 0:
+                          _context7.next = 2;
+                          return _this3.load();
+
+                        case 2:
+                        case "end":
+                          return _context7.stop();
+                      }
+                    }
+                  }, _callee7);
+                })), 500);
+
+              case 4:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, _callee8, this);
+      }));
+
+      function handleFilterChange(_x6, _x7) {
+        return _handleFilterChange.apply(this, arguments);
+      }
+
+      return handleFilterChange;
+    }()
+  }, {
+    key: "handleColumnVisibleChange",
+    value: function () {
+      var _handleColumnVisibleChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee9(name) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _context9.next = 2;
+                return this.context.setState(function (state) {
+                  var newColumnsVisibility = _objectSpread({}, state.columnsVisibility);
+
+                  newColumnsVisibility[name] = !newColumnsVisibility[name];
+
+                  if (newColumnsVisibility[name]) {
+                    return {
+                      columnsVisibility: newColumnsVisibility
+                    };
+                  } else {
+                    var newFilters = _objectSpread({}, state.filters);
+
+                    delete newFilters[name];
+                    return {
+                      columnsVisibility: newColumnsVisibility,
+                      filters: newFilters
+                    };
+                  }
+                });
+
+              case 2:
+                _context9.next = 4;
+                return this.load();
+
+              case 4:
+                _context9.next = 6;
+                return this._saveSettings();
+
+              case 6:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9, this);
+      }));
+
+      function handleColumnVisibleChange(_x8) {
+        return _handleColumnVisibleChange.apply(this, arguments);
+      }
+
+      return handleColumnVisibleChange;
+    }()
+  }, {
+    key: "handleColumnOrderChange",
+    value: function () {
+      var _handleColumnOrderChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee10(sourceIndex, destinationIndex) {
+        var _this4 = this;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee10$(_context10) {
+          while (1) {
+            switch (_context10.prev = _context10.next) {
+              case 0:
+                _context10.next = 2;
+                return this.context.setState(function (state) {
+                  var sourceColumn = state.columns[sourceIndex];
+                  var destinationColumn = state.columns[destinationIndex];
+
+                  var sourceSorting = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(state.columnsSorting, function (columnName) {
+                    return columnName === sourceColumn.name;
+                  });
+
+                  var destinationSorting = lodash__WEBPACK_IMPORTED_MODULE_6___default.a.findIndex(state.columnsSorting, function (columnName) {
+                    return columnName === destinationColumn.name;
+                  });
+
+                  var newColumnsSorting = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(state.columnsSorting);
+
+                  newColumnsSorting.splice(sourceSorting, 1);
+                  newColumnsSorting.splice(destinationSorting, 0, sourceColumn.name);
+
+                  var newColumns = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(state.columns);
+
+                  _this4._sortColumns(newColumns, newColumnsSorting);
+
+                  return {
+                    columns: newColumns,
+                    columnsSorting: newColumnsSorting
+                  };
+                });
+
+              case 2:
+                _context10.next = 4;
+                return this.load();
+
+              case 4:
+                _context10.next = 6;
+                return this._saveSettings();
+
+              case 6:
+              case "end":
+                return _context10.stop();
+            }
+          }
+        }, _callee10, this);
+      }));
+
+      function handleColumnOrderChange(_x9, _x10) {
+        return _handleColumnOrderChange.apply(this, arguments);
+      }
+
+      return handleColumnOrderChange;
+    }()
+  }, {
+    key: "handleSortChange",
+    value: function () {
+      var _handleSortChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee11(column) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee11$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                if (column.sortable) {
+                  _context11.next = 2;
+                  break;
+                }
+
+                return _context11.abrupt("return");
+
+              case 2:
+                _context11.next = 4;
+                return this.context.setState(function (state) {
+                  if (column.name === state.sort) {
+                    return {
+                      sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
+                    };
+                  } else {
+                    return {
+                      sort: column.name,
+                      sortDirection: 'asc'
+                    };
+                  }
+                });
+
+              case 4:
+                _context11.next = 6;
+                return this.load();
+
+              case 6:
+                _context11.next = 8;
+                return this._saveSettings();
+
+              case 8:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, _callee11, this);
+      }));
+
+      function handleSortChange(_x11) {
+        return _handleSortChange.apply(this, arguments);
+      }
+
+      return handleSortChange;
+    }()
+  }, {
+    key: "handlePageChange",
+    value: function () {
+      var _handlePageChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee12(page) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee12$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                _context12.next = 2;
+                return this.context.setState(function () {
+                  return {
+                    page: page
+                  };
+                });
+
+              case 2:
+                _context12.next = 4;
+                return this.load();
+
+              case 4:
+              case "end":
+                return _context12.stop();
+            }
+          }
+        }, _callee12, this);
+      }));
+
+      function handlePageChange(_x12) {
+        return _handlePageChange.apply(this, arguments);
+      }
+
+      return handlePageChange;
+    }()
+  }, {
+    key: "handlePageSizeChange",
+    value: function () {
+      var _handlePageSizeChange = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee13(pageSize) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee13$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                _context13.next = 2;
+                return this.context.setState(function () {
+                  return {
+                    page: 0,
+                    pageSize: pageSize
+                  };
+                });
+
+              case 2:
+                _context13.next = 4;
+                return this.load();
+
+              case 4:
+                _context13.next = 6;
+                return this._saveSettings();
+
+              case 6:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, _callee13, this);
+      }));
+
+      function handlePageSizeChange(_x13) {
+        return _handlePageSizeChange.apply(this, arguments);
+      }
+
+      return handlePageSizeChange;
+    }()
+  }, {
+    key: "handleRowSelect",
+    value: function () {
+      var _handleRowSelect = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.mark(function _callee14(row) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default.a.wrap(function _callee14$(_context14) {
+          while (1) {
+            switch (_context14.prev = _context14.next) {
+              case 0:
+                _context14.next = 2;
+                return this.selectRow(row ? row.id : null);
+
+              case 2:
+              case "end":
+                return _context14.stop();
+            }
+          }
+        }, _callee14, this);
+      }));
+
+      function handleRowSelect(_x14) {
+        return _handleRowSelect.apply(this, arguments);
+      }
+
+      return handleRowSelect;
+    }()
+  }, {
+    key: "getPage",
+    value: function getPage() {
+      var _this$context$getStat3 = this.context.getState(),
+          page = _this$context$getStat3.page;
+
+      return page;
+    }
+  }, {
+    key: "getPageSize",
+    value: function getPageSize() {
+      var _this$context$getStat4 = this.context.getState(),
+          pageSize = _this$context$getStat4.pageSize;
+
+      return pageSize;
+    }
+  }, {
+    key: "getSort",
+    value: function getSort() {
+      var _this$context$getStat5 = this.context.getState(),
+          sort = _this$context$getStat5.sort;
+
+      return sort;
+    }
+  }, {
+    key: "getSortDirection",
+    value: function getSortDirection() {
+      var _this$context$getStat6 = this.context.getState(),
+          sortDirection = _this$context$getStat6.sortDirection;
+
+      return sortDirection;
+    }
+  }, {
+    key: "getFilters",
+    value: function getFilters() {
+      var _this$context$getStat7 = this.context.getState(),
+          filters = _this$context$getStat7.filters;
+
+      return filters;
+    }
+  }, {
+    key: "getRows",
+    value: function getRows() {
+      var _this$context$getStat8 = this.context.getState(),
+          rows = _this$context$getStat8.rows;
+
+      return rows;
     }
   }, {
     key: "getSelectedRow",
     value: function getSelectedRow() {
-      var _this$context$getStat8 = this.context.getState(),
-          selectedRow = _this$context$getStat8.selectedRow;
+      var _this$context$getStat9 = this.context.getState(),
+          selectedRow = _this$context$getStat9.selectedRow;
 
       return selectedRow;
+    }
+  }, {
+    key: "getTotalCount",
+    value: function getTotalCount() {
+      var _this$context$getStat10 = this.context.getState(),
+          totalCount = _this$context$getStat10.totalCount;
+
+      return totalCount;
     }
   }]);
 
@@ -65582,19 +65635,16 @@ var GridRow = /*#__PURE__*/function (_React$PureComponent) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @src/js/services/openbis.js */ "./src/js/services/openbis.js");
-/* harmony import */ var _src_js_components_common_theme_ThemeProvider_jsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @src/js/components/common/theme/ThemeProvider.jsx */ "./src/js/components/common/theme/ThemeProvider.jsx");
-/* harmony import */ var _src_js_components_common_grid_Grid_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @src/js/components/common/grid/Grid.jsx */ "./src/js/components/common/grid/Grid.jsx");
-/* harmony import */ var _src_js_components_common_form_SelectField_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @src/js/components/common/form/SelectField.jsx */ "./src/js/components/common/form/SelectField.jsx");
-
+/* harmony import */ var _src_js_components_common_theme_ThemeProvider_jsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @src/js/components/common/theme/ThemeProvider.jsx */ "./src/js/components/common/theme/ThemeProvider.jsx");
+/* harmony import */ var _src_js_components_common_grid_Grid_jsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @src/js/components/common/grid/Grid.jsx */ "./src/js/components/common/grid/Grid.jsx");
+/* harmony import */ var _src_js_components_common_loading_Loading_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @src/js/components/common/loading/Loading.jsx */ "./src/js/components/common/loading/Loading.jsx");
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  openbis: _src_js_services_openbis_js__WEBPACK_IMPORTED_MODULE_0__["default"],
-  ThemeProvider: _src_js_components_common_theme_ThemeProvider_jsx__WEBPACK_IMPORTED_MODULE_1__["default"],
-  Grid: _src_js_components_common_grid_Grid_jsx__WEBPACK_IMPORTED_MODULE_2__["default"],
-  SelectField: _src_js_components_common_form_SelectField_jsx__WEBPACK_IMPORTED_MODULE_3__["default"]
+  ThemeProvider: _src_js_components_common_theme_ThemeProvider_jsx__WEBPACK_IMPORTED_MODULE_0__["default"],
+  Grid: _src_js_components_common_grid_Grid_jsx__WEBPACK_IMPORTED_MODULE_1__["default"],
+  Loading: _src_js_components_common_loading_Loading_jsx__WEBPACK_IMPORTED_MODULE_2__["default"]
 });
 
 /***/ }),
@@ -65803,450 +65853,6 @@ var ThemeProvider = /*#__PURE__*/function (_React$Component) {
 
 /* harmony default export */ __webpack_exports__["default"] = (ThemeProvider);
 
-
-/***/ }),
-
-/***/ "./src/js/services/openbis.js":
-/*!************************************!*\
-  !*** ./src/js/services/openbis.js ***!
-  \************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @src/js/services/openbis/dto.js */ "./src/js/services/openbis/dto.js");
-/* harmony import */ var _src_js_services_openbis_api_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @src/js/services/openbis/api.js */ "./src/js/services/openbis/api.js");
-
-
-
-
-
-
-
-var Openbis = /*#__PURE__*/function () {
-  function Openbis() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, Openbis);
-  }
-
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default()(Openbis, [{
-    key: "init",
-    value: function () {
-      var _init = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default.a.mark(function _callee() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default.a.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return Promise.all([_src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_4__["default"]._init(), _src_js_services_openbis_api_js__WEBPACK_IMPORTED_MODULE_5__["default"]._init()]);
-
-              case 2:
-                Object.assign(this, _src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_4__["default"]);
-                Object.assign(this, _src_js_services_openbis_api_js__WEBPACK_IMPORTED_MODULE_5__["default"]);
-
-              case 4:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function init() {
-        return _init.apply(this, arguments);
-      }
-
-      return init;
-    }()
-  }]);
-
-  return Openbis;
-}();
-
-var openbis = new Openbis();
-/* harmony default export */ __webpack_exports__["default"] = (openbis);
-
-/***/ }),
-
-/***/ "./src/js/services/openbis/api.js":
-/*!****************************************!*\
-  !*** ./src/js/services/openbis/api.js ***!
-  \****************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var auto_bind__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! auto-bind */ "./node_modules/auto-bind/index.js");
-/* harmony import */ var auto_bind__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(auto_bind__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @src/js/services/openbis/dto.js */ "./src/js/services/openbis/dto.js");
-
-
-
-
-
-var Facade = /*#__PURE__*/function () {
-  function Facade() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Facade);
-
-    auto_bind__WEBPACK_IMPORTED_MODULE_2___default()(this);
-  }
-
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Facade, [{
-    key: "_init",
-    value: function _init() {
-      var _this = this;
-
-      return new Promise(function (resolve, reject) {
-        /* eslint-disable-next-line no-undef */
-        requirejs(['openbis'], function (openbis) {
-          _this.v3 = new openbis();
-          resolve();
-        }, function (error) {
-          reject(error);
-        });
-      });
-    }
-  }, {
-    key: "useSession",
-    value: function useSession(sessionToken) {
-      this.v3._private.sessionToken = sessionToken;
-    }
-  }, {
-    key: "getSessionInformation",
-    value: function getSessionInformation() {
-      return this.promise(this.v3.getSessionInformation());
-    }
-  }, {
-    key: "getServerPublicInformation",
-    value: function getServerPublicInformation() {
-      return this.promise(this.v3.getServerPublicInformation());
-    }
-  }, {
-    key: "login",
-    value: function login(user, password) {
-      return this.promise(this.v3.login(user, password));
-    }
-  }, {
-    key: "logout",
-    value: function logout() {
-      return this.promise(this.v3.logout());
-    }
-  }, {
-    key: "getPlugins",
-    value: function getPlugins(ids, fo) {
-      return this.promise(this.v3.getPlugins(ids, fo));
-    }
-  }, {
-    key: "getQueries",
-    value: function getQueries(ids, fo) {
-      return this.promise(this.v3.getQueries(ids, fo));
-    }
-  }, {
-    key: "getPropertyTypes",
-    value: function getPropertyTypes(ids, fo) {
-      return this.promise(this.v3.getPropertyTypes(ids, fo));
-    }
-  }, {
-    key: "getAuthorizationGroups",
-    value: function getAuthorizationGroups(ids, fo) {
-      return this.promise(this.v3.getAuthorizationGroups(ids, fo));
-    }
-  }, {
-    key: "getPersons",
-    value: function getPersons(ids, fo) {
-      return this.promise(this.v3.getPersons(ids, fo));
-    }
-  }, {
-    key: "updatePersons",
-    value: function updatePersons(updates) {
-      return this.promise(this.v3.updatePersons(updates));
-    }
-  }, {
-    key: "searchSpaces",
-    value: function searchSpaces(criteria, fo) {
-      return this.promise(this.v3.searchSpaces(criteria, fo));
-    }
-  }, {
-    key: "searchProjects",
-    value: function searchProjects(criteria, fo) {
-      return this.promise(this.v3.searchProjects(criteria, fo));
-    }
-  }, {
-    key: "searchPropertyTypes",
-    value: function searchPropertyTypes(criteria, fo) {
-      return this.promise(this.v3.searchPropertyTypes(criteria, fo));
-    }
-  }, {
-    key: "searchPlugins",
-    value: function searchPlugins(criteria, fo) {
-      return this.promise(this.v3.searchPlugins(criteria, fo));
-    }
-  }, {
-    key: "searchQueries",
-    value: function searchQueries(criteria, fo) {
-      return this.promise(this.v3.searchQueries(criteria, fo));
-    }
-  }, {
-    key: "searchQueryDatabases",
-    value: function searchQueryDatabases(criteria, fo) {
-      return this.promise(this.v3.searchQueryDatabases(criteria, fo));
-    }
-  }, {
-    key: "searchMaterials",
-    value: function searchMaterials(criteria, fo) {
-      return this.promise(this.v3.searchMaterials(criteria, fo));
-    }
-  }, {
-    key: "searchSamples",
-    value: function searchSamples(criteria, fo) {
-      return this.promise(this.v3.searchSamples(criteria, fo));
-    }
-  }, {
-    key: "searchExperiments",
-    value: function searchExperiments(criteria, fo) {
-      return this.promise(this.v3.searchExperiments(criteria, fo));
-    }
-  }, {
-    key: "searchDataSets",
-    value: function searchDataSets(criteria, fo) {
-      return this.promise(this.v3.searchDataSets(criteria, fo));
-    }
-  }, {
-    key: "searchVocabularies",
-    value: function searchVocabularies(criteria, fo) {
-      return this.promise(this.v3.searchVocabularies(criteria, fo));
-    }
-  }, {
-    key: "searchVocabularyTerms",
-    value: function searchVocabularyTerms(criteria, fo) {
-      return this.promise(this.v3.searchVocabularyTerms(criteria, fo));
-    }
-  }, {
-    key: "searchPersons",
-    value: function searchPersons(criteria, fo) {
-      return this.promise(this.v3.searchPersons(criteria, fo));
-    }
-  }, {
-    key: "searchAuthorizationGroups",
-    value: function searchAuthorizationGroups(criteria, fo) {
-      return this.promise(this.v3.searchAuthorizationGroups(criteria, fo));
-    }
-  }, {
-    key: "searchPropertyAssignments",
-    value: function searchPropertyAssignments(criteria, fo) {
-      return this.promise(this.v3.searchPropertyAssignments(criteria, fo));
-    }
-  }, {
-    key: "searchEvents",
-    value: function searchEvents(criteria, fo) {
-      return this.promise(this.v3.searchEvents(criteria, fo));
-    }
-  }, {
-    key: "getSampleTypes",
-    value: function getSampleTypes(ids, fo) {
-      return this.promise(this.v3.getSampleTypes(ids, fo));
-    }
-  }, {
-    key: "getExperimentTypes",
-    value: function getExperimentTypes(ids, fo) {
-      return this.promise(this.v3.getExperimentTypes(ids, fo));
-    }
-  }, {
-    key: "getDataSetTypes",
-    value: function getDataSetTypes(ids, fo) {
-      return this.promise(this.v3.getDataSetTypes(ids, fo));
-    }
-  }, {
-    key: "getMaterialTypes",
-    value: function getMaterialTypes(ids, fo) {
-      return this.promise(this.v3.getMaterialTypes(ids, fo));
-    }
-  }, {
-    key: "getVocabularies",
-    value: function getVocabularies(ids, fo) {
-      return this.promise(this.v3.getVocabularies(ids, fo));
-    }
-  }, {
-    key: "updateSampleTypes",
-    value: function updateSampleTypes(updates) {
-      return this.promise(this.v3.updateSampleTypes(updates));
-    }
-  }, {
-    key: "updateExperimentTypes",
-    value: function updateExperimentTypes(updates) {
-      return this.promise(this.v3.updateExperimentTypes(updates));
-    }
-  }, {
-    key: "updateDataSetTypes",
-    value: function updateDataSetTypes(updates) {
-      return this.promise(this.v3.updateDataSetTypes(updates));
-    }
-  }, {
-    key: "updateMaterialTypes",
-    value: function updateMaterialTypes(updates) {
-      return this.promise(this.v3.updateMaterialTypes(updates));
-    }
-  }, {
-    key: "searchSampleTypes",
-    value: function searchSampleTypes(criteria, fo) {
-      return this.promise(this.v3.searchSampleTypes(criteria, fo));
-    }
-  }, {
-    key: "searchExperimentTypes",
-    value: function searchExperimentTypes(criteria, fo) {
-      return this.promise(this.v3.searchExperimentTypes(criteria, fo));
-    }
-  }, {
-    key: "searchDataSetTypes",
-    value: function searchDataSetTypes(criteria, fo) {
-      return this.promise(this.v3.searchDataSetTypes(criteria, fo));
-    }
-  }, {
-    key: "searchMaterialTypes",
-    value: function searchMaterialTypes(criteria, fo) {
-      return this.promise(this.v3.searchMaterialTypes(criteria, fo));
-    }
-  }, {
-    key: "deleteSampleTypes",
-    value: function deleteSampleTypes(ids, options) {
-      return this.promise(this.v3.deleteSampleTypes(ids, options));
-    }
-  }, {
-    key: "deleteExperimentTypes",
-    value: function deleteExperimentTypes(ids, options) {
-      return this.promise(this.v3.deleteExperimentTypes(ids, options));
-    }
-  }, {
-    key: "deleteDataSetTypes",
-    value: function deleteDataSetTypes(ids, options) {
-      return this.promise(this.v3.deleteDataSetTypes(ids, options));
-    }
-  }, {
-    key: "deleteMaterialTypes",
-    value: function deleteMaterialTypes(ids, options) {
-      return this.promise(this.v3.deleteMaterialTypes(ids, options));
-    }
-  }, {
-    key: "evaluatePlugin",
-    value: function evaluatePlugin(options) {
-      return this.promise(this.v3.evaluatePlugin(options));
-    }
-  }, {
-    key: "executeService",
-    value: function executeService() {
-      var id = new _src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_3__["default"].CustomASServiceCode('openbis-ng-ui-service');
-      var options = new _src_js_services_openbis_dto_js__WEBPACK_IMPORTED_MODULE_3__["default"].CustomASServiceExecutionOptions();
-      return this.promise(this.v3.executeCustomASService(id, options));
-    }
-  }, {
-    key: "executeQuery",
-    value: function executeQuery(id, options) {
-      return this.promise(this.v3.executeQuery(id, options));
-    }
-  }, {
-    key: "executeSql",
-    value: function executeSql(sql, options) {
-      return this.promise(this.v3.executeSql(sql, options));
-    }
-  }, {
-    key: "executeOperations",
-    value: function executeOperations(operations, options) {
-      return this.promise(this.v3.executeOperations(operations, options));
-    }
-  }, {
-    key: "promise",
-    value: function promise(dfd) {
-      return new Promise(function (resolve, reject) {
-        dfd.then(function (result) {
-          resolve(result);
-        }, function (error) {
-          reject(error);
-        });
-      });
-    }
-  }]);
-
-  return Facade;
-}();
-
-var facade = new Facade();
-/* harmony default export */ __webpack_exports__["default"] = (facade);
-
-/***/ }),
-
-/***/ "./src/js/services/openbis/dto.js":
-/*!****************************************!*\
-  !*** ./src/js/services/openbis/dto.js ***!
-  \****************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-
-
-var CLASS_FULL_NAMES = ['as/dto/authorizationgroup/AuthorizationGroup', 'as/dto/authorizationgroup/create/AuthorizationGroupCreation', 'as/dto/authorizationgroup/create/CreateAuthorizationGroupsOperation', 'as/dto/authorizationgroup/delete/AuthorizationGroupDeletionOptions', 'as/dto/authorizationgroup/delete/DeleteAuthorizationGroupsOperation', 'as/dto/authorizationgroup/fetchoptions/AuthorizationGroupFetchOptions', 'as/dto/authorizationgroup/id/AuthorizationGroupPermId', 'as/dto/authorizationgroup/search/AuthorizationGroupSearchCriteria', 'as/dto/authorizationgroup/update/AuthorizationGroupUpdate', 'as/dto/authorizationgroup/update/UpdateAuthorizationGroupsOperation', 'as/dto/dataset/create/CreateDataSetTypesOperation', 'as/dto/dataset/create/DataSetTypeCreation', 'as/dto/dataset/delete/DataSetTypeDeletionOptions', 'as/dto/dataset/delete/DeleteDataSetTypesOperation', 'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/dataset/fetchoptions/DataSetTypeFetchOptions', 'as/dto/dataset/id/DataSetPermId', 'as/dto/dataset/search/DataSetSearchCriteria', 'as/dto/dataset/search/DataSetTypeSearchCriteria', 'as/dto/dataset/search/SearchDataSetsOperation', 'as/dto/dataset/update/DataSetTypeUpdate', 'as/dto/dataset/update/UpdateDataSetTypesOperation', 'as/dto/entitytype/EntityKind', 'as/dto/entitytype/id/EntityTypePermId', 'as/dto/event/fetchoptions/EventFetchOptions', 'as/dto/event/search/EventSearchCriteria', 'as/dto/event/EntityType', 'as/dto/event/Event', 'as/dto/event/EventType', 'as/dto/experiment/create/CreateExperimentTypesOperation', 'as/dto/experiment/create/ExperimentTypeCreation', 'as/dto/experiment/delete/DeleteExperimentTypesOperation', 'as/dto/experiment/delete/ExperimentTypeDeletionOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentTypeFetchOptions', 'as/dto/experiment/id/ExperimentIdentifier', 'as/dto/experiment/search/ExperimentSearchCriteria', 'as/dto/experiment/search/ExperimentTypeSearchCriteria', 'as/dto/experiment/search/SearchExperimentsOperation', 'as/dto/experiment/update/ExperimentTypeUpdate', 'as/dto/experiment/update/UpdateExperimentTypesOperation', 'as/dto/material/create/CreateMaterialTypesOperation', 'as/dto/material/create/MaterialTypeCreation', 'as/dto/material/delete/DeleteMaterialTypesOperation', 'as/dto/material/delete/MaterialTypeDeletionOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions', 'as/dto/material/fetchoptions/MaterialTypeFetchOptions', 'as/dto/material/id/MaterialPermId', 'as/dto/material/search/MaterialSearchCriteria', 'as/dto/material/search/MaterialTypeSearchCriteria', 'as/dto/material/search/SearchMaterialsOperation', 'as/dto/material/update/MaterialTypeUpdate', 'as/dto/material/update/UpdateMaterialTypesOperation', 'as/dto/operation/SynchronousOperationExecutionOptions', 'as/dto/person/create/CreatePersonsOperation', 'as/dto/person/create/PersonCreation', 'as/dto/person/delete/PersonDeletionOptions', 'as/dto/person/delete/DeletePersonsOperation', 'as/dto/person/fetchoptions/PersonFetchOptions', 'as/dto/person/id/Me', 'as/dto/person/id/PersonPermId', 'as/dto/person/search/PersonSearchCriteria', 'as/dto/person/update/PersonUpdate', 'as/dto/person/update/UpdatePersonsOperation', 'as/dto/plugin/PluginKind', 'as/dto/plugin/PluginType', 'as/dto/plugin/create/CreatePluginsOperation', 'as/dto/plugin/create/PluginCreation', 'as/dto/plugin/update/PluginUpdate', 'as/dto/plugin/update/UpdatePluginsOperation', 'as/dto/plugin/delete/PluginDeletionOptions', 'as/dto/plugin/delete/DeletePluginsOperation', 'as/dto/plugin/fetchoptions/PluginFetchOptions', 'as/dto/plugin/evaluate/PluginEvaluationOptions', 'as/dto/plugin/evaluate/EntityValidationPluginEvaluationOptions', 'as/dto/plugin/evaluate/DynamicPropertyPluginEvaluationOptions', 'as/dto/plugin/id/PluginPermId', 'as/dto/plugin/search/PluginSearchCriteria', 'as/dto/project/Project', 'as/dto/project/fetchoptions/ProjectFetchOptions', 'as/dto/project/id/ProjectIdentifier', 'as/dto/project/search/ProjectSearchCriteria', 'as/dto/property/DataType', 'as/dto/property/PropertyType', 'as/dto/property/create/CreatePropertyTypesOperation', 'as/dto/property/create/PropertyAssignmentCreation', 'as/dto/property/create/PropertyTypeCreation', 'as/dto/property/delete/DeletePropertyTypesOperation', 'as/dto/property/delete/PropertyTypeDeletionOptions', 'as/dto/property/fetchoptions/PropertyAssignmentFetchOptions', 'as/dto/property/fetchoptions/PropertyTypeFetchOptions', 'as/dto/property/id/PropertyAssignmentPermId', 'as/dto/property/id/PropertyTypePermId', 'as/dto/property/search/PropertyAssignmentSearchCriteria', 'as/dto/property/search/PropertyTypeSearchCriteria', 'as/dto/property/update/PropertyTypeUpdate', 'as/dto/property/update/UpdatePropertyTypesOperation', 'as/dto/query/Query', 'as/dto/query/QueryType', 'as/dto/query/create/CreateQueriesOperation', 'as/dto/query/create/QueryCreation', 'as/dto/query/delete/DeleteQueriesOperation', 'as/dto/query/delete/QueryDeletionOptions', 'as/dto/query/execute/QueryExecutionOptions', 'as/dto/query/execute/SqlExecutionOptions', 'as/dto/query/fetchoptions/QueryFetchOptions', 'as/dto/query/fetchoptions/QueryDatabaseFetchOptions', 'as/dto/query/id/QueryName', 'as/dto/query/id/QueryTechId', 'as/dto/query/id/QueryDatabaseName', 'as/dto/query/search/QuerySearchCriteria', 'as/dto/query/search/QueryDatabaseSearchCriteria', 'as/dto/query/update/UpdateQueriesOperation', 'as/dto/query/update/QueryUpdate', 'as/dto/roleassignment/Role', 'as/dto/roleassignment/RoleAssignment', 'as/dto/roleassignment/RoleLevel', 'as/dto/roleassignment/create/CreateRoleAssignmentsOperation', 'as/dto/roleassignment/create/RoleAssignmentCreation', 'as/dto/roleassignment/delete/DeleteRoleAssignmentsOperation', 'as/dto/roleassignment/delete/RoleAssignmentDeletionOptions', 'as/dto/roleassignment/id/RoleAssignmentTechId', 'as/dto/sample/create/CreateSampleTypesOperation', 'as/dto/sample/create/SampleTypeCreation', 'as/dto/sample/delete/DeleteSampleTypesOperation', 'as/dto/sample/delete/SampleTypeDeletionOptions', 'as/dto/sample/fetchoptions/SampleFetchOptions', 'as/dto/sample/fetchoptions/SampleTypeFetchOptions', 'as/dto/sample/fetchoptions/SampleTypeFetchOptions', 'as/dto/sample/id/SampleIdentifier', 'as/dto/sample/search/SampleSearchCriteria', 'as/dto/sample/search/SampleTypeSearchCriteria', 'as/dto/sample/search/SearchSamplesOperation', 'as/dto/sample/update/SampleTypeUpdate', 'as/dto/sample/update/UpdateSampleTypesOperation', 'as/dto/service/CustomASServiceExecutionOptions', 'as/dto/service/id/CustomASServiceCode', 'as/dto/space/Space', 'as/dto/space/fetchoptions/SpaceFetchOptions', 'as/dto/space/id/SpacePermId', 'as/dto/space/search/SpaceSearchCriteria', 'as/dto/vocabulary/Vocabulary', 'as/dto/vocabulary/VocabularyTerm', 'as/dto/vocabulary/create/CreateVocabulariesOperation', 'as/dto/vocabulary/create/CreateVocabularyTermsOperation', 'as/dto/vocabulary/create/VocabularyCreation', 'as/dto/vocabulary/create/VocabularyTermCreation', 'as/dto/vocabulary/delete/DeleteVocabulariesOperation', 'as/dto/vocabulary/delete/DeleteVocabularyTermsOperation', 'as/dto/vocabulary/delete/VocabularyDeletionOptions', 'as/dto/vocabulary/delete/VocabularyTermDeletionOptions', 'as/dto/vocabulary/fetchoptions/VocabularyFetchOptions', 'as/dto/vocabulary/fetchoptions/VocabularyTermFetchOptions', 'as/dto/vocabulary/id/VocabularyPermId', 'as/dto/vocabulary/id/VocabularyTermPermId', 'as/dto/vocabulary/search/VocabularySearchCriteria', 'as/dto/vocabulary/search/VocabularyTermSearchCriteria', 'as/dto/vocabulary/update/UpdateVocabulariesOperation', 'as/dto/vocabulary/update/UpdateVocabularyTermsOperation', 'as/dto/vocabulary/update/VocabularyTermUpdate', 'as/dto/vocabulary/update/VocabularyUpdate', 'as/dto/webapp/create/WebAppSettingCreation'];
-
-var Dto = /*#__PURE__*/function () {
-  function Dto() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Dto);
-  }
-
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Dto, [{
-    key: "_init",
-    value: function _init() {
-      var _this = this;
-
-      var load = function load(index) {
-        return new Promise(function (resolve, reject) {
-          if (index < CLASS_FULL_NAMES.length) {
-            var classFullName = CLASS_FULL_NAMES[index];
-            var className = classFullName.substring(classFullName.lastIndexOf('/') + 1);
-            /* eslint-disable-next-line no-undef */
-
-            requirejs([classFullName], function (clazz) {
-              _this[className] = clazz;
-              return load(index + 1).then(resolve, reject);
-            }, function (error) {
-              reject(error);
-            });
-          } else {
-            resolve();
-          }
-        });
-      };
-
-      return load(0);
-    }
-  }]);
-
-  return Dto;
-}();
-
-var dto = new Dto();
-CLASS_FULL_NAMES.forEach(function (classFullName) {
-  var className = classFullName.substring(classFullName.lastIndexOf('/') + 1);
-
-  dto[className] = function () {};
-});
-/* harmony default export */ __webpack_exports__["default"] = (dto);
 
 /***/ }),
 
