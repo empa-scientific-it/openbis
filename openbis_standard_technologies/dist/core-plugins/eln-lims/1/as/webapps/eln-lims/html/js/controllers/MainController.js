@@ -1685,7 +1685,7 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
+			var dataGrid = new DataGridController2("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
 			localReference.currentView = dataGrid;
 			var content = localReference._getBackwardsCompatibleMainContainer();
 			dataGrid.init(content);
