@@ -884,10 +884,8 @@ class Openbis:
         self,
         url=None,
         verify_certificates=True,
-        token=None,
         use_cache=True,
-        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False,
-        token_path=None,
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False
     ):
         """Initialize a new connection to an openBIS server.
 
@@ -899,7 +897,6 @@ class Openbis:
             url (str): https://openbis.example.com
             verify_certificates (bool): set to False when you use self-signed certificates
             token (str): a valid openBIS token. If not set, pybis will try to read a valid token from ~/.pybis
-            token_path: a path to a file which contains an openBIS token
             use_cache: make openBIS to store spaces, projects, sample types, vocabulary terms and oder more-or-less static objects to optimise speed
             allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks (bool): False
         """
@@ -939,16 +936,13 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
+        self.token = None
+        self.token = self._get_saved_token()
 
-        self.token_path = token_path or self.gen_token_path()
-        self.token = token or os.environ.get("OPENBIS_TOKEN") or self._get_saved_token()
-        if self.is_token_valid(self.token):
-            if token is not None:
-                self._save_token_to_disk(token=token)
+        if not self.is_token_valid():
+            print("Session is no longer valid. Please log in again.")
         else:
-            token_path = self._delete_saved_token()
-            if token_path and VERBOSE:
-                print("Session is no longer valid. Please log in again.")
+            print("Session restored: " + self.token)
 
     def _get_username(self):
         if self.token:
@@ -1087,41 +1081,49 @@ class Openbis:
     def projects(self):
         return self.get_projects()
 
-    def gen_token_path(self, parent_folder=None):
+    def gen_token_path(self, save_token_on_behalf=False):
         """generates a path to the token file.
         The token is usually saved in a file called
         ~/.pybis/hostname.token
         """
-        if parent_folder is None:
-            # save token under ~/.pybis folder
-            parent_folder = os.path.join(os.path.expanduser("~"), ".pybis")
+        if self.hostname is None:
+            raise ValueError("hostname needs to be set before retrieving the token path.")
+
+        if (self.token is None) and save_token_on_behalf:
+            raise ValueError("token needs to be set before using save_token_on_behalf.")
+
+        # save token under ~/.pybis folder
+        if save_token_on_behalf:
+            token_user_name = self.token.split("-")[0]
+            parent_folder = os.path.join(os.path.expanduser("~") + "/../" + token_user_name, ".pybis") # Used after login or set_token
+        else:
+            parent_folder = os.path.join(os.path.expanduser("~"), ".pybis") # Used by empty Openbis() init
+
         path = os.path.join(parent_folder, self.hostname + ".token")
         return path
 
-    def _save_token_to_disk(self, token=None, parent_folder=None):
+    def _save_token_to_disk(self, save_token_on_behalf=False):
         """saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default."""
-        if token is None:
-            token = self.token
 
-        token_path = None
-        if parent_folder is None:
-            token_path = self.gen_token_path()
-        else:
-            token_path = self.gen_token_path(parent_folder)
+        token_path = self.gen_token_path(save_token_on_behalf)
 
         # create the necessary directories, if they don't exist yet
         os.makedirs(os.path.dirname(token_path), exist_ok=True)
         with open(token_path, "w") as f:
-            f.write(token)
-            self.token_path = token_path
+            f.write(self.token)
         # prevent other users to be able to read the token
         os.chmod(token_path, 0o600)
+        # set the corret user if is on behalf, used by the jupyterhub authenticator
+        if save_token_on_behalf:
+            token_user_name = self.token.split("-")[0]
+            from pwd import getpwnam
+            token_user_name_uid = getpwnam(token_user_name).pw_uid
+            os.chown(token_path, token_user_name_uid, token_user_name_uid)
 
     def _get_saved_token(self):
-        """Read the token from the .pybis
-        If the token is not valid anymore, delete it.
+        """Read the token from the .pybis, on the default user location
         """
-        token_path = self.token_path or self.gen_token_path()
+        token_path = self.gen_token_path()
         if not os.path.exists(token_path):
             return None
         try:
@@ -1133,14 +1135,6 @@ class Openbis:
                     return token
         except FileNotFoundError:
             return None
-
-    def _delete_saved_token(self):
-        if self.token_path:
-            try:
-                os.remove(self.token_path)
-                return self.token_path
-            except FileNotFoundError:
-                return None
 
     def _post_request(self, resource, request):
         """internal method, used to handle all post requests and serializing / deserializing
@@ -1190,10 +1184,9 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, logout_request)
         self.token = None
-        self.token_path = None
         return resp
 
-    def login(self, username=None, password=None, save_token=False):
+    def login(self, username=None, password=None, save_token=False, save_token_on_behalf=False):
         """Log into openBIS.
         Expects a username and a password and updates the token (session-ID).
         The token is then used for every request.
@@ -1203,47 +1196,18 @@ class Openbis:
 
         if password is None:
             import getpass
-
             password = getpass.getpass()
 
         login_request = {
             "method": "login",
             "params": [username, password],
         }
-        result = self._post_request(self.as_v3, login_request)
-        if result is None:
+        self.token = self._post_request(self.as_v3, login_request)
+        if self.token is None:
             raise ValueError("login to openBIS failed")
-        else:
-            self.token = result
-
-            if save_token:
-                self._save_token_to_disk()
-                self._password(password)
-            # update the OPENBIS_TOKEN environment variable, if OPENBIS_URL is identical to self.url
-            # TODO: find out what this is good for
-            if os.environ.get("OPENBIS_URL") == self.url:
-                os.environ["OPENBIS_TOKEN"] = self.token
-            return self.token
-
-    def _password(self, password=None, pstore={}):
-        """An elegant way to store passwords which are used later
-        without giving the user an easy possibility to retrieve it.
-        """
-        import inspect
-
-        allowed_methods = ["mount"]
-
-        if password is not None:
-            pstore["password"] = password
-        else:
-            if inspect.stack()[1][3] in allowed_methods:
-                return pstore.get("password")
-            else:
-                raise Exception(
-                    "This method can only be called from these internal methods: {}".format(
-                        allowed_methods
-                    )
-                )
+        if save_token or save_token_on_behalf:
+            self._save_token_to_disk(save_token_on_behalf = save_token_on_behalf)
+        return self.token
 
     def unmount(self, mountpoint=None):
         """Unmount a given mountpoint or unmount the stored mountpoint.
@@ -1333,8 +1297,6 @@ class Openbis:
 
     def mount(
         self,
-        username=None,
-        password=None,
         hostname=None,
         mountpoint=None,
         volname=None,
@@ -1346,8 +1308,6 @@ class Openbis:
         SSHFS and FUSE must be installed on the system (see below)
 
         Params:
-        username -- default: the currently used username
-        password -- default: the currently used password
         hostname -- default: the current hostname
         mountpoint -- default: ~/hostname
 
@@ -1389,12 +1349,12 @@ class Openbis:
         check_sshfs_is_installed()
 
         if username is None:
-            username = self._get_username()
+            username = "?"
         if not username:
             raise ValueError("no token available - please provide a username")
 
         if password is None:
-            password = self._password()
+            password = self.token
         if not password:
             raise ValueError("please provide a password")
 
@@ -4078,7 +4038,7 @@ class Openbis:
 
         return resp
 
-    def set_token(self, token, save_token=True):
+    def set_token(self, token, save_token=False, save_token_on_behalf=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
@@ -4086,11 +4046,8 @@ class Openbis:
             raise ValueError("session token seems not to be valid.")
         else:
             self.token = token
-
-        self._save_token_to_disk(token=token)
-        # TODO: find out what this is good for
-        if os.environ.get("OPENBIS_URL") == self.url:
-            os.environ["OPENBIS_TOKEN"] = self.token
+        if save_token or save_token_on_behalf:
+            self._save_token_to_disk(save_token_on_behalf=save_token_on_behalf)
 
     def get_dataset(self, permIds, only_data=False, props=None, **kvals):
         """fetch a dataset and some metadata attached to it:
