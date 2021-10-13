@@ -383,7 +383,7 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		var dataGridController = new DataGridController2(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
 	

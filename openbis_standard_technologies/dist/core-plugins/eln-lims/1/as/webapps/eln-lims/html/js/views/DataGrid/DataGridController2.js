@@ -24,6 +24,7 @@ TODO:
 - column.showByDefault
 - column.hide
 - column.isExportable
+- special characters in headers (e.g. "&deg;C" in Cell Lines grid)
 
 */
 
@@ -48,8 +49,8 @@ function DataGridController2(
   var _this = this;
 
   this.init = function ($container, extraOptions) {
-    let $element = $("<div>")
-    
+    let $element = $("<div>");
+
     ReactDOM.render(
       React.createElement(window.NgUiGrid.default.Loading, {
         loading: true,
@@ -59,7 +60,7 @@ function DataGridController2(
 
     this._init($element, extraOptions);
 
-    $container.empty().append($element)
+    $container.empty().append($element);
   };
 
   this._init = function ($container, extraOptions) {
@@ -84,22 +85,38 @@ function DataGridController2(
 
   this._loadSettings = function () {
     return new Promise(function (resolve) {
-      mainController.serverFacade.getSetting(configKey, function (settingsStr) {
-        var settingsObj = null;
-        if (settingsStr) {
-          try {
-            settingsObj = JSON.parse(settingsStr);
-          } catch (e) {
-            console.log(
-              "[WARNING] Could not parse grid settings",
-              configKey,
-              settingsStr,
-              e
-            );
+      mainController.serverFacade.getSetting(
+        configKey,
+        function (elnGridSettingsStr) {
+          var gridSettingsObj = null;
+
+          if (elnGridSettingsStr) {
+            try {
+              var elnGridSettingsObj = JSON.parse(elnGridSettingsStr);
+
+              gridSettingsObj = {
+                pageSize: elnGridSettingsObj.pageSize,
+                sort: elnGridSettingsObj.sort
+                  ? elnGridSettingsObj.sort.sortProperty
+                  : null,
+                sortDirection: elnGridSettingsObj.sort
+                  ? elnGridSettingsObj.sort.sortDirection
+                  : null,
+                columnsVisibility: elnGridSettingsObj.columns,
+                columnsSorting: [],
+              };
+            } catch (e) {
+              console.log(
+                "[WARNING] Could not parse grid settings",
+                configKey,
+                elnGridSettingsStr,
+                e
+              );
+            }
           }
+          resolve(gridSettingsObj);
         }
-        resolve(settingsObj);
-      });
+      );
     });
   };
 

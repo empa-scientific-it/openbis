@@ -63,11 +63,14 @@ export default class GridController {
     if (!state.loaded) {
       settings = await this._loadSettings()
       if (settings) {
-        newState.pageSize = settings.pageSize
-        newState.sort = settings.sort
-        newState.sortDirection = settings.sortDirection
-        newState.columnsVisibility = settings.columnsVisibility
-        newState.columnsSorting = settings.columnsSorting
+        newState.pageSize = settings.pageSize || newState.pageSize
+        newState.sort = settings.sort || newState.sort
+        newState.sortDirection =
+          settings.sortDirection || newState.sortDirection
+        newState.columnsVisibility =
+          settings.columnsVisibility || newState.columnsVisibility
+        newState.columnsSorting =
+          settings.columnsSorting || newState.columnsSorting
       }
     }
 
