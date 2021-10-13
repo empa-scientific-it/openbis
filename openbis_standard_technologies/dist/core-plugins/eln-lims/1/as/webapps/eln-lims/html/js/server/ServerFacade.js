@@ -1772,7 +1772,7 @@ function ServerFacade(openbisServer) {
                                         result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value;
 
                     var permIdFound = hackFixForBrokenEquals[fIdx].permId && result &&
-                                        result.permId && result.permId.permId
+                                        result.permId && result.permId.permId &&
                                         result.permId.permId === hackFixForBrokenEquals[fIdx].value;
         		    if(propertyFound || permIdFound) {
         			    switch(operator) {
@@ -1813,7 +1813,11 @@ function ServerFacade(openbisServer) {
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects, advancedSearchCriteria.logicalOperator);
+				var majorVersion =  profile.openbisVersion.split('.', 1);
+				if (!isNaN(majorVersion) && majorVersion <= 19) {
+					apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
+						advancedSearchCriteria.logicalOperator);
+				}
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2166,7 +2170,10 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			var majorVersion =  profile.openbisVersion.split('.', 1);
+			if (!isNaN(majorVersion) && majorVersion <= 19) {
+				results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			}
 			callbackFunction(results);
 		});
 	}

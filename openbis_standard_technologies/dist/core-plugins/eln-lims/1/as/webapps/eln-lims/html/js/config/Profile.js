@@ -482,6 +482,7 @@ $.extend(DefaultProfile.prototype, {
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.sftpFileServer = null;
+		this.openbisVersion = "UNKNOWN";
 
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
@@ -1271,6 +1272,7 @@ $.extend(DefaultProfile.prototype, {
 			this.serverFacade.getOpenbisV3(function(openbisV3) {
 				openbisV3._private.sessionToken = mainController.serverFacade.getSession();
 				openbisV3.getServerInformation().done(function(serverInformation) {
+					_this.openbisVersion = serverInformation["openbis-version"];
 	                var authSystem = serverInformation["authentication-service"];
 	                IdentifierUtil.isProjectSamplesEnabled = (serverInformation["project-samples-enabled"] === "true");
 	                IdentifierUtil.createContinuousSampleCodes = (serverInformation["create-continuous-sample-codes"] === "true");
