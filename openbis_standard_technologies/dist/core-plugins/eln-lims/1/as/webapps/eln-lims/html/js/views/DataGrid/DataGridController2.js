@@ -103,7 +103,7 @@ function DataGridController2(
                   ? elnGridSettingsObj.sort.sortDirection
                   : null,
                 columnsVisibility: elnGridSettingsObj.columns,
-                columnsSorting: [],
+                columnsSorting: elnGridSettingsObj.columnsSorting,
               };
             } catch (e) {
               console.log(
@@ -257,9 +257,19 @@ function DataGridController2(
     });
   };
 
-  this._onSettingsChange = function (settingsObj) {
-    let settingsStr = JSON.stringify(settingsObj);
-    mainController.serverFacade.setSetting(configKey, settingsStr);
+  this._onSettingsChange = function (gridSettingsObj) {
+    let elnGridSettingsObj = {
+      pageSize: gridSettingsObj.pageSize,
+      sort: {
+        sortProperty: gridSettingsObj.sort,
+        sortDirection: gridSettingsObj.sortDirection,
+      },
+      columns: gridSettingsObj.columnsVisibility,
+      columnsSorting: gridSettingsObj.columnsSorting,
+    };
+
+    let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj);
+    mainController.serverFacade.setSetting(configKey, elnGridSettingsStr);
   };
 
   this._onSelectedRowChange = function (selectedRow) {
