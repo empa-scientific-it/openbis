@@ -1,3 +1,8 @@
+## Changes with pybis-1.30.0
+- session management reworked
+## Changes with pybis-1.20.5
+- fixed same problems as 1.20.5
+- wrong version published
 ## Changes with pybis-1.20.4
 - fixed parents/children problem when get_samples(), get_datasets()
 - sorted imports
