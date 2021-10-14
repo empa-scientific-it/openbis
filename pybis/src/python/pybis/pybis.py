@@ -884,6 +884,7 @@ class Openbis:
         self,
         url=None,
         verify_certificates=True,
+        token=None,
         use_cache=True,
         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False
     ):
@@ -937,7 +938,13 @@ class Openbis:
         self.cache = {}
         self.server_information = None
         self.token = None
-        self.token = self._get_saved_token()
+        if token is not None: # We try to set the token, during initialisation instead of errors, a message is printed
+            try:
+                self.set_token(token)
+            except:
+                pass
+        else:
+            self.token = self._get_saved_token()
 
         if not self.is_token_valid():
             print("Session is no longer valid. Please log in again.")
@@ -4043,7 +4050,7 @@ class Openbis:
         to the disk, i.e. in the ~/.pybis directory
         """
         if not self.is_token_valid(token):
-            raise ValueError("session token seems not to be valid.")
+            raise ValueError("Session is no longer valid. Please log in again.")
         else:
             self.token = token
         if save_token or save_token_on_behalf:
