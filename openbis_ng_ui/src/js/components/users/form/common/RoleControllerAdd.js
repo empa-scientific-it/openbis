@@ -6,6 +6,7 @@ export default class RoleControllerAdd {
   constructor(controller) {
     this.controller = controller
     this.context = controller.context
+    this.rolesGridController = controller.rolesGridController
   }
 
   async execute() {
@@ -14,7 +15,7 @@ export default class RoleControllerAdd {
     const newRole = {
       id: _.uniqueId('role-'),
       inheritedFrom: FormUtil.createField({
-        value: false
+        value: null
       }),
       level: FormUtil.createField({}),
       space: FormUtil.createField({
@@ -46,8 +47,10 @@ export default class RoleControllerAdd {
 
     await this.controller.changed(true)
 
-    if (this.controller.rolesGridController) {
-      await this.controller.rolesGridController.showSelectedRow()
+    if (this.rolesGridController) {
+      await this.rolesGridController.load()
+      await this.rolesGridController.selectRow(newRole.id)
+      await this.rolesGridController.showRow(newRole.id)
     }
   }
 }

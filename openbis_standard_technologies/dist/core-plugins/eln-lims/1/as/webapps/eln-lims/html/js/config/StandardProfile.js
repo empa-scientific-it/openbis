@@ -411,7 +411,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							repTitle += " (as saved when ordered)"
 						}
 						
-						var orderSummary = new DataGridController(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY", false, 30);
+						var orderSummary = new DataGridController2(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY", false, 30);
 						orderSummary.init(orderSummaryContainer);
 						
 						var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));

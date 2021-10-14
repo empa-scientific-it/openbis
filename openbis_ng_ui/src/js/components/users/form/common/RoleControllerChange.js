@@ -10,16 +10,13 @@ export default class RoleControllerChange {
 
   async execute(params) {
     await this.context.setState(state => {
-      const {
-        newCollection,
-        oldObject,
-        newObject
-      } = FormUtil.changeCollectionItemField(
-        state.roles,
-        params.id,
-        params.field,
-        params.value
-      )
+      const { newCollection, oldObject, newObject } =
+        FormUtil.changeCollectionItemField(
+          state.roles,
+          params.id,
+          params.field,
+          params.value
+        )
 
       this._handleChangeRoleLevel(oldObject, newObject)
       this._handleChangeRoleSpace(oldObject, newObject)
@@ -30,7 +27,8 @@ export default class RoleControllerChange {
     })
 
     if (this.controller.rolesGridController) {
-      await this.controller.rolesGridController.showSelectedRow()
+      await this.controller.rolesGridController.load()
+      await this.controller.rolesGridController.showRow(params.id)
     }
 
     await this.controller.changed(true)

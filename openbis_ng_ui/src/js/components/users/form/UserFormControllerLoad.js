@@ -134,10 +134,8 @@ export default class UserFormControllerLoad extends PageControllerLoad {
   }
 
   _createSelection(newGroups, newRoles) {
-    const {
-      selection: oldSelection,
-      groups: oldGroups
-    } = this.context.getState()
+    const { selection: oldSelection, groups: oldGroups } =
+      this.context.getState()
 
     if (!oldSelection) {
       return null

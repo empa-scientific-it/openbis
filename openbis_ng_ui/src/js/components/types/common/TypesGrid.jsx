@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import TypeLink from '@src/js/components/common/link/TypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -10,16 +10,11 @@ class TypesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'TypesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}

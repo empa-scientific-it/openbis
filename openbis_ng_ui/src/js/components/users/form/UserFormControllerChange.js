@@ -34,16 +34,13 @@ export default class UserFormControllerChange extends PageControllerChange {
     await this.context.setState(state => {
       const newState = { ...state }
 
-      const {
-        newCollection,
-        oldObject,
-        newObject
-      } = FormUtil.changeCollectionItemField(
-        state.groups,
-        params.id,
-        params.field,
-        params.value
-      )
+      const { newCollection, oldObject, newObject } =
+        FormUtil.changeCollectionItemField(
+          state.groups,
+          params.id,
+          params.field,
+          params.value
+        )
       newState.groups = newCollection
 
       this._handleChangeGroupCode(oldObject, newObject, newState)
@@ -52,7 +49,12 @@ export default class UserFormControllerChange extends PageControllerChange {
     })
 
     if (this.controller.groupsGridController) {
-      await this.controller.groupsGridController.showSelectedRow()
+      await this.controller.groupsGridController.load()
+      await this.controller.groupsGridController.showRow(params.id)
+    }
+
+    if (this.controller.rolesGridController) {
+      await this.controller.rolesGridController.load()
     }
 
     await this.controller.changed(true)

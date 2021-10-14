@@ -76,7 +76,6 @@ function UserManagerView(userManagerController, userManagerModel) {
 		columns.push({
 			label : "Operations",
 			property : 'operations',
-			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
 				var $dropDownMenu = $("<span>", { class : 'dropdown' });
@@ -104,12 +103,8 @@ function UserManagerView(userManagerController, userManagerModel) {
 				
 				return $dropDownMenu;
 			},
-			filter : function(data, filter) {
-				return false;
-			},
-			sort : function(data1, data2, asc) {
-				return 0;
-			}
+			filterable : false,
+			sortable : false
 		});
 		
 		var getDataList = function(callback) {
@@ -127,7 +122,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
+		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
 		dataGrid.init(dataGridContainer);
 		
 		//

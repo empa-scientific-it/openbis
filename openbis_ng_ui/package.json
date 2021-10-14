@@ -71,6 +71,7 @@
   "scripts": {
     "dev": "webpack-dev-server --hot --config webpack.config.dev.js",
     "build": "webpack-cli --config webpack.config.js",
+    "grid": "webpack-cli --config webpack.config.grid.js",
     "unit": "jest",
     "lint": "eslint --ext .js,.jsx src/js srcTest/js",
     "lint:fix": "eslint --ext .js,.jsx src/js srcTest/js --fix",

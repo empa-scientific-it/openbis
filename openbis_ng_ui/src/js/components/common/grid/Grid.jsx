@@ -1,7 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
@@ -13,7 +11,6 @@ import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import ColumnConfig from '@src/js/components/common/grid/ColumnConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -46,12 +43,6 @@ const styles = theme => ({
   }
 })
 
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
-
 class Grid extends React.PureComponent {
   constructor(props) {
     super(props)
@@ -76,24 +67,8 @@ class Grid extends React.PureComponent {
     this.controller.load()
   }
 
-  componentDidUpdate(prevProps) {
-    if (
-      this.props.rows !== prevProps.rows ||
-      this.props.totalCount !== prevProps.totalCount
-    ) {
-      this.controller.updateRows(this.props.rows, this.props.totalCount)
-    }
-    if (this.props.selectedRowId !== prevProps.selectedRowId) {
-      this.controller.updateSelectedRowId(this.props.selectedRowId)
-    }
-  }
-
   handleClickContainer() {
-    const { selectedRowId, onSelectedRowChange } = this.props
-
-    if (!selectedRowId && !onSelectedRowChange) {
-      this.controller.handleRowSelect(null)
-    }
+    this.controller.handleRowSelect(null)
   }
 
   handleClickTable(event) {
@@ -116,7 +91,7 @@ class Grid extends React.PureComponent {
       page,
       pageSize,
       columns,
-      currentRows,
+      rows,
       selectedRow,
       totalCount
     } = this.state
@@ -138,15 +113,13 @@ class Grid extends React.PureComponent {
                     onFilterChange={this.controller.handleFilterChange}
                   />
                   <TableBody classes={{ root: classes.tableBody }}>
-                    {currentRows.map(row => {
+                    {rows.map(row => {
                       return (
                         <GridRow
                           key={row.id}
                           columns={columns}
                           row={row}
-                          selected={
-                            selectedRow ? selectedRow.id === row.id : false
-                          }
+                          selected={selectedRow && selectedRow.id === row.id}
                           onClick={this.controller.handleRowSelect}
                         />
                       )
@@ -176,4 +149,4 @@ class Grid extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(mapStateToProps, null), withStyles(styles))(Grid)
+export default withStyles(styles)(Grid)

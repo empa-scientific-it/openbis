@@ -24,9 +24,10 @@ class UserSearch extends React.Component {
     super(props)
     autoBind(this)
 
+    this.gridControllers = {}
+
     this.state = {
-      loaded: false,
-      selection: null
+      loaded: false
     }
   }
 
@@ -272,28 +273,23 @@ class UserSearch extends React.Component {
     return this.props.objectType === objectType || !this.props.objectType
   }
 
-  handleClickContainer() {
-    this.setState({
-      selection: null
-    })
+  handleContainerClick() {
+    for (let gridObjectType in this.gridControllers) {
+      this.gridControllers[gridObjectType].selectRow(null)
+    }
   }
 
   handleSelectedRowChange(objectType) {
     return row => {
-      if (row) {
-        this.setState({
-          selection: {
-            type: objectType,
-            id: row.id
-          }
-        })
+      if (!row) {
+        return
+      }
+      for (let gridObjectType in this.gridControllers) {
+        if (gridObjectType !== objectType) {
+          this.gridControllers[gridObjectType].selectRow(null)
+        }
       }
     }
-  }
-
-  getSelectedRowId(objectType) {
-    const { selection } = this.state
-    return selection && selection.type === objectType ? selection.id : null
   }
 
   render() {
@@ -304,7 +300,7 @@ class UserSearch extends React.Component {
     }
 
     return (
-      <GridContainer onClick={this.handleClickContainer}>
+      <GridContainer onClick={this.handleContainerClick}>
         {this.renderNoResultsFoundMessage()}
         {this.renderUsers()}
         {this.renderUsersRoles()}
@@ -344,9 +340,11 @@ class UserSearch extends React.Component {
         <div>
           <UsersGrid
             id={ids.USERS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.USER] = controller)
+            }
             rows={this.state.users}
             onSelectedRowChange={this.handleSelectedRowChange(objectTypes.USER)}
-            selectedRowId={this.getSelectedRowId(objectTypes.USER)}
           />
         </div>
       )
@@ -361,11 +359,13 @@ class UserSearch extends React.Component {
         <div>
           <RolesGrid
             id={ids.ROLES_OF_USERS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.USER + '-role'] = controller)
+            }
             rows={this.state.usersRoles}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.USER + '-role'
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.USER + '-role')}
           />
         </div>
       )
@@ -380,11 +380,13 @@ class UserSearch extends React.Component {
         <div>
           <UserGroupsGrid
             id={ids.GROUPS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.USER_GROUP] = controller)
+            }
             rows={this.state.userGroups}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.USER_GROUP
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.USER_GROUP)}
           />
         </div>
       )
@@ -399,11 +401,12 @@ class UserSearch extends React.Component {
         <div>
           <RolesGrid
             id={ids.ROLES_OF_GROUPS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.USER_GROUP + '-role'] =
+                controller)
+            }
             rows={this.state.userGroupsRoles}
             onSelectedRowChange={this.handleSelectedRowChange(
-              objectTypes.USER_GROUP + '-role'
-            )}
-            selectedRowId={this.getSelectedRowId(
               objectTypes.USER_GROUP + '-role'
             )}
           />

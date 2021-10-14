@@ -43,11 +43,13 @@ export default class VocabularyFormControllerAdd {
       }
     }))
 
-    await this.controller.changed(true)
-
     if (this.gridController) {
-      await this.gridController.showSelectedRow()
+      await this.gridController.load()
+      await this.gridController.selectRow(newTerm.id)
+      await this.gridController.showRow(newTerm.id)
     }
+
+    await this.controller.changed(true)
   }
 
   getCurrentUser() {

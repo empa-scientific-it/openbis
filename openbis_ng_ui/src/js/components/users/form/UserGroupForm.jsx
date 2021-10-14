@@ -72,10 +72,11 @@ class UserGroupForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'UserGroupForm.render')
 
-    const { loading, loaded, group } = this.state
+    const { loadId, loading, loaded, group } = this.state
 
     return (
       <PageWithTwoPanels
+        key={loadId}
         loading={loading}
         loaded={loaded}
         object={group}
@@ -121,15 +122,15 @@ class UserGroupForm extends React.PureComponent {
 
   renderAdditionalPanel() {
     const { controller } = this
-    const { group, users, roles, selection, mode } = this.state
-
-    const selectedUserRow = controller.usersGridController
-      ? controller.usersGridController.getSelectedRow()
-      : null
-
-    const selectedRoleRow = controller.rolesGridController
-      ? controller.rolesGridController.getSelectedRow()
-      : null
+    const {
+      group,
+      users,
+      roles,
+      selection,
+      selectedUserRow,
+      selectedRoleRow,
+      mode
+    } = this.state
 
     return (
       <div>
