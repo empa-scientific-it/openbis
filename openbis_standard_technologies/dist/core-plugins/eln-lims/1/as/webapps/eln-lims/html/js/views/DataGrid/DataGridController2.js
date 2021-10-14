@@ -138,7 +138,11 @@ function DataGridController2(
       })
       .map(function (column) {
         return {
-          label: column.label,
+          label: React.createElement("span", {
+            dangerouslySetInnerHTML: {
+              __html: column.label,
+            },
+          }),
           name: column.property,
           getValue: function (params) {
             return params.row[column.property];
