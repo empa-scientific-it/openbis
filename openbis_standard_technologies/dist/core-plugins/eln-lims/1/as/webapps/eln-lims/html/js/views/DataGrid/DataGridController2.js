@@ -18,13 +18,9 @@
 
 TODO:
 
-- grid.showAllColumns
+- column.isExportable
 - grid.isMultiselectable
 - grid.heightPercentage
-- column.showByDefault
-- column.hide
-- column.isExportable
-- special characters in headers (e.g. "&deg;C" in Cell Lines grid)
 
 */
 
@@ -132,92 +128,99 @@ function DataGridController2(
     }
 
     columns = columns.concat(columnsLast);
-    columns = columns
-      .filter(function (column) {
-        return column.property;
-      })
-      .map(function (column) {
-        return {
-          label: React.createElement("span", {
-            dangerouslySetInnerHTML: {
-              __html: column.label,
-            },
-          }),
-          name: column.property,
-          getValue: function (params) {
-            return params.row[column.property];
+    columns = columns.filter(function (column) {
+      return column.property;
+    });
+    columns = columns.map(function (column, index) {
+      return {
+        label: React.createElement("span", {
+          dangerouslySetInnerHTML: {
+            __html: column.label,
           },
-          renderDOMValue: function (params) {
-            var maxLineLength = 200;
-            var value = null;
+        }),
+        name: column.property,
+        getValue: function (params) {
+          return params.row[column.property];
+        },
+        renderDOMValue: function (params) {
+          var maxLineLength = 200;
+          var value = null;
 
-            if (column.render) {
-              let grid = {
-                lastReceivedData: {
-                  objects: _this.controller.getRows(),
-                  totalCount: _this.controller.getTotalCount(),
-                },
-                lastUsedOptions: {
-                  pageIndex: _this.controller.getPage(),
-                  pageSize: _this.controller.getPageSize(),
-                  sortProperty: _this.controller.getSort(),
-                  sortDirection: _this.controller.getSortDirection(),
-                  search:
-                    Object.keys(_this.controller.getFilters()).length > 0
-                      ? Object.values(_this.controller.getFilters()).join(" ")
-                      : null,
-                },
-              };
+          if (column.render) {
+            let grid = {
+              lastReceivedData: {
+                objects: _this.controller.getRows(),
+                totalCount: _this.controller.getTotalCount(),
+              },
+              lastUsedOptions: {
+                pageIndex: _this.controller.getPage(),
+                pageSize: _this.controller.getPageSize(),
+                sortProperty: _this.controller.getSort(),
+                sortDirection: _this.controller.getSortDirection(),
+                search:
+                  Object.keys(_this.controller.getFilters()).length > 0
+                    ? Object.values(_this.controller.getFilters()).join(" ")
+                    : null,
+              },
+            };
 
-              value = column.render(params.row, grid);
-            } else {
-              value = params.value;
-            }
+            value = column.render(params.row, grid);
+          } else {
+            value = params.value;
+          }
 
-            //2. Sanitize
-            var value = FormUtil.sanitizeRichHTMLText(value);
+          //2. Sanitize
+          var value = FormUtil.sanitizeRichHTMLText(value);
 
-            //3. Shorten
-            var finalValue = null;
-            if (value && value.length > maxLineLength) {
-              finalValue = value.substring(0, maxLineLength) + "...";
-            } else {
-              finalValue = value;
-            }
+          //3. Shorten
+          var finalValue = null;
+          if (value && value.length > maxLineLength) {
+            finalValue = value.substring(0, maxLineLength) + "...";
+          } else {
+            finalValue = value;
+          }
 
-            //4. Tooltip
-            if (value !== finalValue) {
-              finalValue = $("<div>").html(finalValue);
-              finalValue.tooltipster({
-                content: $("<span>").html(value),
-              });
-            }
+          //4. Tooltip
+          if (value !== finalValue) {
+            finalValue = $("<div>").html(finalValue);
+            finalValue.tooltipster({
+              content: $("<span>").html(value),
+            });
+          }
 
-            $(params.container).empty();
-            $(params.container).append(finalValue);
-          },
-          matchesValue: function (params) {
-            if (column.filter) {
-              return column.filter(params.row, params.filter);
-            } else {
-              return params.defaultMatches(params.value, params.filter);
-            }
-          },
-          compareValue: function (params) {
-            if (column.sort) {
-              return column.sort(
-                params.value1,
-                params.value2,
-                params.sortDirection === "asc"
-              );
-            } else {
-              return params.defaultCompare(params.value1, params.value2);
-            }
-          },
-          sortable: column.sortable,
-          filterable: column.filterable,
-        };
-      });
+          $(params.container).empty();
+          $(params.container).append(finalValue);
+        },
+        matchesValue: function (params) {
+          if (column.filter) {
+            return column.filter(params.row, params.filter);
+          } else {
+            return params.defaultMatches(params.value, params.filter);
+          }
+        },
+        compareValue: function (params) {
+          if (column.sort) {
+            return column.sort(
+              params.value1,
+              params.value2,
+              params.sortDirection === "asc"
+            );
+          } else {
+            return params.defaultCompare(params.value1, params.value2);
+          }
+        },
+        sortable: column.sortable,
+        filterable: column.filterable,
+        visible:
+          !column.hide &&
+          (showAllColumns ||
+            column.showByDefault ||
+            column.canNotBeHidden ||
+            index < 4 ||
+            index === columns.length - 1),
+        configurable: !column.hide && !column.canNotBeHidden,
+      };
+    });
 
     return columns;
   };

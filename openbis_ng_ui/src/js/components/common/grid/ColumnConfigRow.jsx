@@ -33,7 +33,7 @@ class ColumnConfigRow extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'ColumnConfigRow.render')
 
-    const { classes, column, index } = this.props
+    const { classes, column, visible, index } = this.props
 
     return (
       <Draggable draggableId={column.name} index={index}>
@@ -48,7 +48,8 @@ class ColumnConfigRow extends React.PureComponent {
             </div>
             <CheckboxField
               label={column.label || column.name}
-              value={column.visible}
+              value={visible}
+              disabled={!column.configurable}
               onChange={this.handleVisibleChange}
             />
           </div>

@@ -29,27 +29,23 @@ class GridHeaderLabel extends React.PureComponent {
 
     const { column, sort, sortDirection, classes } = this.props
 
-    if (column.visible) {
-      if (column.sortable) {
-        const active = sort === column.name
-        return (
-          <TableCell classes={{ root: classes.cell }}>
-            <TableSortLabel
-              active={active}
-              direction={active ? sortDirection : 'asc'}
-              onClick={this.handleClick}
-            >
-              {column.label}
-            </TableSortLabel>
-          </TableCell>
-        )
-      } else {
-        return (
-          <TableCell classes={{ root: classes.cell }}>{column.label}</TableCell>
-        )
-      }
+    if (column.sortable) {
+      const active = sort === column.name
+      return (
+        <TableCell classes={{ root: classes.cell }}>
+          <TableSortLabel
+            active={active}
+            direction={active ? sortDirection : 'asc'}
+            onClick={this.handleClick}
+          >
+            {column.label}
+          </TableSortLabel>
+        </TableCell>
+      )
     } else {
-      return null
+      return (
+        <TableCell classes={{ root: classes.cell }}>{column.label}</TableCell>
+      )
     }
   }
 }

@@ -90,11 +90,14 @@ class Grid extends React.PureComponent {
       sortDirection,
       page,
       pageSize,
-      columns,
+      columnsVisibility,
       rows,
       selectedRow,
       totalCount
     } = this.state
+
+    const allColumns = this.controller.getAllColumns()
+    const visibleColumns = this.controller.getVisibleColumns()
 
     return (
       <div onClick={this.handleClickContainer} className={classes.container}>
@@ -105,7 +108,7 @@ class Grid extends React.PureComponent {
               <div className={classes.tableHeaderAndBody}>
                 <Table classes={{ root: classes.table }}>
                   <GridHeader
-                    columns={columns}
+                    columns={visibleColumns}
                     filters={filters}
                     sort={sort}
                     sortDirection={sortDirection}
@@ -117,7 +120,7 @@ class Grid extends React.PureComponent {
                       return (
                         <GridRow
                           key={row.id}
-                          columns={columns}
+                          columns={visibleColumns}
                           row={row}
                           selected={selectedRow && selectedRow.id === row.id}
                           onClick={this.controller.handleRowSelect}
@@ -136,7 +139,8 @@ class Grid extends React.PureComponent {
                   onPageSizeChange={this.controller.handlePageSizeChange}
                 />
                 <ColumnConfig
-                  columns={columns}
+                  columns={allColumns}
+                  columnsVisibility={columnsVisibility}
                   onVisibleChange={this.controller.handleColumnVisibleChange}
                   onOrderChange={this.controller.handleColumnOrderChange}
                 />

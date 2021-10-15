@@ -54,7 +54,7 @@ class ColumnConfig extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'ColumnConfig.render')
 
-    const { classes, columns, onVisibleChange } = this.props
+    const { classes, columns, columnsVisibility, onVisibleChange } = this.props
     const { el } = this.state
 
     return (
@@ -88,6 +88,7 @@ class ColumnConfig extends React.PureComponent {
                       <ColumnConfigRow
                         key={column.name}
                         column={column}
+                        visible={columnsVisibility[column.name]}
                         index={index}
                         onVisibleChange={onVisibleChange}
                       />

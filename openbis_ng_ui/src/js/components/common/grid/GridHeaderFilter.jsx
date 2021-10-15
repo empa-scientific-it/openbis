@@ -31,17 +31,13 @@ class GridHeaderFilter extends React.PureComponent {
 
     const { column, classes } = this.props
 
-    if (column.visible) {
-      let rendered = this.renderFilter()
+    let rendered = this.renderFilter()
 
-      return (
-        <TableCell classes={{ root: classes.cell }}>
-          {column.filterable && rendered}
-        </TableCell>
-      )
-    } else {
-      return null
-    }
+    return (
+      <TableCell classes={{ root: classes.cell }}>
+        {column.filterable && rendered}
+      </TableCell>
+    )
   }
 
   renderFilter() {

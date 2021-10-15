@@ -16,7 +16,7 @@ export default class GridController {
       pageSize: 10,
       columnsVisibility: {},
       columnsSorting: [],
-      columns: [],
+      allColumns: [],
       rows: [],
       filteredRows: [],
       sortedRows: [],
@@ -100,19 +100,19 @@ export default class GridController {
     }
 
     if (result.local) {
-      const { newColumns, newColumnsVisibility, newColumnsSorting } =
+      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
         await this._loadColumns(
           result.rows,
           newState.columnsVisibility,
           newState.columnsSorting
         )
 
-      newState.columns = newColumns
+      newState.allColumns = newAllColumns
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
 
       if (!state.loaded && !settings) {
-        newState.columns.forEach(column => {
+        newState.allColumns.forEach(column => {
           if (column.sort) {
             newState.sort = column.name
             newState.sortDirection = column.sort
@@ -123,12 +123,13 @@ export default class GridController {
       newState.allRows = result.rows
       newState.filteredRows = this._filterRows(
         newState.allRows,
-        newState.columns,
+        newState.allColumns,
+        newState.columnsVisibility,
         newState.filters
       )
       newState.sortedRows = this._sortRows(
         newState.filteredRows,
-        newState.columns,
+        newState.allColumns,
         newState.sort,
         newState.sortDirection
       )
@@ -158,14 +159,14 @@ export default class GridController {
       )
       newState.page = Math.min(newState.page, pageCount - 1)
 
-      const { newColumns, newColumnsVisibility, newColumnsSorting } =
+      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
         await this._loadColumns(
           newState.rows,
           newState.columnsVisibility,
           newState.columnsSorting
         )
 
-      newState.columns = newColumns
+      newState.allColumns = newAllColumns
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
     }
@@ -182,28 +183,28 @@ export default class GridController {
   async _loadColumns(rows, columnsVisibility, columnsSorting) {
     const { columns, loadColumns } = this.context.getProps()
 
-    let newColumns = []
+    let newAllColumns = []
     const newColumnsVisibility = { ...columnsVisibility }
     const newColumnsSorting = [...columnsSorting]
 
     if (columns) {
-      newColumns = columns
+      newAllColumns = columns
     } else if (loadColumns) {
-      newColumns = await loadColumns(rows)
+      newAllColumns = await loadColumns(rows)
     }
 
-    newColumns = newColumns.map(newColumn => {
+    newAllColumns = newAllColumns.map(newColumn => {
       if (!newColumn.name) {
         throw new Error('column.name cannot be empty')
       }
       return this._loadColumn(newColumn)
     })
 
-    newColumns.forEach((newColumn, newColumnIndex) => {
+    newAllColumns.forEach((newColumn, newColumnIndex) => {
       let newColumnVisibility = newColumnsVisibility[newColumn.name]
 
-      if (newColumnVisibility === undefined) {
-        newColumnsVisibility[newColumn.name] = true
+      if (newColumnVisibility === undefined || !newColumn.configurable) {
+        newColumnsVisibility[newColumn.name] = newColumn.visible
       }
 
       let newColumnSorting = _.findIndex(
@@ -212,7 +213,7 @@ export default class GridController {
       )
 
       if (newColumnSorting === -1) {
-        newColumnSorting = newColumns
+        newColumnSorting = newAllColumns
           .slice(0, newColumnIndex)
           .reduce((maxSorting, column) => {
             const sorting = _.findIndex(
@@ -225,13 +226,7 @@ export default class GridController {
       }
     })
 
-    newColumns.forEach(newColumn => {
-      newColumn.visible = newColumnsVisibility[newColumn.name]
-    })
-
-    this._sortColumns(newColumns, newColumnsSorting)
-
-    return { newColumns, newColumnsVisibility, newColumnsSorting }
+    return { newAllColumns, newColumnsVisibility, newColumnsSorting }
   }
 
   _loadColumn(column) {
@@ -289,7 +284,10 @@ export default class GridController {
         }
       },
       sortable: column.sortable === undefined ? true : column.sortable,
-      filterable: column.filterable === undefined ? true : column.filterable
+      filterable: column.filterable === undefined ? true : column.filterable,
+      visible: column.visible === undefined ? true : column.visible,
+      configurable:
+        column.configurable === undefined ? true : column.configurable
     }
   }
 
@@ -335,11 +333,12 @@ export default class GridController {
     }
   }
 
-  _filterRows(rows, columns, filters) {
+  _filterRows(rows, columns, columnsVisibility, filters) {
     return _.filter([...rows], row => {
       let matchesAll = true
       columns.forEach(column => {
-        if (column.visible) {
+        let visible = columnsVisibility[column.name]
+        if (visible) {
           let filter = filters[column.name]
           if (
             filter !== null &&
@@ -455,6 +454,13 @@ export default class GridController {
   }
 
   async handleColumnVisibleChange(name) {
+    const { allColumns } = this.context.getState()
+
+    const column = _.find(allColumns, column => column.name === name)
+    if (!column || !column.configurable) {
+      return
+    }
+
     await this.context.setState(state => {
       const newColumnsVisibility = { ...state.columnsVisibility }
       newColumnsVisibility[name] = !newColumnsVisibility[name]
@@ -479,8 +485,9 @@ export default class GridController {
 
   async handleColumnOrderChange(sourceIndex, destinationIndex) {
     await this.context.setState(state => {
-      const sourceColumn = state.columns[sourceIndex]
-      const destinationColumn = state.columns[destinationIndex]
+      const columns = this.getAllColumns()
+      const sourceColumn = columns[sourceIndex]
+      const destinationColumn = columns[destinationIndex]
 
       const sourceSorting = _.findIndex(
         state.columnsSorting,
@@ -495,11 +502,7 @@ export default class GridController {
       newColumnsSorting.splice(sourceSorting, 1)
       newColumnsSorting.splice(destinationSorting, 0, sourceColumn.name)
 
-      const newColumns = [...state.columns]
-      this._sortColumns(newColumns, newColumnsSorting)
-
       return {
-        columns: newColumns,
         columnsSorting: newColumnsSorting
       }
     })
@@ -548,6 +551,24 @@ export default class GridController {
 
   async handleRowSelect(row) {
     await this.selectRow(row ? row.id : null)
+  }
+
+  getAllColumns() {
+    const { allColumns, columnsSorting } = this.context.getState()
+
+    let columns = [...allColumns]
+    this._sortColumns(columns, columnsSorting)
+    return columns
+  }
+
+  getVisibleColumns() {
+    const { allColumns, columnsSorting, columnsVisibility } =
+      this.context.getState()
+
+    let columns = [...allColumns]
+    columns = columns.filter(column => columnsVisibility[column.name])
+    this._sortColumns(columns, columnsSorting)
+    return columns
   }
 
   getPage() {
