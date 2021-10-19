@@ -2,8 +2,6 @@ import _ from 'lodash'
 import openbis from '@src/js/services/openbis.js'
 import PageControllerChange from '@src/js/components/common/page/PageControllerChange.js'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
-import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
-import TypeFormUtil from '@src/js/components/types/form/TypeFormUtil.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import users from '@src/js/common/consts/users.js'
 
@@ -51,18 +49,15 @@ export default class TypeFormControllerChange extends PageControllerChange {
 
   async _handleChangeProperty(params) {
     await this.context.setState(state => {
-      const {
-        newCollection,
-        oldObject,
-        newObject
-      } = FormUtil.changeCollectionItemField(
-        state.properties,
-        params.id,
-        params.field,
-        params.value
-      )
+      const { newCollection, oldObject, newObject } =
+        FormUtil.changeCollectionItemField(
+          state.properties,
+          params.id,
+          params.field,
+          params.value
+        )
 
-      this._handleChangePropertyScope(oldObject, newObject)
+      this._handleChangePropertyCode(oldObject, newObject)
       this._handleChangePropertyDataType(oldObject, newObject)
       this._handleChangePropertyMandatory(oldObject, newObject)
 
@@ -73,143 +68,117 @@ export default class TypeFormControllerChange extends PageControllerChange {
     await this.controller.changed(true)
   }
 
-  _handleChangePropertyScope(oldProperty, newProperty) {
-    const { type, assignments } = this.context.getState()
-
-    const oldScope = oldProperty.scope.value
-    const newScope = newProperty.scope.value
+  _handleChangePropertyCode(oldProperty, newProperty) {
+    const { assignments } = this.context.getState()
 
     const oldCode = oldProperty.code.value
     const newCode = newProperty.code.value
 
-    if (oldScope !== newScope || oldCode !== newCode) {
-      let isGlobal = null
+    let oldExisting = null
+    let newExisting = null
 
-      if (oldScope !== newScope) {
+    if (oldCode !== newCode) {
+      const { propertyTypes } = this.controller.getDictionaries()
+
+      oldExisting = propertyTypes.find(
+        propertyType => propertyType.code === oldCode
+      )
+      newExisting = propertyTypes.find(
+        propertyType => propertyType.code === newCode
+      )
+
+      if (oldExisting && !newExisting) {
         this._copyPropertyFieldValues(
           {
-            scope: newProperty.scope
+            code: newProperty.code
+          },
+          newProperty
+        )
+      } else if (newExisting) {
+        newExisting = {
+          internal: {
+            value: _.get(newExisting, 'managedInternally', false)
+          },
+          label: {
+            value: _.get(newExisting, 'label', null)
+          },
+          description: {
+            value: _.get(newExisting, 'description', null)
+          },
+          dataType: {
+            value: _.get(newExisting, 'dataType', null)
+          },
+          schema: {
+            value: _.get(newExisting, 'schema', null)
+          },
+          transformation: {
+            value: _.get(newExisting, 'transformation', null)
+          },
+          vocabulary: {
+            value: _.get(newExisting, 'vocabulary.code', null)
+          },
+          materialType: {
+            value: _.get(newExisting, 'materialType.code', null)
+          },
+          sampleType: {
+            value: _.get(newExisting, 'sampleType.code', null)
+          }
+        }
+
+        this._copyPropertyFieldValues(
+          {
+            code: newProperty.code,
+            ...newExisting
           },
           newProperty
         )
       }
 
-      if (oldCode !== newCode && newScope === TypeFormPropertyScope.GLOBAL) {
-        const { globalPropertyTypes } = this.controller.getDictionaries()
-
-        let oldExisting = globalPropertyTypes.find(
-          propertyType => propertyType.code === oldCode
-        )
-        let newExisting = globalPropertyTypes.find(
-          propertyType => propertyType.code === newCode
-        )
-
-        if (oldExisting && !newExisting) {
-          this._copyPropertyFieldValues(
-            {
-              scope: newProperty.scope,
-              code: newProperty.code
-            },
-            newProperty
-          )
-        } else if (newExisting) {
-          newExisting = {
-            internal: {
-              value: _.get(newExisting, 'managedInternally', false)
-            },
-            label: {
-              value: _.get(newExisting, 'label', null)
-            },
-            description: {
-              value: _.get(newExisting, 'description', null)
-            },
-            dataType: {
-              value: _.get(newExisting, 'dataType', null)
-            },
-            schema: {
-              value: _.get(newExisting, 'schema', null)
-            },
-            transformation: {
-              value: _.get(newExisting, 'transformation', null)
-            },
-            vocabulary: {
-              value: _.get(newExisting, 'vocabulary.code', null)
-            },
-            materialType: {
-              value: _.get(newExisting, 'materialType.code', null)
-            },
-            sampleType: {
-              value: _.get(newExisting, 'sampleType.code', null)
-            }
-          }
-
-          this._copyPropertyFieldValues(
-            {
-              scope: newProperty.scope,
-              code: newProperty.code,
-              ...newExisting
-            },
-            newProperty
-          )
-
-          isGlobal = true
-        }
-      }
-
-      const propertyCode =
-        newScope === TypeFormPropertyScope.LOCAL
-          ? TypeFormUtil.addTypePrefix(type.code.value, newProperty.code.value)
-          : newProperty.code.value
-
       const propertyAssignments =
-        (assignments && assignments[propertyCode]) || 0
+        (assignments && assignments[newProperty.code.value]) || 0
 
       _.assign(newProperty, {
         internal: {
           ...newProperty.internal,
-          visible:
-            newScope === TypeFormPropertyScope.GLOBAL && this.isSystemUser(),
-          enabled:
-            newScope === TypeFormPropertyScope.GLOBAL &&
-            !isGlobal &&
-            this.isSystemUser()
+          visible: this.isSystemUser(),
+          enabled: this.isSystemUser() && !newExisting
         },
         label: {
           ...newProperty.label,
-          enabled: !newProperty.internal.value
+          enabled: !newProperty.internal.value || this.isSystemUser()
         },
         description: {
           ...newProperty.description,
-          enabled: !newProperty.internal.value
+          enabled: !newProperty.internal.value || this.isSystemUser()
         },
         dataType: {
           ...newProperty.dataType,
-          enabled: !newProperty.internal.value
+          enabled: !newProperty.internal.value || this.isSystemUser()
         },
         schema: {
           ...newProperty.schema,
-          enabled: !newProperty.internal.value
+          enabled: !newProperty.internal.value || this.isSystemUser()
         },
         transformation: {
           ...newProperty.transformation,
-          enabled: !newProperty.internal.value
+          enabled: !newProperty.internal.value || this.isSystemUser()
         },
         vocabulary: {
           ...newProperty.vocabulary,
-          enabled: !newProperty.internal.value && !isGlobal
+          enabled: !newExisting
         },
         materialType: {
           ...newProperty.materialType,
-          enabled: !newProperty.internal.value && !isGlobal
+          enabled: !newExisting
         },
         sampleType: {
           ...newProperty.sampleType,
-          enabled: !newProperty.internal.value && !isGlobal
+          enabled: !newExisting
         },
         assignments: propertyAssignments
       })
 
-      newProperty.originalGlobal = isGlobal ? _.cloneDeep(newProperty) : null
+      newProperty.originalGlobal = newExisting ? _.cloneDeep(newProperty) : null
     }
   }
 
@@ -312,10 +281,6 @@ export default class TypeFormControllerChange extends PageControllerChange {
 
   _copyPropertyFieldValues(src, dest) {
     _.assign(dest, {
-      scope: {
-        ...dest.scope,
-        value: _.get(src, 'scope.value', null)
-      },
       code: {
         ...dest.code,
         value: _.get(src, 'code.value', null)
