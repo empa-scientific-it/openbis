@@ -42,7 +42,52 @@ def process(context, parameters):
         result = isValidStoragePositionToInsertUpdate(context, parameters);
     elif method == "setCustomWidgetSettings":
         result = setCustomWidgetSettings(context, parameters);
+    elif method == "getUserManagementMaintenanceTaskConfig":
+        result = getUserManagementMaintenanceTaskConfig(context, parameters)
+    elif method == "saveUserManagementMaintenanceTaskConfig":
+        result = saveUserManagementMaintenanceTaskConfig(context, parameters)
     return result;
+
+def getUserManagementMaintenanceTaskConfig(context, parameters):
+    from ch.systemsx.cisd.common.filesystem import FileUtilities
+
+    configfile = _getUserManagementMaintenanceTaskConfigFile(context)
+    if configfile is not None:
+        return FileUtilities.loadToString(configfile)
+    return None
+
+def saveUserManagementMaintenanceTaskConfig(context, parameters):
+    from ch.systemsx.cisd.common.filesystem import FileUtilities
+
+    configfile = _getUserManagementMaintenanceTaskConfigFile(context)
+    config = parameters.get("config")
+    if configfile is not None and config is not None:
+        FileUtilities.writeToFile(configfile, config)
+
+def _getUserManagementMaintenanceTaskConfigFile(context):
+    from ch.systemsx.cisd.openbis.generic.server import MaintenanceTaskStarter
+
+    if _isInstanceAdmin(context):
+        for plugin in CommonServiceProvider.getApplicationContext().getBean(MaintenanceTaskStarter).getPlugins():
+            parameters = plugin.getParameters()
+            if parameters.getClassName() == "ch.systemsx.cisd.openbis.generic.server.task.UserManagementMaintenanceTask":
+                return plugin.getTask().getConfigurationFile()
+    return None
+
+def _isInstanceAdmin(context):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id import Me
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions import PersonFetchOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import Role
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import RoleLevel
+
+    me = Me()
+    fetchOptions = PersonFetchOptions()
+    fetchOptions.withRoleAssignments()
+    person = context.applicationService.getPersons(context.sessionToken, [me], fetchOptions)[me]
+    for roleAssignment in person.roleAssignments:
+        if roleAssignment.roleLevel == RoleLevel.INSTANCE and roleAssignment.role == Role.ADMIN:
+            return True
+    return False
 
 def setCustomWidgetSettings(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update import PropertyTypeUpdate
