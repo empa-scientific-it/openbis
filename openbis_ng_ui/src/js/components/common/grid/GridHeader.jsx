@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
 import GridHeaderFilter from '@src/js/components/common/grid/GridHeaderFilter.jsx'
 import GridHeaderLabel from '@src/js/components/common/grid/GridHeaderLabel.jsx'
 import logger from '@src/js/common/logger.js'
@@ -32,13 +33,36 @@ class GridHeader extends React.PureComponent {
     return (
       <TableHead>
         <TableRow>
+          {this.renderMultiselectFilterCell()}
           {columns.map(column => this.renderFilterCell(column))}
         </TableRow>
         <TableRow classes={{ root: classes.header }}>
+          {this.renderMultiselectHeaderCell()}
           {columns.map(column => this.renderHeaderCell(column))}
         </TableRow>
       </TableHead>
     )
+  }
+
+  renderFilterCell(column) {
+    const { filters, onFilterChange } = this.props
+
+    return (
+      <GridHeaderFilter
+        key={column.name}
+        column={column}
+        filter={filters[column.name]}
+        onFilterChange={onFilterChange}
+      />
+    )
+  }
+
+  renderMultiselectFilterCell() {
+    if (this.props.multiselectable) {
+      return <TableCell />
+    } else {
+      return null
+    }
   }
 
   renderHeaderCell(column) {
@@ -55,17 +79,12 @@ class GridHeader extends React.PureComponent {
     )
   }
 
-  renderFilterCell(column) {
-    const { filters, onFilterChange } = this.props
-
-    return (
-      <GridHeaderFilter
-        key={column.name}
-        column={column}
-        filter={filters[column.name]}
-        onFilterChange={onFilterChange}
-      />
-    )
+  renderMultiselectHeaderCell() {
+    if (this.props.multiselectable) {
+      return <TableCell />
+    } else {
+      return null
+    }
   }
 }
 

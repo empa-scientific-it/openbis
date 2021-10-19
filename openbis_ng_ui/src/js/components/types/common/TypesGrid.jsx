@@ -20,6 +20,7 @@ class TypesGrid extends React.PureComponent {
         header={this.getHeader()}
         columns={this.getColumns()}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

@@ -82,7 +82,7 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { header, classes } = this.props
+    const { header, classes, selectable, multiselectable } = this.props
     const {
       loading,
       filters,
@@ -93,6 +93,7 @@ class Grid extends React.PureComponent {
       columnsVisibility,
       rows,
       selectedRow,
+      multiselectedRows,
       totalCount
     } = this.state
 
@@ -114,6 +115,7 @@ class Grid extends React.PureComponent {
                     sortDirection={sortDirection}
                     onSortChange={this.controller.handleSortChange}
                     onFilterChange={this.controller.handleFilterChange}
+                    multiselectable={multiselectable}
                   />
                   <TableBody classes={{ root: classes.tableBody }}>
                     {rows.map(row => {
@@ -122,8 +124,14 @@ class Grid extends React.PureComponent {
                           key={row.id}
                           columns={visibleColumns}
                           row={row}
+                          selectable={selectable}
                           selected={selectedRow && selectedRow.id === row.id}
-                          onClick={this.controller.handleRowSelect}
+                          multiselectable={multiselectable}
+                          multiselected={
+                            multiselectedRows && multiselectedRows[row.id]
+                          }
+                          onSelect={this.controller.handleRowSelect}
+                          onMultiselect={this.controller.handleRowMultiselect}
                         />
                       )
                     })}

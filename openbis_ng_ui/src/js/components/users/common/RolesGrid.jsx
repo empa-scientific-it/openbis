@@ -55,6 +55,7 @@ class RolesGrid extends React.PureComponent {
         header={this.getHeader()}
         columns={columns}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

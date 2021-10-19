@@ -22,6 +22,7 @@ export default class GridController {
       sortedRows: [],
       allRows: [],
       selectedRow: null,
+      multiselectedRows: {},
       sort: null,
       sortDirection: null,
       totalCount: 0
@@ -403,6 +404,27 @@ export default class GridController {
     }
   }
 
+  async multiselectRows(newMultiselectedRowIds) {
+    const { onMultiselectedRowsChange } = this.context.getProps()
+    const newMultiselectedRows = {}
+
+    if (newMultiselectedRowIds) {
+      newMultiselectedRowIds.forEach(id => {
+        if (id !== null && id !== undefined) {
+          newMultiselectedRows[id] = true
+        }
+      })
+    }
+
+    await this.context.setState(() => ({
+      multiselectedRows: newMultiselectedRows
+    }))
+
+    if (onMultiselectedRowsChange) {
+      onMultiselectedRowsChange(newMultiselectedRows)
+    }
+  }
+
   async showRow(rowId) {
     const { sortedRows, page, pageSize } = this.context.getState()
 
@@ -551,6 +573,22 @@ export default class GridController {
 
   async handleRowSelect(row) {
     await this.selectRow(row ? row.id : null)
+  }
+
+  async handleRowMultiselect(row) {
+    const { multiselectedRows } = this.context.getState()
+
+    if (row) {
+      const newMultiselectedRows = { ...multiselectedRows }
+
+      if (newMultiselectedRows[row.id]) {
+        delete newMultiselectedRows[row.id]
+      } else {
+        newMultiselectedRows[row.id] = true
+      }
+
+      await this.multiselectRows(Object.keys(newMultiselectedRows))
+    }
   }
 
   getAllColumns() {

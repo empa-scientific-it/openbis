@@ -108,6 +108,7 @@ class CheckboxFormField extends React.PureComponent {
             disabled={isDisabled}
             onChange={this.handleChange}
             onFocus={this.handleFocus}
+            onClick={onClick}
             classes={{ root: classes.checkbox }}
             size='small'
           />

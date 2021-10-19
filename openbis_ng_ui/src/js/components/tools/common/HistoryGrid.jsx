@@ -74,7 +74,7 @@ class HistoryGrid extends React.PureComponent {
     const result = await openbis.searchEvents(criteria, fo)
 
     const rows = result.objects.map(event => ({
-      id: _.get(event, 'id'),
+      id: _.get(event, 'id.techId'),
       entityType: FormUtil.createField({
         value: _.get(event, 'entityType')
       }),
@@ -224,6 +224,7 @@ class HistoryGrid extends React.PureComponent {
           }
         ]}
         loadRows={this.load}
+        selectable={true}
       />
     )
   }

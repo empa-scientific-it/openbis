@@ -117,6 +117,7 @@ class VocabularyForm extends React.PureComponent {
           header={messages.get(messages.TERMS)}
           columns={columns}
           rows={terms}
+          selectable={true}
           selectedRowId={
             selection && selection.type === VocabularyFormSelectionType.TERM
               ? selection.params.id
