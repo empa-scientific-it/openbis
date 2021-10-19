@@ -492,6 +492,11 @@ function MainController(profile) {
 					this._showUserManager();
 					//window.scrollTo(0,0);
 					break;
+                case "showUserManagementConfigPage":
+                    document.title = "User Management Config";
+                    this._showUserManagementConfig(arg);
+                    //window.scrollTo(0,0);
+                    break;
 				case "showVocabularyManagerPage":
 					document.title = "Vocabulary Browser";
 					this._showVocabularyManager();
@@ -1073,7 +1078,15 @@ function MainController(profile) {
 		userManagerController.init(views);
 		this.currentView = userManagerController;
 	}
-	
+
+	this._showUserManagementConfig = function(arg) {
+        var views = this._getNewViewModel(true, true, false);
+        
+        var userManagementConfigController = new UserManagementConfigController(this, arg);
+        userManagementConfigController.init(views);
+        this.currentView = userManagementConfigController;
+    }
+
     this._showArchivingHelper = function() {
         var views = this._getNewViewModel(true, true, false);
         

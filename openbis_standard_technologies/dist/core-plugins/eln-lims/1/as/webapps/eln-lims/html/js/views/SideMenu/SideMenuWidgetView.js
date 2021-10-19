@@ -345,6 +345,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ displayName: "User Manager", title : userManagerLink, entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
         
+        if (profile.isAdmin && profile.userManagementMaintenanceTaskConfig != null) {
+            var userManagementConfigLink = _this.getLinkForNode("User Management Config", "USER_MANAGEMENT_CONFIG", "showUserManagementConfigPage", null, null);
+            treeModelUtils.push({ displayName: "User Management Config", title : userManagementConfigLink, entityType: "USER_MANAGEMENT_CONFIG", key : "USER_MANAGEMENT_CONFIG", folder : false, lazy : false, view : "showUserManagementConfigPage", icon : "fa fa-users" });
+        }
+        
         if(profile.mainMenu.showTrashcan) {
             var trashCanLink = _this.getLinkForNode("Trashcan", "TRASHCAN", "showTrashcanPage", null, null);
             treeModelUtils.push({ displayName: "Trashcan", title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });

@@ -90,6 +90,16 @@ public class MaintenancePlugin
         return parameters.getPluginName();
     }
 
+    public MaintenanceTaskParameters getParameters()
+    {
+        return parameters;
+    }
+
+    public IMaintenanceTask getTask()
+    {
+        return task;
+    }
+
     public synchronized void start()
     {
         final String timerThreadName = parameters.getPluginName() + " - Maintenance Plugin";
