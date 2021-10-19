@@ -154,7 +154,7 @@ class EntityTrackingEmailDataManager
         {
             for (Map.Entry<String, String> space : recipientsBySpace.entrySet())
             {
-                if (sequencingSample.getIdentifier().split("/")[0].equals(space.getKey())) // 20.10 Bugfix to get Space Code
+                if (sequencingSample.getIdentifier().split("/")[1].equals(space.getKey())) // 20.10 Bugfix to get Space Code
                 {
                     String spaceRecipientOrNull =
                             recipientsBySpace.get(space.getKey());
