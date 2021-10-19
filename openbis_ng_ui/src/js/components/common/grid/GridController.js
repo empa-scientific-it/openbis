@@ -176,8 +176,10 @@ export default class GridController {
 
     if (!state.loaded) {
       this.selectRow(props.selectedRowId)
+      this.multiselectRows(props.multiselectedRowIds)
     } else {
       this.selectRow(newState.selectedRow ? newState.selectedRow.id : null)
+      this.multiselectRows(Object.keys(newState.multiselectedRows))
     }
   }
 
@@ -376,19 +378,23 @@ export default class GridController {
   }
 
   async selectRow(newSelectedRowId) {
-    const { onSelectedRowChange } = this.context.getProps()
+    const { selectable, onSelectedRowChange } = this.context.getProps()
     const { allRows, rows, selectedRow } = this.context.getState()
+
+    if (!selectable) {
+      return
+    }
 
     let newSelectedRow = null
 
     if (newSelectedRowId !== null && newSelectedRowId !== undefined) {
-      const row = _.find(allRows, row => row.id === newSelectedRowId)
+      const data = _.find(allRows, row => row.id === newSelectedRowId)
       const visible =
         _.findIndex(rows, row => row.id === newSelectedRowId) !== -1
 
       newSelectedRow = {
         id: newSelectedRowId,
-        data: row,
+        data,
         visible
       }
     }
@@ -405,13 +411,43 @@ export default class GridController {
   }
 
   async multiselectRows(newMultiselectedRowIds) {
-    const { onMultiselectedRowsChange } = this.context.getProps()
+    const { multiselectable, onMultiselectedRowsChange } =
+      this.context.getProps()
+    const { allRows, rows, multiselectedRows } = this.context.getState()
+
+    if (!multiselectable) {
+      return
+    }
+
     const newMultiselectedRows = {}
 
-    if (newMultiselectedRowIds) {
-      newMultiselectedRowIds.forEach(id => {
-        if (id !== null && id !== undefined) {
-          newMultiselectedRows[id] = true
+    if (newMultiselectedRowIds && newMultiselectedRowIds.length > 0) {
+      const allRowsMap = {}
+      allRows.forEach(row => {
+        allRowsMap[row.id] = row
+      })
+
+      const rowsMap = {}
+      rows.forEach(row => {
+        rowsMap[row.id] = row
+      })
+
+      newMultiselectedRowIds.forEach(rowId => {
+        if (rowId !== null && rowId !== undefined) {
+          let data = allRowsMap[rowId]
+          if (!data) {
+            const multiselectedRow = multiselectedRows[rowId]
+            if (multiselectedRow) {
+              data = multiselectedRow.data
+            }
+          }
+          const visible = rowsMap[rowId] !== undefined
+
+          newMultiselectedRows[rowId] = {
+            id: rowId,
+            data,
+            visible
+          }
         }
       })
     }
@@ -642,6 +678,11 @@ export default class GridController {
   getSelectedRow() {
     const { selectedRow } = this.context.getState()
     return selectedRow
+  }
+
+  getMultiselectedRows() {
+    const { multiselectedRows } = this.context.getState()
+    return multiselectedRows
   }
 
   getTotalCount() {
