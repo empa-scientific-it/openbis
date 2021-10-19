@@ -74,6 +74,11 @@ abstract class AbstractMaintenanceTask implements IMaintenanceTask
                 + (configurationFile.isFile() ? " Configuration file: " + configurationFile.getAbsolutePath() : ""));
     }
 
+    public File getConfigurationFile()
+    {
+        return configurationFile;
+    }
+
     protected abstract void setUpSpecific(Properties properties);
 
     protected UserManagerConfig readGroupDefinitions(IChangedHandler handlerOrNull)
