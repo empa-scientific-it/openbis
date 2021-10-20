@@ -110,12 +110,17 @@ class Grid extends React.PureComponent {
                 <Table classes={{ root: classes.table }}>
                   <GridHeader
                     columns={visibleColumns}
+                    rows={rows}
                     filters={filters}
                     sort={sort}
                     sortDirection={sortDirection}
                     onSortChange={this.controller.handleSortChange}
                     onFilterChange={this.controller.handleFilterChange}
+                    onSelectAllRowsChange={
+                      this.controller.handleSelectAllRowsChange
+                    }
                     multiselectable={multiselectable}
+                    multiselectedRows={multiselectedRows}
                   />
                   <TableBody classes={{ root: classes.tableBody }}>
                     {rows.map(row => {

@@ -627,6 +627,21 @@ export default class GridController {
     }
   }
 
+  async handleSelectAllRowsChange() {
+    const { rows, multiselectedRows } = this.context.getState()
+
+    const rowIds = rows.map(row => row.id)
+    const multiselectedRowIds = Object.keys(multiselectedRows)
+
+    let newMultiselectedRowIds = null
+    if (_.difference(rowIds, multiselectedRowIds).length === 0) {
+      newMultiselectedRowIds = _.difference(multiselectedRowIds, rowIds)
+    } else {
+      newMultiselectedRowIds = _.union(multiselectedRowIds, rowIds)
+    }
+    this.multiselectRows(newMultiselectedRowIds)
+  }
+
   getAllColumns() {
     const { allColumns, columnsSorting } = this.context.getState()
 

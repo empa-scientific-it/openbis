@@ -77,6 +77,7 @@ class CheckboxFormField extends React.PureComponent {
       value,
       mandatory,
       disabled,
+      indeterminate,
       error,
       metadata,
       mode,
@@ -106,6 +107,7 @@ class CheckboxFormField extends React.PureComponent {
             value={name}
             checked={!!value}
             disabled={isDisabled}
+            indeterminate={indeterminate}
             onChange={this.handleChange}
             onFocus={this.handleFocus}
             onClick={onClick}

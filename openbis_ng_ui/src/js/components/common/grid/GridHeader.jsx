@@ -1,10 +1,13 @@
+import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import GridHeaderFilter from '@src/js/components/common/grid/GridHeaderFilter.jsx'
 import GridHeaderLabel from '@src/js/components/common/grid/GridHeaderLabel.jsx'
+import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -21,10 +24,25 @@ const styles = theme => ({
   cell: {
     padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
     borderColor: theme.palette.border.secondary
+  },
+  multiselect: {
+    display: 'inline-block'
   }
 })
 
 class GridHeader extends React.PureComponent {
+  constructor(props) {
+    super(props)
+    autoBind(this)
+  }
+
+  handleSelectAllRowsChange() {
+    const { onSelectAllRowsChange } = this.props
+    if (onSelectAllRowsChange) {
+      onSelectAllRowsChange()
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'GridHeader.render')
 
@@ -59,7 +77,7 @@ class GridHeader extends React.PureComponent {
 
   renderMultiselectFilterCell() {
     if (this.props.multiselectable) {
-      return <TableCell />
+      return <TableCell></TableCell>
     } else {
       return null
     }
@@ -80,8 +98,28 @@ class GridHeader extends React.PureComponent {
   }
 
   renderMultiselectHeaderCell() {
-    if (this.props.multiselectable) {
-      return <TableCell />
+    const { multiselectable, multiselectedRows, rows, classes } = this.props
+
+    if (multiselectable) {
+      const multiselectedRowIds = Object.keys(multiselectedRows)
+      const rowIds = rows.map(row => row.id)
+      const rowIdsSelected = _.intersection(rowIds, multiselectedRowIds)
+
+      const value = rowIds.length > 0 && rowIds.length === rowIdsSelected.length
+      const indeterminate =
+        rowIdsSelected.length > 0 && rowIdsSelected.length < rowIds.length
+
+      return (
+        <TableCell>
+          <div className={classes.multiselect}>
+            <CheckboxField
+              value={value}
+              indeterminate={indeterminate}
+              onChange={this.handleSelectAllRowsChange}
+            />
+          </div>
+        </TableCell>
+      )
     } else {
       return null
     }
