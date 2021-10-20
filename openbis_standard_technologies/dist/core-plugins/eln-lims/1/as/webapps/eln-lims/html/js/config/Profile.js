@@ -152,6 +152,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.isAdmin = false;
+        this.userManagementMaintenanceTaskConfig = null;
 		this.devEmail = "sis.eln.servicedesk@id.ethz.ch";
 
 //		BigDataLink EDMs config
@@ -1198,6 +1199,13 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.initUserManagementMaintenanceTaskConfig = function(callback) {
+            var _this = this;
+            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                _this.userManagementMaintenanceTaskConfig = config;
+                callback();
+            });
+        }
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
 			this.serverFacade.listDataSetTypes(function(data) {
@@ -1300,25 +1308,27 @@ $.extend(DefaultProfile.prototype, {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
-								_this.initDatasetTypeCodes(function() {
-									_this.initServerInfo(function() {
-										_this.isFileAuthUser(function() {
-											_this.initSpaces(function() {
-											    _this.initCustomWidgetSettings(function() {
-                                                    _this.initSettings(function() {
-                                                        //Check if the new storage system can be enabled
-                                                        var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-                                                        var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
-                                                        _this.storagesConfiguration = {
-                                                                "isEnabled" : storageRack && storagePositionType
-                                                        };
-                                                        callbackWhenDone();
+                                _this.initUserManagementMaintenanceTaskConfig(function() {
+                                    _this.initDatasetTypeCodes(function() {
+                                        _this.initServerInfo(function() {
+                                            _this.isFileAuthUser(function() {
+                                                _this.initSpaces(function() {
+                                                    _this.initCustomWidgetSettings(function() {
+                                                        _this.initSettings(function() {
+                                                            //Check if the new storage system can be enabled
+                                                            var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+                                                            var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
+                                                            _this.storagesConfiguration = {
+                                                                    "isEnabled" : storageRack && storagePositionType
+                                                            };
+                                                            callbackWhenDone();
+                                                        });
                                                     });
-												});
-											});
-										});
-									});
-								});
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
 							});
 						});
 					});

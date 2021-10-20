@@ -20,32 +20,21 @@ export default class TypeFormFacade {
     })
   }
 
-  async loadAssignments(object) {
-    return Promise.all([
-      this.loadLocalPropertyTypes(object),
-      this.loadGlobalPropertyTypes()
-    ]).then(([localPropertyTypes, globalPropertyTypes]) => {
-      const codes = [
-        ...localPropertyTypes,
-        ...globalPropertyTypes
-      ].map(propertyType => propertyType.getCode())
+  async loadAssignments() {
+    const criteria = new openbis.PropertyAssignmentSearchCriteria()
 
-      const criteria = new openbis.PropertyAssignmentSearchCriteria()
-      criteria.withPropertyType().withCodes().thatIn(codes)
+    const fo = new openbis.PropertyAssignmentFetchOptions()
+    fo.withPropertyType()
 
-      const fo = new openbis.PropertyAssignmentFetchOptions()
-      fo.withPropertyType()
+    return openbis.searchPropertyAssignments(criteria, fo).then(result => {
+      const map = {}
 
-      return openbis.searchPropertyAssignments(criteria, fo).then(result => {
-        const map = {}
-
-        result.getObjects().forEach(assignment => {
-          const code = assignment.getPropertyType().getCode()
-          map[code] = (map[code] || 0) + 1
-        })
-
-        return map
+      result.getObjects().forEach(assignment => {
+        const code = assignment.getPropertyType().getCode()
+        map[code] = (map[code] || 0) + 1
       })
+
+      return map
     })
   }
 
@@ -100,39 +89,15 @@ export default class TypeFormFacade {
       const usagesMap = {}
       propertyTypeCodes.forEach((propertyTypeCode, index) => {
         const operationResult = result.getResults()[index]
-        usagesMap[
-          propertyTypeCode
-        ] = operationResult.getSearchResult().getTotalCount()
+        usagesMap[propertyTypeCode] = operationResult
+          .getSearchResult()
+          .getTotalCount()
       })
       return usagesMap
     })
   }
 
-  async loadLocalPropertyTypes(object) {
-    const strategy = this._getStrategy(object.type)
-
-    if (object.type === strategy.getNewObjectType()) {
-      return Promise.resolve([])
-    }
-
-    const id = new openbis.EntityTypePermId(object.id)
-    const fo = strategy.createTypeFetchOptions()
-    fo.withPropertyAssignments().withPropertyType().withRegistrator()
-
-    return strategy.getTypes([id], fo).then(map => {
-      const type = map[object.id]
-
-      if (type) {
-        return type.getPropertyAssignments().map(assignment => {
-          return assignment.getPropertyType()
-        })
-      } else {
-        return []
-      }
-    })
-  }
-
-  async loadGlobalPropertyTypes() {
+  async loadPropertyTypes() {
     const criteria = new openbis.PropertyTypeSearchCriteria()
     const fo = new openbis.PropertyTypeFetchOptions()
     fo.withMaterialType()

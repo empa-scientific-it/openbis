@@ -3,7 +3,6 @@ import openbis from '@src/js/services/openbis.js'
 import PageControllerLoad from '@src/js/components/common/page/PageControllerLoad.js'
 import TypeFormControllerStrategies from '@src/js/components/types/form/TypeFormControllerStrategies.js'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
-import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import users from '@src/js/common/consts/users.js'
 import util from '@src/js/common/util.js'
@@ -23,14 +22,14 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       vocabularies,
       materialTypes,
       sampleTypes,
-      globalPropertyTypes
+      propertyTypes
     ] = await Promise.all([
       this.facade.loadValidationPlugins(object.type),
       this.facade.loadDynamicPlugins(object.type),
       this.facade.loadVocabularies(),
       this.facade.loadMaterialTypes(),
       this.facade.loadSampleTypes(),
-      this.facade.loadGlobalPropertyTypes()
+      this.facade.loadPropertyTypes()
     ])
 
     await this.context.setState(() => ({
@@ -40,7 +39,7 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
         vocabularies,
         materialTypes,
         sampleTypes,
-        globalPropertyTypes
+        propertyTypes
       }
     }))
   }
@@ -68,7 +67,6 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       loadedType.propertyAssignments.forEach(loadedAssignment => {
         property = this._createProperty(
           'property-' + propertiesCounter++,
-          loadedType,
           loadedAssignment,
           loadedAssignments
         )
@@ -148,16 +146,12 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
     }
   }
 
-  _createProperty(id, loadedType, loadedAssignment, loadedAssignments) {
+  _createProperty(id, loadedAssignment, loadedAssignments) {
     const propertyType = loadedAssignment.propertyType
 
     const code = _.get(propertyType, 'code', null)
     const dataType = _.get(propertyType, 'dataType', null)
     const plugin = _.get(loadedAssignment, 'plugin.name', null)
-
-    const scope = code.startsWith(loadedType.code + '.')
-      ? TypeFormPropertyScope.LOCAL
-      : TypeFormPropertyScope.GLOBAL
 
     const assignments =
       (loadedAssignments && loadedAssignments[propertyType.code]) || 0
@@ -175,17 +169,13 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
 
     return {
       id: id,
-      scope: FormUtil.createField({
-        value: scope,
-        enabled: false
-      }),
       code: FormUtil.createField({
         value: code,
         enabled: false
       }),
       internal: FormUtil.createField({
         value: propertyTypeInternal,
-        visible: scope === TypeFormPropertyScope.GLOBAL && this.isSystemUser(),
+        visible: this.isSystemUser(),
         enabled: false
       }),
       assignmentInternal: FormUtil.createField({
@@ -256,10 +246,8 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
   }
 
   _createSelection(newSections) {
-    const {
-      selection: oldSelection,
-      sections: oldSections
-    } = this.context.getState()
+    const { selection: oldSelection, sections: oldSections } =
+      this.context.getState()
 
     if (!oldSelection) {
       return null

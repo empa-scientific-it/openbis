@@ -621,7 +621,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void updateProject(SamplePE sample, ProjectIdentifier projectIdentifierOrNull,
             Map<String, ProjectPE> projectCache)
     {
-        if (sample.getProject() == null && projectIdentifierOrNull == null)
+        if (SamplePE.projectSamplesEnabled == false || (sample.getProject() == null && projectIdentifierOrNull == null))
         {
             return;
         }
