@@ -175,9 +175,10 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				// 4. Push data into list
 				//
 				dataList.push({
+					id: deletion.id,
 					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
 					reason : deletion.reasonOrNull,
-					entity : deletion
+					entity : deletion,
 				});
 			}
 			callback(dataList);

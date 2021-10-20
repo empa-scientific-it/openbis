@@ -630,7 +630,7 @@ export default class GridController {
   async handleSelectAllRowsChange() {
     const { rows, multiselectedRows } = this.context.getState()
 
-    const rowIds = rows.map(row => row.id)
+    const rowIds = rows.map(row => String(row.id))
     const multiselectedRowIds = Object.keys(multiselectedRows)
 
     let newMultiselectedRowIds = null

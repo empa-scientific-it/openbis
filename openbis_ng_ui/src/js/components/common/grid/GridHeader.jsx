@@ -102,7 +102,7 @@ class GridHeader extends React.PureComponent {
 
     if (multiselectable) {
       const multiselectedRowIds = Object.keys(multiselectedRows)
-      const rowIds = rows.map(row => row.id)
+      const rowIds = rows.map(row => String(row.id))
       const rowIdsSelected = _.intersection(rowIds, multiselectedRowIds)
 
       const value = rowIds.length > 0 && rowIds.length === rowIdsSelected.length

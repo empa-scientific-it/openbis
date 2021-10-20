@@ -171,8 +171,10 @@ var ExperimentDataGridUtil = new function() {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < entities.length; sIdx++) {
 				var entity = entities[sIdx];
-				var model = {		'code' : entity.code,
-				                    'identifier' : entity.identifier,
+				var model = {		
+									'id' : entity.permId,
+									'code' : entity.code,
+									'identifier' : entity.identifier,
 									'permId' : entity.permId,
 									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),

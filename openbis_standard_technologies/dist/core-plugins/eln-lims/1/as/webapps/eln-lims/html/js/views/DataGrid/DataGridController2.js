@@ -73,6 +73,8 @@ function DataGridController2(
         loadRows: _this._loadRows,
         onSettingsChange: _this._onSettingsChange,
         onSelectedRowChange: _this._onSelectedRowChange,
+        selectable: true,
+        multiselectable: isMultiselectable,
       })
     );
 
@@ -216,7 +218,7 @@ function DataGridController2(
           (showAllColumns ||
             column.showByDefault ||
             column.canNotBeHidden ||
-            index < 4 ||
+            index < 3 ||
             index === columns.length - 1),
         configurable: !column.hide && !column.canNotBeHidden,
       };
@@ -237,15 +239,14 @@ function DataGridController2(
           : null,
     };
 
-    function assignRowIds(rows) {
-      return rows.map(function (row, index) {
-        return Object.assign(
-          {
-            id: index,
-          },
-          row
-        );
-      });
+    function checkRowIds(rows) {
+      for (var i = 0; i < rows.length; i++) {
+        var rowId = rows[i].id;
+        if (rowId === null || rowId === undefined) {
+          console.error("Row id was null", rows[id]);
+          throw new Error("Row id was null");
+        }
+      }
     }
 
     return new Promise(function (resolve) {
@@ -253,12 +254,14 @@ function DataGridController2(
         let dynamic = data.totalCount !== null && data.totalCount !== undefined;
 
         if (dynamic) {
+          checkRowIds(data.objects);
           resolve({
-            rows: assignRowIds(data.objects),
+            rows: data.objects,
             totalCount: data.totalCount,
           });
         } else {
-          resolve(assignRowIds(data));
+          checkRowIds(data);
+          resolve(data);
         }
       }, options);
     });

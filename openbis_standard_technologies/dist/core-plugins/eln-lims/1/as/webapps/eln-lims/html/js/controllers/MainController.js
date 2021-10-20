@@ -1367,6 +1367,7 @@ function MainController(profile) {
 											var result = data.result[i];
 											
 											dataList.push({
+												id : result.resultLocation.permId,
 												entityKind : result.resultLocation.entityKind,
 												entityType : result.resultLocation.entityType,
 												permId : result.resultLocation.permId,
@@ -1484,6 +1485,7 @@ function MainController(profile) {
 												}
 												
 												dataList.push({
+													id : resultLocation.permId,
 													kind : resultLocation.entityKind,
 													code : code,
 													permId : resultLocation.permId,
@@ -1667,6 +1669,7 @@ function MainController(profile) {
 					
 					//properties
 					dataList.push({
+						id: sample.permId,
 						permId : sample.permId,
 						code : sample.code,
 						score : score,

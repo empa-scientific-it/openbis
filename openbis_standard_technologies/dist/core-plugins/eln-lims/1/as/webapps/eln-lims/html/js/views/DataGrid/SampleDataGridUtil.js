@@ -416,6 +416,7 @@ var SampleDataGridUtil = new function() {
 					}
 					
 					var sampleModel = { 
+										'id' : sample.permId,
 										'$object' : sample,
 										'identifier' : sample.identifier, 
 										'code' : sample.code,
@@ -593,7 +594,9 @@ var SampleDataGridUtil = new function() {
 					modificationDate = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
 				}
 				
-				var sampleModel = { '$object' : sample,
+				var sampleModel = { 
+									'id' : sample.permId,
+									'$object' : sample,
 									'identifier' : sample.identifier, 
 									'code' : sample.code,
 									'sampleTypeCode' : sample.sampleTypeCode,

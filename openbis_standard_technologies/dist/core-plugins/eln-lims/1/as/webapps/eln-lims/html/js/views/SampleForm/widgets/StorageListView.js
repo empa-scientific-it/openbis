@@ -117,6 +117,7 @@ function StorageListView(storageListController, storageListModel) {
 				}
 				
 				var object = { '$object' : sample };
+				object["id"] = sample.identifier
 				object["identifier"] = sample.identifier;
 				for (propertyCode in storagePropertyCodesAsMap) {
 					var propertyType = profile.getPropertyType(propertyCode);

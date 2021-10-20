@@ -112,6 +112,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 			for(var idx = 0; idx < _this._userManagerModel.persons.length; idx++) {
 				var person =  _this._userManagerModel.persons[idx];
 				dataList.push({
+					id: person.userId,
 					userId : person.userId,
 					email : person.email,
 					firstName : person.firstName,
