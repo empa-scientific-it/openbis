@@ -87,4 +87,13 @@ public class SearchCacheKey<CRITERIA, FETCH_OPTIONS> implements Serializable
             return false;
         }
     }
+
+    @Override public String toString()
+    {
+        return "SearchCacheKey{" +
+                "sessionToken='" + sessionToken + '\'' +
+                ", criteria=" + criteria +
+                ", fetchOptions=" + fetchOptions +
+                '}';
+    }
 }

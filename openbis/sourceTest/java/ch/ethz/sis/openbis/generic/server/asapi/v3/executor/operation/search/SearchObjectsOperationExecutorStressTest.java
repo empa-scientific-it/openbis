@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
 
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
@@ -43,14 +40,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.MemoryCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -58,8 +57,6 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
-import net.sf.ehcache.CacheManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -234,44 +231,27 @@ public class SearchObjectsOperationExecutorStressTest
     private static class StressTestSearchMethodExecutor extends SearchObjectsOperationExecutor
     {
 
-        private Map<SearchCacheKey, Integer> searchCounts = new HashMap<>();
+        private final Map<SearchCacheKey, Integer> searchCounts = new HashMap<>();
 
-        private Map<SearchCacheKey, Object> searchResults = new HashMap<>();
+        private final Map<SearchCacheKey, Object> searchResults = new HashMap<>();
 
-        private List<String> errors = Collections.synchronizedList(new ArrayList<String>());
+        private final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
+
+        private final int cacheSize;
 
         public StressTestSearchMethodExecutor(final long cacheSize)
         {
-            String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
-            final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
-
-            SearchCache theCache = new SearchCache(
-                    new RuntimeCache<Serializable, Serializable>(manager, SearchCache.CACHE_NAME,
-                            SearchCache.CACHE_SIZE_PROPERTY_NAME)
-                        {
-                            @Override
-                            protected long getCacheSize()
-                            {
-                                if (cacheSize > 0)
-                                {
-                                    return cacheSize;
-                                } else
-                                {
-                                    return super.getCacheSize();
-                                }
-                            }
-                        });
-
-            theCache.initCache();
-            this.cache = theCache;
-            this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
+            this.cacheSize = (int) cacheSize;
+            this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(
+                    new Properties()));
         }
 
         @Override
-        protected Collection doSearchAndTranslate(IOperationContext context, AbstractSearchCriteria criteria,
-                FetchOptions fetchOptions)
+        protected List doSearch(final IOperationContext context, final AbstractSearchCriteria criteria,
+                final FetchOptions fetchOptions)
         {
-            SearchCacheKey key = new SearchCacheKey(context.getSession().getSessionToken(), criteria, fetchOptions);
+            final SearchCacheKey key = new SearchCacheKey(context.getSession().getSessionToken(), criteria,
+                    fetchOptions);
 
             synchronized (searchCounts)
             {
@@ -291,7 +271,29 @@ public class SearchObjectsOperationExecutorStressTest
                 throw new RuntimeException(e);
             }
 
-            return Collections.singleton(searchResults.get(key));
+            return Collections.singletonList(key);
+        }
+
+        @Override
+        protected Map doTranslate(final TranslationContext translationContext, final Collection ids,
+                final FetchOptions fetchOptions)
+        {
+            final SearchCacheKey key = (SearchCacheKey) ids.iterator().next();
+
+            return Collections.singletonMap(key, searchResults.get(key));
+        }
+
+        @Override
+        protected ICache<Object> getCache(final IOperationContext context)
+        {
+            final Map<String, ICache<Object>> cacheByUserSessionToken = this.getCacheByUserSessionToken();
+            ICache<Object> cache = cacheByUserSessionToken.get(context.getSession().getSessionToken());
+            if (cache == null)
+            {
+                cache = new MemoryCache<>(cacheSize);
+                cacheByUserSessionToken.put(context.getSession().getSessionToken(), cache);
+            }
+            return cache;
         }
 
         public Map<SearchCacheKey, Integer> getSearchCounts()
@@ -354,7 +356,7 @@ public class SearchObjectsOperationExecutorStressTest
     private static class RandomSizeArray
     {
 
-        private byte[] array;
+        private final byte[] array;
 
         public RandomSizeArray(long maxSize)
         {

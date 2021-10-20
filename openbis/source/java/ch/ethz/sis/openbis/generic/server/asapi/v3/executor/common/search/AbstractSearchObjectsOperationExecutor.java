@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+import static org.apache.commons.io.FileUtils.ONE_KB;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -61,7 +63,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractSearchObjectsOperationExecutor.class);
 
-    private static final int CACHE_CAPACITY = 10;
+    private static final int CACHE_CAPACITY = (int) (10 * ONE_KB);
 
     @Autowired
     private AuthorizationConfig authorizationConfig;
@@ -74,7 +76,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     protected abstract ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE> getSearchManager();
 
-    private final Map<String, ICache<Object>> cacheByUserSessionToken = new HashMap<>();
+    private final Map<String, ICache<Object>> cacheByUserSessionToken = new ConcurrentHashMap<>();
 
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
@@ -108,20 +110,22 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
             return doSearchAndTranslate(context, criteria, fetchOptions);
         } else if (CacheMode.CACHE.equals(cacheMode) || CacheMode.RELOAD_AND_CACHE.equals(cacheMode))
         {
-            Collection<OBJECT_PE> ids = getCacheEntry(context, criteria, fetchOptions);
+            final Set<OBJECT_PE> ids;
 
-            if (ids == null)
+            synchronized (context.getSession())
             {
-                ids = doSearch(context, criteria, fetchOptions);
-                final String key = getMD5Hash(criteria.toString());
+                final Set<OBJECT_PE> cachedIds = getCacheEntry(context, criteria, fetchOptions);
 
-                final ICache<Object> cache = getCache(context);
-                // put the entry to the cache again to trigger the size recalculation
-                cache.put(key, ids);
-            } else
-            {
-                OPERATION_LOG.info("Found cache entry " + ids.hashCode() + " that contains search result with "
-                        + ids.size() + " object(s).");
+                if (cachedIds == null)
+                {
+                    ids = new LinkedHashSet<>(doSearch(context, criteria, fetchOptions));
+                    populateCache(context, criteria, Collections.unmodifiableSet(ids));
+                } else
+                {
+                    OPERATION_LOG.info("Found cache entry " + cachedIds.hashCode() +
+                            " that contains search result with " + cachedIds.size() + " object(s).");
+                    ids = cachedIds;
+                }
             }
 
             return doTranslate(context, fetchOptions, ids);
@@ -129,6 +133,14 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         {
             throw new IllegalArgumentException("Unsupported cache mode: " + cacheMode);
         }
+    }
+
+    protected void populateCache(final IOperationContext context, final CRITERIA criteria, final Collection<OBJECT_PE> ids)
+    {
+        final String key = getMD5Hash(criteria.toString());
+
+        final ICache<Object> cache = getCache(context);
+        cache.put(key, ids);
     }
 
     protected Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
@@ -195,7 +207,6 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
             if (entry == null)
             {
-                cache.put(key, null);
                 context.getSession().addCleanupListener(new SearchCacheCleanupListener(cache, key));
             }
 
@@ -257,7 +268,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
                 final ICache<Object> cache = getCache(context);
                 // put the entry to the cache again to trigger the size recalculation
-                cache.put(key, ids);
+                cache.put(key, Collections.unmodifiableSet(ids));
             } else
             {
                 OPERATION_LOG.info("Found cache entry " + ids.hashCode() + " that contains search result with "
@@ -293,7 +304,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return getOperationResult(searchResult);
     }
 
-    private String getMD5Hash(final String s)
+    protected static String getMD5Hash(final String s)
     {
         try
         {
@@ -307,7 +318,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         }
     }
 
-    private ICache<Object> getCache(final IOperationContext context)
+    protected ICache<Object> getCache(final IOperationContext context)
     {
         ICache<Object> cache = this.cacheByUserSessionToken.get(context.getSession().getSessionToken());
         if (cache == null)
@@ -382,6 +393,11 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private static void throwIllegalArgumentException(final String message) throws RuntimeException {
         throw new IllegalArgumentException(message);
+    }
+
+    protected Map<String, ICache<Object>> getCacheByUserSessionToken()
+    {
+        return cacheByUserSessionToken;
     }
 
 }

@@ -39,13 +39,13 @@ public abstract class SearchObjectsOperationExecutor<OBJECT, OBJECT_PE, CRITERIA
     protected abstract ITranslator<OBJECT_PE, OBJECT, FETCH_OPTIONS> getTranslator();
 
     @Override
-    protected final List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    protected List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         return getExecutor().search(context, criteria);
     }
 
     @Override
-    protected final Map<OBJECT_PE, OBJECT> doTranslate(final TranslationContext translationContext, final Collection<OBJECT_PE> objectPes,
+    protected Map<OBJECT_PE, OBJECT> doTranslate(final TranslationContext translationContext, final Collection<OBJECT_PE> objectPes,
             final FETCH_OPTIONS fetchOptions)
     {
         return getTranslator().translate(translationContext, objectPes, fetchOptions);
