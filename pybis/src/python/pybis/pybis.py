@@ -1088,7 +1088,7 @@ class Openbis:
     def projects(self):
         return self.get_projects()
 
-    def gen_token_path(self, save_token_on_behalf=False):
+    def gen_token_path(self, os_home = None):
         """generates a path to the token file.
         The token is usually saved in a file called
         ~/.pybis/hostname.token
@@ -1096,36 +1096,41 @@ class Openbis:
         if self.hostname is None:
             raise ValueError("hostname needs to be set before retrieving the token path.")
 
-        if (self.token is None) and save_token_on_behalf:
-            raise ValueError("token needs to be set before using save_token_on_behalf.")
-
-        # save token under ~/.pybis folder
-        if save_token_on_behalf:
-            token_user_name = self.token.split("-")[0]
-            parent_folder = os.path.join(os.path.expanduser("~") + "/../" + token_user_name, ".pybis") # Used after login or set_token
+        if os_home is None:
+            home = os.path.expanduser("~")
         else:
-            parent_folder = os.path.join(os.path.expanduser("~"), ".pybis") # Used by empty Openbis() init
-
+            home = os_home
+        parent_folder = os.path.join(home, ".pybis")
         path = os.path.join(parent_folder, self.hostname + ".token")
         return path
 
-    def _save_token_to_disk(self, save_token_on_behalf=False):
+    def save_token_on_behalf(self, os_home):
+        token_path = self._save_token_to_disk(os_home)
+
+        # Set the correct user, only the owner of the token should be able to access it, used by jupyterhub authenticator
+        token_user_name = self.token.split("-")[0]
+        from pwd import getpwnam
+        token_user_name_uid = getpwnam(token_user_name).pw_uid
+
+        # Token
+        os.chown(token_path, token_user_name_uid, token_user_name_uid)
+
+        # Parent directory
+        from pathlib import Path
+        path = Path(token_path)
+        token_parent_path = path.parent.absolute()
+        os.chown(token_parent_path, token_user_name_uid, token_user_name_uid)
+
+    def _save_token_to_disk(self, os_home = None):
         """saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default."""
-
-        token_path = self.gen_token_path(save_token_on_behalf)
-
+        token_path = self.gen_token_path(os_home)
         # create the necessary directories, if they don't exist yet
         os.makedirs(os.path.dirname(token_path), exist_ok=True)
         with open(token_path, "w") as f:
             f.write(self.token)
         # prevent other users to be able to read the token
         os.chmod(token_path, 0o600)
-        # set the corret user if is on behalf, used by the jupyterhub authenticator
-        if save_token_on_behalf:
-            token_user_name = self.token.split("-")[0]
-            from pwd import getpwnam
-            token_user_name_uid = getpwnam(token_user_name).pw_uid
-            os.chown(token_path, token_user_name_uid, token_user_name_uid)
+        return token_path
 
     def _get_saved_token(self):
         """Read the token from the .pybis, on the default user location
@@ -1193,7 +1198,7 @@ class Openbis:
         self.token = None
         return resp
 
-    def login(self, username=None, password=None, save_token=False, save_token_on_behalf=False):
+    def login(self, username=None, password=None, save_token=False):
         """Log into openBIS.
         Expects a username and a password and updates the token (session-ID).
         The token is then used for every request.
@@ -1212,8 +1217,8 @@ class Openbis:
         self.token = self._post_request(self.as_v3, login_request)
         if self.token is None:
             raise ValueError("login to openBIS failed")
-        if save_token or save_token_on_behalf:
-            self._save_token_to_disk(save_token_on_behalf = save_token_on_behalf)
+        if save_token:
+            self._save_token_to_disk()
         return self.token
 
     def unmount(self, mountpoint=None):
@@ -4045,7 +4050,7 @@ class Openbis:
 
         return resp
 
-    def set_token(self, token, save_token=False, save_token_on_behalf=False):
+    def set_token(self, token, save_token=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
@@ -4053,8 +4058,8 @@ class Openbis:
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
             self.token = token
-        if save_token or save_token_on_behalf:
-            self._save_token_to_disk(save_token_on_behalf=save_token_on_behalf)
+        if save_token:
+            self._save_token_to_disk()
 
     def get_dataset(self, permIds, only_data=False, props=None, **kvals):
         """fetch a dataset and some metadata attached to it:
