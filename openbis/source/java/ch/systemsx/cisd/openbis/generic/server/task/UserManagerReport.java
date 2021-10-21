@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -41,12 +42,25 @@ public class UserManagerReport implements IChangedHandler
     private StringBuilder errorReport = new StringBuilder();
 
     private StringBuilder auditLog = new StringBuilder();
-
+    
     private ITimeProvider timeProvider;
+
+    private BufferedAppender bufferedAppender;
 
     public UserManagerReport(ITimeProvider timeProvider)
     {
+        this(timeProvider, null);
+    }
+
+    public UserManagerReport(ITimeProvider timeProvider, BufferedAppender bufferedAppender)
+    {
         this.timeProvider = timeProvider;
+        this.bufferedAppender = bufferedAppender;
+    }
+    
+    public String getLog()
+    {
+        return bufferedAppender != null ? bufferedAppender.getLogContent() : "";
     }
 
     public String getErrorReport()

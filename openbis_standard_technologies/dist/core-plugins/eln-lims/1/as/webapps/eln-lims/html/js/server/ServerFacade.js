@@ -127,6 +127,32 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.executeUserManagementMaintenanceTask = function(callback) {
+        this.customELNASAPI({
+            "method" : "executeUserManagementMaintenanceTask"
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.getUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "getUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.removeUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "removeUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
 	//
 	// Display Settings
 	//
