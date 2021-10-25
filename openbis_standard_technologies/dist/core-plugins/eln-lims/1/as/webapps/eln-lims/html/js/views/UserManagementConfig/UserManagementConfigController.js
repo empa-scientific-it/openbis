@@ -30,7 +30,7 @@ function UserManagementConfigController(mainController, mode) {
         this.save(config, function() {
             Util.blockUI();
             serverFacade.executeUserManagementMaintenanceTask(function(executionId) {
-                var executionView = new UserManagementExecutionView();
+                var executionView = new UserManagementExecutionView(callback);
                 executionView.init();
                 var _polling = function() {
                     serverFacade.getUserManagementMaintenanceTaskReport(executionId, function(report) {
@@ -39,7 +39,7 @@ function UserManagementConfigController(mainController, mode) {
                         var index = log.indexOf(finishedMarker);
                         if (index > 0) {
                             executionView.updateLog(log.substring(0, index + finishedMarker.length));
-                            executionView.finished(report[1], report[2], callback);
+                            executionView.finished(report[1], report[2]);
                             serverFacade.removeUserManagementMaintenanceTaskReport(executionId);
                         } else {
                             executionView.updateLog(log);
