@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -57,6 +59,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 @Component
 public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
 {
+    private static final Comparator<IDeletionId> DELETION_ID_COMPARATOR = new Comparator<IDeletionId>()
+        {
+            @Override
+            public int compare(IDeletionId o1, IDeletionId o2)
+            {
+                long id1 = ((DeletionTechId) o1).getTechId();
+                long id2 = ((DeletionTechId) o2).getTechId();
+                return id1 < id2 ? -1 : (id1 > id2 ? 1 : 0);
+            }
+        };
 
     @Autowired
     private IMapDeletionByIdExecutor mapDeletionByIdExecutor;
@@ -95,6 +107,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
                 deletionIdsWithoutNulls.add(deletionId);
             }
         }
+        Collections.sort(deletionIdsWithoutNulls, DELETION_ID_COMPARATOR);
 
         try
         {
