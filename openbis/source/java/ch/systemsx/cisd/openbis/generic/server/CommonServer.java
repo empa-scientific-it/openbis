@@ -16,6 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -40,15 +65,83 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.SpaceTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.*;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.*;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.BasicEntityDescriptionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPermIdStringPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionReadWritePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdReadWritePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.EntityHistoryValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalDataValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingEntityValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SamplePropertyAccessValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SearchDomainSearchResultValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceOrProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.*;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICorePluginTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataStoreBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISearchDomainSearcher;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelatedEntityFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
@@ -65,9 +158,14 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegi
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
-import ch.systemsx.cisd.openbis.generic.shared.basic.*;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
@@ -76,23 +174,88 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.*;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.*;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.*;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
-
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.Map.Entry;
 
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
         ICommonServerForInternalUse
@@ -211,7 +374,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (person != null
                 && person.isSystemUser() == false
                 && new AuthorizationServiceUtils(getDAOFactory(), session.getUserName())
-                        .doesUserHaveRole(RoleCode.ADMIN.toString(), null) == false)
+                .doesUserHaveRole(RoleCode.ADMIN.toString(), null) == false)
         {
             registerSpaceRole(sessionToken, RoleCode.ADMIN, new SpaceIdentifier(spaceCode),
                     Grantee.createPerson(session.getUserName()));
@@ -238,8 +401,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("UPDATE_SPACE")
     public void updateSpace(final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceUpdatesPredicate.class)
-            final ISpaceUpdates updates)
+            @AuthorizationGuard(guardClass = SpaceUpdatesPredicate.class) final ISpaceUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
@@ -516,8 +678,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
-            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria)
+            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -556,8 +717,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
-            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria, String userId)
+            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria, String userId)
     {
         final Session session = getSession(sessionToken);
 
@@ -607,23 +767,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_SAMPLES,
                 new ConcurrentOperation<List<Sample>>()
+                {
+                    @Override
+                    public List<Sample> execute()
                     {
-                        @Override
-                        public List<Sample> execute()
-                        {
-                            SearchHelper searchHelper =
-                                    new SearchHelper(session, businessObjectFactory, getDAOFactory());
-                            return searchHelper.searchForSamples(session.getUserName(), criteria);
-                        }
-                    });
+                        SearchHelper searchHelper =
+                                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                        return searchHelper.searchForSamples(session.getUserName(), criteria);
+                    }
+                });
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listSampleExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -637,8 +796,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            final TechId experimentId, boolean showOnlyDirectlyConnected)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -681,8 +839,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            final TechId datasetId, final DataSetRelationshipRole role)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) final TechId datasetId, final DataSetRelationshipRole role)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -828,32 +985,32 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_GLOBALLY,
                 new ConcurrentOperation<List<MatchingEntity>>()
+                {
+                    @Override
+                    public List<MatchingEntity> execute()
                     {
-                        @Override
-                        public List<MatchingEntity> execute()
+                        final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
+                        for (final SearchableEntity searchableEntity : searchableEntities)
                         {
-                            final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
-                            for (final SearchableEntity searchableEntity : searchableEntities)
-                            {
-                                HibernateSearchDataProvider dataProvider =
-                                        new HibernateSearchDataProvider(getDAOFactory());
-                                List<MatchingEntity> entities =
-                                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                                                session.getUserName(), searchableEntity, queryText, dataProvider,
-                                                useWildcardSearchMode, list.size(), maxSize);
-                                list.addAll(entities);
-                            }
-                            Collections.sort(list, new Comparator<MatchingEntity>()
-                                {
-                                    @Override
-                                    public int compare(MatchingEntity o1, MatchingEntity o2)
-                                    {
-                                        return new Double(o2.getScore()).compareTo(o1.getScore());
-                                    }
-                                });
-                            return list;
+                            HibernateSearchDataProvider dataProvider =
+                                    new HibernateSearchDataProvider(getDAOFactory());
+                            List<MatchingEntity> entities =
+                                    getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                                            session.getUserName(), searchableEntity, queryText, dataProvider,
+                                            useWildcardSearchMode, list.size(), maxSize);
+                            list.addAll(entities);
                         }
-                    });
+                        Collections.sort(list, new Comparator<MatchingEntity>()
+                        {
+                            @Override
+                            public int compare(MatchingEntity o1, MatchingEntity o2)
+                            {
+                                return new Double(o2.getScore()).compareTo(o1.getScore());
+                            }
+                        });
+                        return list;
+                    }
+                });
     }
 
     @Override
@@ -1049,13 +1206,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<DataTypePE> dataTypePEs = getDAOFactory().getPropertyTypeDAO().listDataTypes();
         final List<DataType> dataTypes = DataTypeTranslator.translate(dataTypePEs);
         Collections.sort(dataTypes, new Comparator<DataType>()
+        {
+            @Override
+            public int compare(DataType o1, DataType o2)
             {
-                @Override
-                public int compare(DataType o1, DataType o2)
-                {
-                    return o1.getCode().name().compareTo(o2.getCode().name());
-                }
-            });
+                return o1.getCode().name().compareTo(o2.getCode().name());
+            }
+        });
         return dataTypes;
     }
 
@@ -1069,13 +1226,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
         final List<FileFormatType> fileFormatTypes = TypeTranslator.translate(fileFormatTypePEs);
         Collections.sort(fileFormatTypes, new Comparator<FileFormatType>()
+        {
+            @Override
+            public int compare(FileFormatType o1, FileFormatType o2)
             {
-                @Override
-                public int compare(FileFormatType o1, FileFormatType o2)
-                {
-                    return o1.getCode().compareTo(o2.getCode());
-                }
-            });
+                return o1.getCode().compareTo(o2.getCode());
+            }
+        });
         return fileFormatTypes;
     }
 
@@ -1143,7 +1300,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public static PropertyType returnIfContained(PropertyType propertyType, List<EntityTypePropertyType<?>> inList)
     {
         for (@SuppressWarnings("rawtypes")
-        EntityTypePropertyType etpt : inList)
+                EntityTypePropertyType etpt : inList)
         {
             if (etpt.getPropertyType().getCode().equals(propertyType.getCode()))
             {
@@ -1156,7 +1313,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void runIntegrityTest(List<EntityTypePropertyType<?>> ini, List<EntityTypePropertyType<?>> fin)
     {
         for (@SuppressWarnings("rawtypes")
-        EntityTypePropertyType etpt : fin)
+                EntityTypePropertyType etpt : fin)
         {
             PropertyType contained = returnIfContained(etpt.getPropertyType(), ini);
             if (contained != null &&
@@ -1534,17 +1691,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_EXPERIMENTS, new ConcurrentOperation<List<Experiment>>()
+        {
+            @Override
+            public List<Experiment> execute()
             {
-                @Override
-                public List<Experiment> execute()
-                {
-                    SearchHelper searchHelper =
-                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
-                    String userId = session.getUserName();
-                    List<ExperimentPE> experiments = searchHelper.searchForExperiments(userId, criteria);
-                    return translateExperiments(sessionToken, experiments);
-                }
-            });
+                SearchHelper searchHelper =
+                        new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                String userId = session.getUserName();
+                List<ExperimentPE> experiments = searchHelper.searchForExperiments(userId, criteria);
+                return translateExperiments(sessionToken, experiments);
+            }
+        });
     }
 
     @Override
@@ -1578,15 +1735,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_DATA_SETS, new ConcurrentOperation<List<AbstractExternalData>>()
+        {
+            @Override
+            public List<AbstractExternalData> execute()
             {
-                @Override
-                public List<AbstractExternalData> execute()
-                {
-                    SearchHelper searchHelper =
-                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
-                    return searchHelper.searchForDataSets(session.getUserName(), criteria);
-                }
-            });
+                SearchHelper searchHelper =
+                        new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                return searchHelper.searchForDataSets(session.getUserName(), criteria);
+            }
+        });
     }
 
     @Override
@@ -1603,31 +1760,31 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_DATA_SETS, new ConcurrentOperation<List<AbstractExternalData>>()
+        {
+            @Override
+            public List<AbstractExternalData> execute()
             {
-                @Override
-                public List<AbstractExternalData> execute()
+                SearchHelper searchHelper =
+                        new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                List<AbstractExternalData> unfilteredDatasets =
+                        searchHelper.searchForDataSets(userId, person.getId(), criteria);
+
+                final ExternalDataValidator validator = new ExternalDataValidator();
+                validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
+                final ArrayList<AbstractExternalData> datasets =
+                        new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
+
+                for (AbstractExternalData dataset : unfilteredDatasets)
                 {
-                    SearchHelper searchHelper =
-                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
-                    List<AbstractExternalData> unfilteredDatasets =
-                            searchHelper.searchForDataSets(userId, person.getId(), criteria);
-
-                    final ExternalDataValidator validator = new ExternalDataValidator();
-                    validator.init(new AuthorizationDataProvider(getDAOFactory()));
-
-                    final ArrayList<AbstractExternalData> datasets =
-                            new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
-
-                    for (AbstractExternalData dataset : unfilteredDatasets)
+                    if (validator.doValidation(person, dataset))
                     {
-                        if (validator.doValidation(person, dataset))
-                        {
-                            datasets.add(dataset);
-                        }
+                        datasets.add(dataset);
                     }
-                    return datasets;
                 }
-            });
+                return datasets;
+            }
+        });
     }
 
     @Override
@@ -2367,8 +2524,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId) throws UserFailureException
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleId != null : "Unspecified sample techId.";
@@ -2383,7 +2539,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL(),
+                        .getSampleInfo(session, sample), session.getBaseIndexURL(),
                 MetaprojectTranslator
                         .translate(metaprojectPEs),
                 managedPropertyEvaluatorFactory,
@@ -2784,7 +2940,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return String.format("{\n  \"properties\" : {%s\n  }\n}", sb);
     }
 
-    private String getTsvTemplateColumns(final EntityKind entityKind, final boolean autoGenerate, final boolean withExperiments, final boolean withSpace,
+    private String getTsvTemplateColumns(final EntityKind entityKind, final boolean autoGenerate, final boolean withExperiments,
+            final boolean withSpace,
             final BatchOperationKind operationKind, final List<EntityTypePE> types)
     {
         final StringBuilder sb = new StringBuilder();
@@ -3230,7 +3387,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         managedPropertyEvaluatorFactory);
         if (entityKindOrNull != null)
         {
-            for (Iterator<Script> iterator = result.iterator(); iterator.hasNext();)
+            for (Iterator<Script> iterator = result.iterator(); iterator.hasNext(); )
             {
                 Script script = iterator.next();
                 if (isApplicableScript(script, entityKindOrNull) == false)
@@ -3538,16 +3695,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     entityValidationFactory.createEntityValidator(info.getPluginType(),
                             info.getScriptName(), info.getScript());
             entityValidator.init(new IValidationRequestDelegate<INonAbstractEntityAdapter>()
+            {
+                @Override
+                public void requestValidation(INonAbstractEntityAdapter entityAdaptor)
                 {
-                    @Override
-                    public void requestValidation(INonAbstractEntityAdapter entityAdaptor)
-                    {
-                        IEntityInformationWithPropertiesHolder localEntity =
-                                entityAdaptor.entityPE();
-                        objectsWhichValidationWouldBeForced.add(localEntity.getEntityKind() + " "
-                                + localEntity.getIdentifier());
-                    }
-                });
+                    IEntityInformationWithPropertiesHolder localEntity =
+                            entityAdaptor.entityPE();
+                    objectsWhichValidationWouldBeForced.add(localEntity.getEntityKind() + " "
+                            + localEntity.getIdentifier());
+                }
+            });
 
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null,
@@ -3851,7 +4008,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
             updates.setVersion(experiment.getVersion());
             updates.setExperimentId(entityId);
-            updates.setAttachments(Collections.<NewAttachment> emptySet());
+            updates.setAttachments(Collections.<NewAttachment>emptySet());
             updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
                     .getIdentifier()).createIdentifier());
             Map<String, String> properties = createPropertiesMap(modifiedProperties);
@@ -3928,65 +4085,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
-    @Capability("RESTORE")
-    public void revertDeletions(final String sessionToken,
-            @AuthorizationGuard(guardClass = RevertDeletionPredicate.class)
-            final List<TechId> deletionIds)
+    public void revertDeletions(final String sessionToken, final List<TechId> deletionIds)
     {
-        final Session session = getSession(sessionToken);
-
-        Set<Long> deletionIdsAsASet = new HashSet<Long>(TechId.asLongs(deletionIds));
-        IDeletionTable deletionTable = getBusinessObjectFactory().createDeletionTable(session);
-        deletionTable.load(true);
-        List<Deletion> deletions = deletionTable.getDeletions();
-        Set<TechId> deletedExperimentIds = new HashSet<TechId>();
-        Set<TechId> deletedSampleIds = new HashSet<TechId>();
-        Set<String> deletedDataSetCodes = new HashSet<String>();
-        final ITrashBO trashBO = getBusinessObjectFactory().createTrashBO(session);
-        for (Deletion deletion : deletions)
+        if (deletionIds != null && !deletionIds.isEmpty())
         {
-            Long deletionId = deletion.getId();
-            if (deletionIdsAsASet.contains(deletionId))
-            {
-                List<IEntityInformationHolderWithIdentifier> deletedEntities =
-                        deletion.getDeletedEntities();
-                for (IEntityInformationHolderWithIdentifier deletedEntity : deletedEntities)
-                {
-                    EntityKind entityKind = deletedEntity.getEntityKind();
-                    TechId entityId = new TechId(deletedEntity.getId());
-                    switch (entityKind)
-                    {
-                        case EXPERIMENT:
-                            deletedExperimentIds.add(entityId);
-                            break;
-                        case SAMPLE:
-                            deletedSampleIds.add(entityId);
-                            break;
-                        case DATA_SET:
-                            deletedDataSetCodes.add(deletedEntity.getCode());
-                            break;
-                        default:
-                    }
-                }
-                trashBO.revertDeletion(new TechId(deletionId));
-            }
+            List<IDeletionId> v3DeletionIds = deletionIds.stream().map(id -> new DeletionTechId(id.getId())).collect(Collectors.toList());
+            CommonServiceProvider.getApplicationServerApi().revertDeletions(sessionToken, v3DeletionIds);
         }
-        Date timeStamp = getDAOFactory().getTransactionTimestamp();
-        List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(deletedExperimentIds));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
-        List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(deletedSampleIds));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
-        List<DataPE> dataSets = getDAOFactory().getDataDAO().listByCode(new HashSet<String>(deletedDataSetCodes));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session, timeStamp);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
     {
         deletePermanentlyCommon(sessionToken, deletionIds, false);
     }
@@ -3995,8 +4107,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
     {
         deletePermanentlyCommon(sessionToken, deletionIds, true);
     }
@@ -4069,15 +4180,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_MATERIALS, new ConcurrentOperation<List<Material>>()
+        {
+            @Override
+            public List<Material> execute()
             {
-                @Override
-                public List<Material> execute()
-                {
-                    SearchHelper searchHelper =
-                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
-                    return searchHelper.searchForMaterials(session.getUserName(), criteria);
-                }
-            });
+                SearchHelper searchHelper =
+                        new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                return searchHelper.searchForMaterials(session.getUserName(), criteria);
+            }
+        });
     }
 
     @Override

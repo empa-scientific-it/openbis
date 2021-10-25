@@ -668,6 +668,9 @@ public class OperationsExecutor implements IOperationsExecutor
             executeSearches(operations, resultMap, context);
             executeOthers(operations, resultMap, context);
 
+            flushCurrentSession();
+            clearCurrentSession();
+
             List<IOperationResult> resultList = new ArrayList<IOperationResult>();
             for (IOperation operation : operations)
             {
