@@ -60,7 +60,7 @@ function UserManagementConfigView(userManagementConfigController, userManagement
     }
 }
 
-function UserManagementExecutionView() {
+function UserManagementExecutionView(callback) {
     this.$title;
     this.$textarea;
     this.$wait;
@@ -70,7 +70,7 @@ function UserManagementExecutionView() {
     this.auditLog;
     this.$errorReportButton;
     this.errorReport;
-    this.callback;
+    this.callback = callback;
 
     this.init = function() {
         var _this = this;
@@ -107,9 +107,7 @@ function UserManagementExecutionView() {
         $buttons.append('&nbsp;').append(this.$errorReportButton);
         $closeButton = FormUtil.getButtonWithText("Close", function() {
             Util.unblockUI();
-            if (this.callback) {
-                this.callback();
-            }
+            _this.callback();
         });
         $closeButton.css("float", "right");
         $buttons.append($closeButton);
@@ -122,12 +120,11 @@ function UserManagementExecutionView() {
         this.$textarea.val(newLog);
     }
     
-    this.finished = function(auditLog, errorReport, callback) {
+    this.finished = function(auditLog, errorReport) {
         this.$wait.hide();
         this.auditLog = auditLog;
         this.$logButton.show();
         this.$auditButton.show();
-        this.callback = callback;
         if (errorReport !== "") {
             this.errorReport = errorReport;
             this.$errorReportButton.show();
