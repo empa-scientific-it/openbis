@@ -46,7 +46,7 @@ setFavicons("./img/favicon.ico");
 //</PROFILE_PLACEHOLDER>
 
 var PLUGINS_CONFIGURATION = {
-    extraPlugins : ["life-sciences", "flow", "microscopy"]
+    extraPlugins : ["life-sciences", "flow", "microscopy", "template-extra-utilities"]
 };
 
 var options = {
