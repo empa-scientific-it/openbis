@@ -1219,7 +1219,28 @@ class Openbis:
             raise ValueError("login to openBIS failed")
         if save_token:
             self._save_token_to_disk()
+            self._password(password)
         return self.token
+
+    def _password(self, password=None, pstore={}):
+        """An elegant way to store passwords which are used later
+        without giving the user an easy possibility to retrieve it.
+        """
+        import inspect
+
+        allowed_methods = ["mount"]
+
+        if password is not None:
+            pstore["password"] = password
+        else:
+            if inspect.stack()[1][3] in allowed_methods:
+                return pstore.get("password")
+            else:
+                raise Exception(
+                    "This method can only be called from these internal methods: {}".format(
+                        allowed_methods
+                    )
+                )
 
     def unmount(self, mountpoint=None):
         """Unmount a given mountpoint or unmount the stored mountpoint.
@@ -1309,6 +1330,8 @@ class Openbis:
 
     def mount(
         self,
+        username=None,
+        password=None,
         hostname=None,
         mountpoint=None,
         volname=None,
@@ -1320,6 +1343,8 @@ class Openbis:
         SSHFS and FUSE must be installed on the system (see below)
 
         Params:
+        username -- default: the currently used username
+        password -- default: the currently used password
         hostname -- default: the current hostname
         mountpoint -- default: ~/hostname
 
@@ -1361,12 +1386,12 @@ class Openbis:
         check_sshfs_is_installed()
 
         if username is None:
-            username = "?"
+            username = self._get_username()
         if not username:
             raise ValueError("no token available - please provide a username")
 
         if password is None:
-            password = self.token
+            password = self._password()
         if not password:
             raise ValueError("please provide a password")
 
