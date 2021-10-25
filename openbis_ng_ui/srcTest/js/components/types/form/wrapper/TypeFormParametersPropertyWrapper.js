@@ -9,12 +9,6 @@ import AutocompleterFieldWrapper from '@srcTest/js/components/common/form/wrappe
 import PageParametersPanelWrapper from '@srcTest/js/components/common/page/wrapper/PageParametersPanelWrapper'
 
 export default class TypeFormParametersPropertyWrapper extends PageParametersPanelWrapper {
-  getScope() {
-    return new SelectFieldWrapper(
-      this.findComponent(SelectField).filter({ name: 'scope' })
-    )
-  }
-
   getCode() {
     const textFieldWrapper = this.findComponent(TextField).filter({
       name: 'code'
@@ -99,7 +93,6 @@ export default class TypeFormParametersPropertyWrapper extends PageParametersPan
     return {
       ...super.toJSON(),
       messages: this.getMessages().map(message => message.toJSON()),
-      scope: this.getScope().toJSON(),
       code: this.getCode() ? this.getCode().toJSON() : null,
       dataType: this.getDataType().toJSON(),
       label: this.getLabel().toJSON(),

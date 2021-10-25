@@ -46,6 +46,12 @@ def process(context, parameters):
         result = getUserManagementMaintenanceTaskConfig(context, parameters)
     elif method == "saveUserManagementMaintenanceTaskConfig":
         result = saveUserManagementMaintenanceTaskConfig(context, parameters)
+    elif method == "executeUserManagementMaintenanceTask":
+        result = executeUserManagementMaintenanceTask(context, parameters)
+    elif method == "getUserManagementMaintenanceTaskReport":
+        result = getUserManagementMaintenanceTaskReport(context, parameters)
+    elif method == "removeUserManagementMaintenanceTaskReport":
+        result = removeUserManagementMaintenanceTaskReport(context, parameters)
     return result;
 
 def getUserManagementMaintenanceTaskConfig(context, parameters):
@@ -64,14 +70,33 @@ def saveUserManagementMaintenanceTaskConfig(context, parameters):
     if configfile is not None and config is not None:
         FileUtilities.writeToFile(configfile, config)
 
+def executeUserManagementMaintenanceTask(context, parameters):
+    task = _getUserManagementMaintenanceTask(context)
+    return task.executeAsync()
+
+def getUserManagementMaintenanceTaskReport(context, parameters):
+    task = _getUserManagementMaintenanceTask(context)
+    id = int(parameters.get("id"))
+    report = task.getReportById(id)
+    return (report.getLog(), report.getAuditLog(), report.getErrorReport())
+
+def removeUserManagementMaintenanceTaskReport(context, parameters):
+    task = _getUserManagementMaintenanceTask(context)
+    id = int(parameters.get("id"))
+    task.removeReport(id)
+
 def _getUserManagementMaintenanceTaskConfigFile(context):
+    task = _getUserManagementMaintenanceTask(context)
+    return task.getConfigurationFile() if task is not None else None
+
+def _getUserManagementMaintenanceTask(context):
     from ch.systemsx.cisd.openbis.generic.server import MaintenanceTaskStarter
 
     if _isInstanceAdmin(context):
         for plugin in CommonServiceProvider.getApplicationContext().getBean(MaintenanceTaskStarter).getPlugins():
             parameters = plugin.getParameters()
             if parameters.getClassName() == "ch.systemsx.cisd.openbis.generic.server.task.UserManagementMaintenanceTask":
-                return plugin.getTask().getConfigurationFile()
+                return plugin.getTask()
     return None
 
 def _isInstanceAdmin(context):

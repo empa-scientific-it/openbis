@@ -19,109 +19,23 @@ afterEach(() => {
 })
 
 describe(TypeFormControllerTest.SUITE, () => {
-  test('save add local property', testSaveAddLocalProperty)
-  test('save add global property', testSaveAddGlobalProperty)
+  test('save add property', testSaveAddProperty)
+  test('save update property assignment', testSaveUpdatePropertyAssignment)
+  test('save update property type', testSaveUpdatePropertyType)
+  test('save delete property', testSaveDeleteProperty)
   test(
-    'save update local property assignment',
-    testSaveUpdateLocalPropertyAssignment
-  )
-  test(
-    'save update global property assignment',
-    testSaveUpdateGlobalPropertyAssignment
-  )
-  test(
-    'save update local property type if possible',
-    testSaveUpdateLocalPropertyTypeIfPossible
-  )
-  test(
-    'save update global property type if possible',
-    testSaveUpdateGlobalPropertyTypeIfPossible
-  )
-  test('save delete local property', testSaveDeleteLocalProperty)
-  test('save delete global property', testSaveDeleteGlobalProperty)
-  test(
-    'save delete local property last assignment',
-    testSaveDeleteLocalPropertyLastAssignment
-  )
-  test(
-    'save delete global property last assignment',
-    testSaveDeleteGlobalPropertyLastAssignment
+    'save delete property last assignment',
+    testSaveDeletePropertyLastAssignment
   )
 })
 
-async function testSaveAddLocalProperty() {
-  await doTestAddProperty('local')
-}
-
-async function testSaveAddGlobalProperty() {
-  await doTestAddProperty('global')
-}
-
-async function testSaveUpdateLocalPropertyAssignment() {
-  await doTestUpdatePropertyAssignment(
-    SAMPLE_TYPE_WITH_LOCAL_PROPERTY,
-    LOCAL_PROPERTY_TYPE
-  )
-}
-
-async function testSaveUpdateGlobalPropertyAssignment() {
-  await doTestUpdatePropertyAssignment(
-    SAMPLE_TYPE_WITH_GLOBAL_PROPERTY,
-    GLOBAL_PROPERTY_TYPE
-  )
-}
-
-async function testSaveUpdateLocalPropertyTypeIfPossible() {
-  await doTestUpdatePropertyTypeIfPossible(
-    SAMPLE_TYPE_WITH_LOCAL_PROPERTY,
-    LOCAL_PROPERTY_TYPE,
-    LOCAL_PROPERTY_ASSIGNMENT
-  )
-}
-
-async function testSaveUpdateGlobalPropertyTypeIfPossible() {
-  await doTestUpdatePropertyTypeIfPossible(
-    SAMPLE_TYPE_WITH_GLOBAL_PROPERTY,
-    GLOBAL_PROPERTY_TYPE,
-    GLOBAL_PROPERTY_ASSIGNMENT
-  )
-}
-
-async function testSaveDeleteLocalProperty() {
-  await doTestDeleteProperty(
-    SAMPLE_TYPE_WITH_LOCAL_PROPERTY,
-    LOCAL_PROPERTY_TYPE
-  )
-}
-
-async function testSaveDeleteGlobalProperty() {
-  await doTestDeleteProperty(
-    SAMPLE_TYPE_WITH_GLOBAL_PROPERTY,
-    GLOBAL_PROPERTY_TYPE
-  )
-}
-
-async function testSaveDeleteLocalPropertyLastAssignment() {
-  await doTestDeletePropertyLastAssignment(
-    SAMPLE_TYPE_WITH_LOCAL_PROPERTY,
-    LOCAL_PROPERTY_TYPE
-  )
-}
-
-async function testSaveDeleteGlobalPropertyLastAssignment() {
-  await doTestDeletePropertyLastAssignment(
-    SAMPLE_TYPE_WITH_GLOBAL_PROPERTY,
-    GLOBAL_PROPERTY_TYPE
-  )
-}
-
-async function doTestAddProperty(scope) {
+async function testSaveAddProperty() {
   const SAMPLE_TYPE = new openbis.SampleType()
   SAMPLE_TYPE.setCode('TEST_TYPE')
   SAMPLE_TYPE.setGeneratedCodePrefix('TEST_PREFIX')
 
   common.facade.loadType.mockReturnValue(Promise.resolve(SAMPLE_TYPE))
-  common.facade.loadGlobalPropertyTypes.mockReturnValue(Promise.resolve([]))
+  common.facade.loadPropertyTypes.mockReturnValue(Promise.resolve([]))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
@@ -129,11 +43,6 @@ async function doTestAddProperty(scope) {
   common.controller.handleAddSection()
   common.controller.handleAddProperty()
 
-  common.controller.handleChange(TypeFormSelectionType.PROPERTY, {
-    id: 'property-0',
-    field: 'scope',
-    value: scope
-  })
   common.controller.handleChange(TypeFormSelectionType.PROPERTY, {
     id: 'property-0',
     field: 'code',
@@ -157,24 +66,20 @@ async function doTestAddProperty(scope) {
 
   await common.controller.handleSave()
 
-  const propertyTypeCode = scope === 'local' ? 'TEST_TYPE.NEW_CODE' : 'NEW_CODE'
-
   expectExecuteOperations([
     createPropertyTypeOperation({
-      code: propertyTypeCode,
+      code: 'NEW_CODE',
       dataType: openbis.DataType.VARCHAR,
       label: 'NEW_LABEL'
     }),
-    setPropertyAssignmentOperation(
-      SAMPLE_TYPE.getCode(),
-      propertyTypeCode,
-      false
-    )
+    setPropertyAssignmentOperation(SAMPLE_TYPE.getCode(), 'NEW_CODE', false)
   ])
 }
 
-async function doTestUpdatePropertyAssignment(type, propertyType) {
-  common.facade.loadType.mockReturnValue(Promise.resolve(type))
+async function testSaveUpdatePropertyAssignment() {
+  common.facade.loadType.mockReturnValue(
+    Promise.resolve(SAMPLE_TYPE_WITH_TEST_PROPERTY)
+  )
   common.facade.loadTypeUsages.mockReturnValue(Promise.resolve(0))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
@@ -189,16 +94,18 @@ async function doTestUpdatePropertyAssignment(type, propertyType) {
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    setPropertyAssignmentOperation(type.getCode(), propertyType.getCode(), true)
+    setPropertyAssignmentOperation(
+      SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
+      TEST_PROPERTY_TYPE.getCode(),
+      true
+    )
   ])
 }
 
-async function doTestUpdatePropertyTypeIfPossible(
-  type,
-  propertyType,
-  propertyAssignment
-) {
-  common.facade.loadType.mockReturnValue(Promise.resolve(type))
+async function testSaveUpdatePropertyType() {
+  common.facade.loadType.mockReturnValue(
+    Promise.resolve(SAMPLE_TYPE_WITH_TEST_PROPERTY)
+  )
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
@@ -212,17 +119,19 @@ async function doTestUpdatePropertyTypeIfPossible(
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    updatePropertyTypeOperation(propertyType.getCode(), 'Updated label'),
+    updatePropertyTypeOperation(TEST_PROPERTY_TYPE.getCode(), 'Updated label'),
     setPropertyAssignmentOperation(
-      type.getCode(),
-      propertyType.getCode(),
-      propertyAssignment.isMandatory()
+      SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
+      TEST_PROPERTY_TYPE.getCode(),
+      TEST_PROPERTY_ASSIGNMENT.isMandatory()
     )
   ])
 }
 
-async function doTestDeleteProperty(type, propertyType) {
-  common.facade.loadType.mockReturnValue(Promise.resolve(type))
+async function testSaveDeleteProperty() {
+  common.facade.loadType.mockReturnValue(
+    Promise.resolve(SAMPLE_TYPE_WITH_TEST_PROPERTY)
+  )
   common.facade.loadPropertyUsages.mockReturnValue(Promise.resolve({}))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
@@ -237,17 +146,22 @@ async function doTestDeleteProperty(type, propertyType) {
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    deletePropertyAssignmentOperation(type.getCode(), propertyType.getCode()),
-    setPropertyAssignmentOperation(type.getCode())
+    deletePropertyAssignmentOperation(
+      SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
+      TEST_PROPERTY_TYPE.getCode()
+    ),
+    setPropertyAssignmentOperation(SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode())
   ])
 }
 
-async function doTestDeletePropertyLastAssignment(type, propertyType) {
-  common.facade.loadType.mockReturnValue(Promise.resolve(type))
+async function testSaveDeletePropertyLastAssignment() {
+  common.facade.loadType.mockReturnValue(
+    Promise.resolve(SAMPLE_TYPE_WITH_TEST_PROPERTY)
+  )
   common.facade.loadPropertyUsages.mockReturnValue(Promise.resolve({}))
   common.facade.loadAssignments.mockReturnValue(
     Promise.resolve({
-      [propertyType.getCode()]: 1
+      [TEST_PROPERTY_TYPE.getCode()]: 1
     })
   )
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
@@ -263,9 +177,11 @@ async function doTestDeletePropertyLastAssignment(type, propertyType) {
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    deletePropertyAssignmentOperation(type.getCode(), propertyType.getCode()),
-    deletePropertyTypeOperation(propertyType.getCode()),
-    setPropertyAssignmentOperation(type.getCode())
+    deletePropertyAssignmentOperation(
+      SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
+      TEST_PROPERTY_TYPE.getCode()
+    ),
+    setPropertyAssignmentOperation(SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode())
   ])
 }
 
@@ -292,13 +208,6 @@ function updatePropertyTypeOperation(propertyTypeCode, propertyTypeLabel) {
   update.setTypeId(new openbis.PropertyTypePermId(propertyTypeCode))
   update.setLabel(propertyTypeLabel)
   return new openbis.UpdatePropertyTypesOperation([update])
-}
-
-function deletePropertyTypeOperation(propertyTypeCode) {
-  const id = new openbis.PropertyTypePermId(propertyTypeCode)
-  const options = new openbis.PropertyTypeDeletionOptions()
-  options.setReason('deleted via ng_ui')
-  return new openbis.DeletePropertyTypesOperation([id], options)
 }
 
 function setPropertyAssignmentOperation(
@@ -348,34 +257,18 @@ function expectExecuteOperations(expectedOperations) {
   })
 }
 
-const LOCAL_PROPERTY_TYPE = new openbis.PropertyType()
-LOCAL_PROPERTY_TYPE.setCode('TEST_TYPE.TEST_PROPERTY_TYPE')
-LOCAL_PROPERTY_TYPE.setLabel('TEST_LABEL')
-LOCAL_PROPERTY_TYPE.setDescription('TEST_DESCRIPTION')
-LOCAL_PROPERTY_TYPE.setDataType(openbis.DataType.INTEGER)
+const TEST_PROPERTY_TYPE = new openbis.PropertyType()
+TEST_PROPERTY_TYPE.setCode('TEST_PROPERTY_TYPE')
+TEST_PROPERTY_TYPE.setLabel('TEST_LABEL')
+TEST_PROPERTY_TYPE.setDescription('TEST_DESCRIPTION')
+TEST_PROPERTY_TYPE.setDataType(openbis.DataType.INTEGER)
 
-const LOCAL_PROPERTY_ASSIGNMENT = new openbis.PropertyAssignment()
-LOCAL_PROPERTY_ASSIGNMENT.setPropertyType(LOCAL_PROPERTY_TYPE)
+const TEST_PROPERTY_ASSIGNMENT = new openbis.PropertyAssignment()
+TEST_PROPERTY_ASSIGNMENT.setPropertyType(TEST_PROPERTY_TYPE)
 
-const SAMPLE_TYPE_WITH_LOCAL_PROPERTY = new openbis.SampleType()
-SAMPLE_TYPE_WITH_LOCAL_PROPERTY.setCode('TEST_TYPE')
-SAMPLE_TYPE_WITH_LOCAL_PROPERTY.setGeneratedCodePrefix('TEST_PREFIX')
-SAMPLE_TYPE_WITH_LOCAL_PROPERTY.setPropertyAssignments([
-  LOCAL_PROPERTY_ASSIGNMENT
-])
-
-const GLOBAL_PROPERTY_TYPE = new openbis.PropertyType()
-GLOBAL_PROPERTY_TYPE.setCode('TEST_PROPERTY_TYPE')
-GLOBAL_PROPERTY_TYPE.setLabel('TEST_LABEL')
-GLOBAL_PROPERTY_TYPE.setDescription('TEST_DESCRIPTION')
-GLOBAL_PROPERTY_TYPE.setDataType(openbis.DataType.INTEGER)
-
-const GLOBAL_PROPERTY_ASSIGNMENT = new openbis.PropertyAssignment()
-GLOBAL_PROPERTY_ASSIGNMENT.setPropertyType(GLOBAL_PROPERTY_TYPE)
-
-const SAMPLE_TYPE_WITH_GLOBAL_PROPERTY = new openbis.SampleType()
-SAMPLE_TYPE_WITH_GLOBAL_PROPERTY.setCode('TEST_TYPE')
-SAMPLE_TYPE_WITH_GLOBAL_PROPERTY.setGeneratedCodePrefix('TEST_PREFIX')
-SAMPLE_TYPE_WITH_GLOBAL_PROPERTY.setPropertyAssignments([
-  GLOBAL_PROPERTY_ASSIGNMENT
+const SAMPLE_TYPE_WITH_TEST_PROPERTY = new openbis.SampleType()
+SAMPLE_TYPE_WITH_TEST_PROPERTY.setCode('TEST_TYPE')
+SAMPLE_TYPE_WITH_TEST_PROPERTY.setGeneratedCodePrefix('TEST_PREFIX')
+SAMPLE_TYPE_WITH_TEST_PROPERTY.setPropertyAssignments([
+  TEST_PROPERTY_ASSIGNMENT
 ])

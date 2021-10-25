@@ -83,9 +83,6 @@ async function testValidateProperty() {
     parameters: {
       property: {
         title: 'Property',
-        scope: {
-          error: null
-        },
         code: {
           error: 'Code cannot be empty',
           focused: true
