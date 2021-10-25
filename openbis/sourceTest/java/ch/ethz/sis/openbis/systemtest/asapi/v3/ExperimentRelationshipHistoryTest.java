@@ -134,7 +134,6 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(id);
         update.setSpaceId(spaceId);
-        update.setProjectId(projectId2);
         update.setExperimentId(experimentId1);
         v3api.updateSamples(systemSessionToken, Arrays.asList(update));
         // move sample to another experiment
