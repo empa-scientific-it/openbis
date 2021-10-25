@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * The unique {@link IRelationshipService} implementation.
- * 
+ *
  * @author anttil
  */
 public class RelationshipService implements IRelationshipService, ApplicationContextAware
@@ -99,13 +99,21 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
-        SampleUtils.assertProjectSamplesEnabled(sample, project);
-        Date timeStamp = getTransactionTimeStamp();
-        ProjectPE previousProject = sample.getProject();
-        RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
-        sample.setProject(project);
-        RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
-        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+        if (SamplePE.projectSamplesEnabled)
+        {
+            Date timeStamp = getTransactionTimeStamp();
+            ProjectPE previousProject = sample.getProject();
+            RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
+            sample.setProject(project);
+            RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
+            RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+        } else
+        {
+            if (project != null && (sample.getExperiment() == null || !sample.getExperiment().getProject().equals(project)))
+            {
+                SampleUtils.assertProjectSamplesEnabled(sample, project);
+            }
+        }
     }
 
     @Override
