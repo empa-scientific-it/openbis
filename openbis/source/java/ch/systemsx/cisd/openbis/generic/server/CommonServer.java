@@ -97,6 +97,17 @@ import java.util.Map.Entry;
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
         ICommonServerForInternalUse
 {
+    private static final Comparator<TechId> TECH_ID_COMPARATOR = new Comparator<TechId>()
+    {
+        @Override
+        public int compare(TechId o1, TechId o2)
+        {
+            long id1 = o1.getId();
+            long id2 = o2.getId();
+            return id1 < id2 ? -1 : (id1 > id2 ? 1 : 0);
+        }
+    };
+
     private final LastModificationState lastModificationState;
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
@@ -3998,6 +4009,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
+        Collections.sort(deletionIds, TECH_ID_COMPARATOR);
         // NOTE: we can't do bulk deletions to preserve original reasons
         for (TechId deletionId : deletionIds)
         {
