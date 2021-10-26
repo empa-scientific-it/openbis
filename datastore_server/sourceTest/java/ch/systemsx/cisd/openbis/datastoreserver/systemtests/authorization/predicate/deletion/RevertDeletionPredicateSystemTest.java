@@ -57,7 +57,7 @@ public abstract class RevertDeletionPredicateSystemTest extends CommonPredicateS
             {
                 for (TechId object : objects)
                 {
-                    if (object != null)
+                    if (object != null && !object.equals(this.createNonexistentObject(param)))
                     {
                         getCommonService().untrash(object.getId());
                     }
@@ -70,35 +70,35 @@ public abstract class RevertDeletionPredicateSystemTest extends CommonPredicateS
     protected CommonPredicateSystemTestAssertions<TechId> getAssertions()
     {
         return new CommonPredicateSystemTestAssertionsDelegate<TechId>(super.getAssertions())
+        {
+            @Override
+            public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
             {
-                @Override
-                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                if (user.isDisabledProjectUser())
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else if (user.isInstanceUser())
-                    {
-                        assertNoException(t);
-                    } else
-                    {
-                        assertException(t, NullPointerException.class, null);
-                    }
-                }
-
-                @Override
-                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else if (user.isInstanceUser())
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, UserFailureException.class, "No revert deletion technical id specified.");
-                    }
+                    assertNoException(t);
+                } else
+                {
+                    assertException(t, NullPointerException.class, null);
                 }
+            }
 
-            };
+            @Override
+            public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+            {
+                if (user.isDisabledProjectUser())
+                {
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else
+                {
+                    assertException(t, UserFailureException.class, "No revert deletion technical id specified.");
+                }
+            }
+
+        };
     }
 
 }

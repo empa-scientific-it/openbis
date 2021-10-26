@@ -57,7 +57,7 @@ public abstract class V3DeletionIdPredicateSystemTest extends CommonPredicateSys
             {
                 for (IDeletionId object : objects)
                 {
-                    if (object != null)
+                    if (object != null && !object.equals(this.createNonexistentObject(param)))
                     {
                         getCommonService().untrash(((DeletionTechId) object).getTechId());
                     }
@@ -70,32 +70,32 @@ public abstract class V3DeletionIdPredicateSystemTest extends CommonPredicateSys
     protected CommonPredicateSystemTestAssertions<IDeletionId> getAssertions()
     {
         return new CommonPredicateSystemTestAssertionsDelegate<IDeletionId>(super.getAssertions())
+        {
+            @Override
+            public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
             {
-                @Override
-                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                if (user.isDisabledProjectUser())
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, NullPointerException.class, null);
-                    }
-                }
-
-                @Override
-                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, UserFailureException.class, "No v3 deletion id object specified.");
-                    }
+                    assertException(t, NullPointerException.class, null);
                 }
+            }
 
-            };
+            @Override
+            public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+            {
+                if (user.isDisabledProjectUser())
+                {
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else
+                {
+                    assertException(t, UserFailureException.class, "No v3 deletion id object specified.");
+                }
+            }
+
+        };
     }
 
 }

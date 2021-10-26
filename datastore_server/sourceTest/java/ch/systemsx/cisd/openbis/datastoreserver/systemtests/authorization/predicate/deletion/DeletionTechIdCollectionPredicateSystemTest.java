@@ -57,7 +57,7 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
             {
                 for (TechId object : objects)
                 {
-                    if (object != null)
+                    if (object != null && !object.equals(this.createNonexistentObject(param)))
                     {
                         getCommonService().untrash(object.getId());
                     }
@@ -70,31 +70,31 @@ public abstract class DeletionTechIdCollectionPredicateSystemTest extends Common
     protected CommonPredicateSystemTestAssertions<TechId> getAssertions()
     {
         return new CommonPredicateSystemTestAssertionsDelegate<TechId>(super.getAssertions())
+        {
+            @Override
+            public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
             {
-                @Override
-                public void assertWithNullObject(ProjectAuthorizationUser user, Throwable t, Object param)
+                if (user.isDisabledProjectUser())
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, NullPointerException.class, null);
-                    }
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else
+                {
+                    assertException(t, NullPointerException.class, null);
                 }
+            }
 
-                @Override
-                public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+            @Override
+            public void assertWithNullCollection(ProjectAuthorizationUser user, Throwable t, Object param)
+            {
+                if (user.isDisabledProjectUser())
                 {
-                    if (user.isDisabledProjectUser())
-                    {
-                        assertAuthorizationFailureExceptionThatNoRoles(t);
-                    } else
-                    {
-                        assertException(t, UserFailureException.class, "No deletion technical id specified.");
-                    }
+                    assertAuthorizationFailureExceptionThatNoRoles(t);
+                } else
+                {
+                    assertException(t, UserFailureException.class, "No deletion technical id specified.");
                 }
-            };
+            }
+        };
     }
 
 }

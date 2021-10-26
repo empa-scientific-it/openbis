@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -76,7 +77,6 @@ import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
-
 import junit.framework.Assert;
 
 /**
@@ -117,7 +117,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         localCommonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
                 "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null, true, false));
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                        + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
                 localCommonServer.getSampleInfo(sessionToken, id).getParent());
         HashMap<String, String> properties = new HashMap<String, String>();
         properties.put("SIZE", "42");
@@ -132,7 +132,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         assertProperties("[ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, DESCRIPTION: hello example, GENDER: FEMALE, "
                 + "ORGANISM: DOG, SIZE: 42]", localCommonServer.getSampleInfo(sessionToken, id)
-                        .getParent());
+                .getParent());
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
         assertEquals(
@@ -147,7 +147,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         TechId id = new TechId(1043L);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                        + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
                 sampleBefore);
         NewETPTAssignment newETPTAssignment = new NewETPTAssignment();
         newETPTAssignment.setEntityKind(EntityKind.SAMPLE);
@@ -164,7 +164,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         Session hibernateSession = getHibernateSession();
         hibernateSession.clear();
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, GENDER: FEMALE, ORGANISM: GORILLA, SIZE: 321]",
+                        + "COMMENT: extremely simple stuff, GENDER: FEMALE, ORGANISM: GORILLA, SIZE: 321]",
                 localCommonServer.getSampleInfo(sessionToken, id).getParent());
 
         List<Vocabulary> listVocabularies = generalInformationService.listVocabularies(sessionToken);
@@ -187,7 +187,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         replacement.setReplacementCode("MALE");
 
         localCommonServer.deleteVocabularyTerms(sessionToken, new TechId(genderVocab.getId()),
-                Collections.<VocabularyTerm> emptyList(), Arrays.asList(replacement));
+                Collections.<VocabularyTerm>emptyList(), Arrays.asList(replacement));
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleAfter = localCommonServer.getSampleInfo(sessionToken, id)
                 .getParent();
@@ -205,7 +205,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         TechId id = new TechId(1043L);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                        + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
                 sampleBefore);
         NewETPTAssignment newETPTAssignment = new NewETPTAssignment();
         newETPTAssignment.setEntityKind(EntityKind.SAMPLE);
@@ -238,7 +238,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         TechId id = new TechId(1043L);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleBefore = localCommonServer.getSampleInfo(sessionToken, id).getParent();
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
+                        + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
                 sampleBefore);
         localCommonServer.unassignPropertyType(sessionToken, EntityKind.SAMPLE, "COMMENT", "CELL_PLATE");
         getHibernateSession().clear();
@@ -1025,8 +1025,15 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
             {
                 generalInformationChangingService.revertDeletions(session, Arrays.asList(deletion.getId()));
                 fail();
-            } catch (AuthorizationFailureException e)
+            } catch (UserFailureException e)
             {
+                if (e.getCause() instanceof AuthorizationFailureException || e.getCause() instanceof UnauthorizedObjectAccessException)
+                {
+                    // expected
+                } else
+                {
+                    throw e;
+                }
             }
         }
     }
