@@ -1,5 +1,4 @@
 import TypeFormComponentTest from '@srcTest/js/components/types/form/TypeFormComponentTest.js'
-import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import openbis from '@srcTest/js/services/openbis.js'
 import fixture from '@srcTest/js/common/fixture.js'
 
@@ -11,160 +10,16 @@ beforeEach(() => {
 })
 
 describe(TypeFormComponentTest.SUITE, () => {
-  test('add local property', testAddLocalProperty)
-  test('add new global property', testAddNewGlobalProperty)
-  test('add existing global property', testAddExistingGlobalProperty)
+  test('add new property', testAddNewProperty)
+  test('add existing property', testAddExistingProperty)
 })
 
-async function testAddLocalProperty() {
-  common.facade.loadValidationPlugins.mockReturnValue(
-    Promise.resolve([fixture.TEST_SAMPLE_TYPE_DTO.validationPlugin])
-  )
+async function testAddNewProperty() {
+  const EXISTING_PROPERTY = new openbis.PropertyType()
+  EXISTING_PROPERTY.setCode('EXISTING_PROPERTY')
 
-  const form = await common.mountExisting(fixture.TEST_SAMPLE_TYPE_DTO)
-
-  form.expectJSON({
-    preview: {
-      sections: [
-        {
-          name: 'TEST_SECTION_1',
-          properties: [{ code: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }]
-        },
-        {
-          name: 'TEST_SECTION_2',
-          properties: [
-            { code: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-            { code: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-          ]
-        }
-      ]
-    },
-    buttons: {
-      edit: {
-        enabled: true
-      },
-      addSection: null,
-      addProperty: null,
-      remove: null,
-      save: null,
-      cancel: null,
-      message: null
-    }
-  })
-
-  form.getButtons().getEdit().click()
-  await form.update()
-
-  form.getPreview().getSections()[1].getProperties()[0].click()
-  form.getButtons().getAddProperty().click()
-  await form.update()
-
-  form.expectJSON({
-    preview: {
-      sections: [
-        {
-          name: 'TEST_SECTION_1',
-          properties: [{ code: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }]
-        },
-        {
-          name: 'TEST_SECTION_2',
-          properties: [
-            { code: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-            {
-              message: {
-                type: 'info',
-                text: 'Please select a data type to display the field preview.'
-              }
-            },
-            { code: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-          ]
-        }
-      ]
-    },
-    parameters: {
-      property: {
-        title: 'Property',
-        scope: {
-          label: 'Scope',
-          value: TypeFormPropertyScope.LOCAL,
-          enabled: true,
-          mode: 'edit'
-        },
-        code: {
-          label: 'Code',
-          value: null,
-          enabled: true,
-          mode: 'edit'
-        },
-        dataType: {
-          label: 'Data Type',
-          value: null,
-          enabled: true,
-          mode: 'edit'
-        },
-        label: {
-          label: 'Label',
-          value: null,
-          enabled: true,
-          mode: 'edit'
-        },
-        description: {
-          label: 'Description',
-          value: null,
-          enabled: true,
-          mode: 'edit'
-        },
-        plugin: {
-          label: 'Dynamic Property Plugin',
-          value: null,
-          enabled: true,
-          mode: 'edit'
-        },
-        editable: {
-          label: 'Editable',
-          value: true,
-          enabled: true,
-          mode: 'edit'
-        },
-        mandatory: {
-          label: 'Mandatory',
-          value: false,
-          enabled: true,
-          mode: 'edit'
-        }
-      }
-    },
-    buttons: {
-      edit: null,
-      addSection: {
-        enabled: true
-      },
-      addProperty: {
-        enabled: true
-      },
-      remove: {
-        enabled: true
-      },
-      save: {
-        enabled: true
-      },
-      cancel: {
-        enabled: true
-      },
-      message: {
-        text: 'You have unsaved changes',
-        type: 'warning'
-      }
-    }
-  })
-}
-
-async function testAddNewGlobalProperty() {
-  const EXISTING_GLOBAL_PROPERTY = new openbis.PropertyType()
-  EXISTING_GLOBAL_PROPERTY.setCode('EXISTING_GLOBAL_PROPERTY')
-
-  common.facade.loadGlobalPropertyTypes.mockReturnValue(
-    Promise.resolve([EXISTING_GLOBAL_PROPERTY])
+  common.facade.loadPropertyTypes.mockReturnValue(
+    Promise.resolve([EXISTING_PROPERTY])
   )
   common.facade.loadDynamicPlugins.mockReturnValue(
     Promise.resolve([fixture.TEST_PLUGIN_DTO, fixture.ANOTHER_PLUGIN_DTO])
@@ -178,14 +33,7 @@ async function testAddNewGlobalProperty() {
   form.getButtons().getAddProperty().click()
   await form.update()
 
-  form
-    .getParameters()
-    .getProperty()
-    .getScope()
-    .change(TypeFormPropertyScope.GLOBAL)
-  await form.update()
-
-  form.getParameters().getProperty().getCode().change('NEW_GLOBAL_PROPERTY')
+  form.getParameters().getProperty().getCode().change('NEW_PROPERTY')
   await form.update()
 
   form.expectJSON({
@@ -207,18 +55,12 @@ async function testAddNewGlobalProperty() {
     parameters: {
       property: {
         title: 'Property',
-        scope: {
-          label: 'Scope',
-          value: TypeFormPropertyScope.GLOBAL,
-          enabled: true,
-          mode: 'edit'
-        },
         code: {
           label: 'Code',
-          value: 'NEW_GLOBAL_PROPERTY',
+          value: 'NEW_PROPERTY',
           enabled: true,
           mode: 'edit',
-          options: [EXISTING_GLOBAL_PROPERTY.getCode()]
+          options: [EXISTING_PROPERTY.getCode()]
         },
         dataType: {
           label: 'Data Type',
@@ -297,25 +139,19 @@ async function testAddNewGlobalProperty() {
       sections: [
         {
           name: null,
-          properties: [{ code: 'NEW_GLOBAL_PROPERTY' }]
+          properties: [{ code: 'NEW_PROPERTY' }]
         }
       ]
     },
     parameters: {
       property: {
         title: 'Property',
-        scope: {
-          label: 'Scope',
-          value: TypeFormPropertyScope.GLOBAL,
-          enabled: true,
-          mode: 'edit'
-        },
         code: {
           label: 'Code',
-          value: 'NEW_GLOBAL_PROPERTY',
+          value: 'NEW_PROPERTY',
           enabled: true,
           mode: 'edit',
-          options: [EXISTING_GLOBAL_PROPERTY.getCode()]
+          options: [EXISTING_PROPERTY.getCode()]
         },
         dataType: {
           label: 'Data Type',
@@ -378,16 +214,16 @@ async function testAddNewGlobalProperty() {
   })
 }
 
-async function testAddExistingGlobalProperty() {
-  const EXISTING_GLOBAL_PROPERTY = new openbis.PropertyType()
-  EXISTING_GLOBAL_PROPERTY.setCode('EXISTING_GLOBAL_PROPERTY')
-  EXISTING_GLOBAL_PROPERTY.setDataType('CONTROLLEDVOCABULARY')
-  EXISTING_GLOBAL_PROPERTY.setVocabulary(fixture.TEST_VOCABULARY_DTO)
-  EXISTING_GLOBAL_PROPERTY.setLabel('Existing Label')
-  EXISTING_GLOBAL_PROPERTY.setDescription('Existing Description')
+async function testAddExistingProperty() {
+  const EXISTING_PROPERTY = new openbis.PropertyType()
+  EXISTING_PROPERTY.setCode('EXISTING_PROPERTY')
+  EXISTING_PROPERTY.setDataType('CONTROLLEDVOCABULARY')
+  EXISTING_PROPERTY.setVocabulary(fixture.TEST_VOCABULARY_DTO)
+  EXISTING_PROPERTY.setLabel('Existing Label')
+  EXISTING_PROPERTY.setDescription('Existing Description')
 
-  common.facade.loadGlobalPropertyTypes.mockReturnValue(
-    Promise.resolve([EXISTING_GLOBAL_PROPERTY])
+  common.facade.loadPropertyTypes.mockReturnValue(
+    Promise.resolve([EXISTING_PROPERTY])
   )
   common.facade.loadDynamicPlugins.mockReturnValue(
     Promise.resolve([fixture.TEST_PLUGIN_DTO, fixture.ANOTHER_PLUGIN_DTO])
@@ -407,15 +243,8 @@ async function testAddExistingGlobalProperty() {
   form
     .getParameters()
     .getProperty()
-    .getScope()
-    .change(TypeFormPropertyScope.GLOBAL)
-  await form.update()
-
-  form
-    .getParameters()
-    .getProperty()
     .getCode()
-    .change(EXISTING_GLOBAL_PROPERTY.getCode())
+    .change(EXISTING_PROPERTY.getCode())
   await form.update()
 
   form.expectJSON({
@@ -423,47 +252,41 @@ async function testAddExistingGlobalProperty() {
       sections: [
         {
           name: null,
-          properties: [{ code: EXISTING_GLOBAL_PROPERTY.getCode() }]
+          properties: [{ code: EXISTING_PROPERTY.getCode() }]
         }
       ]
     },
     parameters: {
       property: {
         title: 'Property',
-        scope: {
-          label: 'Scope',
-          value: TypeFormPropertyScope.GLOBAL,
-          enabled: true,
-          mode: 'edit'
-        },
         code: {
           label: 'Code',
-          value: EXISTING_GLOBAL_PROPERTY.getCode(),
+          value: EXISTING_PROPERTY.getCode(),
           enabled: true,
           mode: 'edit',
-          options: [EXISTING_GLOBAL_PROPERTY.getCode()]
+          options: [EXISTING_PROPERTY.getCode()]
         },
         dataType: {
           label: 'Data Type',
-          value: EXISTING_GLOBAL_PROPERTY.getDataType(),
+          value: EXISTING_PROPERTY.getDataType(),
           enabled: true,
           mode: 'edit'
         },
         vocabulary: {
           label: 'Vocabulary Type',
-          value: EXISTING_GLOBAL_PROPERTY.vocabulary.getCode(),
+          value: EXISTING_PROPERTY.vocabulary.getCode(),
           enabled: false,
           mode: 'edit'
         },
         label: {
           label: 'Label',
-          value: EXISTING_GLOBAL_PROPERTY.getLabel(),
+          value: EXISTING_PROPERTY.getLabel(),
           enabled: true,
           mode: 'edit'
         },
         description: {
           label: 'Description',
-          value: EXISTING_GLOBAL_PROPERTY.getDescription(),
+          value: EXISTING_PROPERTY.getDescription(),
           enabled: true,
           mode: 'edit'
         },
@@ -523,47 +346,41 @@ async function testAddExistingGlobalProperty() {
       sections: [
         {
           name: null,
-          properties: [{ code: EXISTING_GLOBAL_PROPERTY.getCode() }]
+          properties: [{ code: EXISTING_PROPERTY.getCode() }]
         }
       ]
     },
     parameters: {
       property: {
         title: 'Property',
-        scope: {
-          label: 'Scope',
-          value: TypeFormPropertyScope.GLOBAL,
-          enabled: true,
-          mode: 'edit'
-        },
         code: {
           label: 'Code',
-          value: EXISTING_GLOBAL_PROPERTY.getCode(),
+          value: EXISTING_PROPERTY.getCode(),
           enabled: true,
           mode: 'edit',
-          options: [EXISTING_GLOBAL_PROPERTY.getCode()]
+          options: [EXISTING_PROPERTY.getCode()]
         },
         dataType: {
           label: 'Data Type',
-          value: EXISTING_GLOBAL_PROPERTY.getDataType(),
+          value: EXISTING_PROPERTY.getDataType(),
           enabled: true,
           mode: 'edit'
         },
         vocabulary: {
           label: 'Vocabulary Type',
-          value: EXISTING_GLOBAL_PROPERTY.vocabulary.getCode(),
+          value: EXISTING_PROPERTY.vocabulary.getCode(),
           enabled: false,
           mode: 'edit'
         },
         label: {
           label: 'Label',
-          value: EXISTING_GLOBAL_PROPERTY.getLabel(),
+          value: EXISTING_PROPERTY.getLabel(),
           enabled: true,
           mode: 'edit'
         },
         description: {
           label: 'Description',
-          value: EXISTING_GLOBAL_PROPERTY.getDescription(),
+          value: EXISTING_PROPERTY.getDescription(),
           enabled: true,
           mode: 'edit'
         },

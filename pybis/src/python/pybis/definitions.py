@@ -1,3 +1,6 @@
+import copy
+
+
 def openbis_definitions(entity):
     """
     attrs_new: Attributes, that can appear when creating new entities
@@ -454,7 +457,7 @@ fetch_option = {
 def get_fetchoption_for_entity(entity):
     entity = entity[0].lower() + entity[1:]  # make first character lowercase
     try:
-        return fetch_option[entity]
+        return copy.deepcopy(fetch_option[entity])
     except KeyError as e:
         return {}
 

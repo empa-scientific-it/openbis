@@ -1342,6 +1342,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         DataSetType result = new DataSetType();
         setCode(result, record);
+        result.setDeletionDisallow(record.deletion_disallow);
         return result;
     }
 

@@ -16,18 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task.events_search;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
+import org.springframework.transaction.support.TransactionCallback;
+
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.log4j.Logger;
-import org.springframework.transaction.support.TransactionCallback;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * @author pkupczyk
@@ -37,7 +38,7 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
 
     public static final String DEFAULT_MAINTENANCE_TASK_NAME = "events-search-task";
 
-    public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 24 * 60 * 60;
+    public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 15 * 60;
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 

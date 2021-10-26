@@ -443,47 +443,65 @@ public class GetRightsExecutor implements IGetRightsExecutor
         }
     }
 
-    private class DataSetHandler implements IHandler
+    private class DataSetHandler extends AbstractHandler<IDataSetId, DataPE>
     {
-        private List<IDataSetId> dataSetIds = new ArrayList<>();
-
-        @Override
-        public void handle(IObjectId id)
+        DataSetHandler()
         {
-            if (id instanceof IDataSetId)
-            {
-                dataSetIds.add((IDataSetId) id);
-            }
+            super(IDataSetId.class);
         }
 
         @Override
-        public void addRights(IOperationContext context, Map<IObjectId, Rights> rightsByIds)
+        Map<IDataSetId, DataPE> getEntitiesByIds(IOperationContext context, Collection<IDataSetId> ids)
         {
-            Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds);
-            for (Entry<IDataSetId, DataPE> entry : map.entrySet())
-            {
-                Set<Right> rights = new HashSet<>();
-                IDataSetId id = entry.getKey();
-                DataPE object = entry.getValue();
-
-                try
-                {
-                    dataSetAuthorizationExecutor.canUpdate(context, id, object);
-                    rights.add(Right.UPDATE);
-                } catch (AuthorizationFailureException e)
-                {
-                    // silently ignored
-                }
-                try
-                {
-                    dataSetAuthorizationExecutor.canDelete(context, id, object);
-                    rights.add(Right.DELETE);
-                } catch (AuthorizationFailureException e)
-                {
-                    // silently ignored
-                }
-                rightsByIds.put(id, new Rights(rights));
-            }
+            return mapDataSetByIdExecutor.map(context, ids);
         }
+
+        @Override
+        void canUpdate(IOperationContext context, IDataSetId id, DataPE entity)
+        {
+            dataSetAuthorizationExecutor.canUpdate(context, id, entity);
+        }
+
+        @Override
+        void canDelete(IOperationContext context, IDataSetId id, DataPE entity)
+        {
+            dataSetAuthorizationExecutor.canDelete(context, id, entity);
+        }
+
+        @Override
+        DataPE createDummyEntity(IOperationContext context, IDataSetId id)
+        {
+            if (id instanceof DataSetPermId == false)
+            {
+                throw new UserFailureException("Data set id of unsupported type (" 
+                        + id.getClass().getName() + "): " + id);
+            }
+            String[] splittedDummyId = ((DataSetPermId) id).getPermId().split("/");
+            DataPE dataPE = new DataPE();
+            dataPE.setCode(splittedDummyId[splittedDummyId.length - 1]);
+            SamplePE dummySample = new SamplePE();
+            if (splittedDummyId.length > 2)
+            {
+                SpacePE space = new SpacePE();
+                space.setCode(splittedDummyId[1]);
+                dummySample.setSpace(space);
+                if (splittedDummyId.length > 3)
+                {
+                    ProjectPE project = new ProjectPE();
+                    project.setSpace(space);
+                    project.setCode(splittedDummyId[2]);
+                    dummySample.setProject(project);
+                }
+            }
+            dataPE.setSample(dummySample);
+            return dataPE;
+        }
+
+        @Override
+        void canCreate(IOperationContext context, DataPE entity)
+        {
+            dataSetAuthorizationExecutor.canCreate(context, entity);
+        }
+
     }
 }

@@ -51,12 +51,9 @@ def strLiteral(var):
       return dirtyString.replace("'", "\\'")
 
     if var:
-        if is_ascii(var):
-            # ASCII string
-            return ("'" + sanitize(var) + "'").replace('\n', '\\ ')
-        else:
-            # UNICODE string
-            return "u'" + var + "'"
+        # ASCII or UNICODE string?
+        prefix = "'" if is_ascii(var) else "u'"
+        return (prefix + sanitize(var) + "'").replace('\n', ' ')
     else:
         # NULL
         return 'None'

@@ -60,8 +60,9 @@ public interface ProjectQuery extends ObjectQuery
     public List<ObjectRelationRecord> getLeaderIds(LongSet projectIds);
 
     @Select(sql = "select prh.main_proj_id as objectId, prh.pers_id_author as authorId, prh.relation_type as relationType, "
+            + "prh.entity_kind as entityKind, "
             + "prh.entity_perm_id as relatedObjectId, prh.valid_from_timestamp as validFrom, prh.valid_until_timestamp as validTo, "
-            + "prh.space_id as spaceId, prh.expe_id as experimentId "
+            + "prh.space_id as spaceId, prh.expe_id as experimentId, prh.samp_id as sampleId "
             + "from project_relationships_history prh where prh.valid_until_timestamp is not null and prh.main_proj_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds);
 

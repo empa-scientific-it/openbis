@@ -1,8 +1,6 @@
 import _ from 'lodash'
 import PageControllerSave from '@src/js/components/common/page/PageControllerSave.js'
 import TypeFormControllerStrategies from '@src/js/components/types/form/TypeFormControllerStrategies.js'
-import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
-import TypeFormUtil from '@src/js/components/types/form/TypeFormUtil.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import users from '@src/js/common/consts/users.js'
 import openbis from '@src/js/services/openbis.js'
@@ -26,12 +24,6 @@ export default class TypeFormControllerSave extends PageControllerSave {
           operations.push(
             this._deletePropertyAssignmentOperation(type, originalProperty)
           )
-          if (
-            originalProperty.assignments === 1 &&
-            (!originalProperty.internal.value || this.isSystemUser())
-          ) {
-            operations.push(this._deletePropertyTypeOperation(originalProperty))
-          }
         }
       })
     }
@@ -45,9 +37,6 @@ export default class TypeFormControllerSave extends PageControllerSave {
         }
         assignments.push(this._propertyAssignmentCreation(property, index))
       } else {
-        if (property.scope.value === TypeFormPropertyScope.LOCAL) {
-          property = this._addTypePrefix(type, property)
-        }
         operations.push(this._createPropertyTypeOperation(property))
         assignments.push(this._propertyAssignmentCreation(property, index))
       }
@@ -99,16 +88,6 @@ export default class TypeFormControllerSave extends PageControllerSave {
     })
 
     return results
-  }
-
-  _addTypePrefix(type, property) {
-    return {
-      ...property,
-      code: {
-        ...property.code,
-        value: TypeFormUtil.addTypePrefix(type.code.value, property.code.value)
-      }
-    }
   }
 
   _isPropertyTypeUpdateNeeded(property, original) {
@@ -192,13 +171,6 @@ export default class TypeFormControllerSave extends PageControllerSave {
     update.setTransformation(property.transformation.value)
     update.convertToDataType(property.dataType.value)
     return new openbis.UpdatePropertyTypesOperation([update])
-  }
-
-  _deletePropertyTypeOperation(property) {
-    const id = new openbis.PropertyTypePermId(property.code.value)
-    const options = new openbis.PropertyTypeDeletionOptions()
-    options.setReason('deleted via ng_ui')
-    return new openbis.DeletePropertyTypesOperation([id], options)
   }
 
   _propertyAssignmentCreation(property, index) {

@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -55,6 +56,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
 
@@ -69,22 +71,22 @@ public class CreateSampleTest extends AbstractSampleTest
     public void testCreateSampleUsingCreationIdAsSpaceId()
     {
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-                    SampleCreation creation = new SampleCreation();
-                    creation.setCode("TEST_SAMPLE_42");
-                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-                    CreationId creationId = new CreationId("not-a-space-id");
-                    creation.setCreationId(creationId);
-                    creation.setSpaceId(creationId);
+                SampleCreation creation = new SampleCreation();
+                creation.setCode("TEST_SAMPLE_42");
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                CreationId creationId = new CreationId("not-a-space-id");
+                creation.setCreationId(creationId);
+                creation.setSpaceId(creationId);
 
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, "Object with CreationId = [not-a-space-id] has not been found");
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, "Object with CreationId = [not-a-space-id] has not been found");
 
     }
 
@@ -95,20 +97,20 @@ public class CreateSampleTest extends AbstractSampleTest
         SampleIdentifier identifier = new SampleIdentifier("/" + code);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
+                String sessionToken = v3api.login(TEST_NO_HOME_SPACE, PASSWORD);
 
-                    SampleCreation creation = new SampleCreation();
-                    creation.setCode(code);
-                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-                    creation.setCreationId(new CreationId("creation " + code));
+                SampleCreation creation = new SampleCreation();
+                creation.setCode(code);
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                creation.setCreationId(new CreationId("creation " + code));
 
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, identifier);
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, identifier);
     }
 
     @Test
@@ -118,20 +120,20 @@ public class CreateSampleTest extends AbstractSampleTest
         SampleIdentifier identifier = new SampleIdentifier("/" + code);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    SampleCreation creation = new SampleCreation();
-                    creation.setCode(code);
-                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-                    creation.setCreationId(new CreationId("creation " + code));
+                SampleCreation creation = new SampleCreation();
+                creation.setCode(code);
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                creation.setCreationId(new CreationId("creation " + code));
 
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, identifier);
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, identifier);
     }
 
     @Test
@@ -153,13 +155,13 @@ public class CreateSampleTest extends AbstractSampleTest
         final SampleCreation sample = sampleCreation(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, "Code cannot be empty for a non auto generated code", patternContains("checking data (1/1)"));
+                v3api.createSamples(sessionToken, Arrays.asList(sample));
+            }
+        }, "Code cannot be empty for a non auto generated code", patternContains("checking data (1/1)"));
     }
 
     @Test
@@ -170,13 +172,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sample.setAutoGeneratedCode(true);
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, "Code should be empty when auto generated code is selected",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(sample));
+                                       }
+                                   }, "Code should be empty when auto generated code is selected",
                 patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITH_USER_GIVEN_CODE'")));
     }
 
@@ -200,21 +202,21 @@ public class CreateSampleTest extends AbstractSampleTest
         final SampleIdentifier identifier = new SampleIdentifier("/TEST-SPACE/" + code);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    SampleCreation creation = new SampleCreation();
-                    creation.setCode(code);
-                    creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-                    creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-                    creation.setCreationId(new CreationId("creation " + code));
+                SampleCreation creation = new SampleCreation();
+                creation.setCode(code);
+                creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+                creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+                creation.setCreationId(new CreationId("creation " + code));
 
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, identifier);
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, identifier);
     }
 
     @Test
@@ -226,13 +228,13 @@ public class CreateSampleTest extends AbstractSampleTest
         v3api.createSamples(sessionToken, Arrays.asList(sample));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, "Insert/Update of sample (code: SAMPLE_WITH_EXISTING_CODE) failed because sample with the same code already exists");
+                v3api.createSamples(sessionToken, Arrays.asList(sample));
+            }
+        }, "Insert/Update of sample (code: SAMPLE_WITH_EXISTING_CODE) failed because sample with the same code already exists");
     }
 
     @Test
@@ -242,13 +244,13 @@ public class CreateSampleTest extends AbstractSampleTest
         final SampleCreation sample = sampleCreation("?!*");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, "The code '?!*' contains illegal characters", patternContains("checking data (1/1)", toDblQuotes("'code' : '?!*'")));
+                v3api.createSamples(sessionToken, Arrays.asList(sample));
+            }
+        }, "The code '?!*' contains illegal characters", patternContains("checking data (1/1)", toDblQuotes("'code' : '?!*'")));
     }
 
     @Test
@@ -261,13 +263,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sample.setSpaceId(new SpacePermId("CISD"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, "Type id cannot be null", patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITHOUT_TYPE'")));
+                v3api.createSamples(sessionToken, Arrays.asList(sample));
+            }
+        }, "Type id cannot be null", patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITHOUT_TYPE'")));
     }
 
     @Test
@@ -282,13 +284,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sample.setSpaceId(new SpacePermId("CISD"));
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample));
-                }
-            }, typeId, patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITH_NONEXISTENT_TYPE'")));
+                v3api.createSamples(sessionToken, Arrays.asList(sample));
+            }
+        }, typeId, patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITH_NONEXISTENT_TYPE'")));
     }
 
     @Test
@@ -303,13 +305,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(creation));
-                }
-            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(creation));
+                                       }
+                                   }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist",
                 patternContains("updating properties (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_NONEXISTENT_PROPERTY_CODE'")));
     }
 
@@ -325,13 +327,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setProperty("ORGANISM", "NON_EXISTENT_ORGANISM");
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(creation));
-                }
-            }, "Vocabulary value 'NON_EXISTENT_ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(creation));
+                                       }
+                                   }, "Vocabulary value 'NON_EXISTENT_ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary",
                 patternContains("updating properties (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_INCORRECT_PROPERTY_VALUE'")));
     }
 
@@ -346,13 +348,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setSpaceId(new SpacePermId("CISD"));
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(creation));
-                }
-            }, "Value of mandatory property '$PLATE_GEOMETRY' not specified",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(creation));
+                                       }
+                                   }, "Value of mandatory property '$PLATE_GEOMETRY' not specified",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_EMPTY_MANDATORY_PROPERTY'")));
     }
 
@@ -367,13 +369,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, "Shared samples cannot be attached to experiments",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                       }
+                                   }, "Shared samples cannot be attached to experiments",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
     }
 
@@ -433,13 +435,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, new SampleIdentifier("/SHARED_SAMPLE_TEST"),
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, new SampleIdentifier("/SHARED_SAMPLE_TEST"),
                 patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
     }
 
@@ -455,13 +457,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setSpaceId(spaceId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, new SampleIdentifier("/CISD/UNAUTHORIZED_SPACE"),
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, new SampleIdentifier("/CISD/UNAUTHORIZED_SPACE"),
                 patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/UNAUTHORIZED_SPACE'")));
     }
 
@@ -477,13 +479,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setSpaceId(spaceId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, spaceId, patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/NONEXISTENT_SPACE'")));
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, spaceId, patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/NONEXISTENT_SPACE'")));
     }
 
     @Test
@@ -498,13 +500,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, "Sample space must be the same as experiment space",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                       }
+                                   }, "Sample space must be the same as experiment space",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/SAMPLE_WITH_INCONSISTENT_SPACE'")));
     }
 
@@ -521,13 +523,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setExperimentId(experimentId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, experimentId,
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, experimentId,
                 patternContains("setting relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/UNAUTHORIZED_EXPERIMENT'")));
     }
 
@@ -544,13 +546,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setExperimentId(experimentId);
 
         assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, experimentId,
+                                      {
+                                          @Override
+                                          public void execute()
+                                          {
+                                              v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                          }
+                                      }, experimentId,
                 patternContains("setting relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NONEXISTENT_EXPERIMENT'")));
     }
 
@@ -824,13 +826,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sampleGrandChild.setChildIds(parentPermId);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sampleChild, sampleGrandChild));
-                }
-            }, "Circular dependency found");
+                v3api.createSamples(sessionToken, Arrays.asList(sampleChild, sampleGrandChild));
+            }
+        }, "Circular dependency found");
     }
 
     @Test
@@ -851,13 +853,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sampleChild.setParentIds(Arrays.asList(sampleParent.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
-                }
-            }, "can not be a space sample because of a child database instance sample",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
+                                       }
+                                   }, "can not be a space sample because of a child database instance sample",
                 patternContains("verifying (1/2)", toDblQuotes("'identifier' : '/CISD/SAMPLE_PARENT'")));
     }
 
@@ -871,13 +873,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setParentIds(Collections.singletonList(parentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, parentId,
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, parentId,
                 patternContains("setting relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_PARENT'")));
     }
 
@@ -891,13 +893,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setParentIds(Collections.singletonList(parentId));
 
         assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, parentId,
+                                      {
+                                          @Override
+                                          public void execute()
+                                          {
+                                              v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                          }
+                                      }, parentId,
                 patternContains("setting relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_PARENT'")));
     }
 
@@ -911,13 +913,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setChildIds(Collections.singletonList(childId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, childId,
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, childId,
                 patternContains("setting relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_CHILD'")));
     }
 
@@ -931,13 +933,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setChildIds(Collections.singletonList(childId));
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, childId, patternContains("setting relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_CHILD'")));
+                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+            }
+        }, childId, patternContains("setting relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_CHILD'")));
     }
 
     @Test
@@ -952,13 +954,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sampleChild.setParentIds(Arrays.asList(new SampleIdentifier("/CISD/MP002-1")));
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sampleChild));
-                }
-            }, "The database instance sample '/SAMPLE_CHILDREN' can not be child of the space sample '/CISD/MP002-1'",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, Arrays.asList(sampleChild));
+                                       }
+                                   }, "The database instance sample '/SAMPLE_CHILDREN' can not be child of the space sample '/CISD/MP002-1'",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SAMPLE_CHILDREN'")));
     }
 
@@ -972,13 +974,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setContainerId(containerId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containerId,
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, containerId,
                 patternContains("setting relation sample-container (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_CONTAINER'")));
     }
 
@@ -992,13 +994,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setContainerId(containerId);
 
         assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containerId,
+                                      {
+                                          @Override
+                                          public void execute()
+                                          {
+                                              v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                          }
+                                      }, containerId,
                 patternContains("setting relation sample-container (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_CONTAINER'")));
     }
 
@@ -1064,13 +1066,13 @@ public class CreateSampleTest extends AbstractSampleTest
         sample1.setContainerId(sample3.getCreationId());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(sample1, sample2, sample3));
-                }
-            }, "cannot be it's own container", patternContains("verifying (1/3)", toDblQuotes("'identifier' : '/CISD/SAMPLE_3:SAMPLE_1'")));
+                v3api.createSamples(sessionToken, Arrays.asList(sample1, sample2, sample3));
+            }
+        }, "cannot be it's own container", patternContains("verifying (1/3)", toDblQuotes("'identifier' : '/CISD/SAMPLE_3:SAMPLE_1'")));
     }
 
     @Test(dataProvider = "tf-ft-tt", enabled = false)
@@ -1109,13 +1111,13 @@ public class CreateSampleTest extends AbstractSampleTest
         }
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Arrays.asList(container1, container2, subSample));
-                }
-            }, "Inconsistent container");
+                v3api.createSamples(sessionToken, Arrays.asList(container1, container2, subSample));
+            }
+        }, "Inconsistent container");
     }
 
     @Test
@@ -1196,13 +1198,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setComponentIds(Collections.singletonList(componentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, componentId,
+                                                {
+                                                    @Override
+                                                    public void execute()
+                                                    {
+                                                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                                    }
+                                                }, componentId,
                 patternContains("setting relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_COMPONENT'")));
     }
 
@@ -1216,13 +1218,13 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setComponentIds(Collections.singletonList(componentId));
 
         assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, componentId,
+                                      {
+                                          @Override
+                                          public void execute()
+                                          {
+                                              v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                                          }
+                                      }, componentId,
                 patternContains("setting relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_COMPONENT'")));
     }
 
@@ -1544,7 +1546,7 @@ public class CreateSampleTest extends AbstractSampleTest
         samp1.setSpaceId(new SpacePermId("CISD"));
         samp1.setProperty("COMMENT", "hello");
         samp1.setContainerId(new SampleIdentifier("/CISD/MP002-1"));
-        samp1.setTagIds(Arrays.<ITagId> asList(
+        samp1.setTagIds(Arrays.<ITagId>asList(
                 new TagPermId("/test/TEST_METAPROJECTS"), new TagPermId("/test/ANOTHER_TEST_METAPROJECTS")));
         AttachmentCreation a = new AttachmentCreation();
 
@@ -1677,13 +1679,13 @@ public class CreateSampleTest extends AbstractSampleTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                    }
-                });
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            });
         } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
@@ -1691,13 +1693,167 @@ public class CreateSampleTest extends AbstractSampleTest
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                    }
-                }, creation.getExperimentId());
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, creation.getExperimentId());
+        }
+    }
+
+    @Test
+    public void testCreateWithProjectAndSpace()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("TEST_SAMPLE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        // When
+        if (SamplePE.projectSamplesEnabled)
+        {
+            SamplePermId id = v3api.createSamples(sessionToken, Collections.singletonList(creation)).get(0);
+
+            // Then
+            SampleFetchOptions fo = new SampleFetchOptions();
+            fo.withSpace();
+            fo.withProject();
+            fo.withExperiment();
+
+            Sample sample = v3api.getSamples(sessionToken, Collections.singletonList(id), fo).get(id);
+
+            assertEquals(sample.getSpace().getCode(), "CISD");
+            assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/CISD/DEFAULT");
+            assertNull(sample.getExperiment());
+        } else
+        {
+            assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
+                    "Can not assign sample /CISD/TEST_SAMPLE to project /CISD/DEFAULT because project samples are not enabled.");
+        }
+    }
+
+    @Test
+    public void testCreateWithProjectAndSpaceInconsistent()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("TEST_SAMPLE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        // When
+        if (SamplePE.projectSamplesEnabled)
+        {
+            assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
+                    "Sample space must be the same as project space");
+        } else
+        {
+            assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
+                    "Can not assign sample /CISD/TEST_SAMPLE to project /TEST-SPACE/TEST-PROJECT because project samples are not enabled.");
+        }
+    }
+
+    @Test
+    public void testCreateWithProjectAndSpaceAndExperiment()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("TEST_SAMPLE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        // When
+        SamplePermId id = v3api.createSamples(sessionToken, Collections.singletonList(creation)).get(0);
+
+        // Then
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withSpace();
+        fo.withProject();
+        fo.withExperiment();
+
+        Sample sample = v3api.getSamples(sessionToken, Collections.singletonList(id), fo).get(id);
+
+        assertEquals(sample.getSpace().getCode(), "CISD");
+        if (SamplePE.projectSamplesEnabled)
+        {
+            assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/CISD/DEFAULT");
+        } else
+        {
+            assertNull(sample.getProject());
+        }
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/CISD/DEFAULT/EXP-REUSE");
+    }
+
+    @Test
+    public void testCreateWithProjectNullAndSpaceAndExperiment()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("TEST_SAMPLE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProjectId(null);
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        // When
+        SamplePermId id = v3api.createSamples(sessionToken, Collections.singletonList(creation)).get(0);
+
+        // Then
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withSpace();
+        fo.withProject();
+        fo.withExperiment();
+
+        Sample sample = v3api.getSamples(sessionToken, Collections.singletonList(id), fo).get(id);
+
+        assertEquals(sample.getSpace().getCode(), "CISD");
+        if (SamplePE.projectSamplesEnabled)
+        {
+            assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/CISD/DEFAULT");
+        } else
+        {
+            assertNull(sample.getProject());
+        }
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/CISD/DEFAULT/EXP-REUSE");
+    }
+
+    @Test
+    public void testCreateWithProjectAndSpaceAndExperimentInconsistent()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("TEST_SAMPLE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        // When
+        if (SamplePE.projectSamplesEnabled)
+        {
+            assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
+                    "Sample project must be the same as experiment project");
+        } else
+        {
+            assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
+                    "Can not assign sample /CISD/TEST_SAMPLE to project /CISD/NEMO because project samples are not enabled.");
         }
     }
 
@@ -1740,13 +1896,13 @@ public class CreateSampleTest extends AbstractSampleTest
         samples.get(incorrectSampleIndex).setTypeId(null);
 
         assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, samples);
-                }
-            }, "Type id cannot be null",
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.createSamples(sessionToken, samples);
+                                       }
+                                   }, "Type id cannot be null",
                 patternContains("checking data (" + (incorrectSampleIndex + 1) + "/" + sampleCount + ")",
                         toDblQuotes("'code' : 'TEST_SAMPLE_" + (incorrectSampleIndex + 1) + "'")));
     }

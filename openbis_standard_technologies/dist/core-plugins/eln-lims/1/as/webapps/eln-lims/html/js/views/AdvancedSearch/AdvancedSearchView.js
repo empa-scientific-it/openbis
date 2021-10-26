@@ -419,6 +419,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 }
                 if (!operator) {
                     operator = operatorOptions[0].value;
+                    if (_this._getDataType(uuid) === "CONTROLLEDVOCABULARY") {
+                        operator = "thatEqualsString";
+                    }
                     comparisonDropdown.val(operator);
                 }
                 _this._advancedSearchModel.criteria.rules[uuid].operator = operator;
@@ -670,6 +673,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             _this._injectOperatorField($newFieldOperatorContainer, $newFieldValueContainer, uuid);
             _this._injectValueField($newFieldValueContainer, uuid);
         });
+        $newFieldOperatorContainer.empty();
+        $newFieldValueContainer.empty();
 		return $dropdown;
 	}
 

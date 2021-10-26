@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,10 +33,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.confirm.ConfirmDeletionsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
@@ -86,7 +92,6 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         DataSetTypeCreation typeCreation = new DataSetTypeCreation();
         typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
-        typeCreation.setDisallowDeletion(true);
         v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
 
         DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
@@ -102,6 +107,11 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         assertDeletionExists(deletionId);
         assertDataSetDoesNotExist(dataSetId);
+
+        DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
+        dataSetTypeUpdate.setTypeId(new EntityTypePermId("TYPE_WITH_DELETION_DISALLOWED"));
+        dataSetTypeUpdate.setDisallowDeletion(true);
+        v3api.updateDataSetTypes(sessionToken, Arrays.asList(dataSetTypeUpdate));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -120,7 +130,6 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         DataSetTypeCreation typeCreation = new DataSetTypeCreation();
         typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
-        typeCreation.setDisallowDeletion(true);
         v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
 
         DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
@@ -136,6 +145,11 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
 
         assertDeletionExists(deletionId);
         assertDataSetDoesNotExist(dataSetId);
+
+        DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
+        dataSetTypeUpdate.setTypeId(new EntityTypePermId("TYPE_WITH_DELETION_DISALLOWED"));
+        dataSetTypeUpdate.setDisallowDeletion(true);
+        v3api.updateDataSetTypes(sessionToken, Arrays.asList(dataSetTypeUpdate));
 
         ConfirmDeletionsOperation confirmOperation = new ConfirmDeletionsOperation(Arrays.asList(deletionId));
         confirmOperation.setForceDeletion(true);
@@ -328,6 +342,32 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
             }, deletionId);
     }
 
+    @Test
+    public void testDeletionOrder()
+    {
+        // Given
+        ExperimentPermId experiment = createCisdExperiment();
+        SamplePermId sample1 = createCisdSample(experiment, "A-" + System.currentTimeMillis());
+        SamplePermId sample2 = createCisdSample(experiment, "B-" + System.currentTimeMillis());
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("test");
+        IDeletionId deletionSet1 = v3api.deleteSamples(sessionToken, Arrays.asList(sample1), sampleDeletionOptions);
+        ExperimentDeletionOptions experimentDeletionOptions = new ExperimentDeletionOptions();
+        experimentDeletionOptions.setReason("test");
+        IDeletionId deletionSet2 = v3api.deleteExperiments(sessionToken, Arrays.asList(experiment), experimentDeletionOptions);
+
+        // When
+        v3api.confirmDeletions(sessionToken, Arrays.asList(deletionSet2, deletionSet1));
+
+        // Then
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionSet1);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        List<Deletion> result = v3api.searchDeletions(sessionToken, searchCriteria, fetchOptions).getObjects();
+        assertEquals(result.size(), 0);
+    }
+    
     @Test
     public void testLogging()
     {

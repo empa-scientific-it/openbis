@@ -876,7 +876,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#getTemplate(EntityKind, String, String, boolean, boolean, boolean, BatchOperationKind)
      */
-    public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
+    public void getTemplate(EntityKind kind, String type, String format, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind,
             AsyncCallback<String> callback);
 

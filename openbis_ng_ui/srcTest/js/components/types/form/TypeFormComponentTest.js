@@ -33,7 +33,7 @@ export default class TypeFormComponentTest extends ComponentTest {
     this.facade.loadSamples.mockReturnValue(Promise.resolve([]))
     this.facade.loadVocabularies.mockReturnValue(Promise.resolve([]))
     this.facade.loadVocabularyTerms.mockReturnValue(Promise.resolve([]))
-    this.facade.loadGlobalPropertyTypes.mockReturnValue(Promise.resolve([]))
+    this.facade.loadPropertyTypes.mockReturnValue(Promise.resolve([]))
   }
 
   async mountNew() {

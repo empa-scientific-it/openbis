@@ -120,6 +120,9 @@ public class GlobalInstallationContext
             populateFirstTimeInstallVariables(data);
         }
     }
+    
+    private static final String[] FOLDERS_OF_INSTALLATION 
+            = { "bin", "servers/core-plugins", "servers/datastore_server", "servers/openBIS-server" };
 
     private static boolean installationExists()
     {
@@ -127,25 +130,14 @@ public class GlobalInstallationContext
         {
             return false;
         }
-        File[] files = installDir.listFiles();
-        boolean binExists = false;
-        boolean serversExists = false;
-        if (files != null)
+        for (String folder : FOLDERS_OF_INSTALLATION)
         {
-            for (File file : files)
+            if (new File(installDir, folder).exists() == false)
             {
-                String fileName = file.getName();
-                if (fileName.equals("bin"))
-                {
-                    binExists = true;
-                }
-                if (fileName.equals("servers"))
-                {
-                    serversExists = true;
-                }
+                return false;
             }
         }
-        return binExists && serversExists;
+        return true;
     }
 
     /**

@@ -22,21 +22,25 @@ function ExperimentFormController(mainController, mode, experiment) {
 	this.init = function(views) {
 		var _this = this;
 		
-		require([ "as/dto/experiment/id/ExperimentPermId", "as/dto/sample/id/SampleIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions" ],
-				function(ExperimentPermId, SampleIdentifier, ExperimentFetchOptions) {
+		require([ "as/dto/experiment/id/ExperimentPermId", "as/dto/sample/id/SampleIdentifier", 
+            "as/dto/dataset/id/DataSetPermId", "as/dto/experiment/fetchoptions/ExperimentFetchOptions" ],
+            function(ExperimentPermId, SampleIdentifier, DataSetPermId, ExperimentFetchOptions) {
 				if (experiment.permId) {
 					var id = new ExperimentPermId(experiment.permId);
 					var fetchOptions = new ExperimentFetchOptions();
 					fetchOptions.withProject().withSpace();
-					fetchOptions.withDataSets().withSample();
+                    fetchOptions.withDataSets().withType();
+                    fetchOptions.withDataSets().withSample();
 					mainController.openbisV3.getExperiments([ id ], fetchOptions).done(function(map) {
 						_this._experimentFormModel.v3_experiment = map[id];
 						var expeId = _this._experimentFormModel.v3_experiment.getIdentifier().getIdentifier();
-						var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
-						mainController.openbisV3.getRights([ id , dummySampleId], null).done(function(rightsByIds) {
-							_this._experimentFormModel.rights = rightsByIds[id];
-							_this._experimentFormModel.sampleRights = rightsByIds[dummySampleId];
-							_this._experimentFormView.repaint(views);
+                        var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+                        var dummyDataSetId = new DataSetPermId(IdentifierUtil.createDummyDataSetIdentifierFromExperimentIdentifier(expeId));
+                        mainController.openbisV3.getRights([ id , dummySampleId, dummyDataSetId], null).done(function(rightsByIds) {
+                            _this._experimentFormModel.rights = rightsByIds[id];
+                            _this._experimentFormModel.sampleRights = rightsByIds[dummySampleId];
+                            _this._experimentFormModel.dataSetRights = rightsByIds[dummyDataSetId];
+                            _this._experimentFormView.repaint(views);
 						});
 					});
 				} else {

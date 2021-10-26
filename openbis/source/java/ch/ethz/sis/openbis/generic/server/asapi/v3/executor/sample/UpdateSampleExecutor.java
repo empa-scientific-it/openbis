@@ -177,8 +177,8 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
         }
 
         updateSampleSpaceExecutor.update(context, batch);
-        updateSampleProjectExecutor.update(context, batch);
         updateSampleExperimentExecutor.update(context, batch);
+        updateSampleProjectExecutor.update(context, batch);
         updateSamplePropertyExecutor.update(context, batch);
         updateTags(context, batch);
         updateAttachments(context, batch);
@@ -203,43 +203,43 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     private void updateTags(final IOperationContext context, final MapBatch<SampleUpdate, SamplePE> batch)
     {
         new MapBatchProcessor<SampleUpdate, SamplePE>(context, batch)
+        {
+            @Override
+            public void process(SampleUpdate update, SamplePE entity)
             {
-                @Override
-                public void process(SampleUpdate update, SamplePE entity)
+                if (update.getTagIds() != null && update.getTagIds().hasActions())
                 {
-                    if (update.getTagIds() != null && update.getTagIds().hasActions())
-                    {
-                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-                    }
+                    updateTagForEntityExecutor.update(context, entity, update.getTagIds());
                 }
+            }
 
-                @Override
-                public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex, totalObjectCount);
-                }
-            };
+            @Override
+            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
+            {
+                return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex, totalObjectCount);
+            }
+        };
     }
 
     private void updateAttachments(final IOperationContext context, final MapBatch<SampleUpdate, SamplePE> batch)
     {
         new MapBatchProcessor<SampleUpdate, SamplePE>(context, batch)
+        {
+            @Override
+            public void process(SampleUpdate update, SamplePE entity)
             {
-                @Override
-                public void process(SampleUpdate update, SamplePE entity)
+                if (update.getAttachments() != null && update.getAttachments().hasActions())
                 {
-                    if (update.getAttachments() != null && update.getAttachments().hasActions())
-                    {
-                        updateSampleAttachmentExecutor.update(context, entity, update.getAttachments());
-                    }
+                    updateSampleAttachmentExecutor.update(context, entity, update.getAttachments());
                 }
+            }
 
-                @Override
-                public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new UpdateRelationProgress(update, entity, "sample-attachment", objectIndex, totalObjectCount);
-                }
-            };
+            @Override
+            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
+            {
+                return new UpdateRelationProgress(update, entity, "sample-attachment", objectIndex, totalObjectCount);
+            }
+        };
     }
 
     @Override

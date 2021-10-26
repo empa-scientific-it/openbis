@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,14 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.authentication.ldap.LDAPAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -63,9 +66,16 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
 
     private boolean deactivateUnknownUsers;
 
+    private BufferedAppender bufferedAppender;
+
+    private int executionId;
+
+    private final Map<Integer, UserManagerReport> reportsById = new HashMap<>();
+
     public UserManagementMaintenanceTask()
     {
         super(true);
+        bufferedAppender = new BufferedAppender("%d{HH:mm:ss,SSS} %-5p [%t] %c - %m%n", Level.INFO, "OPERATION.UserManagementMaintenanceTask");
     }
 
     @Override
@@ -94,6 +104,39 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     public void execute()
     {
         UserManagerReport report = createUserManagerReport();
+        execute(report);
+    }
+
+    public int executeAsync()
+    {
+        executionId++;
+        UserManagerReport report = createUserManagerReport();
+        reportsById.put(executionId, report);
+        operationLog.info(reportsById.size() + " tasks are running.");
+        new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    execute(report);
+                }
+            }).start();
+        return executionId;
+    }
+
+    public UserManagerReport getReportById(int executionId)
+    {
+        return reportsById.get(executionId);
+    }
+
+    public void removeReport(int executionId)
+    {
+        reportsById.remove(executionId);
+    }
+
+    public synchronized void execute(UserManagerReport report)
+    {
+        bufferedAppender.resetLogContent();
         UserManagerConfig config = readGroupDefinitions(report);
         if (config == null || config.getGroups() == null)
         {
@@ -206,7 +249,7 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
 
     protected UserManagerReport createUserManagerReport()
     {
-        return new UserManagerReport(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        return new UserManagerReport(SystemTimeProvider.SYSTEM_TIME_PROVIDER, bufferedAppender);
     }
 
     private UserManager createUserManager(UserManagerConfig config, Log4jSimpleLogger logger, UserManagerReport report)

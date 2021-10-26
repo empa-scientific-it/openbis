@@ -510,7 +510,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			    var titleStart = newCleanValue.indexOf("<h2>");
 			    var titleEnd = newCleanValue.indexOf("</h2>");
 			    if(titleStart !== -1 && titleEnd !== -1) {
-			        _this._sampleFormModel.sample.properties["$NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
+			        var futureName = newCleanValue.substring(titleStart+4, titleEnd);
+			        if(futureName.indexOf("<") !== -1 && futureName.indexOf(">") !== -1) {
+			            Util.showError("Entry names can't contain rich text. The current title will not be saved as Entry name.");
+			            _this._sampleFormModel.sample.properties["$NAME"] = null;
+			        } else {
+			            _this._sampleFormModel.sample.properties["$NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
+			        }
 			    } else {
 			        _this._sampleFormModel.sample.properties["$NAME"] = null;
 			    }
@@ -1455,7 +1461,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
+        var numberOfUndeletableDataSets = 0;
+        sample.dataSets.forEach(function(dataSet) {
+            if (dataSet.frozen || dataSet.type.disallowDeletion) {
+                numberOfUndeletableDataSets++;
+            }
+        });
         return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false))
+                && numberOfUndeletableDataSets == 0
                 && this._sampleFormModel.rights.rights.indexOf("DELETE") >= 0;
 	}
 
@@ -1467,6 +1480,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._allowedToRegisterDataSet = function() {
 		var sample = this._sampleFormModel.v3_sample;
 		return sample.frozenForDataSets == false && (!sample.experiment || sample.experiment.frozenForDataSets == false)
-				&& this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
+				&& this._sampleFormModel.dataSetRights.rights.indexOf("CREATE") >= 0;
 	}
 }

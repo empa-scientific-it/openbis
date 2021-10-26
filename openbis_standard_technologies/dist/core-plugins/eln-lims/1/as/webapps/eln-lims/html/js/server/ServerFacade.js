@@ -107,6 +107,52 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    //
+    // User Management 
+    
+    this.getUserManagementMaintenanceTaskConfig = function(callback) {
+        this.customELNASAPI({
+            "method" : "getUserManagementMaintenanceTaskConfig"
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.saveUserManagementMaintenanceTaskConfig = function(config, callback) {
+        this.customELNASAPI({
+            "method" : "saveUserManagementMaintenanceTaskConfig",
+            "config" : config
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.executeUserManagementMaintenanceTask = function(callback) {
+        this.customELNASAPI({
+            "method" : "executeUserManagementMaintenanceTask"
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.getUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "getUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.removeUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "removeUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
 	//
 	// Display Settings
 	//

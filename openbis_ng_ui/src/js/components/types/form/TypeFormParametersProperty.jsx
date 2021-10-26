@@ -10,7 +10,6 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
-import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import DataType from '@src/js/components/common/dto/DataType.js'
 import openbis from '@src/js/services/openbis.js'
 import users from '@src/js/common/consts/users.js'
@@ -113,10 +112,8 @@ class TypeFormParametersProperty extends React.PureComponent {
     return (
       <Container>
         <Header>{messages.get(messages.PROPERTY)}</Header>
-        {this.renderMessageGlobal(property)}
         {this.renderMessageAssignments(property)}
         {this.renderMessageSystemInternal(property)}
-        {this.renderScope(property)}
         {this.renderCode(property)}
         {this.renderDataType(property)}
         {this.renderVocabulary(property)}
@@ -133,21 +130,6 @@ class TypeFormParametersProperty extends React.PureComponent {
         {this.renderInitialValue(property)}
       </Container>
     )
-  }
-
-  renderMessageGlobal(property) {
-    if (property.scope.value === TypeFormPropertyScope.GLOBAL) {
-      const { classes } = this.props
-      return (
-        <div className={classes.field}>
-          <Message type='warning'>
-            {messages.get(messages.PROPERTY_IS_GLOBAL)}
-          </Message>
-        </div>
-      )
-    } else {
-      return null
-    }
   }
 
   renderMessageAssignments(property) {
@@ -203,45 +185,6 @@ class TypeFormParametersProperty extends React.PureComponent {
     }
   }
 
-  renderScope(property) {
-    const { visible, enabled, error, value } = { ...property.scope }
-
-    if (!visible) {
-      return null
-    }
-
-    const options = [
-      {
-        label: messages.get(messages.LOCAL),
-        value: TypeFormPropertyScope.LOCAL
-      },
-      {
-        label: messages.get(messages.GLOBAL),
-        value: TypeFormPropertyScope.GLOBAL
-      }
-    ]
-
-    const { mode, classes } = this.props
-    return (
-      <div className={classes.field}>
-        <SelectField
-          reference={this.references.scope}
-          label={messages.get(messages.SCOPE)}
-          name='scope'
-          mandatory={true}
-          error={error}
-          disabled={!enabled}
-          value={value}
-          mode={mode}
-          options={options}
-          onChange={this.handleChange}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-        />
-      </div>
-    )
-  }
-
   renderLabel(property) {
     const { visible, enabled, error, value } = { ...property.label }
 
@@ -277,52 +220,31 @@ class TypeFormParametersProperty extends React.PureComponent {
     }
 
     const { mode, classes, controller } = this.props
+    const { propertyTypes = [] } = controller.getDictionaries()
 
-    if (property.scope.value === TypeFormPropertyScope.LOCAL) {
-      return (
-        <div className={classes.field}>
-          <TextField
-            reference={this.references.code}
-            label={messages.get(messages.CODE)}
-            name='code'
-            mandatory={true}
-            error={error}
-            disabled={!enabled}
-            value={value}
-            mode={mode}
-            onChange={this.handleChange}
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
-          />
-        </div>
-      )
-    } else if (property.scope.value === TypeFormPropertyScope.GLOBAL) {
-      const { globalPropertyTypes = [] } = controller.getDictionaries()
+    const options = propertyTypes.map(propertyType => {
+      return propertyType.code
+    })
 
-      const options = globalPropertyTypes.map(globalPropertyType => {
-        return globalPropertyType.code
-      })
-
-      return (
-        <div className={classes.field}>
-          <AutocompleterField
-            reference={this.references.code}
-            label={messages.get(messages.CODE)}
-            name='code'
-            options={options}
-            mandatory={true}
-            error={error}
-            disabled={!enabled}
-            value={value}
-            freeSolo={true}
-            mode={mode}
-            onChange={this.handleChange}
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
-          />
-        </div>
-      )
-    }
+    return (
+      <div className={classes.field}>
+        <AutocompleterField
+          reference={this.references.code}
+          label={messages.get(messages.CODE)}
+          name='code'
+          options={options}
+          mandatory={true}
+          error={error}
+          disabled={!enabled}
+          value={value}
+          freeSolo={true}
+          mode={mode}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        />
+      </div>
+    )
   }
 
   renderDescription(property) {
