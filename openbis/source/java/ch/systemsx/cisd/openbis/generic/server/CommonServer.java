@@ -160,6 +160,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -4085,6 +4086,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
+    @Capability("RESTORE")
     public void revertDeletions(final String sessionToken, final List<TechId> deletionIds)
     {
         if (deletionIds != null && !deletionIds.isEmpty())
@@ -4098,28 +4101,55 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds,
+            boolean forceToDeleteDependentDeletionSets)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, false);
+        deletePermanentlyCommon(sessionToken, deletionIds, forceToDeleteDependentDeletionSets, false);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds,
+            boolean forceToDeleteDependentDeletionSets)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, true);
+        deletePermanentlyCommon(sessionToken, deletionIds, forceToDeleteDependentDeletionSets, true);
     }
 
-    private void deletePermanentlyCommon(String sessionToken, List<TechId> deletionIds,
-            boolean forceDisallowedTypes)
+    private void deletePermanentlyCommon(String sessionToken, List<TechId> primaryDeletionIds,
+            boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
     {
         Session session = getSession(sessionToken);
         PersonPE registrator = session.tryGetPerson();
 
+        List<TechId> deletionIds = new ArrayList<>(primaryDeletionIds);
         IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
+        List<TechId> dependentDeletionIds = deletionDAO.listAllDependentDeletions(deletionIds);
+        if (dependentDeletionIds.isEmpty() == false)
+        {
+            if (forceToDeleteDependentDeletionSets)
+            {
+                deletionIds.addAll(dependentDeletionIds);
+            } else
+            {
+                IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(session);
+                deletionTable.load(TechId.asLongs(dependentDeletionIds), true);
+                StringBuilder builder = new StringBuilder();
+                for (Deletion deletion : deletionTable.getDeletions())
+                {
+                    String entities = DeletionUtils.createDescriptionOfDeletedEntities(deletion);
+                    builder.append(String.format("\nDeletion Set %s: ("
+                            + "deletion date: %2$tY-%2$tm-%2$td %2$tH:%2$tM:%2$tS, reason: %3$s, entities: %4$s)",
+                            deletion.getId(), deletion.getRegistrationDate(), deletion.getReason(), entities));
+                }
+                throw new UserFailureException("Permanent deletion not possible because the following "
+                        + "deletion sets have to be deleted first:" + builder
+                        + "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
+                        + "or you check the check box 'Force dependent deletions' the next time.");
+            }
+        }
         Collections.sort(deletionIds, TECH_ID_COMPARATOR);
         // NOTE: we can't do bulk deletions to preserve original reasons
         for (TechId deletionId : deletionIds)

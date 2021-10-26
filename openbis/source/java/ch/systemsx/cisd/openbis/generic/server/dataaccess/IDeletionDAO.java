@@ -108,5 +108,12 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
      * Returns a list of all deleted entities for a given type id.
      */
     List<TechId> listDeletedEntitiesForType(EntityKind entityKind, TechId entityTypeId);
+    
+    /**
+     * Returns an ordered list of all deletions which dependent on the specified deletion ids. 
+     * That is, the returned deletions have to be permanently deleted first before the specified deletions 
+     * can be made permanently too. Note, that the result doesn't contain the deletions of the argument. 
+     */
+    List<TechId> listAllDependentDeletions(List<TechId> deletionIds);
 
 }

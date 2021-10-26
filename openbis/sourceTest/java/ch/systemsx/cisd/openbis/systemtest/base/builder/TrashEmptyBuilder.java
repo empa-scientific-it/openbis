@@ -45,6 +45,6 @@ public class TrashEmptyBuilder extends UpdateBuilder<String>
     public void perform()
     {
         List<Deletion> deletions = commonServer.listDeletions(sessionToken, false);
-        commonServer.deletePermanently(sessionToken, TechId.createList(deletions));
+        commonServer.deletePermanently(sessionToken, TechId.createList(deletions), false);
     }
 }

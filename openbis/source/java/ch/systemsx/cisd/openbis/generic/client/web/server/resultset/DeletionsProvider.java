@@ -24,9 +24,8 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGri
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
@@ -37,8 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion>
 {
-    private static final int MAX_NUMBER = 5;
-
     public DeletionsProvider(ICommonServer commonServer, String sessionToken)
     {
         super(commonServer, sessionToken);
@@ -61,95 +58,10 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
             builder.column(REASON).addString(deletion.getReason());
             if (deletion.getDeletedEntities().isEmpty() == false)
             {
-                builder.column(ENTITIES).addString(createDescriptionOfDeletedEntities(deletion));
+                builder.column(ENTITIES).addString(DeletionUtils.createDescriptionOfDeletedEntities(deletion));
             }
         }
         return builder.getModel();
-    }
-
-    private String createDescriptionOfDeletedEntities(Deletion deletion)
-    {
-        StringBuilder builder = new StringBuilder();
-        String experiments = createList(deletion, EntityKind.EXPERIMENT, "Experiment");
-        if (experiments.length() > 0)
-        {
-            builder.append(experiments);
-        }
-        String samples = createList(deletion, EntityKind.SAMPLE, "Sample");
-        if (samples.length() > 0)
-        {
-            builder.append(samples);
-        }
-        String dataSets = createList(deletion, EntityKind.DATA_SET, "Data Set");
-        if (dataSets.length() > 0)
-        {
-            builder.append(dataSets);
-        }
-        return builder.toString();
-    }
-
-    private String createList(Deletion deletion, EntityKind entityKind, String name)
-    {
-        StringBuilder builder = new StringBuilder();
-        int count = 0;
-        for (IEntityInformationHolderWithIdentifier entity : deletion.getDeletedEntities())
-        {
-            if (entity.getEntityKind() == entityKind)
-            {
-                if (count < MAX_NUMBER)
-                {
-                    builder.append("  ").append(entity.getIdentifier()).append(" (");
-                    builder.append(entity.getEntityType().getCode()).append(")\n");
-                    count++;
-                }
-            }
-        }
-
-        int numberOfAdditionalEntities = 0;
-
-        switch (entityKind)
-        {
-            case DATA_SET:
-                numberOfAdditionalEntities = deletion.getTotalDatasetsCount();
-                break;
-            case SAMPLE:
-                numberOfAdditionalEntities = deletion.getTotalSamplesCount();
-                break;
-            case EXPERIMENT:
-                numberOfAdditionalEntities = deletion.getTotalExperimentsCount();
-                break;
-            default:
-                // nothing
-                break;
-        }
-
-        numberOfAdditionalEntities -= count;
-
-        if (count == 0)
-        {
-            if (numberOfAdditionalEntities == 0)
-            {
-                return "";
-            } else if (numberOfAdditionalEntities == 1)
-            {
-                return "1 " + name + "\n";
-            } else if (numberOfAdditionalEntities > 1)
-            {
-                return numberOfAdditionalEntities + " " + name + "s\n";
-            }
-        }
-
-        if (numberOfAdditionalEntities > 0)
-        {
-            builder.append("  and ").append(numberOfAdditionalEntities).append(" more\n");
-        }
-
-        if (count == 1)
-        {
-            return name + " " + builder.toString();
-        }
-
-        return name + "s:\n" + builder.toString();
     }
 
 }

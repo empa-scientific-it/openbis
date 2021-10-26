@@ -352,13 +352,13 @@ public class GeneralInformationChangingService extends
     @Override
     public void deletePermanently(String sessionToken, List<Long> deletionIds)
     {
-        server.deletePermanently(sessionToken, TechId.createList(deletionIds));
+        server.deletePermanently(sessionToken, TechId.createList(deletionIds), false);
     }
 
     @Override
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
     {
-        server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
+        server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds), false);
     }
 
     @Override

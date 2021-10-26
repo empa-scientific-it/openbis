@@ -1296,7 +1296,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Permanently deletes entities moved to trash with specified deletions.
      */
-    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, boolean forceDisallowedTypes)
+    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, 
+            boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
             throws UserFailureException;
 
     /**

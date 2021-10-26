@@ -21,6 +21,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
@@ -38,7 +40,7 @@ public final class PermanentDeletionConfirmationDialog extends
 {
     private static final int LABEL_WIDTH = 60;
 
-    private static final int FIELD_WIDTH = 180;
+    private static final int FIELD_WIDTH = 200;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -52,6 +54,8 @@ public final class PermanentDeletionConfirmationDialog extends
 
     private Radio allRadio;
 
+    private DeletionForceCheckBox forceToDeleteDependentDeletionSetsCheckBox;
+
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             DisplayedAndSelectedDeletions selectedAndDisplayedItems, AsyncCallback<Void> callback)
     {
@@ -60,6 +64,11 @@ public final class PermanentDeletionConfirmationDialog extends
         setStyleName("permanentDeletionConfirmationDialog");
         this.viewContext = viewContext;
         this.callback = callback;
+        this.forceToDeleteDependentDeletionSetsCheckBox = new DeletionForceCheckBox();
+        this.forceToDeleteDependentDeletionSetsCheckBox.setText("Force dependent deletions: ");
+        this.forceToDeleteDependentDeletionSetsCheckBox.setTooltip("Dependent deletions have entities "
+                + "which have to be permanently deleted together or before the entities of the selected deletions "
+                + "can be permanently deleted, too.");
         this.forceOptions = new DeletionForceOptions(viewContext);
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         this.setId("deletion-confirmation-dialog");
@@ -71,7 +80,9 @@ public final class PermanentDeletionConfirmationDialog extends
         DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria =
                 selectedAndDisplayedItems.createCriteria(WidgetUtils.isSelected(onlySelectedRadio));
 
-        viewContext.getCommonService().deletePermanently(criteria, forceOptions.getForceDisallowedTypesValue(),
+        viewContext.getCommonService().deletePermanently(criteria,
+                forceToDeleteDependentDeletionSetsCheckBox.getValue(),
+                forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback, viewContext.getMessage(Dict.PERMANENT_DELETIONS_PROGRESS)));
     }
 
@@ -104,6 +115,10 @@ public final class PermanentDeletionConfirmationDialog extends
         radioGroup.setStyleName("gray-delete-radios");
 
         formPanel.add(radioGroup);
+        Panel panel = new VerticalPanel();
+        panel.addStyleName("deletionForceOptions");
+        panel.add(forceToDeleteDependentDeletionSetsCheckBox);
+        formPanel.add(panel);
         formPanel.add(forceOptions);
     }
 

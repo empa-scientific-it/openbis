@@ -2805,21 +2805,22 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, boolean forceDisallowedTypes)
+    public void deletePermanently(DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria, 
+            boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        deletePermanently(extractTechIds(criteria), forceDisallowedTypes);
+        deletePermanently(extractTechIds(criteria), forceToDeleteDependentDeletionSets, forceDisallowedTypes);
     }
 
-    private void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
+    private void deletePermanently(List<TechId> deletionIds, boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         if (forceDisallowedTypes)
         {
-            commonServer.deletePermanentlyForced(getSessionToken(), deletionIds);
+            commonServer.deletePermanentlyForced(getSessionToken(), deletionIds, forceToDeleteDependentDeletionSets);
         } else
         {
-            commonServer.deletePermanently(getSessionToken(), deletionIds);
+            commonServer.deletePermanently(getSessionToken(), deletionIds, forceToDeleteDependentDeletionSets);
         }
     }
 
@@ -2828,7 +2829,7 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         List<Deletion> deletions = commonServer.listDeletions(getSessionToken(), false);
-        deletePermanently(TechId.createList(deletions), forceDisallowedTypes);
+        deletePermanently(TechId.createList(deletions), false, forceDisallowedTypes);
     }
 
     @Override

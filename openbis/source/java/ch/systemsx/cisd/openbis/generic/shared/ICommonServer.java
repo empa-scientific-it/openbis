@@ -1443,7 +1443,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
+    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds, boolean forceToDeleteDependentDeletionSets);
 
     /**
      * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets with deletion_disallow flag set to true in their
@@ -1451,7 +1451,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds);
+    public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds, boolean forceToDeleteDependentDeletionSets);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
