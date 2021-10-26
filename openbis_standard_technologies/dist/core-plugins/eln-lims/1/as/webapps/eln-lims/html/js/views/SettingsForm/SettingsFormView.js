@@ -377,8 +377,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 		var spacesOptions = this._settingsFormController.getInventorySpacesReadOnlyOptions();
 			spacesOptions = JSON.parse(JSON.stringify(spacesOptions));
-		var initialValues = this._profileToEdit.inventorySpacesReadOnly.filter(space => space != null);
-
+		var initialValues = [];
+		if(this._profileToEdit.inventorySpacesReadOnly) {
+			initialValues = this._profileToEdit.inventorySpacesReadOnly.filter(space => space != null);
+		}
 		for(var i = 0; i < initialValues.length; i++) {
 			if($.inArray(initialValues[i], spacesOptions) === -1) {
 				spacesOptions.push(initialValues[i]);
