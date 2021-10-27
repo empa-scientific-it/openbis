@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
-import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
@@ -46,40 +44,7 @@ public class AutoSymlink
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
         Map<String, File> pluginFolders =
                 injector.injectCorePlugins(serviceProperties);
-
-        try
-        {
-            File libDir = new File("lib");
-            for (File link : libDir.listFiles())
-            {
-                if (link.getName().startsWith("autolink-"))
-                {
-                    link.delete();
-                }
-            }
-
-            for (String key : pluginFolders.keySet())
-            {
-                File pluginLibFolder = new File(pluginFolders.get(key).getCanonicalPath() + "/lib");
-                if (pluginLibFolder.exists())
-                {
-                    for (File jar : pluginLibFolder.listFiles())
-                    {
-                        if (jar.isFile() && jar.getName().endsWith(".jar"))
-                        {
-                            String link =
-                                    libDir.getAbsolutePath() + "/autolink-" + key + "-"
-                                            + jar.getName();
-                            Unix.createSymbolicLink(jar.getAbsolutePath(), link);
-                        }
-                    }
-                }
-
-            }
-        } catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
+        ch.ethz.sis.openbis.generic.shared.utils.AutoSymlink.createSymlinks(new File("lib"), pluginFolders);
     }
 
 }

@@ -222,6 +222,7 @@ ext.classpathEntries = files(
 )
 
 ext.zipEntries = files(
+	project(':openbis').file('dist/server/autosymlink.sh'),
 	project(':openbis').file('dist/server/check.sh'),
 	project(':openbis').file('dist/server/configure.sh'),
 	project(':openbis').file('dist/server/export-master-data.py'),
