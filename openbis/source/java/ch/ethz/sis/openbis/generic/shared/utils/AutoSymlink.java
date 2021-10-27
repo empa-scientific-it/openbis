@@ -40,7 +40,8 @@ public class AutoSymlink
 
     public static void main(String[] args) throws Exception
     {
-        Properties properties = ExtendedProperties.createWith(PropertyIOUtils.loadProperties("etc/service.properties"));
+        Properties properties 
+                = ExtendedProperties.createWith(PropertyIOUtils.loadProperties(getPathToServiceProperties()));
         CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.AS);
         PluginType maintenanceTasks =
                 new PluginType("maintenance-tasks",
@@ -55,12 +56,22 @@ public class AutoSymlink
         createSymlinks(getLibFolder(), pluginFolders);
     }
 
+    private static String getPathToServiceProperties()
+    {
+        String jettyHome = System.getProperty("jetty.base");
+        if (jettyHome != null)
+        {
+            return jettyHome + "etc/service.properties";
+        }
+        return "targets/www/WEB-INF/classes/service.properties";
+    }
+
     public static File getLibFolder()
     {
         String jettyHome = System.getProperty("jetty.base");
         if (jettyHome != null)
         {
-            return new File("webapps/openbis/WEB-INF/lib/");
+            return new File(jettyHome + "webapps/openbis/WEB-INF/lib/");
         }
         return new File("targets/www/lib");
     }

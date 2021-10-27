@@ -17,7 +17,7 @@ fi
 
 disableJythonByProperty
 
-./autosymlink.sh $JETTY_BIN_DIR/../webapps/openbis/WEB-INF/lib
+`dirname "$0"`/autosymlink.sh $JETTY_BIN_DIR/../webapps/openbis/WEB-INF/lib
 
 "$JVM" -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \
