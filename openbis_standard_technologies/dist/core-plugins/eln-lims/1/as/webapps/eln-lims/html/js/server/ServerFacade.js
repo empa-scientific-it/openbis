@@ -784,9 +784,27 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
 	}
 
-	this.deletePermanently = function(deletionIds, callback) {
-		this.openbisServer.deletePermanently(deletionIds, callback);
-	}
+    this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions, callback) {
+        require([ "as/dto/deletion/id/DeletionTechId", "as/dto/deletion/confirm/ConfirmDeletionsOperation",
+                  "as/dto/operation/SynchronousOperationExecutionOptions"],
+            function(DeletionTechId, ConfirmDeletionsOperation, SynchronousOperationExecutionOptions) {
+                var dtids = deletionIds.map(id => new DeletionTechId(id));
+                var confirmOperation = new ConfirmDeletionsOperation(dtids);
+                confirmOperation.setForceDeletionOfDependentDeletions(forceDeletionOfDependentDeletions);
+                mainController.openbisV3.executeOperations([confirmOperation], new SynchronousOperationExecutionOptions())
+                .done(function() {
+                    callback({});
+                }).fail(function(error) {
+                    var message = error.message;
+                    if (message.startsWith("Permanent deletion not possible because ")) {
+                        error.message += "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
+                        + "or you choose 'Delete Permanently (including dependent deletions)' the next time."
+                    }
+                    Util.showFailedServerCallError(error);
+                    Util.unblockUI();
+                });
+            });
+    }
 
 	this.revertDeletions = function(deletionIds, callback) {
 		this.openbisServer.revertDeletions(deletionIds, callback);

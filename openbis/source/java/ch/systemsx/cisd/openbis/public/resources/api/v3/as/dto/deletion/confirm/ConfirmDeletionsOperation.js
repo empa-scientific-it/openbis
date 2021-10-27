@@ -9,6 +9,7 @@ define([ "stjs", "as/dto/common/operation/IOperation" ], function(stjs, IOperati
 		prototype['@type'] = 'as.dto.deletion.confirm.ConfirmDeletionsOperation';
 		prototype.deletionIds = null;
 		prototype.forceDeletion = false;
+		prototype.forceDeletionOfDependentDeletions = false;
 		prototype.getDeletionIds = function() {
 			return this.deletionIds;
 		};
@@ -17,6 +18,12 @@ define([ "stjs", "as/dto/common/operation/IOperation" ], function(stjs, IOperati
 		};
 		prototype.isForceDeletion = function() {
 			return this.forceDeletion;
+		};
+		prototype.setForceDeletionOfDependentDeletions = function(forceDeletionOfDependentDeletions) {
+		    this.forceDeletionOfDependentDeletions = forceDeletionOfDependentDeletions;
+		};
+		prototype.isForceDeletionOfDependentDeletions = function() {
+		    return this.forceDeletionOfDependentDeletions;
 		};
 		prototype.getMessage = function() {
 			return "ConfirmDeletionsOperation";

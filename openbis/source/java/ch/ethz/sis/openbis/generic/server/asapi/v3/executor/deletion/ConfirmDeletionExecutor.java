@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -34,7 +35,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -83,7 +84,8 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
     ICommonBusinessObjectFactory businessObjectFactory;
 
     @Override
-    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion)
+    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion, 
+            boolean forceDeletionOfDependentDeletions)
     {
         if (context == null)
         {
@@ -107,7 +109,6 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
                 deletionIdsWithoutNulls.add(deletionId);
             }
         }
-        Collections.sort(deletionIdsWithoutNulls, DELETION_ID_COMPARATOR);
 
         try
         {
@@ -122,7 +123,21 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         {
             throw new UnauthorizedObjectAccessException(deletionIdsWithoutNulls);
         }
+        List<TechId> dependentDeletions = getDependentDelitions(deletionIdsWithoutNulls);
+        if (dependentDeletions.isEmpty() == false)
+        {
+            if (forceDeletionOfDependentDeletions)
+            {
+                deletionIdsWithoutNulls.addAll(TechId.asLongs(dependentDeletions).stream()
+                        .map(DeletionTechId::new).collect(Collectors.toList()));
+            } else
+            {
+                throw DeletionUtils.createException(context.getSession(), businessObjectFactory,
+                        TechId.asLongs(dependentDeletions));
+            }
+        }
 
+        Collections.sort(deletionIdsWithoutNulls, DELETION_ID_COMPARATOR);
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
         Map<IDeletionId, DeletionPE> deletionMap = mapDeletionByIdExecutor.map(context, deletionIdsWithoutNulls);
 
@@ -166,6 +181,23 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             deletionDAO.delete(freshDeletion);
         }
 
+    }
+
+    private List<TechId> getDependentDelitions(List<? extends IDeletionId> deletionIds)
+    {
+        List<TechId> techIds = new ArrayList<>();
+        for (IDeletionId deletionId : deletionIds)
+        {
+            if (deletionId instanceof DeletionTechId)
+            {
+                techIds.add(new TechId(((DeletionTechId) deletionId).getTechId()));
+            } else
+            {
+                throw new UserFailureException("Unsupported type of deletion id: " + deletionId.getClass());
+            }
+        }
+        
+        return daoFactory.getDeletionDAO().listAllDependentDeletions(techIds);
     }
 
     private void deleteDataSets(IOperationContext context, DeletionPE deletion, boolean forceDeletion)

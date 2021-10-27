@@ -4086,8 +4086,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
-    @Capability("RESTORE")
     public void revertDeletions(final String sessionToken, final List<TechId> deletionIds)
     {
         if (deletionIds != null && !deletionIds.isEmpty())
@@ -4134,18 +4132,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 deletionIds.addAll(dependentDeletionIds);
             } else
             {
-                IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(session);
-                deletionTable.load(TechId.asLongs(dependentDeletionIds), true);
-                StringBuilder builder = new StringBuilder();
-                for (Deletion deletion : deletionTable.getDeletions())
-                {
-                    String entities = DeletionUtils.createDescriptionOfDeletedEntities(deletion);
-                    builder.append(String.format("\nDeletion Set %s: ("
-                            + "deletion date: %2$tY-%2$tm-%2$td %2$tH:%2$tM:%2$tS, reason: %3$s, entities: %4$s)",
-                            deletion.getId(), deletion.getRegistrationDate(), deletion.getReason(), entities));
-                }
-                throw new UserFailureException("Permanent deletion not possible because the following "
-                        + "deletion sets have to be deleted first:" + builder);
+                throw DeletionUtils.createException(session, businessObjectFactory,
+                        TechId.asLongs(dependentDeletionIds));
             }
         }
         Collections.sort(deletionIds, TECH_ID_COMPARATOR);
