@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import org.apache.log4j.Logger;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static org.apache.commons.io.FileUtils.ONE_KB;
 
+import javax.annotation.Resource;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -77,6 +79,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected abstract ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE> getSearchManager();
 
     private final Map<String, ICache<Object>> cacheByUserSessionToken = new ConcurrentHashMap<>();
+
+    private Properties serviceProperties;
 
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
@@ -183,9 +187,10 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     {
         final String key = getMD5Hash(criteria.toString());
 
+        final int sessionHashCode = context.getSession().hashCode();
         if (OPERATION_LOG.isDebugEnabled())
         {
-            OPERATION_LOG.debug("Will try to lock on session " + context.getSession().hashCode());
+            OPERATION_LOG.debug("Will try to lock on session " + sessionHashCode);
         }
 
         final Set<T> entry;
@@ -193,7 +198,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         {
             if (OPERATION_LOG.isDebugEnabled())
             {
-                OPERATION_LOG.debug("Locked on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Locked on session " + sessionHashCode);
             }
 
             final ICache<Object> cache = getCache(context);
@@ -212,7 +217,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
             if (OPERATION_LOG.isDebugEnabled())
             {
-                OPERATION_LOG.debug("Released lock on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Released lock on session " + sessionHashCode);
             }
         }
 
@@ -398,6 +403,12 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected Map<String, ICache<Object>> getCacheByUserSessionToken()
     {
         return cacheByUserSessionToken;
+    }
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private void setServicePropertiesPlaceholder(ExposablePropertyPlaceholderConfigurer servicePropertiesPlaceholder)
+    {
+        serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
     }
 
 }

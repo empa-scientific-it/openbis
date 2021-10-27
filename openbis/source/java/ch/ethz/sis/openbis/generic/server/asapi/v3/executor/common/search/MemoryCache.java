@@ -54,13 +54,13 @@ public class MemoryCache<V> implements ICache<V>
 
             if (cacheSize == capacity)
             {
-                final String removedHashCode = keyQueue.remove();
-                final V removedValue = cachedResults.remove(removedHashCode);
+                final String removedKey = keyQueue.remove();
+                final V removedValue = cachedResults.remove(removedKey);
 
                 if (removedValue == null)
                 {
-                    throw new RuntimeException(String.format("The removed from the queue hash code cannot be found "
-                            + "in the cache. [removedHashCode=%s]", removedHashCode));
+                    throw new RuntimeException(String.format("The key removed from the queue cannot be found "
+                            + "in the cache. [removedKey=%s]", removedKey));
                 }
             }
 

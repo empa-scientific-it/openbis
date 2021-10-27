@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,6 +26,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
@@ -43,6 +54,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.FileCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.MemoryCache;
@@ -56,14 +68,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
+import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 /**
  * @author pkupczyk
@@ -71,7 +77,15 @@ import org.testng.annotations.Test;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SearchObjectsOperationExecutorStressTest
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SearchObjectsOperationExecutorStressTest.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SearchObjectsOperationExecutorStressTest.class);
+
+    private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
+
+    private static final String TARGETS_DIRECTORY = "targets";
+
+    private static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY + File.separator +
+            UNIT_TEST_WORKING_DIRECTORY);
 
     @BeforeMethod
     public void setUp()
@@ -79,12 +93,36 @@ public class SearchObjectsOperationExecutorStressTest
         LogInitializer.init();
     }
 
-    @Test(timeOut = 30000)
-    public void testConcurrencyWithoutEvicting() throws InterruptedException
+    public Object[][] provideFactories()
+    {
+        final int cacheSize = 10 * (int) FileUtils.ONE_KB;
+        return new Object[][]
+                {
+                        { 0, new MemoryCacheFactory(0)},
+                        { 0, new FileCacheFactory(0)},
+                        { cacheSize, new MemoryCacheFactory(cacheSize)},
+                        { cacheSize, new FileCacheFactory(cacheSize)},
+                };
+    }
+
+    @DataProvider(name = "cache factories with evicting", indices = {2, 3})
+    public Object[][] provideFactoriesWithEvicting()
+    {
+        return provideFactories();
+    }
+
+    @DataProvider(name = "cache factories without evicting", indices = {0, 1})
+    public Object[][] provideFactoriesWithoutEvicting()
+    {
+        return provideFactories();
+    }
+
+    @Test(timeOut = 30000, dataProvider = "cache factories without evicting")
+    public void testConcurrencyWithoutEvicting(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
     {
         for (int run = 0; run < 5; run++)
         {
-            StressTestSearchMethodExecutor executor = testConcurrency(0);
+            StressTestSearchMethodExecutor executor = testConcurrency(cacheSize, cacheFactory);
 
             for (Map.Entry<SearchCacheKey, Integer> entry : executor.getSearchCounts().entrySet())
             {
@@ -101,12 +139,12 @@ public class SearchObjectsOperationExecutorStressTest
         }
     }
 
-    @Test(timeOut = 30000)
-    public void testConcurrencyWithEvicting() throws InterruptedException
+    @Test(timeOut = 30000, dataProvider = "cache factories with evicting")
+    public void testConcurrencyWithEvicting(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
     {
         for (int run = 0; run < 5; run++)
         {
-            StressTestSearchMethodExecutor executor = testConcurrency(10 * FileUtils.ONE_KB);
+            StressTestSearchMethodExecutor executor = testConcurrency(cacheSize, cacheFactory);
 
             if (executor.getErrors().size() > 0)
             {
@@ -115,15 +153,16 @@ public class SearchObjectsOperationExecutorStressTest
         }
     }
 
-    private StressTestSearchMethodExecutor testConcurrency(long cacheSize) throws InterruptedException
+    private StressTestSearchMethodExecutor testConcurrency(final long cacheSize,
+            final Function<IOperationContext, ICache<Object>> cacheFactory)
     {
         int SESSION_COUNT = 5;
         int THREAD_COUNT = 5;
         int KEY_VERSION_COUNT = 20;
 
-        final StressTestSearchMethodExecutor executor = new StressTestSearchMethodExecutor(cacheSize);
+        final StressTestSearchMethodExecutor executor = new StressTestSearchMethodExecutor(cacheFactory);
 
-        final Map<String, IOperationContext> contexts = new LinkedHashMap<String, IOperationContext>();
+        final Map<String, IOperationContext> contexts = new LinkedHashMap<>();
         for (int s = 0; s < SESSION_COUNT; s++)
         {
             Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
@@ -237,11 +276,11 @@ public class SearchObjectsOperationExecutorStressTest
 
         private final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
 
-        private final int cacheSize;
+        private final Function<IOperationContext, ICache<Object>> cacheFactory;
 
-        public StressTestSearchMethodExecutor(final long cacheSize)
+        public StressTestSearchMethodExecutor(final Function<IOperationContext, ICache<Object>> cacheFactory)
         {
-            this.cacheSize = (int) cacheSize;
+            this.cacheFactory = cacheFactory;
             this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(
                     new Properties()));
         }
@@ -287,11 +326,12 @@ public class SearchObjectsOperationExecutorStressTest
         protected ICache<Object> getCache(final IOperationContext context)
         {
             final Map<String, ICache<Object>> cacheByUserSessionToken = this.getCacheByUserSessionToken();
-            ICache<Object> cache = cacheByUserSessionToken.get(context.getSession().getSessionToken());
+            final String sessionToken = context.getSession().getSessionToken();
+            ICache<Object> cache = cacheByUserSessionToken.get(sessionToken);
             if (cache == null)
             {
-                cache = new MemoryCache<>(cacheSize);
-                cacheByUserSessionToken.put(context.getSession().getSessionToken(), cache);
+                cache = cacheFactory.apply(context);
+                cacheByUserSessionToken.put(sessionToken, cache);
             }
             return cache;
         }
@@ -349,6 +389,55 @@ public class SearchObjectsOperationExecutorStressTest
         protected SearchObjectsOperationResult getOperationResult(SearchResult searchResult)
         {
             return new TestSearchOperationResult(searchResult);
+        }
+
+    }
+
+    private static class MemoryCacheFactory implements Function<IOperationContext, ICache<Object>>
+    {
+
+        final int cacheSize;
+
+        private MemoryCacheFactory(final int cacheSize)
+        {
+            this.cacheSize = cacheSize;
+        }
+
+        @Override
+        public ICache<Object> apply(final IOperationContext iOperationContext)
+        {
+            return new MemoryCache<>(cacheSize);
+        }
+
+    }
+
+    private static class FileCacheFactory implements Function<IOperationContext, ICache<Object>>
+    {
+
+        final int cacheSize;
+
+        private FileCacheFactory(final int cacheSize)
+        {
+            this.cacheSize = cacheSize;
+        }
+
+        @Override
+        public ICache<Object> apply(final IOperationContext context)
+        {
+            final Properties properties = new Properties();
+            final File workingDirectory = createDirectoryInUnitTestRoot(getClass().getName());
+            properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY,
+                    workingDirectory.getPath());
+
+            return new FileCache<>(cacheSize, properties, context.getSession().getSessionToken());
+        }
+
+        protected final File createDirectoryInUnitTestRoot(String dirName)
+        {
+            final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, dirName);
+            directory.mkdirs();
+            directory.deleteOnExit();
+            return directory;
         }
 
     }
