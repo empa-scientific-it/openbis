@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -63,12 +64,13 @@ public final class PermanentDeletionConfirmationDialog extends
                 .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
         setStyleName("permanentDeletionConfirmationDialog");
         this.viewContext = viewContext;
-        this.callback = callback;
-        this.forceToDeleteDependentDeletionSetsCheckBox = new DeletionForceCheckBox();
-        this.forceToDeleteDependentDeletionSetsCheckBox.setText("Force dependent deletions: ");
-        this.forceToDeleteDependentDeletionSetsCheckBox.setTooltip("Dependent deletions have entities "
+        this.callback = new DeletionAsyncCallback(callback);
+        forceToDeleteDependentDeletionSetsCheckBox = new DeletionForceCheckBox();
+        forceToDeleteDependentDeletionSetsCheckBox.setText("Force dependent deletions: ");
+        forceToDeleteDependentDeletionSetsCheckBox.setTooltip("Dependent deletions have entities "
                 + "which have to be permanently deleted together or before the entities of the selected deletions "
                 + "can be permanently deleted, too.");
+        forceToDeleteDependentDeletionSetsCheckBox.getCheckBox().setStyleAttribute("top", "-3px");
         this.forceOptions = new DeletionForceOptions(viewContext);
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         this.setId("deletion-confirmation-dialog");
@@ -122,4 +124,33 @@ public final class PermanentDeletionConfirmationDialog extends
         formPanel.add(forceOptions);
     }
 
-}
+    public class DeletionAsyncCallback implements AsyncCallback<Void>
+    {
+        private AsyncCallback<Void> callback;
+
+        public DeletionAsyncCallback(AsyncCallback<Void> callback)
+        {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            String message = caught.getMessage();
+            if (message.startsWith("Permanent deletion not possible because "))
+            {
+                callback.onFailure(new UserFailureException(message
+                        + "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
+                        + "or you check the check box 'Force dependent deletions' the next time."));
+            } else
+            {
+                callback.onFailure(caught);
+            }
+        }
+
+        @Override
+        public void onSuccess(Void result)
+        {
+            callback.onSuccess(result);
+        }
+    }}

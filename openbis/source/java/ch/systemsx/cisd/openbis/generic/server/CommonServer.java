@@ -4145,9 +4145,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             deletion.getId(), deletion.getRegistrationDate(), deletion.getReason(), entities));
                 }
                 throw new UserFailureException("Permanent deletion not possible because the following "
-                        + "deletion sets have to be deleted first:" + builder
-                        + "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
-                        + "or you check the check box 'Force dependent deletions' the next time.");
+                        + "deletion sets have to be deleted first:" + builder);
             }
         }
         Collections.sort(deletionIds, TECH_ID_COMPARATOR);
