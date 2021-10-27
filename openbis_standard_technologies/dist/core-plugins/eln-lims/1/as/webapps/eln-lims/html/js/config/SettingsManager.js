@@ -138,7 +138,12 @@ function SettingsManager(serverFacade) {
              }
 
 
-
+            if(!targetProfile["inventorySpaces"]) {
+                targetProfile["inventorySpaces"] = [];
+            }
+            if(!targetProfile["inventorySpacesReadOnly"]) {
+                targetProfile["inventorySpacesReadOnly"] = [];
+            }
              // Inventory Spaces
              if(isMergeGroup) { // Merge found values
                 targetProfile["inventorySpaces"] = targetProfile["inventorySpaces"].concat(settings["inventorySpaces"]).unique();
