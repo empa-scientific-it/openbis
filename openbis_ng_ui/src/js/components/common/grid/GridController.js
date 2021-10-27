@@ -17,6 +17,7 @@ export default class GridController {
       columnsVisibility: {},
       columnsSorting: [],
       allColumns: [],
+      local: null,
       rows: [],
       filteredRows: [],
       sortedRows: [],
@@ -99,6 +100,8 @@ export default class GridController {
         result.local = false
       }
     }
+
+    newState.local = result.local
 
     if (result.local) {
       const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
@@ -413,7 +416,7 @@ export default class GridController {
   async multiselectRows(newMultiselectedRowIds) {
     const { multiselectable, onMultiselectedRowsChange } =
       this.context.getProps()
-    const { allRows, rows, multiselectedRows } = this.context.getState()
+    const { local, allRows, rows, multiselectedRows } = this.context.getState()
 
     if (!multiselectable) {
       return
@@ -434,19 +437,25 @@ export default class GridController {
 
       newMultiselectedRowIds.forEach(rowId => {
         if (rowId !== null && rowId !== undefined) {
+          const visible = rowsMap[rowId] !== undefined
           let data = allRowsMap[rowId]
-          if (!data) {
+
+          if (data) {
+            newMultiselectedRows[rowId] = {
+              id: rowId,
+              data,
+              visible
+            }
+          } else if (!local) {
             const multiselectedRow = multiselectedRows[rowId]
             if (multiselectedRow) {
               data = multiselectedRow.data
             }
-          }
-          const visible = rowsMap[rowId] !== undefined
-
-          newMultiselectedRows[rowId] = {
-            id: rowId,
-            data,
-            visible
+            newMultiselectedRows[rowId] = {
+              id: rowId,
+              data,
+              visible
+            }
           }
         }
       })
