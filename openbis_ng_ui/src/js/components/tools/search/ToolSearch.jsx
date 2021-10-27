@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
@@ -14,6 +15,12 @@ import openbis from '@src/js/services/openbis.js'
 import util from '@src/js/common/util.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 class ToolSearch extends React.Component {
   constructor(props) {
@@ -225,8 +232,9 @@ class ToolSearch extends React.Component {
         this.state.dynamicPropertyPlugins
       )
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <PluginsGrid
             id={ids.DYNAMIC_PROPERTY_PLUGINS_GRID_ID}
             controllerRef={controller =>
@@ -253,8 +261,9 @@ class ToolSearch extends React.Component {
         this.state.entityValidationPlugins
       )
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <PluginsGrid
             id={ids.ENTITY_VALIDATION_PLUGINS_GRID_ID}
             controllerRef={controller =>
@@ -276,8 +285,9 @@ class ToolSearch extends React.Component {
 
   renderQueries() {
     if (this.shouldRender(objectTypes.QUERY, this.state.queries)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <QueriesGrid
             id={ids.QUERIES_GRID_ID}
             controllerRef={controller =>
@@ -300,4 +310,4 @@ class ToolSearch extends React.Component {
   }
 }
 
-export default ToolSearch
+export default withStyles(styles)(ToolSearch)

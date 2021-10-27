@@ -17,7 +17,11 @@ import UserFormGridRoles from '@src/js/components/users/form/UserFormGridRoles.j
 import UserFormButtons from '@src/js/components/users/form/UserFormButtons.jsx'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 class UserForm extends React.PureComponent {
   constructor(props) {
@@ -88,11 +92,12 @@ class UserForm extends React.PureComponent {
   }
 
   renderMainPanel() {
+    const { classes } = this.props
     const { groups, roles, selection } = this.state
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <div>
+        <div className={classes.grid}>
           <UserFormGridGroups
             controllerRef={this.handleGroupsGridControllerRef}
             rows={groups}
@@ -104,7 +109,7 @@ class UserForm extends React.PureComponent {
             onSelectedRowChange={this.handleSelectedGroupRowChange}
           />
         </div>
-        <div>
+        <div className={classes.grid}>
           <UserFormGridRoles
             controllerRef={this.handleRolesGridControllerRef}
             rows={roles}

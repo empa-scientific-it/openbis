@@ -9,6 +9,7 @@ import GridController from '@src/js/components/common/grid/GridController.js'
 import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridActions from '@src/js/components/common/grid/GridActions.jsx'
+import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import ColumnConfig from '@src/js/components/common/grid/ColumnConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
@@ -45,7 +46,8 @@ const styles = theme => ({
   },
   tableFooterLeft: {
     display: 'flex',
-    flex: '1 1 auto'
+    flex: '1 1 auto',
+    paddingLeft: theme.spacing(2)
   },
   tableFooterRight: {
     display: 'flex',
@@ -155,13 +157,15 @@ class Grid extends React.PureComponent {
               </div>
               <div className={classes.tableFooter}>
                 <div className={classes.tableFooterLeft}>
-                  <div>
-                    <GridActions
-                      actions={actions}
-                      disabled={Object.keys(multiselectedRows).length === 0}
-                      onExecute={this.controller.handleExecuteAction}
-                    />
-                  </div>
+                  <GridActions
+                    actions={actions}
+                    disabled={Object.keys(multiselectedRows).length === 0}
+                    onExecute={this.controller.handleExecuteAction}
+                  />
+                  <GridExports
+                    disabled={rows.length === 0}
+                    onExport={this.controller.handleExport}
+                  />
                 </div>
                 <div className={classes.tableFooterRight}>
                   <GridPaging

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import UsersGrid from '@src/js/components/users/common/UsersGrid.jsx'
 import UserGroupsGrid from '@src/js/components/users/common/UserGroupsGrid.jsx'
@@ -15,6 +16,12 @@ import openbis from '@src/js/services/openbis.js'
 import util from '@src/js/common/util.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 const USER_FILTERED_FIELDS = ['userId', 'firstName', 'lastName']
 const USER_GROUP_FILTERED_FIELDS = ['code', 'description']
@@ -336,8 +343,9 @@ class UserSearch extends React.Component {
 
   renderUsers() {
     if (this.shouldRender(objectTypes.USER, this.state.users)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <UsersGrid
             id={ids.USERS_GRID_ID}
             controllerRef={controller =>
@@ -355,8 +363,9 @@ class UserSearch extends React.Component {
 
   renderUsersRoles() {
     if (this.shouldRender(objectTypes.USER, this.state.usersRoles)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <RolesGrid
             id={ids.ROLES_OF_USERS_GRID_ID}
             controllerRef={controller =>
@@ -376,8 +385,9 @@ class UserSearch extends React.Component {
 
   renderUserGroups() {
     if (this.shouldRender(objectTypes.USER_GROUP, this.state.userGroups)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <UserGroupsGrid
             id={ids.GROUPS_GRID_ID}
             controllerRef={controller =>
@@ -397,8 +407,9 @@ class UserSearch extends React.Component {
 
   renderUserGroupsRoles() {
     if (this.shouldRender(objectTypes.USER_GROUP, this.state.userGroupsRoles)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <RolesGrid
             id={ids.ROLES_OF_GROUPS_GRID_ID}
             controllerRef={controller =>
@@ -422,4 +433,4 @@ class UserSearch extends React.Component {
   }
 }
 
-export default UserSearch
+export default withStyles(styles)(UserSearch)

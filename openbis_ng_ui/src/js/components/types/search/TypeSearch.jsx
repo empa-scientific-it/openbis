@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import TypesGrid from '@src/js/components/types/common/TypesGrid.jsx'
 import VocabulariesGrid from '@src/js/components/types/common/VocabulariesGrid.jsx'
@@ -13,6 +14,12 @@ import openbis from '@src/js/services/openbis.js'
 import util from '@src/js/common/util.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 class TypeSearch extends React.Component {
   constructor(props) {
@@ -255,8 +262,9 @@ class TypeSearch extends React.Component {
 
   renderObjectTypes() {
     if (this.shouldRender(objectTypes.OBJECT_TYPE, this.state.objectTypes)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <TypesGrid
             id={ids.OBJECT_TYPES_GRID_ID}
             controllerRef={controller =>
@@ -279,8 +287,9 @@ class TypeSearch extends React.Component {
     if (
       this.shouldRender(objectTypes.COLLECTION_TYPE, this.state.collectionTypes)
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <TypesGrid
             id={ids.COLLECTION_TYPES_GRID_ID}
             controllerRef={controller =>
@@ -301,8 +310,9 @@ class TypeSearch extends React.Component {
 
   renderDataSetTypes() {
     if (this.shouldRender(objectTypes.DATA_SET_TYPE, this.state.dataSetTypes)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <TypesGrid
             id={ids.DATA_SET_TYPES_GRID_ID}
             controllerRef={controller =>
@@ -325,8 +335,9 @@ class TypeSearch extends React.Component {
     if (
       this.shouldRender(objectTypes.MATERIAL_TYPE, this.state.materialTypes)
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <TypesGrid
             id={ids.MATERIAL_TYPES_GRID_ID}
             controllerRef={controller =>
@@ -349,8 +360,9 @@ class TypeSearch extends React.Component {
     if (
       this.shouldRender(objectTypes.VOCABULARY_TYPE, this.state.vocabularyTypes)
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <VocabulariesGrid
             id={ids.VOCABULARY_TYPES_GRID_ID}
             controllerRef={controller =>
@@ -373,4 +385,4 @@ class TypeSearch extends React.Component {
   }
 }
 
-export default TypeSearch
+export default withStyles(styles)(TypeSearch)

@@ -21,12 +21,8 @@ const styles = theme => ({
       minWidth: '120px'
     }
   },
-  cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
-  },
   multiselect: {
-    display: 'inline-block'
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
   }
 })
 
@@ -77,7 +73,8 @@ class GridHeader extends React.PureComponent {
 
   renderMultiselectFilterCell() {
     if (this.props.multiselectable) {
-      return <TableCell></TableCell>
+      const { classes } = this.props
+      return <TableCell classes={{ root: classes.multiselect }}></TableCell>
     } else {
       return null
     }
@@ -110,14 +107,12 @@ class GridHeader extends React.PureComponent {
         rowIdsSelected.length > 0 && rowIdsSelected.length < rowIds.length
 
       return (
-        <TableCell>
-          <div className={classes.multiselect}>
-            <CheckboxField
-              value={value}
-              indeterminate={indeterminate}
-              onChange={this.handleSelectAllRowsChange}
-            />
-          </div>
+        <TableCell classes={{ root: classes.multiselect }}>
+          <CheckboxField
+            value={value}
+            indeterminate={indeterminate}
+            onChange={this.handleSelectAllRowsChange}
+          />
         </TableCell>
       )
     } else {

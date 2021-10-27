@@ -67,12 +67,12 @@ class ColumnConfig extends React.PureComponent {
           anchorEl={el}
           onClose={this.handleClose}
           anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
+            vertical: 'bottom',
+            horizontal: 'right'
           }}
           transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center'
+            vertical: 'top',
+            horizontal: 'right'
           }}
         >
           <DragDropContext onDragEnd={this.handleDragEnd}>

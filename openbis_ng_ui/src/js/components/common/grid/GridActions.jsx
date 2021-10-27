@@ -2,7 +2,6 @@ import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Popover from '@material-ui/core/Popover'
-import Typography from '@material-ui/core/Typography'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import messages from '@src/js/common/messages.js'
@@ -10,7 +9,8 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    paddingLeft: theme.spacing(2.5)
+    padding: theme.spacing(1),
+    paddingLeft: 0
   },
   row: {
     padding: `${theme.spacing(1) / 2}px 0px`
@@ -66,6 +66,7 @@ class GridActions extends React.PureComponent {
         <Button
           label={messages.get(messages.ACTIONS)}
           disabled={disabled}
+          color='default'
           onClick={this.handleOpen}
         />
         <Popover
@@ -73,11 +74,11 @@ class GridActions extends React.PureComponent {
           anchorEl={el}
           onClose={this.handleClose}
           anchorOrigin={{
-            vertical: 'top',
+            vertical: 'bottom',
             horizontal: 'left'
           }}
           transformOrigin={{
-            vertical: 'bottom',
+            vertical: 'top',
             horizontal: 'left'
           }}
         >
@@ -92,12 +93,12 @@ class GridActions extends React.PureComponent {
   renderAction(action) {
     const { classes } = this.props
     return (
-      <div className={classes.row} onClick={() => this.handleExecute(action)}>
-        <span className={classes.label}>
-          <Typography variant='body2' data-part='range'>
-            {action.label}
-          </Typography>
-        </span>
+      <div className={classes.row}>
+        <Button
+          key={action.label}
+          label={action.label}
+          onClick={() => this.handleExecute(action)}
+        />
       </div>
     )
   }

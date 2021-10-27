@@ -6,11 +6,14 @@ import GridCell from '@src/js/components/common/grid/GridCell.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({
+const styles = theme => ({
   row: {
     cursor: 'pointer'
   },
   multiselect: {
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
+  },
+  checkbox: {
     display: 'inline-block'
   }
 })
@@ -68,8 +71,8 @@ class GridRow extends React.PureComponent {
 
     if (multiselectable) {
       return (
-        <TableCell>
-          <div className={classes.multiselect}>
+        <TableCell classes={{ root: classes.multiselect }}>
+          <div className={classes.checkbox}>
             <CheckboxField
               value={multiselected}
               onClick={this.handleMultiselect}
