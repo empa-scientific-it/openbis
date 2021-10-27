@@ -4132,7 +4132,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 deletionIds.addAll(dependentDeletionIds);
             } else
             {
-                throw DeletionUtils.createException(session, businessObjectFactory,
+                throw ch.systemsx.cisd.openbis.generic.server.business.DeletionUtils.createException(session, businessObjectFactory,
                         TechId.asLongs(dependentDeletionIds));
             }
         }

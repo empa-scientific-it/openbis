@@ -16,14 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author Piotr Buczek
@@ -131,23 +125,5 @@ public class DeletionUtils
         {
             return false;
         }
-    }
-
-    public static UserFailureException createException(Session session, ICommonBusinessObjectFactory boFactory, 
-            List<Long> deletionIds)
-    {
-        IDeletionTable deletionTable = boFactory.createDeletionTable(session);
-        deletionTable.load(deletionIds, true);
-        StringBuilder builder = new StringBuilder();
-        for (Deletion deletion : deletionTable.getDeletions())
-        {
-            String entities = createDescriptionOfDeletedEntities(deletion);
-            builder.append(String.format("\nDeletion Set %s: ("
-                    + "deletion date: %2$tY-%2$tm-%2$td %2$tH:%2$tM:%2$tS, reason: %3$s, entities: %4$s)",
-                    deletion.getId(), deletion.getRegistrationDate(), deletion.getReason(), entities));
-        }
-        UserFailureException userFailureException = new UserFailureException("Permanent deletion not possible because the following "
-                + "deletion sets have to be deleted first:" + builder);
-        return userFailureException;
     }
 }
