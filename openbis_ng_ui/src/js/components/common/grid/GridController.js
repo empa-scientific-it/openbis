@@ -642,6 +642,13 @@ export default class GridController {
     this.multiselectRows(newMultiselectedRowIds)
   }
 
+  async handleExecuteAction(action) {
+    if (action && action.execute) {
+      const { multiselectedRows } = this.context.getState()
+      action.execute({ multiselectedRows })
+    }
+  }
+
   getAllColumns() {
     const { allColumns, columnsSorting } = this.context.getState()
 

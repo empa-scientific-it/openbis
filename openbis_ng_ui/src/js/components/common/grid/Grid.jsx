@@ -8,6 +8,7 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import GridController from '@src/js/components/common/grid/GridController.js'
 import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
+import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import ColumnConfig from '@src/js/components/common/grid/ColumnConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
@@ -39,7 +40,16 @@ const styles = theme => ({
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
     borderTopColor: theme.palette.border.secondary,
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    overflow: 'hidden'
+  },
+  tableFooterLeft: {
+    display: 'flex',
+    flex: '1 1 auto'
+  },
+  tableFooterRight: {
+    display: 'flex',
+    flex: '0 0 auto'
   }
 })
 
@@ -82,7 +92,7 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { header, classes, selectable, multiselectable } = this.props
+    const { header, selectable, multiselectable, actions, classes } = this.props
     const {
       loading,
       filters,
@@ -144,19 +154,30 @@ class Grid extends React.PureComponent {
                 </Table>
               </div>
               <div className={classes.tableFooter}>
-                <GridPaging
-                  count={totalCount}
-                  page={page}
-                  pageSize={pageSize}
-                  onPageChange={this.controller.handlePageChange}
-                  onPageSizeChange={this.controller.handlePageSizeChange}
-                />
-                <ColumnConfig
-                  columns={allColumns}
-                  columnsVisibility={columnsVisibility}
-                  onVisibleChange={this.controller.handleColumnVisibleChange}
-                  onOrderChange={this.controller.handleColumnOrderChange}
-                />
+                <div className={classes.tableFooterLeft}>
+                  <div>
+                    <GridActions
+                      actions={actions}
+                      disabled={Object.keys(multiselectedRows).length === 0}
+                      onExecute={this.controller.handleExecuteAction}
+                    />
+                  </div>
+                </div>
+                <div className={classes.tableFooterRight}>
+                  <GridPaging
+                    count={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    onPageChange={this.controller.handlePageChange}
+                    onPageSizeChange={this.controller.handlePageSizeChange}
+                  />
+                  <ColumnConfig
+                    columns={allColumns}
+                    columnsVisibility={columnsVisibility}
+                    onVisibleChange={this.controller.handleColumnVisibleChange}
+                    onOrderChange={this.controller.handleColumnOrderChange}
+                  />
+                </div>
               </div>
             </div>
           </Loading>

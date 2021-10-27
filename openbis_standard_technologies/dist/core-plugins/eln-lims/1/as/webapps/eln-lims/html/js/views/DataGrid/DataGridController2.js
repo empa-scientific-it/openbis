@@ -75,6 +75,7 @@ function DataGridController2(
         onSelectedRowChange: _this._onSelectedRowChange,
         selectable: true,
         multiselectable: isMultiselectable,
+        actions: _this._actions(extraOptions),
       })
     );
 
@@ -264,6 +265,26 @@ function DataGridController2(
           resolve(data);
         }
       }, options);
+    });
+  };
+
+  this._actions = function (extraOptions) {
+    if (!extraOptions) {
+      return [];
+    }
+
+    return extraOptions.map(function (extraOption) {
+      return {
+        label: extraOption.name,
+        execute: function (params) {
+          let selectedObjects = Object.values(params.multiselectedRows).map(
+            function (selectedRow) {
+              return selectedRow.data.$object;
+            }
+          );
+          extraOption.action(selectedObjects);
+        },
+      };
     });
   };
 

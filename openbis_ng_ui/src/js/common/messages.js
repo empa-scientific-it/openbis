@@ -1,5 +1,6 @@
 // prettier-ignore
 const keys = {
+  ACTIONS: 'ACTIONS',
   ACTIVATE_USER: 'ACTIVATE_USER',
   ACTIVE: 'ACTIVE',
   ADD: 'ADD',
@@ -192,6 +193,7 @@ const keys = {
 
 // prettier-ignore
 const messages_en = {
+  [keys.ACTIONS]: 'Actions',
   [keys.ACTIVATE_USER]: 'Activate user',
   [keys.ACTIVE]: 'Active',
   [keys.ADD]: 'Add',
