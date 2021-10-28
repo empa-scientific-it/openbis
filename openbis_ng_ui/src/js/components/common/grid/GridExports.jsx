@@ -5,6 +5,7 @@ import Popover from '@material-ui/core/Popover'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
+import Message from '@src/js/components/common/form/Message.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -13,6 +14,9 @@ const styles = theme => ({
   container: {
     padding: theme.spacing(1),
     paddingLeft: 0
+  },
+  popup: {
+    maxWidth: '300px'
   },
   field: {
     paddingBottom: theme.spacing(1)
@@ -100,7 +104,7 @@ class GridExports extends React.PureComponent {
             horizontal: 'left'
           }}
         >
-          <Container>
+          <Container className={classes.popup}>
             <div className={classes.field}>
               <SelectField
                 label={messages.get(messages.COLUMNS)}
@@ -158,6 +162,13 @@ class GridExports extends React.PureComponent {
                 onChange={this.handleChange}
               />
             </div>
+            {values.value === GridExportOptions.PLAIN_TEXT && (
+              <div className={classes.field}>
+                <Message type='warning'>
+                  {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
+                </Message>
+              </div>
+            )}
             <div className={classes.field}>
               <Button
                 label={messages.get(messages.EXPORT)}
