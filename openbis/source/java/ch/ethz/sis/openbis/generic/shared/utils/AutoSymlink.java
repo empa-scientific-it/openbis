@@ -41,7 +41,7 @@ public class AutoSymlink
     public static void main(String[] args) throws Exception
     {
         Properties properties 
-                = ExtendedProperties.createWith(PropertyIOUtils.loadProperties(getPathToServiceProperties()));
+                = ExtendedProperties.createWith(PropertyIOUtils.loadProperties("etc/service.properties"));
         CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.AS);
         PluginType maintenanceTasks =
                 new PluginType("maintenance-tasks",
@@ -53,27 +53,7 @@ public class AutoSymlink
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.AS, new IPluginType[] { maintenanceTasks, services, miscellaneous });
         Map<String, File> pluginFolders = injector.injectCorePlugins(properties);
-        createSymlinks(getLibFolder(), pluginFolders);
-    }
-
-    private static String getPathToServiceProperties()
-    {
-        String jettyHome = System.getProperty("jetty.base");
-        if (jettyHome != null)
-        {
-            return jettyHome + "etc/service.properties";
-        }
-        return "targets/www/WEB-INF/classes/service.properties";
-    }
-
-    public static File getLibFolder()
-    {
-        String jettyHome = System.getProperty("jetty.base");
-        if (jettyHome != null)
-        {
-            return new File(jettyHome + "webapps/openbis/WEB-INF/lib/");
-        }
-        return new File("targets/www/lib");
+        createSymlinks(new File("webapps/openbis/WEB-INF/lib/"), pluginFolders);
     }
 
     public static void createSymlinks(File libDir, Map<String, File> pluginFolders)
