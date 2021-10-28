@@ -93,9 +93,8 @@ class GridActions extends React.PureComponent {
   renderAction(action) {
     const { classes } = this.props
     return (
-      <div className={classes.row}>
+      <div key={action.label} className={classes.row}>
         <Button
-          key={action.label}
           label={action.label}
           onClick={() => this.handleExecute(action)}
         />

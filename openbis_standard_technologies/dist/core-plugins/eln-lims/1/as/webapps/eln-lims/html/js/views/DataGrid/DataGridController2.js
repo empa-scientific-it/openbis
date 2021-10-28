@@ -18,8 +18,6 @@
 
 TODO:
 
-- column.isExportable
-- grid.isMultiselectable
 - grid.heightPercentage
 
 */
@@ -222,6 +220,7 @@ function DataGridController2(
             index < 3 ||
             index === columns.length - 1),
         configurable: !column.hide && !column.canNotBeHidden,
+        exportable: column.isExportable,
       };
     });
 

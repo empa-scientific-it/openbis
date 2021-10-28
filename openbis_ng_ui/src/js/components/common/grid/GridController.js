@@ -206,6 +206,11 @@ export default class GridController {
       if (!newColumn.name) {
         throw new Error('column.name cannot be empty')
       }
+      if (newColumn.exportable && !newColumn.getValue) {
+        throw new Error(
+          'column.name cannot be exportable without getValue implementation'
+        )
+      }
       return this._loadColumn(newColumn)
     })
 
@@ -674,14 +679,16 @@ export default class GridController {
       return bytes
     }
 
-    function _exportColumnsFromData(namePrefix, data, headings) {
-      var arrayOfRowArrays = []
-      arrayOfRowArrays.push(headings)
-      for (var dIdx = 0; dIdx < data.length; dIdx++) {
+    function _exportColumnsFromData(namePrefix, rows, columns) {
+      const arrayOfRowArrays = []
+
+      const headers = columns.map(column => column.name)
+      arrayOfRowArrays.push(headers)
+
+      rows.forEach(row => {
         var rowAsArray = []
-        for (var hIdx = 0; hIdx < headings.length; hIdx++) {
-          var headerKey = headings[hIdx]
-          var rowValue = data[dIdx][headerKey]
+        columns.forEach(column => {
+          var rowValue = column.getValue({ row, column })
           if (!rowValue) {
             rowValue = ''
           } else {
@@ -699,9 +706,9 @@ export default class GridController {
             }
           }
           rowAsArray.push(rowValue)
-        }
+        })
         arrayOfRowArrays.push(rowAsArray)
-      }
+      })
 
       CsvStringify(
         {
@@ -722,36 +729,28 @@ export default class GridController {
       )
     }
 
+    const state = this.context.getState()
+    const props = this.context.getProps()
+
     var data = []
-    var headings = []
+    var columns = []
     var prefix = ''
 
     if (options.columns === GridExportOptions.ALL) {
-      const allColumns = this.getAllColumns()
-      allColumns.forEach(function (column) {
-        if (column.exportable) {
-          headings.push(column.name)
-        }
-      })
+      columns = this.getAllColumns()
       prefix += 'AllColumns'
     } else if (options.columns === GridExportOptions.VISIBLE) {
-      const visibleColumns = this.getVisibleColumns()
-      visibleColumns.forEach(function (column) {
-        if (column.exportable) {
-          headings.push(column.name)
-        }
-      })
+      columns = this.getVisibleColumns()
       prefix += 'VisibleColumns'
     } else {
       throw Error('Unsupported columns option: ' + options.columns)
     }
 
-    const state = this.context.getState()
-    const props = this.context.getProps()
+    columns = columns.filter(column => column.exportable)
 
     if (options.rows === GridExportOptions.ALL) {
       if (props.rows) {
-        data = props.rows
+        data = state.filteredRows
       } else if (props.loadRows) {
         const loadedResult = await props.loadRows({
           filters: state.filters,
@@ -768,11 +767,11 @@ export default class GridController {
       }
 
       prefix += 'AllRows'
-      _exportColumnsFromData(prefix, data, headings)
+      _exportColumnsFromData(prefix, data, columns)
     } else if (options.rows === GridExportOptions.VISIBLE) {
       data = state.rows
       prefix += 'VisibleRows'
-      _exportColumnsFromData(prefix, data, headings)
+      _exportColumnsFromData(prefix, data, columns)
     } else {
       throw Error('Unsupported rows option: ' + options.columns)
     }
