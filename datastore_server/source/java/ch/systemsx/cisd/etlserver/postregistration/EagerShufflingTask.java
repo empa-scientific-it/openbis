@@ -289,6 +289,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                 {
                     logger.log(LogLevel.ERROR, "Couldn't move data set " + dataSetCode
                             + " to share " + shareId + ".", t);
+                    throw t;
                 }
             }
         }
