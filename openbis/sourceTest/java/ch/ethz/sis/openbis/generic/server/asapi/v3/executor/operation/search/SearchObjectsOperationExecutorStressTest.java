@@ -16,6 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
 
+import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_DEFAULT;
+import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +71,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
 import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
@@ -426,10 +432,32 @@ public class SearchObjectsOperationExecutorStressTest
         {
             final Properties properties = new Properties();
             final File workingDirectory = createDirectoryInUnitTestRoot(getClass().getName());
-            properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY,
-                    workingDirectory.getPath());
+            properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
-            return new FileCache<>(cacheSize, properties, context.getSession().getSessionToken(), false);
+            final String sessionToken = context.getSession().getSessionToken();
+            final FileCache<Object> fileCache = new FileCache<>(cacheSize, properties, sessionToken, false);
+
+            assertCacheDirectoryEmpty(properties, sessionToken);
+
+            return fileCache;
+        }
+
+        /**
+         * Asserts that cache is cleared before start.
+         *
+         * @param properties configuration properties.
+         * @param sessionToken current session token.
+         */
+        @SuppressWarnings("ConstantConditions")
+        private void assertCacheDirectoryEmpty(final Properties properties, final String sessionToken)
+        {
+            final String cacheDirString = PropertyUtils.getProperty(properties, SESSION_WORKSPACE_ROOT_DIR_KEY,
+                    SESSION_WORKSPACE_ROOT_DIR_DEFAULT) + File.separator + FileCache.CACHE_FOLDER_NAME +
+                    File.separator + sessionToken.replaceAll("\\W+", "");
+            final File cacheDir = new File(cacheDirString);
+
+            assertTrue(cacheDir.isDirectory());
+            assertEquals(cacheDir.listFiles().length, 0);
         }
 
         protected final File createDirectoryInUnitTestRoot(String dirName)

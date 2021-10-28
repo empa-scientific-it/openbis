@@ -27,7 +27,7 @@ public class FileCache<V> implements ICache<V>
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, FileCache.class);
 
     /** Name of the cache subfolder in session workspace. */
-    private static final String CACHE_FOLDER_NAME = "cache";
+    public static final String CACHE_FOLDER_NAME = "cache";
 
     private final int capacity;
 
