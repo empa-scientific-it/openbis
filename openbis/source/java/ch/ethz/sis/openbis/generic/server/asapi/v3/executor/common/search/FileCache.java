@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
@@ -38,8 +39,13 @@ public class FileCache<V> implements ICache<V>
 
     private final File cacheDir;
 
-    public FileCache(final int capacity, final Properties serviceProperties, final String sessionToken)
+    /** If true cache values will be stored asynchronously in a separate thread. */
+    private final boolean asyncStorage;
+
+    public FileCache(final int capacity, final Properties serviceProperties, final String sessionToken,
+            final boolean asyncStorage)
     {
+        this.asyncStorage = asyncStorage;
         if (capacity < 0)
         {
             throw new RuntimeException("capacity cannot be negative.");
@@ -53,10 +59,8 @@ public class FileCache<V> implements ICache<V>
                 sessionToken.replaceAll("\\W+", "");
         cacheDir = new File(cacheDirString);
 
-        if (!cacheDir.exists())
-        {
-            cacheDir.mkdirs();
-        }
+        deleteDir(cacheDir);
+        cacheDir.mkdirs();
 
         cacheDir.deleteOnExit();
     }
@@ -92,12 +96,26 @@ public class FileCache<V> implements ICache<V>
             }
 
             final File cacheFile = getCacheFile(key);
-            try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
+            cacheFile.deleteOnExit();
+
+            final Runnable fileOutputRunnable = () ->
             {
-                out.writeObject(value);
-            } catch (final IOException e)
+                try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
+                {
+                    out.writeObject(value);
+                } catch (final IOException e)
+                {
+                    OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),
+                            e);
+                }
+            };
+
+            if (asyncStorage)
             {
-                OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value), e);
+                new Thread(fileOutputRunnable).start();
+            } else
+            {
+                fileOutputRunnable.run();
             }
 
             keyQueue.add(key);
@@ -115,7 +133,7 @@ public class FileCache<V> implements ICache<V>
             return (V) in.readObject();
         } catch (final IOException | ClassNotFoundException e)
         {
-            OPERATION_LOG.error(String.format("Reading value from cache. [key=%s]", key), e);
+            OPERATION_LOG.error(String.format("Error reading value from cache. [key=%s]", key), e);
             return null;
         }
     }
@@ -142,6 +160,15 @@ public class FileCache<V> implements ICache<V>
     private File getCacheFile(final String key)
     {
         return new File(cacheDirString + File.separator + key);
+    }
+
+    private static void deleteDir(final File dir) {
+        final File[] files = dir.listFiles();
+        if (files != null)
+        {
+            Arrays.stream(files).forEach(FileCache::deleteDir);
+        }
+        dir.delete();
     }
 
 }

@@ -274,7 +274,7 @@ public class SearchObjectsOperationExecutorStressTest
 
         private final Map<SearchCacheKey, Object> searchResults = new HashMap<>();
 
-        private final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
+        private final List<String> errors = Collections.synchronizedList(new ArrayList<>());
 
         private final Function<IOperationContext, ICache<Object>> cacheFactory;
 
@@ -429,7 +429,7 @@ public class SearchObjectsOperationExecutorStressTest
             properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY,
                     workingDirectory.getPath());
 
-            return new FileCache<>(cacheSize, properties, context.getSession().getSessionToken());
+            return new FileCache<>(cacheSize, properties, context.getSession().getSessionToken(), false);
         }
 
         protected final File createDirectoryInUnitTestRoot(String dirName)
