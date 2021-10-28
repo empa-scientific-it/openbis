@@ -1,6 +1,9 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
+import FileSaver from 'file-saver'
+import CsvStringify from 'csv-stringify'
 import compare from '@src/js/common/compare.js'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 
 export default class GridController {
   constructor() {
@@ -293,7 +296,8 @@ export default class GridController {
       filterable: column.filterable === undefined ? true : column.filterable,
       visible: column.visible === undefined ? true : column.visible,
       configurable:
-        column.configurable === undefined ? true : column.configurable
+        column.configurable === undefined ? true : column.configurable,
+      exportable: column.exportable === undefined ? true : column.exportable
     }
   }
 
@@ -655,6 +659,122 @@ export default class GridController {
     if (action && action.execute) {
       const { multiselectedRows } = this.context.getState()
       action.execute({ multiselectedRows })
+    }
+  }
+
+  async handleExport(options) {
+    function _stringToUtf16ByteArray(str) {
+      var bytes = []
+      bytes.push(255, 254)
+      for (var i = 0; i < str.length; ++i) {
+        var charCode = str.charCodeAt(i)
+        bytes.push(charCode & 0xff) //low byte
+        bytes.push((charCode & 0xff00) >>> 8) //high byte (might be 0)
+      }
+      return bytes
+    }
+
+    function _exportColumnsFromData(namePrefix, data, headings) {
+      var arrayOfRowArrays = []
+      arrayOfRowArrays.push(headings)
+      for (var dIdx = 0; dIdx < data.length; dIdx++) {
+        var rowAsArray = []
+        for (var hIdx = 0; hIdx < headings.length; hIdx++) {
+          var headerKey = headings[hIdx]
+          var rowValue = data[dIdx][headerKey]
+          if (!rowValue) {
+            rowValue = ''
+          } else {
+            var specialCharsRemover = document.createElement('textarea')
+            specialCharsRemover.innerHTML = rowValue
+            rowValue = specialCharsRemover.value //Removes special HTML Chars
+            rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, ' ') //Remove carriage returns and tabs
+
+            if (options.values === GridExportOptions.RICH_TEXT) {
+              // do nothing with the value
+            } else if (options.values === GridExportOptions.PLAIN_TEXT) {
+              rowValue = String(rowValue).replace(/<(?:.|\n)*?>/gm, '')
+            } else {
+              throw Error('Unsupported values option: ' + options.values)
+            }
+          }
+          rowAsArray.push(rowValue)
+        }
+        arrayOfRowArrays.push(rowAsArray)
+      }
+
+      CsvStringify(
+        {
+          header: false,
+          delimiter: '\t',
+          quoted: false
+        },
+        arrayOfRowArrays,
+        function (err, tsv) {
+          var utf16bytes = _stringToUtf16ByteArray(tsv)
+          var utf16bytesArray = new Uint8Array(utf16bytes.length)
+          utf16bytesArray.set(utf16bytes, 0)
+          var blob = new Blob([utf16bytesArray], {
+            type: 'text/tsv;charset=UTF-16LE;'
+          })
+          FileSaver.saveAs(blob, 'exportedTable' + namePrefix + '.tsv')
+        }
+      )
+    }
+
+    var data = []
+    var headings = []
+    var prefix = ''
+
+    if (options.columns === GridExportOptions.ALL) {
+      const allColumns = this.getAllColumns()
+      allColumns.forEach(function (column) {
+        if (column.exportable) {
+          headings.push(column.name)
+        }
+      })
+      prefix += 'AllColumns'
+    } else if (options.columns === GridExportOptions.VISIBLE) {
+      const visibleColumns = this.getVisibleColumns()
+      visibleColumns.forEach(function (column) {
+        if (column.exportable) {
+          headings.push(column.name)
+        }
+      })
+      prefix += 'VisibleColumns'
+    } else {
+      throw Error('Unsupported columns option: ' + options.columns)
+    }
+
+    const state = this.context.getState()
+    const props = this.context.getProps()
+
+    if (options.rows === GridExportOptions.ALL) {
+      if (props.rows) {
+        data = props.rows
+      } else if (props.loadRows) {
+        const loadedResult = await props.loadRows({
+          filters: state.filters,
+          page: 0,
+          pageSize: 1000000,
+          sort: state.sort,
+          sortDirection: state.sortDirection
+        })
+        if (_.isArray(loadedResult)) {
+          data = loadedResult
+        } else {
+          data = loadedResult.rows
+        }
+      }
+
+      prefix += 'AllRows'
+      _exportColumnsFromData(prefix, data, headings)
+    } else if (options.rows === GridExportOptions.VISIBLE) {
+      data = state.rows
+      prefix += 'VisibleRows'
+      _exportColumnsFromData(prefix, data, headings)
+    } else {
+      throw Error('Unsupported rows option: ' + options.columns)
     }
   }
 

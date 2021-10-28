@@ -5,6 +5,7 @@ import Popover from '@material-ui/core/Popover'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -18,19 +19,24 @@ const styles = theme => ({
   }
 })
 
-const ALL = 'ALL'
-const VISIBLE = 'VISIBLE'
-const PLAIN_TEXT = 'PLAIN_TEXT'
-const RICH_TEXT = 'RICH_TEXT'
-
 class GridExports extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      el: null
+      el: null,
+      columns: {
+        value: GridExportOptions.VISIBLE
+      },
+      rows: {
+        value: GridExportOptions.VISIBLE
+      },
+      values: {
+        value: GridExportOptions.RICH_TEXT
+      }
     }
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
+    this.handleChange = this.handleChange.bind(this)
     this.handleExport = this.handleExport.bind(this)
   }
 
@@ -46,11 +52,24 @@ class GridExports extends React.PureComponent {
     })
   }
 
-  handleExport(action) {
+  handleChange(event) {
+    this.setState({
+      [event.target.name]: {
+        value: event.target.value
+      }
+    })
+  }
+
+  handleExport() {
     const { onExport } = this.props
     this.handleClose()
     if (onExport) {
-      onExport(action)
+      const { columns, rows, values } = this.state
+      onExport({
+        columns: columns.value,
+        rows: rows.value,
+        values: values.value
+      })
     }
   }
 
@@ -58,7 +77,7 @@ class GridExports extends React.PureComponent {
     logger.log(logger.DEBUG, 'GridExports.render')
 
     const { disabled, classes } = this.props
-    const { el } = this.state
+    const { el, columns, rows, values } = this.state
 
     return (
       <div className={classes.container}>
@@ -89,14 +108,14 @@ class GridExports extends React.PureComponent {
                 options={[
                   {
                     label: messages.get(messages.ALL),
-                    value: ALL
+                    value: GridExportOptions.ALL
                   },
                   {
                     label: messages.get(messages.VISIBLE),
-                    value: VISIBLE
+                    value: GridExportOptions.VISIBLE
                   }
                 ]}
-                value={VISIBLE}
+                value={columns.value}
                 variant='standard'
                 onChange={this.handleChange}
               />
@@ -108,14 +127,14 @@ class GridExports extends React.PureComponent {
                 options={[
                   {
                     label: messages.get(messages.ALL),
-                    value: ALL
+                    value: GridExportOptions.ALL
                   },
                   {
                     label: messages.get(messages.VISIBLE),
-                    value: VISIBLE
+                    value: GridExportOptions.VISIBLE
                   }
                 ]}
-                value={VISIBLE}
+                value={rows.value}
                 variant='standard'
                 onChange={this.handleChange}
               />
@@ -127,20 +146,24 @@ class GridExports extends React.PureComponent {
                 options={[
                   {
                     label: messages.get(messages.PLAIN_TEXT),
-                    value: PLAIN_TEXT
+                    value: GridExportOptions.PLAIN_TEXT
                   },
                   {
                     label: messages.get(messages.RICH_TEXT),
-                    value: RICH_TEXT
+                    value: GridExportOptions.RICH_TEXT
                   }
                 ]}
-                value={RICH_TEXT}
+                value={values.value}
                 variant='standard'
                 onChange={this.handleChange}
               />
             </div>
             <div className={classes.field}>
-              <Button label={messages.get(messages.EXPORT)} type='neutral' />
+              <Button
+                label={messages.get(messages.EXPORT)}
+                type='neutral'
+                onClick={this.handleExport}
+              />
             </div>
           </Container>
         </Popover>
