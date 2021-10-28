@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
@@ -52,6 +54,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * <i>Data Access Object</i> implementation for {@link IDeletionDAO}.
@@ -60,6 +65,14 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements IDeletionDAO
 {
+    private static final SimpleComparator<DeletionPE, Long> DELETION_COMPARATOR = new SimpleComparator<DeletionPE, Long>()
+        {
+            @Override
+            public Long evaluate(DeletionPE deletion)
+            {
+                return deletion.getId();
+            }
+        };
 
     private static final String ID = "id";
 
@@ -79,12 +92,15 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     private final PersistencyResources persistencyResources;
 
+    private final IDeletionQuery deletionQuery;
+
     DeletionDAO(final SessionFactory sessionFactory,
             final PersistencyResources persistencyResources, EntityHistoryCreator historyCreator)
     {
         super(sessionFactory, DeletionPE.class, historyCreator);
 
         this.persistencyResources = persistencyResources;
+        deletionQuery = QueryTool.getManagedQuery(IDeletionQuery.class);
     }
 
     //
@@ -592,5 +608,40 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     {
         return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
                 Restrictions.isNotNull(ORIGINAL_DELETION));
+    }
+
+    @Override
+    public List<TechId> listAllDependentDeletions(List<TechId> deletionIds)
+    {
+        LongSet ids = new LongOpenHashSet();
+        for (TechId techId : deletionIds)
+        {
+            if (techId != null)
+            {
+                ids.add(techId.getId());
+            }
+        }
+        LongSet newIds = getCompleteSet(ids);
+        newIds.removeAll(ids);
+        List<Long> dependentIds = new ArrayList<>(newIds);
+        Collections.sort(dependentIds);
+        return TechId.createList(dependentIds);
+    }
+
+    private LongSet getCompleteSet(LongSet ids)
+    {
+        for (;;)
+        {
+            LongSet newIds = new LongOpenHashSet();
+            newIds.addAll(deletionQuery.getSampleDeletionsOfExperimentDeletions(ids));
+            newIds.addAll(deletionQuery.getDataSetDeletionsOfExperimentDeletions(ids));
+            newIds.addAll(deletionQuery.getSampleDeletionsOfContainerDeletions(ids));
+            newIds.addAll(deletionQuery.getDataSetDeletionsOfSampleDeletions(ids));
+            if (newIds.size() == ids.size())
+            {
+                return newIds;
+            }
+            ids = newIds;
+        }
     }
 }

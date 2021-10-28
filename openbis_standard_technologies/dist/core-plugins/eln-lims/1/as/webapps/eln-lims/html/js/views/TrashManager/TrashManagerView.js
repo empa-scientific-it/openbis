@@ -91,11 +91,20 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				var $removeOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently'}).append("Delete Permanently"));
 				$removeOption.click(function(e) {
 					Util.showWarning(deleteMessageOne, function() {
-						_this._trashManagerController.deletePermanently([data.entity.id]);
+						_this._trashManagerController.deletePermanently([data.entity.id], false);
 					});
 				});
 				$list.append($removeOption);
 				
+                var $removeIncludedOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently (including dependent deletions)'})
+                            .append("Delete Permanently<br>&nbsp;&nbsp;(including dependent deletions)"));
+                $removeIncludedOption.click(function(e) {
+                    Util.showWarning(deleteMessageOne, function() {
+                        _this._trashManagerController.deletePermanently([data.entity.id], true);
+                    });
+                });
+                $list.append($removeIncludedOption);
+                
 				return $dropDownMenu;
 			},
 			filter : function(data, filter) {

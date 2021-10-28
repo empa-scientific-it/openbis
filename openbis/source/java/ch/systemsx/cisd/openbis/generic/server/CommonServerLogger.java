@@ -1580,15 +1580,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public void deletePermanently(String sessionToken, List<TechId> deletionIds)
+    public void deletePermanently(String sessionToken, List<TechId> deletionIds, boolean forceToDeleteDependentDeletionSets)
     {
-        logTracking(sessionToken, "deletePermanently", "ID(%s)", abbreviate(deletionIds));
+        logTracking(sessionToken, "deletePermanently", "ID(%s) FORCE_TO_DELETE_DEPENDENT_DELETION_SETS(%s)",
+                abbreviate(deletionIds), forceToDeleteDependentDeletionSets);
     }
 
     @Override
-    public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds)
+    public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds, boolean forceToDeleteDependentDeletionSets)
     {
-        logTracking(sessionToken, "deletePermanentlyForced", "ID(%s)", abbreviate(deletionIds));
+        logTracking(sessionToken, "deletePermanentlyForced", "ID(%s) FORCE_TO_DELETE_DEPENDENT_DELETION_SETS(%s)",
+                abbreviate(deletionIds), forceToDeleteDependentDeletionSets);
     }
 
     @Override

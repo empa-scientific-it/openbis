@@ -160,6 +160,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -4098,28 +4099,43 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_ADMIN)
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds,
+            boolean forceToDeleteDependentDeletionSets)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, false);
+        deletePermanentlyCommon(sessionToken, deletionIds, forceToDeleteDependentDeletionSets, false);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds)
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds,
+            boolean forceToDeleteDependentDeletionSets)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, true);
+        deletePermanentlyCommon(sessionToken, deletionIds, forceToDeleteDependentDeletionSets, true);
     }
 
-    private void deletePermanentlyCommon(String sessionToken, List<TechId> deletionIds,
-            boolean forceDisallowedTypes)
+    private void deletePermanentlyCommon(String sessionToken, List<TechId> primaryDeletionIds,
+            boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
     {
         Session session = getSession(sessionToken);
         PersonPE registrator = session.tryGetPerson();
 
+        List<TechId> deletionIds = new ArrayList<>(primaryDeletionIds);
         IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
+        List<TechId> dependentDeletionIds = deletionDAO.listAllDependentDeletions(deletionIds);
+        if (dependentDeletionIds.isEmpty() == false)
+        {
+            if (forceToDeleteDependentDeletionSets)
+            {
+                deletionIds.addAll(dependentDeletionIds);
+            } else
+            {
+                throw ch.systemsx.cisd.openbis.generic.server.business.DeletionUtils.createException(session, businessObjectFactory,
+                        TechId.asLongs(dependentDeletionIds));
+            }
+        }
         Collections.sort(deletionIds, TECH_ID_COMPARATOR);
         // NOTE: we can't do bulk deletions to preserve original reasons
         for (TechId deletionId : deletionIds)

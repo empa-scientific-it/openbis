@@ -54,6 +54,11 @@ public class DeletionForceCheckBox extends Composite
         checkBox.setToolTip(tooltip);
     }
 
+    public CheckBox getCheckBox()
+    {
+        return checkBox;
+    }
+
     public boolean getValue()
     {
         Boolean value = checkBox.getValue();

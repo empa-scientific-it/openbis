@@ -35,6 +35,8 @@ public class ConfirmDeletionsOperation implements IOperation
 
     private boolean forceDeletion;
 
+    private boolean forceDeletionOfDependentDeletions;
+
     @SuppressWarnings("unused")
     private ConfirmDeletionsOperation()
     {
@@ -58,6 +60,16 @@ public class ConfirmDeletionsOperation implements IOperation
     public boolean isForceDeletion()
     {
         return forceDeletion;
+    }
+
+    public boolean isForceDeletionOfDependentDeletions()
+    {
+        return forceDeletionOfDependentDeletions;
+    }
+
+    public void setForceDeletionOfDependentDeletions(boolean forceDeletionOfDependentDeletions)
+    {
+        this.forceDeletionOfDependentDeletions = forceDeletionOfDependentDeletions;
     }
 
     @Override

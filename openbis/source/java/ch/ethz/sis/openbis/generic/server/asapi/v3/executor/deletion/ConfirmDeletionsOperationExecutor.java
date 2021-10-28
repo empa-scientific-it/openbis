@@ -44,7 +44,8 @@ public class ConfirmDeletionsOperationExecutor extends OperationExecutor<Confirm
     @Override
     protected ConfirmDeletionsOperationResult doExecute(IOperationContext context, ConfirmDeletionsOperation operation)
     {
-        executor.confirm(context, operation.getDeletionIds(), operation.isForceDeletion());
+        executor.confirm(context, operation.getDeletionIds(), operation.isForceDeletion(),
+                operation.isForceDeletionOfDependentDeletions());
         return new ConfirmDeletionsOperationResult();
     }
 

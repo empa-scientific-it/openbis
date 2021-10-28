@@ -784,9 +784,27 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
 	}
 
-	this.deletePermanently = function(deletionIds, callback) {
-		this.openbisServer.deletePermanently(deletionIds, callback);
-	}
+    this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions, callback) {
+        require([ "as/dto/deletion/id/DeletionTechId", "as/dto/deletion/confirm/ConfirmDeletionsOperation",
+                  "as/dto/operation/SynchronousOperationExecutionOptions"],
+            function(DeletionTechId, ConfirmDeletionsOperation, SynchronousOperationExecutionOptions) {
+                var dtids = deletionIds.map(id => new DeletionTechId(id));
+                var confirmOperation = new ConfirmDeletionsOperation(dtids);
+                confirmOperation.setForceDeletionOfDependentDeletions(forceDeletionOfDependentDeletions);
+                mainController.openbisV3.executeOperations([confirmOperation], new SynchronousOperationExecutionOptions())
+                .done(function() {
+                    callback({});
+                }).fail(function(error) {
+                    var message = error.message;
+                    if (message.startsWith("Permanent deletion not possible because ")) {
+                        error.message += "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
+                        + "or you choose 'Delete Permanently (including dependent deletions)' the next time."
+                    }
+                    Util.showFailedServerCallError(error);
+                    Util.unblockUI();
+                });
+            });
+    }
 
 	this.revertDeletions = function(deletionIds, callback) {
 		this.openbisServer.revertDeletions(deletionIds, callback);
@@ -1818,7 +1836,7 @@ function ServerFacade(openbisServer) {
                                         result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value;
 
                     var permIdFound = hackFixForBrokenEquals[fIdx].permId && result &&
-                                        result.permId && result.permId.permId
+                                        result.permId && result.permId.permId &&
                                         result.permId.permId === hackFixForBrokenEquals[fIdx].value;
         		    if(propertyFound || permIdFound) {
         			    switch(operator) {
@@ -1859,7 +1877,11 @@ function ServerFacade(openbisServer) {
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects, advancedSearchCriteria.logicalOperator);
+				var majorVersion =  profile.openbisVersion.split('.', 1);
+				if (!isNaN(majorVersion) && majorVersion <= 19) {
+					apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
+						advancedSearchCriteria.logicalOperator);
+				}
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2212,7 +2234,10 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			var majorVersion =  profile.openbisVersion.split('.', 1);
+			if (!isNaN(majorVersion) && majorVersion <= 19) {
+				results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			}
 			callbackFunction(results);
 		});
 	}

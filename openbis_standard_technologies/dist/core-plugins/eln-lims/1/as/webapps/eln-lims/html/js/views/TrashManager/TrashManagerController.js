@@ -30,16 +30,16 @@ function TrashManagerController(mainController) {
 		});
 	}
 	
-	this.deletePermanently = function(deletionIds) {
-		mainController.serverFacade.deletePermanently(deletionIds, function(data) {
-		    if(data.error) {
-		        Util.showError(data.error.message, null, true, true, false, true);
-		    } else {
-		        Util.showSuccess("Permanently Deleted.");
+    this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions) {
+        mainController.serverFacade.deletePermanently(deletionIds, forceDeletionOfDependentDeletions, function(data) {
+            if(data.error) {
+                Util.showError(data.error.message, null, true, true, false, true);
+            } else {
+                Util.showSuccess("Permanently Deleted.");
                 mainController.changeView('showTrashcanPage', null);
-		    }
-		});
-	}
+            }
+        });
+    }
 	
 	this.emptyTrash = function() {
 		var deleteIds = [];
@@ -49,8 +49,8 @@ function TrashManagerController(mainController) {
 			deleteIds.push(deletion.id);
 		}
 		
-		mainController.serverFacade.deletePermanently(deleteIds, function(data) {
-		    if(data.error) {
+        mainController.serverFacade.deletePermanently(deleteIds, true, function(data) {
+            if(data.error) {
                 Util.showError(data.error.message, null, true, true, false, true);
             } else {
                 Util.showSuccess("Trashcan cleaned.");

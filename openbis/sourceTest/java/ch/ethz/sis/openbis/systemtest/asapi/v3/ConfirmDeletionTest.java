@@ -17,13 +17,16 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
@@ -42,13 +45,21 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionResults;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author pkupczyk
@@ -348,7 +359,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         // Given
         ExperimentPermId experiment = createCisdExperiment();
         SamplePermId sample1 = createCisdSample(experiment, "A-" + System.currentTimeMillis());
-        SamplePermId sample2 = createCisdSample(experiment, "B-" + System.currentTimeMillis());
+        createCisdSample(experiment, "B-" + System.currentTimeMillis());
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("test");
@@ -361,11 +372,119 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionSet2, deletionSet1));
 
         // Then
+        assertEquals(getDeletions(deletionSet1).size(), 0);
+    }
+
+    @Test
+    public void testDeletionWithDependentDeletionSets()
+    {
+        // Given
+        ExperimentPermId experiment = experiment("TO_BE_DELETED");
+        List<SamplePermId> samples = samples(experiment, null, "TO_BE_DELETED1", "NOT_DELETED1");
+        SamplePermId experimentSampleToBeDeleted = samples.get(0);
+        samples = samples(null, experimentSampleToBeDeleted, "TO_BE_DELETED2", "NOT_DELETED2");
+        SamplePermId componentSampleToBeDeleted = samples.get(0);
+        List<DataSetPermId> dataSets = dataSets(experiment, "TO_BE_DELETED1", "NOT_DELETED1");
+        DataSetPermId experimentDataSetToBeDeleted = dataSets.get(0);
+        dataSets = dataSets(componentSampleToBeDeleted, "TO_BE_DELETED2", "NOT_DELETED2");
+        DataSetPermId sampleDataSetToBeDeleted = dataSets.get(0);
+
+        DataSetDeletionOptions dataSetDeletionOptions = new DataSetDeletionOptions();
+        dataSetDeletionOptions.setReason("test");
+        IDeletionId sampleDataSetDeletionId = v3api.deleteDataSets(systemSessionToken, 
+                Arrays.asList(sampleDataSetToBeDeleted), dataSetDeletionOptions);
+        IDeletionId experimentDataSetDeletionId = v3api.deleteDataSets(systemSessionToken, 
+                Arrays.asList(experimentDataSetToBeDeleted), dataSetDeletionOptions);
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("test");
+        IDeletionId componentSampleDeletionSetId = v3api.deleteSamples(systemSessionToken, 
+                Arrays.asList(componentSampleToBeDeleted), sampleDeletionOptions);
+        IDeletionId experimentSampleDeletionSetId = v3api.deleteSamples(systemSessionToken, 
+                Arrays.asList(experimentSampleToBeDeleted), sampleDeletionOptions);
+        ExperimentDeletionOptions experimentDeletionOptions = new ExperimentDeletionOptions();
+        experimentDeletionOptions.setReason("test");
+        IDeletionId experimentDeletionSetId = v3api.deleteExperiments(systemSessionToken, 
+                Arrays.asList(experiment), experimentDeletionOptions);
+
+        try
+        {
+            // When
+            v3api.confirmDeletions(systemSessionToken, Arrays.asList(experimentDeletionSetId));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            // Then
+            List<IDeletionId> actualDeletionIds = new ArrayList<>();
+            String[] splitted = ex.getMessage().split("Deletion Set ");
+            for (int i = 1; i < splitted.length; i++)
+            {
+                actualDeletionIds.add(new DeletionTechId(new Long(splitted[i].split(":")[0])));
+            }
+            List<IDeletionId> expectedDeletionIds = Arrays.asList(sampleDataSetDeletionId, experimentDataSetDeletionId,
+                    componentSampleDeletionSetId, experimentSampleDeletionSetId);
+            assertEquals(actualDeletionIds.toString(), expectedDeletionIds.toString());
+            assertEquals(getDeletions(sampleDataSetDeletionId, experimentDataSetDeletionId,
+                    componentSampleDeletionSetId, experimentSampleDeletionSetId).size(), 4);
+        }
+    }
+
+    @Test
+    public void testDeletionWithDependentDeletionSetsIncluded()
+    {
+        // Given
+        ExperimentPermId experiment = experiment("TO_BE_DELETED");
+        List<SamplePermId> samples = samples(experiment, null, "TO_BE_DELETED1", "NOT_DELETED1");
+        SamplePermId experimentSampleToBeDeleted = samples.get(0);
+        samples = samples(null, experimentSampleToBeDeleted, "TO_BE_DELETED2", "NOT_DELETED2");
+        SamplePermId componentSampleToBeDeleted = samples.get(0);
+        List<DataSetPermId> dataSets = dataSets(experiment, "TO_BE_DELETED1", "NOT_DELETED1");
+        DataSetPermId experimentDataSetToBeDeleted = dataSets.get(0);
+        dataSets = dataSets(componentSampleToBeDeleted, "TO_BE_DELETED2", "NOT_DELETED2");
+        DataSetPermId sampleDataSetToBeDeleted = dataSets.get(0);
+        
+        DataSetDeletionOptions dataSetDeletionOptions = new DataSetDeletionOptions();
+        dataSetDeletionOptions.setReason("test");
+        IDeletionId sampleDataSetDeletionId = v3api.deleteDataSets(systemSessionToken, 
+                Arrays.asList(sampleDataSetToBeDeleted), dataSetDeletionOptions);
+        IDeletionId experimentDataSetDeletionId = v3api.deleteDataSets(systemSessionToken, 
+                Arrays.asList(experimentDataSetToBeDeleted), dataSetDeletionOptions);
+        SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("test");
+        IDeletionId componentSampleDeletionSetId = v3api.deleteSamples(systemSessionToken, 
+                Arrays.asList(componentSampleToBeDeleted), sampleDeletionOptions);
+        IDeletionId experimentSampleDeletionSetId = v3api.deleteSamples(systemSessionToken, 
+                Arrays.asList(experimentSampleToBeDeleted), sampleDeletionOptions);
+        ExperimentDeletionOptions experimentDeletionOptions = new ExperimentDeletionOptions();
+        experimentDeletionOptions.setReason("test");
+        IDeletionId experimentDeletionSetId = v3api.deleteExperiments(systemSessionToken, 
+                Arrays.asList(experiment), experimentDeletionOptions);
+        ConfirmDeletionsOperation confirmOperation = new ConfirmDeletionsOperation(Arrays.asList(experimentDeletionSetId));
+        confirmOperation.setForceDeletionOfDependentDeletions(true);
+        assertEquals(getDeletions(sampleDataSetDeletionId, experimentDataSetDeletionId,
+                componentSampleDeletionSetId, experimentSampleDeletionSetId).size(), 4);
+        
+        // When
+
+        SynchronousOperationExecutionResults results 
+                = (SynchronousOperationExecutionResults) v3api.executeOperations(systemSessionToken, 
+                        Arrays.asList(confirmOperation), new SynchronousOperationExecutionOptions());
+
+        // Then
+        IOperationResult operationResult = results.getResults().get(0);
+        assertEquals(operationResult.getMessage(), "ConfirmDeletionsOperationResult");
+        assertEquals(getDeletions(sampleDataSetDeletionId, experimentDataSetDeletionId,
+                componentSampleDeletionSetId, experimentSampleDeletionSetId).size(), 0);
+    }
+    
+    private List<Deletion> getDeletions(IDeletionId...deletionIds)
+    {
         DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
-        searchCriteria.withId().thatEquals(deletionSet1);
-        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
-        List<Deletion> result = v3api.searchDeletions(sessionToken, searchCriteria, fetchOptions).getObjects();
-        assertEquals(result.size(), 0);
+        searchCriteria.withOrOperator();
+        for (IDeletionId deletionId : deletionIds)
+        {
+            searchCriteria.withId().thatEquals(deletionId);
+        }
+        return v3api.searchDeletions(systemSessionToken, searchCriteria, new DeletionFetchOptions()).getObjects();
     }
     
     @Test
@@ -385,11 +504,62 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         assertAccessLog("confirm-deletions  DELETION_IDS('[" + deletionId + "]')");
     }
 
+    private ExperimentPermId experiment(String code)
+    {
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("DELETION_TEST"));
+        experimentCreation.setCode(code);
+        experimentCreation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        return v3api.createExperiments(systemSessionToken, Arrays.asList(experimentCreation)).get(0);
+    }
+
+    private List<SamplePermId> samples(ExperimentPermId experiment, SamplePermId container, String... codes)
+    {
+        List<SampleCreation> sampleCreations = new ArrayList<>();
+        for (String code : codes)
+        {
+            SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setTypeId(new EntityTypePermId("DELETION_TEST"));
+            sampleCreation.setCode(code);
+            sampleCreation.setSpaceId(new SpacePermId("CISD"));
+            sampleCreation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+            sampleCreation.setExperimentId(experiment);
+            sampleCreation.setContainerId(container);
+            sampleCreations.add(sampleCreation);
+        }
+        return v3api.createSamples(systemSessionToken, sampleCreations);
+    }
+
+    private List<DataSetPermId> dataSets(ExperimentPermId experiment, String... codes)
+    {
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+        for (String code : codes)
+        {
+            dataSetCreations.add(dataSetCreation("DELETION_TEST", code, experiment, null));
+        }
+        return v3api.createDataSets(systemSessionToken, dataSetCreations);
+    }
+
+    private List<DataSetPermId> dataSets(SamplePermId sample, String... codes)
+    {
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+        for (String code : codes)
+        {
+            dataSetCreations.add(dataSetCreation("DELETION_TEST", code, null, sample));
+        }
+        return v3api.createDataSets(systemSessionToken, dataSetCreations);
+    }
 
     private DataSetCreation dataSetCreation(String typeCode, String dataSetCode)
     {
+        return dataSetCreation(typeCode, dataSetCode, new ExperimentIdentifier("/CISD/NEMO/EXP1"), null);
+    }
+
+    private DataSetCreation dataSetCreation(String typeCode, String dataSetCode,
+            IExperimentId experimentId, ISampleId sampleId)
+    {
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-        physicalCreation.setLocation("a/b/c");
+        physicalCreation.setLocation("a/b/c/" + dataSetCode);
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
         physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
         physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
@@ -398,7 +568,8 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
         creation.setCode(dataSetCode);
         creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setTypeId(new EntityTypePermId(typeCode));
-        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setExperimentId(experimentId);
+        creation.setSampleId(sampleId);
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setPhysicalData(physicalCreation);
 

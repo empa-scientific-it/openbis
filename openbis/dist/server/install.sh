@@ -127,6 +127,7 @@ cd "$war_classes"
 ln -s ../../../../etc/service.properties .
 cd -
 
+cp -p "$installation_folder/autosymlink.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/startup.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/shutdown.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/status.sh" "$JETTY_BIN_DIR"

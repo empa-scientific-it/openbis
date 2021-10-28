@@ -191,7 +191,7 @@ public class ToolBox
     private void emptyTrashCan()
     {
         List<Deletion> deletions = commonServer.listDeletions(systemSessionToken, false);
-        commonServer.deletePermanently(systemSessionToken, TechId.createList(deletions));
+        commonServer.deletePermanently(systemSessionToken, TechId.createList(deletions), false);
     }
 
     private void trashSamples(Space space)

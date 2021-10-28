@@ -2543,3 +2543,6 @@ string Prefix Match Property Score
 get Server Public Information
 Get Server Public Information Operation
 Get Server Public Information Operation Result
+
+is Force Deletion Of Dependent Deletions
+set Force Deletion Of Dependent Deletions

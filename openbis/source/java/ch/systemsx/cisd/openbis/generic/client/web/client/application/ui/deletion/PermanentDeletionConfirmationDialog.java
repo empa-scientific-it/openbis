@@ -21,6 +21,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -38,7 +41,7 @@ public final class PermanentDeletionConfirmationDialog extends
 {
     private static final int LABEL_WIDTH = 60;
 
-    private static final int FIELD_WIDTH = 180;
+    private static final int FIELD_WIDTH = 200;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -52,6 +55,8 @@ public final class PermanentDeletionConfirmationDialog extends
 
     private Radio allRadio;
 
+    private DeletionForceCheckBox forceToDeleteDependentDeletionSetsCheckBox;
+
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             DisplayedAndSelectedDeletions selectedAndDisplayedItems, AsyncCallback<Void> callback)
     {
@@ -59,7 +64,13 @@ public final class PermanentDeletionConfirmationDialog extends
                 .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
         setStyleName("permanentDeletionConfirmationDialog");
         this.viewContext = viewContext;
-        this.callback = callback;
+        this.callback = new DeletionAsyncCallback(callback);
+        forceToDeleteDependentDeletionSetsCheckBox = new DeletionForceCheckBox();
+        forceToDeleteDependentDeletionSetsCheckBox.setText("Force dependent deletions: ");
+        forceToDeleteDependentDeletionSetsCheckBox.setTooltip("Dependent deletions have entities "
+                + "which have to be permanently deleted together or before the entities of the selected deletions "
+                + "can be permanently deleted, too.");
+        forceToDeleteDependentDeletionSetsCheckBox.getCheckBox().setStyleAttribute("top", "-3px");
         this.forceOptions = new DeletionForceOptions(viewContext);
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         this.setId("deletion-confirmation-dialog");
@@ -71,7 +82,9 @@ public final class PermanentDeletionConfirmationDialog extends
         DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Deletion>> criteria =
                 selectedAndDisplayedItems.createCriteria(WidgetUtils.isSelected(onlySelectedRadio));
 
-        viewContext.getCommonService().deletePermanently(criteria, forceOptions.getForceDisallowedTypesValue(),
+        viewContext.getCommonService().deletePermanently(criteria,
+                forceToDeleteDependentDeletionSetsCheckBox.getValue(),
+                forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback, viewContext.getMessage(Dict.PERMANENT_DELETIONS_PROGRESS)));
     }
 
@@ -104,7 +117,40 @@ public final class PermanentDeletionConfirmationDialog extends
         radioGroup.setStyleName("gray-delete-radios");
 
         formPanel.add(radioGroup);
+        Panel panel = new VerticalPanel();
+        panel.addStyleName("deletionForceOptions");
+        panel.add(forceToDeleteDependentDeletionSetsCheckBox);
+        formPanel.add(panel);
         formPanel.add(forceOptions);
     }
 
-}
+    public class DeletionAsyncCallback implements AsyncCallback<Void>
+    {
+        private AsyncCallback<Void> callback;
+
+        public DeletionAsyncCallback(AsyncCallback<Void> callback)
+        {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            String message = caught.getMessage();
+            if (message.startsWith("Permanent deletion not possible because "))
+            {
+                callback.onFailure(new UserFailureException(message
+                        + "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
+                        + "or you check the check box 'Force dependent deletions' the next time."));
+            } else
+            {
+                callback.onFailure(caught);
+            }
+        }
+
+        @Override
+        public void onSuccess(Void result)
+        {
+            callback.onSuccess(result);
+        }
+    }}
