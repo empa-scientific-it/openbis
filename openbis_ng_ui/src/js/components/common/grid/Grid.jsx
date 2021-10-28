@@ -106,7 +106,8 @@ class Grid extends React.PureComponent {
       rows,
       selectedRow,
       multiselectedRows,
-      totalCount
+      totalCount,
+      exportOptions
     } = this.state
 
     const allColumns = this.controller.getAllColumns()
@@ -164,7 +165,11 @@ class Grid extends React.PureComponent {
                   />
                   <GridExports
                     disabled={rows.length === 0}
+                    exportOptions={exportOptions}
                     onExport={this.controller.handleExport}
+                    onExportOptionsChange={
+                      this.controller.handleExportOptionsChange
+                    }
                   />
                 </div>
                 <div className={classes.tableFooterRight}>

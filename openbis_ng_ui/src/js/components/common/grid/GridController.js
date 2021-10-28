@@ -29,7 +29,12 @@ export default class GridController {
       multiselectedRows: {},
       sort: null,
       sortDirection: null,
-      totalCount: 0
+      totalCount: 0,
+      exportOptions: {
+        columns: GridExportOptions.VISIBLE,
+        rows: GridExportOptions.VISIBLE,
+        values: GridExportOptions.RICH_TEXT
+      }
     })
     this.context = context
   }
@@ -76,6 +81,8 @@ export default class GridController {
           settings.columnsVisibility || newState.columnsVisibility
         newState.columnsSorting =
           settings.columnsSorting || newState.columnsSorting
+        newState.exportOptions =
+          settings.exportOptions || newState.exportOptions
       }
     }
 
@@ -341,7 +348,8 @@ export default class GridController {
         sort: state.sort,
         sortDirection: state.sortDirection,
         columnsVisibility: state.columnsVisibility,
-        columnsSorting: state.columnsSorting
+        columnsSorting: state.columnsSorting,
+        exportOptions: state.exportOptions
       }
 
       onSettingsChange(settings)
@@ -667,7 +675,9 @@ export default class GridController {
     }
   }
 
-  async handleExport(options) {
+  async handleExport() {
+    const { exportOptions } = this.context.getState()
+
     function _stringToUtf16ByteArray(str) {
       var bytes = []
       bytes.push(255, 254)
@@ -697,12 +707,12 @@ export default class GridController {
             rowValue = specialCharsRemover.value //Removes special HTML Chars
             rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, ' ') //Remove carriage returns and tabs
 
-            if (options.values === GridExportOptions.RICH_TEXT) {
+            if (exportOptions.values === GridExportOptions.RICH_TEXT) {
               // do nothing with the value
-            } else if (options.values === GridExportOptions.PLAIN_TEXT) {
+            } else if (exportOptions.values === GridExportOptions.PLAIN_TEXT) {
               rowValue = String(rowValue).replace(/<(?:.|\n)*?>/gm, '')
             } else {
-              throw Error('Unsupported values option: ' + options.values)
+              throw Error('Unsupported values option: ' + exportOptions.values)
             }
           }
           rowAsArray.push(rowValue)
@@ -736,19 +746,19 @@ export default class GridController {
     var columns = []
     var prefix = ''
 
-    if (options.columns === GridExportOptions.ALL) {
+    if (exportOptions.columns === GridExportOptions.ALL) {
       columns = this.getAllColumns()
       prefix += 'AllColumns'
-    } else if (options.columns === GridExportOptions.VISIBLE) {
+    } else if (exportOptions.columns === GridExportOptions.VISIBLE) {
       columns = this.getVisibleColumns()
       prefix += 'VisibleColumns'
     } else {
-      throw Error('Unsupported columns option: ' + options.columns)
+      throw Error('Unsupported columns option: ' + exportOptions.columns)
     }
 
     columns = columns.filter(column => column.exportable)
 
-    if (options.rows === GridExportOptions.ALL) {
+    if (exportOptions.rows === GridExportOptions.ALL) {
       if (props.rows) {
         data = state.filteredRows
       } else if (props.loadRows) {
@@ -768,13 +778,20 @@ export default class GridController {
 
       prefix += 'AllRows'
       _exportColumnsFromData(prefix, data, columns)
-    } else if (options.rows === GridExportOptions.VISIBLE) {
+    } else if (exportOptions.rows === GridExportOptions.VISIBLE) {
       data = state.rows
       prefix += 'VisibleRows'
       _exportColumnsFromData(prefix, data, columns)
     } else {
-      throw Error('Unsupported rows option: ' + options.columns)
+      throw Error('Unsupported rows option: ' + exportOptions.columns)
     }
+  }
+
+  async handleExportOptionsChange(exportOptions) {
+    await this.context.setState(() => ({
+      exportOptions
+    }))
+    await this._saveSettings()
   }
 
   getAllColumns() {

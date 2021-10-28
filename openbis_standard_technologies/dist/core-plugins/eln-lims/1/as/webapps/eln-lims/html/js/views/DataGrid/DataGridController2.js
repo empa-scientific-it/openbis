@@ -101,6 +101,7 @@ function DataGridController2(
                   : null,
                 columnsVisibility: elnGridSettingsObj.columns,
                 columnsSorting: elnGridSettingsObj.columnsSorting,
+                exportOptions: elnGridSettingsObj.exportOptions,
               };
             } catch (e) {
               console.log(
@@ -296,6 +297,7 @@ function DataGridController2(
       },
       columns: gridSettingsObj.columnsVisibility,
       columnsSorting: gridSettingsObj.columnsSorting,
+      exportOptions: gridSettingsObj.exportOptions,
     };
 
     let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj);

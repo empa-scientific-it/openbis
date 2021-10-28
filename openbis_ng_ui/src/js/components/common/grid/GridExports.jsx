@@ -27,16 +27,7 @@ class GridExports extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      el: null,
-      columns: {
-        value: GridExportOptions.VISIBLE
-      },
-      rows: {
-        value: GridExportOptions.VISIBLE
-      },
-      values: {
-        value: GridExportOptions.RICH_TEXT
-      }
+      el: null
     }
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
@@ -57,31 +48,30 @@ class GridExports extends React.PureComponent {
   }
 
   handleChange(event) {
-    this.setState({
-      [event.target.name]: {
-        value: event.target.value
+    const { exportOptions, onExportOptionsChange } = this.props
+
+    if (onExportOptionsChange) {
+      const newExportOptions = {
+        ...exportOptions,
+        [event.target.name]: event.target.value
       }
-    })
+      onExportOptionsChange(newExportOptions)
+    }
   }
 
   handleExport() {
     const { onExport } = this.props
     this.handleClose()
     if (onExport) {
-      const { columns, rows, values } = this.state
-      onExport({
-        columns: columns.value,
-        rows: rows.value,
-        values: values.value
-      })
+      onExport()
     }
   }
 
   render() {
     logger.log(logger.DEBUG, 'GridExports.render')
 
-    const { disabled, classes } = this.props
-    const { el, columns, rows, values } = this.state
+    const { exportOptions, disabled, classes } = this.props
+    const { el } = this.state
 
     return (
       <div className={classes.container}>
@@ -119,7 +109,7 @@ class GridExports extends React.PureComponent {
                     value: GridExportOptions.VISIBLE
                   }
                 ]}
-                value={columns.value}
+                value={exportOptions.columns}
                 variant='standard'
                 onChange={this.handleChange}
               />
@@ -138,7 +128,7 @@ class GridExports extends React.PureComponent {
                     value: GridExportOptions.VISIBLE
                   }
                 ]}
-                value={rows.value}
+                value={exportOptions.rows}
                 variant='standard'
                 onChange={this.handleChange}
               />
@@ -157,12 +147,12 @@ class GridExports extends React.PureComponent {
                     value: GridExportOptions.RICH_TEXT
                   }
                 ]}
-                value={values.value}
+                value={exportOptions.values}
                 variant='standard'
                 onChange={this.handleChange}
               />
             </div>
-            {values.value === GridExportOptions.PLAIN_TEXT && (
+            {exportOptions.values === GridExportOptions.PLAIN_TEXT && (
               <div className={classes.field}>
                 <Message type='warning'>
                   {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
