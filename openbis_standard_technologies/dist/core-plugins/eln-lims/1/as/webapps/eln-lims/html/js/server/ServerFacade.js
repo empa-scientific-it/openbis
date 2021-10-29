@@ -1501,6 +1501,19 @@ function ServerFacade(openbisServer) {
                                                 break;
                                     }
                                     break;
+                                case "IDENTIFIER":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withIdentifier().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withIdentifier().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;
                                 case "PERM_ID":
                                     criteria.withPermId().thatEquals(attributeValue);
                                     break;
@@ -1513,6 +1526,9 @@ function ServerFacade(openbisServer) {
                                             case "thatEqualsUserId":
                                                 criteria.withRegistrator().withUserId().thatEquals(attributeValue);
                                                 break;
+                                            case "thatContainsUserId":
+                                                criteria.withRegistrator().withUserId().thatContains(attributeValue);
+                                                break;    
                                             case "thatContainsFirstName":
                                                 criteria.withRegistrator().withFirstName().thatContains(attributeValue);
                                                 break;
@@ -1551,6 +1567,9 @@ function ServerFacade(openbisServer) {
                                             case "thatEqualsUserId":
                                                 criteria.withModifier().withUserId().thatEquals(attributeValue);
                                                 break;
+                                            case "thatContainsUserId":
+                                                criteria.withModifier().withUserId().thatContains(attributeValue);
+                                                break; 
                                             case "thatContainsFirstName":
                                                 criteria.withModifier().withFirstName().thatContains(attributeValue);
                                                 break;

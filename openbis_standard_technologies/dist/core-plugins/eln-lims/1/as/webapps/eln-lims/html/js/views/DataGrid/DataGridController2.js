@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-/*
-
-TODO:
-
-- grid.heightPercentage
-
-*/
-
 function DataGridController2(
   title,
   columnsFirst,
@@ -238,6 +230,8 @@ function DataGridController2(
         Object.keys(params.filters).length > 0
           ? Object.values(params.filters).join(" ")
           : null,
+      searchMap: params.filters,
+      searchOperator: "AND",
     };
 
     function checkRowIds(rows) {

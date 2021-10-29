@@ -498,31 +498,39 @@ var SampleDataGridUtil = new function() {
 			
 			var criteriaToSend = $.extend(true, {}, criteria);
 
-			if(options && options.searchOperator && options.search) {
-				criteriaToSend.logicalOperator = options.searchOperator;
-			    var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
+            if(options && options.searchOperator && options.searchMap) {
+                criteriaToSend.logicalOperator = options.searchOperator;
 
-				if(criteriaToSend.logicalOperator === "AND") {
-                    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-                        var fKeyword = filter[fIdx];
-                        criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
+                function isValidDate(str){
+                    return /^\d{4}-\d{2}-\d{2}$/.test(str) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(str)
+                }
+
+                for(var field in options.searchMap){
+                    var search = options.searchMap[field] || ""
+
+                    search = search.trim()
+
+                    if(field === "code"){
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.CODE", value : search, operator: "thatContains" };
+                    }else if(field === "identifier"){
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.IDENTIFIER", value : search, operator: "thatContains" };
+                    }else if(field === "registrator"){
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.REGISTRATOR", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "registrationDate"){
+                        if(isValidDate(search)){
+                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                        }
+                    }else if(field === "modifier"){
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.MODIFIER", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "modificationDate"){
+                        if(isValidDate(search)){
+                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
+                        }
+                    }else{
+                        criteriaToSend.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
                     }
-				} else if(criteriaToSend.logicalOperator === "OR") { // Using sub criteria
-				    criteriaToSend.rules = {};
-				    criteriaToSend.subCriteria = {};
-
-				    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-                        var subCriteria = $.extend(true, {}, criteria);
-                        delete subCriteria.cached;
-                        delete subCriteria.cachedSearch;
-                        subCriteria.logicalOperator = "AND";
-                        var fKeyword = filter[fIdx];
-                        subCriteria.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
-                        criteriaToSend.subCriteria[Util.guid()] = subCriteria;
-                    }
-
-				}
-			}
+                }
+            }
 
 			if(options && options.sortProperty && options.sortDirection) {
 				fetchOptions.sort = { 
@@ -639,6 +647,7 @@ var SampleDataGridUtil = new function() {
 			property : 'operations',
 			isExportable: false,
 			sortable : false,
+            filterable: false,
 			render : function(data) {
 				//Dropdown Setup
 				var $dropDownMenu = $("<span>", { class : 'dropdown table-options-dropdown' });
