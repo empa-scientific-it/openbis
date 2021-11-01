@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -99,16 +100,16 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
         }
 
         AbstractExternalData dataSet = tryGetExternalData(dataSetCode, service);
-        if (dataSet == null)
-        {
+        if (dataSet == null) {
             operationLog.warn("Data set '" + dataSetCode
                     + "' is no longer available in openBIS."
                     + "Archiving post-registration task will be skipped...");
             return;
         }
-
-        if (updateStatus == false)
-        {
+        if (dataSet instanceof PhysicalDataSet && ((PhysicalDataSet) dataSet).isPresentInArchive()) {
+            return;
+        }
+        if (updateStatus == false) {
             operationLog.info("Archiving data set '" + dataSetCode
                     + "' without updating archiving status.");
         }

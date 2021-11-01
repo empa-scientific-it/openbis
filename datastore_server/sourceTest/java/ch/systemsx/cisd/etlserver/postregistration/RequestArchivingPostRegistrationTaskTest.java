@@ -18,11 +18,18 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -44,24 +51,50 @@ public class RequestArchivingPostRegistrationTaskTest
 
     private IApplicationServerApi v3api;
 
+    private BufferedAppender logRecorder;
+
     @BeforeMethod
     public void setUp()
     {
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         v3api = context.mock(IApplicationServerApi.class);
     }
 
+    @AfterMethod(alwaysRun = true)
+    public void afterMethod()
+    {
+        if (logRecorder != null)
+        {
+            logRecorder.reset();
+        }
+        if (context != null)
+        {
+            // The following line of code should also be called at the end of each test method.
+            // Otherwise one do not known which test failed.
+            context.assertIsSatisfied();
+        }
+    }
+
     @Test
-    public void test()
+    public void testNotArchivedDataSet()
     {
         // Given
         Properties properties = new Properties();
         IPostRegistrationTask task = createTask(properties);
         RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<List<DataSetUpdate>>();
+
+        final PhysicalDataSet physicalDataset = new PhysicalDataSet();
+        physicalDataset.setCode("ds1");
+        physicalDataset.setPresentInArchive(false);
+
         context.checking(new Expectations()
             {
                 {
+
+                    one(service).listDataSetsByCode(with(Collections.singletonList("ds1")));
+                    will(returnValue(Collections.singletonList(physicalDataset)));
                     one(service).getSessionToken();
                     will(returnValue(SESSION_TOKEN));
                     one(v3api).updateDataSets(with(SESSION_TOKEN), with(recordedUpdates));
@@ -78,6 +111,35 @@ public class RequestArchivingPostRegistrationTaskTest
         assertEquals(update.getPhysicalData().getValue().isArchivingRequested().isModified(), true);
         assertEquals(update.getPhysicalData().getValue().isArchivingRequested().getValue(), Boolean.TRUE);
         assertEquals(updates.size(), 1);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchivedDataSet()
+    {
+        // Given
+        Properties properties = new Properties();
+        IPostRegistrationTask task = createTask(properties);
+        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<List<DataSetUpdate>>();
+
+        final PhysicalDataSet physicalDataset = new PhysicalDataSet();
+        physicalDataset.setCode("ds1");
+        physicalDataset.setPresentInArchive(true);
+
+        context.checking(new Expectations()
+        {
+            {
+
+                one(service).listDataSetsByCode(with(Collections.singletonList("ds1")));
+                will(returnValue(Collections.singletonList(physicalDataset)));
+            }
+        });
+
+        // When
+        task.createExecutor("ds1", false).execute();
+
+        // Then
+        AssertionUtil.assertContains("DataSet ds1 is already in archive.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 

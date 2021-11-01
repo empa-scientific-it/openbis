@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
+import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
@@ -663,13 +664,17 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 {
                     one(service).tryGetDataSet(DATA_SET_CODE);
                     will(returnValue(dataSet));
-
-                    one(service).updatePhysicalDataSetsSize(Collections.singletonMap(DATA_SET_CODE, 3L));
                 }
             });
 
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE, false);
         mockPathsInfoDAO.addException(1L, new RuntimeException("Oops!"));
-        task.createExecutor(DATA_SET_CODE, false).execute();
+
+        try {
+            executor.execute();
+        } catch (Throwable ex) {
+            assertEquals("Oops!", ex.getMessage());
+        }
 
         assertEquals("createDataSet(code=ds1, location=2)\n"
                 + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
