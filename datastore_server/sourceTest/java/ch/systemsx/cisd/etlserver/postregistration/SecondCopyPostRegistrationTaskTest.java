@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogUtils;
@@ -252,7 +253,14 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
 
         destination.createNewFile();
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET1, false);
-        executor.execute();
+        try
+        {
+            executor.execute();
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException e)
+        {
+            assertEquals("Archiving of data set ds1 failed.",e.getMessage());
+        }
 
         assertEquals("INFO  OPERATION.SecondCopyPostRegistrationTask - "
                 + "Archiving data set 'ds1' without updating archiving status.\n"
