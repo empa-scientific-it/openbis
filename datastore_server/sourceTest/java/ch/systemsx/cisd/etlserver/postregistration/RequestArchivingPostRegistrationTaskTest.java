@@ -120,20 +120,18 @@ public class RequestArchivingPostRegistrationTaskTest
         // Given
         Properties properties = new Properties();
         IPostRegistrationTask task = createTask(properties);
-        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<List<DataSetUpdate>>();
 
         final PhysicalDataSet physicalDataset = new PhysicalDataSet();
         physicalDataset.setCode("ds1");
         physicalDataset.setPresentInArchive(true);
 
         context.checking(new Expectations()
-        {
             {
-
-                one(service).listDataSetsByCode(with(Collections.singletonList("ds1")));
-                will(returnValue(Collections.singletonList(physicalDataset)));
-            }
-        });
+                {
+                    one(service).listDataSetsByCode(with(Collections.singletonList("ds1")));
+                    will(returnValue(Collections.singletonList(physicalDataset)));
+                }
+            });
 
         // When
         task.createExecutor("ds1", false).execute();

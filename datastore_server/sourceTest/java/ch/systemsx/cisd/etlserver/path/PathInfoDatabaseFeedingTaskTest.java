@@ -670,9 +670,11 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE, false);
         mockPathsInfoDAO.addException(1L, new RuntimeException("Oops!"));
 
-        try {
+        try
+        {
             executor.execute();
-        } catch (Throwable ex) {
+        } catch (Throwable ex)
+        {
             assertEquals("Oops!", ex.getMessage());
         }
 

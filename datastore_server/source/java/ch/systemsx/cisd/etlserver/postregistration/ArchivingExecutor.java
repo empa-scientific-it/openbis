@@ -100,16 +100,19 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
         }
 
         AbstractExternalData dataSet = tryGetExternalData(dataSetCode, service);
-        if (dataSet == null) {
+        if (dataSet == null)
+        {
             operationLog.warn("Data set '" + dataSetCode
                     + "' is no longer available in openBIS."
                     + "Archiving post-registration task will be skipped...");
             return;
         }
-        if (dataSet instanceof PhysicalDataSet && ((PhysicalDataSet) dataSet).isPresentInArchive()) {
+        if (dataSet instanceof PhysicalDataSet && ((PhysicalDataSet) dataSet).isPresentInArchive())
+        {
             return;
         }
-        if (updateStatus == false) {
+        if (updateStatus == false)
+        {
             operationLog.info("Archiving data set '" + dataSetCode
                     + "' without updating archiving status.");
         }
