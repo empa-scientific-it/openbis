@@ -47,7 +47,7 @@ public class RequestArchivingPostRegistrationTask extends AbstractPostRegistrati
     {
         return new IPostRegistrationTaskExecutor()
             {
-                private boolean isAlreadyArchived()
+                private boolean isArchivedOrArchivingRequested()
                 {
                     List<String> codeAsList = Collections.singletonList(dataSetCode);
                     List<AbstractExternalData> dataList = service.listDataSetsByCode(codeAsList);
@@ -58,15 +58,17 @@ public class RequestArchivingPostRegistrationTask extends AbstractPostRegistrati
                     }
 
                     AbstractExternalData dataSet = dataList.get(0);
-                    return dataSet instanceof PhysicalDataSet && ((PhysicalDataSet) dataSet).isPresentInArchive();
+                    return dataSet instanceof PhysicalDataSet &&
+                            (((PhysicalDataSet) dataSet).isPresentInArchive() ||
+                            ((PhysicalDataSet) dataSet).isArchivingRequested());
                 }
 
                 @Override
                 public void execute()
                 {
-                    if (isAlreadyArchived())
+                    if (isArchivedOrArchivingRequested())
                     {
-                        operationLog.info("DataSet " + dataSetCode + " is already in archive.");
+                        operationLog.info("DataSet " + dataSetCode + " is either in archive or archiving is requested.");
                         return;
                     }
 

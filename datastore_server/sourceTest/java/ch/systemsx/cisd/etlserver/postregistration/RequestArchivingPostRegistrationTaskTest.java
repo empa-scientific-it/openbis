@@ -137,7 +137,34 @@ public class RequestArchivingPostRegistrationTaskTest
         task.createExecutor("ds1", false).execute();
 
         // Then
-        AssertionUtil.assertContains("DataSet ds1 is already in archive.", logRecorder.getLogContent());
+        AssertionUtil.assertContains("DataSet ds1 is either in archive or archiving is requested.", logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchivingRequestedDataSet()
+    {
+        // Given
+        Properties properties = new Properties();
+        IPostRegistrationTask task = createTask(properties);
+
+        final PhysicalDataSet physicalDataset = new PhysicalDataSet();
+        physicalDataset.setCode("ds1");
+        physicalDataset.setArchivingRequested(true);
+
+        context.checking(new Expectations()
+        {
+            {
+                one(service).listDataSetsByCode(with(Collections.singletonList("ds1")));
+                will(returnValue(Collections.singletonList(physicalDataset)));
+            }
+        });
+
+        // When
+        task.createExecutor("ds1", false).execute();
+
+        // Then
+        AssertionUtil.assertContains("DataSet ds1 is either in archive or archiving is requested.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
