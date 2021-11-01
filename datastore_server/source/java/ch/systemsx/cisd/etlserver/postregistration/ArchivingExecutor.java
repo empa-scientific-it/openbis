@@ -25,6 +25,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -129,13 +130,21 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
                     new ArchiverTaskContext(dataSetDirectoryProvider,
                             hierarchicalContentProvider);
             ProcessingStatus processingStatus = archiver.archive(dataSetAsList, context, false);
-            if (false == processingStatus.getErrorStatuses().isEmpty())
+            boolean presentInArchive = true;
+            try
             {
-                notifyAdministrator(processingStatus, notificationTemplate.createFreshCopy());
-            }
-            if (updateStatus)
+                if (false == processingStatus.getErrorStatuses().isEmpty())
+                {
+                    notifyAdministrator(processingStatus, notificationTemplate.createFreshCopy());
+                    presentInArchive = false;
+                    throw new EnvironmentFailureException("Archiving of data set " + dataSetCode + " failed.");
+                }
+            } finally
             {
-                service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
+                if (updateStatus)
+                {
+                    service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, presentInArchive);
+                }
             }
         }
     }
