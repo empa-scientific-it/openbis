@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -118,11 +119,18 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         prepareSetDataSetStatusToPending(true);
         RecordingMatcher<List<DatasetDescription>> recordingMatcher =
                 prepareArchive(createFailedProcesingStatus());
-        prepareSetDataSetStatusBackToAvailable(true);
+        prepareSetDataSetStatusBackToAvailable(false, true);
         ArchivingPostRegistrationTask task =
                 new ArchivingPostRegistrationTask(new Properties(), service);
 
-        task.createExecutor(DATASET_CODE, false).execute();
+        try
+        {
+            task.createExecutor(DATASET_CODE, false).execute();
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException e)
+        {
+            assertEquals("Archiving of data set ds1 failed.",e.getMessage());
+        }
 
         assertEquals("Eager archiving of dataset '" + DATASET_CODE + "' has failed.\n"
                 + "Error encountered : " + ARCHIVE_ERROR + "\n\n"
@@ -140,7 +148,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         prepareSetDataSetStatusToPending(true);
         RecordingMatcher<List<DatasetDescription>> recordingMatcher =
                 prepareArchive(new ProcessingStatus());
-        prepareSetDataSetStatusBackToAvailable(true);
+        prepareSetDataSetStatusBackToAvailable(true, true);
         ArchivingPostRegistrationTask task =
                 new ArchivingPostRegistrationTask(new Properties(), service);
 
@@ -179,13 +187,13 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
             });
     }
 
-    private final void prepareSetDataSetStatusBackToAvailable(final boolean updated)
+    private final void prepareSetDataSetStatusBackToAvailable(boolean presentInArchive, boolean updated)
     {
         context.checking(new Expectations()
             {
                 {
                     one(service).compareAndSetDataSetStatus(DATASET_CODE, BACKUP_PENDING,
-                            AVAILABLE, true);
+                            AVAILABLE, presentInArchive);
                     will(returnValue(updated));
                 }
             });

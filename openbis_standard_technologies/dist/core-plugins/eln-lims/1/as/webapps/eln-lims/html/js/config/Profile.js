@@ -240,9 +240,19 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
 
 		this.settingsObjects = [];
-
 		this.isMultiGroup = function() {
 			return this.settingsObjects.length > 1;
+		}
+
+		this.getGroupCodes = function() {
+		    var groupCodes = [];
+		    for(var sOIdx = 0; sOIdx < this.settingsObjects.length; sOIdx++) {
+                var identifier = this.settingsObjects[sOIdx].identifier;
+                var spaceCode = identifier.split("/")[1];
+                var prefix = spaceCode.substring(0, spaceCode.length - this.settingsSpacesPostFix.length);
+                groupCodes.push(prefix);
+		    }
+		    return groupCodes;
 		}
 
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
@@ -293,7 +303,7 @@ $.extend(DefaultProfile.prototype, {
 		this.storageSpacesPostFixes = ["STORAGE"];
 		this.storageSpaces = [];
 		//Ending in "ELN_SETTINGS"
-		this.settingsSpacesPostFixes = ["ELN_SETTINGS"];
+		this.settingsSpacesPostFix = "ELN_SETTINGS";
 		this.settingsSpaces = [];
 		//Ending in "ELN_SETTINGS", "STORAGE"
 		this.hideSpacesPostFixes = ["ELN_SETTINGS", "STORAGE"];
@@ -315,7 +325,7 @@ $.extend(DefaultProfile.prototype, {
 					if(Util.elementEndsWithArrayElement(space.code, _this.storageSpacesPostFixes)) {
 						_this.storageSpaces.push(space.code);
 					}
-					if(Util.elementEndsWithArrayElement(space.code, _this.settingsSpacesPostFixes)) {
+					if(Util.elementEndsWithArrayElement(space.code, [_this.settingsSpacesPostFix])) {
 						_this.settingsSpaces.push(space.code);
 					}
 					if(Util.elementEndsWithArrayElement(space.code, _this.hideSpacesPostFixes)) {
@@ -377,7 +387,7 @@ $.extend(DefaultProfile.prototype, {
 			var spaceCode = sample.spaceCode;
 			for(var ssIdx = 0; ssIdx < this.settingsSpaces.length; ssIdx++) {
 				var settingsSpaceCode = this.settingsSpaces[ssIdx];
-				var spacePrefixIndexOf = settingsSpaceCode.indexOf(this.settingsSpacesPostFixes[0]);
+				var spacePrefixIndexOf = settingsSpaceCode.indexOf(this.settingsSpacesPostFix);
 				if(spacePrefixIndexOf !== -1) {
 					var spacePrefix = settingsSpaceCode.substring(0, spacePrefixIndexOf);
 					if(spaceCode.startsWith(spacePrefix) && (prefix === null || (spacePrefix.length > prefix.length))) {

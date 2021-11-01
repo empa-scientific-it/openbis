@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-import java.util.Arrays;
-import java.util.Properties;
+import java.util.*;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -46,10 +47,31 @@ public class RequestArchivingPostRegistrationTask extends AbstractPostRegistrati
     {
         return new IPostRegistrationTaskExecutor()
             {
+                private boolean isArchivedOrArchivingRequested()
+                {
+                    List<String> codeAsList = Collections.singletonList(dataSetCode);
+                    List<AbstractExternalData> dataList = service.listDataSetsByCode(codeAsList);
+
+                    if (dataList == null || dataList.isEmpty())
+                    {
+                        return false;
+                    }
+
+                    AbstractExternalData dataSet = dataList.get(0);
+                    return dataSet instanceof PhysicalDataSet &&
+                            (((PhysicalDataSet) dataSet).isPresentInArchive() ||
+                            ((PhysicalDataSet) dataSet).isArchivingRequested());
+                }
 
                 @Override
                 public void execute()
                 {
+                    if (isArchivedOrArchivingRequested())
+                    {
+                        operationLog.info("DataSet " + dataSetCode + " is either in archive or archiving is requested.");
+                        return;
+                    }
+
                     DataSetUpdate dataSetUpdate = new DataSetUpdate();
                     dataSetUpdate.setDataSetId(new DataSetPermId(dataSetCode));
                     PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();

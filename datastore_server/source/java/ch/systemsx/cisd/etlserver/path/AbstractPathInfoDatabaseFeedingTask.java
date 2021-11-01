@@ -97,6 +97,7 @@ abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTa
         {
             getOperationLog().error("Couldn't feed database with path infos of data set " + dataSetCode, ex);
             dao.rollback();
+            throw ex;
         } finally
         {
             shareIdManager.releaseLocks();
