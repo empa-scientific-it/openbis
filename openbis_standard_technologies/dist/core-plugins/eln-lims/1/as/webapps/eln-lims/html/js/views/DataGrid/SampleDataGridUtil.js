@@ -339,7 +339,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Registrator',
 			property : 'registrator',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columnsLast.push({
@@ -353,7 +353,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Modifier',
 			property : 'modifier',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columnsLast.push({
