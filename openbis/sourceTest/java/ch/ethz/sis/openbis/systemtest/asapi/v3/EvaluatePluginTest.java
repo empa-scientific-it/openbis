@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -49,6 +50,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -294,6 +296,13 @@ public class EvaluatePluginTest extends AbstractTest
         Sample sample = v3api.getSamples(systemSessionToken, Arrays.asList(sampleId), fo).get(sampleId);
         assertEquals(sample.getProperties().get(pTypeCreation.getCode()), 
                 sample.getCode() + ": children: ['CHILD'], components: ['COMPONENT']");
+
+        // Remove all samples created in this test because there will be no roll back
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionId = v3api.deleteSamples(systemSessionToken, 
+                Arrays.asList(sampleId, childSampleId, componentSampleId), deletionOptions);
+        v3api.confirmDeletions(systemSessionToken, Arrays.asList(deletionId));
     }
 
     @Test

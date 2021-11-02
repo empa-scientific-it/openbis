@@ -93,7 +93,7 @@ public class AuthorisationInformation
                                                        final AuthorizationConfig authorizationConfig) {
         final Set<Long> spaceIds = new HashSet<>();
         final Set<Long> projectIds = new HashSet<>();
-        boolean instanceRole = false;
+        boolean instanceRole = personPE.isSystemUser();
         final boolean projectLevelAuthorizationEnabled = authorizationConfig.isProjectLevelEnabled()
                 && authorizationConfig.isProjectLevelUser(personPE.getUserId());
         for (final RoleAssignmentPE roleAssignmentPE : personPE.getAllPersonRoles())
