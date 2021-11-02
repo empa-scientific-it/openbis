@@ -1568,6 +1568,9 @@ function ServerFacade(openbisServer) {
                                 case "PERM_ID":
                                     criteria.withPermId().thatEquals(attributeValue);
                                     break;
+                                case "IDENTIFIER":
+                                    criteria.withIdentifier().thatEquals(attributeValue);
+                                    break;
                                 case "METAPROJECT":
                                     criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
                                     break;

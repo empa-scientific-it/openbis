@@ -89,7 +89,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             $formColumn.append($("<h2>").append("Group Settings"));
 
             if(profile.isMultiGroup()) {
-                $formColumn.append(FormUtil.getWarningText("Storages and Templates need to belong to the settings space of the group they are assigned. Creation of them from this settings page is currently well not supported on multi group instances, needs to be done manually."));
+                $formColumn.append(FormUtil.getWarningText("Storages and Templates shown are the ones belonging to the group settings selected."));
             }
 
             this._paintStoragesSection($formColumn, texts.storages);
@@ -175,11 +175,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var $gridContainer = $("<div>");
 		$fieldset.append($gridContainer);
 
-		var advancedSampleSearchCriteria = {
-				entityKind : "SAMPLE",
-				logicalOperator : "AND",
-				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : "STORAGE" } }
-		}
+        var advancedSampleSearchCriteria = {
+            entityKind : "SAMPLE",
+            logicalOperator : "AND",
+            rules : {
+                "1" : { type : "Experiment",  name : "ATTR.IDENTIFIER", value : experimentIdentifier }
+            }
+        }
+        debugger;
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
@@ -190,23 +193,24 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-templates");
 		$fieldset.append(FormUtil.getInfoText(text.info));
 
-        var $createTemplate = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-                FormUtil.createNewSample("/" + _this._settingsFormModel.settingsSample.spaceCode + "/TEMPLATES/TEMPLATES_COLLECTION");
+		var experimentIdentifier = profile.getTemplateConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION";
+
+        var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+                FormUtil.createNewSample(experimentIdentifier);
         }, "New Template");
 
-        $fieldset.append($("<p>").append($createTemplate));
+        $fieldset.append($("<p>").append($addBtn));
         var $gridContainer = $("<div>");
 		$fieldset.append($gridContainer);
 
-		var advancedSampleSearchCriteria = {
-				entityKind : "SAMPLE",
-				logicalOperator : "AND",
-				rules : {
-				          "1" : { type : "Experiment",  name : "ATTR.CODE", value : "TEMPLATES_COLLECTION" },
-				          "2" : { type : "Project",     name : "ATTR.CODE", value : "TEMPLATES" },
-				          "3" : { type : "Space",       name : "ATTR.CODE", value : this._settingsFormModel.settingsSample.spaceCode }
-			    }
-		}
+        var advancedSampleSearchCriteria = {
+            entityKind : "SAMPLE",
+            logicalOperator : "AND",
+            rules : {
+                "1" : { type : "Experiment",  name : "ATTR.IDENTIFIER", value : experimentIdentifier }
+            }
+        }
+
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);

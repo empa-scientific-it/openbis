@@ -404,6 +404,11 @@ $.extend(DefaultProfile.prototype, {
 			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "STORAGES", prefix + "STORAGES_COLLECTION");
 		}
 
+		this.getTemplateConfigCollectionForConfigSample = function(sample) {
+			var prefix = this.getSampleConfigSpacePrefix(sample);
+			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "TEMPLATES", prefix + "TEMPLATES_COLLECTION");
+		}
+
 		this.getStorageSpaceForSample = function(sample) {
 			return this.getStorageSpaceForSpace(sample.spaceCode);
 		}
