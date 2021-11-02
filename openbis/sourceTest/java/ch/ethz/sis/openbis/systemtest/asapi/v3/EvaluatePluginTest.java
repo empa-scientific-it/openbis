@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.DynamicPropertyPluginEvaluationOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.DynamicPropertyPluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.EntityValidationPluginEvaluationOptions;
@@ -46,11 +47,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -297,12 +300,21 @@ public class EvaluatePluginTest extends AbstractTest
         assertEquals(sample.getProperties().get(pTypeCreation.getCode()), 
                 sample.getCode() + ": children: ['CHILD'], components: ['COMPONENT']");
 
-        // Remove all samples created in this test because there will be no roll back
-        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
-        deletionOptions.setReason("test");
+        // Remove all stuff created in this test because there will be no roll back
+        SampleDeletionOptions deletionOptions1 = new SampleDeletionOptions();
+        deletionOptions1.setReason("test");
         IDeletionId deletionId = v3api.deleteSamples(systemSessionToken, 
-                Arrays.asList(sampleId, childSampleId, componentSampleId), deletionOptions);
+                Arrays.asList(sampleId, childSampleId, componentSampleId), deletionOptions1);
         v3api.confirmDeletions(systemSessionToken, Arrays.asList(deletionId));
+        SampleTypeDeletionOptions deletionOptions2 = new SampleTypeDeletionOptions();
+        deletionOptions2.setReason("test");
+        v3api.deleteSampleTypes(systemSessionToken, Arrays.asList(sTypeId), deletionOptions2);
+        PropertyTypeDeletionOptions deletionOptions3 = new PropertyTypeDeletionOptions();
+        deletionOptions3.setReason("test");
+        v3api.deletePropertyTypes(systemSessionToken, Arrays.asList(pTypeId), deletionOptions3);
+        PluginDeletionOptions deletionOptions4 = new PluginDeletionOptions();
+        deletionOptions4.setReason("test");
+        v3api.deletePlugins(systemSessionToken, Arrays.asList(pluginId), deletionOptions4);
     }
 
     @Test
