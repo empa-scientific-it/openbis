@@ -35,10 +35,17 @@ public class DeletionForceOptions extends Composite
 
     private FieldSet fieldSet;
 
+    private DeletionForceCheckBox forceToDeleteDependentDeletionSets;
+
     private DeletionForceCheckBox forceDisallowedTypes;
 
     public DeletionForceOptions(IViewContext<?> viewContext)
     {
+        forceToDeleteDependentDeletionSets = new DeletionForceCheckBox();
+        forceToDeleteDependentDeletionSets.setText("Force dependent deletions: ");
+        forceToDeleteDependentDeletionSets.setTooltip("Dependent deletions have entities "
+                + "which have to be permanently deleted together or before the entities of the selected deletions "
+                + "can be permanently deleted, too.");
         forceDisallowedTypes = new DeletionForceCheckBox();
         forceDisallowedTypes.setText(viewContext.getMessage(Dict.DELETING_FORCE_DISALLOWED_TYPES));
         forceDisallowedTypes.setTooltip(viewContext
@@ -46,6 +53,7 @@ public class DeletionForceOptions extends Composite
 
         Panel panel = new VerticalPanel();
         panel.addStyleName("deletionForceOptions");
+        panel.add(forceToDeleteDependentDeletionSets);
         panel.add(forceDisallowedTypes);
 
         fieldSet = new FieldSet();
@@ -57,6 +65,7 @@ public class DeletionForceOptions extends Composite
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
+                    forceToDeleteDependentDeletionSets.setValue(false);
                     forceDisallowedTypes.setValue(false);
                 }
             });
@@ -68,6 +77,11 @@ public class DeletionForceOptions extends Composite
     public boolean getForceDisallowedTypesValue()
     {
         return fieldSet.isExpanded() ? forceDisallowedTypes.getValue() : false;
+    }
+    
+    public boolean getForceToDeleteDependentDeletionSetsValue()
+    {
+        return fieldSet.isExpanded() ? forceToDeleteDependentDeletionSets.getValue() : false;
     }
 
 }
