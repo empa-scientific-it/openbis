@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -33,7 +32,6 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
@@ -45,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.util.EodSqlUtils;
 
 /**
  * A default {@link IBatchDynamicPropertyEvaluator}.
@@ -91,134 +88,84 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
-    private DynamicPropertyEvaluator createEvaluator(final Session hibernateSession)
-    {
-        return new DynamicPropertyEvaluator(daoFactory, new IHibernateSessionProvider()
-            {
-                @Override
-                public Session getSession()
-                {
-                    return hibernateSession;
-                }
-            }, dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
-    }
-
     //
     // IDynamicPropertyEvaluator
     //
 
     @Override
     public final <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
-            final Session hibernateSession, final Class<T> clazz) throws DataAccessException
+            final Class<T> clazz) throws DataAccessException
     {
         operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
-
-        Transaction transaction = null;
-        try
+        Session hibernateSession = daoFactory.getSessionFactory().getCurrentSession();
+        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null, 
+                dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
+        // we evaluate properties of entities in batches loading them in groups restricted by
+        // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
+        int index = 0;
+        final List<Long> ids = getAllIds(hibernateSession, clazz);
+        retainDynamicIds(hibernateSession, clazz, ids);
+        final int idsSize = ids.size();
+        operationLog.info(String.format("... got %d '%s' ids...", idsSize,
+                clazz.getSimpleName()));
+        final int maxIndex = idsSize - 1;
+        // need to increment last id because we use 'lt' condition
+        if (maxIndex > -1)
         {
-            transaction = hibernateSession.beginTransaction();
-
-            EodSqlUtils.setManagedConnection(transaction);
-
-            final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
-            // we evaluate properties of entities in batches loading them in groups restricted by
-            // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
-            int index = 0;
-            final List<Long> ids = getAllIds(hibernateSession, clazz);
-            retainDynamicIds(hibernateSession, clazz, ids);
-            final int idsSize = ids.size();
-            operationLog.info(String.format("... got %d '%s' ids...", idsSize,
-                    clazz.getSimpleName()));
-            final int maxIndex = idsSize - 1;
-            // need to increment last id because we use 'lt' condition
-            if (maxIndex > -1)
-            {
-                ids.set(maxIndex, ids.get(maxIndex) + 1);
-            }
-            while (index < maxIndex)
-            {
-                final int nextIndex = getNextIndex(index, maxIndex);
-                final long minId = ids.get(index);
-                final long maxId = ids.get(nextIndex);
-                final List<T> results =
-                        listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
-                evaluateProperties(hibernateSession, evaluator, results);
-                index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
-                        maxIndex + 1, clazz.getSimpleName()));
-            }
-            transaction.commit();
-            operationLog.info(String.format(
-                    "Evaluation of dynamic properties for '%s' is complete. "
-                            + "%d entities have been updated.", clazz.getSimpleName(), index + 1));
-            return ids;
-        } catch (Exception e)
-        {
-            operationLog.error(e.getMessage());
-            if (transaction != null)
-            {
-                transaction.rollback();
-            }
-        } finally
-        {
-            EodSqlUtils.clearManagedConnection();
+            ids.set(maxIndex, ids.get(maxIndex) + 1);
         }
-        return new ArrayList<Long>();
+        while (index < maxIndex)
+        {
+            final int nextIndex = getNextIndex(index, maxIndex);
+            final long minId = ids.get(index);
+            final long maxId = ids.get(nextIndex);
+            final List<T> results =
+                    listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
+            evaluateProperties(hibernateSession, evaluator, results);
+            index = nextIndex;
+            operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
+                    maxIndex + 1, clazz.getSimpleName()));
+        }
+        operationLog.info(String.format(
+                "Evaluation of dynamic properties for '%s' is complete. "
+                        + "%d entities have been updated.", clazz.getSimpleName(), index + 1));
+        return ids;
     }
 
     @Override
     public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
-            final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
+            final Class<T> clazz, final List<Long> ids)
             throws DataAccessException
     {
         operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
+        Session hibernateSession = daoFactory.getSessionFactory().getCurrentSession();
+        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null, 
+                dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
+        List<Long> dynamicIds = new ArrayList<Long>(ids);
+        retainDynamicIds(hibernateSession, clazz, dynamicIds);
+        operationLog.info(String.format("... got %d '%s' ids...", dynamicIds.size(),
+                clazz.getSimpleName()));
+        // we index entities in batches loading them in groups by id
+        final int maxIndex = dynamicIds.size();
+        int index = 0;
 
-        Transaction transaction = null;
-        try
+        while (index < maxIndex)
         {
-            transaction = hibernateSession.beginTransaction();
-
-            EodSqlUtils.setManagedConnection(transaction);
-
-            final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
-            List<Long> dynamicIds = new ArrayList<Long>(ids);
-            retainDynamicIds(hibernateSession, clazz, dynamicIds);
-            operationLog.info(String.format("... got %d '%s' ids...", dynamicIds.size(),
+            final int nextIndex = getNextIndex(index, maxIndex);
+            List<Long> subList = dynamicIds.subList(index, nextIndex);
+            final List<T> results =
+                    listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
+            evaluateProperties(hibernateSession, evaluator, results);
+            index = nextIndex;
+            operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
                     clazz.getSimpleName()));
-            // we index entities in batches loading them in groups by id
-            final int maxIndex = dynamicIds.size();
-            int index = 0;
-
-            while (index < maxIndex)
-            {
-                final int nextIndex = getNextIndex(index, maxIndex);
-                List<Long> subList = dynamicIds.subList(index, nextIndex);
-                final List<T> results =
-                        listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
-                evaluateProperties(hibernateSession, evaluator, results);
-                index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
-                        clazz.getSimpleName()));
-            }
-            transaction.commit();
-            operationLog.info(String.format(
-                    "Evaluation of dynamic properties for '%s' is complete. "
-                            + "%d entities have been updated.", clazz.getSimpleName(), index));
-            return dynamicIds;
-        } catch (Exception e)
-        {
-            operationLog.error(e.getMessage());
-            if (transaction != null)
-            {
-                transaction.rollback();
-            }
-        } finally
-        {
-            EodSqlUtils.clearManagedConnection();
         }
-        return new ArrayList<Long>();
+        operationLog.info(String.format(
+                "Evaluation of dynamic properties for '%s' is complete. "
+                        + "%d entities have been updated.", clazz.getSimpleName(), index));
+        return dynamicIds;
     }
 
     private int getNextIndex(int index, int maxIndex)

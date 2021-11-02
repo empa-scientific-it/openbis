@@ -80,7 +80,7 @@
 
 	<bean id="dynamic-property-evaluator"
 		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluationRunnable">
-		<constructor-arg ref="hibernate-session-factory" />
+		<constructor-arg ref="transaction-manager" />
 		<constructor-arg ref="dao-factory" />
 		<constructor-arg ref="dynamic-property-scheduler" />
 		<constructor-arg ref="dynamic-property-calculator-factory" />
