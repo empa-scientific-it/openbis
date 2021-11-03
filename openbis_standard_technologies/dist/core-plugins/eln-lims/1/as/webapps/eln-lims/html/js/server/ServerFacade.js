@@ -1485,6 +1485,15 @@ function ServerFacade(openbisServer) {
                             }
                         }
 
+                        var getDateWithoutTime = function(str){
+                            var match = /^(\d{4}-\d{2}-\d{2}).*$/.exec(str)
+                            if(match){
+                                return match[1]
+                            }else{
+                                return null
+                            }
+                        }
+
                         var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
                             switch(attributeName) {
                                 //Used by all entities
@@ -1542,7 +1551,10 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                criteria.withRegistrationDate().thatEquals(attributeValue);
+                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
+                                                if(dateWithoutTime){
+                                                    criteria.withRegistrationDate().thatEquals(dateWithoutTime);
+                                                }
                                                 break;
                                             case "thatIsLaterThanDate":
                                                 criteria.withRegistrationDate().thatIsLaterThan(attributeValue);
@@ -1583,7 +1595,10 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                criteria.withModificationDate().thatEquals(attributeValue);
+                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
+                                                if(dateWithoutTime){
+                                                    criteria.withModificationDate().thatEquals(dateWithoutTime);
+                                                }
                                                 break;
                                             case "thatIsLaterThanDate":
                                                 criteria.withModificationDate().thatIsLaterThan(attributeValue);

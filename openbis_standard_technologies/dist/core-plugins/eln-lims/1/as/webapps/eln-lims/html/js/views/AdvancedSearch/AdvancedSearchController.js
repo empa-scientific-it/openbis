@@ -203,10 +203,6 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 
             if(options && options.searchMap) {
-                function isValidDate(str){
-                    return /^\d{4}-\d{2}-\d{2}$/.test(str) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(str)
-                }
-
                 for(var field in options.searchMap){
                     var search = options.searchMap[field] || ""
 
@@ -225,15 +221,11 @@ function AdvancedSearchController(mainController, forceSearch) {
                     }else if(field === "registrator"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                     }else if(field === "registrationDate"){
-                        if(isValidDate(search)){
-                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
-                        }
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else if(field === "modifier"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                     }else if(field === "modificationDate"){
-                        if(isValidDate(search)){
-                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
-                        }
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else{
                         gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
                     }

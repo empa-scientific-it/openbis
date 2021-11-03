@@ -501,10 +501,6 @@ var SampleDataGridUtil = new function() {
             if(options && options.searchOperator && options.searchMap) {
                 criteriaToSend.logicalOperator = options.searchOperator;
 
-                function isValidDate(str){
-                    return /^\d{4}-\d{2}-\d{2}$/.test(str) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(str)
-                }
-
                 for(var field in options.searchMap){
                     var search = options.searchMap[field] || ""
 
@@ -517,15 +513,11 @@ var SampleDataGridUtil = new function() {
                     }else if(field === "registrator"){
                         criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                     }else if(field === "registrationDate"){
-                        if(isValidDate(search)){
-                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
-                        }
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else if(field === "modifier"){
                         criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                     }else if(field === "modificationDate"){
-                        if(isValidDate(search)){
-                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
-                        }
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else{
                         criteriaToSend.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
                     }
