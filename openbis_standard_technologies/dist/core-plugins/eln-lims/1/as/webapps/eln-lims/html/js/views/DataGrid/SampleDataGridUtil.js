@@ -229,19 +229,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : false,
 			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.parents) {
-					var elements = data.parents.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
+                return _this.renderRelatedSamples(data.parents, isLinksDisabled);
 			}
 		});
 
@@ -251,19 +239,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: false,
 			sortable : false,
 			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.children) {
-					var elements = data.children.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
+                return _this.renderRelatedSamples(data.children, isLinksDisabled);
 			}
 		});
 
@@ -386,6 +362,23 @@ var SampleDataGridUtil = new function() {
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
+	
+    this.renderRelatedSamples = function(samples, isLinksDisabled) {
+        var output = $("<span>");
+        if (samples) {
+            var elements = samples.split(", ");
+            for (var eIdx = 0; eIdx < elements.length; eIdx++) {
+                var element = elements[eIdx];
+                var eIdentifier = element.split(" (")[0];
+                var eComponent = isLinksDisabled ? element : FormUtil.getFormLink(element, "Sample", eIdentifier, null);
+                if(eIdx != 0) {
+                    output.append(", ");
+                }
+                output.append(eComponent);
+            }
+        }
+        return output;
+    }
 	
 	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
