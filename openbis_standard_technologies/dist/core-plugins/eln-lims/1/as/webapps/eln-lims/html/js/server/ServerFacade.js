@@ -1360,7 +1360,11 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withSample();
 					}
 					if(fetchOptions.withParents && !(advancedFetchOptions.withParents === false)) {
-						fetchOptions.withParents();
+                        var parentFetchOptions = fetchOptions.withParents();
+                        if (advancedFetchOptions.withParentInfo) {
+                            parentFetchOptions.withType();
+                            parentFetchOptions.withProperties();
+                        }
 					}
 					if(fetchOptions.withChildren && !(advancedFetchOptions.withChildren === false)) {
 						var childrenFetchOptions = fetchOptions.withChildren();

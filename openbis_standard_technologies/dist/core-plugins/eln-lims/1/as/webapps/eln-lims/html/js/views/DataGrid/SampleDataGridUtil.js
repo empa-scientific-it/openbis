@@ -436,32 +436,34 @@ var SampleDataGridUtil = new function() {
 					}
 					
 					var parents = "";
-					if(sample.parents) {
-						for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
-							if(paIdx !== 0) {
-								parents += ", ";
-							}
-							parents += sample.parents[paIdx].identifier;
-						}
-					}
+                    var sampleParents = result.objects[sIdx].parents;
+                    if (sampleParents) {
+                        for (var paIdx = 0; paIdx < sampleParents.length; paIdx++) {
+                            if(paIdx !== 0) {
+                                parents += ", ";
+                            }
+                            parents += Util.getDisplayNameForEntity2(sampleParents[paIdx]);
+                        }
+                    }
 					
 					sampleModel['parents'] = parents;
 					
 					var children = "";
-					if(sample.children) {
-						var isFirst = true;
-						for (var caIdx = 0; caIdx < sample.children.length; caIdx++) {
-							if(sample.children[caIdx].sampleTypeCode === "STORAGE_POSITION") {
-								continue;
-							}
-							
-							if(!isFirst) {
-								children += ", ";
-							}
-							children += sample.children[caIdx].identifier;
-							isFirst = false;
-						}
-					}
+                    var sampleChildren = result.objects[sIdx].children;
+                    if(sampleChildren) {
+                        var isFirst = true;
+                        for (var caIdx = 0; caIdx < sampleChildren.length; caIdx++) {
+                            if(sampleChildren[caIdx].sampleTypeCode === "STORAGE_POSITION") {
+                                continue;
+                            }
+                            
+                            if(!isFirst) {
+                                children += ", ";
+                            }
+                            children += Util.getDisplayNameForEntity2(sampleChildren[caIdx]);
+                            isFirst = false;
+                        }
+                    }
 					
 					sampleModel['children'] = children;
 					
@@ -477,7 +479,8 @@ var SampleDataGridUtil = new function() {
 			var fetchOptions = {
 					minTableInfo : true,
 					withExperiment : withExperiment,
-					withChildrenInfo : true
+					withChildrenInfo : true,
+					withParentInfo : true
 			};
 			
 			var optionsSearch = null;
