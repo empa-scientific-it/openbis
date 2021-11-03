@@ -1602,10 +1602,21 @@ function ServerFacade(openbisServer) {
                                         criteria.withModificationDate().thatEquals(attributeValue);
                                     }
                                     break;
+                                case "ENTITY_TYPE":
                                 case "SAMPLE_TYPE":
                                 case "EXPERIMENT_TYPE":
                                 case "DATA_SET_TYPE":
-                                    criteria.withType().withCode().thatEquals(attributeValue);
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withType().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withType().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
                                     break;
                                 //Only Sample
                                 case "SPACE":
@@ -2510,30 +2521,37 @@ function ServerFacade(openbisServer) {
 	// Global Search
 	//
 
-	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, searchKind,
+	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeTexts, searchKind,
 		    advancedFetchOptions, callbackFunction) {
 		require(['as/dto/global/search/GlobalSearchCriteria',
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'],
 		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
+
 			switch (searchKind) {
 				case "ALL": {
-					searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
-					break;
-				}
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());    
+                    })
+                    break;
+                }
 
-				case "ALL_PARTIAL": {
-					searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
-					break;
-				}
+                case "ALL_PARTIAL": {
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+                    })
+                    break;
+                }
 
-				case "ALL_PREFIX": {
-					searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
-					break;
-				}
-			}
+                case "ALL_PREFIX": {
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+                    })
+                    break;
+                }
+            }
 
-			searchCriteria.withOperator("OR");
+            searchCriteria.withOperator("OR");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			fetchOptions.withMatch();

@@ -511,20 +511,20 @@ var SampleDataGridUtil = new function() {
                     search = search.trim()
 
                     if(field === "code"){
-                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.CODE", value : search, operator: "thatContains" };
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
                     }else if(field === "identifier"){
-                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.IDENTIFIER", value : search, operator: "thatContains" };
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
                     }else if(field === "registrator"){
-                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.REGISTRATOR", value : search, operator: "thatContainsUserId" };
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                     }else if(field === "registrationDate"){
                         if(isValidDate(search)){
-                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
                         }
                     }else if(field === "modifier"){
-                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.MODIFIER", value : search, operator: "thatContainsUserId" };
+                        criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                     }else if(field === "modificationDate"){
                         if(isValidDate(search)){
-                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "ATTR.MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
+                            criteriaToSend.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                         }
                     }else{
                         criteriaToSend.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
