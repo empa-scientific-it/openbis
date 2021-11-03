@@ -910,7 +910,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
-                filterable: false,
+				filterable: false,
 				sortable : false,
 				render : function(data) {
 					if(data.entityKind === "Sample") {
@@ -1002,7 +1002,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: false,
-                filterable: false,
+				filterable: true,
 				sortable : false
 			}]);
 
@@ -1113,8 +1113,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registrator',
 				property : 'registrator',
 				isExportable: true,
-                filterable : false,
-				sortable : !isGlobalSearch
+                filterable : !isGlobalSearch,
+				sortable : false
 			});
 
 			columnsLast.push({
@@ -1129,8 +1129,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modifier',
 				property : 'modifier',
 				isExportable: true,
-                filterable : false,
-				sortable : !isGlobalSearch
+                filterable : !isGlobalSearch,
+				sortable : false
 			});
 
 			columnsLast.push({

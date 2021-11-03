@@ -210,6 +210,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 
                     if(field === "entityType"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
+                    }else if(field === "experiment"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
                     }else if(field === "code"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
                     }else if(field === "identifier"){

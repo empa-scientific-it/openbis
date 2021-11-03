@@ -1635,8 +1635,44 @@ function ServerFacade(openbisServer) {
                                     break;
                                 //Only Sample
                                 case "SPACE":
-                                    criteria.withSpace().withCode().thatEquals(attributeValue);
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withSpace().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withSpace().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
                                     break;
+                                case "EXPERIMENT_CODE":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withExperiment().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withExperiment().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;
+                                case "EXPERIMENT_IDENTIFIER":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withExperiment().withIdentifier().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withExperiment().withIdentifier().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;    
                                 //Only Experiment
                                 case "PROJECT":
                                     criteria.withProject().withCode().thatEquals(attributeValue);
