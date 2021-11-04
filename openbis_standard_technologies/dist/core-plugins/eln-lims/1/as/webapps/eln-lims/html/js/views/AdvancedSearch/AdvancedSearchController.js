@@ -246,8 +246,13 @@ function AdvancedSearchController(mainController, forceSearch) {
 						fetchOptions.sort.name = "code";
 						break;
 					case "identifier":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "identifier";
+						if(criteria.entityKind === "DATASET"){
+							fetchOptions.sort.type = "Attribute";
+							fetchOptions.sort.name = "code";
+						}else{
+							fetchOptions.sort.type = "Attribute";
+							fetchOptions.sort.name = "identifier";
+						}
 						break;
 					case "entityType":
 						fetchOptions.sort.type = "Attribute";
