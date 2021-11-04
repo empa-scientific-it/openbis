@@ -89,7 +89,9 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			if(this._sampleTableModel.heightOverride) {
 				tableHeight = this._sampleTableModel.heightOverride;
 			}
-			this._dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment, tableHeight);
+            this._dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier,
+                    advancedSampleSearchCriteria, null, null, null, null, null, null, true, true,
+                    withExperiment, tableHeight);
 			
 			
 			var extraOptions = [];

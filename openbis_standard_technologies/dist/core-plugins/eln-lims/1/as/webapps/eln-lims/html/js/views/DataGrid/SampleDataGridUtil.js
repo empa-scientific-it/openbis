@@ -1,5 +1,7 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment, heightPercentage) {
+    this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations,
+            customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable,
+            showParentsAndChildren, withExperiment, heightPercentage) {
 		var _this = this;
 		var isDynamic = samplesOrCriteria.entityKind && samplesOrCriteria.rules;
 		
@@ -223,25 +225,27 @@ var SampleDataGridUtil = new function() {
 			});
 		}
 
-		columnsLast.push({
-			label : 'Parents',
-			property : 'parents',
-			isExportable: true,
-			sortable : false,
-			render : function(data, grid) {
-                return _this.renderRelatedSamples(data.parents, isLinksDisabled);
-			}
-		});
+        if (showParentsAndChildren) {
+            columnsLast.push({
+                label : 'Parents',
+                property : 'parents',
+                isExportable: true,
+                sortable : false,
+                render : function(data, grid) {
+                    return _this.renderRelatedSamples(data.parents, isLinksDisabled);
+                }
+            });
 
-		columnsLast.push({
-			label : 'Children',
-			property : 'children',
-			isExportable: false,
-			sortable : false,
-			render : function(data, grid) {
-                return _this.renderRelatedSamples(data.children, isLinksDisabled);
-			}
-		});
+            columnsLast.push({
+                label : 'Children',
+                property : 'children',
+                isExportable: false,
+                sortable : false,
+                render : function(data, grid) {
+                    return _this.renderRelatedSamples(data.children, isLinksDisabled);
+                }
+            });
+        }
 
 		columnsLast.push({
 			label : 'Storage',

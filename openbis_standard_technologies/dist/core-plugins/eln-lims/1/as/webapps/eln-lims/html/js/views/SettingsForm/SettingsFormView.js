@@ -182,8 +182,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
                 "1" : { type : "Experiment",  name : "ATTR.IDENTIFIER", value : experimentIdentifier }
             }
         }
-        debugger;
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
+        var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, 
+                null, null, null, null, true, null, false, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
@@ -211,7 +211,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             }
         }
 
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
+        var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, 
+                null, true, null, false, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
