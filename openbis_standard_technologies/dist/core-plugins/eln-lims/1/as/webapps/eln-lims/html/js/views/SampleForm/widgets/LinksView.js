@@ -356,7 +356,7 @@ function LinksView(linksController, linksModel) {
 				
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
 				    var id = codeId + "-use-as-template";
-					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'id' : id, 'title' : 'Use as template'}).append("Use as template"));
+					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'id' : id, 'title' : 'Copy to Experiment'}).append("Copy to Experiment"));
 					$copyAndLink.click(function(e) {
 						stopEventsBuble(e);
 						var copyAndLink = function(code) {
