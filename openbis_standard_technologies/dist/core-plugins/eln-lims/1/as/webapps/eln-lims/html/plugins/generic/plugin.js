@@ -111,7 +111,7 @@ $.extend(GenericTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "UNKNOWN" : {
             "SHOW" : false,
-            "SHOW_ON_NAV" : false,
+            "SHOW_ON_NAV" : true,
         },
 	},
 	sampleFormTop : function($container, model) {
