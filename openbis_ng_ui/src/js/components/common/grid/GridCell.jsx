@@ -7,10 +7,16 @@ import util from '@src/js/common/util.js'
 
 const styles = theme => ({
   cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0,
     borderColor: theme.palette.border.secondary,
     '&:empty:before': {
       content: '"\\a0"'
+    },
+    '&:last-child': {
+      paddingRight: theme.spacing(2)
     }
   },
   wrap: {

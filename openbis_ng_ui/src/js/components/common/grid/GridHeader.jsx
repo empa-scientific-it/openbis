@@ -17,12 +17,14 @@ const styles = theme => ({
       top: 0,
       zIndex: 10,
       fontWeight: 'bold',
-      backgroundColor: theme.palette.background.primary,
-      minWidth: '120px'
+      backgroundColor: theme.palette.background.primary
     }
   },
   multiselect: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0
   }
 })
 

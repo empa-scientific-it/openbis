@@ -11,7 +11,10 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   multiselect: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0
   },
   checkbox: {
     display: 'inline-block'
