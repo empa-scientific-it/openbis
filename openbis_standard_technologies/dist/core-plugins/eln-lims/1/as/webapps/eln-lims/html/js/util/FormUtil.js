@@ -263,7 +263,10 @@ var FormUtil = new function() {
 				} else {
 					label = storageConfiguration.code;
 				}
-				
+				var $option = $("<option>");
+				$option.attr('spaceCode',storageConfiguration.spaceCode);
+				$option.attr('value',storageConfiguration.code);
+				$option.text(label)
 				$component.append($("<option>").attr('value',storageConfiguration.code).text(label));
 			}
 			callbackFunction($component);

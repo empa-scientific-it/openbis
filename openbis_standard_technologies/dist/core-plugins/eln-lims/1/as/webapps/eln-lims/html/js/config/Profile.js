@@ -675,6 +675,7 @@ $.extend(DefaultProfile.prototype, {
 				propertyReplacingCodeNoDolar = propertyReplacingCodeNoDolar.substring(1);
 			}
 			return {
+				spaceCode : sample.spaceCode,
 				code : sample.code,
 				label : sample.properties[propertyReplacingCodeNoDolar],
 				validationLevel : ValidationLevel[sample.properties["STORAGE.STORAGE_VALIDATION_LEVEL"]],
