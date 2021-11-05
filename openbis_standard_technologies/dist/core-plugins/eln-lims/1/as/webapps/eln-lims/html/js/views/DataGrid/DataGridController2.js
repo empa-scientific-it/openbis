@@ -195,9 +195,9 @@ function DataGridController2(
         compareValue: function (params) {
           if (column.sort) {
             return column.sort(
-              params.value1,
-              params.value2,
-              params.sortDirection === "asc"
+              params.row1,
+              params.row2,
+              true
             );
           } else {
             return params.defaultCompare(params.value1, params.value2);
