@@ -13,7 +13,7 @@ import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
-import ColumnConfig from '@src/js/components/common/grid/ColumnConfig.jsx'
+import GridConfig from '@src/js/components/common/grid/GridConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import logger from '@src/js/common/logger.js'
 
@@ -188,9 +188,10 @@ class Grid extends React.PureComponent {
                     onPageChange={this.controller.handlePageChange}
                     onPageSizeChange={this.controller.handlePageSizeChange}
                   />
-                  <ColumnConfig
+                  <GridConfig
                     columns={allColumns}
                     columnsVisibility={columnsVisibility}
+                    loading={loading}
                     onVisibleChange={this.controller.handleColumnVisibleChange}
                     onOrderChange={this.controller.handleColumnOrderChange}
                   />

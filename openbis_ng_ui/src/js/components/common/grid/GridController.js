@@ -185,6 +185,9 @@ export default class GridController {
       newState.columnsSorting = newColumnsSorting
     }
 
+    // do not update filters (this would override filter changes that a user could do while grid was loading)
+    delete newState.filters
+
     await this.context.setState(newState)
 
     if (!state.loaded) {
@@ -530,6 +533,7 @@ export default class GridController {
       clearTimeout(this.loadTimerId)
       this.loadTimerId = null
     }
+
     this.loadTimerId = setTimeout(async () => {
       await this.load()
     }, 500)
