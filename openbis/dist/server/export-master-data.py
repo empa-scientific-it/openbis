@@ -4,7 +4,6 @@
 # To execute it, please run the ./export-master-data.sh
 #
 import codecs
-import sys
 import re
 import os
 from datetime import datetime
@@ -47,13 +46,10 @@ def is_ascii(str):
     return True
 
 def strLiteral(var):
-    def sanitize(dirtyString):
-      return dirtyString.replace("'", "\\'")
-
     if var:
         # ASCII or UNICODE string?
         prefix = "'" if is_ascii(var) else "u'"
-        return (prefix + sanitize(var) + "'").replace('\n', ' ')
+        return prefix + var.replace("'", "\\'").replace('\n', '\\n').replace('\r', '\\r') + "'"
     else:
         # NULL
         return 'None'
