@@ -3,10 +3,12 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
+import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
 import Header from '@src/js/components/common/form/Header.jsx'
 import GridController from '@src/js/components/common/grid/GridController.js'
-import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'
+import GridFilters from '@src/js/components/common/grid/GridFilters.jsx'
+import GridHeaders from '@src/js/components/common/grid/GridHeaders.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
@@ -121,20 +123,26 @@ class Grid extends React.PureComponent {
             <div onClick={this.handleClickTable}>
               <div className={classes.tableHeaderAndBody}>
                 <Table classes={{ root: classes.table }}>
-                  <GridHeader
-                    columns={visibleColumns}
-                    rows={rows}
-                    filters={filters}
-                    sort={sort}
-                    sortDirection={sortDirection}
-                    onSortChange={this.controller.handleSortChange}
-                    onFilterChange={this.controller.handleFilterChange}
-                    onSelectAllRowsChange={
-                      this.controller.handleSelectAllRowsChange
-                    }
-                    multiselectable={multiselectable}
-                    multiselectedRows={multiselectedRows}
-                  />
+                  <TableHead>
+                    <GridFilters
+                      columns={visibleColumns}
+                      filters={filters}
+                      onFilterChange={this.controller.handleFilterChange}
+                      multiselectable={multiselectable}
+                    />
+                    <GridHeaders
+                      columns={visibleColumns}
+                      rows={rows}
+                      sort={sort}
+                      sortDirection={sortDirection}
+                      onSortChange={this.controller.handleSortChange}
+                      onSelectAllRowsChange={
+                        this.controller.handleSelectAllRowsChange
+                      }
+                      multiselectable={multiselectable}
+                      multiselectedRows={multiselectedRows}
+                    />
+                  </TableHead>
                   <TableBody classes={{ root: classes.tableBody }}>
                     {rows.map(row => {
                       return (

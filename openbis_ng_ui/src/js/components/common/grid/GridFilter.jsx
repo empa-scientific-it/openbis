@@ -8,8 +8,14 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0,
+    borderColor: theme.palette.border.secondary,
+    '&:last-child': {
+      paddingRight: theme.spacing(2)
+    }
   }
 })
 
