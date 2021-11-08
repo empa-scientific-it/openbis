@@ -118,7 +118,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Size",
 			property : "size",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return PrintUtil.renderNumberOfBytes(data.size);
 			}
@@ -127,7 +127,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Datasets in Bundle",
 			property : "bundle",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return data.bundle;
 			}
@@ -136,7 +136,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Bundle Size",
 			property : "bundleSize",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return PrintUtil.renderNumberOfBytes(data.bundleSize);
 			}
