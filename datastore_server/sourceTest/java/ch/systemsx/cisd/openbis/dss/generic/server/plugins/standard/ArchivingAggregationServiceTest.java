@@ -118,8 +118,7 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
         prepareGetContainer("ds1", "ds10", "ds9", "ds1");
         prepareGetContainer("ds2", "ds12", "ds2", "ds4");
         prepareGetContainer("ds3", "ds11", "ds3");
-        RecordingMatcher<List<DataSetPermId>> actualDataSetsMatcher 
-            = prepareGetDataSets("ds1", "ds10", "ds2", "ds4", "ds3", "ds9", "ds12", "ds11");
+        RecordingMatcher<List<DataSetPermId>> actualDataSetsMatcher = prepareGetDataSets("ds1", "ds10", "ds2", "ds4", "ds3", "ds9", "ds12", "ds11");
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(METHOD_KEY, GET_ARCHIVING_INFO_METHOD);
         parameters.put(ArchivingAggregationService.ARGS_KEY, String.join(", ", "ds3", "ds1", "ds2"));
@@ -134,6 +133,27 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
                 + "\"ds3\":{\"bundleId\":\"ds11\",\"bundleSize\":20110,\"numberOfDataSets\":2,\"size\":10040},"
                 + "\"total size\":80280}]]\n", renderRows(rows));
         assertEquals("[DS1, DS10, DS11, DS12, DS2, DS3, DS4, DS9]", actualDataSetsMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testBundleWithDeletedDataSet()
+    {
+        // Given
+        prepareGetContainer("ds9", "ds10", "ds9", "ds1");
+        RecordingMatcher<List<DataSetPermId>> actualDataSetsMatcher = prepareGetDataSets("ds1", "ds9");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put(METHOD_KEY, GET_ARCHIVING_INFO_METHOD);
+        parameters.put(ArchivingAggregationService.ARGS_KEY, String.join(", ", "ds9"));
+
+        // When
+        List<TableModelRow> rows = service.createAggregationReport(parameters, processingContext).getRows();
+
+        // Then
+        assertEquals("[[OK, Operation Successful, "
+                + "{\"ds9\":{\"bundleId\":\"ds1\",\"bundleSize\":20010,\"numberOfDataSets\":2,\"size\":10010},"
+                + "\"total size\":20010}]]\n", renderRows(rows));
+        assertEquals("[DS1, DS10, DS9]", actualDataSetsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
