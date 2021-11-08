@@ -104,12 +104,44 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			}
 			if (_this._allowedToDelete() && toolbarConfig.DELETE) {
 				//Delete
-	            dropdownOptionsModel.push({
+                var maxNumToShow = 10;
+                var $component = $("<div>");
+                var experiment = this._experimentFormModel.v3_experiment;
+                var experimentKindName = ELNDictionary.getExperimentKindName(experiment.identifier.identifier).toLowerCase();
+                var samples = experiment.samples;
+                if (samples.length > 0) {
+                    var warningText = "The " + experimentKindName + " has " + samples.length + " " 
+                            + ELNDictionary.sample + "s, which will be also deleted:";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, samples.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(samples[cIdx]);
+                    }
+                    if (maxNumToShow < samples.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                }
+                var dataSets = experiment.dataSets;
+                if (dataSets.length > 0) {
+                    var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets " 
+                            + "which will be also deleted:";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, dataSets.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(dataSets[cIdx]);
+                    }
+                    if (maxNumToShow < dataSets.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                }
+                dropdownOptionsModel.push({
                     label : "Delete",
                     action : function() {
                         var modalView = new DeleteEntityController(function(reason) {
                             _this._experimentFormController.deleteExperiment(reason);
-                        }, true);
+                        }, true, null, $component);
                         modalView.init();
                     }
                 });
