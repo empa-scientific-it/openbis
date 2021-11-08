@@ -111,7 +111,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 var samples = experiment.samples;
                 if (samples.length > 0) {
                     var warningText = "The " + experimentKindName + " has " + samples.length + " " 
-                            + ELNDictionary.sample + "s, which will be also deleted:";
+                            + ELNDictionary.sample + "s, which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, samples.length); cIdx++) {
                         warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(samples[cIdx]);
                     }
@@ -125,7 +125,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 var dataSets = experiment.dataSets;
                 if (dataSets.length > 0) {
                     var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets " 
-                            + "which will be also deleted:";
+                            + "which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, dataSets.length); cIdx++) {
                         warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(dataSets[cIdx]);
                     }
