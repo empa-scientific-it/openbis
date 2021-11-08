@@ -142,7 +142,7 @@ var ExperimentDataGridUtil = new function() {
 			label : 'Registrator',
 			property : 'registrator',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columns.push({
@@ -156,7 +156,7 @@ var ExperimentDataGridUtil = new function() {
 			label : 'Modifier',
 			property : 'modifier',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columns.push({

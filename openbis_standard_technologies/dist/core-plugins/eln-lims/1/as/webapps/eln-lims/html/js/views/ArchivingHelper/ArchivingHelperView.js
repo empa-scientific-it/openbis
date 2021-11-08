@@ -80,7 +80,7 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
             label : "Size",
             property : "size",
             isExportable : false,
-            sortable : true,
+            sortable : false,
             render : function(data, grid) {
                 return PrintUtil.renderNumberOfBytes(data.size);
             }
@@ -89,6 +89,7 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
         searchView._$entityTypeDropdown.val("DATASET");
         searchView._$entityTypeDropdown.trigger("change");
         searchView._$entityTypeDropdown.attr("disabled", "disabled");
+        searchView._$andOrDropdownComponent.val("AND").trigger("change");
         searchView._$andOrDropdownComponent.attr("disabled", "disabled");
         searchView._$dataGridContainer = $("<div>");
         searchView.beforeRenderingHook = function() {
