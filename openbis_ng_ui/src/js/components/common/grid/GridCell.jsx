@@ -50,7 +50,12 @@ class GridCell extends React.PureComponent {
       <TableCell
         ref={this.ref}
         key={column.name}
-        classes={{ root: util.classNames(classes.cell, classes.nowrap) }}
+        classes={{
+          root: util.classNames(
+            classes.cell,
+            column.wrappable ? classes.wrap : classes.nowrap
+          )
+        }}
       >
         {column.renderDOMValue ? null : this.renderValue()}
       </TableCell>
@@ -58,18 +63,14 @@ class GridCell extends React.PureComponent {
   }
 
   renderValue() {
-    const { row, column, classes } = this.props
+    const { row, column } = this.props
 
     const value = column.getValue({ row, column })
     const renderedValue = column.renderValue
       ? column.renderValue({
           value,
           row,
-          column,
-          classes: {
-            wrap: classes.wrap,
-            nowrap: classes.nowrap
-          }
+          column
         })
       : value
 
@@ -83,7 +84,7 @@ class GridCell extends React.PureComponent {
   }
 
   renderDOMValue() {
-    const { row, column, classes } = this.props
+    const { row, column } = this.props
 
     if (column.renderDOMValue && this.ref.current) {
       const value = column.getValue({ row, column })
@@ -91,11 +92,7 @@ class GridCell extends React.PureComponent {
         container: this.ref.current,
         value,
         row,
-        column,
-        classes: {
-          wrap: classes.wrap,
-          nowrap: classes.nowrap
-        }
+        column
       })
     }
   }

@@ -49,6 +49,7 @@ class UsersGrid extends React.PureComponent {
           {
             name: 'email',
             label: messages.get(messages.EMAIL),
+            wrappable: false,
             getValue: ({ row }) => row.email.value
           },
           {

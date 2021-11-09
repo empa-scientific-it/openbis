@@ -31,10 +31,7 @@ class QueriesGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description.value,
-            renderValue: ({ value, classes }) => (
-              <span className={classes.wrap}>{value}</span>
-            )
+            getValue: ({ row }) => row.description.value
           },
           {
             name: 'database',

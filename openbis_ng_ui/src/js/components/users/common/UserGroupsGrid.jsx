@@ -33,14 +33,7 @@ export default class GroupsGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description.value,
-            renderValue: ({ value, classes }) => {
-              if (value) {
-                return <span className={classes.wrap}>{value}</span>
-              } else {
-                return null
-              }
-            }
+            getValue: ({ row }) => row.description.value
           }
         ]}
         rows={rows}
