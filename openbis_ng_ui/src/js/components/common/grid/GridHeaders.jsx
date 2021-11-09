@@ -22,7 +22,8 @@ const styles = theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
-    paddingRight: 0
+    paddingRight: 0,
+    width: '30px'
   }
 })
 
