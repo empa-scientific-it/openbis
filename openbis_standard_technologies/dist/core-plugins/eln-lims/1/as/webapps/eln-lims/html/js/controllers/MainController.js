@@ -1000,6 +1000,10 @@ function MainController(profile) {
             FormUtil.showDiskSpaceDialog();
         }, "Show available storage space");
         $header.append(FormUtil.getToolbar([{ component : $diskSpaceButton }]));
+        var $downloadMetadataTemplateButton = FormUtil.getButtonWithIcon("glyphicon-export", function () {
+            FormUtil.downloadMetadataTemplateDialog();
+        }, "Download metadata.json template");
+        $header.append(FormUtil.getToolbar([{ component : $downloadMetadataTemplateButton }]));
     }
 
 	
