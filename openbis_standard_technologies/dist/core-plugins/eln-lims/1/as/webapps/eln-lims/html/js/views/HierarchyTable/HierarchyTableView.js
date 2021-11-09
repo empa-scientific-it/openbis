@@ -162,7 +162,7 @@ function HierarchyTableView(controller, model) {
 			callback(filteredData);
 		}
 		
-		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, this._model.entity["@type"] + "_HIERARCHY_TABLE", false, 90);
+		this._dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, false, this._model.entity["@type"] + "_HIERARCHY_TABLE", false, 90);
 		this._dataGrid.init(this._container);
 		this._container.prepend($("<legend>").append(" " + ELNDictionary.Sample + " Hierarchy"));
 	}

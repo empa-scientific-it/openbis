@@ -20,7 +20,7 @@ const styles = theme => ({
   }
 })
 
-class ColumnConfigRow extends React.PureComponent {
+class GridConfigRow extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
@@ -31,9 +31,9 @@ class ColumnConfigRow extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'ColumnConfigRow.render')
+    logger.log(logger.DEBUG, 'GridConfigRow.render')
 
-    const { classes, column, index } = this.props
+    const { classes, column, visible, index } = this.props
 
     return (
       <Draggable draggableId={column.name} index={index}>
@@ -48,7 +48,8 @@ class ColumnConfigRow extends React.PureComponent {
             </div>
             <CheckboxField
               label={column.label || column.name}
-              value={column.visible}
+              value={visible}
+              disabled={!column.configurable}
               onChange={this.handleVisibleChange}
             />
           </div>
@@ -58,4 +59,4 @@ class ColumnConfigRow extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(ColumnConfigRow)
+export default withStyles(styles)(GridConfigRow)

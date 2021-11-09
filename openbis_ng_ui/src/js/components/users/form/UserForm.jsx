@@ -17,7 +17,11 @@ import UserFormGridRoles from '@src/js/components/users/form/UserFormGridRoles.j
 import UserFormButtons from '@src/js/components/users/form/UserFormButtons.jsx'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 class UserForm extends React.PureComponent {
   constructor(props) {
@@ -72,10 +76,11 @@ class UserForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'UserForm.render')
 
-    const { loading, loaded, user } = this.state
+    const { loadId, loading, loaded, user } = this.state
 
     return (
       <PageWithTwoPanels
+        key={loadId}
         loading={loading}
         loaded={loaded}
         object={user}
@@ -87,11 +92,12 @@ class UserForm extends React.PureComponent {
   }
 
   renderMainPanel() {
+    const { classes } = this.props
     const { groups, roles, selection } = this.state
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <div>
+        <div className={classes.grid}>
           <UserFormGridGroups
             controllerRef={this.handleGroupsGridControllerRef}
             rows={groups}
@@ -103,7 +109,7 @@ class UserForm extends React.PureComponent {
             onSelectedRowChange={this.handleSelectedGroupRowChange}
           />
         </div>
-        <div>
+        <div className={classes.grid}>
           <UserFormGridRoles
             controllerRef={this.handleRolesGridControllerRef}
             rows={roles}
@@ -121,15 +127,15 @@ class UserForm extends React.PureComponent {
 
   renderAdditionalPanel() {
     const { controller } = this
-    const { user, groups, roles, selection, mode } = this.state
-
-    const selectedGroupRow = controller.groupsGridController
-      ? controller.groupsGridController.getSelectedRow()
-      : null
-
-    const selectedRoleRow = controller.rolesGridController
-      ? controller.rolesGridController.getSelectedRow()
-      : null
+    const {
+      user,
+      groups,
+      roles,
+      selection,
+      selectedGroupRow,
+      selectedRoleRow,
+      mode
+    } = this.state
 
     return (
       <div>

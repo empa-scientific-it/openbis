@@ -171,8 +171,10 @@ var ExperimentDataGridUtil = new function() {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < entities.length; sIdx++) {
 				var entity = entities[sIdx];
-				var model = {		'code' : entity.code,
-				                    'identifier' : entity.identifier,
+				var model = {		
+									'id' : entity.permId,
+									'code' : entity.code,
+									'identifier' : entity.identifier,
 									'permId' : entity.permId,
 									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),
@@ -192,7 +194,7 @@ var ExperimentDataGridUtil = new function() {
 			
 		//Create and return a data grid controller
 		var configKey = "ENTITY_TABLE_"+ typeCode;
-		var dataGridController = new DataGridController(null, columns, [], null, getDataList, rowClick, false, configKey, null, heightPercentage);
+		var dataGridController = new DataGridController2(null, columns, [], null, getDataList, rowClick, false, configKey, null, heightPercentage);
 		return dataGridController;
 	}
 

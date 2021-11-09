@@ -1,71 +1,58 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import GridHeaderFilter from '@src/js/components/common/grid/GridHeaderFilter.jsx'
-import GridHeaderLabel from '@src/js/components/common/grid/GridHeaderLabel.jsx'
+import TableCell from '@material-ui/core/TableCell'
+import TableSortLabel from '@material-ui/core/TableSortLabel'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  header: {
-    '& th': {
-      position: 'sticky',
-      top: 0,
-      zIndex: 10,
-      fontWeight: 'bold',
-      backgroundColor: theme.palette.background.primary,
-      minWidth: '120px'
-    }
-  },
   cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0,
+    borderColor: theme.palette.border.secondary,
+    '&:last-child': {
+      paddingRight: theme.spacing(2)
+    }
   }
 })
 
 class GridHeader extends React.PureComponent {
+  constructor(props) {
+    super(props)
+    this.handleClick = this.handleClick.bind(this)
+  }
+
+  handleClick() {
+    const { column, onSortChange } = this.props
+    if (onSortChange) {
+      onSortChange(column)
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'GridHeader.render')
 
-    const { columns, classes } = this.props
+    const { column, sort, sortDirection, classes } = this.props
 
-    return (
-      <TableHead>
-        <TableRow>
-          {columns.map(column => this.renderFilterCell(column))}
-        </TableRow>
-        <TableRow classes={{ root: classes.header }}>
-          {columns.map(column => this.renderHeaderCell(column))}
-        </TableRow>
-      </TableHead>
-    )
-  }
-
-  renderHeaderCell(column) {
-    const { sort, sortDirection, onSortChange } = this.props
-
-    return (
-      <GridHeaderLabel
-        key={column.name}
-        column={column}
-        sort={sort}
-        sortDirection={sortDirection}
-        onSortChange={onSortChange}
-      />
-    )
-  }
-
-  renderFilterCell(column) {
-    const { filters, onFilterChange } = this.props
-
-    return (
-      <GridHeaderFilter
-        key={column.name}
-        column={column}
-        filter={filters[column.name]}
-        onFilterChange={onFilterChange}
-      />
-    )
+    if (column.sortable) {
+      const active = sort === column.name
+      return (
+        <TableCell classes={{ root: classes.cell }}>
+          <TableSortLabel
+            active={active}
+            direction={active ? sortDirection : 'asc'}
+            onClick={this.handleClick}
+          >
+            {column.label}
+          </TableSortLabel>
+        </TableCell>
+      )
+    } else {
+      return (
+        <TableCell classes={{ root: classes.cell }}>{column.label}</TableCell>
+      )
+    }
   }
 }
 

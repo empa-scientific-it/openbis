@@ -1384,6 +1384,7 @@ function MainController(profile) {
 											var result = data.result[i];
 											
 											dataList.push({
+												id : result.resultLocation.permId,
 												entityKind : result.resultLocation.entityKind,
 												entityType : result.resultLocation.entityType,
 												permId : result.resultLocation.permId,
@@ -1403,7 +1404,7 @@ function MainController(profile) {
 									}
 								}
 								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
+								var dataGrid = new DataGridController2(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
 								localReference.currentView = dataGrid;
 								var content = localReference._getBackwardsCompatibleMainContainer();
 								dataGrid.init(content);
@@ -1501,6 +1502,7 @@ function MainController(profile) {
 												}
 												
 												dataList.push({
+													id : resultLocation.permId,
 													kind : resultLocation.entityKind,
 													code : code,
 													permId : resultLocation.permId,
@@ -1530,7 +1532,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
+									var dataGrid = new DataGridController2(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
 									localReference.currentView = dataGrid;
 									var content = localReference._getBackwardsCompatibleMainContainer();
 									dataGrid.init(content);
@@ -1684,6 +1686,7 @@ function MainController(profile) {
 					
 					//properties
 					dataList.push({
+						id: sample.permId,
 						permId : sample.permId,
 						code : sample.code,
 						score : score,
@@ -1702,7 +1705,7 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
+			var dataGrid = new DataGridController2("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
 			localReference.currentView = dataGrid;
 			var content = localReference._getBackwardsCompatibleMainContainer();
 			dataGrid.init(content);

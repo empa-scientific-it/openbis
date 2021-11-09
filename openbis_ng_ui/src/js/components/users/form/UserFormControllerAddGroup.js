@@ -6,6 +6,7 @@ export default class UserFormControllerAddGroup {
   constructor(controller) {
     this.controller = controller
     this.context = controller.context
+    this.groupsGridController = controller.groupsGridController
   }
 
   async execute() {
@@ -35,8 +36,10 @@ export default class UserFormControllerAddGroup {
 
     await this.controller.changed(true)
 
-    if (this.controller.groupsGridController) {
-      await this.controller.groupsGridController.showSelectedRow()
+    if (this.groupsGridController) {
+      await this.groupsGridController.load()
+      await this.groupsGridController.selectRow(newGroup.id)
+      await this.groupsGridController.showRow(newGroup.id)
     }
   }
 }

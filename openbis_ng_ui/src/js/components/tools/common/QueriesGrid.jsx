@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import QueryLink from '@src/js/components/common/link/QueryLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import QueryType from '@src/js/components/common/dto/QueryType.js'
@@ -10,16 +10,11 @@ class QueriesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'QueriesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.QUERIES)}
@@ -71,6 +66,7 @@ class QueriesGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

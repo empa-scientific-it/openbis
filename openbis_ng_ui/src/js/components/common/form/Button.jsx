@@ -16,11 +16,17 @@ const styles = theme => ({
 })
 
 class FormButton extends React.Component {
+  static defaultProps = {
+    variant: 'contained'
+  }
+
   render() {
     const {
       name,
       label,
+      color,
       type,
+      variant,
       disabled,
       href,
       styles,
@@ -28,15 +34,22 @@ class FormButton extends React.Component {
       onClick
     } = this.props
 
-    let theColor = 'secondary'
+    let theColor = null
     let theClasses = { ...styles }
 
-    if (type === 'final') {
-      theColor = 'primary'
-    } else if (type === 'risky') {
-      theClasses = {
-        ...styles,
-        root: `${styles.root} ${classes.risky}`
+    if (color) {
+      theColor = color
+    } else {
+      if (type === 'final') {
+        theColor = 'primary'
+      } else if (type === 'risky') {
+        theColor = 'secondary'
+        theClasses = {
+          ...styles,
+          root: `${styles.root} ${classes.risky}`
+        }
+      } else {
+        theColor = 'secondary'
       }
     }
 
@@ -44,7 +57,7 @@ class FormButton extends React.Component {
       <Button
         name={name}
         classes={theClasses}
-        variant='contained'
+        variant={variant}
         color={theColor}
         href={href}
         onClick={onClick}

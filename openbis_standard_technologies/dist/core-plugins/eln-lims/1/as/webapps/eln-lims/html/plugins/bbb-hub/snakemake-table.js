@@ -56,7 +56,9 @@ var SnakemakeTable = new function() {
                 var projectCode = experiments[i].project.code;
                 var spaceCode = experiments[i].project.space.code;
 
-                var model = {		'code' : experiments[i].code,
+                var model = {
+                                    'id' : experiments[i].code,
+                                    'code' : experiments[i].code,
                                     'description' : desc === undefined ? "" : desc,
                                     'group' : group === undefined ? "" : group,
                                     'email' : registrator === null ? "" : registrator.email,
@@ -68,7 +70,7 @@ var SnakemakeTable = new function() {
             callback(dataList);
         };
 
-        var dataGridController = new DataGridController(null, columns, [], null, getDataList, null, true, "ENTITY_TABLE_BBB", null, 90);
+        var dataGridController = new DataGridController2(null, columns, [], null, getDataList, null, true, "ENTITY_TABLE_BBB", null, 90);
         dataGridController.init(container);
     }
 

@@ -56,6 +56,7 @@ function StorageListView(storageListController, storageListModel) {
 			sortable : false,
 			showByDefault: false,
 			hide : true,
+            /*
 			render : function(data) {
 				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},
@@ -68,6 +69,7 @@ function StorageListView(storageListController, storageListModel) {
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}
+            */
 		});
 		columns.push({
 			label : 'Storage Name',
@@ -115,6 +117,7 @@ function StorageListView(storageListController, storageListModel) {
 				}
 				
 				var object = { '$object' : sample };
+				object["id"] = sample.identifier
 				object["identifier"] = sample.identifier;
 				for (propertyCode in storagePropertyCodesAsMap) {
 					var propertyType = profile.getPropertyType(propertyCode);
@@ -157,7 +160,7 @@ function StorageListView(storageListController, storageListModel) {
 			}});
 		}
 
-		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable, 60);
+		this._dataGrid = new DataGridController2(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable, 60);
 
 		var $dataGridContainer = $("<div>");
 		this._dataGrid.init($dataGridContainer, extraOptions);

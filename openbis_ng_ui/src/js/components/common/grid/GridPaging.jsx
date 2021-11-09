@@ -80,7 +80,7 @@ class GridPaging extends React.PureComponent {
             control={
               <SelectField
                 value={pageSize}
-                options={[5, 10, 20, 50, 100].map(pageSize => ({
+                options={[5, 10, 20, 50, 100, 200, 500].map(pageSize => ({
                   label: pageSize,
                   value: pageSize
                 }))}

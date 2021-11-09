@@ -289,6 +289,7 @@ function LinksView(linksController, linksModel) {
 			property : propertyAnnotationCode,
 			isExportable: true,
 			showByDefault: true,
+			filterable: false,
 			sortable : false,
 			render : function(data) {
 				var sample = data["$object"];
@@ -332,6 +333,7 @@ function LinksView(linksController, linksModel) {
 			property : 'operations',
 			isExportable: false,
 			showByDefault: true,
+			filterable: false,
 			sortable : false,
 			render : function(data) {
 				//Dropdown Setup

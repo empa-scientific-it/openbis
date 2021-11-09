@@ -135,6 +135,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.$object = entity;
+					rowData.id = rowData.permId
 
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;
@@ -173,7 +174,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.withParents = false;
 				fetchOptions.withChildren = false;
 				fetchOptions.withSample = _this.fetchWithSample;
-				optionsSearch = options.search;
+				optionsSearch = options.searchMap ? JSON.stringify(options.searchMap) : null;
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;
 			}
@@ -186,14 +187,51 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.cache = "CACHE";
 			}
 
-			var criteriaToSend = $.extend(true, {}, criteria);
+            var mainSubcriteria = $.extend(true, {}, criteria)
+            _this.additionalRules.forEach(rule => mainSubcriteria.rules[Util.guid()] = rule);
 
-			if(options && options.search) {
-				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
-				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-					var fKeyword = filter[fIdx];
-					criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
-				}
+            var gridSubcriteria = {
+                logicalOperator: "AND",
+                rules: [],
+            }
+
+            var criteriaToSend = {
+                logicalOperator: "AND",
+                rules: [],
+                subCriteria: [mainSubcriteria, gridSubcriteria]
+            }
+
+
+            if(options && options.searchMap) {
+                for(var field in options.searchMap){
+                    var search = options.searchMap[field] || ""
+
+                    search = search.trim()
+
+                    if(field === "entityType"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
+                    }else if(field === "experiment"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
+                    }else if(field === "code"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
+                    }else if(field === "identifier"){
+                        if(criteria.entityKind === "DATASET"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
+                        }else{
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
+                        }
+                    }else if(field === "registrator"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "registrationDate"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                    }else if(field === "modifier"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "modificationDate"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
+                    }else{
+                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
+                    }
+                }
 			}
 
 			if(options && options.sortProperty && options.sortDirection) {
@@ -208,8 +246,13 @@ function AdvancedSearchController(mainController, forceSearch) {
 						fetchOptions.sort.name = "code";
 						break;
 					case "identifier":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "identifier";
+						if(criteria.entityKind === "DATASET"){
+							fetchOptions.sort.type = "Attribute";
+							fetchOptions.sort.name = "code";
+						}else{
+							fetchOptions.sort.type = "Attribute";
+							fetchOptions.sort.name = "identifier";
+						}
 						break;
 					case "entityType":
 						fetchOptions.sort.type = "Attribute";
@@ -238,21 +281,21 @@ function AdvancedSearchController(mainController, forceSearch) {
 				}
 			}
 
-			_this.additionalRules.forEach(rule => criteriaToSend.rules[Util.guid()] = rule);
-
 			$(".repeater-search").remove();
 
-			switch(criteriaToSend.entityKind) {
+			switch(criteria.entityKind) {
 				case "ALL":
 				case "ALL_PARTIAL":
 				case "ALL_PREFIX":
-					var freeText = "";
-					for(var ruleId in criteriaToSend.rules) {
-						if(criteriaToSend.rules[ruleId].value) {
-							freeText += " " +  criteriaToSend.rules[ruleId].value;
+					var freeTexts = [];
+
+					for(var ruleId in mainSubcriteria.rules) {
+						if(mainSubcriteria.rules[ruleId].value) {
+							freeTexts.push(mainSubcriteria.rules[ruleId].value);
 						}
 					}
-					mainController.serverFacade.searchGlobally(freeText, criteriaToSend.entityKind, fetchOptions,
+
+					mainController.serverFacade.searchGlobally(freeTexts, criteria.entityKind, fetchOptions,
 							callbackForSearch);
 					break;
 				case "SAMPLE":
@@ -277,23 +320,23 @@ function AdvancedSearchController(mainController, forceSearch) {
 			case "ALL":
 			case "ALL_PARTIAL":
 			case "ALL_PREFIX":
-				var freeText = "";
+				var freeTexts = [];
 				for(var ruleId in criteriaToSend.rules) {
 					if(criteriaToSend.rules[ruleId].value) {
-						freeText += " " +  criteriaToSend.rules[ruleId].value;
+						freeTexts.push(criteriaToSend.rules[ruleId].value);
 					}
 				}
-				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText,
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeTexts,
 					criteriaToSend.entityKind, {}, callback);
 				break;
 			case "ALL_PARTIAL":
-				var freeText = "";
+				var freeTexts = [];
 				for(var ruleId in criteriaToSend.rules) {
 					if(criteriaToSend.rules[ruleId].value) {
-						freeText += " " +  criteriaToSend.rules[ruleId].value;
+						freeTexts.push(criteriaToSend.rules[ruleId].value);
 					}
 				}
-				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, true, {},
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeTexts, true, {},
 					callback);
 				break;
 			case "SAMPLE":

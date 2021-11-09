@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import EntityKind from '@src/js/components/common/dto/EntityKind.js'
@@ -21,7 +21,7 @@ class PluginsGrid extends React.PureComponent {
     } = this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
@@ -72,6 +72,7 @@ class PluginsGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

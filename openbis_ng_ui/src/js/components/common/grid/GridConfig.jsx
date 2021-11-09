@@ -2,10 +2,11 @@ import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
 import IconButton from '@material-ui/core/IconButton'
 import SettingsIcon from '@material-ui/icons/Settings'
-import ColumnConfigRow from '@src/js/components/common/grid/ColumnConfigRow.jsx'
+import GridConfigRow from '@src/js/components/common/grid/GridConfigRow.jsx'
 import Popover from '@material-ui/core/Popover'
 import logger from '@src/js/common/logger.js'
 
@@ -21,7 +22,7 @@ const styles = () => ({
   }
 })
 
-class ColumnConfig extends React.PureComponent {
+class GridConfig extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
@@ -52,9 +53,10 @@ class ColumnConfig extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'ColumnConfig.render')
+    logger.log(logger.DEBUG, 'GridConfig.render')
 
-    const { classes, columns, onVisibleChange } = this.props
+    const { classes, loading, columns, columnsVisibility, onVisibleChange } =
+      this.props
     const { el } = this.state
 
     return (
@@ -67,34 +69,37 @@ class ColumnConfig extends React.PureComponent {
           anchorEl={el}
           onClose={this.handleClose}
           anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
+            vertical: 'bottom',
+            horizontal: 'right'
           }}
           transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center'
+            vertical: 'top',
+            horizontal: 'right'
           }}
         >
           <DragDropContext onDragEnd={this.handleDragEnd}>
             <Droppable droppableId='root'>
               {provided => (
-                <Container>
-                  <ol
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={classes.columns}
-                  >
-                    {columns.map((column, index) => (
-                      <ColumnConfigRow
-                        key={column.name}
-                        column={column}
-                        index={index}
-                        onVisibleChange={onVisibleChange}
-                      />
-                    ))}
-                    {provided.placeholder}
-                  </ol>
-                </Container>
+                <Mask visible={loading}>
+                  <Container>
+                    <ol
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={classes.columns}
+                    >
+                      {columns.map((column, index) => (
+                        <GridConfigRow
+                          key={column.name}
+                          column={column}
+                          visible={columnsVisibility[column.name]}
+                          index={index}
+                          onVisibleChange={onVisibleChange}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </ol>
+                  </Container>
+                </Mask>
               )}
             </Droppable>
           </DragDropContext>
@@ -104,4 +109,4 @@ class ColumnConfig extends React.PureComponent {
   }
 }
 
-export default _.flow(withStyles(styles))(ColumnConfig)
+export default _.flow(withStyles(styles))(GridConfig)

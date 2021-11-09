@@ -4,6 +4,7 @@ import VocabularyFormControllerAdd from '@src/js/components/types/form/Vocabular
 import VocabularyFormControllerRemove from '@src/js/components/types/form/VocabularyFormControllerRemove.js'
 import VocabularyFormControllerValidate from '@src/js/components/types/form/VocabularyFormControllerValidate.js'
 import VocabularyFormControllerChange from '@src/js/components/types/form/VocabularyFormControllerChange.js'
+import VocabularyFormControllerSelectionChange from '@src/js/components/types/form/VocabularyFormControllerSelectionChange.js'
 import VocabularyFormControllerSave from '@src/js/components/types/form/VocabularyFormControllerSave.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
@@ -43,6 +44,13 @@ export default class VocabularyFormController extends PageController {
 
   handleChange(type, params) {
     return new VocabularyFormControllerChange(this).execute(type, params)
+  }
+
+  handleSelectionChange(type, params) {
+    return new VocabularyFormControllerSelectionChange(this).execute(
+      type,
+      params
+    )
   }
 
   handleSave() {

@@ -12,6 +12,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Code',
 			property : 'code',
 			isExportable: false,
+			filterable: true,
 			sortable : true,
 			render : function(data, grid) {
 				var paginationInfo = null;
@@ -50,6 +51,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Name',
 			property : '$NAME',
 			isExportable: true,
+			filterable: true,
 			sortable : true,
 			render : function(data) {
 				var nameToUse = "";
@@ -64,6 +66,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Identifier',
 			property : 'identifier',
 			isExportable: true,
+			filterable : true,
 			sortable : true,
 			render : function(data, grid) {
 				var paginationInfo = null;
@@ -137,7 +140,8 @@ var SampleDataGridUtil = new function() {
 								label : propertyType.label,
 								property : propertyType.code,
 								isExportable: true,
-								sortable : true,
+								filterable: !isDynamic,
+								sortable : !isDynamic,
 								render : function(data) {
 									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
 								},
@@ -169,6 +173,7 @@ var SampleDataGridUtil = new function() {
 							label : propertyType.label,
 							property : propertyType.code,
 							isExportable: true,
+							filterable : true,
 							sortable : true,
 							render : function(data) {
 								return FormUtil.asHyperlink(data[propertyType.code]);
@@ -181,6 +186,7 @@ var SampleDataGridUtil = new function() {
 						label : propertyType.label,
 						property : propertyType.code,
 						isExportable: true,
+						filterable : true,
 						sortable : true
 					});
 				}
@@ -203,6 +209,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Type',
 			property : 'sampleTypeCode',
 			isExportable: false,
+			filterable : true,
 			sortable : true,
 		    render : function(data, grid) {
                 return Util.getDisplayNameFromCode(data.sampleTypeCode);
@@ -213,7 +220,8 @@ var SampleDataGridUtil = new function() {
 			label : 'Space',
 			property : 'default_space',
 			isExportable: true,
-			sortable : false
+			filterable: true,
+			sortable : true
 		});
 
 		if(withExperiment) {
@@ -221,6 +229,7 @@ var SampleDataGridUtil = new function() {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: true,
+				filterable: true,
 				sortable : false
 			});
 		}
@@ -230,6 +239,7 @@ var SampleDataGridUtil = new function() {
                 label : 'Parents',
                 property : 'parents',
                 isExportable: true,
+			filterable: false,
                 sortable : false,
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.parents, isLinksDisabled);
@@ -240,6 +250,7 @@ var SampleDataGridUtil = new function() {
                 label : 'Children',
                 property : 'children',
                 isExportable: false,
+			filterable: false,
                 sortable : false,
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.children, isLinksDisabled);
@@ -251,6 +262,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Storage',
 			property : 'storage',
 			isExportable: false,
+			filterable: false,
 			sortable : false,
 			render : function(data) {
 				var storage = $("<span>");
@@ -276,6 +288,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Preview',
 			property : 'preview',
 			isExportable: false,
+			filterable: false,
 			sortable : false,
 			render : function(data) {
 				var previewContainer = $("<div>");
@@ -319,6 +332,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Registrator',
 			property : 'registrator',
 			isExportable: false,
+			filterable: true,
 			sortable : false
 		});
 		
@@ -326,6 +340,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Registration Date',
 			property : 'registrationDate',
 			isExportable: false,
+			filterable: true,
 			sortable : true
 		});
 		
@@ -333,6 +348,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Modifier',
 			property : 'modifier',
 			isExportable: false,
+			filterable: true,
 			sortable : false
 		});
 		
@@ -340,6 +356,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Modification Date',
 			property : 'modificationDate',
 			isExportable: false,
+			filterable: true,
 			sortable : true
 		});
 		
@@ -363,7 +380,7 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		var dataGridController = new DataGridController2(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
 	
@@ -383,7 +400,7 @@ var SampleDataGridUtil = new function() {
         }
         return output;
     }
-	
+
 	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
 			var callbackForSearch = function(result) {
@@ -413,6 +430,7 @@ var SampleDataGridUtil = new function() {
 					}
 					
 					var sampleModel = { 
+										'id' : sample.permId,
 										'$object' : sample,
 										'identifier' : sample.identifier, 
 										'code' : sample.code,
@@ -453,7 +471,7 @@ var SampleDataGridUtil = new function() {
                             if(sampleChildren[caIdx].sampleTypeCode === "STORAGE_POSITION") {
                                 continue;
                             }
-                            
+
                             if(!isFirst) {
                                 children += ", ";
                             }
@@ -484,7 +502,7 @@ var SampleDataGridUtil = new function() {
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
-				optionsSearch = options.search;
+				optionsSearch = options.searchMap ? JSON.stringify(options.searchMap) : null;
 			}
 			
 			if(!criteria.cached || (criteria.cachedSearch !== optionsSearch)) {
@@ -495,33 +513,48 @@ var SampleDataGridUtil = new function() {
 				fetchOptions.cache = "CACHE";
 			}
 			
-			var criteriaToSend = $.extend(true, {}, criteria);
+            var mainSubcriteria = $.extend(true, {}, criteria)
 
-			if(options && options.searchOperator && options.search) {
-				criteriaToSend.logicalOperator = options.searchOperator;
-			    var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
+            var gridSubcriteria = {
+                logicalOperator: "AND",
+                rules: [],
+            }
 
-				if(criteriaToSend.logicalOperator === "AND") {
-                    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-                        var fKeyword = filter[fIdx];
-                        criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
+            var criteriaToSend = {
+                logicalOperator: "AND",
+                rules: [],
+                subCriteria: [mainSubcriteria, gridSubcriteria]
+            }
+
+            if(options && options.searchMap) {
+                for(var field in options.searchMap){
+                    var search = options.searchMap[field] || ""
+
+                    search = search.trim()
+
+                    if(field === "sampleTypeCode"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SAMPLE_TYPE", value : search, operator: "thatContains" };
+                    }else if(field === "default_space"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SPACE", value : search, operator: "thatContains" };
+                    }else if(field === "experiment"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_IDENTIFIER", value : search, operator: "thatContains" };
+                    }else if(field === "code"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
+                    }else if(field === "identifier"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
+                    }else if(field === "registrator"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "registrationDate"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                    }else if(field === "modifier"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
+                    }else if(field === "modificationDate"){
+                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
+                    }else{
+                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
                     }
-				} else if(criteriaToSend.logicalOperator === "OR") { // Using sub criteria
-				    criteriaToSend.rules = {};
-				    criteriaToSend.subCriteria = {};
-
-				    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-                        var subCriteria = $.extend(true, {}, criteria);
-                        delete subCriteria.cached;
-                        delete subCriteria.cachedSearch;
-                        subCriteria.logicalOperator = "AND";
-                        var fKeyword = filter[fIdx];
-                        subCriteria.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
-                        criteriaToSend.subCriteria[Util.guid()] = subCriteria;
-                    }
-
-				}
-			}
+                }
+            }
 
 			if(options && options.sortProperty && options.sortDirection) {
 				fetchOptions.sort = { 
@@ -536,6 +569,7 @@ var SampleDataGridUtil = new function() {
 						fetchOptions.sort.name = "code";
 						break;
 					case "identifier":
+					case "default_space":
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "identifier";
 						break;
@@ -593,7 +627,9 @@ var SampleDataGridUtil = new function() {
 					modificationDate = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
 				}
 				
-				var sampleModel = { '$object' : sample,
+				var sampleModel = {
+									'id' : sample.permId,
+									'$object' : sample,
 									'identifier' : sample.identifier, 
 									'code' : sample.code,
 									'sampleTypeCode' : sample.sampleTypeCode,
@@ -636,6 +672,7 @@ var SampleDataGridUtil = new function() {
 			property : 'operations',
 			isExportable: false,
 			sortable : false,
+            filterable: false,
 			render : function(data) {
 				//Dropdown Setup
 				var $dropDownMenu = $("<span>", { class : 'dropdown table-options-dropdown' });

@@ -910,6 +910,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
+				filterable: false,
 				sortable : false,
 				render : function(data) {
 					if(data.entityKind === "Sample") {
@@ -924,6 +925,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 label : 'Name',
                 property : '$NAME',
                 isExportable: true,
+                filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
                     if(data[profile.propertyReplacingCode]) {
@@ -936,6 +938,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 label : 'Identifier',
                 property : 'identifier',
                 isExportable: true,
+                filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data, grid) {
                     var paginationInfo = null;
@@ -964,11 +967,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Type',
 				property : 'entityType',
 				isExportable: true,
+				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch
 			}, {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
+				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				render : function(data, grid) {
 					var paginationInfo = null;
@@ -997,6 +1002,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: false,
+				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
 
@@ -1007,6 +1013,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					label : 'Matched',
 					property : 'matched',
 					isExportable: true,
+					filterable: false,
 					sortable : false
 				});
 
@@ -1014,6 +1021,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					label : 'Rank',
 					property : 'rank',
 					isExportable: true,
+					filterable: false,
 					sortable : false,
                     render : function(data, grid) {
                         var indexFound = null;
@@ -1033,6 +1041,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : '---------------',
 				property : null,
 				isExportable: false,
+				filterable: false,
 				sortable : false
 			});
 
@@ -1077,6 +1086,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					propertyColumnsToSort.push({
 						label : profile.getPropertyType(propertyCode).label,
 						property : propertyCode,
+						filterable : !isGlobalSearch,
 						sortable : !isGlobalSearch
 					});
 				}
@@ -1095,6 +1105,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : '---------------',
 				property : null,
 				isExportable: false,
+				filterable: false,
 				sortable : false
 			});
 
@@ -1102,6 +1113,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registrator',
 				property : 'registrator',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : false
 			});
 
@@ -1109,6 +1121,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registration Date',
 				property : 'registrationDate',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch
 			});
 
@@ -1116,6 +1129,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modifier',
 				property : 'modifier',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : false
 			});
 
@@ -1123,12 +1137,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modification Date',
 				property : 'modificationDate',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch
 			});
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
+			var dataGrid = new DataGridController2(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
 			return dataGrid;
 	}
 

@@ -1,37 +1,48 @@
-import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import GridCell from '@src/js/components/common/grid/GridCell.jsx'
+import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
-import util from '@src/js/common/util.js'
 
 const styles = theme => ({
   row: {
     cursor: 'pointer'
   },
-  cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
+  multiselect: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0
   },
-  wrap: {
-    whiteSpace: 'normal'
-  },
-  nowrap: {
-    whiteSpace: 'nowrap'
+  checkbox: {
+    display: 'inline-block'
   }
 })
 
 class GridRow extends React.PureComponent {
   constructor(props) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
+    this.handleSelect = this.handleSelect.bind(this)
+    this.handleMultiselect = this.handleMultiselect.bind(this)
   }
 
-  handleClick() {
-    const { onClick, row } = this.props
-    if (onClick) {
-      onClick(row)
+  handleSelect() {
+    const { selectable, onSelect, row } = this.props
+    if (selectable && onSelect) {
+      onSelect(row)
+    }
+  }
+
+  handleMultiselect(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const { multiselectable, onMultiselect, row } = this.props
+
+    if (multiselectable && onMultiselect) {
+      onMultiselect(row)
     }
   }
 
@@ -43,61 +54,37 @@ class GridRow extends React.PureComponent {
     return (
       <TableRow
         key={row.id}
-        onClick={this.handleClick}
+        onClick={this.handleSelect}
         hover={true}
         selected={selected}
         classes={{
           root: classes.row
         }}
       >
-        {columns.map(column => this.renderCell(column))}
+        {this.renderMultiselect()}
+        {columns.map(column => (
+          <GridCell key={column.name} row={row} column={column} />
+        ))}
       </TableRow>
     )
   }
 
-  renderCell(column) {
-    const { classes } = this.props
+  renderMultiselect() {
+    const { multiselectable, multiselected, classes } = this.props
 
-    if (column.visible) {
-      let rendered = this.renderValue(column)
-
+    if (multiselectable) {
       return (
-        <TableCell
-          key={column.name}
-          classes={{ root: util.classNames(classes.cell, classes.nowrap) }}
-        >
-          {rendered ? rendered : <span>&nbsp;</span>}
+        <TableCell classes={{ root: classes.multiselect }}>
+          <div className={classes.checkbox}>
+            <CheckboxField
+              value={multiselected}
+              onClick={this.handleMultiselect}
+            />
+          </div>
         </TableCell>
       )
     } else {
       return null
-    }
-  }
-
-  renderValue(column) {
-    const { row, classes } = this.props
-
-    const value = column.getValue({ row, column })
-    const params = {
-      value,
-      row,
-      column,
-      classes: {
-        wrap: classes.wrap,
-        nowrap: classes.nowrap
-      }
-    }
-
-    const renderedValue = column.renderValue
-      ? column.renderValue(params)
-      : value
-
-    if (renderedValue === null || renderedValue === undefined) {
-      return ''
-    } else if (_.isNumber(renderedValue) || _.isBoolean(renderedValue)) {
-      return String(renderedValue)
-    } else {
-      return renderedValue
     }
   }
 }

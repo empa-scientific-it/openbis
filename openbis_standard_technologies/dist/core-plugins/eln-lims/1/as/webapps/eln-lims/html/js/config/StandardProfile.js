@@ -380,6 +380,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
 									var rowData = {};
+									rowData.id = index;
 									rowData.permId = product.permId;
 									rowData.supplier = provider.properties[profile.propertyReplacingCode];
 									rowData.name = product.properties[profile.propertyReplacingCode];
@@ -411,7 +412,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							repTitle += " (as saved when ordered)"
 						}
 						
-						var orderSummary = new DataGridController(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY", false, 30);
+						var orderSummary = new DataGridController2(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY", false, 30);
 						orderSummary.init(orderSummaryContainer);
 						
 						var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));

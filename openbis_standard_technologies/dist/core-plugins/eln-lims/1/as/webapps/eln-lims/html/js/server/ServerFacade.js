@@ -1553,6 +1553,15 @@ function ServerFacade(openbisServer) {
                             }
                         }
 
+                        var getDateWithoutTime = function(str){
+                            var match = /^(\d{4}-\d{2}-\d{2}).*$/.exec(str)
+                            if(match){
+                                return match[1]
+                            }else{
+                                return null
+                            }
+                        }
+
                         var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
                             switch(attributeName) {
                                 //Used by all entities
@@ -1566,6 +1575,19 @@ function ServerFacade(openbisServer) {
                                                 break;
                                         case "thatContains":
                                                 criteria.withCode().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;
+                                case "IDENTIFIER":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withIdentifier().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withIdentifier().thatContains(attributeValue);
                                                 break;
                                     }
                                     break;
@@ -1584,6 +1606,9 @@ function ServerFacade(openbisServer) {
                                             case "thatEqualsUserId":
                                                 criteria.withRegistrator().withUserId().thatEquals(attributeValue);
                                                 break;
+                                            case "thatContainsUserId":
+                                                criteria.withRegistrator().withUserId().thatContains(attributeValue);
+                                                break;    
                                             case "thatContainsFirstName":
                                                 criteria.withRegistrator().withFirstName().thatContains(attributeValue);
                                                 break;
@@ -1597,7 +1622,10 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                criteria.withRegistrationDate().thatEquals(attributeValue);
+                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
+                                                if(dateWithoutTime){
+                                                    criteria.withRegistrationDate().thatEquals(dateWithoutTime);
+                                                }
                                                 break;
                                             case "thatIsLaterThanDate":
                                                 criteria.withRegistrationDate().thatIsLaterThan(attributeValue);
@@ -1622,6 +1650,9 @@ function ServerFacade(openbisServer) {
                                             case "thatEqualsUserId":
                                                 criteria.withModifier().withUserId().thatEquals(attributeValue);
                                                 break;
+                                            case "thatContainsUserId":
+                                                criteria.withModifier().withUserId().thatContains(attributeValue);
+                                                break; 
                                             case "thatContainsFirstName":
                                                 criteria.withModifier().withFirstName().thatContains(attributeValue);
                                                 break;
@@ -1635,7 +1666,10 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                criteria.withModificationDate().thatEquals(attributeValue);
+                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
+                                                if(dateWithoutTime){
+                                                    criteria.withModificationDate().thatEquals(dateWithoutTime);
+                                                }
                                                 break;
                                             case "thatIsLaterThanDate":
                                                 criteria.withModificationDate().thatIsLaterThan(attributeValue);
@@ -1654,15 +1688,62 @@ function ServerFacade(openbisServer) {
                                         criteria.withModificationDate().thatEquals(attributeValue);
                                     }
                                     break;
+                                case "ENTITY_TYPE":
                                 case "SAMPLE_TYPE":
                                 case "EXPERIMENT_TYPE":
                                 case "DATA_SET_TYPE":
-                                    criteria.withType().withCode().thatEquals(attributeValue);
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withType().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withType().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
                                     break;
                                 //Only Sample
                                 case "SPACE":
-                                    criteria.withSpace().withCode().thatEquals(attributeValue);
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withSpace().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withSpace().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
                                     break;
+                                case "EXPERIMENT_CODE":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withExperiment().withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withExperiment().withCode().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;
+                                case "EXPERIMENT_IDENTIFIER":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withExperiment().withIdentifier().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withExperiment().withIdentifier().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;    
                                 //Only Experiment
                                 case "PROJECT":
                                     criteria.withProject().withCode().thatEquals(attributeValue);
@@ -2569,30 +2650,37 @@ function ServerFacade(openbisServer) {
 	// Global Search
 	//
 
-	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, searchKind,
+	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeTexts, searchKind,
 		    advancedFetchOptions, callbackFunction) {
 		require(['as/dto/global/search/GlobalSearchCriteria',
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'],
 		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
+
 			switch (searchKind) {
 				case "ALL": {
-					searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
-					break;
-				}
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());    
+                    })
+                    break;
+                }
 
-				case "ALL_PARTIAL": {
-					searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
-					break;
-				}
+                case "ALL_PARTIAL": {
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+                    })
+                    break;
+                }
 
-				case "ALL_PREFIX": {
-					searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
-					break;
-				}
-			}
+                case "ALL_PREFIX": {
+                    freeTexts.forEach(function(freeText){
+                        searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+                    })
+                    break;
+                }
+            }
 
-			searchCriteria.withOperator("OR");
+            searchCriteria.withOperator("OR");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			fetchOptions.withMatch();

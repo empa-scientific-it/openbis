@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
 import VocabularyFormController from '@src/js/components/types/form/VocabularyFormController.js'
@@ -91,10 +91,11 @@ class VocabularyForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'VocabularyForm.render')
 
-    const { loading, loaded, vocabulary } = this.state
+    const { loadId, loading, loaded, vocabulary } = this.state
 
     return (
       <PageWithTwoPanels
+        key={loadId}
         loading={loading}
         loaded={loaded}
         object={vocabulary}
@@ -110,12 +111,13 @@ class VocabularyForm extends React.PureComponent {
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <Grid
+        <GridWithSettings
           id={ids.VOCABULARY_TERMS_GRID_ID}
           controllerRef={this.handleGridControllerRef}
           header={messages.get(messages.TERMS)}
           columns={columns}
           rows={terms}
+          selectable={true}
           selectedRowId={
             selection && selection.type === VocabularyFormSelectionType.TERM
               ? selection.params.id
@@ -129,11 +131,7 @@ class VocabularyForm extends React.PureComponent {
 
   renderAdditionalPanel() {
     const { controller } = this
-    const { vocabulary, terms, selection, mode } = this.state
-
-    const selectedRow = controller.gridController
-      ? controller.gridController.getSelectedRow()
-      : null
+    const { vocabulary, terms, selection, selectedRow, mode } = this.state
 
     return (
       <VocabularyFormParameters
