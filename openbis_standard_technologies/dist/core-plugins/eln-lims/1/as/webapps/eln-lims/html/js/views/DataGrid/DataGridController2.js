@@ -155,6 +155,7 @@ function DataGridController2(
                   Object.keys(_this.controller.getFilters()).length > 0
                     ? Object.values(_this.controller.getFilters()).join(" ")
                     : null,
+                searchMap: _this.controller.getFilters(),
               },
             };
 
@@ -194,11 +195,7 @@ function DataGridController2(
         },
         compareValue: function (params) {
           if (column.sort) {
-            return column.sort(
-              params.row1,
-              params.row2,
-              true
-            );
+            return column.sort(params.row1, params.row2, true);
           } else {
             return params.defaultCompare(params.value1, params.value2);
           }
@@ -231,7 +228,6 @@ function DataGridController2(
           ? Object.values(params.filters).join(" ")
           : null,
       searchMap: params.filters,
-      searchOperator: "AND",
     };
 
     function checkRowIds(rows) {
