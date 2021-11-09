@@ -63,7 +63,7 @@ function DataGridController2(
         loadRows: _this._loadRows,
         onSettingsChange: _this._onSettingsChange,
         onSelectedRowChange: _this._onSelectedRowChange,
-        selectable: true,
+        selectable: false,
         multiselectable: isMultiselectable,
         actions: _this._actions(extraOptions),
       })
