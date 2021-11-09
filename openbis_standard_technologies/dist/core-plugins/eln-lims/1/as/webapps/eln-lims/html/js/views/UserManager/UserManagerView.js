@@ -104,7 +104,8 @@ function UserManagerView(userManagerController, userManagerModel) {
 				return $dropDownMenu;
 			},
 			filterable : false,
-			sortable : false
+			sortable : false,
+			isExportable: false
 		});
 		
 		var getDataList = function(callback) {
