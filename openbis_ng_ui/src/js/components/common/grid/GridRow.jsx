@@ -7,7 +7,7 @@ import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  row: {
+  selectable: {
     cursor: 'pointer'
   },
   multiselect: {
@@ -49,7 +49,7 @@ class GridRow extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridRow.render')
 
-    const { columns, row, selected, classes } = this.props
+    const { columns, row, selectable, selected, classes } = this.props
 
     return (
       <TableRow
@@ -58,7 +58,7 @@ class GridRow extends React.PureComponent {
         hover={true}
         selected={selected}
         classes={{
-          root: classes.row
+          root: selectable ? classes.selectable : null
         }}
       >
         {this.renderMultiselect()}
