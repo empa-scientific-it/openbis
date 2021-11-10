@@ -41,6 +41,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._moveBtn.addClass("btn-primary");
 	
 	this.repaint = function(views) {
+	    var _this = this;
 		var $header = views.header;
 		var $container = views.content;
 		
@@ -56,11 +57,14 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		var $twoColumnsContainer = $("<div>", {"id" : "storageFromContainer", "class" : "row"});
 		
 		this._$storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-12"});
-		this._storageFromView.repaint(this._$storageFromContainer);
+		this._storageFromView.repaint(this._$storageFromContainer, function() {
+			_this._storageFromViewInitialised = true;
+			_this.linkStorageFromToByStorageConfig();
+		});
 		
 		this._$storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-12"});
 		this._$storageToContainer.hide();
-		var _this = this;
+
 		this._showHideStorageToBtn.click(function() {
 			var iconSpan = $(_this._showHideStorageToBtn.children()[0]);
 			if(iconSpan.hasClass("glyphicon-eye-open")) {
@@ -73,13 +77,38 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 			_this._$storageToContainer.toggle();
 		});
 		
-		this._storageToView.repaint(this._$storageToContainer);
+		this._storageToView.repaint(this._$storageToContainer, function() {
+			_this._storageToViewInitialised = true;
+			_this.linkStorageFromToByStorageConfig();
+		});
 		
 		$containerColumn.append(this._$storageFromContainer);
 		$containerColumn.append(this._$storageToContainer);
 		$containerColumn.append($("<div>", { class : "col-md-12" }).append($("<legend>").append("Changes")).append(this._changeLogContainer));
 		$container.css("padding", "0px");
 		$container.append($containerColumn);
+	}
+
+	this._storageFromViewInitialised = false;
+	this._storageToViewInitialised = false;
+
+	this.linkStorageFromToByStorageConfig = function() {
+		if(this._storageFromViewInitialised && this._storageToViewInitialised) {
+			var storageFromDropdown = this._storageFromView.getStoragesDropdown();
+			var storageToDropdown = this._storageToView.getStoragesDropdown();
+			storageFromDropdown.on('change', function (e) {
+				var selected = storageFromDropdown.select2("data");
+				var selectedSpace = selected[0].element.attributes.spaceCode.value;
+
+				// Show/hide storages from Storage To based on the ones from Storage From
+				for(var sIdx = 0; sIdx < storageToDropdown[0].childNodes.length; sIdx++) {
+					var spaceCode = storageToDropdown[0].childNodes[sIdx].attributes.spaceCode;
+					var show = spaceCode && spaceCode.value === selectedSpace;
+					storageToDropdown[0].childNodes[sIdx].disabled = !show;
+				}
+				storageToDropdown.val(null).trigger('change');
+			});
+		}
 	}
 	
 	this.getMoveButton = function() {

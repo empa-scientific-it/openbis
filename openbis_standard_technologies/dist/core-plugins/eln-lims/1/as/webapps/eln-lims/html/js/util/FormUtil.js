@@ -267,7 +267,7 @@ var FormUtil = new function() {
 				$option.attr('spaceCode',storageConfiguration.spaceCode);
 				$option.attr('value',storageConfiguration.code);
 				$option.text(label)
-				$component.append($("<option>").attr('value',storageConfiguration.code).text(label));
+				$component.append($option);
 			}
 			callbackFunction($component);
 			Select2Manager.add($component);
