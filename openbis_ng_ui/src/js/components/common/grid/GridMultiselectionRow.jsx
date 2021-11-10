@@ -4,6 +4,7 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Link from '@src/js/components/common/form/Link.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -69,17 +70,23 @@ class GridMultiselectionRow extends React.PureComponent {
           <div className={classes.messages}>
             <div className={classes.message}>
               <Message type='info'>
-                {numberOfSelectedRows} selected row(s)
+                {messages.get(
+                  messages.NUMBER_OF_SELECTED_ROWS,
+                  numberOfSelectedRows
+                )}
               </Message>
             </div>
             <div className={classes.message}>
-              <Link onClick={onMultiselectionClear}>(clear selection)</Link>
+              <Link onClick={onMultiselectionClear}>
+                ({messages.get(messages.CLEAR_SELECTION)})
+              </Link>
             </div>
             {numberOfSelectedRowsNotVisible > 0 && (
               <div className={classes.message}>
                 <Message type='warning'>
-                  Some selected rows are not visible due to the chosen filtering
-                  and paging.
+                  {messages.get(
+                    messages.SELECTED_ROWS_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING
+                  )}
                 </Message>
               </div>
             )}
