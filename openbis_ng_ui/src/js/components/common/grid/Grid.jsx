@@ -9,6 +9,7 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import GridController from '@src/js/components/common/grid/GridController.js'
 import GridFilters from '@src/js/components/common/grid/GridFilters.jsx'
 import GridHeaders from '@src/js/components/common/grid/GridHeaders.jsx'
+import GridMultiselectionRow from '@src/js/components/common/grid/GridMultiselectionRow.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
@@ -136,14 +137,23 @@ class Grid extends React.PureComponent {
                       sort={sort}
                       sortDirection={sortDirection}
                       onSortChange={this.controller.handleSortChange}
-                      onSelectAllRowsChange={
-                        this.controller.handleSelectAllRowsChange
+                      onMultiselectAllRowsChange={
+                        this.controller.handleMultiselectAllRowsChange
                       }
                       multiselectable={multiselectable}
                       multiselectedRows={multiselectedRows}
                     />
                   </TableHead>
                   <TableBody classes={{ root: classes.tableBody }}>
+                    <GridMultiselectionRow
+                      columns={visibleColumns}
+                      rows={rows}
+                      onMultiselectionClear={
+                        this.controller.handleMultiselectionClear
+                      }
+                      multiselectable={multiselectable}
+                      multiselectedRows={multiselectedRows}
+                    />
                     {rows.map(row => {
                       return (
                         <GridRow

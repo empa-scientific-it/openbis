@@ -33,10 +33,10 @@ class GridHeaders extends React.PureComponent {
     autoBind(this)
   }
 
-  handleSelectAllRowsChange() {
-    const { onSelectAllRowsChange } = this.props
-    if (onSelectAllRowsChange) {
-      onSelectAllRowsChange()
+  handleMultiselectAllRowsChange() {
+    const { onMultiselectAllRowsChange } = this.props
+    if (onMultiselectAllRowsChange) {
+      onMultiselectAllRowsChange()
     }
   }
 
@@ -84,7 +84,7 @@ class GridHeaders extends React.PureComponent {
           <CheckboxField
             value={value}
             indeterminate={indeterminate}
-            onChange={this.handleSelectAllRowsChange}
+            onChange={this.handleMultiselectAllRowsChange}
           />
         </TableCell>
       )

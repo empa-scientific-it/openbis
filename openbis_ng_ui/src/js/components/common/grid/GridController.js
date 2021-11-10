@@ -683,7 +683,7 @@ export default class GridController {
     }
   }
 
-  async handleSelectAllRowsChange() {
+  async handleMultiselectAllRowsChange() {
     const { rows, multiselectedRows } = this.context.getState()
 
     const rowIds = rows.map(row => String(row.id))
@@ -696,6 +696,10 @@ export default class GridController {
       newMultiselectedRowIds = _.union(multiselectedRowIds, rowIds)
     }
     this.multiselectRows(newMultiselectedRowIds)
+  }
+
+  async handleMultiselectionClear() {
+    this.multiselectRows([])
   }
 
   async handleExecuteAction(action) {
