@@ -200,16 +200,17 @@ export default class GridController {
   }
 
   async _loadColumns(rows, columnsVisibility, columnsSorting) {
-    const { columns, loadColumns } = this.context.getProps()
+    const props = this.context.getProps()
+    const state = this.context.getState()
 
     let newAllColumns = []
     const newColumnsVisibility = { ...columnsVisibility }
     const newColumnsSorting = [...columnsSorting]
 
-    if (columns) {
-      newAllColumns = columns
-    } else if (loadColumns) {
-      newAllColumns = await loadColumns(rows)
+    if (props.columns) {
+      newAllColumns = props.columns
+    } else if (props.loadColumns) {
+      newAllColumns = await props.loadColumns(rows)
     }
 
     newAllColumns = newAllColumns.map(newColumn => {
@@ -222,6 +223,27 @@ export default class GridController {
         )
       }
       return this._loadColumn(newColumn)
+    })
+
+    // If there is a filter value defined for a column and this column does not exist
+    // in the new columns list then take it over from the previous columns list.
+    // This may happen e.g. when a user is filtering by a dynamic column
+    // and enters a filter value that does not match any row. Without this trick the column
+    // would disappear and the user would not be able to clear the filter value.
+
+    Object.keys(state.filters).forEach(columnName => {
+      const newColumn = _.find(
+        newAllColumns,
+        newColumn => newColumn.name === columnName
+      )
+
+      if (!newColumn) {
+        const existingColumn = _.find(
+          state.allColumns,
+          column => column.name === columnName
+        )
+        newAllColumns.push(existingColumn)
+      }
     })
 
     newAllColumns.forEach((newColumn, newColumnIndex) => {
@@ -237,6 +259,9 @@ export default class GridController {
       )
 
       if (newColumnSorting === -1) {
+        // If a column does not have a sorting value yet, then set its sorting to
+        // the max sorting of the columns that were before it in the columns list
+
         newColumnSorting = newAllColumns
           .slice(0, newColumnIndex)
           .reduce((maxSorting, column) => {
