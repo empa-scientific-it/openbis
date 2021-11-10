@@ -70,8 +70,26 @@ class GridExports extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridExports.render')
 
-    const { exportOptions, disabled, classes } = this.props
+    const { exportOptions, disabled, multiselectable, classes } = this.props
     const { el } = this.state
+
+    const rowsOptions = [
+      {
+        label: messages.get(messages.ALL_PAGES),
+        value: GridExportOptions.ALL_PAGES
+      },
+      {
+        label: messages.get(messages.CURRENT_PAGE),
+        value: GridExportOptions.CURRENT_PAGE
+      }
+    ]
+
+    if (multiselectable) {
+      rowsOptions.push({
+        label: messages.get(messages.SELECTED_ROWS),
+        value: GridExportOptions.SELECTED_ROWS
+      })
+    }
 
     return (
       <div className={classes.container}>
@@ -101,12 +119,12 @@ class GridExports extends React.PureComponent {
                 name='columns'
                 options={[
                   {
-                    label: messages.get(messages.ALL),
-                    value: GridExportOptions.ALL
+                    label: messages.get(messages.ALL_COLUMNS),
+                    value: GridExportOptions.ALL_COLUMNS
                   },
                   {
-                    label: messages.get(messages.VISIBLE),
-                    value: GridExportOptions.VISIBLE
+                    label: messages.get(messages.VISIBLE_COLUMNS),
+                    value: GridExportOptions.VISIBLE_COLUMNS
                   }
                 ]}
                 value={exportOptions.columns}
@@ -118,16 +136,7 @@ class GridExports extends React.PureComponent {
               <SelectField
                 label={messages.get(messages.ROWS)}
                 name='rows'
-                options={[
-                  {
-                    label: messages.get(messages.ALL),
-                    value: GridExportOptions.ALL
-                  },
-                  {
-                    label: messages.get(messages.VISIBLE),
-                    value: GridExportOptions.VISIBLE
-                  }
-                ]}
+                options={rowsOptions}
                 value={exportOptions.rows}
                 variant='standard'
                 onChange={this.handleChange}

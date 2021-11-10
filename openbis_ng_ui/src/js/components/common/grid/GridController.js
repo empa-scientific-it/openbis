@@ -31,8 +31,8 @@ export default class GridController {
       sortDirection: null,
       totalCount: 0,
       exportOptions: {
-        columns: GridExportOptions.VISIBLE,
-        rows: GridExportOptions.VISIBLE,
+        columns: GridExportOptions.VISIBLE_COLUMNS,
+        rows: GridExportOptions.CURRENT_PAGE,
         values: GridExportOptions.RICH_TEXT
       }
     })
@@ -780,10 +780,10 @@ export default class GridController {
     var columns = []
     var prefix = ''
 
-    if (exportOptions.columns === GridExportOptions.ALL) {
+    if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
       columns = this.getAllColumns()
       prefix += 'AllColumns'
-    } else if (exportOptions.columns === GridExportOptions.VISIBLE) {
+    } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
       columns = this.getVisibleColumns()
       prefix += 'VisibleColumns'
     } else {
@@ -792,7 +792,7 @@ export default class GridController {
 
     columns = columns.filter(column => column.exportable)
 
-    if (exportOptions.rows === GridExportOptions.ALL) {
+    if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
       if (props.rows) {
         data = state.filteredRows
       } else if (props.loadRows) {
@@ -810,11 +810,17 @@ export default class GridController {
         }
       }
 
-      prefix += 'AllRows'
+      prefix += 'AllPages'
       _exportColumnsFromData(prefix, data, columns)
-    } else if (exportOptions.rows === GridExportOptions.VISIBLE) {
+    } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
       data = state.rows
-      prefix += 'VisibleRows'
+      prefix += 'CurrentPage'
+      _exportColumnsFromData(prefix, data, columns)
+    } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+      data = Object.values(state.multiselectedRows).map(
+        selectedRow => selectedRow.data
+      )
+      prefix += 'SelectedRows'
       _exportColumnsFromData(prefix, data, columns)
     } else {
       throw Error('Unsupported rows option: ' + exportOptions.columns)
