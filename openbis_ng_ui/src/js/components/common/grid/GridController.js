@@ -663,6 +663,17 @@ export default class GridController {
     await this._saveSettings()
   }
 
+  async handleRowClick(row) {
+    const { onRowClick } = this.context.getProps()
+    if (onRowClick) {
+      onRowClick({
+        id: row.id,
+        data: row,
+        visible: true
+      })
+    }
+  }
+
   async handleRowSelect(row) {
     await this.selectRow(row ? row.id : null)
   }

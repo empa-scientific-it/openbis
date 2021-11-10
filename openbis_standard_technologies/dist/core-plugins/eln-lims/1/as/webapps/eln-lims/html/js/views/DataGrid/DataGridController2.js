@@ -62,7 +62,7 @@ function DataGridController2(
         loadColumns: _this._loadColumns,
         loadRows: _this._loadRows,
         onSettingsChange: _this._onSettingsChange,
-        onSelectedRowChange: _this._onSelectedRowChange,
+        onRowClick: rowClickEventHandler,
         selectable: false,
         multiselectable: isMultiselectable,
         actions: _this._actions(extraOptions),
@@ -292,12 +292,6 @@ function DataGridController2(
 
     let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj);
     mainController.serverFacade.setSetting(configKey, elnGridSettingsStr);
-  };
-
-  this._onSelectedRowChange = function (selectedRow) {
-    if (rowClickEventHandler) {
-      rowClickEventHandler(selectedRow);
-    }
   };
 
   this.refreshHeight = function () {};

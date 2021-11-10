@@ -7,7 +7,7 @@ import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  selectable: {
+  pointer: {
     cursor: 'pointer'
   },
   multiselect: {
@@ -24,14 +24,19 @@ const styles = theme => ({
 class GridRow extends React.PureComponent {
   constructor(props) {
     super(props)
-    this.handleSelect = this.handleSelect.bind(this)
+    this.handleClick = this.handleClick.bind(this)
     this.handleMultiselect = this.handleMultiselect.bind(this)
   }
 
-  handleSelect() {
-    const { selectable, onSelect, row } = this.props
+  handleClick() {
+    const { clickable, selectable, onClick, onSelect, row } = this.props
+
     if (selectable && onSelect) {
       onSelect(row)
+    }
+
+    if (clickable && onClick) {
+      onClick(row)
     }
   }
 
@@ -49,16 +54,17 @@ class GridRow extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridRow.render')
 
-    const { columns, row, selectable, selected, classes } = this.props
+    const { columns, row, clickable, selectable, selected, classes } =
+      this.props
 
     return (
       <TableRow
         key={row.id}
-        onClick={this.handleSelect}
+        onClick={this.handleClick}
         hover={true}
         selected={selected}
         classes={{
-          root: selectable ? classes.selectable : null
+          root: selectable || clickable ? classes.pointer : null
         }}
       >
         {this.renderMultiselect()}

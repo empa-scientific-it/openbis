@@ -97,7 +97,14 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { header, selectable, multiselectable, actions, classes } = this.props
+    const {
+      header,
+      selectable,
+      multiselectable,
+      actions,
+      onRowClick,
+      classes
+    } = this.props
     const {
       loading,
       filters,
@@ -160,12 +167,14 @@ class Grid extends React.PureComponent {
                           key={row.id}
                           columns={visibleColumns}
                           row={row}
+                          clickable={!!onRowClick}
                           selectable={selectable}
                           selected={selectedRow && selectedRow.id === row.id}
                           multiselectable={multiselectable}
                           multiselected={
                             multiselectedRows && multiselectedRows[row.id]
                           }
+                          onClick={this.controller.handleRowClick}
                           onSelect={this.controller.handleRowSelect}
                           onMultiselect={this.controller.handleRowMultiselect}
                         />
