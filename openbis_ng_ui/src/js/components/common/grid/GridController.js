@@ -597,6 +597,8 @@ export default class GridController {
   }
 
   async handleFilterChange(column, filter) {
+    const { local } = this.context.getState()
+
     await this.context.setState(state => {
       const newFilters = {
         ...state.filters
@@ -619,9 +621,13 @@ export default class GridController {
       this.loadTimerId = null
     }
 
-    this.loadTimerId = setTimeout(async () => {
+    if (local) {
       await this.load()
-    }, 500)
+    } else {
+      this.loadTimerId = setTimeout(async () => {
+        await this.load()
+      }, 500)
+    }
   }
 
   async handleColumnVisibleChange(name) {
