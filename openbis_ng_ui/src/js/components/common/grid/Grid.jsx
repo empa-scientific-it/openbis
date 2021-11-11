@@ -167,9 +167,11 @@ class Grid extends React.PureComponent {
                           key={row.id}
                           columns={visibleColumns}
                           row={row}
-                          clickable={!!onRowClick}
+                          clickable={onRowClick ? true : false}
                           selectable={selectable}
-                          selected={selectedRow && selectedRow.id === row.id}
+                          selected={
+                            selectedRow ? selectedRow.id === row.id : false
+                          }
                           multiselectable={multiselectable}
                           multiselected={
                             multiselectedRows && multiselectedRows[row.id]

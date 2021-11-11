@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import { mount } from 'enzyme'
 import { createStore } from '@src/js/store/store.js'
 import ThemeProvider from '@srcTest/js/components/common/theme/ThemeProvider.jsx'
+import openbis from '@srcTest/js/services/openbis.js'
 import actions from '@src/js/store/actions/actions.js'
 
 export default class ComponentTest {
@@ -14,6 +15,7 @@ export default class ComponentTest {
 
   beforeEach() {
     jest.resetAllMocks()
+    openbis.mockGetMe()
     this.store = createStore()
     this.store.dispatch(actions.init())
   }

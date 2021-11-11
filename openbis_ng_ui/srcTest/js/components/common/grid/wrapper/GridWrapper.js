@@ -2,8 +2,8 @@ import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridPagingWrapper from '@srcTest/js/components/common/grid/wrapper/GridPagingWrapper.js'
-import GridHeaderLabel from '@src/js/components/common/grid/GridHeaderLabel.jsx'
-import GridHeaderFilter from '@src/js/components/common/grid/GridHeaderFilter.jsx'
+import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'
+import GridFilter from '@src/js/components/common/grid/GridFilter.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridRowWrapper from '@srcTest/js/components/common/grid/wrapper/GridRowWrapper.js'
 import GridColumnWrapper from '@srcTest/js/components/common/grid/wrapper/GridColumnWrapper.js'
@@ -12,8 +12,8 @@ export default class GridWrapper extends BaseWrapper {
   getColumns() {
     const columns = this.wrapper.prop('columns')
 
-    const labels = this.findComponent(GridHeaderLabel)
-    const filters = this.findComponent(GridHeaderFilter)
+    const labels = this.findComponent(GridHeader)
+    const filters = this.findComponent(GridFilter)
     const sorts = this.findComponent(TableSortLabel)
 
     return columns.map((column, index) => {
