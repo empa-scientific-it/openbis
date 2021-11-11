@@ -9,6 +9,7 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
+import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -80,7 +81,7 @@ class GridPaging extends React.PureComponent {
             control={
               <SelectField
                 value={pageSize}
-                options={[5, 10, 20, 50, 100, 200, 500].map(pageSize => ({
+                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
                   label: pageSize,
                   value: pageSize
                 }))}

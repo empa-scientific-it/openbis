@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
+import GridSortingOptions from '@src/js/components/common/grid/GridSortingOptions.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -41,7 +42,7 @@ class GridHeader extends React.PureComponent {
         <TableCell classes={{ root: classes.cell }}>
           <TableSortLabel
             active={active}
-            direction={active ? sortDirection : 'asc'}
+            direction={active ? sortDirection : GridSortingOptions.ASC}
             onClick={this.handleClick}
           >
             {column.label}

@@ -2,8 +2,10 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import FileSaver from 'file-saver'
 import CsvStringify from 'csv-stringify'
-import compare from '@src/js/common/compare.js'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
+import GridSortingOptions from '@src/js/components/common/grid/GridSortingOptions.js'
+import compare from '@src/js/common/compare.js'
 
 export default class GridController {
   constructor() {
@@ -359,8 +361,68 @@ export default class GridController {
   async _loadSettings() {
     const { loadSettings } = this.context.getProps()
 
+    function getObjectValue(value) {
+      return _.isObject(value) ? value : null
+    }
+
+    function getArrayValue(value) {
+      return _.isArray(value) ? value : null
+    }
+
+    function getStringValue(value) {
+      return _.isString(value) ? value : null
+    }
+
+    function getEnumValue(value, allowedValues) {
+      return _.includes(allowedValues, value) ? value : null
+    }
+
     if (loadSettings) {
-      return await loadSettings()
+      const settings = await loadSettings()
+
+      if (!settings || !_.isObject(settings)) {
+        return null
+      }
+
+      settings.pageSize = getEnumValue(
+        settings.pageSize,
+        GridPagingOptions.PAGE_SIZE_OPTIONS
+      )
+      settings.sort = getStringValue(settings.sort)
+      settings.sortDirection = getEnumValue(
+        settings.sortDirection,
+        GridSortingOptions.SORTING_DIRECTION_OPTIONS
+      )
+      settings.columnsVisibility = getObjectValue(settings.columnsVisibility)
+      settings.columnsSorting = getArrayValue(settings.columnsSorting)
+      settings.exportOptions = getObjectValue(settings.exportOptions)
+
+      if (settings.exportOptions) {
+        const exportOptions = settings.exportOptions
+
+        exportOptions.columns = getEnumValue(
+          exportOptions.columns,
+          GridExportOptions.COLUMNS_OPTIONS
+        )
+        exportOptions.rows = getEnumValue(
+          exportOptions.rows,
+          GridExportOptions.ROWS_OPTIONS
+        )
+        exportOptions.values = getEnumValue(
+          exportOptions.values,
+          GridExportOptions.VALUES_OPTIONS
+        )
+
+        if (
+          exportOptions.columns === null ||
+          exportOptions.rows === null ||
+          exportOptions.values === null
+        ) {
+          settings.exportOptions = null
+        }
+      }
+
+      return settings
     } else {
       return null
     }
@@ -410,7 +472,7 @@ export default class GridController {
       const column = _.find(columns, ['name', sort])
       if (column) {
         return rows.sort((t1, t2) => {
-          let sign = sortDirection === 'asc' ? 1 : -1
+          let sign = sortDirection === GridSortingOptions.ASC ? 1 : -1
           return sign * column.compare(t1, t2)
         })
       }
@@ -633,12 +695,15 @@ export default class GridController {
     await this.context.setState(state => {
       if (column.name === state.sort) {
         return {
-          sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
+          sortDirection:
+            state.sortDirection === GridSortingOptions.ASC
+              ? GridSortingOptions.DESC
+              : GridSortingOptions.ASC
         }
       } else {
         return {
           sort: column.name,
-          sortDirection: 'asc'
+          sortDirection: GridSortingOptions.ASC
         }
       }
     })
