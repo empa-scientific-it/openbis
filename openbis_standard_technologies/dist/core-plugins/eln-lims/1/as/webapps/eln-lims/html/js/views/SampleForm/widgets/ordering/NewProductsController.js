@@ -18,8 +18,8 @@ function NewProductsController() {
 	this._newProductsModel = new NewProductsModel();
 	this._newProductsView = new NewProductsView(this, this._newProductsModel);
 	
-	this.init = function($container) {
-		this._newProductsView.repaint($container);
+	this.init = function($container, spaceCode) {
+		this._newProductsView.repaint($container, spaceCode);
 	}
 	
 	this.createAndAddToForm = function(sample, action) {
