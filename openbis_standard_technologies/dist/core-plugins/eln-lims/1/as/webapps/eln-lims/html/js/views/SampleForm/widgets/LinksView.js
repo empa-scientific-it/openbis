@@ -480,11 +480,12 @@ function LinksView(linksController, linksModel) {
         			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         		}
-        		if(sampleTypeCode === "ORGANIZATION_UNIT") {
-        			var spaceCode = mainController.currentView._sampleFormModel.sample.spaceCode;
-        			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "ATTR.SPACE", value : spaceCode };
-        			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "ATTR.SPACE", value : spaceCode };
-        		}
+                if (["ORGANIZATION_UNIT", "REQUEST", "PRODUCT", "SUPPLIER"].indexOf(sampleTypeCode) >= 0) {
+                    var spaceCodePrefix = mainController.currentView._sampleFormModel.sample.spaceCode.split("_")[0];
+                    var rule = { type : "Property/Attribute", name : "ATTR.SPACE_PREFIX", value : spaceCodePrefix };
+                    advancedSampleSearchCriteria.subCriteria["1"].rules["1-4"] = rule;
+                    advancedSampleSearchCriteria.subCriteria["2"].rules["2-4"] = rule;
+                }
                 return advancedSampleSearchCriteria;
             });
 		searchDropdown.init($searchDropdownContainer);

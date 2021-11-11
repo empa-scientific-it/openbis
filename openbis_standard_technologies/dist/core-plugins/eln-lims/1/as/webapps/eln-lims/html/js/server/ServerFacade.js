@@ -1663,6 +1663,9 @@ function ServerFacade(openbisServer) {
                                 case "SPACE":
                                     criteria.withSpace().withCode().thatEquals(attributeValue);
                                     break;
+                                case "SPACE_PREFIX":
+                                    criteria.withSpace().withCode().thatStartsWith(attributeValue);
+                                    break;
                                 //Only Experiment
                                 case "PROJECT":
                                     criteria.withProject().withCode().thatEquals(attributeValue);
