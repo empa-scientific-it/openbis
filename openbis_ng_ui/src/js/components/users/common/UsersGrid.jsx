@@ -26,11 +26,11 @@ class UsersGrid extends React.PureComponent {
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.USERS)}
+        sort='userId'
         columns={[
           {
             name: 'userId',
             label: messages.get(messages.USER_ID),
-            sort: 'asc',
             getValue: ({ row }) => row.userId.value,
             renderValue: ({ value }) => {
               return <UserLink userId={value} />

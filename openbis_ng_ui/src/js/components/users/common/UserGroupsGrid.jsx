@@ -16,11 +16,11 @@ export default class GroupsGrid extends React.PureComponent {
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.GROUPS)}
+        sort='code'
         columns={[
           {
             name: 'code',
             label: messages.get(messages.CODE),
-            sort: 'asc',
             getValue: ({ row }) => row.code.value,
             renderValue: ({ value }) => {
               if (value) {

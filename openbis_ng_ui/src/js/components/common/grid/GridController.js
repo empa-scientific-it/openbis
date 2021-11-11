@@ -13,6 +13,8 @@ export default class GridController {
   }
 
   init(context) {
+    const props = context.getProps()
+
     context.initState({
       loaded: false,
       loading: false,
@@ -29,8 +31,10 @@ export default class GridController {
       allRows: [],
       selectedRow: null,
       multiselectedRows: {},
-      sort: null,
-      sortDirection: null,
+      sort: props.sort,
+      sortDirection: props.sortDirection
+        ? props.sortDirection
+        : GridSortingOptions.ASC,
       totalCount: 0,
       exportOptions: {
         columns: GridExportOptions.VISIBLE_COLUMNS,
@@ -126,15 +130,6 @@ export default class GridController {
       newState.allColumns = newAllColumns
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
-
-      if (!state.loaded && !settings) {
-        newState.allColumns.forEach(column => {
-          if (column.sort) {
-            newState.sort = column.name
-            newState.sortDirection = column.sort
-          }
-        })
-      }
 
       newState.allRows = result.rows
       newState.filteredRows = this._filterRows(

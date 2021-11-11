@@ -23,7 +23,6 @@ const columns = [
   {
     name: 'code',
     label: messages.get(messages.CODE),
-    sort: 'asc',
     getValue: ({ row }) => row.code.value
   },
   {
@@ -117,6 +116,7 @@ class VocabularyForm extends React.PureComponent {
           header={messages.get(messages.TERMS)}
           columns={columns}
           rows={terms}
+          sort='code'
           selectable={true}
           selectedRowId={
             selection && selection.type === VocabularyFormSelectionType.TERM

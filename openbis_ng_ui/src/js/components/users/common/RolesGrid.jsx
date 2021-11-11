@@ -55,6 +55,7 @@ class RolesGrid extends React.PureComponent {
         header={this.getHeader()}
         columns={columns}
         rows={rows}
+        sort={this.getSort()}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
@@ -77,14 +78,25 @@ class RolesGrid extends React.PureComponent {
     return messages.get(message)
   }
 
-  getColumns() {
+  getSort() {
     const { id } = this.props
 
+    if (id === ids.ROLES_OF_USERS_GRID_ID) {
+      return 'user'
+    } else if (id === ids.ROLES_OF_GROUPS_GRID_ID) {
+      return 'group'
+    } else if (id === ids.ROLES_OF_USER_GRID_ID) {
+      return 'inheritedFrom'
+    } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
+      return 'level'
+    }
+  }
+
+  getColumns() {
     return [
       {
         name: 'user',
         label: messages.get(messages.USER),
-        sort: id === ids.ROLES_OF_USERS_GRID_ID ? 'asc' : null,
         getValue: this.getUserValue,
         renderValue: this.renderUserValue,
         compareValue: params => {
@@ -102,7 +114,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'group',
         label: messages.get(messages.GROUP),
-        sort: id === ids.ROLES_OF_GROUPS_GRID_ID ? 'asc' : null,
         getValue: this.getGroupValue,
         renderValue: this.renderGroupValue,
         compareValue: params => {
@@ -120,7 +131,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'inheritedFrom',
         label: messages.get(messages.INHERITED_FROM),
-        sort: id === ids.ROLES_OF_USER_GRID_ID ? 'asc' : null,
         getValue: this.getInheritedFromValue,
         renderValue: this.renderInheritedFromValue,
         compareValue: params => {
@@ -137,7 +147,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'level',
         label: messages.get(messages.LEVEL),
-        sort: id === ids.ROLES_OF_GROUP_GRID_ID ? 'asc' : null,
         getValue: this.getLevelValue,
         renderValue: this.renderLevelValue,
         compareValue: params => {

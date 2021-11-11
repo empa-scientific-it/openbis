@@ -20,6 +20,7 @@ class TypesGrid extends React.PureComponent {
         header={this.getHeader()}
         columns={this.getColumns()}
         rows={rows}
+        sort='code'
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
@@ -48,7 +49,6 @@ class TypesGrid extends React.PureComponent {
     columns.push({
       name: 'code',
       label: messages.get(messages.CODE),
-      sort: 'asc',
       getValue: ({ row }) => row.code,
       renderValue: ({ row }) => {
         return <TypeLink typeCode={row.code} typeKind={kind} />

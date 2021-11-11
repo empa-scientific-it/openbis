@@ -18,11 +18,11 @@ class QueriesGrid extends React.PureComponent {
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.QUERIES)}
+        sort='name'
         columns={[
           {
             name: 'name',
             label: messages.get(messages.NAME),
-            sort: 'asc',
             getValue: ({ row }) => row.name.value,
             renderValue: ({ value }) => {
               return <QueryLink queryName={value} />

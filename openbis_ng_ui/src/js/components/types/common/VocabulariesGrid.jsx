@@ -20,7 +20,6 @@ class VocabulariesGrid extends React.PureComponent {
           {
             name: 'code',
             label: messages.get(messages.CODE),
-            sort: 'asc',
             getValue: ({ row }) => row.code,
             renderValue: ({ row }) => {
               return <VocabularyLink vocabularyCode={row.code} />
@@ -38,6 +37,7 @@ class VocabulariesGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        sort='code'
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

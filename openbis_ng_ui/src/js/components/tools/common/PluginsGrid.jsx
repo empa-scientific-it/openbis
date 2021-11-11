@@ -25,11 +25,11 @@ class PluginsGrid extends React.PureComponent {
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
+        sort='name'
         columns={[
           {
             name: 'name',
             label: messages.get(messages.NAME),
-            sort: 'asc',
             getValue: ({ row }) => row.name.value,
             renderValue: ({ row }) => {
               return (
