@@ -275,13 +275,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						_this._dataSetFormController.submitDataSet();
 					} else {
 						var showSelectDatasetType = function() {
-							var $dropdown = FormUtil.getDataSetsDropDown("datasetTypeForDataset", _this._dataSetFormModel.dataSetTypes);
+                            var dataSetTypes = profile.filterDataSetTypesForDropdowns(_this._dataSetFormModel.dataSetTypes);
+                            var $dropdown = FormUtil.getDataSetsDropDown("datasetTypeForDataset", dataSetTypes);
 							Util.showDropdownAndBlockUI("datasetTypeForDataset", $dropdown);
 							
 							$("#datasetTypeForDataset").on("change", function(event) {
 								var datasetTypeCode = $("#datasetTypeForDataset")[0].value;
 								$("#DATASET_TYPE").val(datasetTypeCode);
-								_this._dataSetFormController._getDataSetType(datasetTypeCode);
 								_this._dataSetFormController.submitDataSet();
 							});
 							
@@ -408,7 +408,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		var $dataSetTypeSelector = null;
 		if (this._dataSetFormModel.mode === FormMode.CREATE) {
-			$dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
+            var dataSetTypes = profile.filterDataSetTypesForDropdowns(_this._dataSetFormModel.dataSetTypes);
+            $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
 			$dataSetTypeSelector.change(function() { 
 				if (!_this._dataSetFormModel.isMini) {
 					_this._repaintMetadata(

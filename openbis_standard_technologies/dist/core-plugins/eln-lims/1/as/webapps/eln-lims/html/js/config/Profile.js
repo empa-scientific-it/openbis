@@ -366,6 +366,13 @@ $.extend(DefaultProfile.prototype, {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW_ON_NAV"] === true;
         }
 
+        this.filterDataSetTypesForDropdowns = function(dataSetTypes) {
+            var _this = this;
+            return dataSetTypes.filter(function(dataSetType) {
+                return _this.showDataset(dataSetType.code);
+            });
+        }
+
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
 

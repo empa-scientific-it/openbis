@@ -579,12 +579,7 @@ function ServerFacade(openbisServer) {
 	}
 
     this.listDataSetTypes = function(callbackFunction) {
-        this.openbisServer.listDataSetTypes(function(data) {
-            data.result = data.result.filter(function(dataSetType) {
-                return profile.showDataset(dataSetType.code);
-            });
-            callbackFunction(data);
-        });
+        this.openbisServer.listDataSetTypes(callbackFunction);
     }
 
 	this.listSpaces = function(callbackFunction) {

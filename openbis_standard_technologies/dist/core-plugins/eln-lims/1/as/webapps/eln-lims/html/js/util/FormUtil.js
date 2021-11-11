@@ -1435,7 +1435,7 @@ var FormUtil = new function() {
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
-			var dataSetTypes = data.result;
+			var dataSetTypes = profile.filterDataSetTypesForDropdowns(data.result);
 
 			var $formFieldContainer = $("<div>");
 			$dialog.append($formFieldContainer);
