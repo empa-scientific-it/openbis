@@ -1,3 +1,5 @@
+## Changes with pybis-1.30.1
+- fixed KeyError when creating an empty data frame
 ## Changes with pybis-1.30.0
 - session management reworked
 ## Changes with pybis-1.20.5
