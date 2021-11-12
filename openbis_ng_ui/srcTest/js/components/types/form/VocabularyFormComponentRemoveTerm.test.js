@@ -15,6 +15,9 @@ describe(VocabularyFormComponentTest.SUITE, () => {
 async function testRemoveTerm() {
   const form = await common.mountExisting(fixture.TEST_VOCABULARY_DTO)
 
+  form.getButtons().getEdit().click()
+  await form.update()
+
   form.getGrid().getPaging().getPageSize().change(5)
   form.getGrid().getPaging().getNextPage().click()
   await form.update()
@@ -41,9 +44,6 @@ async function testRemoveTerm() {
       }
     }
   })
-
-  form.getButtons().getEdit().click()
-  await form.update()
 
   form.getButtons().getRemoveTerm().click()
   await form.update()

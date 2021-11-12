@@ -45,13 +45,13 @@ async function testAddTerm() {
     }
   })
 
+  form.getButtons().getEdit().click()
+  await form.update()
+
   form.getGrid().getColumns()[0].getLabel().click()
   await form.update()
 
   form.getGrid().getPaging().getPageSize().change(5)
-  await form.update()
-
-  form.getButtons().getEdit().click()
   await form.update()
 
   form.getButtons().getAddTerm().click()
