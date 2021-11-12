@@ -124,7 +124,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController2(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
 		dataGrid.init(dataGridContainer);
 		
 		//
