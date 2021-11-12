@@ -10,7 +10,7 @@ module.exports = {
     library: 'NgUiGrid'
   },
 
-  mode: 'development',
+  mode: 'production',
   devtool: 'source-map',
 
   module: {
