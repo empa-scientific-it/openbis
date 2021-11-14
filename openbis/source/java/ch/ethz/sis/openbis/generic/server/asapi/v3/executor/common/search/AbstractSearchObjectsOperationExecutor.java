@@ -256,7 +256,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         final Long userId = personPE.getId();
         final TranslationContext translationContext = new TranslationContext(context.getSession());
 
-        final CacheMode cacheMode = CacheMode.CACHE; //fetchOptions.getCacheMode();
+        final CacheMode cacheMode = fetchOptions.getCacheMode();
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         Set<Long> ids;
