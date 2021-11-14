@@ -173,7 +173,7 @@ function StorageListView(storageListController, storageListModel) {
 					newSample : true,
 					newSampleJustCreated : true,
 					code : uuid,
-					identifier : IdentifierUtil.getSampleIdentifier(profile.getStorageSpaceForSample(_this._storageListModel.sample), null, uuid),
+					identifier : null,
 					sampleTypeCode : "STORAGE_POSITION",
 					properties : {}
 			};
@@ -236,6 +236,10 @@ function StorageListView(storageListController, storageListModel) {
 			$("#storage-accept").on("click", function(event) {
 				storageController.isValid(function(isValid) {
 					if(isValid) {
+                        // 1. Find the Space of the selected storage
+                        var spaceCode = storageController.getModel().storageConfig.spaceCode;
+                        // 2. Update the Space the sample belongs to and with that the storage
+                        sampleChild.identifier = IdentifierUtil.getSampleIdentifier(spaceCode, null, sampleChild.code);
 						delete sampleChild.newSampleJustCreated;
 						Util.unblockUI();
 						_this._dataGrid.refresh();

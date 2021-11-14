@@ -366,6 +366,13 @@ $.extend(DefaultProfile.prototype, {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW_ON_NAV"] === true;
         }
 
+        this.filterDataSetTypesForDropdowns = function(dataSetTypes) {
+            var _this = this;
+            return dataSetTypes.filter(function(dataSetType) {
+                return _this.showDataset(dataSetType.code);
+            });
+        }
+
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
 
@@ -402,6 +409,11 @@ $.extend(DefaultProfile.prototype, {
 		this.getStorageConfigCollectionForConfigSample = function(sample) {
 			var prefix = this.getSampleConfigSpacePrefix(sample);
 			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "STORAGES", prefix + "STORAGES_COLLECTION");
+		}
+
+		this.getTemplateConfigCollectionForConfigSample = function(sample) {
+			var prefix = this.getSampleConfigSpacePrefix(sample);
+			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "TEMPLATES", prefix + "TEMPLATES_COLLECTION");
 		}
 
 		this.getStorageSpaceForSample = function(sample) {
@@ -670,6 +682,7 @@ $.extend(DefaultProfile.prototype, {
 				propertyReplacingCodeNoDolar = propertyReplacingCodeNoDolar.substring(1);
 			}
 			return {
+				spaceCode : sample.spaceCode,
 				code : sample.code,
 				label : sample.properties[propertyReplacingCodeNoDolar],
 				validationLevel : ValidationLevel[sample.properties["STORAGE.STORAGE_VALIDATION_LEVEL"]],

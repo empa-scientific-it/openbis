@@ -263,8 +263,11 @@ var FormUtil = new function() {
 				} else {
 					label = storageConfiguration.code;
 				}
-				
-				$component.append($("<option>").attr('value',storageConfiguration.code).text(label));
+				var $option = $("<option>");
+				$option.attr('spaceCode',storageConfiguration.spaceCode);
+				$option.attr('value',storageConfiguration.code);
+				$option.text(label)
+				$component.append($option);
 			}
 			callbackFunction($component);
 			Select2Manager.add($component);
@@ -1432,7 +1435,7 @@ var FormUtil = new function() {
 
 		mainController.serverFacade.listDataSetTypes((function(data) {
 
-			var dataSetTypes = data.result;
+			var dataSetTypes = profile.filterDataSetTypesForDropdowns(data.result);
 
 			var $formFieldContainer = $("<div>");
 			$dialog.append($formFieldContainer);
@@ -1583,6 +1586,84 @@ var FormUtil = new function() {
     			.append($("<div>", { class : "glyphicon glyphicon-warning-sign" })
     				.css("margin-right", "3px"))
     			.append($("<span>").text(infoText));
+    }
+
+    this.downloadMetadataTemplateDialog = function() {
+        var _this = this;
+        var dataSetTypesForDropdown = [];
+        for (var idx = 0; idx < profile.allDatasetTypeCodes.length; idx++) {
+            var code = profile.allDatasetTypeCodes[idx];
+            dataSetTypesForDropdown.push({ label: Util.getDisplayNameFromCode(code), value: code})
+        }
+
+        var $dropdown = FormUtil.getDropdown(dataSetTypesForDropdown, "Select data set type");
+        $dropdown.attr("id", "dataSetTypeDropdown");
+        Util.showDropdownAndBlockUI("dataSetTypeDropdown", $dropdown);
+
+        $("#dataSetTypeDropdown").on("change", function(event) {
+            var dataSetTypeCode = $("#dataSetTypeDropdown")[0].value;
+            require([ "as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions" ],
+                    function(EntityTypePermId, DataSetTypeFetchOptions) {
+                var ids = [new EntityTypePermId(dataSetTypeCode)];
+                var fetchOptions = new DataSetTypeFetchOptions();
+                fetchOptions.withPropertyAssignments().withPropertyType();
+                var template = '{\n"properties":{';
+                mainController.openbisV3.getDataSetTypes(ids, fetchOptions).done(function(dataSetTypes) {
+                    var propertyAssignments = dataSetTypes[dataSetTypeCode].getPropertyAssignments();
+                    for (var idx = 0; idx < propertyAssignments.length; idx++) {
+                        var propertyType = propertyAssignments[idx].getPropertyType();
+                        if (idx > 0) {
+                            template += ',';
+                        }
+                        var dataType = propertyType.getDataType();
+                        var defaultValue = '""';
+                        if (dataType === 'BOOLEAN') {
+                            defaultValue = false;
+                        } else if (dataType === 'INTEGER') {
+                            defaultValue = 0;
+                        } else if (dataType === 'REAL') {
+                            defaultValue = '0.0';
+                        } else if (dataType === 'DATE') {
+                            defaultValue = '"' + _this.getCurrentDate() + '"';
+                        } else if (dataType === 'TIMESTAMP') {
+                            defaultValue = '"' + _this.getCurrentTimestamp() + '"';
+                        }
+                        template += '\n  "' + propertyType.getCode() + '" : ' + defaultValue;
+                    }
+                    template += "\n  }\n}\n";
+                    Util.unblockUI();
+                    var download = document.createElement("a");
+                    download.href = "data:application/json," + encodeURI(template);
+                    download.target = "_blank";
+                    download.download = "metadata.json";
+                    download.click();
+                });
+            });
+        });
+        $("#dataSetTypeDropdownCancel").on("click", function(event) { 
+            Util.unblockUI();
+        });
+    }
+
+    this.getCurrentTimestamp = function() {
+        var time = new Date();
+        return this.getCurrentDate() + " " + this.renderWithleadingZeros(time.getHours(), 2) + ":"
+                + this.renderWithleadingZeros(time.getMinutes(), 2) + ":"
+                + this.renderWithleadingZeros(time.getSeconds(), 2);
+    }
+
+    this.getCurrentDate = function() {
+        var date = new Date();
+        return date.getFullYear() + "-" + this.renderWithleadingZeros(date.getMonth() + 1, 2) + "-" 
+                + this.renderWithleadingZeros(date.getDate(), 2);
+    }
+
+    this.renderWithleadingZeros = function(number, width) {
+        var numberAsString = number.toString();
+        while (numberAsString.length < width) {
+            numberAsString = '0' + numberAsString;
+        }
+        return numberAsString;
     }
 
     //

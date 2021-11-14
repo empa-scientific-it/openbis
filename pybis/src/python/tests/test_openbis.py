@@ -27,7 +27,6 @@ def test_http_only(openbis_instance):
 
 
 def test_cached_token(other_openbis_instance):
-    assert other_openbis_instance.token_path is not None
     assert other_openbis_instance.is_token_valid() is True
 
     other_openbis_instance.logout()

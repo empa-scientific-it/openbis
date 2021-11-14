@@ -449,7 +449,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				if(isEnabled) {
 					var $newProductsController = new NewProductsController();
-						$newProductsController.init($("#" + containerId));
+						$newProductsController.init($("#" + containerId), sample.spaceCode);
 						mainController.currentView._newProductsController = $newProductsController;
 				}
 			}

@@ -1102,7 +1102,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registrator',
 				property : 'registrator',
 				isExportable: true,
-				sortable : !isGlobalSearch
+				sortable : false
 			});
 
 			columnsLast.push({
@@ -1116,7 +1116,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modifier',
 				property : 'modifier',
 				isExportable: true,
-				sortable : !isGlobalSearch
+				sortable : false
 			});
 
 			columnsLast.push({

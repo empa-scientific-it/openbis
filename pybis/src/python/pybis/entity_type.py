@@ -111,9 +111,9 @@ class EntityType:
 
         def create_data_frame(attrs, props, response):
             df = DataFrame(response, columns=attrs)
-            df["propertyType"] = df["propertyType"].map(extract_code)
-            df["plugin"] = df["plugin"].map(extract_name)
-            df["registrationDate"] = df["registrationDate"].map(format_timestamp)
+            df["propertyType"] = df["propertyType"].map(extract_code) if hasattr(df, "propertyType") else None
+            df["plugin"] = df["plugin"].map(extract_name) if hasattr(df, "plugin") else None
+            df["registrationDate"] = df["registrationDate"].map(format_timestamp) if hasattr(df, "registrationDate") else None
             return df
 
         return Things(

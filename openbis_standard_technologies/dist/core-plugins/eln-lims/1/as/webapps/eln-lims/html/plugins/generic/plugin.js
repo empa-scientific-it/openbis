@@ -107,11 +107,11 @@ $.extend(GenericTechnology.prototype, ELNLIMSPlugin.prototype, {
 	dataSetTypeDefinitionsExtension : {
         "NAGIOS" : {
             "SHOW" : false,
-            "SHOW_ON_NAV" : false
+            "SHOW_ON_NAV" : true
         },
         "UNKNOWN" : {
             "SHOW" : false,
-            "SHOW_ON_NAV" : false,
+            "SHOW_ON_NAV" : true,
         },
 	},
 	sampleFormTop : function($container, model) {

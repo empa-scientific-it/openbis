@@ -26,7 +26,11 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._boxField = FormUtil._getInputField("text", "box-name-id", "Box Name", null, false);
 	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("box-size-drop-down-id", false);
 	this._positionContainer = $("<div>");
-	
+
+	this.getStoragesDropdown = function() {
+		return this._defaultStoragesDropDown;
+	}
+
 	this.repaint = function($container, callbackFunction) {
 		var _this = this;
 		

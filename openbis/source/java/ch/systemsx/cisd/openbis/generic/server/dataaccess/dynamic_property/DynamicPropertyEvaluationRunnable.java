@@ -21,9 +21,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 /**
  * @author Piotr Buczek
  */
-public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport implements
+public final class DynamicPropertyEvaluationRunnable implements
         Runnable
 {
 
@@ -52,14 +53,16 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
 
     private final IBatchDynamicPropertyEvaluator evaluator;
 
-    public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
+    private final TransactionTemplate transactionTemplate;
+
+    public DynamicPropertyEvaluationRunnable(final PlatformTransactionManager transactionManager,
             final IDAOFactory daoFactory,
             final IDynamicPropertyEvaluationSchedulerWithQueue evaluationQueue,
             final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
             final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.evaluationQueue = evaluationQueue;
-        setSessionFactory(sessionFactory);
         evaluator =
                 new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory,
                         dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
@@ -85,28 +88,22 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                 }
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
-                Session session = null;
-                Class<IEntityInformationWithPropertiesHolder> clazz = null;
                 List<Long> modifiedIds = null;
                 try
                 {
-                    clazz =
+                    Class<IEntityInformationWithPropertiesHolder> clazz =
                             (Class<IEntityInformationWithPropertiesHolder>) Class.forName(operation
                                     .getClassName());
                     if (operation.isDeletion() == false)
                     {
-
-                        session = getSessionFactory().openSession();
-
-                        if (operation.getIds() == null)
-                        {
-                            modifiedIds = evaluator.doEvaluateProperties(session, clazz);
-                        } else
-                        {
-                            List<Long> ids = new ArrayList<Long>(operation.getIds());
-                            // new collection is passed because it can be modified inside
-                            modifiedIds = evaluator.doEvaluateProperties(session, clazz, ids);
-                        }
+                        modifiedIds = transactionTemplate.execute(new TransactionCallback<List<Long>>()
+                            {
+                                @Override
+                                public List<Long> doInTransaction(TransactionStatus status)
+                                {
+                                    return evaluate(operation, clazz);
+                                }
+                            });
                     }
                     stopWatch.stop();
                 } catch (RuntimeException e)
@@ -114,10 +111,6 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     notificationLog.error("Error: " + operation + ".", e);
                 } finally
                 {
-                    if (session != null)
-                    {
-                        session.close();
-                    }
                     if (operationLog.isInfoEnabled())
                     {
                         operationLog.info("Update of "
@@ -138,5 +131,16 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
         {
             operationLog.info("Evaluation closed");
         }
+    }
+
+    private List<Long> evaluate(final DynamicPropertyEvaluationOperation operation, Class<IEntityInformationWithPropertiesHolder> clazz)
+    {
+        if (operation.getIds() == null)
+        {
+            return evaluator.doEvaluateProperties(clazz);
+        }
+        List<Long> ids = new ArrayList<Long>(operation.getIds());
+        // new collection is passed because it can be modified inside
+        return evaluator.doEvaluateProperties(clazz, ids);
     }
 }

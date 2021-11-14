@@ -5,7 +5,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 	this._$newProductsTableBody = $("<tbody>");
 	this.rowIndex = 0;
 	
-	this.repaint = function($container) {
+	this.repaint = function($container, spaceCode) {
 		var _this = this;
 		$container.empty();
 		
@@ -22,7 +22,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 											.append($("<th>").append("Supplier"))
 											.append($("<th>").append("Quantiy"))
 											.append($("<th>").append(FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-												_this.addNewProduct(_this._$newProductsTableBody);
+												_this.addNewProduct(_this._$newProductsTableBody, spaceCode);
 												_this.rowIndex++;
 											}, null, null, "add-new-product-btn")));
 		
@@ -32,16 +32,22 @@ function NewProductsView(newProductsController, newProductsModel) {
 		$container.append($newProducts);
 	}
 	
-	this.addNewProduct = function($newProductsTableBody) {
+	this.addNewProduct = function($newProductsTableBody, spaceCode) {
 	    var _this = this;
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
-				var name = suppliers[sIdx].properties["$NAME"];
-				if(!name) {
-					name = suppliers[sIdx].properties["NAME"];
-				}
-				supplierTerms.push({code : suppliers[sIdx].identifier, label : name });
+                var supplier = suppliers[sIdx];
+                if (supplier.spaceCode == spaceCode) {
+                    var name = supplier.properties["$NAME"];
+                    if (!name) {
+                        name = supplier.properties["NAME"];
+                    }
+                    if (!name) {
+                        name = supplier.code;
+                    }
+                    supplierTerms.push({code : supplier.identifier, label : name });
+                }
 			}
 			var supplierDropdown = FormUtil.getDropDownForTerms("new-product-supplier-" + _this.rowIndex, supplierTerms, "Select a supplier", true);
 			

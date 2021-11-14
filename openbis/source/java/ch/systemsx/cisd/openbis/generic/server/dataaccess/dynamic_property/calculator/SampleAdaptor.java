@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import org.hibernate.Session;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ch.systemsx.cisd.common.resource.ReleasableIterable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
@@ -41,6 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdap
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**

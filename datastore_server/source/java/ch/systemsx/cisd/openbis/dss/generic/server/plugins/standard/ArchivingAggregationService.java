@@ -37,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
@@ -112,10 +113,13 @@ public class ArchivingAggregationService extends AggregationService
         {
             Map<String, Object> info = new TreeMap<>();
             String dataSetCode = entry.getKey();
-            info.put("size", dataSetSizes.get(dataSetCode));
-            info.put("bundleId", getBundleId(entry.getValue()));
-            info.put("numberOfDataSets", entry.getValue().size());
-            info.put("bundleSize", bundleSizes.get(dataSetCode));
+            info.put("size", getDataSetSizeOr0IfUnknown(dataSetSizes, dataSetCode));
+            Set<String> bundleDataSets = entry.getValue();
+            info.put("bundleId", getBundleId(bundleDataSets));
+            Set<String> notDeletedDataSets = new HashSet<>(bundleDataSets);
+            notDeletedDataSets.retainAll(dataSetSizes.keySet());
+            info.put("numberOfDataSets", notDeletedDataSets.size());
+            info.put("bundleSize", getDataSetSizeOr0IfUnknown(bundleSizes, dataSetCode));
             infos.put(dataSetCode, info);
         }
 
@@ -124,7 +128,7 @@ public class ArchivingAggregationService extends AggregationService
         builder.addHeader("MESSAGE");
         builder.addHeader("RESULT");
         IRowBuilder row = builder.addRow();
-        row.setCell("STATUS","OK");
+        row.setCell("STATUS", "OK");
         row.setCell("MESSAGE", "Operation Successful");
         GenericObjectMapper objectMapper = new GenericObjectMapper();
         try
@@ -166,7 +170,17 @@ public class ArchivingAggregationService extends AggregationService
         Map<String, Long> result = new TreeMap<>();
         for (DataSet dataSet : getv3api().getDataSets(sessionToken, ids, fetchOptions).values())
         {
-            result.put(dataSet.getCode(), dataSet.getPhysicalData().getSize());
+            PhysicalData physicalData = dataSet.getPhysicalData();
+            if (physicalData == null)
+            {
+                throw new UserFailureException("Data set " + dataSet.getCode() + " isn't a physical data set.");
+            }
+            Long size = physicalData.getSize();
+            if (size == null)
+            {
+                throw new UserFailureException("Physical data set " + dataSet.getCode() + " has unknown size.");
+            }
+            result.put(dataSet.getCode(), size);
         }
         return result;
     }
@@ -179,7 +193,7 @@ public class ArchivingAggregationService extends AggregationService
             long sum = 0;
             for (String dataSetCode : entry.getValue())
             {
-                sum += dataSetSizes.get(dataSetCode);
+                sum += getDataSetSizeOr0IfUnknown(dataSetSizes, dataSetCode);
             }
             result.put(entry.getKey(), sum);
         }
@@ -191,16 +205,22 @@ public class ArchivingAggregationService extends AggregationService
         long sum = 0;
         for (String dataSetCode : allDataSets)
         {
-            sum += dataSetSizes.get(dataSetCode);
+            sum += getDataSetSizeOr0IfUnknown(dataSetSizes, dataSetCode);
         }
         return sum;
     }
-    
+
+    private long getDataSetSizeOr0IfUnknown(Map<String, Long> dataSetSizes, String dataSetCode)
+    {
+        Long size = dataSetSizes.get(dataSetCode);
+        return size != null ? size : 0;
+    }
+
     private String getBundleId(Set<String> bundleDataSets)
     {
         List<String> sortedDataSets = new ArrayList<>(bundleDataSets);
         Collections.sort(sortedDataSets);
-        // Because each archived data set can be only in one bundle 
+        // Because each archived data set can be only in one bundle
         // a bundle is uniquely identified by the lexicographically smallest data set.
         return sortedDataSets.get(0);
     }

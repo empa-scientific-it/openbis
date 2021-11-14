@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.confirm.ConfirmDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -133,14 +135,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelatedEntityFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
@@ -160,7 +160,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -186,7 +185,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -261,17 +259,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
         ICommonServerForInternalUse
 {
-    private static final Comparator<TechId> TECH_ID_COMPARATOR = new Comparator<TechId>()
-    {
-        @Override
-        public int compare(TechId o1, TechId o2)
-        {
-            long id1 = o1.getId();
-            long id2 = o2.getId();
-            return id1 < id2 ? -1 : (id1 > id2 ? 1 : 0);
-        }
-    };
-
     private final LastModificationState lastModificationState;
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
@@ -4090,9 +4077,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         if (deletionIds != null && !deletionIds.isEmpty())
         {
-            List<IDeletionId> v3DeletionIds = deletionIds.stream().map(id -> new DeletionTechId(id.getId())).collect(Collectors.toList());
+            List<IDeletionId> v3DeletionIds = asDeletionIds(deletionIds);
             CommonServiceProvider.getApplicationServerApi().revertDeletions(sessionToken, v3DeletionIds);
         }
+    }
+
+    private List<IDeletionId> asDeletionIds(final List<TechId> deletionIds)
+    {
+        return deletionIds.stream().map(id -> new DeletionTechId(id.getId())).collect(Collectors.toList());
     }
 
     @Override
@@ -4118,45 +4110,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private void deletePermanentlyCommon(String sessionToken, List<TechId> primaryDeletionIds,
             boolean forceToDeleteDependentDeletionSets, boolean forceDisallowedTypes)
     {
-        Session session = getSession(sessionToken);
-        PersonPE registrator = session.tryGetPerson();
-
-        List<TechId> deletionIds = new ArrayList<>(primaryDeletionIds);
-        IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
-        ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
-        List<TechId> dependentDeletionIds = deletionDAO.listAllDependentDeletions(deletionIds);
-        if (dependentDeletionIds.isEmpty() == false)
+        if (primaryDeletionIds != null && primaryDeletionIds.isEmpty() == false)
         {
-            if (forceToDeleteDependentDeletionSets)
-            {
-                deletionIds.addAll(dependentDeletionIds);
-            } else
-            {
-                throw ch.systemsx.cisd.openbis.generic.server.business.DeletionUtils.createException(session, businessObjectFactory,
-                        TechId.asLongs(dependentDeletionIds));
-            }
-        }
-        Collections.sort(deletionIds, TECH_ID_COMPARATOR);
-        // NOTE: we can't do bulk deletions to preserve original reasons
-        for (TechId deletionId : deletionIds)
-        {
-            DeletionPE deletion = deletionDAO.getByTechId(deletionId);
-            String deletionReason = deletion.getReason();
-            DeletionType deletionType = DeletionType.PERMANENT;
-
-            List<TechId> singletonList = Collections.singletonList(deletionId);
-            List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
-            deleteDataSetsCommon(sessionToken, trashedDataSets, deletionReason, deletionType,
-                    forceDisallowedTypes, true);
-
-            sampleDAO.deletePermanently(deletion, registrator);
-
-            List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
-            deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);
-
-            // WORKAROUND to get the fresh deletion and fix org.hibernate.NonUniqueObjectException
-            DeletionPE freshDeletion = deletionDAO.getByTechId(TechId.create(deletion));
-            deletionDAO.delete(freshDeletion);
+            ConfirmDeletionsOperation confirmDeletionsOperation = new ConfirmDeletionsOperation(asDeletionIds(primaryDeletionIds));
+            confirmDeletionsOperation.setForceDeletion(forceDisallowedTypes);
+            confirmDeletionsOperation.setForceDeletionOfDependentDeletions(forceToDeleteDependentDeletionSets);
+            CommonServiceProvider.getApplicationServerApi().executeOperations(sessionToken,
+                    Arrays.asList(confirmDeletionsOperation), new SynchronousOperationExecutionOptions());
         }
     }
 

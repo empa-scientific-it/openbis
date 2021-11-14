@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
 import java.util.List;
 
-import org.hibernate.Session;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -33,20 +32,20 @@ public interface IBatchDynamicPropertyEvaluator
 {
 
     /**
-     * Evaluates dynamic properties of all entities of given <var>clazz</var> using given <i>Hibernate</i> session.
+     * Evaluates dynamic properties of all entities of given <var>clazz</var>.
      * 
      * @return list of ids of entities with dynamic properties that have been evaluated
      */
     public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
-            final Session hibernateSession, final Class<T> clazz) throws DataAccessException;
+            final Class<T> clazz) throws DataAccessException;
 
     /**
-     * Evaluates dynamic properties of entities of given <var>clazz</var> with given <var>ids</var> using given <i>Hibernate</i> session.
+     * Evaluates dynamic properties of entities of given <var>clazz</var> with given <var>ids</var>.
      * 
      * @return list of ids of entities with dynamic properties that have been evaluated
      */
     public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
-            final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
+            final Class<T> clazz, final List<Long> ids)
             throws DataAccessException;
 
 }

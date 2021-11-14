@@ -579,12 +579,7 @@ function ServerFacade(openbisServer) {
 	}
 
     this.listDataSetTypes = function(callbackFunction) {
-        this.openbisServer.listDataSetTypes(function(data) {
-            data.result = data.result.filter(function(dataSetType) {
-                return profile.showDataset(dataSetType.code);
-            });
-            callbackFunction(data);
-        });
+        this.openbisServer.listDataSetTypes(callbackFunction);
     }
 
 	this.listSpaces = function(callbackFunction) {
@@ -1360,7 +1355,11 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withSample();
 					}
 					if(fetchOptions.withParents && !(advancedFetchOptions.withParents === false)) {
-						fetchOptions.withParents();
+                        var parentFetchOptions = fetchOptions.withParents();
+                        if (advancedFetchOptions.withParentInfo) {
+                            parentFetchOptions.withType();
+                            parentFetchOptions.withProperties();
+                        }
 					}
 					if(fetchOptions.withChildren && !(advancedFetchOptions.withChildren === false)) {
 						var childrenFetchOptions = fetchOptions.withChildren();
@@ -1568,6 +1567,9 @@ function ServerFacade(openbisServer) {
                                 case "PERM_ID":
                                     criteria.withPermId().thatEquals(attributeValue);
                                     break;
+                                case "IDENTIFIER":
+                                    criteria.withIdentifier().thatEquals(attributeValue);
+                                    break;
                                 case "METAPROJECT":
                                     criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
                                     break;
@@ -1655,6 +1657,9 @@ function ServerFacade(openbisServer) {
                                 //Only Sample
                                 case "SPACE":
                                     criteria.withSpace().withCode().thatEquals(attributeValue);
+                                    break;
+                                case "SPACE_PREFIX":
+                                    criteria.withSpace().withCode().thatStartsWith(attributeValue);
                                     break;
                                 //Only Experiment
                                 case "PROJECT":

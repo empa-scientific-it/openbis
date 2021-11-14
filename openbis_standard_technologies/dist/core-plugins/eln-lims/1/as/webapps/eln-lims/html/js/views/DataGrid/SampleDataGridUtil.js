@@ -1,5 +1,7 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment, heightPercentage) {
+    this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations,
+            customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable,
+            showParentsAndChildren, withExperiment, heightPercentage) {
 		var _this = this;
 		var isDynamic = samplesOrCriteria.entityKind && samplesOrCriteria.rules;
 		
@@ -223,49 +225,27 @@ var SampleDataGridUtil = new function() {
 			});
 		}
 
-		columnsLast.push({
-			label : 'Parents',
-			property : 'parents',
-			isExportable: true,
-			sortable : false,
-			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.parents) {
-					var elements = data.parents.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
-			}
-		});
+        if (showParentsAndChildren) {
+            columnsLast.push({
+                label : 'Parents',
+                property : 'parents',
+                isExportable: true,
+                sortable : false,
+                render : function(data, grid) {
+                    return _this.renderRelatedSamples(data.parents, isLinksDisabled);
+                }
+            });
 
-		columnsLast.push({
-			label : 'Children',
-			property : 'children',
-			isExportable: false,
-			sortable : false,
-			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.children) {
-					var elements = data.children.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
-			}
-		});
+            columnsLast.push({
+                label : 'Children',
+                property : 'children',
+                isExportable: false,
+                sortable : false,
+                render : function(data, grid) {
+                    return _this.renderRelatedSamples(data.children, isLinksDisabled);
+                }
+            });
+        }
 
 		columnsLast.push({
 			label : 'Storage',
@@ -339,7 +319,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Registrator',
 			property : 'registrator',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columnsLast.push({
@@ -353,7 +333,7 @@ var SampleDataGridUtil = new function() {
 			label : 'Modifier',
 			property : 'modifier',
 			isExportable: false,
-			sortable : true
+			sortable : false
 		});
 		
 		columnsLast.push({
@@ -386,6 +366,23 @@ var SampleDataGridUtil = new function() {
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
+	
+    this.renderRelatedSamples = function(samples, isLinksDisabled) {
+        var output = $("<span>");
+        if (samples) {
+            var elements = samples.split(", ");
+            for (var eIdx = 0; eIdx < elements.length; eIdx++) {
+                var element = elements[eIdx];
+                var eIdentifier = element.split(" (")[0];
+                var eComponent = isLinksDisabled ? element : FormUtil.getFormLink(element, "Sample", eIdentifier, null);
+                if(eIdx != 0) {
+                    output.append(", ");
+                }
+                output.append(eComponent);
+            }
+        }
+        return output;
+    }
 	
 	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
@@ -436,32 +433,34 @@ var SampleDataGridUtil = new function() {
 					}
 					
 					var parents = "";
-					if(sample.parents) {
-						for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
-							if(paIdx !== 0) {
-								parents += ", ";
-							}
-							parents += sample.parents[paIdx].identifier;
-						}
-					}
+                    var sampleParents = result.objects[sIdx].parents;
+                    if (sampleParents) {
+                        for (var paIdx = 0; paIdx < sampleParents.length; paIdx++) {
+                            if(paIdx !== 0) {
+                                parents += ", ";
+                            }
+                            parents += Util.getDisplayNameForEntity2(sampleParents[paIdx]);
+                        }
+                    }
 					
 					sampleModel['parents'] = parents;
 					
 					var children = "";
-					if(sample.children) {
-						var isFirst = true;
-						for (var caIdx = 0; caIdx < sample.children.length; caIdx++) {
-							if(sample.children[caIdx].sampleTypeCode === "STORAGE_POSITION") {
-								continue;
-							}
-							
-							if(!isFirst) {
-								children += ", ";
-							}
-							children += sample.children[caIdx].identifier;
-							isFirst = false;
-						}
-					}
+                    var sampleChildren = result.objects[sIdx].children;
+                    if(sampleChildren) {
+                        var isFirst = true;
+                        for (var caIdx = 0; caIdx < sampleChildren.length; caIdx++) {
+                            if(sampleChildren[caIdx].sampleTypeCode === "STORAGE_POSITION") {
+                                continue;
+                            }
+                            
+                            if(!isFirst) {
+                                children += ", ";
+                            }
+                            children += Util.getDisplayNameForEntity2(sampleChildren[caIdx]);
+                            isFirst = false;
+                        }
+                    }
 					
 					sampleModel['children'] = children;
 					
@@ -477,7 +476,8 @@ var SampleDataGridUtil = new function() {
 			var fetchOptions = {
 					minTableInfo : true,
 					withExperiment : withExperiment,
-					withChildrenInfo : true
+					withChildrenInfo : true,
+					withParentInfo : true
 			};
 			
 			var optionsSearch = null;

@@ -118,7 +118,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Size",
 			property : "size",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return PrintUtil.renderNumberOfBytes(data.size);
 			}
@@ -127,7 +127,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Datasets in Bundle",
 			property : "bundle",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return data.bundle;
 			}
@@ -136,7 +136,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 			label : "Bundle Size",
 			property : "bundleSize",
 			isExportable : false,
-			sortable : true,
+			sortable : false,
 			render : function(data, grid) {
 				return PrintUtil.renderNumberOfBytes(data.bundleSize);
 			}
@@ -145,6 +145,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 		searchView._$entityTypeDropdown.val("DATASET");
 		searchView._$entityTypeDropdown.trigger("change");
 		searchView._$entityTypeDropdown.attr("disabled", "disabled");
+        searchView._$andOrDropdownComponent.val("AND").trigger("change");
 		searchView._$andOrDropdownComponent.attr("disabled", "disabled");
 		searchView._$dataGridContainer = $("<div>");
 		searchView.beforeRenderingHook = function() {
