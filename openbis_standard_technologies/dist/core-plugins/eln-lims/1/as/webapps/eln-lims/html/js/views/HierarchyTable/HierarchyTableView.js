@@ -47,7 +47,11 @@ function HierarchyTableView(controller, model) {
 		columns.push({
 			label : 'Level',
 			property : 'level',
-			sortable : true
+			sortable : true,
+			sort : function(data1, data2, asc) {
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(data1.level, data2.level);
+			}
 		});
 		if(this._model.entity["@type"] === "as.dto.dataset.DataSet") {
 			columns.push({
