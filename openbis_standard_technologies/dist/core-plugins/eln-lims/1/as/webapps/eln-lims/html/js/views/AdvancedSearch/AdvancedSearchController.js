@@ -229,7 +229,25 @@ function AdvancedSearchController(mainController, forceSearch) {
                     }else if(field === "modificationDate"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else{
-                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
+                        var column = options.columnMap[field]
+                        var dataType = null
+                        var operator = null
+
+                        if(column && column.metadata){
+                            dataType = column.metadata.dataType
+                        }
+
+                        if(dataType === "INTEGER" || dataType === "REAL"){
+                            operator = "thatEqualsNumber"
+                        }else if(dataType === "DATE" || dataType === "TIMESTAMP"){
+                            operator = "thatEqualsDate"
+                        }else if(dataType === "BOOLEAN"){
+                            operator = "thatEqualsBoolean"
+                        }else{
+                            operator = "thatContainsString"
+                        }
+
+                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
                     }
                 }
 			}

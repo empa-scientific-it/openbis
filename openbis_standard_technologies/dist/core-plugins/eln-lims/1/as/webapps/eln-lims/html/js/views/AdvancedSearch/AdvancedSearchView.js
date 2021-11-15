@@ -1083,11 +1083,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						continue;
 					}
 
+					var propertyType = profile.getPropertyType(propertyCode)
+
 					propertyColumnsToSort.push({
-						label : profile.getPropertyType(propertyCode).label,
+						label : propertyType.label,
 						property : propertyCode,
 						filterable : !isGlobalSearch,
-						sortable : !isGlobalSearch
+						sortable : !isGlobalSearch,
+						metadata: {
+							dataType: propertyType.dataType
+						}
 					});
 				}
 

@@ -141,25 +141,10 @@ function DataGridController(
           var value = null;
 
           if (column.render) {
-            let grid = {
-              lastReceivedData: {
-                objects: _this.controller.getRows(),
-                totalCount: _this.controller.getTotalCount(),
-              },
-              lastUsedOptions: {
-                pageIndex: _this.controller.getPage(),
-                pageSize: _this.controller.getPageSize(),
-                sortProperty: _this.controller.getSort(),
-                sortDirection: _this.controller.getSortDirection(),
-                search:
-                  Object.keys(_this.controller.getFilters()).length > 0
-                    ? Object.values(_this.controller.getFilters()).join(" ")
-                    : null,
-                searchMap: _this.controller.getFilters(),
-              },
-            };
-
-            value = column.render(params.row, grid);
+            value = column.render(params.row, {
+              lastReceivedData: _this.lastReceivedData,
+              lastUsedOptions: _this.lastUsedOptions,
+            });
           } else {
             value = params.value;
           }
@@ -211,6 +196,7 @@ function DataGridController(
             index === columns.length - 1),
         configurable: !column.hide && !column.canNotBeHidden,
         exportable: column.isExportable,
+        metadata: column.metadata
       };
     });
 
@@ -228,6 +214,7 @@ function DataGridController(
           ? Object.values(params.filters).join(" ")
           : null,
       searchMap: params.filters,
+      columnMap: params.columns,
     };
 
     function checkRowIds(rows) {
@@ -243,6 +230,9 @@ function DataGridController(
     return new Promise(function (resolve) {
       loadData(function (data) {
         let dynamic = data.totalCount !== null && data.totalCount !== undefined;
+
+        _this.lastReceivedData = data;
+        _this.lastUsedOptions = options;
 
         if (dynamic) {
           checkRowIds(data.objects);

@@ -99,7 +99,14 @@ export default class GridController {
       result.totalCount = props.rows.length
       result.local = true
     } else if (props.loadRows) {
+      const columns = {}
+
+      newState.allColumns.forEach(column => {
+        columns[column.name] = column
+      })
+
       const loadedResult = await props.loadRows({
+        columns: columns,
         filters: newState.filters,
         page: newState.page,
         pageSize: newState.pageSize,
@@ -335,7 +342,8 @@ export default class GridController {
       wrappable: column.wrappable === undefined ? true : column.wrappable,
       configurable:
         column.configurable === undefined ? true : column.configurable,
-      exportable: column.exportable === undefined ? true : column.exportable
+      exportable: column.exportable === undefined ? true : column.exportable,
+      metadata: column.metadata === undefined ? {} : column.metadata
     }
   }
 

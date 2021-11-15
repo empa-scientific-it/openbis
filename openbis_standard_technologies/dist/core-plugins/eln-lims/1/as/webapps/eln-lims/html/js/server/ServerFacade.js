@@ -1505,10 +1505,22 @@ function ServerFacade(openbisServer) {
                                             criteria.withProperty(propertyName).thatEquals(propertyValue);
                                             break;
                                         case "thatEqualsNumber":
-                                            criteria.withNumberProperty(propertyName).thatEquals(parseFloat(propertyValue));
+                                            var validNumber = getValidNumber(propertyValue)
+                                            if(validNumber !== null){
+                                                criteria.withNumberProperty(propertyName).thatEquals(validNumber);
+                                            }
+                                            break;
+                                        case "thatEqualsBoolean":
+                                            var validBoolean = getValidBoolean(propertyValue)
+                                            if(validBoolean !== null){
+                                                criteria.withBooleanProperty(propertyName).thatEquals(validBoolean);
+                                            }
                                             break;
                                         case "thatEqualsDate":
-                                            criteria.withDateProperty(propertyName).thatEquals(propertyValue);
+                                            var validDate = getValidDate(propertyValue)
+                                            if(validDate !== null){
+                                                criteria.withDateProperty(propertyName).thatEquals(validDate);
+                                            }
                                             break;
                                         case "thatContainsString":
                                             criteria.withProperty(propertyName).thatContains(propertyValue);
@@ -1553,10 +1565,46 @@ function ServerFacade(openbisServer) {
                             }
                         }
 
-                        var getDateWithoutTime = function(str){
+                        var getValidDate = function(str){
+                            if(str === null || str === undefined){
+                                return null
+                            }
+
                             var match = /^(\d{4}-\d{2}-\d{2}).*$/.exec(str)
+
                             if(match){
                                 return match[1]
+                            }else{
+                                return null
+                            }
+                        }
+
+                        var getValidNumber = function(str){
+                            if(str === null || str === undefined){
+                                return null
+                            }
+
+                            var parsed = parseFloat(str.trim())
+
+                            if(isNaN(parsed)){
+                                return null
+                            }else{
+                                return parsed
+                            }
+                        }
+
+
+                        var getValidBoolean = function(str){
+                            if(str === null || str === undefined){
+                                return null
+                            }
+
+                            var trimmed = str.trim().toLowerCase()
+
+                            if(trimmed === 'true'){
+                                return true
+                            }else if(trimmed === 'false'){
+                                return false
                             }else{
                                 return null
                             }
@@ -1622,9 +1670,9 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
-                                                if(dateWithoutTime){
-                                                    criteria.withRegistrationDate().thatEquals(dateWithoutTime);
+                                                var validDate = getValidDate(attributeValue)
+                                                if(validDate !== null){
+                                                    criteria.withRegistrationDate().thatEquals(validDate);
                                                 }
                                                 break;
                                             case "thatIsLaterThanDate":
@@ -1666,9 +1714,9 @@ function ServerFacade(openbisServer) {
                                     if(comparisonOperator) {
                                         switch(comparisonOperator) {
                                             case "thatEqualsDate":
-                                                var dateWithoutTime = getDateWithoutTime(attributeValue)
-                                                if(dateWithoutTime){
-                                                    criteria.withModificationDate().thatEquals(dateWithoutTime);
+                                                var validDate = getValidDate(attributeValue)
+                                                if(validDate !== null){
+                                                    criteria.withModificationDate().thatEquals(validDate);
                                                 }
                                                 break;
                                             case "thatIsLaterThanDate":

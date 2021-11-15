@@ -142,6 +142,9 @@ var SampleDataGridUtil = new function() {
 								isExportable: true,
 								filterable: !isDynamic,
 								sortable : !isDynamic,
+								metadata: {
+									dataType: propertyType.dataType
+								},
 								render : function(data) {
 									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
 								},
@@ -175,6 +178,9 @@ var SampleDataGridUtil = new function() {
 							isExportable: true,
 							filterable : true,
 							sortable : true,
+							metadata: {
+								dataType: propertyType.dataType
+							},
 							render : function(data) {
 								return FormUtil.asHyperlink(data[propertyType.code]);
 							}
@@ -187,7 +193,10 @@ var SampleDataGridUtil = new function() {
 						property : propertyType.code,
 						isExportable: true,
 						filterable : true,
-						sortable : true
+						sortable : true,
+						metadata: {
+							dataType: propertyType.dataType
+						},
 					});
 				}
 			}
@@ -551,7 +560,25 @@ var SampleDataGridUtil = new function() {
                     }else if(field === "modificationDate"){
                         gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                     }else{
-                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: "thatContainsString" };
+                        var column = options.columnMap[field]
+                        var dataType = null
+                        var operator = null
+
+                        if(column && column.metadata){
+                            dataType = column.metadata.dataType
+                        }
+
+                        if(dataType === "INTEGER" || dataType === "REAL"){
+                            operator = "thatEqualsNumber"
+                        }else if(dataType === "DATE" || dataType === "TIMESTAMP"){
+                            operator = "thatEqualsDate"
+                        }else if(dataType === "BOOLEAN"){
+                            operator = "thatEqualsBoolean"
+                        }else{
+                            operator = "thatContainsString"
+                        }
+
+                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
                     }
                 }
             }
