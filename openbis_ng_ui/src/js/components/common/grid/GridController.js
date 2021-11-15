@@ -870,8 +870,8 @@ export default class GridController {
     columns = columns.filter(column => column.exportable)
 
     if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
-      if (props.rows) {
-        data = state.filteredRows
+      if (state.local) {
+        data = state.sortedRows
       } else if (props.loadRows) {
         const loadedResult = await props.loadRows({
           filters: state.filters,
@@ -880,11 +880,7 @@ export default class GridController {
           sort: state.sort,
           sortDirection: state.sortDirection
         })
-        if (_.isArray(loadedResult)) {
-          data = loadedResult
-        } else {
-          data = loadedResult.rows
-        }
+        data = loadedResult.rows
       }
 
       prefix += 'AllPages'
