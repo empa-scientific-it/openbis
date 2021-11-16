@@ -193,7 +193,7 @@ var SampleDataGridUtil = new function() {
 						property : propertyType.code,
 						isExportable: true,
 						filterable : true,
-						sortable : true,
+						sortable : propertyType.dataType !== "XML",
 						metadata: {
 							dataType: propertyType.dataType
 						},

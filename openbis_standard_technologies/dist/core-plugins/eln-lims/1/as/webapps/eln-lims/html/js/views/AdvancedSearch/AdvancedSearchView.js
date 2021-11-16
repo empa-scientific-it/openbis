@@ -1089,7 +1089,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						label : propertyType.label,
 						property : propertyCode,
 						filterable : !isGlobalSearch,
-						sortable : !isGlobalSearch,
+						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
 						metadata: {
 							dataType: propertyType.dataType
 						}
