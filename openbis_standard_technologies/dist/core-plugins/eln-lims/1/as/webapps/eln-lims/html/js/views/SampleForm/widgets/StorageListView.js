@@ -232,15 +232,29 @@ function StorageListView(storageListController, storageListModel) {
 		var storageContainer = $("#storage-pop-up-container");
 		storageController.getView().repaint(storageContainer, function() {
 			storageContainer.append(containerButtons);
-			
+
+			if(!sampleChild.newSampleJustCreated) { //Restrict storages to the ones the created group
+				var storageToDropdown = storageController.getView().getStoragesDropdown();
+				var selectedSpace = IdentifierUtil.getSpaceCodeFromIdentifier(sampleChild.identifier);
+				// Show/hide storages from Storage To based on the one from the sample
+				for(var sIdx = 0; sIdx < storageToDropdown[0].childNodes.length; sIdx++) {
+					var spaceCode = storageToDropdown[0].childNodes[sIdx].attributes.spaceCode;
+					var show = spaceCode && spaceCode.value === selectedSpace;
+					storageToDropdown[0].childNodes[sIdx].disabled = !show;
+				}
+			}
 			$("#storage-accept").on("click", function(event) {
 				storageController.isValid(function(isValid) {
 					if(isValid) {
                         // 1. Find the Space of the selected storage
                         var spaceCode = storageController.getModel().storageConfig.spaceCode;
-                        // 2. Update the Space the sample belongs to and with that the storage
-                        sampleChild.identifier = IdentifierUtil.getSampleIdentifier(spaceCode, null, sampleChild.code);
-						delete sampleChild.newSampleJustCreated;
+                        // 2. Set the Space the sample belongs to and with that the storage
+                        if(sampleChild.newSampleJustCreated) {
+                            sampleChild.identifier = IdentifierUtil.getSampleIdentifier(spaceCode, null, sampleChild.code);
+                            delete sampleChild.newSampleJustCreated;
+                        } else {
+                            // On update the identifier should be set, fail if not
+                        }
 						Util.unblockUI();
 						_this._dataGrid.refresh();
 					}
