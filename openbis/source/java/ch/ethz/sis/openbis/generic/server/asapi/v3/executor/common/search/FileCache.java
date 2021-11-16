@@ -29,6 +29,9 @@ public class FileCache<V> implements ICache<V>
     /** Name of the cache subfolder in session workspace. */
     public static final String CACHE_FOLDER_NAME = "cache";
 
+    /** Whether at least one instance of this cache has been created. */
+    private static boolean instanceCreated = false;
+
     private final int capacity;
 
     private final Queue<String> keyQueue;
@@ -59,7 +62,11 @@ public class FileCache<V> implements ICache<V>
                 sessionToken.replaceAll("\\W+", "");
         cacheDir = new File(cacheDirString);
 
-        deleteDir(cacheDir);
+        if (!instanceCreated)
+        {
+            instanceCreated = true;
+            deleteDir(cacheDir);
+        }
         cacheDir.mkdirs();
 
         cacheDir.deleteOnExit();

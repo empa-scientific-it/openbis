@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -65,7 +66,9 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractSearchObjectsOperationExecutor.class);
 
-    private static final int CACHE_CAPACITY = (int) (10 * ONE_KB);
+    private static final int DEFAULT_CACHE_CAPACITY = (int) (10 * ONE_KB);
+
+    private static final String CACHE_CAPACITY_KEY = "cache-capacity";
 
     @Autowired
     private AuthorizationConfig authorizationConfig;
@@ -81,6 +84,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private final Map<String, ICache<Object>> cacheByUserSessionToken = new ConcurrentHashMap<>();
 
     private Properties serviceProperties;
+
+    private int cacheCapacity = DEFAULT_CACHE_CAPACITY;
 
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
@@ -325,11 +330,13 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     protected ICache<Object> getCache(final IOperationContext context)
     {
-        ICache<Object> cache = this.cacheByUserSessionToken.get(context.getSession().getSessionToken());
+        final String sessionToken = context.getSession().getSessionToken();
+        ICache<Object> cache = this.cacheByUserSessionToken.get(sessionToken);
         if (cache == null)
         {
-            cache = new MemoryCache<>(CACHE_CAPACITY);
-            this.cacheByUserSessionToken.put(context.getSession().getSessionToken(), cache);
+            cache = new MemoryCache<>(cacheCapacity);
+//            cache = new FileCache<>(cacheCapacity, serviceProperties, sessionToken, true);
+            this.cacheByUserSessionToken.put(sessionToken, cache);
         }
         return cache;
     }
@@ -409,6 +416,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private void setServicePropertiesPlaceholder(ExposablePropertyPlaceholderConfigurer servicePropertiesPlaceholder)
     {
         serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
+
+        cacheCapacity = PropertyUtils.getInt(serviceProperties, CACHE_CAPACITY_KEY, DEFAULT_CACHE_CAPACITY);
     }
 
 }

@@ -420,7 +420,10 @@ public class SearchObjectsOperationExecutorStressTest
     private static class FileCacheFactory implements Function<IOperationContext, ICache<Object>>
     {
 
-        final int cacheSize;
+        /** Whether at least one instance of this cache has been created. */
+        private static boolean applyCalled = false;
+
+        private final int cacheSize;
 
         private FileCacheFactory(final int cacheSize)
         {
@@ -437,7 +440,14 @@ public class SearchObjectsOperationExecutorStressTest
             final String sessionToken = context.getSession().getSessionToken();
             final FileCache<Object> fileCache = new FileCache<>(cacheSize, properties, sessionToken, false);
 
-            assertCacheDirectoryEmpty(properties, sessionToken);
+            synchronized (FileCacheFactory.class)
+            {
+                if (!applyCalled)
+                {
+                    applyCalled = true;
+                    assertCacheDirectoryEmpty(properties, sessionToken);
+                }
+            }
 
             return fileCache;
         }
