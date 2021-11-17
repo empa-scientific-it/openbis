@@ -439,7 +439,8 @@ var SampleDataGridUtil = new function() {
                             if(paIdx !== 0) {
                                 parents += ", ";
                             }
-                            parents += Util.getDisplayNameForEntity2(sampleParents[paIdx]);
+//                            parents += Util.getDisplayNameForEntity2(sampleParents[paIdx]);
+                            parents += sampleParents[paIdx].identifier;
                         }
                     }
 					
@@ -457,7 +458,8 @@ var SampleDataGridUtil = new function() {
                             if(!isFirst) {
                                 children += ", ";
                             }
-                            children += Util.getDisplayNameForEntity2(sampleChildren[caIdx]);
+//                            children += Util.getDisplayNameForEntity2(sampleChildren[caIdx]);
+                            children += sampleChildren[caIdx].identifier;
                             isFirst = false;
                         }
                     }
