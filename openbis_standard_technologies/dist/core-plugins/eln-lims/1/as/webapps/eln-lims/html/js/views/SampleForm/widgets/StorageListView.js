@@ -247,10 +247,11 @@ function StorageListView(storageListController, storageListModel) {
 				storageController.isValid(function(isValid) {
 					if(isValid) {
                         // 1. Find the Space of the selected storage
-                        var spaceCode = storageController.getModel().storageConfig.spaceCode;
+                        var settingsSpaceCode = storageController.getModel().storageConfig.spaceCode;
+                        var storageSpaceCode = profile.getSettingsSpacePrefix(settingsSpaceCode) + "STORAGE";
                         // 2. Set the Space the sample belongs to and with that the storage
                         if(sampleChild.newSampleJustCreated) {
-                            sampleChild.identifier = IdentifierUtil.getSampleIdentifier(spaceCode, null, sampleChild.code);
+                            sampleChild.identifier = IdentifierUtil.getSampleIdentifier(storageSpaceCode, null, sampleChild.code);
                             delete sampleChild.newSampleJustCreated;
                         } else {
                             // On update the identifier should be set, fail if not

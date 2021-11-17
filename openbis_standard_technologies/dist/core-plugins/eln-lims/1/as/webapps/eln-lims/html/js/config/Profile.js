@@ -389,6 +389,11 @@ $.extend(DefaultProfile.prototype, {
 		    return sampleTypeOnNav;
 		}
 
+        this.getSettingsSpacePrefix = function(spaceCode) {
+            var indexOfSettingsCode = spaceCode.indexOf("ELN_SETTINGS");
+            return spaceCode.substring(0, indexOfSettingsCode);
+        }
+
 		this.getSampleConfigSpacePrefix = function(sample) {
 			var prefix = null;
 			var spaceCode = sample.spaceCode;
