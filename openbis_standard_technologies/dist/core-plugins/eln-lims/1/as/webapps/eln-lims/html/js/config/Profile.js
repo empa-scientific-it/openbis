@@ -1225,11 +1225,16 @@ $.extend(DefaultProfile.prototype, {
 
         this.initUserManagementMaintenanceTaskConfig = function(callback) {
             var _this = this;
-            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
-                _this.userManagementMaintenanceTaskConfig = config;
+            if (this.showUserManagementConfig) {
+                this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                    _this.userManagementMaintenanceTaskConfig = config;
+                    callback();
+                });
+            } else {
                 callback();
-            });
+            }
         }
+
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
 			this.serverFacade.listDataSetTypes(function(data) {
