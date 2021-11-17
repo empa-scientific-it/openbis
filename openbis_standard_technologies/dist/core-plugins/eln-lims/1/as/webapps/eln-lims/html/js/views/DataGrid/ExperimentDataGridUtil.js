@@ -57,9 +57,29 @@ var ExperimentDataGridUtil = new function() {
 							render : function(data) {
 								return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
 							},
+                            renderFilter: function(params){
+                                var options = []
+                                
+                                if(propertyType.vocabulary && propertyType.vocabulary.terms){
+                                    propertyType.vocabulary.terms.forEach(function(term){
+                                        options.push({
+                                            label: term.label,
+                                            value: term.code
+                                        })
+                                    })
+                                }
+
+                                return React.createElement(window.NgUiGrid.default.SelectField, {
+                                    label: 'Filter',
+                                    variant: 'standard',
+                                    value: params.value,
+                                    emptyOption: {},
+                                    options: options,
+                                    onChange: params.onChange
+                                })
+                            },
 							filter : function(data, filter) {
-								var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-								return value && value.toLowerCase().indexOf(filter) !== -1;
+								return data[propertyType.code] === filter
 							},
 							sort : function(data1, data2, asc) {
 								var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);

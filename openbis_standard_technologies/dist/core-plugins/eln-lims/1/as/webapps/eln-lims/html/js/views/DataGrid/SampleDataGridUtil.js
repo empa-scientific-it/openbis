@@ -140,13 +140,34 @@ var SampleDataGridUtil = new function() {
 								label : propertyType.label,
 								property : propertyType.code,
 								isExportable: true,
-								filterable: !isDynamic,
-								sortable : !isDynamic,
+								filterable: true,
+								sortable : true,
 								metadata: {
 									dataType: propertyType.dataType
 								},
 								render : function(data) {
 									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+								},
+								renderFilter: function(params){
+                                    var options = []
+                                    
+                                    if(propertyType.vocabulary && propertyType.vocabulary.terms){
+                                        propertyType.vocabulary.terms.forEach(function(term){
+                                            options.push({
+                                                label: term.label,
+                                                value: term.code
+                                            })
+                                        })
+                                    }
+
+                                    return React.createElement(window.NgUiGrid.default.SelectField, {
+                                        label: 'Filter',
+                                        variant: 'standard',
+                                        value: params.value,
+                                        emptyOption: {},
+                                        options: options,
+                                        onChange: params.onChange
+                                    })
 								},
 								filter : function(data, filter) {
 									var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
@@ -574,6 +595,8 @@ var SampleDataGridUtil = new function() {
                             operator = "thatEqualsDate"
                         }else if(dataType === "BOOLEAN"){
                             operator = "thatEqualsBoolean"
+                        }else if(dataType === "CONTROLLEDVOCABULARY"){
+                            operator = "thatEqualsString"
                         }else{
                             operator = "thatContainsString"
                         }

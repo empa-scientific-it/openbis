@@ -171,6 +171,7 @@ function DataGridController(
           $(params.container).empty();
           $(params.container).append(finalValue);
         },
+        renderFilter: column.renderFilter,
         matchesValue: function (params) {
           if (column.filter) {
             return column.filter(params.row, params.filter);
@@ -196,7 +197,7 @@ function DataGridController(
             index === columns.length - 1),
         configurable: !column.hide && !column.canNotBeHidden,
         exportable: column.isExportable,
-        metadata: column.metadata
+        metadata: column.metadata,
       };
     });
 

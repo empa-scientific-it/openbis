@@ -243,6 +243,8 @@ function AdvancedSearchController(mainController, forceSearch) {
                             operator = "thatEqualsDate"
                         }else if(dataType === "BOOLEAN"){
                             operator = "thatEqualsBoolean"
+                        }else if(dataType === "CONTROLLEDVOCABULARY"){
+                            operator = "thatEqualsString"
                         }else{
                             operator = "thatContainsString"
                         }
