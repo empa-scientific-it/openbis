@@ -26,20 +26,28 @@ var TestUtil = new function() {
         }
     }
 
+    this.sendEventToJenkins = function(i, id, msg) {
+        var event = jQuery.Event("test" + i + "event");
+        if (i == id) {
+            event.msg = msg;
+        } else {
+            event.msg = "Test " + id + " failed.";
+        }
+        console.log("Test " + i + " failed.");
+        window.parent.$("#eln-frame").trigger(event);
+    }
+
     this.reportErrorToJenkins = function(id, msg) {
         if ($.cookie("report-to-jenkins") == "true") {
             // If one test is broken, then all tests must be failed.
             // If you need to add a new test, make sure that it will fail.
 
+            chain = Promise.resolve();
             for(let i = id; i < TestProtocol.getTestCount(); i++) {
-                var event = jQuery.Event("test" + i + "event");
-                if (i == id) {
-                    event.msg = msg;
-                } else {
-                    event.msg = "Test " + id + " failed.";
-                }
-                window.parent.$("#eln-frame").trigger(event);
+                chain = chain.then(() => TestUtil.sendEventToJenkins(i, id, error))
+                             .then(() => EventUtil.sleep(1000));
             }
+            chain.catch(error => { console.log(error) });
         }
     }
 

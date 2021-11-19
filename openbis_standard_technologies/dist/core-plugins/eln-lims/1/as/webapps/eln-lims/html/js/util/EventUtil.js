@@ -117,7 +117,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-	}
+	};
 
 	this.verifyExistence = function(elementId, isExist, ignoreError) {
 	    return new Promise(function executor(resolve, reject) {
@@ -132,7 +132,7 @@ var EventUtil = new function() {
                 }
 	        }
 	    });
-	}
+	};
 
     this.waitForId = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
@@ -181,7 +181,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-    }
+    };
 
     this.waitForFill = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
@@ -215,7 +215,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-    }
+    };
 
     this.checkTimeout = function(elementId, timeout, ignoreError, resolve) {
         if (!timeout) {
@@ -231,11 +231,11 @@ var EventUtil = new function() {
             }
         }
         return timeout;
-    }
+    };
 
     this.sleep = function(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    };
 
     this.dragAndDrop = function(dragId, dropId, ignoreError) {
         return new Promise(function executor(resolve, reject) {
@@ -294,5 +294,5 @@ var EventUtil = new function() {
             }
         }
         return element;
-    }
+    };
 }
