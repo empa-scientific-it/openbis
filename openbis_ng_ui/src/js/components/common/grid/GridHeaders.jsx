@@ -10,12 +10,9 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   header: {
+    backgroundColor: theme.palette.background.primary,
     '& th': {
-      position: 'sticky',
-      top: 0,
-      zIndex: 10,
-      fontWeight: 'bold',
-      backgroundColor: theme.palette.background.primary
+      fontWeight: 'bold'
     }
   },
   multiselect: {
