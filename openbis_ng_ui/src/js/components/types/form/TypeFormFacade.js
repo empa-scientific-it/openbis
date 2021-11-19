@@ -104,9 +104,7 @@ export default class TypeFormFacade {
     fo.withVocabulary()
     fo.withRegistrator()
     return openbis.searchPropertyTypes(criteria, fo).then(results => {
-      return results.getObjects().filter(propertyType => {
-        return !propertyType.getCode().includes('.')
-      })
+      return results.getObjects()
     })
   }
 
