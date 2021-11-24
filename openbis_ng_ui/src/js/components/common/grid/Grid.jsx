@@ -20,15 +20,33 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  loadingContainer: {
+    flex: '1 1 auto'
+  },
+  tableContainer: {
+    display: 'flex',
+    flexDirection: 'column',
     height: '100%'
   },
   tableHeaderAndBody: {
+    height: '1px',
     width: '100%',
-    overflow: 'auto'
+    overflow: 'auto',
+    flex: '1 1 auto'
   },
   table: {
     borderCollapse: 'unset',
     marginTop: -theme.spacing(1)
+  },
+  tableHead: {
+    position: 'sticky',
+    top: '-8px',
+    zIndex: '200',
+    backgroundColor: theme.palette.background.paper
   },
   tableBody: {
     '& tr:last-child td': {
@@ -36,8 +54,6 @@ const styles = theme => ({
     }
   },
   tableFooter: {
-    position: 'sticky',
-    bottom: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -126,12 +142,15 @@ class Grid extends React.PureComponent {
     return (
       <div onClick={this.handleClickContainer} className={classes.container}>
         <div>{header && <Header>{header}</Header>}</div>
-        <div>
+        <div className={classes.loadingContainer}>
           <Loading loading={loading}>
-            <div onClick={this.handleClickTable}>
+            <div
+              className={classes.tableContainer}
+              onClick={this.handleClickTable}
+            >
               <div className={classes.tableHeaderAndBody}>
                 <Table classes={{ root: classes.table }}>
-                  <TableHead>
+                  <TableHead classes={{ root: classes.tableHead }}>
                     <GridFilters
                       columns={visibleColumns}
                       filters={filters}
