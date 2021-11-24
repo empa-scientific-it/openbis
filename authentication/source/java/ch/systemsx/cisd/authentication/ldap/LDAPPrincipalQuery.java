@@ -270,32 +270,44 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
-    public List<Principal> listPrincipalsByKeyValue(String key, String value)
+    public List<Principal> listPrincipalsByKeyValueOrQuery(String keyOrNull, String valueOrNull, String queryOrNull)
     {
-        return listPrincipalsByKeyValue(key, value, null, Integer.MAX_VALUE);
+        return listPrincipalsByKeyValueOrQuery(keyOrNull, valueOrNull, queryOrNull, null, Integer.MAX_VALUE);
+    }
+
+    public List<Principal> listPrincipalsByKeyValue(String keyOrNull, String valueOrNull, 
+            Collection<String> additionalAttributesOrNull, int limit)
+    {
+        return listPrincipalsByKeyValueOrQuery(keyOrNull, valueOrNull, null, additionalAttributesOrNull, limit);
     }
 
     /**
-     * Returns a list of principals matching a search query given as <var>key</var> and <var>value</var> where value may contain <code>*</code> as a
-     * wildcard character.
+     * Returns a list of principals matching a search query given as <var>keyOrNull</var> and <var>valueOrNull</var> 
+     * where value may contain <code>*</code> as a wildcard character. 
+     * The actual LDAP query is created from the queryTemplate of the configuration where '%' is replaced by 
+     * <code>&lt;keyOrNull&gt;=&lt;valueOrNull&gt;</code>. 
+     * If <var>queryOrNull</var> is directly specified <var>keyOrNull</var> and <var>valueOrNull</var> will be ignored.
      * 
-     * @param key The key to search for, e.g. <code>uid</code>
-     * @param value The value to query for, e.g. <code>may*</code>
+     * @param keyOrNull The key to search for, e.g. <code>uid</code>
+     * @param valueOrNull The value to query for, e.g. <code>may*</code>
+     * @param queryOrNull The complete LDAP query. It will be used if not <code>null</code>.
      * @param additionalAttributesOrNull If not <code>null</code>, include the attributes with the given attribute names. If
      *            <var>additionalAttributesOrNull</var> is an empty collection, include all properties that the principal has in LDAP
      * @param limit The limit of users to return at most. Note that limiting the search to 1 gives usually a big performance boost.
      * @return The list of principals matching the query
      */
     @SuppressWarnings("null")
-    public List<Principal> listPrincipalsByKeyValue(String key, String value,
+    private List<Principal> listPrincipalsByKeyValueOrQuery(String keyOrNull, String valueOrNull, String queryOrNull, 
             Collection<String> additionalAttributesOrNull, int limit)
     {
+        String query = queryOrNull != null ? queryOrNull
+                : String.format(config.getQueryTemplate(), String.format("%s=%s", keyOrNull, valueOrNull));
         RuntimeException firstException = null;
         for (int i = 0; i <= config.getMaxRetries(); ++i)
         {
             try
             {
-                return primListPrincipalsByKeyValue(config.getSearchBase(), key, value, additionalAttributesOrNull, limit);
+                return primListPrinciplasByQuery(config.getSearchBase(), query, additionalAttributesOrNull, limit);
             } catch (RuntimeException ex)
             {
                 contextHolder.set(null);
@@ -305,7 +317,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                     if (operationLog.isDebugEnabled() && i < config.getMaxRetries())
                     {
                         operationLog.debug(String.format(
-                                "Error listing principle by %s=%s, retrying...", key, value), ex);
+                                "Error listing principle by query '%s', retrying...", query), ex);
                     }
                 }
                 if (i < config.getMaxRetries())
@@ -314,16 +326,13 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 }
             }
         }
-        operationLog.error(String.format("Error on LDAP query %s=%s", key, value), firstException);
+        operationLog.error(String.format("Error on LDAP query '%s'", query), firstException);
         throw firstException;
     }
 
-    private List<Principal> primListPrincipalsByKeyValue(String searchBase, String key, String value,
-            Collection<String> additionalAttributesOrNull, int limit)
+    private List<Principal> primListPrinciplasByQuery(String searchBase, final String query, Collection<String> additionalAttributesOrNull, int limit)
     {
         final List<Principal> principals = new ArrayList<Principal>();
-        final String filter = String.format("%s=%s", key, value);
-        final String query = String.format(config.getQueryTemplate(), filter);
         try
         {
             final DirContext context = createContext(false);

@@ -207,8 +207,8 @@ public class LDAPAuthenticationService implements IAuthenticationService
         return configured;
     }
 
-    public List<Principal> listPrincipalsByKeyValue(String key, String value)
+    public List<Principal> listPrincipalsByKeyValueOrQuery(String keyOrNull, String valueOrNull, String queryOrNull)
     {
-        return query.listPrincipalsByKeyValue(key, value);
+        return query.listPrincipalsByKeyValueOrQuery(keyOrNull, valueOrNull, queryOrNull);
     }
 }
