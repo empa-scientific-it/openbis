@@ -19,7 +19,7 @@ dependencies {
 			'sencha:gxt:2.2.5',
 			'hibernate:hibernate-core:5.2.14.Final',
 			'fasterxml:classmate:1.3.0',
-			'eclipse:jetty-deploy:9.4.30.v20200611',
+			'eclipse:jetty-deploy:9.4.44.v20210927',
 			'google:gwt-debug-panel:1.0',
 			'javax:servlet-api:3.1.0',
 			'google:gwt-user:2.4',
@@ -38,7 +38,7 @@ dependencies {
 	runtime 'slf4j:slf4j-log4j12:1.6.2',
 			'apache:commons-fileupload:1.3.3'
 
-	devRuntime 'eclipse:jetty-runner:9.4.30.v20200611'
+	devRuntime 'eclipse:jetty-runner:9.4.44.v20210927'
 
 	testCompile project(path: ':common', configuration: 'tests'),
 			project(path: ':dbmigration', configuration: 'tests'),
