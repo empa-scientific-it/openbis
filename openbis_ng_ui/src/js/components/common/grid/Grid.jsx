@@ -51,16 +51,21 @@ const styles = theme => ({
       border: 0
     }
   },
+  tableFooterBackground: {
+    position: 'sticky',
+    bottom: 0,
+    height: '46px',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: theme.palette.border.secondary,
+    backgroundColor: theme.palette.background.paper
+  },
   tableFooter: {
     position: 'sticky',
     bottom: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    borderTopWidth: '1px',
-    borderTopStyle: 'solid',
-    borderTopColor: theme.palette.border.secondary,
-    backgroundColor: theme.palette.background.paper,
     overflow: 'hidden'
   },
   tableFooterLeft: {
@@ -204,42 +209,43 @@ class Grid extends React.PureComponent {
                   </TableBody>
                 </Table>
               </div>
-              <div className={classes.tableFooter}>
-                <div className={classes.tableFooterLeft}>
-                  <GridActions
-                    actions={actions}
-                    disabled={Object.keys(multiselectedRows).length === 0}
-                    onExecute={this.controller.handleExecuteAction}
-                  />
-                  <GridExports
-                    disabled={rows.length === 0}
-                    exportOptions={exportOptions}
-                    multiselectable={multiselectable}
-                    onExport={this.controller.handleExport}
-                    onExportOptionsChange={
-                      this.controller.handleExportOptionsChange
-                    }
-                  />
-                </div>
-                <div className={classes.tableFooterRight}>
-                  <GridPaging
-                    count={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    onPageChange={this.controller.handlePageChange}
-                    onPageSizeChange={this.controller.handlePageSizeChange}
-                  />
-                  <GridConfig
-                    columns={allColumns}
-                    columnsVisibility={columnsVisibility}
-                    loading={loading}
-                    onVisibleChange={this.controller.handleColumnVisibleChange}
-                    onOrderChange={this.controller.handleColumnOrderChange}
-                  />
-                </div>
-              </div>
+              <div className={classes.tableFooterBackground}></div>
             </div>
           </Loading>
+          <div className={classes.tableFooter}>
+            <div className={classes.tableFooterLeft}>
+              <GridActions
+                actions={actions}
+                disabled={Object.keys(multiselectedRows).length === 0}
+                onExecute={this.controller.handleExecuteAction}
+              />
+              <GridExports
+                disabled={rows.length === 0}
+                exportOptions={exportOptions}
+                multiselectable={multiselectable}
+                onExport={this.controller.handleExport}
+                onExportOptionsChange={
+                  this.controller.handleExportOptionsChange
+                }
+              />
+            </div>
+            <div className={classes.tableFooterRight}>
+              <GridPaging
+                count={totalCount}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={this.controller.handlePageChange}
+                onPageSizeChange={this.controller.handlePageSizeChange}
+              />
+              <GridConfig
+                columns={allColumns}
+                columnsVisibility={columnsVisibility}
+                loading={loading}
+                onVisibleChange={this.controller.handleColumnVisibleChange}
+                onOrderChange={this.controller.handleColumnOrderChange}
+              />
+            </div>
+          </div>
         </div>
       </div>
     )
