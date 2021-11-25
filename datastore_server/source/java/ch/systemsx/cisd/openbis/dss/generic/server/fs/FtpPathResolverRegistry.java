@@ -16,16 +16,24 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -109,6 +117,18 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 return fileWithContent.getFileContent();
             }
             throw new UnsupportedOperationException("Content not supported: " + absolutePath);
+        }
+
+        @Override
+        public FileChannel getFileChannel() throws IOException
+        {
+            FtpFile file = ftpPathResolverRegistry.resolveAndConvert(absolutePath, resolverContext);
+            NonExistingFtpFile.throwFileNotFoundExceptionIfNonExistingFtpFile(file);
+            if (file instanceof AbstractFtpFileWithContent)
+            {
+                return ((AbstractFtpFileWithContent) file).getFileChannel();
+            }
+            return super.getFileChannel();
         }
     }
 
@@ -265,6 +285,25 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                         operationLog.error("Error while reading content at " + offset + " from " 
                                 + absolutePath, re);
                         throw re;
+                    }
+                }
+
+                @Override
+                public FileChannel getFileChannel()
+                {
+                    File f = file.getNode().tryGetFile();
+                    if (f == null)
+                    {
+                        throw new UnsupportedOperationException("Only real files are supported.");
+                    }
+                    Path path = f.toPath();
+                    Set<? extends OpenOption> options = EnumSet.<StandardOpenOption>of(StandardOpenOption.READ);
+                    try
+                    {
+                        return path.getFileSystem().provider().newFileChannel(path, options);
+                    } catch (IOException e)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(e);
                     }
                 }
 
