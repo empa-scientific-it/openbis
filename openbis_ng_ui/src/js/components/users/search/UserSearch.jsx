@@ -19,7 +19,6 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   grid: {
-    height: '100%',
     marginBottom: theme.spacing(2)
   }
 })

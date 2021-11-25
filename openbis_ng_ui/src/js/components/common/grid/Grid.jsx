@@ -33,9 +33,7 @@ const styles = theme => ({
     height: '100%'
   },
   tableHeaderAndBody: {
-    height: '1px',
     width: '100%',
-    overflow: 'auto',
     flex: '1 1 auto'
   },
   table: {
@@ -44,7 +42,7 @@ const styles = theme => ({
   },
   tableHead: {
     position: 'sticky',
-    top: '-8px',
+    top: 0,
     zIndex: '200',
     backgroundColor: theme.palette.background.paper
   },
@@ -54,6 +52,8 @@ const styles = theme => ({
     }
   },
   tableFooter: {
+    position: 'sticky',
+    bottom: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
