@@ -4,7 +4,8 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    width: '100%',
+    display: 'inline-block',
+    minWidth: '100%',
     height: '100%',
     position: 'relative'
   },

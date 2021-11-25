@@ -28,8 +28,8 @@ const styles = theme => ({
     flex: '1 1 auto'
   },
   tableContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'inline-block',
+    minWidth: '100%',
     height: '100%'
   },
   tableHeaderAndBody: {
