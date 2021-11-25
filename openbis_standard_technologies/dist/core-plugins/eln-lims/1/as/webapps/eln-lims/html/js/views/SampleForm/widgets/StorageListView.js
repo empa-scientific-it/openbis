@@ -235,7 +235,8 @@ function StorageListView(storageListController, storageListModel) {
 
 			if(!sampleChild.newSampleJustCreated) { //Restrict storages to the ones the created group
 				var storageToDropdown = storageController.getView().getStoragesDropdown();
-				var selectedSpace = IdentifierUtil.getSpaceCodeFromIdentifier(sampleChild.identifier);
+				var selectedStorageSpace = IdentifierUtil.getSpaceCodeFromIdentifier(sampleChild.identifier);
+				var selectedSpace = selectedStorageSpace.replace("STORAGE", "ELN_SETTINGS");
 				// Show/hide storages from Storage To based on the one from the sample
 				for(var sIdx = 0; sIdx < storageToDropdown[0].childNodes.length; sIdx++) {
 					var spaceCode = storageToDropdown[0].childNodes[sIdx].attributes.spaceCode;
