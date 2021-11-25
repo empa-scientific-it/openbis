@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
@@ -24,7 +27,7 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 public abstract class AbstractFtpFileWithContent extends AbstractFtpFile
 {
     private long size;
-    
+
     public AbstractFtpFileWithContent(String absolutePath)
     {
         super(absolutePath);
@@ -39,6 +42,11 @@ public abstract class AbstractFtpFileWithContent extends AbstractFtpFile
     public void setSize(long size)
     {
         this.size = size;
+    }
+
+    public FileChannel getFileChannel() throws IOException
+    {
+        throw new UnsupportedOperationException("File channels not supported.");
     }
 
     public abstract IRandomAccessFile getFileContent();

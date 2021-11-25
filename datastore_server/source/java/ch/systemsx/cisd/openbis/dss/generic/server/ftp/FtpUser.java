@@ -96,4 +96,10 @@ public class FtpUser implements User
         return Collections.emptyList();
     }
 
+    @Override
+    public String toString()
+    {
+        return name + " (" + sessionToken + ")";
+    }
+
 }
