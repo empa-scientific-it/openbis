@@ -27,6 +27,9 @@ const styles = theme => ({
   loadingContainer: {
     flex: '1 1 auto'
   },
+  header: {
+    paddingBottom: 0
+  },
   tableContainer: {
     display: 'inline-block',
     minWidth: '100%',
@@ -37,8 +40,7 @@ const styles = theme => ({
     flex: '1 1 auto'
   },
   table: {
-    borderCollapse: 'unset',
-    marginTop: -theme.spacing(1)
+    borderCollapse: 'unset'
   },
   tableHead: {
     position: 'sticky',
@@ -131,7 +133,11 @@ class Grid extends React.PureComponent {
 
     return (
       <div onClick={this.handleClickContainer} className={classes.container}>
-        <div>{header && <Header>{header}</Header>}</div>
+        <div>
+          {header && (
+            <Header classes={{ header: classes.header }}>{header}</Header>
+          )}
+        </div>
         <div className={classes.loadingContainer}>
           <Loading loading={loading}>
             <div
