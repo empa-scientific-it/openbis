@@ -430,7 +430,7 @@
 			var test = queryString.test;
 			var testWithLogin = queryString.testWithLogin;
 
-			if (test == "true" || testWithLogin == "true") {
+			if (test == "true" || testWithLogin == "true" || $.cookie("suitename")) {
 				sessionStorage.setItem("forceNormalLogin", "true");
 			}
 
