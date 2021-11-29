@@ -60,6 +60,7 @@ configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 
 def jettyVersion = '9.4.44'
+def jettyDistributionVersion = '9.4.44.v20210927'
 
 dependencies {
 	compile project(':screening')
@@ -383,7 +384,7 @@ task createJettyVersionFile {
     ext.versionFile = new File(buildDir, 'jetty-version.txt')
     outputs.file versionFile
     doLast {
-        versionFile.text = "${jettyVersion}"
+        versionFile.text = "${jettyDistributionVersion}"
     }
 }
 

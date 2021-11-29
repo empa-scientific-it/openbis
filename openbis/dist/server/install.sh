@@ -57,7 +57,7 @@ if [ "$1" ]; then
     shift
 fi
 
-jetty_with_version="jetty-`cat $installation_folder/jetty-version.txt`"
+jetty_with_version="jetty-distribution-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/jetty-dist"
 base_folder="${server_folder}/jetty"
 
