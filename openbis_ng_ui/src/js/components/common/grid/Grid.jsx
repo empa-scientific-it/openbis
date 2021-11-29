@@ -115,7 +115,9 @@ class Grid extends React.PureComponent {
     } = this.props
     const {
       loading,
+      filterMode,
       filters,
+      globalFilter,
       sort,
       sortDirection,
       page,
@@ -149,8 +151,13 @@ class Grid extends React.PureComponent {
                   <TableHead classes={{ root: classes.tableHead }}>
                     <GridFilters
                       columns={visibleColumns}
+                      filterMode={filterMode}
                       filters={filters}
                       onFilterChange={this.controller.handleFilterChange}
+                      globalFilter={globalFilter}
+                      onGlobalFilterChange={
+                        this.controller.handleGlobalFilterChange
+                      }
                       multiselectable={multiselectable}
                     />
                     <GridHeaders

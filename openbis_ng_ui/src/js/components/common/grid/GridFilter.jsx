@@ -12,14 +12,13 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: 0,
-    borderColor: theme.palette.border.secondary,
     '&:last-child': {
       paddingRight: theme.spacing(2)
     }
   }
 })
 
-class GridHeaderFilter extends React.PureComponent {
+class GridFilter extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleFilterChange = this.handleFilterChange.bind(this)
@@ -42,7 +41,7 @@ class GridHeaderFilter extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'GridHeaderFilter.render')
+    logger.log(logger.DEBUG, 'GridFilter.render')
 
     const { column, classes } = this.props
 
@@ -100,4 +99,4 @@ class GridHeaderFilter extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(GridHeaderFilter)
+export default withStyles(styles)(GridFilter)

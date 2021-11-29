@@ -2,10 +2,13 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import FileSaver from 'file-saver'
 import CsvStringify from 'csv-stringify'
+import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
 import GridSortingOptions from '@src/js/components/common/grid/GridSortingOptions.js'
 import compare from '@src/js/common/compare.js'
+
+const FILTER_RELOAD_PERIOD = 500
 
 export default class GridController {
   constructor() {
@@ -18,7 +21,9 @@ export default class GridController {
     context.initState({
       loaded: false,
       loading: false,
+      filterMode: GridFilterOptions.COLUMN_FILTERS,
       filters: {},
+      globalFilter: null,
       page: 0,
       pageSize: 10,
       columnsVisibility: {},
@@ -107,7 +112,9 @@ export default class GridController {
 
       const loadedResult = await props.loadRows({
         columns: columns,
+        filterMode: newState.filterMode,
         filters: newState.filters,
+        globalFilter: newState.globalFilter,
         page: newState.page,
         pageSize: newState.pageSize,
         sort: newState.sort,
@@ -143,7 +150,9 @@ export default class GridController {
         newState.allRows,
         newState.allColumns,
         newState.columnsVisibility,
-        newState.filters
+        newState.filterMode,
+        newState.filters,
+        newState.globalFilter
       )
       newState.sortedRows = this._sortRows(
         newState.filteredRows,
@@ -191,6 +200,7 @@ export default class GridController {
 
     // do not update filters (this would override filter changes that a user could do while grid was loading)
     delete newState.filters
+    delete newState.globalFilter
 
     await this.context.setState(newState)
 
@@ -450,24 +460,51 @@ export default class GridController {
     }
   }
 
-  _filterRows(rows, columns, columnsVisibility, filters) {
-    return _.filter([...rows], row => {
-      let matchesAll = true
-      columns.forEach(column => {
-        let visible = columnsVisibility[column.name]
-        if (visible) {
-          let filter = filters[column.name]
-          if (
-            filter !== null &&
-            filter !== undefined &&
-            filter.trim().length > 0
-          ) {
-            matchesAll = matchesAll && column.matches(row, filter)
+  _filterRows(
+    rows,
+    columns,
+    columnsVisibility,
+    filterMode,
+    filters,
+    globalFilter
+  ) {
+    if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
+      if (
+        globalFilter === null ||
+        (globalFilter === undefined && globalFilter.trim().length === 0)
+      ) {
+        return rows
+      }
+
+      return _.filter([...rows], row => {
+        let matchesAny = false
+        columns.forEach(column => {
+          let visible = columnsVisibility[column.name]
+          if (visible) {
+            matchesAny = matchesAny || column.matches(row, globalFilter)
           }
-        }
+        })
+        return matchesAny
       })
-      return matchesAll
-    })
+    } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
+      return _.filter([...rows], row => {
+        let matchesAll = true
+        columns.forEach(column => {
+          let visible = columnsVisibility[column.name]
+          if (visible) {
+            let filter = filters[column.name]
+            if (
+              filter !== null &&
+              filter !== undefined &&
+              filter.trim().length > 0
+            ) {
+              matchesAll = matchesAll && column.matches(row, filter)
+            }
+          }
+        })
+        return matchesAll
+      })
+    }
   }
 
   _sortRows(rows, columns, sort, sortDirection) {
@@ -604,6 +641,14 @@ export default class GridController {
     }
   }
 
+  async handleFilterModeChange(filterMode) {
+    await this.context.setState({
+      filterMode
+    })
+    await this.load()
+    await this._saveSettings()
+  }
+
   async handleFilterChange(column, filter) {
     const { local } = this.context.getState()
 
@@ -634,7 +679,29 @@ export default class GridController {
     } else {
       this.loadTimerId = setTimeout(async () => {
         await this.load()
-      }, 500)
+      }, FILTER_RELOAD_PERIOD)
+    }
+  }
+
+  async handleGlobalFilterChange(globalFilter) {
+    const { local } = this.context.getState()
+
+    await this.context.setState(() => ({
+      page: 0,
+      globalFilter
+    }))
+
+    if (this.loadTimerId) {
+      clearTimeout(this.loadTimerId)
+      this.loadTimerId = null
+    }
+
+    if (local) {
+      await this.load()
+    } else {
+      this.loadTimerId = setTimeout(async () => {
+        await this.load()
+      }, FILTER_RELOAD_PERIOD)
     }
   }
 
@@ -883,6 +950,7 @@ export default class GridController {
       } else if (props.loadRows) {
         const loadedResult = await props.loadRows({
           filters: state.filters,
+          globalFilter: state.globalFilter,
           page: 0,
           pageSize: 1000000,
           sort: state.sort,
@@ -956,6 +1024,11 @@ export default class GridController {
   getFilters() {
     const { filters } = this.context.getState()
     return filters
+  }
+
+  getGlobalFilter() {
+    const { globalFilter } = this.context.getState()
+    return globalFilter
   }
 
   getRows() {
