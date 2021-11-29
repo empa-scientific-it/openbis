@@ -84,6 +84,7 @@ export default class GridController {
     if (!state.loaded) {
       settings = await this._loadSettings()
       if (settings) {
+        newState.filterMode = settings.filterMode || newState.filterMode
         newState.pageSize = settings.pageSize || newState.pageSize
         newState.sort = settings.sort || newState.sort
         newState.sortDirection =
@@ -397,6 +398,10 @@ export default class GridController {
         return null
       }
 
+      settings.filterMode = getEnumValue(
+        settings.filterMode,
+        GridFilterOptions.FILTER_MODE_OPTIONS
+      )
       settings.pageSize = getEnumValue(
         settings.pageSize,
         GridPagingOptions.PAGE_SIZE_OPTIONS
@@ -448,6 +453,7 @@ export default class GridController {
       const state = this.context.getState()
 
       let settings = {
+        filterMode: state.filterMode,
         pageSize: state.pageSize,
         sort: state.sort,
         sortDirection: state.sortDirection,
