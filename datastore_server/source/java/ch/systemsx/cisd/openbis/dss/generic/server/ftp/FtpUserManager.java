@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -40,13 +41,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class FtpUserManager implements UserManager
 {
+    private static final long EXPIRATION = DateUtils.MILLIS_PER_HOUR;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpUserManager.class);
 
     private final IServiceForDataStoreServer service;
 
-    private final Map<String, String> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, ExpiringValue> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
 
     public FtpUserManager(IServiceForDataStoreServer service)
     {
@@ -60,8 +62,9 @@ public class FtpUserManager implements UserManager
         {
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
-            String key = String.format("%s:%s", upa.getUsername(), upa.getPassword());
-            String sessionToken = "?".equals(user) ? upa.getPassword() : sessionTokensByUser.get(key);
+            String password = upa.getPassword();
+            String key = String.format("%s:%s", upa.getUsername(), password);
+            String sessionToken = getSessionToken(key, user, password);
             if (sessionToken != null)
             {
                 SessionContextDTO session = service.tryGetSession(sessionToken);
@@ -77,10 +80,9 @@ public class FtpUserManager implements UserManager
             }
             if (sessionToken == null)
             {
-                String password = upa.getPassword();
                 SessionContextDTO session = service.tryAuthenticate(user, password);
                 sessionToken = session == null ? null : session.getSessionToken();
-                sessionTokensByUser.put(key, sessionToken);
+                sessionTokensByUser.put(key, new ExpiringValue(sessionToken, calculateExpirationTimestamp()));
             }
             if (sessionToken != null)
             {
@@ -94,6 +96,34 @@ public class FtpUserManager implements UserManager
         throw new AuthenticationFailedException();
     }
 
+    private String getSessionToken(String key, String user, String password)
+    {
+        if ("?".equals(user))
+        {
+            return password;
+        }
+        ExpiringValue value = sessionTokensByUser.get(key);
+        if (value == null)
+        {
+            return null;
+        }
+        if (value.isExpired())
+        {
+            sessionTokensByUser.remove(key);
+            String sessionToken = value.getValue();
+            operationLog.info("Session token " + sessionToken + " expired.");
+            service.logout(sessionToken);
+            return null;
+        }
+        value.setExpirationTimestamp(calculateExpirationTimestamp());
+        return value.getValue();
+    }
+
+    private long calculateExpirationTimestamp()
+    {
+        return System.currentTimeMillis() + EXPIRATION;
+    }
+    
     @Override
     public void delete(String arg0) throws FtpException
     {
@@ -136,4 +166,30 @@ public class FtpUserManager implements UserManager
         throw new UnsupportedOperationException();
     }
 
+    private static final class ExpiringValue
+    {
+        private final String value;
+        private long expirationTimestamp;
+        
+        public ExpiringValue(String value, long expirationTimestamp)
+        {
+            this.value = value;
+            this.expirationTimestamp = expirationTimestamp;
+        }
+        
+        public String getValue()
+        {
+            return value;
+        }
+
+        public boolean isExpired()
+        {
+            return System.currentTimeMillis() > expirationTimestamp;
+        }
+
+        public void setExpirationTimestamp(long expirationTimestamp)
+        {
+            this.expirationTimestamp = expirationTimestamp;
+        }
+    }
 }
