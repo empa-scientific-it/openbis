@@ -230,11 +230,13 @@ class Grid extends React.PureComponent {
                   onPageSizeChange={this.controller.handlePageSizeChange}
                 />
                 <GridConfig
+                  filterMode={filterMode}
                   columns={allColumns}
                   columnsVisibility={columnsVisibility}
                   loading={loading}
                   onVisibleChange={this.controller.handleColumnVisibleChange}
                   onOrderChange={this.controller.handleColumnOrderChange}
+                  onFilterModeChange={this.controller.handleFilterModeChange}
                 />
               </div>
             </div>
