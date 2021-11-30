@@ -90,10 +90,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				dropdownOptionsModel.push({
                     label : "Delete",
                     action : function() {
-                        var modalView = new DeleteEntityController(function(reason) {
-					        _this._projectFormController.deleteProject(reason);
-                        }, true);
-                        modalView.init();
+                        _this._projectDeletionAction();
                     }
                 });
 			}
@@ -323,7 +320,48 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		});
 		return $samples;
 	}
-	
+
+    this._projectDeletionAction = function() {
+        var _this = this;
+        this._projectFormController.getDependentEntities(function(experiments, samples) {
+            var numberOfExperiments = experiments.length;
+            var numberOfSamples = samples.length;
+            if (numberOfExperiments > 0 || numberOfSamples > 0) {
+                var $component = $("<div>");
+                var warningText = "This project can not be deleted because it has ";
+                if (numberOfExperiments == 1) {
+                    warningText += "one " + ELNDictionary.ExperimentELN;
+                } else if (numberOfExperiments > 1) {
+                    warningText += numberOfExperiments + " " + ELNDictionary.ExperimentsELN;
+                }
+                if (numberOfExperiments > 0 && numberOfSamples > 0) {
+                    warningText += " and ";
+                }
+                if (numberOfSamples == 1) {
+                    warningText += " one " + ELNDictionary.Sample;
+                } else if (numberOfSamples > 1) {
+                    warningText += numberOfSamples + " " + ELNDictionary.Samples;
+                }
+                var $warning = FormUtil.getFieldForLabelWithText(null, warningText + ".");
+                $warning.css('color', FormUtil.warningColor);
+                $component.append($warning);
+                var infoText = "You can move ";
+                infoText += (numberOfExperiments + numberOfSamples) > 1 ? "these entities" : "this entity";
+                infoText += " to the trash can by enter a reason an click 'Accept'.";
+                $component.append(FormUtil.getFieldForLabelWithText(null, infoText));
+
+                new DeleteEntityController(function(reason) {
+                    _this._projectFormController.deleteDependentEntities(reason, experiments, samples);
+                }, true, null, $component).init();
+            } else {
+                var modalView = new DeleteEntityController(function(reason) {
+                    _this._projectFormController.deleteProject(reason);
+                }, true, null, $component);
+                modalView.init();
+            }
+        });
+    }
+
 	this._allowedToCreateExperiments = function() {
 		var project = this._projectFormModel.v3_project;
 		return project.frozenForExperiments == false && this._projectFormModel.experimentRights.rights.indexOf("CREATE") >= 0;

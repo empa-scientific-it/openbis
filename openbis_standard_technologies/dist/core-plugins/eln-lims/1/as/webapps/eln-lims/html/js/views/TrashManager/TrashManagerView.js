@@ -52,6 +52,10 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		// Table
 		//
 		var columns = [ {
+            label : 'Deletion Date',
+            property : 'deletionDate',
+            sortable : true
+        } , {
 			label : 'Entities',
 			property : 'entities',
 			sortable : true
@@ -134,17 +138,18 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 					if(list === "") {
 						list =  type + ":";
 					}
-					var id = 'deleted-' + deletion.deletedEntities[enIdx].identifier + "-id";
+                    var deletedObject = deletion.deletedObjects[enIdx];
+                    var id = 'deleted-' + deletedObject.identifier + "-id";
 					id = id.split("/").join("-").toLowerCase();
 					list += "<br><div id = " + id + ">";
-					list += deletion.deletedEntities[enIdx].identifier + " (" + deletion.deletedEntities[enIdx].entityType + ")";
+                    list += deletedObject.identifier + " (" + deletedObject.entityTypeCode + ")";
 					list += "</div>";
 					return list;
 				}
 				
-				for(var enIdx = 0; enIdx < deletion.deletedEntities.length; enIdx++) {
-					var entity = deletion.deletedEntities[enIdx];
-					switch(deletion.deletedEntities[enIdx].entityKind) {
+                for(var enIdx = 0; enIdx < deletion.deletedObjects.length; enIdx++) {
+                    var entity = deletion.deletedObjects[enIdx];
+                    switch(entity.entityKind) {
 						case "EXPERIMENT":
 							entitiesExperimentsCount++;
 							entitiesExperiments = addEntityToList("Experiments", entitiesExperiments, entity);
@@ -171,8 +176,8 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 					entitiesSamples += "<br> (plus " + (deletion.totalSamplesCount - entitiesSamplesCount) + " more) ..."
 				}
 				
-				if(deletion.totalDatasetsCount > entitiesDatasetsCount) {
-					entitiesDatasets += "<br> (plus " + (deletion.totalDatasetsCount - entitiesDatasetsCount) + " more) ..."
+                if (deletion.totalDataSetsCount > entitiesDatasetsCount) {
+                    entitiesDatasets += "<br> (plus " + (deletion.totalDataSetsCount - entitiesDatasetsCount) + " more) ..."
 				}
 				
 				//
@@ -189,6 +194,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				// 4. Push data into list
 				//
 				dataList.push({
+                    deletionDate : Util.getFormatedDate(new Date(deletion.deletionDate)),
 					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
 					reason : deletion.reasonOrNull,
 					entity : deletion

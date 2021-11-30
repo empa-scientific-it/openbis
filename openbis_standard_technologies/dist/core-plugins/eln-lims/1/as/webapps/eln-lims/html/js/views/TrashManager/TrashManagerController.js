@@ -20,13 +20,9 @@ function TrashManagerController(mainController) {
 	this._trashManagerView = new TrashManagerView(this, this._trashManagerModel);
 	
 	this.revertDeletions = function(deletionIds) {
-		mainController.serverFacade.revertDeletions(deletionIds, function(data) {
-		    if(data.error) {
-                Util.showError(data.error.message, null, true, true, false, true);
-            } else {
-                Util.showSuccess("Deletions Reverted.", function() {});
-                mainController.changeView('showTrashcanPage', null);
-            }
+		mainController.serverFacade.revertDeletions(deletionIds, function() {
+            Util.showSuccess("Deletions Reverted.", function() {});
+            mainController.changeView('showTrashcanPage', null);
 		});
 	}
 	
@@ -62,9 +58,7 @@ function TrashManagerController(mainController) {
 	this.init = function(views) {
 		var _this = this;
 		mainController.serverFacade.listDeletions(function(data) {
-			if(data.result && data.result.length > 0) {
-				_this._trashManagerModel.deletions = data.result;
-			}
+            _this._trashManagerModel.deletions = data;
 			_this._trashManagerView.repaint(views);
 		});
 	}

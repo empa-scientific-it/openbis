@@ -775,16 +775,23 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteProjects(projectIds, reason, callback);
 	}
 
-	this.listDeletions = function(callback) {
-		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
-	}
+    this.listDeletions = function(callback) {
+        require(["as/dto/deletion/search/DeletionSearchCriteria", "as/dto/deletion/fetchoptions/DeletionFetchOptions"], 
+        function(DeletionSearchCriteria, DeletionFetchOptions) {
+            var searchCriteria = new DeletionSearchCriteria();
+            var fetchOptions = new DeletionFetchOptions();
+            fetchOptions.withDeletedObjects();
+            mainController.openbisV3.searchDeletions(searchCriteria, fetchOptions).done(function(result) {
+                callback(result.getObjects());
+            });
+        });
+    }
 
     this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions, callback) {
         require([ "as/dto/deletion/id/DeletionTechId", "as/dto/deletion/confirm/ConfirmDeletionsOperation",
                   "as/dto/operation/SynchronousOperationExecutionOptions"],
             function(DeletionTechId, ConfirmDeletionsOperation, SynchronousOperationExecutionOptions) {
-                var dtids = deletionIds.map(id => new DeletionTechId(id));
-                var confirmOperation = new ConfirmDeletionsOperation(dtids);
+                var confirmOperation = new ConfirmDeletionsOperation(deletionIds);
                 confirmOperation.setForceDeletionOfDependentDeletions(forceDeletionOfDependentDeletions);
                 mainController.openbisV3.executeOperations([confirmOperation], new SynchronousOperationExecutionOptions())
                 .done(function() {
@@ -801,9 +808,12 @@ function ServerFacade(openbisServer) {
             });
     }
 
-	this.revertDeletions = function(deletionIds, callback) {
-		this.openbisServer.revertDeletions(deletionIds, callback);
-	}
+    this.revertDeletions = function(deletionIds, callback) {
+        mainController.openbisV3.revertDeletions(deletionIds).done(callback).fail(function(error) {
+            Util.showFailedServerCallError(error);
+            Util.unblockUI();
+        });
+    }
 
 	//
 	// Data Set Related Functions
