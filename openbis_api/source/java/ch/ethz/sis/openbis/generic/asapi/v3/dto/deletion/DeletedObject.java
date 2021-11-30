@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -32,6 +33,12 @@ public class DeletedObject implements Serializable
     private static final long serialVersionUID = 1L;
 
     private IObjectId id;
+    
+    private String identifier;
+    
+    private String entityTypeCode;
+    
+    private EntityKind entityKind;
 
     public IObjectId getId()
     {
@@ -41,6 +48,36 @@ public class DeletedObject implements Serializable
     public void setId(IObjectId id)
     {
         this.id = id;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
+
+    public String getEntityTypeCode()
+    {
+        return entityTypeCode;
+    }
+
+    public void setEntityTypeCode(String entityTypeCode)
+    {
+        this.entityTypeCode = entityTypeCode;
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
+
+    public void setEntityKind(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
     }
 
     @Override

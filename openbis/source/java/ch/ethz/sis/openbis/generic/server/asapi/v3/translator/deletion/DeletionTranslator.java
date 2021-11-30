@@ -30,12 +30,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author pkupczyk
@@ -85,8 +87,12 @@ public class DeletionTranslator extends
                 for (IEntityInformationHolderWithIdentifier deletedEntity : input.getDeletedEntities())
                 {
                     DeletedObject deletedObject = new DeletedObject();
+                    EntityKind entityKind = deletedEntity.getEntityKind();
+                    deletedObject.setEntityKind(EntityKindConverter.convert(entityKind));
+                    deletedObject.setIdentifier(deletedEntity.getIdentifier());
+                    deletedObject.setEntityTypeCode(deletedEntity.getEntityType().getCode());
 
-                    switch (deletedEntity.getEntityKind())
+                    switch (entityKind)
                     {
                         case EXPERIMENT:
                             deletedObject.setId(new ExperimentPermId(deletedEntity.getPermId()));
@@ -101,7 +107,7 @@ public class DeletionTranslator extends
                             deletedObject.setId(new MaterialPermId(deletedEntity.getCode(), deletedEntity.getEntityType().getCode()));
                             break;
                         default:
-                            throw new IllegalArgumentException("Unknown entity kind: " + deletedEntity.getEntityKind());
+                            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
                     }
 
                     deletedObjects.add(deletedObject);

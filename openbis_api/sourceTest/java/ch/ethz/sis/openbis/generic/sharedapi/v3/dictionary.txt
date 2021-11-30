@@ -2546,3 +2546,6 @@ Get Server Public Information Operation Result
 
 is Force Deletion Of Dependent Deletions
 set Force Deletion Of Dependent Deletions
+
+get Entity Type Code
+set Entity Type Code
