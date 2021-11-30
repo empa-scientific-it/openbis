@@ -17,10 +17,10 @@ define([ "stjs" ], function(stjs) {
 			this.id = id;
 		};
         prototype.getIdentifier = function() {
-            return this.Identifier;
+            return this.identifier;
         };
-        prototype.setIdentifier = function(Identifier) {
-            this.Identifier = Identifier;
+        prototype.setIdentifier = function(identifier) {
+            this.identifier = identifier;
         };
         prototype.getEntityTypeCode = function() {
             return this.entityTypeCode;
