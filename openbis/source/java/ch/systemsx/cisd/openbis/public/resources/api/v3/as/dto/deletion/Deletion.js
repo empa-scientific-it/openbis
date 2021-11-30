@@ -13,6 +13,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.reason = null;
 		prototype.deletedObjects = null;
 		prototype.deletionDate = null;
+        prototype.totalExperimentsCount = null;
+        prototype.totalSamplesCount = null;
+        prototype.totalDataSetsCount = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -47,6 +50,24 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setDeletionDate = function(deletionDate) {
 			this.deletionDate = deletionDate;
 		};
+        prototype.getTotalExperimentsCount = function() {
+            return this.totalExperimentsCount;
+        };
+        prototype.setTotalExperimentsCount = function(totalExperimentsCount) {
+            this.totalExperimentsCount = totalExperimentsCount;
+        };
+        prototype.getTotalSamplesCount = function() {
+            return this.totalSamplesCount;
+        };
+        prototype.setTotalSamplesCount = function(totalSamplesCount) {
+            this.totalSamplesCount = totalSamplesCount;
+        };
+        prototype.getTotalDataSetsCount = function() {
+            return this.totalSamplesCount;
+        };
+        prototype.setTotalDataSetsCount = function(totalDataSetsCount) {
+            this.totalDataSetsCount = totalDataSetsCount;
+        };
 	}, {
 		fetchOptions : "DeletionFetchOptions",
 		id : "IDeletionId",

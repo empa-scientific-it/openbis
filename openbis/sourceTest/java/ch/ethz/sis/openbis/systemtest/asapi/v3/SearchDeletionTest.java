@@ -217,6 +217,9 @@ public class SearchDeletionTest extends AbstractDeletionTest
         Assert.assertEquals(deletionOptions.getReason(), latestDeletion.getReason());
         Assert.assertEquals(1, latestDeletion.getDeletedObjects().size());
         Assert.assertEquals(experimentId, latestDeletion.getDeletedObjects().get(0).getId());
+        Assert.assertEquals(1, latestDeletion.getTotalExperimentsCount());
+        Assert.assertEquals(1, latestDeletion.getTotalSamplesCount());
+        Assert.assertEquals(0, latestDeletion.getTotalDataSetsCount());
         assertDeletionDate(latestDeletion);
     }
 

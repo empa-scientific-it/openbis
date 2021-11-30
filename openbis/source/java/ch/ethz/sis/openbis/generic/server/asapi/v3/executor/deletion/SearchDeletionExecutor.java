@@ -101,7 +101,7 @@ public class SearchDeletionExecutor implements ISearchDeletionExecutor
     private List<Deletion> listWithDeletedObjects(IOperationContext context)
     {
         IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(context.getSession());
-        deletionTable.loadOriginal();
+        deletionTable.load(true);
         return deletionTable.getDeletions();
     }
 

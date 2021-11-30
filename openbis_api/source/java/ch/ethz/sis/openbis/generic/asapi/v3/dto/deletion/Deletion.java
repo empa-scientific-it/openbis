@@ -48,6 +48,15 @@ public class Deletion implements Serializable
     @JsonProperty
     private Date deletionDate;
 
+    @JsonProperty
+    private int totalSamplesCount;
+
+    @JsonProperty
+    private int totalDataSetsCount;
+
+    @JsonProperty
+    private int totalExperimentsCount;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public DeletionFetchOptions getFetchOptions()
@@ -85,6 +94,39 @@ public class Deletion implements Serializable
     public void setReason(String reason)
     {
         this.reason = reason;
+    }
+
+    @JsonIgnore
+    public int getTotalSamplesCount()
+    {
+        return totalSamplesCount;
+    }
+
+    public void setTotalSamplesCount(int totalSamplesCount)
+    {
+        this.totalSamplesCount = totalSamplesCount;
+    }
+
+    @JsonIgnore
+    public int getTotalDataSetsCount()
+    {
+        return totalDataSetsCount;
+    }
+
+    public void setTotalDataSetsCount(int totalDataSetsCount)
+    {
+        this.totalDataSetsCount = totalDataSetsCount;
+    }
+
+    @JsonIgnore
+    public int getTotalExperimentsCount()
+    {
+        return totalExperimentsCount;
+    }
+
+    public void setTotalExperimentsCount(int totalExperimentsCount)
+    {
+        this.totalExperimentsCount = totalExperimentsCount;
     }
 
     // Method automatically generated with DtoGenerator

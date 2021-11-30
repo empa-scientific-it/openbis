@@ -69,6 +69,9 @@ public class DeletionTranslator extends
         deletion.setReason(input.getReason());
         deletion.setDeletionDate(input.getRegistrationDate());
         deletion.setFetchOptions(new DeletionFetchOptions());
+        deletion.setTotalExperimentsCount(input.getTotalExperimentsCount());
+        deletion.setTotalSamplesCount(input.getTotalSamplesCount());
+        deletion.setTotalDataSetsCount(input.getTotalDatasetsCount());
         return deletion;
     }
 
