@@ -23,7 +23,10 @@ export default class GridController {
       loading: false,
       filterMode: GridFilterOptions.COLUMN_FILTERS,
       filters: {},
-      globalFilter: null,
+      globalFilter: {
+        operator: GridFilterOptions.OPERATOR_AND,
+        text: null
+      },
       page: 0,
       pageSize: 10,
       columnsVisibility: {},
@@ -83,19 +86,7 @@ export default class GridController {
 
     if (!state.loaded) {
       settings = await this._loadSettings()
-      if (settings) {
-        newState.filterMode = settings.filterMode || newState.filterMode
-        newState.pageSize = settings.pageSize || newState.pageSize
-        newState.sort = settings.sort || newState.sort
-        newState.sortDirection =
-          settings.sortDirection || newState.sortDirection
-        newState.columnsVisibility =
-          settings.columnsVisibility || newState.columnsVisibility
-        newState.columnsSorting =
-          settings.columnsSorting || newState.columnsSorting
-        newState.exportOptions =
-          settings.exportOptions || newState.exportOptions
-      }
+      _.merge(newState, settings)
     }
 
     let result = {}
@@ -376,68 +367,76 @@ export default class GridController {
     const { loadSettings } = this.context.getProps()
 
     function getObjectValue(value) {
-      return _.isObject(value) ? value : null
+      return _.isObject(value) ? value : undefined
     }
 
     function getArrayValue(value) {
-      return _.isArray(value) ? value : null
+      return _.isArray(value) ? value : undefined
     }
 
     function getStringValue(value) {
-      return _.isString(value) ? value : null
+      return _.isString(value) ? value : undefined
     }
 
     function getEnumValue(value, allowedValues) {
-      return _.includes(allowedValues, value) ? value : null
+      return _.includes(allowedValues, value) ? value : undefined
     }
 
     if (loadSettings) {
-      const settings = await loadSettings()
+      const loaded = await loadSettings()
 
-      if (!settings || !_.isObject(settings)) {
-        return null
+      if (!loaded || !_.isObject(loaded)) {
+        return {}
       }
 
+      const settings = {}
+
       settings.filterMode = getEnumValue(
-        settings.filterMode,
+        loaded.filterMode,
         GridFilterOptions.FILTER_MODE_OPTIONS
       )
+
+      if (loaded.globalFilter) {
+        const globalFilter = {}
+
+        globalFilter.operator = getEnumValue(
+          loaded.globalFilter.operator,
+          GridFilterOptions.OPERATOR_OPTIONS
+        )
+
+        settings.globalFilter = globalFilter
+      }
+
       settings.pageSize = getEnumValue(
-        settings.pageSize,
+        loaded.pageSize,
         GridPagingOptions.PAGE_SIZE_OPTIONS
       )
-      settings.sort = getStringValue(settings.sort)
+      settings.sort = getStringValue(loaded.sort)
       settings.sortDirection = getEnumValue(
-        settings.sortDirection,
+        loaded.sortDirection,
         GridSortingOptions.SORTING_DIRECTION_OPTIONS
       )
-      settings.columnsVisibility = getObjectValue(settings.columnsVisibility)
-      settings.columnsSorting = getArrayValue(settings.columnsSorting)
-      settings.exportOptions = getObjectValue(settings.exportOptions)
+      settings.columnsVisibility = getObjectValue(loaded.columnsVisibility)
+      settings.columnsSorting = getArrayValue(loaded.columnsSorting)
+      settings.exportOptions = getObjectValue(loaded.exportOptions)
 
-      if (settings.exportOptions) {
-        const exportOptions = settings.exportOptions
+      if (loaded.exportOptions) {
+        const exportOptions = {}
 
         exportOptions.columns = getEnumValue(
-          exportOptions.columns,
+          loaded.exportOptions.columns,
           GridExportOptions.COLUMNS_OPTIONS
         )
         exportOptions.rows = getEnumValue(
-          exportOptions.rows,
+          loaded.exportOptions.rows,
           GridExportOptions.ROWS_OPTIONS
         )
         exportOptions.values = getEnumValue(
-          exportOptions.values,
+          loaded.exportOptions.values,
           GridExportOptions.VALUES_OPTIONS
         )
 
-        if (
-          exportOptions.columns === null ||
-          exportOptions.rows === null ||
-          exportOptions.values === null
-        ) {
-          settings.exportOptions = null
-        }
+        settings.exportOptions = exportOptions
       }
 
       return settings
@@ -454,6 +453,9 @@ export default class GridController {
 
       let settings = {
         filterMode: state.filterMode,
+        globalFilter: {
+          operator: state.globalFilter.operator
+        },
         pageSize: state.pageSize,
         sort: state.sort,
         sortDirection: state.sortDirection,
@@ -476,8 +478,9 @@ export default class GridController {
   ) {
     if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
       if (
-        globalFilter === null ||
-        (globalFilter === undefined && globalFilter.trim().length === 0)
+        globalFilter.text === null ||
+        (globalFilter.text === undefined &&
+          globalFilter.text.trim().length === 0)
       ) {
         return rows
       }
@@ -487,7 +490,7 @@ export default class GridController {
         columns.forEach(column => {
           let visible = columnsVisibility[column.name]
           if (visible) {
-            matchesAny = matchesAny || column.matches(row, globalFilter)
+            matchesAny = matchesAny || column.matches(row, globalFilter.text)
           }
         })
         return matchesAny
