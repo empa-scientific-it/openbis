@@ -99,7 +99,7 @@ public class Deletion implements Serializable
     @JsonIgnore
     public int getTotalSamplesCount()
     {
-        return totalSamplesCount;
+        return getIfItHasDeletedObjects(totalSamplesCount);
     }
 
     public void setTotalSamplesCount(int totalSamplesCount)
@@ -110,7 +110,7 @@ public class Deletion implements Serializable
     @JsonIgnore
     public int getTotalDataSetsCount()
     {
-        return totalDataSetsCount;
+        return getIfItHasDeletedObjects(totalDataSetsCount);
     }
 
     public void setTotalDataSetsCount(int totalDataSetsCount)
@@ -121,7 +121,7 @@ public class Deletion implements Serializable
     @JsonIgnore
     public int getTotalExperimentsCount()
     {
-        return totalExperimentsCount;
+        return getIfItHasDeletedObjects(totalExperimentsCount);
     }
 
     public void setTotalExperimentsCount(int totalExperimentsCount)
@@ -133,9 +133,14 @@ public class Deletion implements Serializable
     @JsonIgnore
     public List<DeletedObject> getDeletedObjects()
     {
+        return getIfItHasDeletedObjects(deletedObjects);
+    }
+
+    private <T> T getIfItHasDeletedObjects(T value)
+    {
         if (getFetchOptions() != null && getFetchOptions().hasDeletedObjects())
         {
-            return deletedObjects;
+            return value;
         }
         else
         {
