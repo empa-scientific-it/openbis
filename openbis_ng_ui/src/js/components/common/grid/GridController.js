@@ -492,32 +492,44 @@ export default class GridController {
       const tokens = split(globalFilter.text)
 
       return _.filter([...rows], row => {
-        let rowMatchesAnyToken = false
-        let rowMatchesAllTokens = true
-
-        tokens.forEach(token => {
-          let rowMatchesToken = false
-
-          columns.forEach(column => {
-            let visible = columnsVisibility[column.name]
-            if (visible) {
-              rowMatchesToken = rowMatchesToken || column.matches(row, token)
-            }
-          })
-
-          rowMatchesAnyToken = rowMatchesAnyToken || rowMatchesToken
-          rowMatchesAllTokens = rowMatchesAllTokens && rowMatchesToken
-        })
+        let rowMatches = null
 
         if (globalFilter.operator === GridFilterOptions.OPERATOR_AND) {
-          return rowMatchesAllTokens
+          rowMatches = true
         } else if (globalFilter.operator === GridFilterOptions.OPERATOR_OR) {
-          return rowMatchesAnyToken
-        } else {
-          throw Error(
-            'Unsupported global filter operator: ' + globalFilter.operator
-          )
+          rowMatches = false
         }
+
+        tokens: for (let t = 0; t < tokens.length; t++) {
+          let token = tokens[t]
+          let rowMatchesToken = false
+
+          columns: for (let c = 0; c < columns.length; c++) {
+            let column = columns[c]
+            let visible = columnsVisibility[column.name]
+
+            if (visible) {
+              rowMatchesToken = column.matches(row, token)
+              if (rowMatchesToken) {
+                break columns
+              }
+            }
+          }
+
+          if (globalFilter.operator === GridFilterOptions.OPERATOR_AND) {
+            rowMatches = rowMatches && rowMatchesToken
+            if (!rowMatches) {
+              break tokens
+            }
+          } else if (globalFilter.operator === GridFilterOptions.OPERATOR_OR) {
+            rowMatches = rowMatches || rowMatchesToken
+            if (rowMatches) {
+              break tokens
+            }
+          }
+        }
+
+        return rowMatches
       })
     } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
       return _.filter([...rows], row => {
