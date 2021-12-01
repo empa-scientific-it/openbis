@@ -22,7 +22,7 @@ class Header extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Header.render')
 
-    const { classes, size } = this.props
+    const { styles, classes, size } = this.props
 
     let variant = null
     let className = null
@@ -39,7 +39,7 @@ class Header extends React.PureComponent {
     }
 
     return (
-      <Typography variant={variant} className={className}>
+      <Typography variant={variant} className={className} classes={styles}>
         {this.props.children}
       </Typography>
     )

@@ -137,7 +137,7 @@ class Grid extends React.PureComponent {
       <div onClick={this.handleClickContainer} className={classes.container}>
         <div>
           {header && (
-            <Header classes={{ header: classes.header }}>{header}</Header>
+            <Header styles={{ root: classes.header }}>{header}</Header>
           )}
         </div>
         <div className={classes.loadingContainer}>
