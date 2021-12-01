@@ -8,7 +8,8 @@ import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.
 import GridSortingOptions from '@src/js/components/common/grid/GridSortingOptions.js'
 import compare from '@src/js/common/compare.js'
 
-const FILTER_RELOAD_PERIOD = 500
+const LOCAL_GRID_RELOAD_PERIOD = 200
+const REMOTE_GRID_RELOAD_PERIOD = 500
 
 export default class GridController {
   constructor() {
@@ -715,13 +716,12 @@ export default class GridController {
       this.loadTimerId = null
     }
 
-    if (local) {
-      await this.load()
-    } else {
-      this.loadTimerId = setTimeout(async () => {
+    this.loadTimerId = setTimeout(
+      async () => {
         await this.load()
-      }, FILTER_RELOAD_PERIOD)
-    }
+      },
+      local ? LOCAL_GRID_RELOAD_PERIOD : REMOTE_GRID_RELOAD_PERIOD
+    )
   }
 
   async handleGlobalFilterChange(globalFilter) {
@@ -737,13 +737,12 @@ export default class GridController {
       this.loadTimerId = null
     }
 
-    if (local) {
-      await this.load()
-    } else {
-      this.loadTimerId = setTimeout(async () => {
+    this.loadTimerId = setTimeout(
+      async () => {
         await this.load()
-      }, FILTER_RELOAD_PERIOD)
-    }
+      },
+      local ? LOCAL_GRID_RELOAD_PERIOD : REMOTE_GRID_RELOAD_PERIOD
+    )
   }
 
   async handleColumnVisibleChange(name) {
