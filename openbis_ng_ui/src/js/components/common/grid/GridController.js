@@ -476,24 +476,48 @@ export default class GridController {
     filters,
     globalFilter
   ) {
+    function isEmpty(str) {
+      return str === null || str === undefined || str.trim().length === 0
+    }
+
+    function split(str) {
+      return str.split(' ').filter(token => !isEmpty(token))
+    }
+
     if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
-      if (
-        globalFilter.text === null ||
-        (globalFilter.text === undefined &&
-          globalFilter.text.trim().length === 0)
-      ) {
+      if (isEmpty(globalFilter.text)) {
         return rows
       }
 
+      const tokens = split(globalFilter.text)
+
       return _.filter([...rows], row => {
-        let matchesAny = false
-        columns.forEach(column => {
-          let visible = columnsVisibility[column.name]
-          if (visible) {
-            matchesAny = matchesAny || column.matches(row, globalFilter.text)
-          }
+        let rowMatchesAnyToken = false
+        let rowMatchesAllTokens = true
+
+        tokens.forEach(token => {
+          let rowMatchesToken = false
+
+          columns.forEach(column => {
+            let visible = columnsVisibility[column.name]
+            if (visible) {
+              rowMatchesToken = rowMatchesToken || column.matches(row, token)
+            }
+          })
+
+          rowMatchesAnyToken = rowMatchesAnyToken || rowMatchesToken
+          rowMatchesAllTokens = rowMatchesAllTokens && rowMatchesToken
         })
-        return matchesAny
+
+        if (globalFilter.operator === GridFilterOptions.OPERATOR_AND) {
+          return rowMatchesAllTokens
+        } else if (globalFilter.operator === GridFilterOptions.OPERATOR_OR) {
+          return rowMatchesAnyToken
+        } else {
+          throw Error(
+            'Unsupported global filter operator: ' + globalFilter.operator
+          )
+        }
       })
     } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
       return _.filter([...rows], row => {
@@ -502,11 +526,7 @@ export default class GridController {
           let visible = columnsVisibility[column.name]
           if (visible) {
             let filter = filters[column.name]
-            if (
-              filter !== null &&
-              filter !== undefined &&
-              filter.trim().length > 0
-            ) {
+            if (!isEmpty(filter)) {
               matchesAll = matchesAll && column.matches(row, filter)
             }
           }
