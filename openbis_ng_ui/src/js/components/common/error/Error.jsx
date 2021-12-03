@@ -1,13 +1,22 @@
 import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import ErrorDialog from '@src/js/components/common/dialog/ErrorDialog.jsx'
 import logger from '@src/js/common/logger.js'
+
+const styles = {
+  container: {
+    height: '100%'
+  }
+}
 
 class Error extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'Error.render')
 
+    const { classes } = this.props
+
     return (
-      <div>
+      <div className={classes.container}>
         {this.props.error && (
           <ErrorDialog
             error={this.props.error}
@@ -20,4 +29,4 @@ class Error extends React.Component {
   }
 }
 
-export default Error
+export default withStyles(styles)(Error)
