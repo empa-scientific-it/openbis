@@ -19,10 +19,18 @@ export default class GridController {
   init(context) {
     const props = context.getProps()
 
+    let filterMode = GridFilterOptions.COLUMN_FILTERS
+    if (props.filterModes) {
+      filterMode = this._getEnumValue(filterMode, props.filterModes)
+      if (!filterMode) {
+        filterMode = props.filterModes.length > 0 ? props.filterModes[0] : null
+      }
+    }
+
     context.initState({
       loaded: false,
       loading: false,
-      filterMode: GridFilterOptions.COLUMN_FILTERS,
+      filterMode: filterMode,
       filters: {},
       globalFilter: {
         operator: GridFilterOptions.OPERATOR_AND,
@@ -365,85 +373,76 @@ export default class GridController {
   }
 
   async _loadSettings() {
-    const { loadSettings } = this.context.getProps()
+    const props = this.context.getProps()
 
-    function getObjectValue(value) {
-      return _.isObject(value) ? value : undefined
+    if (!props.loadSettings) {
+      return {}
     }
 
-    function getArrayValue(value) {
-      return _.isArray(value) ? value : undefined
+    const loaded = await props.loadSettings()
+
+    if (!loaded || !_.isObject(loaded)) {
+      return {}
     }
 
-    function getStringValue(value) {
-      return _.isString(value) ? value : undefined
+    const settings = {}
+
+    settings.filterMode = this._getEnumValue(
+      loaded.filterMode,
+      GridFilterOptions.FILTER_MODE_OPTIONS
+    )
+
+    if (props.filterModes) {
+      settings.filterMode = this._getEnumValue(
+        settings.filterMode,
+        props.filterModes
+      )
     }
 
-    function getEnumValue(value, allowedValues) {
-      return _.includes(allowedValues, value) ? value : undefined
-    }
+    if (loaded.globalFilter) {
+      const globalFilter = {}
 
-    if (loadSettings) {
-      const loaded = await loadSettings()
-
-      if (!loaded || !_.isObject(loaded)) {
-        return {}
-      }
-
-      const settings = {}
-
-      settings.filterMode = getEnumValue(
-        loaded.filterMode,
-        GridFilterOptions.FILTER_MODE_OPTIONS
+      globalFilter.operator = this._getEnumValue(
+        loaded.globalFilter.operator,
+        GridFilterOptions.OPERATOR_OPTIONS
       )
 
-      if (loaded.globalFilter) {
-        const globalFilter = {}
-
-        globalFilter.operator = getEnumValue(
-          loaded.globalFilter.operator,
-          GridFilterOptions.OPERATOR_OPTIONS
-        )
-
-        settings.globalFilter = globalFilter
-      }
-
-      settings.pageSize = getEnumValue(
-        loaded.pageSize,
-        GridPagingOptions.PAGE_SIZE_OPTIONS
-      )
-      settings.sort = getStringValue(loaded.sort)
-      settings.sortDirection = getEnumValue(
-        loaded.sortDirection,
-        GridSortingOptions.SORTING_DIRECTION_OPTIONS
-      )
-      settings.columnsVisibility = getObjectValue(loaded.columnsVisibility)
-      settings.columnsSorting = getArrayValue(loaded.columnsSorting)
-      settings.exportOptions = getObjectValue(loaded.exportOptions)
-
-      if (loaded.exportOptions) {
-        const exportOptions = {}
-
-        exportOptions.columns = getEnumValue(
-          loaded.exportOptions.columns,
-          GridExportOptions.COLUMNS_OPTIONS
-        )
-        exportOptions.rows = getEnumValue(
-          loaded.exportOptions.rows,
-          GridExportOptions.ROWS_OPTIONS
-        )
-        exportOptions.values = getEnumValue(
-          loaded.exportOptions.values,
-          GridExportOptions.VALUES_OPTIONS
-        )
-
-        settings.exportOptions = exportOptions
-      }
-
-      return settings
-    } else {
-      return null
+      settings.globalFilter = globalFilter
     }
+
+    settings.pageSize = this._getEnumValue(
+      loaded.pageSize,
+      GridPagingOptions.PAGE_SIZE_OPTIONS
+    )
+    settings.sort = this._getStringValue(loaded.sort)
+    settings.sortDirection = this._getEnumValue(
+      loaded.sortDirection,
+      GridSortingOptions.SORTING_DIRECTION_OPTIONS
+    )
+    settings.columnsVisibility = this._getObjectValue(loaded.columnsVisibility)
+    settings.columnsSorting = this._getArrayValue(loaded.columnsSorting)
+    settings.exportOptions = this._getObjectValue(loaded.exportOptions)
+
+    if (loaded.exportOptions) {
+      const exportOptions = {}
+
+      exportOptions.columns = this._getEnumValue(
+        loaded.exportOptions.columns,
+        GridExportOptions.COLUMNS_OPTIONS
+      )
+      exportOptions.rows = this._getEnumValue(
+        loaded.exportOptions.rows,
+        GridExportOptions.ROWS_OPTIONS
+      )
+      exportOptions.values = this._getEnumValue(
+        loaded.exportOptions.values,
+        GridExportOptions.VALUES_OPTIONS
+      )
+
+      settings.exportOptions = exportOptions
+    }
+
+    return settings
   }
 
   async _saveSettings() {
@@ -477,20 +476,12 @@ export default class GridController {
     filters,
     globalFilter
   ) {
-    function isEmpty(str) {
-      return str === null || str === undefined || str.trim().length === 0
-    }
-
-    function split(str) {
-      return str.split(' ').filter(token => !isEmpty(token))
-    }
-
     if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
-      if (isEmpty(globalFilter.text)) {
+      if (this._isEmpty(globalFilter.text)) {
         return rows
       }
 
-      const tokens = split(globalFilter.text)
+      const tokens = this._split(globalFilter.text)
 
       return _.filter([...rows], row => {
         let rowMatches = null
@@ -539,13 +530,15 @@ export default class GridController {
           let visible = columnsVisibility[column.name]
           if (visible) {
             let filter = filters[column.name]
-            if (!isEmpty(filter)) {
+            if (!this._isEmpty(filter)) {
               matchesAll = matchesAll && column.matches(row, filter)
             }
           }
         })
         return matchesAll
       })
+    } else {
+      return rows
     }
   }
 
@@ -1093,5 +1086,29 @@ export default class GridController {
   getTotalCount() {
     const { totalCount } = this.context.getState()
     return totalCount
+  }
+
+  _getObjectValue(value) {
+    return _.isObject(value) ? value : undefined
+  }
+
+  _getArrayValue(value) {
+    return _.isArray(value) ? value : undefined
+  }
+
+  _getStringValue(value) {
+    return _.isString(value) ? value : undefined
+  }
+
+  _getEnumValue(value, allowedValues) {
+    return _.includes(allowedValues, value) ? value : undefined
+  }
+
+  _isEmpty(str) {
+    return str === null || str === undefined || str.trim().length === 0
+  }
+
+  _split(str) {
+    return str.split(' ').filter(token => !this._isEmpty(token))
   }
 }

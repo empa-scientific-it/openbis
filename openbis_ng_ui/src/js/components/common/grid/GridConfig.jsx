@@ -103,7 +103,12 @@ class GridConfig extends React.PureComponent {
   }
 
   renderFilters() {
-    const { classes, filterMode } = this.props
+    const { classes, filterModes, filterMode } = this.props
+
+    if (filterModes && filterModes.length <= 1) {
+      return null
+    }
+
     return (
       <div className={classes.filters}>
         <Header size='small'>{messages.get(messages.FILTERS)}</Header>

@@ -13,9 +13,16 @@ class GridFilters extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridFilters.render')
 
-    const { columns, filterMode } = this.props
+    const { columns, filterModes, filterMode } = this.props
 
-    if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
+    if (filterModes && !filterModes.includes(filterMode)) {
+      return (
+        <TableRow>
+          {this.renderMultiselectCell()}
+          {this.renderNoFiltersCell()}
+        </TableRow>
+      )
+    } else if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
       return (
         <TableRow>
           {this.renderMultiselectCell()}
@@ -32,6 +39,11 @@ class GridFilters extends React.PureComponent {
     } else {
       throw new Error('Unsupported filter mode: ' + filterMode)
     }
+  }
+
+  renderNoFiltersCell() {
+    const { columns } = this.props
+    return <TableCell colSpan={columns.length}></TableCell>
   }
 
   renderGlobalFilterCell() {

@@ -107,6 +107,7 @@ class Grid extends React.PureComponent {
 
     const {
       header,
+      filterModes,
       selectable,
       multiselectable,
       actions,
@@ -151,6 +152,7 @@ class Grid extends React.PureComponent {
                   <TableHead classes={{ root: classes.tableHead }}>
                     <GridFilters
                       columns={visibleColumns}
+                      filterModes={filterModes}
                       filterMode={filterMode}
                       filters={filters}
                       onFilterChange={this.controller.handleFilterChange}
@@ -230,6 +232,7 @@ class Grid extends React.PureComponent {
                   onPageSizeChange={this.controller.handlePageSizeChange}
                 />
                 <GridConfig
+                  filterModes={filterModes}
                   filterMode={filterMode}
                   columns={allColumns}
                   columnsVisibility={columnsVisibility}

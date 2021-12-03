@@ -2,6 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
@@ -123,6 +124,7 @@ class HistoryGrid extends React.PureComponent {
     return (
       <GridWithSettings
         id={this.getId()}
+        filterModes={[GridFilterOptions.COLUMN_FILTERS]}
         header={this.getHeader()}
         columns={[
           {
