@@ -10,10 +10,10 @@ class Loading extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'Loading.render')
 
-    const { loading, children } = this.props
+    const { loading, styles, children } = this.props
 
     return (
-      <Mask visible={loading} icon={<CircularProgress />}>
+      <Mask visible={loading} styles={styles} icon={<CircularProgress />}>
         {children}
       </Mask>
     )

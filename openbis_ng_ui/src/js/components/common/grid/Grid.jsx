@@ -27,6 +27,9 @@ const styles = theme => ({
   loadingContainer: {
     flex: '1 1 auto'
   },
+  loading: {
+    display: 'inline-block'
+  },
   header: {
     paddingBottom: 0
   },
@@ -142,7 +145,7 @@ class Grid extends React.PureComponent {
           )}
         </div>
         <div className={classes.loadingContainer}>
-          <Loading loading={loading}>
+          <Loading loading={loading} styles={{ root: classes.loading }}>
             <div
               className={classes.tableContainer}
               onClick={this.handleClickTable}

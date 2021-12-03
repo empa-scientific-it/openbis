@@ -1,10 +1,11 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    display: 'inline-block',
+    display: 'block',
     minWidth: '100%',
     height: '100%',
     position: 'relative'
@@ -30,10 +31,10 @@ class Mask extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'Mask.render')
 
-    const { visible, icon, children, classes } = this.props
+    const { visible, icon, children, styles = {}, classes } = this.props
 
     return (
-      <div className={classes.container}>
+      <div className={util.classNames(classes.container, styles.root)}>
         {visible && (
           <React.Fragment>
             <div className={classes.mask}></div>
