@@ -24,7 +24,8 @@ function DataGridController(
   showAllColumns,
   configKey,
   isMultiselectable,
-  heightPercentage
+  heightPercentage,
+  filterModes
 ) {
   if (!configKey) {
     window.alert(
@@ -58,6 +59,7 @@ function DataGridController(
           _this.controller = controller;
         },
         header: title,
+        filterModes: filterModes,
         loadSettings: _this._loadSettings,
         loadColumns: _this._loadColumns,
         loadRows: _this._loadRows,
