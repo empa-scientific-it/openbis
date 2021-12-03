@@ -532,7 +532,7 @@ var SampleDataGridUtil = new function() {
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
-				optionsSearch = JSON.stringify({
+                optionsSearch = JSON.stringify({
                    searchMode: options.searchMode,
                    searchMap: options.searchMap,
                    globalSearch: options.globalSearch 
@@ -561,7 +561,7 @@ var SampleDataGridUtil = new function() {
             }
 
             if(options){
-                if(options.searchMode === "GLOBAL_FILTER") { 
+                if(options.searchMode === "GLOBAL_FILTER") {
                     if(options.globalSearch.text !== null){
                         gridSubcriteria.logicalOperator = options.globalSearch.operator
 

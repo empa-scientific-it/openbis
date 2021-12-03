@@ -174,7 +174,11 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.withParents = false;
 				fetchOptions.withChildren = false;
 				fetchOptions.withSample = _this.fetchWithSample;
-				optionsSearch = options.searchMap ? JSON.stringify(options.searchMap) : null;
+                optionsSearch = JSON.stringify({
+                    searchMode: options.searchMode,
+                    searchMap: options.searchMap,
+                    globalSearch: options.globalSearch 
+                 })
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;
 			}
@@ -201,55 +205,65 @@ function AdvancedSearchController(mainController, forceSearch) {
                 subCriteria: [mainSubcriteria, gridSubcriteria]
             }
 
+            if(options){
+                if(options.searchMode === "GLOBAL_FILTER") {
+                    if(options.globalSearch.text !== null){
+                        gridSubcriteria.logicalOperator = options.globalSearch.operator
 
-            if(options && options.searchMap) {
-                for(var field in options.searchMap){
-                    var search = options.searchMap[field] || ""
+                        var tokens = options.globalSearch.text.toLowerCase().split(/[ ,]+/)
+                        tokens.forEach(function(token){
+                            gridSubcriteria.rules[Util.guid()] = { type : "All", name : "", value : token };
+                        })
+                    }
+                }else if(options.searchMode === "COLUMN_FILTERS"){
+                    for(var field in options.searchMap){
+                        var search = options.searchMap[field] || ""
 
-                    search = search.trim()
+                        search = search.trim()
 
-                    if(field === "entityType"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
-                    }else if(field === "experiment"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
-                    }else if(field === "code"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
-                    }else if(field === "identifier"){
-                        if(criteria.entityKind === "DATASET"){
+                        if(field === "entityType"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
+                        }else if(field === "experiment"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
+                        }else if(field === "code"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
+                        }else if(field === "identifier"){
+                            if(criteria.entityKind === "DATASET"){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
+                            }else{
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
+                            }
+                        }else if(field === "registrator"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
+                        }else if(field === "registrationDate"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                        }else if(field === "modifier"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
+                        }else if(field === "modificationDate"){
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
                         }else{
-                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
-                        }
-                    }else if(field === "registrator"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
-                    }else if(field === "registrationDate"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
-                    }else if(field === "modifier"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
-                    }else if(field === "modificationDate"){
-                        gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
-                    }else{
-                        var column = options.columnMap[field]
-                        var dataType = null
-                        var operator = null
+                            var column = options.columnMap[field]
+                            var dataType = null
+                            var operator = null
 
-                        if(column && column.metadata){
-                            dataType = column.metadata.dataType
-                        }
+                            if(column && column.metadata){
+                                dataType = column.metadata.dataType
+                            }
 
-                        if(dataType === "INTEGER" || dataType === "REAL"){
-                            operator = "thatEqualsNumber"
-                        }else if(dataType === "DATE" || dataType === "TIMESTAMP"){
-                            operator = "thatEqualsDate"
-                        }else if(dataType === "BOOLEAN"){
-                            operator = "thatEqualsBoolean"
-                        }else if(dataType === "CONTROLLEDVOCABULARY"){
-                            operator = "thatEqualsString"
-                        }else{
-                            operator = "thatContainsString"
-                        }
+                            if(dataType === "INTEGER" || dataType === "REAL"){
+                                operator = "thatEqualsNumber"
+                            }else if(dataType === "DATE" || dataType === "TIMESTAMP"){
+                                operator = "thatEqualsDate"
+                            }else if(dataType === "BOOLEAN"){
+                                operator = "thatEqualsBoolean"
+                            }else if(dataType === "CONTROLLEDVOCABULARY"){
+                                operator = "thatEqualsString"
+                            }else{
+                                operator = "thatContainsString"
+                            }
 
-                        gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
+                            gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
+                        }
                     }
                 }
 			}
