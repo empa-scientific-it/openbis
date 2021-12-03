@@ -7,7 +7,16 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = theme => ({
+  multiselectCell: {
+    padding: 0,
+    paddingTop: theme.spacing(1)
+  },
+  noFilters: {
+    padding: 0,
+    paddingTop: theme.spacing(1)
+  }
+})
 
 class GridFilters extends React.PureComponent {
   render() {
@@ -42,8 +51,13 @@ class GridFilters extends React.PureComponent {
   }
 
   renderNoFiltersCell() {
-    const { columns } = this.props
-    return <TableCell colSpan={columns.length}></TableCell>
+    const { columns, classes } = this.props
+    return (
+      <TableCell
+        colSpan={columns.length}
+        classes={{ root: classes.noFilters }}
+      ></TableCell>
+    )
   }
 
   renderGlobalFilterCell() {
@@ -72,10 +86,10 @@ class GridFilters extends React.PureComponent {
   }
 
   renderMultiselectCell() {
-    const { multiselectable } = this.props
+    const { multiselectable, classes } = this.props
 
     if (multiselectable) {
-      return <TableCell></TableCell>
+      return <TableCell classes={{ root: classes.multiselectCell }}></TableCell>
     } else {
       return null
     }
