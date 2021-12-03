@@ -84,6 +84,8 @@ function DataGridController(
               var elnGridSettingsObj = JSON.parse(elnGridSettingsStr);
 
               gridSettingsObj = {
+                filterMode: elnGridSettingsObj.filterMode,
+                globalFilter: elnGridSettingsObj.globalFilter,
                 pageSize: elnGridSettingsObj.pageSize,
                 sort: elnGridSettingsObj.sort
                   ? elnGridSettingsObj.sort.sortProperty
@@ -210,10 +212,8 @@ function DataGridController(
       pageSize: params.pageSize,
       sortProperty: params.sort,
       sortDirection: params.sortDirection,
-      search:
-        Object.keys(params.filters).length > 0
-          ? Object.values(params.filters).join(" ")
-          : null,
+      searchMode: params.filterMode,
+      globalSearch: params.globalFilter,
       searchMap: params.filters,
       columnMap: params.columns,
     };
@@ -271,6 +271,8 @@ function DataGridController(
 
   this._onSettingsChange = function (gridSettingsObj) {
     let elnGridSettingsObj = {
+      filterMode: gridSettingsObj.filterMode,
+      globalFilter: gridSettingsObj.globalFilter,
       pageSize: gridSettingsObj.pageSize,
       sort: {
         sortProperty: gridSettingsObj.sort,
