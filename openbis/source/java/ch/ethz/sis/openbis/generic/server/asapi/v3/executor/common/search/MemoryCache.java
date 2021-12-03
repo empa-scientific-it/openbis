@@ -1,18 +1,23 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
 import java.util.ArrayDeque;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 public class MemoryCache<V> implements ICache<V>
 {
 
     private final int capacity;
 
-    private final Map<String, V> cachedResults;
+    private final Map<String, ImmutablePair<Date, V>> cachedResults;
 
     private final Queue<String> keyQueue;
 
@@ -55,7 +60,7 @@ public class MemoryCache<V> implements ICache<V>
             if (cacheSize == capacity)
             {
                 final String removedKey = keyQueue.remove();
-                final V removedValue = cachedResults.remove(removedKey);
+                final ImmutablePair<Date, V> removedValue = cachedResults.remove(removedKey);
 
                 if (removedValue == null)
                 {
@@ -67,13 +72,14 @@ public class MemoryCache<V> implements ICache<V>
             keyQueue.add(key);
             writingKeys.remove(key);
         }
-        cachedResults.put(key, value);
+        cachedResults.put(key, new ImmutablePair<>(new Date(), value));
     }
 
     @Override
     public V get(final String key)
     {
-        return cachedResults.get(key);
+        final ImmutablePair<Date, V> cachedResult = cachedResults.get(key);
+        return cachedResult != null ? cachedResult.getRight() : null;
     }
 
     @Override
@@ -94,6 +100,22 @@ public class MemoryCache<V> implements ICache<V>
     {
         cachedResults.clear();
         keyQueue.clear();
+    }
+
+    @Override
+    public synchronized void clearOld(final Date date)
+    {
+        for (final Iterator<Map.Entry<String, ImmutablePair<Date, V>>> iterator = cachedResults.entrySet().iterator();
+                iterator.hasNext();)
+        {
+            final Map.Entry<String, ImmutablePair<Date, V>> entry = iterator.next();
+
+            if (date.after(entry.getValue().getLeft()))
+            {
+                iterator.remove();
+                keyQueue.removeIf(s -> Objects.equals(s, entry.getKey()));
+            }
+        }
     }
 
 }

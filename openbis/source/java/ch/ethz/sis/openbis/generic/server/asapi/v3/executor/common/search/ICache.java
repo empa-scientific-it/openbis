@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
+import java.util.Date;
+
 public interface ICache<V>
 {
 
@@ -12,5 +14,7 @@ public interface ICache<V>
     boolean contains(String key);
 
     void clear();
+
+    void clearOld(Date date);
 
 }

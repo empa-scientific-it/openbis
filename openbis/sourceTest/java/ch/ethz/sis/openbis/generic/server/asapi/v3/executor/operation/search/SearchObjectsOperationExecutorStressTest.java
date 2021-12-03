@@ -20,12 +20,14 @@ import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.S
 import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +39,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -140,7 +141,7 @@ public class SearchObjectsOperationExecutorStressTest
 
             if (executor.getErrors().size() > 0)
             {
-                Assert.fail(StringUtils.join(executor.getErrors(), "\n"));
+                fail(StringUtils.join(executor.getErrors(), "\n"));
             }
         }
     }
@@ -154,7 +155,7 @@ public class SearchObjectsOperationExecutorStressTest
 
             if (executor.getErrors().size() > 0)
             {
-                Assert.fail(StringUtils.join(executor.getErrors(), "\n"));
+                fail(StringUtils.join(executor.getErrors(), "\n"));
             }
         }
     }
@@ -162,23 +163,173 @@ public class SearchObjectsOperationExecutorStressTest
     private StressTestSearchMethodExecutor testConcurrency(final long cacheSize,
             final Function<IOperationContext, ICache<Object>> cacheFactory)
     {
-        int SESSION_COUNT = 5;
-        int THREAD_COUNT = 5;
-        int KEY_VERSION_COUNT = 20;
+        final int threadCount = 5;
 
         final StressTestSearchMethodExecutor executor = new StressTestSearchMethodExecutor(cacheFactory);
 
         final Map<String, IOperationContext> contexts = new LinkedHashMap<>();
-        for (int s = 0; s < SESSION_COUNT; s++)
+        final List<SearchCacheKey> keys = prepareSearchCacheKeys(cacheSize, executor, contexts, 0, 20);
+
+        List<Thread> threads = new ArrayList<>();
+
+        for (int t = 0; t < threadCount; t++)
         {
-            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
-            contexts.put(session.getSessionToken(), new OperationContext(session));
+            Thread thread = new Thread(() ->
+            {
+                try
+                {
+                    for (int i = 0; i < keys.size() * 2; i++)
+                    {
+                        SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key = keys.get((int) (Math.random() * keys.size()));
+                        IOperationContext context = contexts.get(key.getSessionToken());
+                        TestSearchOperation operation = new TestSearchOperation(key.getCriteria(), key.getFetchOptions());
+                        Map<TestSearchOperation, TestSearchOperationResult> results = executor.execute(context, Arrays.asList(operation));
+
+                        Object actualResult = results.get(operation).getSearchResult().getObjects().get(0);
+                        Object expectedResult = executor.getSearchResult(key);
+
+                        if (false == actualResult.equals(expectedResult))
+                        {
+                            executor.addError("Actual search result: " + actualResult + " but expected: " + expectedResult + " for key: "
+                                    + key);
+                        }
+                    }
+                } catch (Throwable throwable)
+                {
+                    executor.addError(
+                            "Exception in thread " + Thread.currentThread().getName() + ": " + ExceptionUtils.getStackTrace(throwable));
+                }
+
+            });
+            thread.setName("Stress test thread # " + (t + 1));
+            threads.add(thread);
         }
 
-        final List<SearchCacheKey> keys = new ArrayList<SearchCacheKey>();
+        for (Thread thread : threads)
+        {
+            thread.start();
+        }
+
+        for (Thread thread : threads)
+        {
+            try
+            {
+                thread.join();
+            } catch (InterruptedException ex)
+            {
+                operationLog.error("INTERRUPTED EXCEPTION on " + thread.getName());
+            }
+            operationLog.info(thread.getName() + " has been finished");
+        }
+
+        return executor;
+    }
+
+    @Test(timeOut = 30000, dataProvider = "cache factories without evicting")
+    public void testEvictionByDate(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
+            throws InterruptedException
+    {
+        final int sessionCount = 5;
+
+        final StressTestSearchMethodExecutor executor = new StressTestSearchMethodExecutor(cacheFactory);
+
+        final Map<String, IOperationContext> olderContexts = new LinkedHashMap<>();
+        for (int s = 0; s < sessionCount; s++)
+        {
+            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
+            olderContexts.put(session.getSessionToken(), new OperationContext(session));
+        }
+
+        final Map<String, IOperationContext> newerContexts = new LinkedHashMap<>();
+        for (int s = 0; s < sessionCount; s++)
+        {
+            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
+            newerContexts.put(session.getSessionToken(), new OperationContext(session));
+        }
+
+        final Map<String, IOperationContext> contexts = new HashMap<>();
+        contexts.putAll(olderContexts);
+        contexts.putAll(newerContexts);
+
+        final List<SearchCacheKey> olderKeys = prepareSearchCacheKeys(cacheSize,
+                executor, olderContexts, 0, 20);
+        populateCache(executor, contexts, olderKeys);
+
+        Thread.sleep(1);
+        final Date newerKeysDate = new Date();
+        Thread.sleep(1);
+
+        final List<SearchCacheKey> newerKeys = prepareSearchCacheKeys(cacheSize,
+                executor, newerContexts, 20, 20);
+        populateCache(executor, contexts, newerKeys);
+
+        final int olderKeysSize = olderKeys.size();
+        final List<SearchCacheKey> keys = new ArrayList<>(olderKeysSize + newerKeys.size());
+        keys.addAll(olderKeys);
+        keys.addAll(newerKeys);
+
+        olderContexts.values().forEach(context -> executor.getCache(context).clearOld(newerKeysDate));
+
+        for (int i = 0; i < keys.size(); i++)
+        {
+            final int index = (int) (Math.random() * keys.size());
+//            final int index = i;
+            final SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key =
+                    keys.get(index);
+
+            final IOperationContext context = contexts.get(key.getSessionToken());
+            final TestSearchOperation operation = new TestSearchOperation(key.getCriteria(), key.getFetchOptions());
+            
+            if (index < olderKeysSize)
+            {
+                final Object cachedResult = executor.getSearchResultFromCache(context, key);
+
+                if (cachedResult != null)
+                {
+                    fail("Fetched cache value should be null but was: " + cachedResult + " for key: " + key);
+                }
+            } else
+            {
+                final Object cachedResult = executor.getSearchResultFromCache(context, key);
+
+                if (cachedResult == null)
+                {
+                    fail("Fetched cache value should not be null but was null for key: " + key);
+                }
+
+                final Object expectedResult = executor.getSearchResult(key);
+                final Map<TestSearchOperation, TestSearchOperationResult> results = executor.execute(context,
+                        Collections.singletonList(operation));
+                final Object actualResult = results.get(operation).getSearchResult().getObjects().get(0);
+
+                if (!actualResult.equals(expectedResult))
+                {
+                    fail("Actual search result: " + actualResult + " but expected: " + expectedResult + " for key: "
+                            + key);
+                }
+            }
+        }
+    }
+
+    private void populateCache(final StressTestSearchMethodExecutor executor,
+            final Map<String, IOperationContext> contexts, final List<SearchCacheKey> keys)
+    {
+        for (final SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key : keys)
+        {
+            final IOperationContext context = contexts.get(key.getSessionToken());
+            final TestSearchOperation operation = new TestSearchOperation(key.getCriteria(), key.getFetchOptions());
+            executor.execute(context, Collections.singletonList(operation));
+        }
+    }
+
+    private List<SearchCacheKey> prepareSearchCacheKeys(final long cacheSize,
+            final StressTestSearchMethodExecutor executor, final Map<String, IOperationContext> contexts,
+            final int startingKey, final int keyVersionCount)
+    {
+        final List<SearchCacheKey> keys = new ArrayList<>();
         for (IOperationContext context : contexts.values())
         {
-            for (int k = 0; k < KEY_VERSION_COUNT; k++)
+            for (int k = startingKey; k < startingKey + keyVersionCount; k++)
             {
                 SpaceSearchCriteria spaceSearchCriteria = new SpaceSearchCriteria();
                 spaceSearchCriteria.withCode().thatEquals(String.valueOf(k));
@@ -213,64 +364,7 @@ public class SearchObjectsOperationExecutorStressTest
                 executor.setSearchResult(sampleKey, new RandomSizeArray(cacheSize));
             }
         }
-
-        List<Thread> threads = new ArrayList<Thread>();
-
-        for (int t = 0; t < THREAD_COUNT; t++)
-        {
-            Thread thread = new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            for (int i = 0; i < keys.size() * 2; i++)
-                            {
-                                SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key = keys.get((int) (Math.random() * keys.size()));
-                                IOperationContext context = contexts.get(key.getSessionToken());
-                                TestSearchOperation operation = new TestSearchOperation(key.getCriteria(), key.getFetchOptions());
-                                Map<TestSearchOperation, TestSearchOperationResult> results = executor.execute(context, Arrays.asList(operation));
-
-                                Object actualResult = results.get(operation).getSearchResult().getObjects().get(0);
-                                Object expectedResult = executor.getSearchResult(key);
-
-                                if (false == actualResult.equals(expectedResult))
-                                {
-                                    executor.addError("Actual search result: " + actualResult + " but expected: " + expectedResult + " for key: "
-                                            + key);
-                                }
-                            }
-                        } catch (Throwable throwable)
-                        {
-                            executor.addError(
-                                    "Exception in thread " + Thread.currentThread().getName() + ": " + ExceptionUtils.getStackTrace(throwable));
-                        }
-
-                    }
-                });
-            thread.setName("Stress test thread # " + (t + 1));
-            threads.add(thread);
-        }
-
-        for (Thread thread : threads)
-        {
-            thread.start();
-        }
-
-        for (Thread thread : threads)
-        {
-            try
-            {
-                thread.join();
-            } catch (InterruptedException ex)
-            {
-                operationLog.error("INTERRUPTED EXCEPTION on " + thread.getName());
-            }
-            operationLog.info(thread.getName() + " has been finished");
-        }
-
-        return executor;
+        return keys;
     }
 
     private static class StressTestSearchMethodExecutor extends SearchObjectsOperationExecutor
@@ -340,6 +434,14 @@ public class SearchObjectsOperationExecutorStressTest
                 cacheByUserSessionToken.put(sessionToken, cache);
             }
             return cache;
+        }
+
+        public Object getSearchResultFromCache(final IOperationContext context, final SearchCacheKey key)
+        {
+            final ICache<Object> cache = getCache(context);
+            final String cacheKey = getMD5Hash(key.getCriteria().toString());
+            final Object result = cache.get(cacheKey);
+            return result;
         }
 
         public Map<SearchCacheKey, Integer> getSearchCounts()

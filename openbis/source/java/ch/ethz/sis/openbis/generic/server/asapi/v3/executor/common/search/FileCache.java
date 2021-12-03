@@ -11,11 +11,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -109,7 +112,7 @@ public class FileCache<V> implements ICache<V>
             {
                 try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
                 {
-                    out.writeObject(value);
+                    out.writeObject(new ImmutablePair<>(new Date(), value));
                 } catch (final IOException e)
                 {
                     OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),
@@ -135,12 +138,20 @@ public class FileCache<V> implements ICache<V>
     public synchronized V get(final String key)
     {
         final File cacheFile = getCacheFile(key);
-        try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(cacheFile)))
+
+        if (cacheFile.isFile())
         {
-            return (V) in.readObject();
-        } catch (final IOException | ClassNotFoundException e)
+            try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(cacheFile)))
+            {
+                final ImmutablePair<Date, V> cachedResult = (ImmutablePair<Date, V>) in.readObject();
+                return cachedResult != null ? cachedResult.getRight() : null;
+            } catch (final IOException | ClassNotFoundException e)
+            {
+                OPERATION_LOG.error(String.format("Error reading value from cache. [key=%s]", key), e);
+                return null;
+            }
+        } else
         {
-            OPERATION_LOG.error(String.format("Error reading value from cache. [key=%s]", key), e);
             return null;
         }
     }
@@ -162,6 +173,45 @@ public class FileCache<V> implements ICache<V>
     {
         cacheDir.delete();
         cacheDir.mkdir();
+    }
+
+    @Override
+    public void clearOld(final Date date)
+    {
+        final File cacheDir = new File(cacheDirString);
+
+        final File[] files = cacheDir.listFiles();
+
+        for (final File file : files)
+        {
+            ImmutablePair<Date, V> cachedResult;
+            try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(file)))
+            {
+                cachedResult = (ImmutablePair<Date, V>) in.readObject();
+            } catch (final IOException | ClassNotFoundException e)
+            {
+                OPERATION_LOG.error(String.format("Error reading value from file. [file=%s]", file), e);
+                cachedResult = null;
+            }
+
+            if (cachedResult != null && date.after(cachedResult.getLeft()))
+            {
+                file.delete();
+                keyQueue.removeIf(s -> Objects.equals(s, file.getName()));
+            }
+        }
+
+//        for (final Iterator<Map.Entry<String, ImmutablePair<Date, V>>> iterator = cachedResults.entrySet().iterator();
+//                iterator.hasNext();)
+//        {
+//            final Map.Entry<String, ImmutablePair<Date, V>> entry = iterator.next();
+//
+//            if (date.after(entry.getValue().getLeft()))
+//            {
+//                iterator.remove();
+//                keyQueue.removeIf(s -> Objects.equals(s, entry.getKey()));
+//            }
+//        }
     }
 
     private File getCacheFile(final String key)
