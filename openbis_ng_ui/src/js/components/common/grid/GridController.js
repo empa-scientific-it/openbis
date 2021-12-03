@@ -724,12 +724,12 @@ export default class GridController {
     )
   }
 
-  async handleGlobalFilterChange(globalFilter) {
-    const { local } = this.context.getState()
+  async handleGlobalFilterChange(newGlobalFilter) {
+    const { local, globalFilter } = this.context.getState()
 
     await this.context.setState(() => ({
       page: 0,
-      globalFilter
+      globalFilter: newGlobalFilter
     }))
 
     if (this.loadTimerId) {
@@ -743,6 +743,10 @@ export default class GridController {
       },
       local ? LOCAL_GRID_RELOAD_PERIOD : REMOTE_GRID_RELOAD_PERIOD
     )
+
+    if (globalFilter.operator !== newGlobalFilter.operator) {
+      await this._saveSettings()
+    }
   }
 
   async handleColumnVisibleChange(name) {
