@@ -274,7 +274,6 @@ public class SearchObjectsOperationExecutorStressTest
         for (int i = 0; i < keys.size(); i++)
         {
             final int index = (int) (Math.random() * keys.size());
-//            final int index = i;
             final SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key =
                     keys.get(index);
 

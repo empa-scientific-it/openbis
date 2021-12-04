@@ -73,6 +73,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private static final String CACHE_CLASS_KEY = "cache.class";
 
+    private static final Map<String, ICache<Object>> CACHE_BY_USER_SESSION_TOKEN = new ConcurrentHashMap<>();
+
     @Autowired
     private AuthorizationConfig authorizationConfig;
 
@@ -83,8 +85,6 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected abstract SearchObjectsOperationResult<OBJECT> getOperationResult(SearchResult<OBJECT> searchResult);
 
     protected abstract ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE> getSearchManager();
-
-    private final Map<String, ICache<Object>> cacheByUserSessionToken = new ConcurrentHashMap<>();
 
     private Properties serviceProperties;
 
@@ -336,7 +336,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected ICache<Object> getCache(final IOperationContext context)
     {
         final String sessionToken = context.getSession().getSessionToken();
-        ICache<Object> cache = this.cacheByUserSessionToken.get(sessionToken);
+        ICache<Object> cache = this.CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
         if (cache == null)
         {
             try
@@ -349,7 +349,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 throw new RuntimeException("Error creating cache instance.", e);
             }
 
-            this.cacheByUserSessionToken.put(sessionToken, cache);
+            this.CACHE_BY_USER_SESSION_TOKEN.put(sessionToken, cache);
         }
         return cache;
     }
@@ -422,7 +422,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     protected Map<String, ICache<Object>> getCacheByUserSessionToken()
     {
-        return cacheByUserSessionToken;
+        return CACHE_BY_USER_SESSION_TOKEN;
     }
 
     @SuppressWarnings("unchecked")
@@ -435,6 +435,17 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         cacheCapacity = PropertyUtils.getInt(serviceProperties, CACHE_CAPACITY_KEY, DEFAULT_CACHE_CAPACITY);
         cacheClass = (Class<ICache<Object>>) Class.forName(
                 PropertyUtils.getProperty(serviceProperties, CACHE_CLASS_KEY));
+    }
+
+    public static void clearCacheOfUser(final String sessionToken)
+    {
+        final ICache<Object> cache = CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
+        if (cache != null)
+        {
+            cache.clear();
+        }
+
+        CACHE_BY_USER_SESSION_TOKEN.remove(sessionToken);
     }
 
 }
