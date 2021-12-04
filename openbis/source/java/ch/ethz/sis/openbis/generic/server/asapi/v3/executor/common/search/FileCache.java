@@ -48,10 +48,11 @@ public class FileCache<V> implements ICache<V>
     /** If true cache values will be stored asynchronously in a separate thread. */
     private final boolean asyncStorage;
 
-    public FileCache(final int capacity, final Properties serviceProperties, final String sessionToken,
-            final boolean asyncStorage)
+    public FileCache(final CacheOptionsVO cacheOptionsVO)
     {
-        this.asyncStorage = asyncStorage;
+        this.asyncStorage = cacheOptionsVO.isAsyncStorage();
+
+        final int capacity = cacheOptionsVO.getCapacity();
         if (capacity < 0)
         {
             throw new RuntimeException("capacity cannot be negative.");
@@ -60,9 +61,10 @@ public class FileCache<V> implements ICache<V>
         this.capacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
         keyQueue = capacity > 0 ? new ArrayDeque<>(this.capacity) : new ArrayDeque<>();
 
-        cacheDirString = PropertyUtils.getProperty(serviceProperties, SESSION_WORKSPACE_ROOT_DIR_KEY,
-                SESSION_WORKSPACE_ROOT_DIR_DEFAULT) + File.separator + CACHE_FOLDER_NAME + File.separator +
-                sessionToken.replaceAll("\\W+", "");
+        cacheDirString = PropertyUtils.getProperty(cacheOptionsVO.getServiceProperties(),
+                SESSION_WORKSPACE_ROOT_DIR_KEY, SESSION_WORKSPACE_ROOT_DIR_DEFAULT) + File.separator +
+                CACHE_FOLDER_NAME + File.separator +
+                cacheOptionsVO.getSessionToken().replaceAll("\\W+", "");
         cacheDir = new File(cacheDirString);
 
         if (!instanceCreated)
@@ -200,18 +202,6 @@ public class FileCache<V> implements ICache<V>
                 keyQueue.removeIf(s -> Objects.equals(s, file.getName()));
             }
         }
-
-//        for (final Iterator<Map.Entry<String, ImmutablePair<Date, V>>> iterator = cachedResults.entrySet().iterator();
-//                iterator.hasNext();)
-//        {
-//            final Map.Entry<String, ImmutablePair<Date, V>> entry = iterator.next();
-//
-//            if (date.after(entry.getValue().getLeft()))
-//            {
-//                iterator.remove();
-//                keyQueue.removeIf(s -> Objects.equals(s, entry.getKey()));
-//            }
-//        }
     }
 
     private File getCacheFile(final String key)

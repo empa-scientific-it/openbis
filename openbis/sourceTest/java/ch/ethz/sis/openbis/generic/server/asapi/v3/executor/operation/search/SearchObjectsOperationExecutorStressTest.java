@@ -60,6 +60,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.FileCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
@@ -514,7 +515,7 @@ public class SearchObjectsOperationExecutorStressTest
         @Override
         public ICache<Object> apply(final IOperationContext iOperationContext)
         {
-            return new MemoryCache<>(cacheSize);
+            return new MemoryCache<>(new CacheOptionsVO(cacheSize, null, null, false));
         }
 
     }
@@ -540,7 +541,8 @@ public class SearchObjectsOperationExecutorStressTest
             properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
             final String sessionToken = context.getSession().getSessionToken();
-            final FileCache<Object> fileCache = new FileCache<>(cacheSize, properties, sessionToken, false);
+            final FileCache<Object> fileCache = new FileCache<>(
+                    new CacheOptionsVO(cacheSize, properties, sessionToken, false));
 
             synchronized (FileCacheFactory.class)
             {

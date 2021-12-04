@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -68,7 +69,9 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private static final int DEFAULT_CACHE_CAPACITY = (int) (10 * ONE_KB);
 
-    private static final String CACHE_CAPACITY_KEY = "cache-capacity";
+    private static final String CACHE_CAPACITY_KEY = "cache.capacity";
+
+    private static final String CACHE_CLASS_KEY = "cache.class";
 
     @Autowired
     private AuthorizationConfig authorizationConfig;
@@ -86,6 +89,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private Properties serviceProperties;
 
     private int cacheCapacity = DEFAULT_CACHE_CAPACITY;
+
+    private Class<ICache<Object>> cacheClass;
 
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
@@ -334,8 +339,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         ICache<Object> cache = this.cacheByUserSessionToken.get(sessionToken);
         if (cache == null)
         {
-            cache = new MemoryCache<>(cacheCapacity);
-//            cache = new FileCache<>(cacheCapacity, serviceProperties, sessionToken, true);
+            try
+            {
+                cache = cacheClass.getConstructor(CacheOptionsVO.class).newInstance(
+                        new CacheOptionsVO(cacheCapacity, serviceProperties, sessionToken, true));
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException |
+                    NoSuchMethodException e)
+            {
+                throw new RuntimeException("Error creating cache instance.", e);
+            }
+
             this.cacheByUserSessionToken.put(sessionToken, cache);
         }
         return cache;
@@ -412,12 +425,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return cacheByUserSessionToken;
     }
 
+    @SuppressWarnings("unchecked")
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private void setServicePropertiesPlaceholder(ExposablePropertyPlaceholderConfigurer servicePropertiesPlaceholder)
+            throws ClassNotFoundException
     {
         serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
 
         cacheCapacity = PropertyUtils.getInt(serviceProperties, CACHE_CAPACITY_KEY, DEFAULT_CACHE_CAPACITY);
+        cacheClass = (Class<ICache<Object>>) Class.forName(
+                PropertyUtils.getProperty(serviceProperties, CACHE_CLASS_KEY));
     }
 
 }

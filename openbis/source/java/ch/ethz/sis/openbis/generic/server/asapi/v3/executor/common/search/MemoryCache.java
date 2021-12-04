@@ -23,8 +23,9 @@ public class MemoryCache<V> implements ICache<V>
 
     private final Set<String> writingKeys = new CopyOnWriteArraySet<>();
 
-    public MemoryCache(final int capacity)
+    public MemoryCache(final CacheOptionsVO cacheOptionsVO)
     {
+        final int capacity = cacheOptionsVO.getCapacity();
         if (capacity < 0)
         {
             throw new RuntimeException("capacity cannot be negative.");
