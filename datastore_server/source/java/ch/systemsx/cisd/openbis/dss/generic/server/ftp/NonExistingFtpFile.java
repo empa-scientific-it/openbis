@@ -26,18 +26,16 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-
 /**
  * @author Bernd Rinn
  */
 public class NonExistingFtpFile implements FtpFile
 {
-    public static void throwFileNotFoundExceptionIfNonExistingFtpFile(FtpFile file)
+    public static void throwFileNotFoundExceptionIfNonExistingFtpFile(FtpFile file) throws FileNotFoundException
     {
         if (file instanceof NonExistingFtpFile)
         {
-            throw new IOExceptionUnchecked(new FileNotFoundException("Unknown file: " + file));
+            throw new FileNotFoundException("Unknown file: " + file);
         }
     }
 

@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -81,7 +82,6 @@ import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.ftplet.User;
-import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
@@ -131,7 +131,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
 
     private final IServiceForDataStoreServer openBisService;
 
-    private final UserManager userManager;
+    private final FtpUserManager userManager;
 
     private final FtpServerConfig config;
 
@@ -145,8 +145,10 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
 
     private SshServer sshServer;
 
+    private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken = new HashMap<>();
+
     public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
-            UserManager userManager) throws Exception
+            FtpUserManager userManager) throws Exception
     {
         this.openBisService = openBisService;
         this.generalInfoService = generalInfoService;
@@ -280,12 +282,6 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                 {
                     operationLog.error("Session exception", t);
                 }
-
-                @Override
-                public void sessionClosed(Session session)
-                {
-                    operationLog.info("Session " + session + " closed. User was " + session.getAttribute(USER_KEY));
-                }
             });
         return s;
     }
@@ -305,7 +301,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
                     User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
                     String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
-                            + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd) 
+                            + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
                             + "), args=" + Arrays.asList(args);
                     if (subStatiForErrorLogging.contains(subStatus))
                     {
@@ -347,8 +343,16 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         if (user instanceof FtpUser)
         {
             String sessionToken = ((FtpUser) user).getSessionToken();
-            return new DSSFileSystemView(sessionToken, openBisService, generalInfoService, v3api,
-                    pathResolverRegistry);
+            DSSFileSystemView fileSystemView = new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
+                    v3api, pathResolverRegistry);
+            Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(sessionToken);
+            if (views == null)
+            {
+                views = new HashSet<>();
+                fileSystemViewsBySessionToken.put(sessionToken, views);
+            }
+            views.add(fileSystemView);
+            return fileSystemView;
         } else
         {
             throw new FtpException("Unsupported user type.");
@@ -363,18 +367,34 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         {
             DSSFileSystemView fileSystemView = createFileSystemView(user);
             OpenBisFileSystemProvider fileSystemProvider = new OpenBisFileSystemProvider(fileSystemView);
-            return new OpenBisFileSystem(fileSystemProvider);
+            return new OpenBisFileSystem(fileSystemProvider, fileSystemViewsBySessionToken, userManager, user);
         } catch (FtpException ex)
         {
-            throw new IOException(ex.getMessage());
+            throw new IOException(ex.getMessage(), ex);
         }
     }
 
     private static class OpenBisFileSystem extends BaseFileSystem<OpenBisPath>
     {
-        public OpenBisFileSystem(OpenBisFileSystemProvider fileSystemProvider)
+        private final FtpUserManager userManager;
+
+        private final User user;
+
+        private final DSSFileSystemView fileSystemView;
+
+        private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken;
+
+        private boolean open = true;
+
+        public OpenBisFileSystem(OpenBisFileSystemProvider fileSystemProvider,
+                Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken,
+                FtpUserManager userManager, User user)
         {
             super(fileSystemProvider);
+            this.fileSystemViewsBySessionToken = fileSystemViewsBySessionToken;
+            fileSystemView = fileSystemProvider.fileSystemView;
+            this.userManager = userManager;
+            this.user = user;
         }
 
         @Override
@@ -392,12 +412,26 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         @Override
         public void close() throws IOException
         {
+            Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(fileSystemView.getSessionToken());
+            boolean noViews = false;
+            if (views != null)
+            {
+                views.remove(fileSystemView);
+                if (views.isEmpty())
+                {
+                    fileSystemViewsBySessionToken.remove(fileSystemView.getSessionToken());
+                    noViews = true;
+                }
+            }
+            userManager.close(user, noViews);
+            operationLog.info("File system closed for user " + user);
+            open = false;
         }
 
         @Override
         public boolean isOpen()
         {
-            return true;
+            return open;
         }
 
         @Override
@@ -416,7 +450,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
     private static class OpenBisPath extends BasePath<OpenBisPath, OpenBisFileSystem>
     {
         private OpenBisFileAttributes attributes;
-        
+
         public OpenBisPath(OpenBisFileSystem fileSystem, String root, List<String> names)
         {
             super(fileSystem, root, names);

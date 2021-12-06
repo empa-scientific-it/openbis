@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -41,14 +41,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class FtpUserManager implements UserManager
 {
-    private static final long EXPIRATION = DateUtils.MILLIS_PER_HOUR;
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpUserManager.class);
 
     private final IServiceForDataStoreServer service;
 
-    private final Map<String, ExpiringValue> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, String> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
 
     public FtpUserManager(IServiceForDataStoreServer service)
     {
@@ -63,7 +61,7 @@ public class FtpUserManager implements UserManager
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
             String password = upa.getPassword();
-            String key = String.format("%s:%s", upa.getUsername(), password);
+            String key = String.format("%s:%s", user, password);
             String sessionToken = getSessionToken(key, user, password);
             if (sessionToken != null)
             {
@@ -82,7 +80,7 @@ public class FtpUserManager implements UserManager
             {
                 SessionContextDTO session = service.tryAuthenticate(user, password);
                 sessionToken = session == null ? null : session.getSessionToken();
-                sessionTokensByUser.put(key, new ExpiringValue(sessionToken, calculateExpirationTimestamp()));
+                sessionTokensByUser.put(key, sessionToken);
             }
             if (sessionToken != null)
             {
@@ -96,34 +94,48 @@ public class FtpUserManager implements UserManager
         throw new AuthenticationFailedException();
     }
 
+    public void close(User user, boolean noViews)
+    {
+        String key = getSessionKey(user);
+        if (key != null)
+        {
+            String sessionToken = sessionTokensByUser.remove(key);
+            operationLog.info("Session token " + sessionToken + " removed.");
+            if (noViews)
+            {
+                service.logout(sessionToken);
+                operationLog.info("Log out session " + sessionToken
+                        + " because last file system session view for this session has been closed.");
+            }
+        }
+    }
+
+    private String getSessionKey(User user)
+    {
+        if (user instanceof FtpUser)
+        {
+            FtpUser ftpUser = (FtpUser) user;
+            String sessionToken = ftpUser.getSessionToken();
+            for (Entry<String, String> entry : sessionTokensByUser.entrySet())
+            {
+                if (sessionToken.equals(entry.getValue()))
+                {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
     private String getSessionToken(String key, String user, String password)
     {
         if ("?".equals(user))
         {
             return password;
         }
-        ExpiringValue value = sessionTokensByUser.get(key);
-        if (value == null)
-        {
-            return null;
-        }
-        if (value.isExpired())
-        {
-            sessionTokensByUser.remove(key);
-            String sessionToken = value.getValue();
-            operationLog.info("Session token " + sessionToken + " expired.");
-            service.logout(sessionToken);
-            return null;
-        }
-        value.setExpirationTimestamp(calculateExpirationTimestamp());
-        return value.getValue();
+        return sessionTokensByUser.get(key);
     }
 
-    private long calculateExpirationTimestamp()
-    {
-        return System.currentTimeMillis() + EXPIRATION;
-    }
-    
     @Override
     public void delete(String arg0) throws FtpException
     {
@@ -164,32 +176,5 @@ public class FtpUserManager implements UserManager
     public void save(User arg0) throws FtpException
     {
         throw new UnsupportedOperationException();
-    }
-
-    private static final class ExpiringValue
-    {
-        private final String value;
-        private long expirationTimestamp;
-        
-        public ExpiringValue(String value, long expirationTimestamp)
-        {
-            this.value = value;
-            this.expirationTimestamp = expirationTimestamp;
-        }
-        
-        public String getValue()
-        {
-            return value;
-        }
-
-        public boolean isExpired()
-        {
-            return System.currentTimeMillis() > expirationTimestamp;
-        }
-
-        public void setExpirationTimestamp(long expirationTimestamp)
-        {
-            this.expirationTimestamp = expirationTimestamp;
-        }
     }
 }
