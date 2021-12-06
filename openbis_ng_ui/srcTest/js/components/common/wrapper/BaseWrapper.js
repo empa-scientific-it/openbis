@@ -63,7 +63,27 @@ export default class BaseWrapper {
     return this.wrapper.exists()
   }
 
-  expectJSON(json) {
-    expect(this.toJSON()).toMatchObject(json)
+  async expectJSON(json, timeout) {
+    if (timeout && timeout > 0) {
+      const end = Date.now() + timeout
+      for (;;) {
+        try {
+          await this.update()
+          expect(this.toJSON()).toMatchObject(json)
+        } catch (error) {
+          if (Date.now() < end) {
+            await new Promise(resolve => {
+              setTimeout(() => {
+                resolve()
+              }, 10)
+            })
+          } else {
+            throw error
+          }
+        }
+      }
+    } else {
+      expect(this.toJSON()).toMatchObject(json)
+    }
   }
 }
