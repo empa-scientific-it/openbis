@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.maintenance.MaintenancePlugin;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.server.task.CacheClearanceMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.StatisticsCollectionMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask;
@@ -114,6 +115,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
                     false,
                     StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
+        }
+
+        if (false == isTaskConfigured(tasks, CacheClearanceMaintenanceTask.class))
+        {
+            tasks = addTask(tasks,
+                    CacheClearanceMaintenanceTask.class,
+                    operationExecutionConfig.getCacheClearanceTaskName(),
+                    false,
+                    operationExecutionConfig.getCacheClearanceTaskInterval());
         }
 
         if (false == isTaskConfigured(tasks, EventsSearchMaintenanceTask.class))

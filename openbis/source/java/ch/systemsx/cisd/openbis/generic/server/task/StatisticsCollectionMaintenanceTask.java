@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -49,7 +48,7 @@ public class StatisticsCollectionMaintenanceTask extends AbstractMaintenanceTask
 
     public static final String DEFAULT_MAINTENANCE_TASK_NAME = "statistics-collection-task";
 
-    /* One day interval. */
+    /* One day interval in seconds. */
     public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 86400;
 
     /** ID of this openBIS server. */

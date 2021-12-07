@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -60,18 +61,13 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         implements ISearchObjectsOperationExecutor
 {
 
-    private static final String[] SORTS_TO_IGNORE = new String[] {
-            EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE
-    };
+    private static final String[] SORTS_TO_IGNORE = new String[]
+            {
+                    EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE
+            };
 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractSearchObjectsOperationExecutor.class);
-
-    private static final int DEFAULT_CACHE_CAPACITY = (int) (10 * ONE_KB);
-
-    private static final String CACHE_CAPACITY_KEY = "cache.capacity";
-
-    private static final String CACHE_CLASS_KEY = "cache.class";
 
     private static final Map<String, ICache<Object>> CACHE_BY_USER_SESSION_TOKEN = new ConcurrentHashMap<>();
 
@@ -88,7 +84,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private Properties serviceProperties;
 
-    private int cacheCapacity = DEFAULT_CACHE_CAPACITY;
+    private int cacheCapacity = OperationExecutionConfig.CACHE_CAPACITY_DEFAULT;
 
     private Class<ICache<Object>> cacheClass;
 
@@ -432,9 +428,10 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     {
         serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
 
-        cacheCapacity = PropertyUtils.getInt(serviceProperties, CACHE_CAPACITY_KEY, DEFAULT_CACHE_CAPACITY);
+        cacheCapacity = PropertyUtils.getInt(serviceProperties, OperationExecutionConfig.CACHE_CAPACITY,
+                OperationExecutionConfig.CACHE_CAPACITY_DEFAULT);
         cacheClass = (Class<ICache<Object>>) Class.forName(
-                PropertyUtils.getProperty(serviceProperties, CACHE_CLASS_KEY));
+                PropertyUtils.getProperty(serviceProperties, OperationExecutionConfig.CACHE_CLASS));
     }
 
     public static void clearCacheOfUser(final String sessionToken)
@@ -446,6 +443,14 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         }
 
         CACHE_BY_USER_SESSION_TOKEN.remove(sessionToken);
+    }
+
+    public static void clearOld(final Date date)
+    {
+        synchronized (CACHE_BY_USER_SESSION_TOKEN)
+        {
+            CACHE_BY_USER_SESSION_TOKEN.values().forEach(cache -> cache.clearOld(date));
+        }
     }
 
 }
