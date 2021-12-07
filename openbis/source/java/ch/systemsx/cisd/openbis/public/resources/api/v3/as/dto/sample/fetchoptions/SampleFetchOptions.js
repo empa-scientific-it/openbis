@@ -268,6 +268,8 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		children : "SampleFetchOptions",
 		container : "SampleFetchOptions",
 		components : "SampleFetchOptions",
+		dataSets : "DataSetFetchOptions",
+		history : "HistoryEntryFetchOptions",
 		tags : "TagFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",

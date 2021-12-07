@@ -355,6 +355,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			arguments : [ "Tag" ]
 		},
 		type : "DataSetType",
+		kind: "DataSetKind",
 		dataStore : "DataStore",
 		history : {
 			name : "List",
@@ -368,15 +369,15 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		sample : "Sample",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		materialProperties : {
 			name : "Map",
-			arguments : [ null, "Material" ]
+			arguments : [ "String", "Material" ]
 		},
 		sampleProperties : {
 			name : "Map",
-			arguments : [ null, "Sample" ]
+			arguments : [ "String", "Sample" ]
 		},
 		dataProductionDate : "Date"
 	});

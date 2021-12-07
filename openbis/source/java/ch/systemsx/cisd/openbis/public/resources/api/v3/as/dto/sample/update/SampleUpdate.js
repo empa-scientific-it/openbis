@@ -182,7 +182,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		},
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		containerId : {
 			name : "FieldUpdateValue",
@@ -202,7 +202,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		},
 		relationships : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "ISampleId", "RelationshipUpdate" ]
 		},
 		attachments : "AttachmentListUpdateValue"
 	});

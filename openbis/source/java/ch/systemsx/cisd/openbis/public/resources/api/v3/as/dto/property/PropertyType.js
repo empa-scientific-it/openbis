@@ -150,8 +150,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		vocabulary : "Vocabulary",
 		materialType : "MaterialType",
 		sampleType : "SampleType",
+		semanticAnnotations: {
+			name: "List",
+			arguments: ["SemanticAnnotation"]
+		},
 		registrator : "Person",
-		registrationDate : "Date"
+		registrationDate : "Date",
+		metaData: {
+			name: "Map",
+			arguments: ["String", "String"]
+		}
 	});
 	return PropertyType;
 })

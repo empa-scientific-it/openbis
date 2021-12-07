@@ -30,6 +30,8 @@ define([ "stjs" ], function(stjs) {
 		prototype.getValue = function() {
 			return this.value;
 		};
-	}, {});
+	}, {
+		value: "Object"
+	});
 	return FieldUpdateValue;
 })

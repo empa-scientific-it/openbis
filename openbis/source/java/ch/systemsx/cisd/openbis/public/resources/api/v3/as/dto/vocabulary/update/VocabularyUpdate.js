@@ -40,7 +40,19 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.urlTemplate.setValue(urlTemplate);
 		};
 	}, {
-		vocabularyId : "IVocabularyId"
+		vocabularyId : "IVocabularyId",
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		chosenFromList: {
+			name: "FieldUpdateValue",
+			arguments: ["Boolean"]
+		},
+		urlTemplate: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
 	});
 	return VocabularyUpdate;
 })

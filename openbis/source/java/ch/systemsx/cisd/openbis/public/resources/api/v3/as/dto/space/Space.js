@@ -117,6 +117,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		id : "SpaceTechId",
 		permId : "SpacePermId",
 		registrationDate : "Date",
+		modificationDate : "Date",
 		registrator : "Person",
 		samples : {
 			name : "List",

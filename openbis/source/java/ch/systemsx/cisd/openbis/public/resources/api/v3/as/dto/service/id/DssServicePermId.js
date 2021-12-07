@@ -13,6 +13,8 @@ define([ "stjs", "as/dto/common/id/ObjectPermId", "as/dto/service/id/IDssService
 		prototype.toString = function() {
 			return this.getDataStoreId() + ":" + this.getPermId();
 		};
-	}, {});
+	}, {
+		dataStoreId: "IDataStoreId"
+	});
 	return DssServicePermId;
 })

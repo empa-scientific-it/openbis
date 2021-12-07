@@ -41,7 +41,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		},
 		archivingRequested : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "Boolean" ]
 		}
 	});
 	return PhysicalDataUpdate;

@@ -129,6 +129,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",
+		permId: "PropertyAssignmentPermId",
 		entityType : "IEntityType",
 		propertyType : "PropertyType",
 		semanticAnnotations : {

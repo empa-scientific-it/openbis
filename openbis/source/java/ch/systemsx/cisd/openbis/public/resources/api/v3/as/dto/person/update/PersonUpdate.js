@@ -66,7 +66,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		},
 		active : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "Boolean" ]
 		},
 	});
 	return PersonUpdate;

@@ -81,7 +81,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		experimentId : "IExperimentId",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		projectId : {
 			name : "FieldUpdateValue",

@@ -44,7 +44,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		typeId : "IEntityTypeId",
 		description : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		validationPluginId : {
 			name : "FieldUpdateValue",

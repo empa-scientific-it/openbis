@@ -37,7 +37,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return "CustomASService " + this.code;
 		};
 	}, {
-		fetchOptions : "CustomASServiceFetchOptions"
+		fetchOptions : "CustomASServiceFetchOptions",
+		code: "CustomASServiceCode"
 	});
 	return CustomASService;
 })

@@ -35,7 +35,8 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/entitytype/f
 			return this.sort;
 		};
 	}, {
-		sort : "EntityTypeSortOptions"
+		sort : "EntityTypeSortOptions",
+		propertyAssignments: "PropertyAssignmentFetchOptions"
 	});
 	return EntityTypeFetchOptions;
 })

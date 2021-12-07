@@ -68,19 +68,19 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		typeId : "IEntityTypeId",
 		description : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		mainDataSetPattern : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		mainDataSetPath : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		disallowDeletion : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "Boolean" ]
 		},
 		validationPluginId : {
 			name : "FieldUpdateValue",

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -347,7 +348,17 @@ public class V3APIReport
                     entryField.typeArguments = new ArrayList<>();
                     for (Type fieldTypeArgument : fieldTypeArguments)
                     {
-                        entryField.typeArguments.add(fieldTypeArgument.getTypeName());
+                        if (fieldTypeArgument instanceof TypeVariable)
+                        {
+                            Type[] bounds = ((TypeVariable<?>) fieldTypeArgument).getBounds();
+                            if (bounds != null && bounds.length > 0)
+                            {
+                                entryField.typeArguments.add(bounds[0].getTypeName());
+                            }
+                        } else
+                        {
+                            entryField.typeArguments.add(fieldTypeArgument.getTypeName());
+                        }
                     }
                 }
             }

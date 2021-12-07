@@ -92,7 +92,11 @@ define([ "stjs" ], function(stjs) {
 		dataType : "DataType",
 		vocabularyId : "IVocabularyId",
 		materialTypeId : "IEntityTypeId",
-		sampleTypeId : "IEntityTypeId"
+		sampleTypeId : "IEntityTypeId",
+		metaData: {
+			name: "Map",
+			arguments: ["String", "String"]
+		}
 	});
 	return PropertyTypeCreation;
 })

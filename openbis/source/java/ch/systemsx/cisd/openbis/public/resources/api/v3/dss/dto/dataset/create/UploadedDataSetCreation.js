@@ -60,11 +60,11 @@ define([ "stjs" ], function(stjs) {
 		sampleId : "ISampleId",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		parentIds : {
 			name : "List",
-			arguments : [ "Object" ]
+			arguments : [ "IDataSetId" ]
 		}
 	});
 	return UploadedDataSetCreation;

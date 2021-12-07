@@ -45,7 +45,7 @@ define([ "stjs", "as/dto/common/update/IdListUpdateValue" ], function(stjs, IdLi
 		materialId : "IMaterialId",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		tagIds : {
 			name : "IdListUpdateValue",

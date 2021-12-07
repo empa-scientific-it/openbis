@@ -98,6 +98,10 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
 			return this.sort;
 		};
 	}, {
+		experiments : "ExperimentFetchOptions",
+		samples : "SampleFetchOptions",
+		dataSets : "DataSetFetchOptions",
+		materials : "MaterialFetchOptions",
 		owner : "PersonFetchOptions",
 		sort : "TagSortOptions"
 	});

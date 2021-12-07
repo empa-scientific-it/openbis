@@ -62,7 +62,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/p
     };
   }, {
     registrator : "PersonFetchOptions",
-    useres : "PersonFetchOptions",
+    users : "PersonFetchOptions",
     roleAssignments : "RoleAssignmentFetchOptions",
     sort : "AuthorizationGroupSortOptions"
   });

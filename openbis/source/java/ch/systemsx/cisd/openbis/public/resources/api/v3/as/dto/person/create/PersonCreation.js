@@ -20,6 +20,7 @@ define([ "stjs" ], function(stjs) {
 			this.spaceId = spaceId;
 		};
 	}, {
+		spaceId: "ISpaceId"
 	});
 	return PersonCreation;
 })

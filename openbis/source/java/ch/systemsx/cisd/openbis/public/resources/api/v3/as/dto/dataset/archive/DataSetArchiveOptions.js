@@ -26,7 +26,7 @@ define([ "stjs" ], function(stjs) {
 	}, {
 		options : {
 			name : "Map",
-			arguments : [ null, null]
+			arguments : [ "String", "String"]
 		}
 	});
 	return DataSetArchiveOptions;

@@ -46,7 +46,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		executionId : "IOperationExecutionId",
 		description : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		}
 	});
 	return OperationExecutionUpdate;

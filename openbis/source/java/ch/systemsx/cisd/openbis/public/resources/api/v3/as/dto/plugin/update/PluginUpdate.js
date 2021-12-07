@@ -40,7 +40,19 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.available.setValue(available);
 		};
 	}, {
-		pluginId : "IPluginId"
+		pluginId : "IPluginId",
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		script: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		available: {
+			name: "FieldUpdateValue",
+			arguments: ["Boolean"]
+		}
 	});
 	return PluginUpdate;
 })

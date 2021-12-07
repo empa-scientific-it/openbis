@@ -343,15 +343,15 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		experiment : "Experiment",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		materialProperties : {
 			name : "Map",
-			arguments : [ null, "Material" ]
+			arguments : [ "String", "Material" ]
 		},
 		sampleProperties : {
 			name : "Map",
-			arguments : [ null, "Sample" ]
+			arguments : [ "String", "Sample" ]
 		},
 		parents : {
 			name : "List",
@@ -359,7 +359,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		},
 		parentsRelationships : {
 			name : "Map",
-			arguments : [ null, "Relationship" ]
+			arguments : [ "SamplePermId", "Relationship" ]
 		},
 		children : {
 			name : "List",
@@ -367,7 +367,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		},
 		childrenRelationships : {
 			name : "Map",
-			arguments : [ null, "Relationship" ]
+			arguments : [ "SamplePermId", "Relationship" ]
 		},
 		container : "Sample",
 		components : {

@@ -17,7 +17,12 @@ define([ "require", "stjs", "util/Exceptions", "as/dto/common/search/AbstractSea
 		prototype.toString = function() {
 			return "with object kinds " + this.objectKinds;
 		}
-	}, {});
+	}, {
+		objectKinds: {
+			name: "List",
+			arguments: ["ObjectKind"]
+		}
+	});
 
 	return ObjectKindCriteria;
 })

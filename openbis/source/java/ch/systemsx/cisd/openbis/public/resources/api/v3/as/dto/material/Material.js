@@ -142,11 +142,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		modificationDate : "Date",
 		properties : {
 			name : "Map",
-			arguments : [ null, null ]
+			arguments : [ "String", "String" ]
 		},
 		materialProperties : {
 			name : "Map",
-			arguments : [ null, "Material" ]
+			arguments : [ "String", "Material" ]
 		},
 		tags : {
 			name : "Set",
