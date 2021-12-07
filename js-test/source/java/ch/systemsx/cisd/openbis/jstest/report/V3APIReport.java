@@ -1,15 +1,24 @@
 package ch.systemsx.cisd.openbis.jstest.report;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -18,13 +27,17 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer;
 
 /**
  * @author pkupczyk
@@ -227,7 +240,7 @@ public class V3APIReport
     {
         for (Field field : fields)
         {
-            entryReport.addField(field.getName());
+            entryReport.addField(field);
         }
     }
 
@@ -262,7 +275,7 @@ public class V3APIReport
 
         private String jsonObjAnnotation;
 
-        private List<String> fields = new ArrayList<String>();
+        private List<EntryField> fields = new ArrayList<EntryField>();
 
         private List<String> methods = new ArrayList<String>();
 
@@ -287,14 +300,41 @@ public class V3APIReport
             this.jsonObjAnnotation = jsonObjAnnotation;
         }
 
-        public List<String> getFields()
+        public List<EntryField> getFields()
         {
             return this.fields;
         }
 
-        public void addField(String field)
+        public void addField(Field field)
         {
-            fields.add(field);
+            EntryField entryField = new EntryField();
+            entryField.name = field.getName();
+
+            Type fieldType = field.getGenericType();
+
+            if (fieldType instanceof Class<?>)
+            {
+                entryField.type = ((Class<?>) fieldType).getName();
+            } else if (fieldType instanceof ParameterizedType)
+            {
+                Type rawType = ((ParameterizedType) fieldType).getRawType();
+                if (rawType != null)
+                {
+                    entryField.type = rawType.getTypeName();
+                }
+
+                Type[] fieldTypeArguments = ((ParameterizedType) fieldType).getActualTypeArguments();
+                if (fieldTypeArguments != null && fieldTypeArguments.length > 0)
+                {
+                    entryField.typeArguments = new ArrayList<>();
+                    for (Type fieldTypeArgument : fieldTypeArguments)
+                    {
+                        entryField.typeArguments.add(fieldTypeArgument.getTypeName());
+                    }
+                }
+            }
+
+            fields.add(entryField);
         }
 
         public List<String> getMethods()
@@ -306,6 +346,15 @@ public class V3APIReport
         {
             methods.add(method);
         }
+    }
+
+    static class EntryField
+    {
+        public String name;
+
+        public String type;
+
+        public List<String> typeArguments;
     }
 
     static abstract class ClassFilter implements Predicate<Class<?>>
