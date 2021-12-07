@@ -229,6 +229,8 @@ public class V3APIReport
         for (Class<?> clazz : classes)
         {
             Entry entry = new Entry(clazz.getName());
+            entry.setEnum(clazz.isEnum());
+            entry.setInterface(clazz.isInterface());
             entry.setJsonObjAnnotation(getJSONObjectAnnotation(clazz));
             addFields(entry, getPublicFields(clazz));
             addMethods(entry, getPublicMethods(clazz));
@@ -271,23 +273,27 @@ public class V3APIReport
 
     static class Entry
     {
-        private String Name;
+        private String name;
+
+        private boolean isInterface;
+
+        private boolean isEnum;
 
         private String jsonObjAnnotation;
 
-        private List<EntryField> fields = new ArrayList<EntryField>();
+        private final List<EntryField> fields = new ArrayList<EntryField>();
 
-        private List<String> methods = new ArrayList<String>();
+        private final List<String> methods = new ArrayList<String>();
 
         public Entry(String name)
         {
             super();
-            this.Name = name;
+            this.name = name;
         }
 
         public String getName()
         {
-            return this.Name;
+            return this.name;
         }
 
         public String getJsonObjAnnotation()
@@ -300,6 +306,26 @@ public class V3APIReport
             this.jsonObjAnnotation = jsonObjAnnotation;
         }
 
+        public boolean isInterface()
+        {
+            return isInterface;
+        }
+
+        public void setInterface(final boolean isInterface)
+        {
+            this.isInterface = isInterface;
+        }
+
+        public boolean isEnum()
+        {
+            return isEnum;
+        }
+
+        public void setEnum(final boolean isEnum)
+        {
+            this.isEnum = isEnum;
+        }
+
         public List<EntryField> getFields()
         {
             return this.fields;
@@ -309,21 +335,13 @@ public class V3APIReport
         {
             EntryField entryField = new EntryField();
             entryField.name = field.getName();
+            entryField.type = field.getType().getName();
 
-            Type fieldType = field.getGenericType();
+            Type fieldGenericType = field.getGenericType();
 
-            if (fieldType instanceof Class<?>)
+            if (fieldGenericType instanceof ParameterizedType)
             {
-                entryField.type = ((Class<?>) fieldType).getName();
-            } else if (fieldType instanceof ParameterizedType)
-            {
-                Type rawType = ((ParameterizedType) fieldType).getRawType();
-                if (rawType != null)
-                {
-                    entryField.type = rawType.getTypeName();
-                }
-
-                Type[] fieldTypeArguments = ((ParameterizedType) fieldType).getActualTypeArguments();
+                Type[] fieldTypeArguments = ((ParameterizedType) fieldGenericType).getActualTypeArguments();
                 if (fieldTypeArguments != null && fieldTypeArguments.length > 0)
                 {
                     entryField.typeArguments = new ArrayList<>();
