@@ -153,12 +153,22 @@ function SettingsManager(serverFacade) {
                 targetProfile["inventorySpacesReadOnly"] = [];
             }
              // Inventory Spaces
+             var inventorySpaces = settings["inventorySpaces"];
+             var inventorySpacesReadOnly = settings["inventorySpacesReadOnly"];
              if(isMergeGroup) { // Merge found values
-                targetProfile["inventorySpaces"] = targetProfile["inventorySpaces"].concat(settings["inventorySpaces"]).unique();
-                targetProfile["inventorySpacesReadOnly"] = targetProfile["inventorySpacesReadOnly"].concat(settings["inventorySpacesReadOnly"]).unique();
+                if (inventorySpaces) {
+                    targetProfile["inventorySpaces"] = targetProfile["inventorySpaces"].concat(inventorySpaces).unique();
+                }
+                if (inventorySpacesReadOnly) {
+                    targetProfile["inventorySpacesReadOnly"] = targetProfile["inventorySpacesReadOnly"].concat(inventorySpacesReadOnly).unique();
+                }
              } else { // Replaces or sets values
-                targetProfile["inventorySpaces"] = settings["inventorySpaces"];
-                targetProfile["inventorySpacesReadOnly"] = settings["inventorySpacesReadOnly"];
+                if (inventorySpaces) {
+                    targetProfile["inventorySpaces"] = inventorySpaces;
+                }
+                if (inventorySpacesReadOnly) {
+                    targetProfile["inventorySpacesReadOnly"] = inventorySpacesReadOnly;
+                }
              }
 
 
