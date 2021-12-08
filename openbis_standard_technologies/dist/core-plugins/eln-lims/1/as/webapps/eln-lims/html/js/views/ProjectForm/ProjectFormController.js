@@ -67,6 +67,7 @@ function ProjectFormController(mainController, mode, project) {
     }
 
     this.deleteDependentEntities = function(reason, experiments, samples) {
+        Util.blockUI();
         var _this = this;
         var experimentIds = new Set();
         experiments.forEach(e => experimentIds.add(e.getPermId()));
@@ -79,7 +80,10 @@ function ProjectFormController(mainController, mode, project) {
         });
         this._deleteExperiments(reason, Array.from(experimentIds), function() {
             _this._deleteSamples(reason, independentSamples, function() {
-                alert(samples.length+" "+independentSamples.length+" "+independentSamples);
+                Util.showSuccess("Entities deleted", function() {
+                    _this._mainController.sideMenu.refreshCurrentNode();
+                    Util.unblockUI();
+                });
             });
         });
     }

@@ -196,7 +196,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				dataList.push({
                     deletionDate : Util.getFormatedDate(new Date(deletion.deletionDate)),
 					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
-					reason : deletion.reasonOrNull,
+					reason : deletion.reason,
 					entity : deletion
 				});
 			}
