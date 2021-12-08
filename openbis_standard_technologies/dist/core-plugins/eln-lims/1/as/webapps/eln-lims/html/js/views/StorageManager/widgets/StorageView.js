@@ -123,7 +123,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 					_this._storageController.setUserIdsSelected(selectedUserIds);
 				});
 			} else if(_this._storageModel.sample) { //If someone is updating a sample, his user should go with it
-				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.getUserId();
 			}
 			
 			$container.append(FormUtil.getFieldForComponentWithLabel(_this._gridContainer, "Rack"));

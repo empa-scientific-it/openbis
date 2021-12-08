@@ -89,7 +89,7 @@ var BBBServerFacade = new function() {
             v3._private.sessionToken = mainController.openbisV1._internal.sessionToken;
             var sessionToken = v3._private.sessionToken;
 
-            var userId = sessionToken.substring(0, sessionToken.lastIndexOf("-"));
+            var userId = mainController.serverFacade.getUserId();
             var webAppContext = v3.getWebAppContext();
 
             var criteria = new RoleAssignmentSearchCriteria();

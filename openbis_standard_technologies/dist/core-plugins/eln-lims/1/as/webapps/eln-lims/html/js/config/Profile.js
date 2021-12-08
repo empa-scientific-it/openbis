@@ -1320,7 +1320,7 @@ $.extend(DefaultProfile.prototype, {
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }
-	                callback();
+	                mainController.serverFacade.getSessionInformation(callback);
 	            });
 			});
 		}

@@ -284,6 +284,9 @@ function ServerFacade(openbisServer) {
 	// Login Related Functions
 	//
 	this.getUserId = function() {
+        if (this.sessionInfo) {
+            return this.sessionInfo.getUserName();
+        }
 		var sessionId = this.openbisServer.getSession();
 		var userId = sessionId.substring(0, sessionId.lastIndexOf("-"));
 		return userId;
@@ -3141,7 +3144,9 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.getSessionInformation = function(callbackFunction) {
+        var _this = this;
 		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
+            _this.sessionInfo = sessionInfo;
 			callbackFunction(sessionInfo);
         }).fail(function(result) {
 			Util.showFailedServerCallError(result);
