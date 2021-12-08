@@ -128,7 +128,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		entityType : "EntityType",
 		entitySpaceId : "ISpaceId",
 		entityProjectId : "IProjectId",
-		entityRegistrator : "Person",
+		entityRegistrator : "String",
 		entityRegistrationDate : "Date",
 		registrator : "Person",
 		registrationDate : "Date"

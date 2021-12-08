@@ -336,7 +336,7 @@ public class V3APIReport
         {
             EntryField entryField = new EntryField();
             entryField.name = field.getName();
-            entryField.type = field.getType().getName();
+            entryField.type = field.getType().getTypeName();
 
             Type fieldGenericType = field.getGenericType();
 

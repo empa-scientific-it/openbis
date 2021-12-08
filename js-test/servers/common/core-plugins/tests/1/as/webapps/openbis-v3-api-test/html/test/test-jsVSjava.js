@@ -100,10 +100,13 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                 return
             }
 
-            if (!jsObject.$typeDescription && !javaClassReport.enum && !javaClassReport.interface) {
+            var jsTypeDescription = jsPrototype.constructor && jsPrototype.constructor.$typeDescription
+
+            if (!jsTypeDescription) {
                 var errorResult = "JS class type information is missing: " + javaClassReport.jsonObjAnnotation
                 testsResults.error.push(errorResult)
                 console.info(errorResult)
+                return
             }
 
             var fieldSimpleTypes = [
@@ -128,38 +131,55 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                         "JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaField.name
                     testsResults.error.push(errorResult)
                     console.info(errorResult)
-                } else if (jsObject.$typeDescription) {
-                    var javaFieldType = getSimpleClassName(javaField.type)
-                    if (fieldSimpleTypes.indexOf(javaFieldType) === -1) {
-                        var jsField = jsObject.$typeDescription[javaField.name]
-                        if (jsField) {
-                            var javaTypeArguments = []
-                            var jsTypeArguments = []
+                } else if (!javaClassReport.enum && !javaClassReport.interface) {
+                    var jsField = jsTypeDescription[javaField.name]
+                    if (jsField) {
+                        var javaFieldType = getSimpleClassName(javaField.type)
+                        var jsFieldType = _.isObject(jsField) ? jsField.name : jsField
 
-                            if (javaField.typeArguments) {
-                                javaTypeArguments = javaField.typeArguments.map(function (argument) {
-                                    return getSimpleClassName(argument)
-                                })
-                            }
+                        if (javaFieldType !== jsFieldType) {
+                            var errorResult =
+                                "JS field types are inconsistent: " +
+                                javaClassReport.jsonObjAnnotation +
+                                " - " +
+                                javaField.name +
+                                ", JS type: " +
+                                JSON.stringify(jsFieldType) +
+                                ", Java type: " +
+                                JSON.stringify(javaFieldType)
+                            testsResults.error.push(errorResult)
+                            console.info(errorResult)
+                        }
 
-                            if (jsField.arguments) {
-                                jsTypeArguments = jsField.arguments
-                            }
+                        var javaTypeArguments = []
+                        var jsTypeArguments = []
 
-                            if (JSON.stringify(jsTypeArguments) !== JSON.stringify(javaTypeArguments)) {
-                                var errorResult =
-                                    "JS field type arguments are inconsistent: " +
-                                    javaClassReport.jsonObjAnnotation +
-                                    " - " +
-                                    javaField.name +
-                                    ", JS arguments: " +
-                                    JSON.stringify(jsTypeArguments) +
-                                    ", Java arguments: " +
-                                    JSON.stringify(javaTypeArguments)
-                                testsResults.error.push(errorResult)
-                                console.info(errorResult)
-                            }
-                        } else {
+                        if (javaField.typeArguments) {
+                            javaTypeArguments = javaField.typeArguments.map(function (argument) {
+                                return getSimpleClassName(argument)
+                            })
+                        }
+
+                        if (_.isObject(jsField) && jsField.arguments) {
+                            jsTypeArguments = jsField.arguments
+                        }
+
+                        if (JSON.stringify(jsTypeArguments) !== JSON.stringify(javaTypeArguments)) {
+                            var errorResult =
+                                "JS field type arguments are inconsistent: " +
+                                javaClassReport.jsonObjAnnotation +
+                                " - " +
+                                javaField.name +
+                                ", JS arguments: " +
+                                JSON.stringify(jsTypeArguments) +
+                                ", Java arguments: " +
+                                JSON.stringify(javaTypeArguments)
+                            testsResults.error.push(errorResult)
+                            console.info(errorResult)
+                        }
+                    } else {
+                        var javaFieldType = getSimpleClassName(javaField.type)
+                        if (fieldSimpleTypes.indexOf(javaFieldType) === -1) {
                             var errorResult =
                                 "JS field type information is missing: " +
                                 javaClassReport.jsonObjAnnotation +
