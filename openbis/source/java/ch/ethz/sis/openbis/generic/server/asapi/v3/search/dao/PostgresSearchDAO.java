@@ -400,7 +400,9 @@ public class PostgresSearchDAO implements ISQLSearchDAO
     private static SelectQuery translateToSearchTypeQuery(final TranslationContext translationContext)
     {
         final TableMapper tableMapper = translationContext.getTableMapper();
-        final String queryString = SELECT + SP + DISTINCT + SP + "o3" + PERIOD + CODE_COLUMN + SP +
+        final String queryString = SELECT + SP + DISTINCT + SP 
+                + CASE + SP + WHEN + SP + IS_MANAGED_INTERNALLY + SP + THEN + " '$' " + ELSE + " '' " + END
+                + BARS + "o3" + PERIOD + CODE_COLUMN + SP +
                 PROPERTY_CODE_ALIAS + COMMA + SP +
                 "o4" + PERIOD + CODE_COLUMN + SP + TYPE_CODE_ALIAS + NL +
                 FROM + SP + tableMapper.getAttributeTypesTable() + SP + "o3" + SP + NL +
