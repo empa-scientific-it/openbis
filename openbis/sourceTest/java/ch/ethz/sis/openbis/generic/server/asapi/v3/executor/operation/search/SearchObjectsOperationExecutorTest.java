@@ -86,7 +86,7 @@ public class SearchObjectsOperationExecutorTest
     @Test
     public void testThatGetCacheEntryIsBlockedForSecondThreadIfSameSession()
     {
-        Thread t1 = new Thread(new Runnable()
+        final Thread t1 = new Thread(new Runnable()
             {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -253,14 +253,10 @@ public class SearchObjectsOperationExecutorTest
 
         private IDelegatedAction putAction;
 
-        private final Set<Long> defaultEntry;
-
         private final ICache<Object> cache;
 
         public TestSearchMethodExecutor()
         {
-            defaultEntry = Collections.emptySet();
-
             cache = new ICache<Object>()
             {
 
@@ -300,22 +296,20 @@ public class SearchObjectsOperationExecutorTest
                 {
                 }
 
-                @Override public void clearOld(final Date date)
+                @Override
+                public void clearOld(final Date date)
                 {
                 }
 
             };
+            setCacheClass(cache.getClass());
             operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
-        }
-
-        public static String getMD5Hash(final String s)
-        {
-            return AbstractSearchObjectsOperationExecutor.getMD5Hash(s);
         }
 
         @Override
         protected ICache<Object> getCache(final IOperationContext context)
         {
+            setCacheClass(cache.getClass());
             return cache;
         }
 
@@ -324,11 +318,6 @@ public class SearchObjectsOperationExecutorTest
                 FetchOptions fetchOptions)
         {
             return Collections.emptySet();
-        }
-
-        void addEntry(final String key, final Set<Object> entry)
-        {
-            entries.put(key, entry);
         }
 
         void setGetAction(IDelegatedAction getAction)

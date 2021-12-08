@@ -110,9 +110,10 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return getOperationResult(searchResult);
     }
 
-    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria,
+            FETCH_OPTIONS fetchOptions)
     {
-        final CacheMode cacheMode = fetchOptions.getCacheMode();
+        final CacheMode cacheMode = cacheClass != null ? fetchOptions.getCacheMode() : CacheMode.NO_CACHE;
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         if (CacheMode.NO_CACHE.equals(cacheMode))
@@ -262,7 +263,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         final Long userId = personPE.getId();
         final TranslationContext translationContext = new TranslationContext(context.getSession());
 
-        final CacheMode cacheMode = fetchOptions.getCacheMode();
+        final CacheMode cacheMode = cacheClass != null ? fetchOptions.getCacheMode() : CacheMode.NO_CACHE;
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         Set<Long> ids;
@@ -332,7 +333,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected ICache<Object> getCache(final IOperationContext context)
     {
         final String sessionToken = context.getSession().getSessionToken();
-        ICache<Object> cache = this.CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
+        ICache<Object> cache = CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
         if (cache == null)
         {
             try
@@ -345,7 +346,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 throw new RuntimeException("Error creating cache instance.", e);
             }
 
-            this.CACHE_BY_USER_SESSION_TOKEN.put(sessionToken, cache);
+            CACHE_BY_USER_SESSION_TOKEN.put(sessionToken, cache);
         }
         return cache;
     }
@@ -416,7 +417,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         throw new IllegalArgumentException(message);
     }
 
-    protected Map<String, ICache<Object>> getCacheByUserSessionToken()
+    protected static Map<String, ICache<Object>> getCacheByUserSessionToken()
     {
         return CACHE_BY_USER_SESSION_TOKEN;
     }
@@ -430,8 +431,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
         cacheCapacity = PropertyUtils.getInt(serviceProperties, OperationExecutionConfig.CACHE_CAPACITY,
                 OperationExecutionConfig.CACHE_CAPACITY_DEFAULT);
-        cacheClass = (Class<ICache<Object>>) Class.forName(
-                PropertyUtils.getProperty(serviceProperties, OperationExecutionConfig.CACHE_CLASS));
+
+        final String cacheImplementationClassName =
+                PropertyUtils.getProperty(serviceProperties, OperationExecutionConfig.CACHE_CLASS);
+        setCacheClass(cacheImplementationClassName != null ? (Class<ICache<Object>>) Class.forName(
+                cacheImplementationClassName) : null);
+    }
+
+    protected void setCacheClass(final Class<ICache<Object>> cacheClass)
+    {
+        this.cacheClass = cacheClass;
     }
 
     public static void clearCacheOfUser(final String sessionToken)

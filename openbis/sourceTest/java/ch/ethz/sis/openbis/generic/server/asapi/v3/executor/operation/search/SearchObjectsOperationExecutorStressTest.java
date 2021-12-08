@@ -126,7 +126,7 @@ public class SearchObjectsOperationExecutorStressTest
     }
 
     @Test(timeOut = 30000, dataProvider = "cache factories without evicting")
-    public void testConcurrencyWithoutEvicting(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
+    public void testConcurrencyWithoutEvicting(final int cacheSize, final CacheFactory cacheFactory)
     {
         for (int run = 0; run < 5; run++)
         {
@@ -148,7 +148,7 @@ public class SearchObjectsOperationExecutorStressTest
     }
 
     @Test(timeOut = 30000, dataProvider = "cache factories with evicting")
-    public void testConcurrencyWithEvicting(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
+    public void testConcurrencyWithEvicting(final int cacheSize, final CacheFactory cacheFactory)
     {
         for (int run = 0; run < 5; run++)
         {
@@ -161,8 +161,7 @@ public class SearchObjectsOperationExecutorStressTest
         }
     }
 
-    private StressTestSearchMethodExecutor testConcurrency(final long cacheSize,
-            final Function<IOperationContext, ICache<Object>> cacheFactory)
+    private StressTestSearchMethodExecutor testConcurrency(final long cacheSize, final CacheFactory cacheFactory)
     {
         final int threadCount = 5;
 
@@ -227,7 +226,7 @@ public class SearchObjectsOperationExecutorStressTest
     }
 
     @Test(timeOut = 30000, dataProvider = "cache factories without evicting")
-    public void testEvictionByDate(int cacheSize, Function<IOperationContext, ICache<Object>> cacheFactory)
+    public void testEvictionByDate(final int cacheSize, final CacheFactory cacheFactory)
             throws InterruptedException
     {
         final int sessionCount = 5;
@@ -237,14 +236,14 @@ public class SearchObjectsOperationExecutorStressTest
         final Map<String, IOperationContext> olderContexts = new LinkedHashMap<>();
         for (int s = 0; s < sessionCount; s++)
         {
-            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
+            final Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
             olderContexts.put(session.getSessionToken(), new OperationContext(session));
         }
 
         final Map<String, IOperationContext> newerContexts = new LinkedHashMap<>();
-        for (int s = 0; s < sessionCount; s++)
+        for (int s = sessionCount; s < 2 * sessionCount; s++)
         {
-            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
+            final Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
             newerContexts.put(session.getSessionToken(), new OperationContext(session));
         }
 
@@ -260,8 +259,7 @@ public class SearchObjectsOperationExecutorStressTest
         final Date newerKeysDate = new Date();
         Thread.sleep(1);
 
-        final List<SearchCacheKey> newerKeys = prepareSearchCacheKeys(cacheSize,
-                executor, newerContexts, 20, 20);
+        final List<SearchCacheKey> newerKeys = prepareSearchCacheKeys(cacheSize, executor, newerContexts, 20, 20);
         populateCache(executor, contexts, newerKeys);
 
         final int olderKeysSize = olderKeys.size();
@@ -376,13 +374,15 @@ public class SearchObjectsOperationExecutorStressTest
 
         private final List<String> errors = Collections.synchronizedList(new ArrayList<>());
 
-        private final Function<IOperationContext, ICache<Object>> cacheFactory;
+        private final CacheFactory cacheFactory;
 
-        public StressTestSearchMethodExecutor(final Function<IOperationContext, ICache<Object>> cacheFactory)
+        public StressTestSearchMethodExecutor(final CacheFactory cacheFactory)
         {
             this.cacheFactory = cacheFactory;
             this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(
                     new Properties()));
+
+            setCacheClass(cacheFactory.getCacheClass());
         }
 
         @Override
@@ -425,12 +425,12 @@ public class SearchObjectsOperationExecutorStressTest
         @Override
         protected ICache<Object> getCache(final IOperationContext context)
         {
-            final Map<String, ICache<Object>> cacheByUserSessionToken = this.getCacheByUserSessionToken();
+            final Map<String, ICache<Object>> cacheByUserSessionToken = getCacheByUserSessionToken();
             final String sessionToken = context.getSession().getSessionToken();
             ICache<Object> cache = cacheByUserSessionToken.get(sessionToken);
             if (cache == null)
             {
-                cache = cacheFactory.apply(context);
+                cache = cacheFactory.getCache(context);
                 cacheByUserSessionToken.put(sessionToken, cache);
             }
             return cache;
@@ -440,8 +440,7 @@ public class SearchObjectsOperationExecutorStressTest
         {
             final ICache<Object> cache = getCache(context);
             final String cacheKey = getMD5Hash(key.getCriteria().toString());
-            final Object result = cache.get(cacheKey);
-            return result;
+            return cache.get(cacheKey);
         }
 
         public Map<SearchCacheKey, Integer> getSearchCounts()
@@ -501,7 +500,16 @@ public class SearchObjectsOperationExecutorStressTest
 
     }
 
-    private static class MemoryCacheFactory implements Function<IOperationContext, ICache<Object>>
+    private interface CacheFactory
+    {
+
+        Class<?> getCacheClass();
+
+        ICache<Object> getCache(final IOperationContext iOperationContext);
+
+    }
+
+    private static class MemoryCacheFactory implements CacheFactory
     {
 
         final int cacheSize;
@@ -512,14 +520,20 @@ public class SearchObjectsOperationExecutorStressTest
         }
 
         @Override
-        public ICache<Object> apply(final IOperationContext iOperationContext)
+        public Class<?> getCacheClass()
+        {
+            return MemoryCache.class;
+        }
+
+        @Override
+        public ICache<Object> getCache(final IOperationContext iOperationContext)
         {
             return new MemoryCache<>(new CacheOptionsVO(cacheSize, null, null, false));
         }
 
     }
 
-    private static class FileCacheFactory implements Function<IOperationContext, ICache<Object>>
+    private static class FileCacheFactory implements CacheFactory
     {
 
         /** Whether at least one instance of this cache has been created. */
@@ -533,7 +547,13 @@ public class SearchObjectsOperationExecutorStressTest
         }
 
         @Override
-        public ICache<Object> apply(final IOperationContext context)
+        public Class<?> getCacheClass()
+        {
+            return FileCache.class;
+        }
+
+        @Override
+        public ICache<Object> getCache(final IOperationContext context)
         {
             final Properties properties = new Properties();
             final File workingDirectory = createDirectoryInUnitTestRoot(getClass().getName());
