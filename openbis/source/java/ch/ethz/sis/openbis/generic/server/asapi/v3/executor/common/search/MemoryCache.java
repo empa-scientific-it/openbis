@@ -39,7 +39,7 @@ public class MemoryCache<V> implements ICache<V>
     @Override
     public synchronized void put(final String key, final V value)
     {
-        if (!contains(key) && !writingKeys.contains(key))
+        if (contains(key) == false && writingKeys.contains(key) == false)
         {
             writingKeys.add(key);
 

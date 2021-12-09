@@ -286,7 +286,7 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
         cacheClearanceTaskInterval = getIntegerPropertyOrDefault(properties, CACHE_CLEARANCE_TASK_INTERVAL,
                 CACHE_CLEARANCE_TASK_INTERVAL_DEFAULT);
-        checkPositiveProperty(properties, CACHE_CLEARANCE_TASK_INTERVAL, markTimedOutOrDeletedTaskInterval);
+        checkPositiveProperty(properties, CACHE_CLEARANCE_TASK_INTERVAL, cacheClearanceTaskInterval);
 
     }
 

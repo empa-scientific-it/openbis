@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -439,7 +438,7 @@ public class SearchObjectsOperationExecutorStressTest
         public Object getSearchResultFromCache(final IOperationContext context, final SearchCacheKey key)
         {
             final ICache<Object> cache = getCache(context);
-            final String cacheKey = getMD5Hash(key.getCriteria().toString());
+            final String cacheKey = getMD5Hash(key.getCriteria());
             return cache.get(cacheKey);
         }
 

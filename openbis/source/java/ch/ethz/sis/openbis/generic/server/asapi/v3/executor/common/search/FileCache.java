@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -80,7 +81,7 @@ public class FileCache<V> implements ICache<V>
     @Override
     public synchronized void put(final String key, final V value)
     {
-        if (!contains(key) && !writingKeys.contains(key))
+        if (contains(key) == false && writingKeys.contains(key) == false)
         {
             writingKeys.add(key);
 
