@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import EntityKind from '@src/js/components/common/dto/EntityKind.js'
@@ -21,15 +21,15 @@ class PluginsGrid extends React.PureComponent {
     } = this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
+        sort='name'
         columns={[
           {
             name: 'name',
             label: messages.get(messages.NAME),
-            sort: 'asc',
             getValue: ({ row }) => row.name.value,
             renderValue: ({ row }) => {
               return (
@@ -43,10 +43,7 @@ class PluginsGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description.value,
-            renderValue: ({ value, classes }) => (
-              <span className={classes.wrap}>{value}</span>
-            )
+            getValue: ({ row }) => row.description.value
           },
           {
             name: 'pluginKind',
@@ -72,6 +69,7 @@ class PluginsGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

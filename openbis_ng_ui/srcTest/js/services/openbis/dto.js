@@ -64,6 +64,7 @@ import MaterialTypeDeletionOptions from 'as/dto/material/delete/MaterialTypeDele
 import MaterialTypeFetchOptions from 'as/dto/material/fetchoptions/MaterialTypeFetchOptions'
 import MaterialTypeSearchCriteria from 'as/dto/material/search/MaterialTypeSearchCriteria'
 import MaterialTypeUpdate from 'as/dto/material/update/MaterialTypeUpdate'
+import Me from 'as/dto/person/id/Me'
 import Person from 'as/dto/person/Person'
 import PersonCreation from 'as/dto/person/create/PersonCreation'
 import PersonDeletionOptions from 'as/dto/person/delete/PersonDeletionOptions'
@@ -235,6 +236,7 @@ const dto = {
   MaterialTypeFetchOptions,
   MaterialTypeSearchCriteria,
   MaterialTypeUpdate,
+  Me,
   Person,
   PersonCreation,
   PersonDeletionOptions,

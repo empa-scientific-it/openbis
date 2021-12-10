@@ -17,7 +17,11 @@ import UserGroupFormGridRoles from '@src/js/components/users/form/UserGroupFormG
 import UserGroupFormButtons from '@src/js/components/users/form/UserGroupFormButtons.jsx'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 class UserGroupForm extends React.PureComponent {
   constructor(props) {
@@ -72,10 +76,11 @@ class UserGroupForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'UserGroupForm.render')
 
-    const { loading, loaded, group } = this.state
+    const { loadId, loading, loaded, group } = this.state
 
     return (
       <PageWithTwoPanels
+        key={loadId}
         loading={loading}
         loaded={loaded}
         object={group}
@@ -87,11 +92,12 @@ class UserGroupForm extends React.PureComponent {
   }
 
   renderMainPanel() {
+    const { classes } = this.props
     const { users, roles, selection } = this.state
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <div>
+        <div className={classes.grid}>
           <UserGroupFormGridUsers
             controllerRef={this.handleUsersGridControllerRef}
             rows={users}
@@ -103,7 +109,7 @@ class UserGroupForm extends React.PureComponent {
             onSelectedRowChange={this.handleSelectedUserRowChange}
           />
         </div>
-        <div>
+        <div className={classes.grid}>
           <UserGroupFormGridRoles
             controllerRef={this.handleRolesGridControllerRef}
             rows={roles}
@@ -121,15 +127,15 @@ class UserGroupForm extends React.PureComponent {
 
   renderAdditionalPanel() {
     const { controller } = this
-    const { group, users, roles, selection, mode } = this.state
-
-    const selectedUserRow = controller.usersGridController
-      ? controller.usersGridController.getSelectedRow()
-      : null
-
-    const selectedRoleRow = controller.rolesGridController
-      ? controller.rolesGridController.getSelectedRow()
-      : null
+    const {
+      group,
+      users,
+      roles,
+      selection,
+      selectedUserRow,
+      selectedRoleRow,
+      mode
+    } = this.state
 
     return (
       <div>

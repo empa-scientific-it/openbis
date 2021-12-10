@@ -66,7 +66,6 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		} , {
 			label : "Operations",
 			property : 'operations',
-			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
 				var $dropDownMenu = $("<span>", { class : 'dropdown' });
@@ -111,12 +110,8 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
                 
 				return $dropDownMenu;
 			},
-			filter : function(data, filter) {
-				return false;
-			},
-			sort : function(data1, data2, asc) {
-				return 0;
-			}
+			filterable : false,
+			sortable : false
 		}];
 		
 		var getDataList = function(callback) {
@@ -194,6 +189,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				// 4. Push data into list
 				//
 				dataList.push({
+					id: deletion.id,
                     deletionDate : Util.getFormatedDate(new Date(deletion.deletionDate)),
 					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
 					reason : deletion.reason,

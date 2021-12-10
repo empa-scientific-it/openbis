@@ -17,7 +17,7 @@ export default class UserFormControllerRemove {
     }
   }
 
-  _handleRemoveGroup(groupId) {
+  async _handleRemoveGroup(groupId) {
     const { groups } = this.context.getState()
 
     const groupIndex = groups.findIndex(group => group.id === groupId)
@@ -25,7 +25,7 @@ export default class UserFormControllerRemove {
     const newGroups = Array.from(groups)
     newGroups.splice(groupIndex, 1)
 
-    this.context.setState(state => {
+    await this.context.setState(state => {
       const newState = { ...state, groups: newGroups, selection: null }
       new UserFormControllerRecalculateInheritedRoles(this.controller).execute(
         newState
@@ -33,6 +33,15 @@ export default class UserFormControllerRemove {
       return newState
     })
 
-    this.controller.changed(true)
+    if (this.controller.groupsGridController) {
+      await this.controller.groupsGridController.selectRow(null)
+      await this.controller.groupsGridController.load()
+    }
+
+    if (this.controller.rolesGridController) {
+      await this.controller.rolesGridController.load()
+    }
+
+    await this.controller.changed(true)
   }
 }

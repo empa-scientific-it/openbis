@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import VocabularyLink from '@src/js/components/common/link/VocabularyLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -8,16 +8,11 @@ class VocabulariesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'VocabulariesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.VOCABULARY_TYPES)}
@@ -25,7 +20,6 @@ class VocabulariesGrid extends React.PureComponent {
           {
             name: 'code',
             label: messages.get(messages.CODE),
-            sort: 'asc',
             getValue: ({ row }) => row.code,
             renderValue: ({ row }) => {
               return <VocabularyLink vocabularyCode={row.code} />
@@ -34,10 +28,7 @@ class VocabulariesGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description,
-            renderValue: ({ value, classes }) => (
-              <span className={classes.wrap}>{value}</span>
-            )
+            getValue: ({ row }) => row.description
           },
           {
             name: 'urlTemplate',
@@ -46,6 +37,8 @@ class VocabulariesGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        sort='code'
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

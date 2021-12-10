@@ -8,15 +8,21 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   cell: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    borderColor: theme.palette.border.secondary
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0,
+    '&:last-child': {
+      paddingRight: theme.spacing(2)
+    }
   }
 })
 
-class GridHeaderFilter extends React.PureComponent {
+class GridFilter extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleFilterChange = this.handleFilterChange.bind(this)
+    this.ref = React.createRef()
   }
 
   handleFilterChange(event) {
@@ -26,26 +32,32 @@ class GridHeaderFilter extends React.PureComponent {
     }
   }
 
+  componentDidMount() {
+    this.renderDOMFilter()
+  }
+
+  componentDidUpdate() {
+    this.renderDOMFilter()
+  }
+
   render() {
-    logger.log(logger.DEBUG, 'GridHeaderFilter.render')
+    logger.log(logger.DEBUG, 'GridFilter.render')
 
     const { column, classes } = this.props
 
-    if (column.visible) {
-      let rendered = this.renderFilter()
-
-      return (
-        <TableCell classes={{ root: classes.cell }}>
-          {column.filterable && rendered}
-        </TableCell>
-      )
-    } else {
-      return null
-    }
+    return (
+      <TableCell ref={this.ref} classes={{ root: classes.cell }}>
+        {column.renderDOMFilter ? null : this.renderFilter()}
+      </TableCell>
+    )
   }
 
   renderFilter() {
     const { column, filter } = this.props
+
+    if (!column.filterable) {
+      return null
+    }
 
     const params = {
       value: filter,
@@ -72,6 +84,19 @@ class GridHeaderFilter extends React.PureComponent {
       return renderedFilter
     }
   }
+
+  renderDOMFilter() {
+    const { column, filter } = this.props
+
+    if (column.filterable && column.renderDOMFilter && this.ref.current) {
+      column.renderDOMFilter({
+        container: this.ref.current,
+        value: filter,
+        column,
+        onChange: this.handleFilterChange
+      })
+    }
+  }
 }
 
-export default withStyles(styles)(GridHeaderFilter)
+export default withStyles(styles)(GridFilter)

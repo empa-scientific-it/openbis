@@ -62,6 +62,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 				var id = FormUtil.prepareId(vocabulary.code).toLowerCase() + "_id";
 				var codeDiv = "<div id= " + id +">" + vocabulary.code + "</did>";
 				dataList.push({
+					id: vocabulary.code,
 					code : codeDiv,
 					description : vocabulary.description,
 					object : vocabulary
@@ -75,7 +76,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, 90);
-		dataGrid.init(this._dataGridContainer);
+        dataGrid.init(this._dataGridContainer);
 		
 		this._subtitle.empty();
 		this._subtitle.append("Vocabularies List");
@@ -101,6 +102,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			for(var idx = 0; idx < vocabulary.terms.length; idx++) {
 				var term =  vocabulary.terms[idx];
 				dataList.push({
+					id: term.code,
 					code : term.code,
 					label : term.label,
 					description : term.description,

@@ -1,14 +1,14 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import Collapse from '@material-ui/core/Collapse'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
-import Link from '@material-ui/core/Link'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import EntityType from '@src/js/components/common/dto/EntityType.js'
+import HistoryGridContentCell from '@src/js/components/tools/common/HistoryGridContentCell.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -21,16 +21,11 @@ class HistoryGrid extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
-
-    this.state = {
-      rows: [],
-      totalCount: 0
-    }
   }
 
   async load(params) {
     try {
-      await this.loadHistory(this.props.eventType, params)
+      return await this.loadHistory(this.props.eventType, params)
     } catch (error) {
       store.dispatch(actions.errorChange(error))
     }
@@ -80,7 +75,7 @@ class HistoryGrid extends React.PureComponent {
     const result = await openbis.searchEvents(criteria, fo)
 
     const rows = result.objects.map(event => ({
-      id: _.get(event, 'id'),
+      id: _.get(event, 'id.techId'),
       entityType: FormUtil.createField({
         value: _.get(event, 'entityType')
       }),
@@ -117,48 +112,19 @@ class HistoryGrid extends React.PureComponent {
       })
     }))
 
-    this.setState({
+    return {
       rows,
       totalCount: result.totalCount
-    })
-  }
-
-  handleRowChange(row, change) {
-    const rows = this.state.rows
-    this.setState(state => {
-      const index = rows.findIndex(r => r.id === row.id)
-      if (index !== -1) {
-        const row = rows[index]
-        const newRows = Array.from(rows)
-        newRows[index] = {
-          ...row,
-          ...change
-        }
-        return {
-          ...state,
-          rows: newRows
-        }
-      }
-    })
-  }
-
-  handleVisibilityChange(row, fieldName) {
-    this.handleRowChange(row, {
-      [fieldName]: {
-        ...row[fieldName],
-        visible: !row[fieldName].visible
-      }
-    })
+    }
   }
 
   render() {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
-    const { rows, totalCount } = this.state
-
     return (
-      <Grid
+      <GridWithSettings
         id={this.getId()}
+        filterModes={[GridFilterOptions.COLUMN_FILTERS]}
         header={this.getHeader()}
         columns={[
           {
@@ -235,32 +201,8 @@ class HistoryGrid extends React.PureComponent {
             sortable: false,
             filterable: false,
             getValue: ({ row }) => row.content.value,
-            renderValue: ({ row }) => {
-              const { value, visible } = row.content
-              if (value) {
-                return (
-                  <div>
-                    <Link
-                      onClick={() => {
-                        this.handleVisibilityChange(row, 'content')
-                      }}
-                    >
-                      {visible
-                        ? messages.get(messages.HIDE)
-                        : messages.get(messages.SHOW)}
-                    </Link>
-                    <Collapse
-                      in={visible}
-                      mountOnEnter={true}
-                      unmountOnExit={true}
-                    >
-                      <pre>{value}</pre>
-                    </Collapse>
-                  </div>
-                )
-              } else {
-                return null
-              }
+            renderValue: ({ value }) => {
+              return <HistoryGridContentCell value={value} />
             }
           },
           {
@@ -283,9 +225,8 @@ class HistoryGrid extends React.PureComponent {
             }
           }
         ]}
-        rows={rows}
-        totalCount={totalCount}
-        load={this.load}
+        loadRows={this.load}
+        selectable={true}
       />
     )
   }

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
@@ -15,14 +16,21 @@ import util from '@src/js/common/util.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
+const styles = theme => ({
+  grid: {
+    marginBottom: theme.spacing(2)
+  }
+})
+
 class ToolSearch extends React.Component {
   constructor(props) {
     super(props)
     autoBind(this)
 
+    this.gridControllers = {}
+
     this.state = {
-      loaded: false,
-      selection: null
+      loaded: false
     }
   }
 
@@ -159,28 +167,23 @@ class ToolSearch extends React.Component {
     return this.props.objectType === objectType || !this.props.objectType
   }
 
-  handleClickContainer() {
-    this.setState({
-      selection: null
-    })
+  handleContainerClick() {
+    for (let gridObjectType in this.gridControllers) {
+      this.gridControllers[gridObjectType].selectRow(null)
+    }
   }
 
   handleSelectedRowChange(objectType) {
     return row => {
-      if (row) {
-        this.setState({
-          selection: {
-            type: objectType,
-            id: row.id
-          }
-        })
+      if (!row) {
+        return
+      }
+      for (let gridObjectType in this.gridControllers) {
+        if (gridObjectType !== objectType) {
+          this.gridControllers[gridObjectType].selectRow(null)
+        }
       }
     }
-  }
-
-  getSelectedRowId(objectType) {
-    const { selection } = this.state
-    return selection && selection.type === objectType ? selection.id : null
   }
 
   render() {
@@ -191,7 +194,7 @@ class ToolSearch extends React.Component {
     }
 
     return (
-      <GridContainer onClick={this.handleClickContainer}>
+      <GridContainer onClick={this.handleContainerClick}>
         {this.renderNoResultsFoundMessage()}
         {this.renderDynamicPropertyPlugins()}
         {this.renderEntityValidationPlugins()}
@@ -229,16 +232,18 @@ class ToolSearch extends React.Component {
         this.state.dynamicPropertyPlugins
       )
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <PluginsGrid
             id={ids.DYNAMIC_PROPERTY_PLUGINS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.DYNAMIC_PROPERTY_PLUGIN] =
+                controller)
+            }
             pluginType={openbis.PluginType.DYNAMIC_PROPERTY}
             rows={this.state.dynamicPropertyPlugins}
             onSelectedRowChange={this.handleSelectedRowChange(
-              objectTypes.DYNAMIC_PROPERTY_PLUGIN
-            )}
-            selectedRowId={this.getSelectedRowId(
               objectTypes.DYNAMIC_PROPERTY_PLUGIN
             )}
           />
@@ -256,16 +261,18 @@ class ToolSearch extends React.Component {
         this.state.entityValidationPlugins
       )
     ) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <PluginsGrid
             id={ids.ENTITY_VALIDATION_PLUGINS_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.ENTITY_VALIDATION_PLUGIN] =
+                controller)
+            }
             pluginType={openbis.PluginType.ENTITY_VALIDATION}
             rows={this.state.entityValidationPlugins}
             onSelectedRowChange={this.handleSelectedRowChange(
-              objectTypes.ENTITY_VALIDATION_PLUGIN
-            )}
-            selectedRowId={this.getSelectedRowId(
               objectTypes.ENTITY_VALIDATION_PLUGIN
             )}
           />
@@ -278,15 +285,18 @@ class ToolSearch extends React.Component {
 
   renderQueries() {
     if (this.shouldRender(objectTypes.QUERY, this.state.queries)) {
+      const { classes } = this.props
       return (
-        <div>
+        <div className={classes.grid}>
           <QueriesGrid
             id={ids.QUERIES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.QUERY] = controller)
+            }
             rows={this.state.queries}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.QUERY
             )}
-            selectedRowId={this.getSelectedRowId(objectTypes.QUERY)}
           />
         </div>
       )
@@ -300,4 +310,4 @@ class ToolSearch extends React.Component {
   }
 }
 
-export default ToolSearch
+export default withStyles(styles)(ToolSearch)

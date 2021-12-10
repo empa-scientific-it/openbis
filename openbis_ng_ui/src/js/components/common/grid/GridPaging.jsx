@@ -9,6 +9,7 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
+import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -17,6 +18,10 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0
+  },
+  pageSize: {
+    marginLeft: -theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   pageSizeLabelPlacement: {
     marginRight: 0
@@ -28,11 +33,18 @@ const styles = theme => ({
     lineHeight: '46px'
   },
   pageRange: {
-    marginLeft: '24px'
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(2)
   },
-  pageButtons: {
-    marginLeft: '12px',
-    marginRight: '-12px'
+  pagePrevButtons: {},
+  pageNextButtons: {},
+  separator: {
+    borderLeftWidth: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: theme.palette.border.secondary,
+    height: theme.spacing(3),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1)
   }
 })
 
@@ -75,12 +87,13 @@ class GridPaging extends React.PureComponent {
 
     return (
       <div className={classes.container}>
+        <div className={classes.separator}></div>
         <div className={classes.pageSize}>
           <FormControlLabel
             control={
               <SelectField
                 value={pageSize}
-                options={[5, 10, 20, 50, 100].map(pageSize => ({
+                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
                   label: pageSize,
                   value: pageSize
                 }))}
@@ -96,13 +109,8 @@ class GridPaging extends React.PureComponent {
             labelPlacement='start'
           />
         </div>
-        <div className={classes.pageRange}>
-          <Typography variant='body2' data-part='range'>
-            {Math.min(count, page * pageSize + 1)}-
-            {Math.min(count, (page + 1) * pageSize)} of {count}
-          </Typography>
-        </div>
-        <div className={classes.pageButtons}>
+        <div className={classes.separator}></div>
+        <div className={classes.pagePrevButtons}>
           <IconButton
             onClick={this.handleFirstPageButtonClick}
             disabled={page === 0}
@@ -119,6 +127,13 @@ class GridPaging extends React.PureComponent {
           >
             <KeyboardArrowLeft fontSize='small' />
           </IconButton>
+        </div>
+        <div className={classes.pageRange}>
+          <Typography variant='body2' data-part='range'>
+            {this.renderRange()}
+          </Typography>
+        </div>
+        <div className={classes.pageNextButtons}>
           <IconButton
             onClick={this.handleNextButtonClick}
             disabled={page >= Math.ceil(count / pageSize) - 1}
@@ -136,8 +151,28 @@ class GridPaging extends React.PureComponent {
             <LastPageIcon fontSize='small' />
           </IconButton>
         </div>
+        <div className={classes.separator}></div>
       </div>
     )
+  }
+
+  renderRange() {
+    const { count, page, pageSize } = this.props
+
+    if (count === 0) {
+      return <span>{messages.get(messages.NO_RESULTS_FOUND)}</span>
+    } else if (count === 1) {
+      return <span>{messages.get(messages.RESULTS_RANGE, 1, 1)}</span>
+    } else {
+      const from = Math.min(count, page * pageSize + 1)
+      const to = Math.min(count, (page + 1) * pageSize)
+
+      return (
+        <span>
+          {messages.get(messages.RESULTS_RANGE, from + '-' + to, count)}
+        </span>
+      )
+    }
   }
 }
 

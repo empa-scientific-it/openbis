@@ -30,6 +30,7 @@ function StorageListView(storageListController, storageListModel) {
 			property : 'link',
 			isExportable: false,
 			sortable : false,
+			filterable: false,
 			showByDefault: true,
 			render : function(data) {
 				var storagePropertyGroup = profile.getStoragePropertyGroup();
@@ -44,9 +45,6 @@ function StorageListView(storageListController, storageListModel) {
 				var displayName = boxProperty + " - " + positionProperty;
 				var id = displayName.split(" ").join("").toLowerCase() + "-id";
 				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId, null, id);
-			},
-			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			}
 		});
 		columns.push({
@@ -54,20 +52,9 @@ function StorageListView(storageListController, storageListModel) {
 			property : 'identifier',
 			isExportable: true,
 			sortable : false,
+			filterable: false,
 			showByDefault: false,
 			hide : true,
-			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
-			},
-			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
-			},
-			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
-				var sortDirection = (asc)? 1 : -1;
-				return sortDirection * naturalSort(value1, value2);
-			}
 		});
 		columns.push({
 			label : 'Storage Name',
@@ -115,6 +102,7 @@ function StorageListView(storageListController, storageListModel) {
 				}
 				
 				var object = { '$object' : sample };
+				object["id"] = sample.identifier
 				object["identifier"] = sample.identifier;
 				for (propertyCode in storagePropertyCodesAsMap) {
 					var propertyType = profile.getPropertyType(propertyCode);
