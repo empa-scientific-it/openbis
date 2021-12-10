@@ -65,6 +65,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.MemoryCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -266,7 +268,7 @@ public class SearchObjectsOperationExecutorStressTest
         keys.addAll(olderKeys);
         keys.addAll(newerKeys);
 
-        olderContexts.values().forEach(context -> executor.getCache(context).clearOld(newerKeysDate));
+        olderContexts.values().forEach(context -> executor.getCacheManager().getCache(context).clearOld(newerKeysDate));
 
         for (int i = 0; i < keys.size(); i++)
         {
@@ -276,19 +278,16 @@ public class SearchObjectsOperationExecutorStressTest
 
             final IOperationContext context = contexts.get(key.getSessionToken());
             final TestSearchOperation operation = new TestSearchOperation(key.getCriteria(), key.getFetchOptions());
-            
+
+            final Object cachedResult = executor.getSearchResultFromCache(context, key);
             if (index < olderKeysSize)
             {
-                final Object cachedResult = executor.getSearchResultFromCache(context, key);
-
                 if (cachedResult != null)
                 {
                     fail("Fetched cache value should be null but was: " + cachedResult + " for key: " + key);
                 }
             } else
             {
-                final Object cachedResult = executor.getSearchResultFromCache(context, key);
-
                 if (cachedResult == null)
                 {
                     fail("Fetched cache value should not be null but was null for key: " + key);
@@ -381,7 +380,7 @@ public class SearchObjectsOperationExecutorStressTest
             this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(
                     new Properties()));
 
-            setCacheClass(cacheFactory.getCacheClass());
+            setCacheManager(new StressTestCacheManager(cacheFactory));
         }
 
         @Override
@@ -421,23 +420,9 @@ public class SearchObjectsOperationExecutorStressTest
             return Collections.singletonMap(key, searchResults.get(key));
         }
 
-        @Override
-        protected ICache<Object> getCache(final IOperationContext context)
-        {
-            final Map<String, ICache<Object>> cacheByUserSessionToken = getCacheByUserSessionToken();
-            final String sessionToken = context.getSession().getSessionToken();
-            ICache<Object> cache = cacheByUserSessionToken.get(sessionToken);
-            if (cache == null)
-            {
-                cache = cacheFactory.getCache(context);
-                cacheByUserSessionToken.put(sessionToken, cache);
-            }
-            return cache;
-        }
-
         public Object getSearchResultFromCache(final IOperationContext context, final SearchCacheKey key)
         {
-            final ICache<Object> cache = getCache(context);
+            final ICache<Object> cache = getCacheManager().getCache(context);
             final String cacheKey = getMD5Hash(key.getCriteria());
             return cache.get(cacheKey);
         }
@@ -495,6 +480,39 @@ public class SearchObjectsOperationExecutorStressTest
         protected SearchObjectsOperationResult getOperationResult(SearchResult searchResult)
         {
             return new TestSearchOperationResult(searchResult);
+        }
+
+        @Override
+        protected void setCacheManager(final ICacheManager cacheManager)
+        {
+            super.setCacheManager(cacheManager);
+            cacheManager.setCacheClass(cacheFactory.getCacheClass());
+        }
+
+    }
+
+    private static class StressTestCacheManager extends CacheManager
+    {
+
+        private final CacheFactory cacheFactory;
+
+        public StressTestCacheManager(final CacheFactory cacheFactory)
+        {
+            this.cacheFactory = cacheFactory;
+        }
+
+        @Override
+        public ICache<Object> getCache(final IOperationContext context)
+        {
+            final Map<String, ICache<Object>> cacheByUserSessionToken = getCacheByUserSessionToken();
+            final String sessionToken = context.getSession().getSessionToken();
+            ICache<Object> cache = cacheByUserSessionToken.get(sessionToken);
+            if (cache == null)
+            {
+                cache = cacheFactory.getCache(context);
+                cacheByUserSessionToken.put(sessionToken, cache);
+            }
+            return cache;
         }
 
     }

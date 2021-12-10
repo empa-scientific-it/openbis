@@ -39,10 +39,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.systemsx.cisd.authentication.Principal;
@@ -68,17 +69,27 @@ public class SearchObjectsOperationExecutorTest
 
     private TestSearchMethodExecutor executor;
 
+    private SearchObjectsOperationExecutorCache cache;
+
     private IOperationContext context1;
 
     private IOperationContext context2;
 
+    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUpExecutor()
     {
         LogInitializer.init();
         channel = new MessageChannelBuilder(1000).name("ch1").logger(new ConsoleLogger()).getChannel();
         channel2 = new MessageChannelBuilder(1000).name("ch2").logger(new ConsoleLogger()).getChannel();
-        executor = new TestSearchMethodExecutor();
+
+        cache = new SearchObjectsOperationExecutorCache();
+        
+        final TestCacheManager cacheManager = new TestCacheManager(cache);
+        cacheManager.setCacheClass(SearchObjectsOperationExecutorCache.class);
+
+        executor = new TestSearchMethodExecutor(cacheManager);
+
         context1 = new OperationContext(createSession("user1"));
         context2 = new OperationContext(createSession("user2"));
     }
@@ -107,7 +118,7 @@ public class SearchObjectsOperationExecutorTest
                 }
             }, "t2");
 
-        executor.setGetAction(new IDelegatedAction()
+        cache.setGetAction(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -153,7 +164,7 @@ public class SearchObjectsOperationExecutorTest
                 }
             }, "t2");
 
-        executor.setGetAction(new IDelegatedAction()
+        cache.setGetAction(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -205,7 +216,7 @@ public class SearchObjectsOperationExecutorTest
 //        executor.addEntry(TestSearchMethodExecutor.getMD5Hash(sampleSearchCriteria.toString()), entry);
 //        executor.addEntry(TestSearchMethodExecutor.getMD5Hash(experimentSearchCriteria.toString()), entry);
 
-        executor.setPutAction(new IDelegatedAction()
+        cache.setPutAction(new IDelegatedAction()
             {
                 @Override
                 public void execute()
@@ -247,70 +258,10 @@ public class SearchObjectsOperationExecutorTest
     private static class TestSearchMethodExecutor extends SearchObjectsOperationExecutor
     {
 
-        private final Map<String, Set<Object>> entries = new HashMap<>();
-
-        private IDelegatedAction getAction;
-
-        private IDelegatedAction putAction;
-
-        private final ICache<Object> cache;
-
-        public TestSearchMethodExecutor()
+        public TestSearchMethodExecutor(final ICacheManager cacheManager)
         {
-            cache = new ICache<Object>()
-            {
-
-                @Override
-                public void put(final String key, final Object value)
-                {
-                    if (putAction != null)
-                    {
-                        putAction.execute();
-                    }
-                }
-
-                @Override
-                public Object get(final String key)
-                {
-                    if (getAction != null)
-                    {
-                        getAction.execute();
-                    }
-                    final Set<Object> entry = entries.get(key);
-                    return entry;
-                }
-
-                @Override
-                public void remove(final String key)
-                {
-                }
-
-                @Override
-                public boolean contains(final String key)
-                {
-                    return false;
-                }
-
-                @Override
-                public void clear()
-                {
-                }
-
-                @Override
-                public void clearOld(final Date date)
-                {
-                }
-
-            };
-            setCacheClass(cache.getClass());
             operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
-        }
-
-        @Override
-        protected ICache<Object> getCache(final IOperationContext context)
-        {
-            setCacheClass(cache.getClass());
-            return cache;
+            setCacheManager(cacheManager);
         }
 
         @Override
@@ -318,16 +269,6 @@ public class SearchObjectsOperationExecutorTest
                 FetchOptions fetchOptions)
         {
             return Collections.emptySet();
-        }
-
-        void setGetAction(IDelegatedAction getAction)
-        {
-            this.getAction = getAction;
-        }
-
-        void setPutAction(IDelegatedAction putAction)
-        {
-            this.putAction = putAction;
         }
 
         @Override
@@ -358,6 +299,93 @@ public class SearchObjectsOperationExecutorTest
         protected SearchObjectsOperationResult getOperationResult(SearchResult searchResult)
         {
             return new TestSearchOperationResult(searchResult);
+        }
+
+        @Override
+        protected void setCacheManager(final ICacheManager cacheManager)
+        {
+            super.setCacheManager(cacheManager);
+        }
+
+    }
+
+    private static class TestCacheManager extends CacheManager
+    {
+
+        private final ICache<Object> cache;
+
+        private TestCacheManager(final ICache<Object> cache)
+        {
+            this.cache = cache;
+        }
+
+        @Override
+        public ICache<Object> getCache(final IOperationContext context)
+        {
+            setCacheClass(cache.getClass());
+            return cache;
+        }
+
+    }
+
+    private static class SearchObjectsOperationExecutorCache implements ICache<Object>
+    {
+
+        private final Map<String, Set<Object>> entries = new HashMap<>();
+
+        private IDelegatedAction getAction;
+
+        private IDelegatedAction putAction;
+
+        @Override
+        public void put(final String key, final Object value)
+        {
+            if (putAction != null)
+            {
+                putAction.execute();
+            }
+        }
+
+        @Override
+        public Object get(final String key)
+        {
+            if (getAction != null)
+            {
+                getAction.execute();
+            }
+            final Set<Object> entry = entries.get(key);
+            return entry;
+        }
+
+        @Override
+        public void remove(final String key)
+        {
+        }
+
+        @Override
+        public boolean contains(final String key)
+        {
+            return false;
+        }
+
+        @Override
+        public void clear()
+        {
+        }
+
+        @Override
+        public void clearOld(final Date date)
+        {
+        }
+
+        void setGetAction(IDelegatedAction getAction)
+        {
+            this.getAction = getAction;
+        }
+
+        void setPutAction(IDelegatedAction putAction)
+        {
+            this.putAction = putAction;
         }
 
     }

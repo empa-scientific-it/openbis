@@ -18,24 +18,19 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.log4j.Logger;
@@ -53,7 +48,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheCleanupListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
@@ -61,8 +56,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -82,10 +75,11 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractSearchObjectsOperationExecutor.class);
 
-    private static final Map<String, ICache<Object>> CACHE_BY_USER_SESSION_TOKEN = new ConcurrentHashMap<>();
-
     @Autowired
     private AuthorizationConfig authorizationConfig;
+
+    @Autowired
+    private ICacheManager cacheManager;
 
     protected abstract List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions);
 
@@ -94,12 +88,6 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     protected abstract SearchObjectsOperationResult<OBJECT> getOperationResult(SearchResult<OBJECT> searchResult);
 
     protected abstract ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE> getSearchManager();
-
-    private Properties serviceProperties;
-
-    private int cacheCapacity = OperationExecutionConfig.CACHE_CAPACITY_DEFAULT;
-
-    private Class<ICache<Object>> cacheClass;
 
     @Override
     protected SearchObjectsOperationResult<OBJECT> doExecute(IOperationContext context, SearchObjectsOperation<CRITERIA, FETCH_OPTIONS> operation)
@@ -126,7 +114,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria,
             FETCH_OPTIONS fetchOptions)
     {
-        final CacheMode cacheMode = cacheClass != null ? fetchOptions.getCacheMode() : CacheMode.NO_CACHE;
+        final CacheMode cacheMode = getCacheManager().getCacheClass() != null ? fetchOptions.getCacheMode()
+                : CacheMode.NO_CACHE;
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         if (CacheMode.NO_CACHE.equals(cacheMode))
@@ -163,7 +152,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
     {
         final String key = getMD5Hash(criteria);
 
-        final ICache<Object> cache = getCache(context);
+        final ICache<Object> cache = getCacheManager().getCache(context);
         cache.put(key, ids);
     }
 
@@ -221,7 +210,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 OPERATION_LOG.debug("Locked on session " + sessionHashCode);
             }
 
-            final ICache<Object> cache = getCache(context);
+            final ICache<Object> cache = getCacheManager().getCache(context);
 
             if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
             {
@@ -305,7 +294,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
         final Long userId = personPE.getId();
 
-        final CacheMode cacheMode = cacheClass != null ? fetchOptions.getCacheMode() : CacheMode.NO_CACHE;
+        final CacheMode cacheMode = getCacheManager().getCacheClass() != null ? fetchOptions.getCacheMode()
+                : CacheMode.NO_CACHE;
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         if (CacheMode.NO_CACHE.equals(cacheMode))
@@ -319,7 +309,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
                 ids = performDirectSearch(criteria, authorisationInformation, userId);
                 final String key = getMD5Hash(criteria);
 
-                final ICache<Object> cache = getCache(context);
+                final ICache<Object> cache = getCacheManager().getCache(context);
                 // put the entry to the cache again to trigger the size recalculation
                 cache.put(key, Collections.unmodifiableSet(ids));
             } else
@@ -348,32 +338,10 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         }
     }
 
-    protected ICache<Object> getCache(final IOperationContext context)
-    {
-        final String sessionToken = context.getSession().getSessionToken();
-        ICache<Object> cache = CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
-        if (cache == null)
-        {
-            try
-            {
-                cache = cacheClass.getConstructor(CacheOptionsVO.class).newInstance(
-                        new CacheOptionsVO(cacheCapacity, serviceProperties, sessionToken, true));
-            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException |
-                    NoSuchMethodException e)
-            {
-                throw new RuntimeException("Error creating cache instance.", e);
-            }
-
-            CACHE_BY_USER_SESSION_TOKEN.put(sessionToken, cache);
-        }
-        return cache;
-    }
-
-    private Set<Long> performDirectSearch(final CRITERIA criteria, 
+    private Set<Long> performDirectSearch(final CRITERIA criteria,
             final AuthorisationInformation authorisationInformation, final Long userId)
     {
-        return getSearchManager().searchForIDs(userId, authorisationInformation, criteria,
-                null, ID_COLUMN);
+        return getSearchManager().searchForIDs(userId, authorisationInformation, criteria, null, ID_COLUMN);
     }
 
     private Collection<Long> sortAndPage(final Set<Long> ids, final FETCH_OPTIONS fetchOptions)
@@ -435,49 +403,14 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         throw new IllegalArgumentException(message);
     }
 
-    protected static Map<String, ICache<Object>> getCacheByUserSessionToken()
+    public ICacheManager getCacheManager()
     {
-        return CACHE_BY_USER_SESSION_TOKEN;
+        return cacheManager;
     }
 
-    @SuppressWarnings("unchecked")
-    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
-    private void setServicePropertiesPlaceholder(ExposablePropertyPlaceholderConfigurer servicePropertiesPlaceholder)
-            throws ClassNotFoundException
+    protected void setCacheManager(final ICacheManager cacheManager)
     {
-        serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
-
-        cacheCapacity = PropertyUtils.getInt(serviceProperties, OperationExecutionConfig.CACHE_CAPACITY,
-                OperationExecutionConfig.CACHE_CAPACITY_DEFAULT);
-
-        final String cacheImplementationClassName =
-                PropertyUtils.getProperty(serviceProperties, OperationExecutionConfig.CACHE_CLASS);
-        setCacheClass(cacheImplementationClassName != null ? (Class<ICache<Object>>) Class.forName(
-                cacheImplementationClassName) : null);
-    }
-
-    protected void setCacheClass(final Class<ICache<Object>> cacheClass)
-    {
-        this.cacheClass = cacheClass;
-    }
-
-    public static void clearCacheOfUser(final String sessionToken)
-    {
-        final ICache<Object> cache = CACHE_BY_USER_SESSION_TOKEN.get(sessionToken);
-        if (cache != null)
-        {
-            cache.clear();
-        }
-
-        CACHE_BY_USER_SESSION_TOKEN.remove(sessionToken);
-    }
-
-    public static void clearOld(final Date date)
-    {
-        synchronized (CACHE_BY_USER_SESSION_TOKEN)
-        {
-            CACHE_BY_USER_SESSION_TOKEN.values().forEach(cache -> cache.clearOld(date));
-        }
+        this.cacheManager = cacheManager;
     }
 
 }

@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionActionListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -123,6 +123,9 @@ public abstract class AbstractClientService implements IClientService,
     @Resource(name = ComponentNames.SESSION_MANAGER)
     private IOpenBisSessionManager sessionManager;
 
+    @Autowired
+    private ICacheManager cacheManager;
+
     private final Map<String, HttpSession> httpSessionsBySessionToken = new HashMap<>();
 
     private ISessionActionListener sessionActionListener = new ISessionActionListener()
@@ -132,7 +135,7 @@ public abstract class AbstractClientService implements IClientService,
             {
                 synchronized (httpSessionsBySessionToken)
                 {
-                    AbstractSearchObjectsOperationExecutor.clearCacheOfUser(sessionToken);
+                    cacheManager.clearCacheOfUser(sessionToken);
                     HttpSession httpSession = httpSessionsBySessionToken.remove(sessionToken);
                     logout(null, true, httpSession, sessionToken);
                     if (httpSession != null)
