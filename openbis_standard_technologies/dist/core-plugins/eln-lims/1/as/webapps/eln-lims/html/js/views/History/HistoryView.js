@@ -43,32 +43,34 @@ function HistoryView(controller, model) {
 
         columns.push(
             {
-                label: "Id",
-                property: "id",
-            },
-            {
                 label: "Author",
                 property: "author",
+                showByDefault: true,
             },
             {
                 label: "Type",
                 property: "type",
+                showByDefault: true,
             },
             {
                 label: "Property Name",
                 property: "propertyName",
+                showByDefault: true,
             },
             {
                 label: "Property Value",
                 property: "propertyValue",
+                showByDefault: true,
             },
             {
                 label: "Relation Type",
                 property: "relationType",
+                showByDefault: true,
             },
             {
                 label: "Related Object Id",
                 property: "relatedObjectId",
+                showByDefault: true,
             }
         )
 
@@ -77,10 +79,12 @@ function HistoryView(controller, model) {
                 {
                     label: "External Code",
                     property: "externalCode",
+                    showByDefault: true,
                 },
                 {
                     label: "Path",
                     property: "path",
+                    showByDefault: true,
                 },
                 {
                     label: "Git Commit Hash",
@@ -113,10 +117,12 @@ function HistoryView(controller, model) {
             {
                 label: "Valid From",
                 property: "validFrom",
+                showByDefault: true,
             },
             {
                 label: "Valid To",
                 property: "validTo",
+                showByDefault: true,
             }
         )
 
