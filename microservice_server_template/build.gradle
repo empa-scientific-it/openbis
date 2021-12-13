@@ -11,8 +11,8 @@ repositories {
 dependencies {
     compile 'eclipse:jetty-all:9.4.44.v20210927',
             'lombok:lombok:1.18.12',
-            'log4j:log4j-api:2.10.0',
-            'log4j:log4j-core:2.10.0',
+            'log4j:log4j-api:2.15.0',
+            'log4j:log4j-core:2.15.0',
             'fasterxml:jackson-annotations:2.9.10',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-databind:2.9.10',
