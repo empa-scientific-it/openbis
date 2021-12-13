@@ -2546,3 +2546,13 @@ Get Server Public Information Operation Result
 
 is Force Deletion Of Dependent Deletions
 set Force Deletion Of Dependent Deletions
+
+get Entity Type Code
+set Entity Type Code
+
+get Total Data Sets Count
+get Total Experiments Count
+get Total Samples Count
+set Total Data Sets Count
+set Total Experiments Count
+set Total Samples Count

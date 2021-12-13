@@ -2,6 +2,21 @@
  * Library
  */
 define([ 'jquery', 'underscore' ], function(jquery, _) {
+    var NUMERIC_TYPES = [
+        "Date",
+        "Integer",
+        "int",
+        "Float",
+        "float",
+        "Long",
+        "long",
+        "Double",
+        "double",
+    ].reduce(function(map, type){
+        map[type] = type
+        return map
+    }, {})
+
 	var Json = function() {
 	}
 
@@ -156,7 +171,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 				return map;
 			}
 		} else {
-			if (_.isNumber(jsonObject) && jsonType && jsonType != "Date") {
+			if (_.isNumber(jsonObject) && jsonType && !NUMERIC_TYPES[jsonType]) {
 				if (jsonObject in objectMap) {
 					return objectMap[jsonObject];
 				} else {

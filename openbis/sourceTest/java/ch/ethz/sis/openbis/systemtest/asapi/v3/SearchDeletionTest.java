@@ -16,25 +16,33 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.DeletedObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import junit.framework.Assert;
 
 /**
@@ -57,9 +65,11 @@ public class SearchDeletionTest extends AbstractDeletionTest
     @Test
     public void testSearchDeletionsWithIdWithOrOperator()
     {
+        // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        fetchOptions.withDeletedObjects();
 
         ExperimentPermId experimentId = createCisdExperiment();
         SamplePermId sampleId1 = createCisdSample(experimentId, "SAMPLE_TO_DELETE_1");
@@ -82,8 +92,32 @@ public class SearchDeletionTest extends AbstractDeletionTest
         criteria.withId().thatEquals(deletionId1);
         criteria.withId().thatEquals(deletionId2);
 
-        SearchResult<Deletion> result = v3api.searchDeletions(sessionToken, criteria, fetchOptions);
-        assertDeletions(result.getObjects(), deletionId1, deletionId2);
+        // When
+        List<Deletion> objects = v3api.searchDeletions(sessionToken, criteria, fetchOptions).getObjects();
+
+        // Then
+        Collections.sort(objects, new SimpleComparator<Deletion, Long>()
+            {
+                @Override
+                public Long evaluate(Deletion item)
+                {
+                    return ((ObjectTechId) item.getId()).getTechId();
+                }
+            });
+        assertDeletions(objects, deletionId1, deletionId2);
+        assertAttributes(objects.get(0).getDeletedObjects(), DeletedObject::getIdentifier, "/CISD/DEFAULT/SAMPLE_TO_DELETE_1");
+        assertAttributes(objects.get(0).getDeletedObjects(), DeletedObject::getEntityTypeCode, "CELL_PLATE");
+        assertAttributes(objects.get(0).getDeletedObjects(), DeletedObject::getEntityKind, EntityKind.SAMPLE);
+        assertAttributes(objects.get(1).getDeletedObjects(), DeletedObject::getIdentifier, "/CISD/DEFAULT/SAMPLE_TO_DELETE_2");
+        assertAttributes(objects.get(1).getDeletedObjects(), DeletedObject::getEntityTypeCode, "CELL_PLATE");
+        assertAttributes(objects.get(1).getDeletedObjects(), DeletedObject::getEntityKind, EntityKind.SAMPLE);
+    }
+
+    private <T> void assertAttributes(List<DeletedObject> deletedObjects, Function<DeletedObject, T> mapper, 
+            Object...expectedAttributes)
+    {
+        List<T> attributes = deletedObjects.stream().map(mapper).collect(Collectors.toList());
+        assertEquals(attributes.toString(), Arrays.asList(expectedAttributes).toString());
     }
 
     @Test
@@ -183,6 +217,9 @@ public class SearchDeletionTest extends AbstractDeletionTest
         Assert.assertEquals(deletionOptions.getReason(), latestDeletion.getReason());
         Assert.assertEquals(1, latestDeletion.getDeletedObjects().size());
         Assert.assertEquals(experimentId, latestDeletion.getDeletedObjects().get(0).getId());
+        Assert.assertEquals(1, latestDeletion.getTotalExperimentsCount());
+        Assert.assertEquals(1, latestDeletion.getTotalSamplesCount());
+        Assert.assertEquals(0, latestDeletion.getTotalDataSetsCount());
         assertDeletionDate(latestDeletion);
     }
 

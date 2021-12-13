@@ -13,6 +13,11 @@ define([ "stjs", "as/dto/deletion/AbstractObjectDeletionOptions", "as/dto/vocabu
 		prototype.getReplacements = function() {
 			return this.replacements;
 		};
-	}, {});
+	}, {
+		replacements: {
+			name: "List",
+			arguments: ["VocabularyTermReplacement"]
+		}
+	});
 	return VocabularyTermDeletionOptions;
 })

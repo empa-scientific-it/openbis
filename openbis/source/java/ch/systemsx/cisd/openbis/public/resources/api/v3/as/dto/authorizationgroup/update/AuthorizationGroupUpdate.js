@@ -33,6 +33,9 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		};
 	}, {
 		AuthorizationGroupId : "IAuthorizationGroupId",
+		groupId: {
+			name: "IAuthorizationGroupId"
+		},
 		description : {
 			name : "FieldUpdateValue",
 			arguments : [ "String" ]

@@ -55,6 +55,8 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     static final String LDAP_FILTER_KEY_PROPERTY = "filter-key";
 
     static final String DEFAULT_LDAP_FILTER_KEY = "ou";
+    
+    static final String LDAP_GROUP_QUERY_TEMPLATE = "ldap-group-query-template";
 
     private File auditLogFile;
 
@@ -71,6 +73,8 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     private int executionId;
 
     private final Map<Integer, UserManagerReport> reportsById = new HashMap<>();
+
+    private String groupQueryTemplateOrNull;
 
     public UserManagementMaintenanceTask()
     {
@@ -89,6 +93,7 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
         }
         ldapService = getLdapAuthenticationService();
         filterKey = properties.getProperty(LDAP_FILTER_KEY_PROPERTY, DEFAULT_LDAP_FILTER_KEY);
+        groupQueryTemplateOrNull = properties.getProperty(LDAP_GROUP_QUERY_TEMPLATE);
         String shareIdsMappingFilePath = properties.getProperty(SHARES_MAPPING_FILE_PATH_PROPERTY);
         if (shareIdsMappingFilePath != null)
         {
@@ -239,7 +244,8 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
                     + "At least 'ldap.server.url', 'ldap.security.principal.distinguished.name', "
                     + "'ldap.security.principal.password' have to be specified in 'service.properties'.");
         }
-        return ldapService.listPrincipalsByKeyValue(filterKey, ldapGroupKey);
+        String query = groupQueryTemplateOrNull == null ? null : String.format(groupQueryTemplateOrNull, ldapGroupKey);
+        return ldapService.listPrincipalsByKeyValueOrQuery(filterKey, ldapGroupKey, query);
     }
 
     protected LDAPAuthenticationService getLdapAuthenticationService()

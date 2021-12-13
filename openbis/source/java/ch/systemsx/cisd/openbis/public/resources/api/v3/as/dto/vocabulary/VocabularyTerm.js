@@ -96,6 +96,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "VocabularyTermFetchOptions",
+		permId : "VocabularyTermPermId",
 		vocabulary : "Vocabulary",
 		registrationDate : "Date",
 		registrator : "Person",

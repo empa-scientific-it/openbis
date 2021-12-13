@@ -96,8 +96,6 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			
 			var extraOptions = [];
 			extraOptions.push({ name : "Delete (Selected Objects)", action : function(selected) {
-				var grid = _this._dataGridController._grid;
-				var selected = grid.getSelected();
 				if(selected != undefined && selected.length == 0){
 					Util.showUserError("Please select at least one sample to delete!");
 				} else {

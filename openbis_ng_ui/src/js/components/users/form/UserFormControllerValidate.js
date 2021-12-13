@@ -41,7 +41,7 @@ export default class UserFormControllerValidate extends PageControllerValidate {
       })
 
       if (this.controller.groupsGridController) {
-        await this.controller.groupsGridController.showSelectedRow()
+        await this.controller.groupsGridController.showRow(firstError.object.id)
       }
     } else if (roles.includes(firstError.object)) {
       await new RoleControllerValidate(this.controller).select(firstError)

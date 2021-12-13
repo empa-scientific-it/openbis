@@ -60,7 +60,14 @@ define([ "stjs" ], function(stjs) {
 		prototype.setResultDetails = function(entityPermId) {
 			this.entityPresultDetailsermId = resultDetails;
 		}
-	}, {}
+	}, {
+		servicePermId: "DssServicePermId",
+		entityKind: "EntityKind",
+		resultDetails: {
+			name: "Map",
+			arguments: ["String", "String"]
+		},
+	}
 	);
 	return SearchDomainServiceExecutionResult;
 })

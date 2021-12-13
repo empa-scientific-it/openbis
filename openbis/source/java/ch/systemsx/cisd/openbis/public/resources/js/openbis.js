@@ -166,7 +166,7 @@ _openbisInternal.prototype.listDataStores = function(action){
 _openbisInternal.prototype.initDataStores = function(action){
 	var openbisInternal = this;
 	
-	if(typeof this.dataStores === "undefined"){
+	if(typeof this.dataStores === "undefined" || this.dataStores.length == 0){
 		this.listDataStores(function(response){
 			if(response.result){
 				openbisInternal.dataStores = response.result;

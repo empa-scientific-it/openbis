@@ -72,7 +72,7 @@ define(['stjs', 'util/Exceptions'], function (stjs, exceptions) {
     },
     {
       fetchOptions: 'QueryDatabaseFetchOptions',
-      permId: 'IQueryDatabaseId',
+      permId: 'QueryDatabaseName',
       space: 'Space',
       creatorMinimalRole: 'Role',
       creatorMinimalRoleLevel: 'RoleLevel'

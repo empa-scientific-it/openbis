@@ -35,7 +35,15 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.address.setValue(address);
 		};
 	}, {
-		externalDmsId : "IExternalDmsId"
+		externalDmsId : "IExternalDmsId",
+		label: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		address: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		}
 	});
 	return ExternalDmsUpdate;
 })

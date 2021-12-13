@@ -20,7 +20,31 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.URI;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.AccessMode;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.LinkOption;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.ProviderMismatchException;
+import java.nio.file.ReadOnlyFileSystemException;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.FileAttributeView;
+import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.UserPrincipalLookupService;
+import java.nio.file.spi.FileSystemProvider;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -29,9 +53,15 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -52,31 +82,37 @@ import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.ftplet.User;
-import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.log4j.Logger;
-import org.apache.sshd.SshServer;
-import org.apache.sshd.common.KeyPairProvider;
-import org.apache.sshd.common.NamedFactory;
-import org.apache.sshd.common.Session;
-import org.apache.sshd.common.Session.AttributeKey;
+import org.apache.sshd.common.AttributeRepository.AttributeKey;
+import org.apache.sshd.common.file.util.BaseFileSystem;
+import org.apache.sshd.common.file.util.BasePath;
 import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
-import org.apache.sshd.server.Command;
-import org.apache.sshd.server.PasswordAuthenticator;
-import org.apache.sshd.server.SshFile;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
+import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.session.SessionContext;
+import org.apache.sshd.common.session.SessionListener;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.AsyncAuthException;
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
 import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.sftp.SftpSubsystem;
+import org.apache.sshd.server.subsystem.SubsystemFactory;
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.server.SftpErrorStatusDataHandler;
+import org.apache.sshd.sftp.server.SftpSubsystemEnvironment;
+import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -86,16 +122,16 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  * 
  * @author Kaloyan Enimanev
  */
-public class FtpServer implements FileSystemFactory, org.apache.sshd.server.FileSystemFactory
+public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file.FileSystemFactory
 {
-    private static final AttributeKey<User> USER_KEY = new Session.AttributeKey<User>();
+    private static final AttributeKey<User> USER_KEY = new AttributeKey<User>();
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpServer.class);
 
     private final IServiceForDataStoreServer openBisService;
 
-    private final UserManager userManager;
+    private final FtpUserManager userManager;
 
     private final FtpServerConfig config;
 
@@ -109,8 +145,10 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
     private SshServer sshServer;
 
+    private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken = new HashMap<>();
+
     public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
-            UserManager userManager) throws Exception
+            FtpUserManager userManager) throws Exception
     {
         this.openBisService = openBisService;
         this.generalInfoService = generalInfoService;
@@ -221,6 +259,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             {
                 @Override
                 public boolean authenticate(String username, String password, ServerSession session)
+                        throws PasswordChangeRequiredException, AsyncAuthException
                 {
                     try
                     {
@@ -228,6 +267,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                                 new UsernamePasswordAuthentication(username, password);
                         User user = userManager.authenticate(authentication);
                         session.setAttribute(USER_KEY, user);
+                        operationLog.info("User " + user + " authenticated. Session: " + session);
                         return true;
                     } catch (AuthenticationFailedException ex)
                     {
@@ -235,12 +275,45 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                     }
                 }
             });
+        s.addSessionListener(new SessionListener()
+            {
+                @Override
+                public void sessionException(Session session, Throwable t)
+                {
+                    operationLog.error("Session exception", t);
+                }
+            });
         return s;
     }
 
-    private List<NamedFactory<Command>> creatSubsystemFactories()
+    private List<? extends SubsystemFactory> creatSubsystemFactories()
     {
-        return Arrays.<NamedFactory<Command>> asList(new SftpSubsystem.Factory());
+        SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
+        factory.setErrorStatusDataHandler(new SftpErrorStatusDataHandler()
+            {
+                private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
+                        SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
+
+                @Override
+                public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
+                        Throwable e, int subStatus, int cmd, Object... args)
+                {
+                    String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
+                    User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
+                    String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
+                            + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
+                            + "), args=" + Arrays.asList(args);
+                    if (subStatiForErrorLogging.contains(subStatus))
+                    {
+                        operationLog.error(logMessage, e);
+                    } else
+                    {
+                        operationLog.warn(logMessage + ": " + e);
+                    }
+                    return message;
+                }
+            });
+        return Arrays.<SubsystemFactory> asList(factory);
     }
 
     /**
@@ -257,7 +330,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             try
             {
                 sshServer.stop();
-            } catch (InterruptedException ex)
+            } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
@@ -270,8 +343,16 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         if (user instanceof FtpUser)
         {
             String sessionToken = ((FtpUser) user).getSessionToken();
-            return new DSSFileSystemView(sessionToken, openBisService, generalInfoService, v3api,
-                    pathResolverRegistry);
+            DSSFileSystemView fileSystemView = new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
+                    v3api, pathResolverRegistry);
+            Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(sessionToken);
+            if (views == null)
+            {
+                views = new HashSet<>();
+                fileSystemViewsBySessionToken.put(sessionToken, views);
+            }
+            views.add(fileSystemView);
+            return fileSystemView;
         } else
         {
             throw new FtpException("Unsupported user type.");
@@ -279,213 +360,429 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     }
 
     @Override
-    public org.apache.sshd.server.FileSystemView createFileSystemView(Session session)
-            throws IOException
+    public FileSystem createFileSystem(SessionContext session) throws IOException
     {
         User user = session.getAttribute(USER_KEY);
         try
         {
-            final DSSFileSystemView view = createFileSystemView(user);
-            return new org.apache.sshd.server.FileSystemView()
-                {
-                    @Override
-                    public SshFile getFile(SshFile baseDir, String file)
-                    {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public SshFile getFile(String file)
-                    {
-                        return new FileView(view, file);
-                    }
-                };
+            DSSFileSystemView fileSystemView = createFileSystemView(user);
+            OpenBisFileSystemProvider fileSystemProvider = new OpenBisFileSystemProvider(fileSystemView);
+            return new OpenBisFileSystem(fileSystemProvider, fileSystemViewsBySessionToken, userManager, user);
         } catch (FtpException ex)
         {
-            throw new IOException(ex.getMessage());
+            throw new IOException(ex.getMessage(), ex);
         }
     }
 
-    private static final class FileView implements SshFile
+    private static class OpenBisFileSystem extends BaseFileSystem<OpenBisPath>
     {
-        private final DSSFileSystemView fileView;
+        private final FtpUserManager userManager;
 
-        private final String path;
+        private final User user;
 
-        private final List<InputStream> inputStreams = new ArrayList<InputStream>();
+        private final DSSFileSystemView fileSystemView;
 
-        private FtpFile file;
+        private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken;
 
+        private boolean open = true;
 
-        FileView(DSSFileSystemView fileView, String path)
+        public OpenBisFileSystem(OpenBisFileSystemProvider fileSystemProvider,
+                Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken,
+                FtpUserManager userManager, User user)
         {
-            this.fileView = fileView;
-            this.path = path;
+            super(fileSystemProvider);
+            this.fileSystemViewsBySessionToken = fileSystemViewsBySessionToken;
+            fileSystemView = fileSystemProvider.fileSystemView;
+            this.userManager = userManager;
+            this.user = user;
         }
 
-        private FtpFile getFile()
+        @Override
+        public boolean isReadOnly()
         {
-            if (file == null)
+            return true;
+        }
+
+        @Override
+        protected OpenBisPath create(String root, List<String> names)
+        {
+            return new OpenBisPath(this, root, names);
+        }
+
+        @Override
+        public void close() throws IOException
+        {
+            Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(fileSystemView.getSessionToken());
+            boolean noViews = false;
+            if (views != null)
             {
-                try
+                views.remove(fileSystemView);
+                if (views.isEmpty())
                 {
-                    file = fileView.getFile(path);
-                } catch (FtpException ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    fileSystemViewsBySessionToken.remove(fileSystemView.getSessionToken());
+                    noViews = true;
                 }
             }
-            return file;
+            userManager.close(user, noViews);
+            operationLog.info("File system closed for user " + user);
+            open = false;
         }
 
         @Override
-        public String getAbsolutePath()
+        public boolean isOpen()
         {
-            return getFile().getAbsolutePath();
+            return open;
         }
 
         @Override
-        public String getName()
+        public Set<String> supportedFileAttributeViews()
         {
-            return FileUtilities.getFileNameFromRelativePath(path);
+            return Collections.singleton("posix");
         }
 
         @Override
-        public boolean isDirectory()
+        public UserPrincipalLookupService getUserPrincipalLookupService()
         {
-            return getFile().isDirectory();
+            throw new UnsupportedOperationException();
         }
+    }
 
-        @Override
-        public boolean isFile()
+    private static class OpenBisPath extends BasePath<OpenBisPath, OpenBisFileSystem>
+    {
+        private OpenBisFileAttributes attributes;
+
+        public OpenBisPath(OpenBisFileSystem fileSystem, String root, List<String> names)
         {
-            return getFile().isFile();
+            super(fileSystem, root, names);
         }
 
         @Override
-        public boolean doesExist()
+        public Path toRealPath(LinkOption... options) throws IOException
         {
-            return getFile().doesExist();
+            Path absolutePath = toAbsolutePath();
+            FileSystemProvider provider = getFileSystem().provider();
+            provider.checkAccess(absolutePath);
+            return absolutePath;
         }
 
-        @Override
-        public boolean isReadable()
+        public OpenBisFileAttributes getAttributes()
         {
-            return getFile().isReadable();
+            return attributes;
         }
 
-        @Override
-        public boolean isWritable()
+        public void setAttributes(OpenBisFileAttributes attributes)
         {
-            return false;
+            this.attributes = attributes;
         }
+    }
 
-        @Override
-        public boolean isExecutable()
+    private static class OpenBisFileSystemProvider extends FileSystemProvider
+    {
+        private DSSFileSystemView fileSystemView;
+
+        public OpenBisFileSystemProvider(DSSFileSystemView fileSystemView)
         {
-            return false;
+            this.fileSystemView = fileSystemView;
         }
 
         @Override
-        public boolean isRemovable()
+        public String getScheme()
         {
-            return getFile().isRemovable();
+            return "openbis";
         }
 
         @Override
-        public SshFile getParentFile()
+        public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException
         {
             return null;
         }
 
         @Override
-        public long getLastModified()
+        public FileSystem getFileSystem(URI uri)
         {
-            return getFile().getLastModified();
+            return null;
         }
 
         @Override
-        public boolean setLastModified(long time)
+        public Path getPath(URI uri)
         {
-            return false;
+            return null;
         }
 
         @Override
-        public long getSize()
+        public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException
         {
-            return getFile().getSize();
+            return null;
         }
 
         @Override
-        public boolean mkdir()
+        public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) throws IOException
         {
-            return false;
-        }
-
-        @Override
-        public boolean delete()
-        {
-            return false;
-        }
-
-        @Override
-        public boolean create() throws IOException
-        {
-            return false;
-        }
-
-        @Override
-        public void truncate() throws IOException
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean move(SshFile destination)
-        {
-            return false;
-        }
-
-        @Override
-        public List<SshFile> listSshFiles()
-        {
-            List<FtpFile> files = getFile().listFiles();
-            List<SshFile> result = new ArrayList<SshFile>();
-            for (FtpFile child : files)
+            FtpFile folder = getFile(dir);
+            List<Path> children = new ArrayList<>();
+            for (FtpFile file : folder.listFiles())
             {
-                result.add(new FileView(fileView, child.getAbsolutePath()));
+                children.add(dir.getFileSystem().getPath(file.getAbsolutePath()));
             }
-            return result;
+            return new DirectoryStream<Path>()
+                {
+                    @Override
+                    public void close() throws IOException
+                    {
+                    }
+
+                    @Override
+                    public Iterator<Path> iterator()
+                    {
+                        return children.iterator();
+                    }
+                };
         }
 
         @Override
-        public OutputStream createOutputStream(long offset) throws IOException
+        public InputStream newInputStream(Path path, OpenOption... options) throws IOException
         {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Input streams not supported for " + path);
         }
 
         @Override
-        public InputStream createInputStream(long offset) throws IOException
+        public FileChannel newFileChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException
         {
-            InputStream inputStream = getFile().createInputStream(offset);
-            inputStreams.add(inputStream);
-            return inputStream;
-        }
-
-        @Override
-        public void handleClose() throws IOException
-        {
-            for (InputStream inputStream : inputStreams)
+            FtpFile file = getFile(path);
+            NonExistingFtpFile.throwFileNotFoundExceptionIfNonExistingFtpFile(file);
+            if (file instanceof AbstractFtpFileWithContent == false)
             {
-                IOUtils.closeQuietly(inputStream);
+                throw new UnsupportedOperationException("File channel not supported.");
             }
-            inputStreams.clear();
+            return ((AbstractFtpFileWithContent) file).getFileChannel();
         }
 
         @Override
-        public String getOwner()
+        public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException
         {
-            return "openBIS";
+            throw new ReadOnlyFileSystemException();
+        }
+
+        @Override
+        public void delete(Path path) throws IOException
+        {
+            throw new ReadOnlyFileSystemException();
+        }
+
+        @Override
+        public void copy(Path source, Path target, CopyOption... options) throws IOException
+        {
+            throw new ReadOnlyFileSystemException();
+        }
+
+        @Override
+        public void move(Path source, Path target, CopyOption... options) throws IOException
+        {
+            throw new ReadOnlyFileSystemException();
+        }
+
+        @Override
+        public boolean isSameFile(Path path, Path path2) throws IOException
+        {
+            return path.toAbsolutePath().equals(path2.toAbsolutePath());
+        }
+
+        @Override
+        public boolean isHidden(Path path) throws IOException
+        {
+            return false;
+        }
+
+        @Override
+        public FileStore getFileStore(Path path) throws IOException
+        {
+            return null;
+        }
+
+        @Override
+        public void checkAccess(Path path, AccessMode... modes) throws IOException
+        {
+        }
+
+        @Override
+        public <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... options)
+        {
+            return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options) throws IOException
+        {
+            if (path instanceof OpenBisPath == false)
+            {
+                throw new ProviderMismatchException();
+            }
+            OpenBisPath openBisPath = (OpenBisPath) path;
+            OpenBisFileAttributes fileAttributes = openBisPath.getAttributes();
+            if (fileAttributes == null)
+            {
+                fileAttributes = new OpenBisFileAttributes();
+                FtpFile file = getFile(path);
+                NonExistingFtpFile.throwFileNotFoundExceptionIfNonExistingFtpFile(file);
+                FileTime lastModified = FileTime.fromMillis(file.getLastModified());
+                fileAttributes.setModifiedTime(lastModified);
+                fileAttributes.setCreationTime(lastModified);
+                fileAttributes.setAccessTime(lastModified);
+                fileAttributes.setSize(file.getSize());
+                fileAttributes.setDirectory(file.isDirectory());
+                fileAttributes.setRegularFile(file.isFile());
+                openBisPath.setAttributes(fileAttributes);
+            }
+            return (A) fileAttributes;
+        }
+
+        private FtpFile getFile(Path path)
+        {
+            try
+            {
+                return fileSystemView.getFile(path.toString());
+            } catch (FtpException e)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(e);
+            }
+        }
+
+        @Override
+        public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException
+        {
+            return null;
+        }
+
+        @Override
+        public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException
+        {
+            throw new ReadOnlyFileSystemException();
+        }
+    }
+
+    private static class OpenBisFileAttributes implements PosixFileAttributes
+    {
+        private FileTime modifiedTime;
+
+        private FileTime accessTime;
+
+        private FileTime creationTime;
+
+        private boolean regularFile;
+
+        private boolean directory;
+
+        private boolean symbolicLink;
+
+        private long size;
+
+        @Override
+        public FileTime lastModifiedTime()
+        {
+            return modifiedTime;
+        }
+
+        public void setModifiedTime(FileTime modifiedTime)
+        {
+            this.modifiedTime = modifiedTime;
+        }
+
+        @Override
+        public FileTime lastAccessTime()
+        {
+            return accessTime;
+        }
+
+        public void setAccessTime(FileTime accessTime)
+        {
+            this.accessTime = accessTime;
+        }
+
+        @Override
+        public FileTime creationTime()
+        {
+            return creationTime;
+        }
+
+        public void setCreationTime(FileTime creationTime)
+        {
+            this.creationTime = creationTime;
+        }
+
+        @Override
+        public boolean isRegularFile()
+        {
+            return regularFile;
+        }
+
+        public void setRegularFile(boolean regularFile)
+        {
+            this.regularFile = regularFile;
+        }
+
+        @Override
+        public boolean isDirectory()
+        {
+            return directory;
+        }
+
+        public void setDirectory(boolean directory)
+        {
+            this.directory = directory;
+        }
+
+        @Override
+        public boolean isSymbolicLink()
+        {
+            return symbolicLink;
+        }
+
+        @Override
+        public boolean isOther()
+        {
+            return (regularFile || directory || symbolicLink) == false;
+        }
+
+        @Override
+        public long size()
+        {
+            return size;
+        }
+
+        public void setSize(long size)
+        {
+            this.size = size;
+        }
+
+        @Override
+        public Object fileKey()
+        {
+            return null;
+        }
+
+        @Override
+        public UserPrincipal owner()
+        {
+            return null;
+        }
+
+        @Override
+        public GroupPrincipal group()
+        {
+            return null;
+        }
+
+        @Override
+        public Set<PosixFilePermission> permissions()
+        {
+            return EnumSet.of(PosixFilePermission.OWNER_READ);
+        }
+
+        @Override
+        public String toString()
+        {
+            return modifiedTime + " " + (directory ? "DIR" : (regularFile ? "FILE" : "?")) + " " + size;
         }
     }
 
@@ -526,9 +823,9 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         }
 
         @Override
-        protected KeyPair[] loadKeys()
+        public Iterable<KeyPair> loadKeys(SessionContext session) throws IOException, GeneralSecurityException
         {
-            return keyPairs;
+            return Arrays.asList(keyPairs);
         }
 
         private KeyStore loadKeystore(File keyStoreFile, String keyStorePassword)
@@ -577,7 +874,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
-
         }
+    }
+
+    @Override
+    public Path getUserHomeDir(SessionContext session) throws IOException
+    {
+        return null;
     }
 }

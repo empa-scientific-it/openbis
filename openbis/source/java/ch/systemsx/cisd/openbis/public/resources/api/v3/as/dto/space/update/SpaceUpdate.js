@@ -50,7 +50,11 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.freezeForSamples = true;
 		}
 	}, {
-		spaceId : "ISpaceId"
+		spaceId : "ISpaceId",
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		}
 	});
 	return SpaceUpdate;
 })

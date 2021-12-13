@@ -74,9 +74,36 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		prototype.setPublic = function(publicFlag) {
 			this.publicFlag.setValue(publicFlag);
 		};
-
 	}, {
-		queryId : "IQueryId"
+		queryId : "IQueryId",
+		name: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		databaseId: {
+			name: "FieldUpdateValue",
+			arguments: ["IQueryDatabaseId"]
+		},
+		queryType: {
+			name: "FieldUpdateValue",
+			arguments: ["QueryType"]
+		},
+		entityTypeCodePattern: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		sql: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		publicFlag: {
+			name: "FieldUpdateValue",
+			arguments: ["Boolean"]
+		}
 	});
 	return QueryUpdate;
 })

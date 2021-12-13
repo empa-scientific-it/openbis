@@ -61,7 +61,7 @@ function StorageModel(configOverride) {
 			this.sample.properties[this.storagePropertyGroup.positionProperty] = "";
 			var userId = "";
 			if(setUser) {
-				userId = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+				userId = mainController.serverFacade.getUserId();
 			}
 			this.sample.properties[this.storagePropertyGroup.userProperty] = userId;
 		}

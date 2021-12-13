@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -27,13 +27,8 @@ class RolesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'RolesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     let columnNames = ['level', 'space', 'project', 'role']
 
@@ -54,12 +49,14 @@ class RolesGrid extends React.PureComponent {
     )
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={columns}
         rows={rows}
+        sort={this.getSort()}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />
@@ -81,14 +78,25 @@ class RolesGrid extends React.PureComponent {
     return messages.get(message)
   }
 
-  getColumns() {
+  getSort() {
     const { id } = this.props
 
+    if (id === ids.ROLES_OF_USERS_GRID_ID) {
+      return 'user'
+    } else if (id === ids.ROLES_OF_GROUPS_GRID_ID) {
+      return 'group'
+    } else if (id === ids.ROLES_OF_USER_GRID_ID) {
+      return 'inheritedFrom'
+    } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
+      return 'level'
+    }
+  }
+
+  getColumns() {
     return [
       {
         name: 'user',
         label: messages.get(messages.USER),
-        sort: id === ids.ROLES_OF_USERS_GRID_ID ? 'asc' : null,
         getValue: this.getUserValue,
         renderValue: this.renderUserValue,
         compareValue: params => {
@@ -106,7 +114,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'group',
         label: messages.get(messages.GROUP),
-        sort: id === ids.ROLES_OF_GROUPS_GRID_ID ? 'asc' : null,
         getValue: this.getGroupValue,
         renderValue: this.renderGroupValue,
         compareValue: params => {
@@ -124,7 +131,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'inheritedFrom',
         label: messages.get(messages.INHERITED_FROM),
-        sort: id === ids.ROLES_OF_USER_GRID_ID ? 'asc' : null,
         getValue: this.getInheritedFromValue,
         renderValue: this.renderInheritedFromValue,
         compareValue: params => {
@@ -141,7 +147,6 @@ class RolesGrid extends React.PureComponent {
       {
         name: 'level',
         label: messages.get(messages.LEVEL),
-        sort: id === ids.ROLES_OF_GROUP_GRID_ID ? 'asc' : null,
         getValue: this.getLevelValue,
         renderValue: this.renderLevelValue,
         compareValue: params => {

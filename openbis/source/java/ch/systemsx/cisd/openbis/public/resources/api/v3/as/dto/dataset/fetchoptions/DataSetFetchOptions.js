@@ -263,6 +263,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		containers : "DataSetFetchOptions",
 		components : "DataSetFetchOptions",
 		physicalData : "PhysicalDataFetchOptions",
+		linkedData: "LinkedDataFetchOptions",
 		tags : "TagFetchOptions",
 		type : "DataSetTypeFetchOptions",
 		dataStore : "DataStoreFetchOptions",

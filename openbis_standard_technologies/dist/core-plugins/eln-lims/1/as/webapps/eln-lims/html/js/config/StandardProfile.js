@@ -380,6 +380,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
 									var rowData = {};
+									rowData.id = index;
 									rowData.permId = product.permId;
 									rowData.supplier = provider.properties[profile.propertyReplacingCode];
 									rowData.name = product.properties[profile.propertyReplacingCode];

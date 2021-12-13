@@ -83,6 +83,7 @@ function HierarchyTableModel(entity) {
 		}
 		
 		dataList.push({
+			id: entity.permId.permId,
 			level : level,
 			registrationDate : Util.getFormatedDate(new Date(entity.registrationDate)),
 			type : entity.type.code,

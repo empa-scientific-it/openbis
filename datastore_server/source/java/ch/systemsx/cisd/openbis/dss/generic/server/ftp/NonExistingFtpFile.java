@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +31,14 @@ import org.apache.ftpserver.ftplet.FtpFile;
  */
 public class NonExistingFtpFile implements FtpFile
 {
+    public static void throwFileNotFoundExceptionIfNonExistingFtpFile(FtpFile file) throws FileNotFoundException
+    {
+        if (file instanceof NonExistingFtpFile)
+        {
+            throw new FileNotFoundException("Unknown file: " + file);
+        }
+    }
+
     private final String path;
 
     private final String errorMsgOrNull;
@@ -183,5 +192,11 @@ public class NonExistingFtpFile implements FtpFile
         {
             throw new IOException("File '" + path + "' does not exist.");
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return path + (errorMsgOrNull == null ? "" : " (Error: " + errorMsgOrNull + ")");
     }
 }

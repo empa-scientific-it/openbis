@@ -50,17 +50,106 @@ function ProjectFormController(mainController, mode, project) {
 			_this._projectFormView.repaint(views);
 		}
 	}
-	
+
+    this.getDependentEntities = function(callback) {
+        var _this = this;
+        require(["as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions"],
+        function(ProjectPermId, ProjectFetchOptions) {
+            var id = new ProjectPermId(_this._projectFormModel.project.permId);
+            var fetchOptions = new ProjectFetchOptions();
+            fetchOptions.withExperiments();
+            fetchOptions.withSamples().withExperiment();
+            mainController.openbisV3.getProjects([ id ], fetchOptions).done(function(map) {
+                var project = map[id];
+                callback(project.getExperiments(), project.getSamples());
+            });
+        });
+    }
+
+    this.deleteDependentEntities = function(reason, experiments, samples) {
+        Util.blockUI();
+        var _this = this;
+        var experimentIds = new Set();
+        experiments.forEach(e => experimentIds.add(e.getPermId()));
+        var independentSamples = [];
+        samples.forEach(function(sample) {
+            var experiment = sample.getExperiment();
+            if (experiment == null || experimentIds.has(experiment.getPermId()) == false) {
+                independentSamples.push(sample.getPermId());
+            }
+        });
+        this._deleteExperiments(reason, Array.from(experimentIds), function() {
+            _this._deleteSamples(reason, independentSamples, function() {
+                Util.showSuccess("Entities deleted", function() {
+                    _this._mainController.sideMenu.refreshCurrentNode();
+                    Util.unblockUI();
+                });
+            });
+        });
+    }
+    
+    this._deleteExperiments = function(reason, experimentIds, callback) {
+        if (experimentIds.length > 0) {
+            require(["as/dto/experiment/delete/ExperimentDeletionOptions"],
+            function(ExperimentDeletionOptions) {
+                var deletionOptions = new ExperimentDeletionOptions();
+                deletionOptions.setReason(reason);
+                mainController.openbisV3.deleteExperiments(experimentIds, deletionOptions).done(callback);
+            });
+        } else {
+            callback();
+        }
+    }
+    
+    this._deleteSamples = function(reason, sampleIds, callback) {
+        if (sampleIds.length > 0) {
+            require(["as/dto/sample/delete/SampleDeletionOptions"],
+            function(SampleDeletionOptions) {
+                var deletionOptions = new SampleDeletionOptions();
+                deletionOptions.setReason(reason);
+                mainController.openbisV3.deleteSamples(sampleIds, deletionOptions).done(callback);
+            });
+        } else {
+            callback();
+        }
+    }
+
 	this.deleteProject = function(reason) {
-		var _this = this;
-		mainController.serverFacade.deleteProjects([this._projectFormModel.project.id], reason, function(data) {
-			if(data.error) {
-				Util.showError(data.error.message);
-			} else {
-				Util.showSuccess("Project Deleted");
-				mainController.sideMenu.deleteNodeByEntityPermId(_this._projectFormModel.project.permId, true);
-			}
-		});
+        var _this = this;
+        var projectIdentifier = this._projectFormModel.v3_project.identifier.identifier;
+        mainController.serverFacade.listDeletions(function(deletions) {
+            var dependentDeletions = [];
+            deletions.forEach(function(deletion) {
+                var deletedObjects = deletion.getDeletedObjects();
+                for (var idx = 0; idx < deletedObjects.length; idx++) {
+                    var deletedObject = deletedObjects[idx];
+                    var kind = deletedObject.entityKind;
+                    if (kind == "EXPERIMENT" || kind == "SAMPLE") {
+                        var splitted = deletedObject.identifier.split("/");
+                        if (splitted.length > 3 && ("/" + splitted[1] + "/" + splitted[2]) == projectIdentifier) {
+                            dependentDeletions.push(deletion);
+                            break;
+                        }
+                    }
+                };
+            });
+            if (dependentDeletions.length > 0) {
+                var text = "This project can only be deleted if the following deletions sets in Trashcan are deleted permanently:<br>";
+                dependentDeletions.forEach(function(deletion) {
+                    text += Util.getFormatedDate(new Date(deletion.deletionDate)) + " (reason: " + deletion.reason + ")<br>";
+                });
+                Util.showInfo(text);
+            } else {
+                mainController.serverFacade.deleteProjects([_this._projectFormModel.project.id], reason, function(data) {
+                    if(data.error) {
+                        Util.showError(data.error.message);
+                    } else {
+                        Util.showSuccess("Project Deleted");
+                        mainController.sideMenu.deleteNodeByEntityPermId(_this._projectFormModel.project.permId, true);
+                    }
+                });
+            }
+        });
 	}
 	
 	this.createNewExperiment = function(experimentTypeCode) {

@@ -19,7 +19,8 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'row',
     flex: '1 1 auto',
-    overflow: 'auto'
+    overflow: 'auto',
+    height: '100%'
   },
   mainPanel: {
     height: '100%',
@@ -62,12 +63,8 @@ class PageWithTwoPanels extends React.PureComponent {
   }
 
   doRenderExisting() {
-    const {
-      classes,
-      renderMainPanel,
-      renderAdditionalPanel,
-      renderButtons
-    } = this.props
+    const { classes, renderMainPanel, renderAdditionalPanel, renderButtons } =
+      this.props
 
     const mainPanel = renderMainPanel ? renderMainPanel() : null
     const additionalPanel = renderAdditionalPanel

@@ -13,6 +13,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.reason = null;
 		prototype.deletedObjects = null;
 		prototype.deletionDate = null;
+        prototype.totalExperimentsCount = null;
+        prototype.totalSamplesCount = null;
+        prototype.totalDataSetsCount = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -32,11 +35,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.reason = reason;
 		};
 		prototype.getDeletedObjects = function() {
-			if (this.getFetchOptions() && this.getFetchOptions().hasDeletedObjects()) {
-				return this.deletedObjects;
-			} else {
-				throw new exceptions.NotFetchedException("Deleted objects have not been fetched.");
-			}
+            return this._getIfItHasDeletedObjects(this.deletedObjects);
 		};
 		prototype.setDeletedObjects = function(deletedObjects) {
 			this.deletedObjects = deletedObjects;
@@ -47,6 +46,31 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setDeletionDate = function(deletionDate) {
 			this.deletionDate = deletionDate;
 		};
+        prototype.getTotalExperimentsCount = function() {
+            return this._getIfItHasDeletedObjects(this.totalExperimentsCount);
+        };
+        prototype.setTotalExperimentsCount = function(totalExperimentsCount) {
+            this.totalExperimentsCount = totalExperimentsCount;
+        };
+        prototype.getTotalSamplesCount = function() {
+            return this._getIfItHasDeletedObjects(this.totalSamplesCount);
+        };
+        prototype.setTotalSamplesCount = function(totalSamplesCount) {
+            this.totalSamplesCount = totalSamplesCount;
+        };
+        prototype.getTotalDataSetsCount = function() {
+            return this._getIfItHasDeletedObjects(this.totalSamplesCount);
+        };
+        prototype.setTotalDataSetsCount = function(totalDataSetsCount) {
+            this.totalDataSetsCount = totalDataSetsCount;
+        };
+        prototype._getIfItHasDeletedObjects = function(value) {
+            if (this.getFetchOptions() && this.getFetchOptions().hasDeletedObjects()) {
+                return value;
+            } else {
+                throw new exceptions.NotFetchedException("Deleted objects have not been fetched.");
+            }
+        };
 	}, {
 		fetchOptions : "DeletionFetchOptions",
 		id : "IDeletionId",

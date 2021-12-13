@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -18,24 +18,19 @@ class UsersGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'UsersGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.USERS)}
+        sort='userId'
         columns={[
           {
             name: 'userId',
             label: messages.get(messages.USER_ID),
-            sort: 'asc',
             getValue: ({ row }) => row.userId.value,
             renderValue: ({ value }) => {
               return <UserLink userId={value} />
@@ -54,6 +49,7 @@ class UsersGrid extends React.PureComponent {
           {
             name: 'email',
             label: messages.get(messages.EMAIL),
+            wrappable: false,
             getValue: ({ row }) => row.email.value
           },
           {
@@ -68,6 +64,7 @@ class UsersGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

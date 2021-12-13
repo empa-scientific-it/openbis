@@ -15,6 +15,7 @@ class QueryFormExecuteResultsGrid extends React.PureComponent {
       <Grid
         columns={this.getColumns(tableModel)}
         rows={this.getRows(tableModel)}
+        selectable={true}
       />
     )
   }

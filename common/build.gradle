@@ -23,7 +23,7 @@ dependencies {
 			'rinn:restrictions:1.0.2',
 			'apache:commons-compress:1.8',
 			'apache:httpclient:4.3.6',
-			'eclipse:jetty-client:9.4.30.v20200611',
+			'eclipse:jetty-client:9.4.44.v20210927',
 			'apache:commons-csv:1.2'
 
 	// our jmock version uses hamcrest 1.1 but we use 1.3

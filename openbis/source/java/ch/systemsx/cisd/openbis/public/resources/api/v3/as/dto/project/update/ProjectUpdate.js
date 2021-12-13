@@ -73,7 +73,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/attachment/upd
 		},
 		description : {
 			name : "FieldUpdateValue",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		attachments : "AttachmentListUpdateValue"
 	});

@@ -4,7 +4,7 @@ export default class RoleControllerRemove {
     this.context = controller.context
   }
 
-  execute(roleId) {
+  async execute(roleId) {
     const { roles } = this.context.getState()
 
     const roleIndex = roles.findIndex(role => role.id === roleId)
@@ -12,12 +12,17 @@ export default class RoleControllerRemove {
     const newRoles = Array.from(roles)
     newRoles.splice(roleIndex, 1)
 
-    this.context.setState(state => ({
+    await this.context.setState(state => ({
       ...state,
       roles: newRoles,
       selection: null
     }))
 
-    this.controller.changed(true)
+    if (this.controller.rolesGridController) {
+      await this.controller.rolesGridController.selectRow(null)
+      await this.controller.rolesGridController.load()
+    }
+
+    await this.controller.changed(true)
   }
 }

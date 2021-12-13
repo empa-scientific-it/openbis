@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import QueryLink from '@src/js/components/common/link/QueryLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import QueryType from '@src/js/components/common/dto/QueryType.js'
@@ -10,24 +10,19 @@ class QueriesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'QueriesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={messages.get(messages.QUERIES)}
+        sort='name'
         columns={[
           {
             name: 'name',
             label: messages.get(messages.NAME),
-            sort: 'asc',
             getValue: ({ row }) => row.name.value,
             renderValue: ({ value }) => {
               return <QueryLink queryName={value} />
@@ -36,10 +31,7 @@ class QueriesGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
-            getValue: ({ row }) => row.description.value,
-            renderValue: ({ value, classes }) => (
-              <span className={classes.wrap}>{value}</span>
-            )
+            getValue: ({ row }) => row.description.value
           },
           {
             name: 'database',
@@ -71,6 +63,7 @@ class QueriesGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

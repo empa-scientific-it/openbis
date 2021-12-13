@@ -63,6 +63,9 @@ define([ "stjs" ], function(stjs) {
 		prototype.setPublicFlag = function(publicFlag) {
 			this.publicFlag = publicFlag;
 		};
-	}, {});
+	}, {
+		databaseId: "IQueryDatabaseId",
+		queryType: "QueryType"
+	});
 	return QueryCreation;
 })

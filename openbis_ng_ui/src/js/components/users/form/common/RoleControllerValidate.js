@@ -40,7 +40,7 @@ export default class RoleControllerValidate {
     }))
 
     if (this.controller.rolesGridController) {
-      await this.controller.rolesGridController.showSelectedRow()
+      await this.controller.rolesGridController.showRow(firstError.object.id)
     }
   }
 }

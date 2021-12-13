@@ -52,7 +52,26 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		};
 	}, {
 		vocabularyTermId : "IVocabularyTermId",
-		previousTermId : "IVocabularyTermId"
+		previousTermId : {
+			name: "FieldUpdateValue",
+			arguments: ["IVocabularyTermId"]
+		},
+		label: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		official: {
+			name: "FieldUpdateValue",
+			arguments: ["Boolean"]
+		}
 	});
 	return VocabularyTermUpdate;
 })

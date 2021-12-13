@@ -67,7 +67,31 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			this.descriptorAccessionId.setValue(descriptorAccessionId);
 		};
 	}, {
-		semanticAnnotationId : "ISemanticAnnotationId"
+		semanticAnnotationId : "ISemanticAnnotationId",
+		predicateOntologyId: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		predicateOntologyVersion: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		predicateAccessionId: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		descriptorOntologyId: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		descriptorOntologyVersion: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		descriptorAccessionId: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		}
 	});
 	return SemanticAnnotationUpdate;
 })

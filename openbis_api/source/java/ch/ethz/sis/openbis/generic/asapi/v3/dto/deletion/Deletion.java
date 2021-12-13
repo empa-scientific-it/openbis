@@ -48,6 +48,15 @@ public class Deletion implements Serializable
     @JsonProperty
     private Date deletionDate;
 
+    @JsonProperty
+    private int totalSamplesCount;
+
+    @JsonProperty
+    private int totalDataSetsCount;
+
+    @JsonProperty
+    private int totalExperimentsCount;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public DeletionFetchOptions getFetchOptions()
@@ -87,13 +96,51 @@ public class Deletion implements Serializable
         this.reason = reason;
     }
 
+    @JsonIgnore
+    public int getTotalSamplesCount()
+    {
+        return getIfItHasDeletedObjects(totalSamplesCount);
+    }
+
+    public void setTotalSamplesCount(int totalSamplesCount)
+    {
+        this.totalSamplesCount = totalSamplesCount;
+    }
+
+    @JsonIgnore
+    public int getTotalDataSetsCount()
+    {
+        return getIfItHasDeletedObjects(totalDataSetsCount);
+    }
+
+    public void setTotalDataSetsCount(int totalDataSetsCount)
+    {
+        this.totalDataSetsCount = totalDataSetsCount;
+    }
+
+    @JsonIgnore
+    public int getTotalExperimentsCount()
+    {
+        return getIfItHasDeletedObjects(totalExperimentsCount);
+    }
+
+    public void setTotalExperimentsCount(int totalExperimentsCount)
+    {
+        this.totalExperimentsCount = totalExperimentsCount;
+    }
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public List<DeletedObject> getDeletedObjects()
     {
+        return getIfItHasDeletedObjects(deletedObjects);
+    }
+
+    private <T> T getIfItHasDeletedObjects(T value)
+    {
         if (getFetchOptions() != null && getFetchOptions().hasDeletedObjects())
         {
-            return deletedObjects;
+            return value;
         }
         else
         {

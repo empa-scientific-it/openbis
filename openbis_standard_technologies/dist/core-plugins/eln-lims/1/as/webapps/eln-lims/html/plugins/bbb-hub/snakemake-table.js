@@ -56,7 +56,9 @@ var SnakemakeTable = new function() {
                 var projectCode = experiments[i].project.code;
                 var spaceCode = experiments[i].project.space.code;
 
-                var model = {		'code' : experiments[i].code,
+                var model = {
+                                    'id' : experiments[i].code,
+                                    'code' : experiments[i].code,
                                     'description' : desc === undefined ? "" : desc,
                                     'group' : group === undefined ? "" : group,
                                     'email' : registrator === null ? "" : registrator.email,

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class FtpUserManager implements UserManager
 {
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpUserManager.class);
 
@@ -60,8 +60,9 @@ public class FtpUserManager implements UserManager
         {
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
-            String key = String.format("%s:%s", upa.getUsername(), upa.getPassword());
-            String sessionToken = "?".equals(user) ? upa.getPassword() : sessionTokensByUser.get(key);
+            String password = upa.getPassword();
+            String key = String.format("%s:%s", user, password);
+            String sessionToken = getSessionToken(key, user, password);
             if (sessionToken != null)
             {
                 SessionContextDTO session = service.tryGetSession(sessionToken);
@@ -77,7 +78,6 @@ public class FtpUserManager implements UserManager
             }
             if (sessionToken == null)
             {
-                String password = upa.getPassword();
                 SessionContextDTO session = service.tryAuthenticate(user, password);
                 sessionToken = session == null ? null : session.getSessionToken();
                 sessionTokensByUser.put(key, sessionToken);
@@ -92,6 +92,48 @@ public class FtpUserManager implements UserManager
         }
 
         throw new AuthenticationFailedException();
+    }
+
+    public void close(User user, boolean noViews)
+    {
+        String key = getSessionKey(user);
+        if (key != null)
+        {
+            String sessionToken = sessionTokensByUser.remove(key);
+            operationLog.info("Session token " + sessionToken + " removed.");
+            if (noViews)
+            {
+                service.logout(sessionToken);
+                operationLog.info("Log out session " + sessionToken
+                        + " because last file system session view for this session has been closed.");
+            }
+        }
+    }
+
+    private String getSessionKey(User user)
+    {
+        if (user instanceof FtpUser)
+        {
+            FtpUser ftpUser = (FtpUser) user;
+            String sessionToken = ftpUser.getSessionToken();
+            for (Entry<String, String> entry : sessionTokensByUser.entrySet())
+            {
+                if (sessionToken.equals(entry.getValue()))
+                {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getSessionToken(String key, String user, String password)
+    {
+        if ("?".equals(user))
+        {
+            return password;
+        }
+        return sessionTokensByUser.get(key);
     }
 
     @Override
@@ -135,5 +177,4 @@ public class FtpUserManager implements UserManager
     {
         throw new UnsupportedOperationException();
     }
-
 }

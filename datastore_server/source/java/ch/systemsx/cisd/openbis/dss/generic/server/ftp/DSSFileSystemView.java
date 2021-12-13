@@ -42,7 +42,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
@@ -237,6 +236,11 @@ public class DSSFileSystemView implements FileSystemView
     public boolean isRandomAccessible() throws FtpException
     {
         return true;
+    }
+
+    public String getSessionToken()
+    {
+        return sessionToken;
     }
 
 }

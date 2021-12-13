@@ -63,11 +63,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		fetchOptions : "OperationExecutionSummaryFetchOptions",
 		operations : {
 			name : "List",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		},
 		results : {
 			name : "List",
-			arguments : [ null ]
+			arguments : [ "String" ]
 		}
 	});
 	return OperationExecutionSummary;

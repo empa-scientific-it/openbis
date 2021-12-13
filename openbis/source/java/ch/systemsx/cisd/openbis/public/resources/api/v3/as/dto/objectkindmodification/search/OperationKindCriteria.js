@@ -17,7 +17,12 @@ define([ "require", "stjs", "util/Exceptions", "as/dto/common/search/AbstractSea
 		prototype.toString = function() {
 			return "with operation kinds " + this.operationKinds;
 		}
-	}, {});
+	}, {
+		operationKinds: {
+			name: "List",
+			arguments: ["OperationKind"]
+		}
+	});
 
 	return OperationKindCriteria;
 })

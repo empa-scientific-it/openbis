@@ -16,7 +16,7 @@ export default class UserGroupFormControllerRemove {
     }
   }
 
-  _handleRemoveUser(userId) {
+  async _handleRemoveUser(userId) {
     const { users } = this.context.getState()
 
     const userIndex = users.findIndex(user => user.id === userId)
@@ -24,12 +24,17 @@ export default class UserGroupFormControllerRemove {
     const newUsers = Array.from(users)
     newUsers.splice(userIndex, 1)
 
-    this.context.setState(state => ({
+    await this.context.setState(state => ({
       ...state,
       users: newUsers,
       selection: null
     }))
 
-    this.controller.changed(true)
+    if (this.controller.usersGridController) {
+      await this.controller.usersGridController.selectRow(null)
+      await this.controller.usersGridController.load()
+    }
+
+    await this.controller.changed(true)
   }
 }

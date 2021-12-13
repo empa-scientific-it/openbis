@@ -36,7 +36,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
-				return fCreate(facade).then(function(permId) {
+				return fCreate(facade).then(function(permIdAndMore) {
+                    if (permIdAndMore.identifier) {
+                        permId = permIdAndMore.permId
+                    } else {
+                        permId = permIdAndMore;
+                    }
 					c.assertNotNull(permId, "Entity was created");
 					return fFind(facade, permId).then(function(entity) {
 						c.assertNotNull(entity, "Entity can be found");
@@ -45,10 +50,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 							return fDelete(facade, permId).then(function(deletionId) {
 								c.ok("Entity was deleted");
 								c.assertNotEqual(deletionId.getTechId(), "", "Deletion tech id not an empty string");
-								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
+                                var fo = new c.DeletionFetchOptions();
+                                fo.withDeletedObjects();
+								return facade.searchDeletions(new c.DeletionSearchCriteria(), fo).then(function(afterDeletions) {
+                                    var objects = afterDeletions.getObjects();
 									c.ok("Got after deletions");
-									c.assertEqual(afterDeletions.getObjects().length, beforeDeletions.getObjects().length + 1, "One new deletion");
-									c.assertEqual(afterDeletions.getObjects()[afterDeletions.getObjects().length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
+									c.assertEqual(objects.length, beforeDeletions.getObjects().length + 1, "One new deletion");
+                                    var newDeletion = objects[afterDeletions.getObjects().length - 1];
+                                    if (permIdAndMore.identifier) {
+                                        var deletedObject = newDeletion.deletedObjects[0];
+                                        c.assertEqual(deletedObject.identifier, permIdAndMore.identifier, "Entity identifier match");
+                                        c.assertEqual(deletedObject.entityTypeCode, permIdAndMore.entityTypeCode, "Entity type match");
+                                        c.assertEqual(deletedObject.entityKind, permIdAndMore.entityKind, "Entity kind match");
+                                    }
+                                    c.assertEqual(newDeletion.getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
 									return fFind(facade, permId).then(function(entityAfterDeletion) {
 										c.assertNull(entityAfterDeletion, "Entity was deleted");
 										return facade.revertDeletions([ deletionId ]).then(function() {
@@ -137,7 +152,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("deleteExperiments() with revert", function(assert) {
 			var c = new common(assert, openbis);
-			testDeleteWithTrashAndRevert(c, c.createExperiment, c.findExperiment, c.deleteExperiment);
+            testDeleteWithTrashAndRevert(c, function(facade) {
+                return c.createExperiment(facade).then(function(permId) {
+                    var fo = new c.ExperimentFetchOptions();
+                    fo.withType();
+                    return facade.getExperiments([permId], fo).then(function (map) {
+                        var experiment = map[permId];
+                        return {"permId" : permId,
+                                "identifier" : experiment.identifier,
+                                "entityTypeCode" : experiment.type.code,
+                                "entityKind" : c.EntityKind.EXPERIMENT};
+                    });
+                });
+            }, c.findExperiment, c.deleteExperiment);
 		});
 
 		QUnit.test("deleteExperiments() with confirm", function(assert) {
@@ -147,7 +174,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("deleteSamples() with revert", function(assert) {
 			var c = new common(assert, openbis);
-			testDeleteWithTrashAndRevert(c, c.createSample, c.findSample, c.deleteSample);
+            testDeleteWithTrashAndRevert(c, function(facade) {
+                return c.createSample(facade).then(function(permId) {
+                    var fo = new c.SampleFetchOptions();
+                    fo.withType();
+                    return facade.getSamples([permId], fo).then(function (map) {
+                        var sample = map[permId];
+                        return {"permId" : permId,
+                                "identifier" : sample.identifier,
+                                "entityTypeCode" : sample.type.code,
+                                "entityKind" : c.EntityKind.SAMPLE};
+                    });
+                });
+            }, c.findSample, c.deleteSample);
 		});
 
 		QUnit.test("deleteSamples() with confirm", function(assert) {
@@ -157,7 +196,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("deleteDataSets() with revert", function(assert) {
 			var c = new common(assert, openbis);
-			testDeleteWithTrashAndRevert(c, c.createDataSet, c.findDataSet, c.deleteDataSet);
+            testDeleteWithTrashAndRevert(c, function(facade) {
+                return c.createDataSet(facade).then(function(permId) {
+                    var fo = new c.DataSetFetchOptions();
+                    fo.withType();
+                    return facade.getDataSets([permId], fo).then(function (map) {
+                        var dataSet = map[permId];
+                        return {"permId" : permId,
+                                "identifier" : dataSet.code,
+                                "entityTypeCode" : dataSet.type.code,
+                                "entityKind" : c.EntityKind.DATA_SET};
+                    });
+                });
+            }, c.findDataSet, c.deleteDataSet);
 		});
 
 		QUnit.test("deleteDataSets() with confirm", function(assert) {

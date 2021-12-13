@@ -1,5 +1,5 @@
 import React from 'react'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import TypeLink from '@src/js/components/common/link/TypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -10,21 +10,18 @@ class TypesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'TypesGrid.render')
 
-    const {
-      id,
-      rows,
-      selectedRowId,
-      onSelectedRowChange,
-      controllerRef
-    } = this.props
+    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
+      this.props
 
     return (
-      <Grid
+      <GridWithSettings
         id={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={this.getColumns()}
         rows={rows}
+        sort='code'
+        selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />
@@ -52,7 +49,6 @@ class TypesGrid extends React.PureComponent {
     columns.push({
       name: 'code',
       label: messages.get(messages.CODE),
-      sort: 'asc',
       getValue: ({ row }) => row.code,
       renderValue: ({ row }) => {
         return <TypeLink typeCode={row.code} typeKind={kind} />
@@ -62,10 +58,7 @@ class TypesGrid extends React.PureComponent {
     columns.push({
       name: 'description',
       label: messages.get(messages.DESCRIPTION),
-      getValue: ({ row }) => row.description,
-      renderValue: ({ value, classes }) => (
-        <span className={classes.wrap}>{value}</span>
-      )
+      getValue: ({ row }) => row.description
     })
 
     columns.push({

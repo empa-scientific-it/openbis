@@ -381,7 +381,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 							boxProperty = experimentIdentifier.replace(/\//g,'\/') + "_" + boxProperty;
 						}
 						storagePosition.properties[storagePropertyGroup.boxProperty] = boxProperty;
-						storagePosition.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+						storagePosition.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.getUserId();
 						storagePosition.properties[storagePropertyGroup.positionProperty] = "A1";
 					
 						child.children.push(storagePosition);

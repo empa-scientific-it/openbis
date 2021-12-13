@@ -5,6 +5,7 @@ import UserFormControllerAddRole from '@src/js/components/users/form/UserFormCon
 import UserFormControllerRemove from '@src/js/components/users/form/UserFormControllerRemove.js'
 import UserFormControllerValidate from '@src/js/components/users/form/UserFormControllerValidate.js'
 import UserFormControllerChange from '@src/js/components/users/form/UserFormControllerChange.js'
+import UserFormControllerSelectionChange from '@src/js/components/users/form/UserFormControllerSelectionChange.js'
 import UserFormControllerSave from '@src/js/components/users/form/UserFormControllerSave.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
@@ -48,6 +49,10 @@ export default class UserFormController extends PageController {
 
   handleChange(type, params) {
     return new UserFormControllerChange(this).execute(type, params)
+  }
+
+  handleSelectionChange(type, params) {
+    return new UserFormControllerSelectionChange(this).execute(type, params)
   }
 
   handleSave() {

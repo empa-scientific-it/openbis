@@ -44,6 +44,19 @@ const updateMaterialTypes = jest.fn()
 const updatePersons = jest.fn()
 const updateSampleTypes = jest.fn()
 
+const mockGetMe = me => {
+  const map = {}
+
+  let person = me
+  if (!person) {
+    person = new dto.Person()
+    person.setWebAppSettings({})
+  }
+  map[new dto.Me()] = person
+
+  getPersons.mockReturnValue(Promise.resolve(map))
+}
+
 const mockSearchGroups = groups => {
   const searchGroupsResult = new dto.SearchResult()
   searchGroupsResult.setObjects(groups)
@@ -156,6 +169,7 @@ export default {
   updateMaterialTypes,
   updatePersons,
   updateSampleTypes,
+  mockGetMe,
   mockSearchDataSetTypes,
   mockSearchExperimentTypes,
   mockSearchGroups,

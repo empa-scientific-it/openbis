@@ -123,10 +123,15 @@ export default class VocabularyFormControllerLoad extends PageControllerLoad {
         oldTerms,
         oldTerm => oldTerm.id === oldSelection.params.id
       )
-      const newTerm = _.find(
-        newTerms,
-        newTerm => newTerm.code.value === oldTerm.code.value
-      )
+      const newTerm = _.find(newTerms, newTerm => {
+        const newValue = newTerm.code.value
+          ? newTerm.code.value.toLowerCase()
+          : null
+        const oldValue = oldTerm.code.value
+          ? oldTerm.code.value.toLowerCase()
+          : null
+        return newValue === oldValue
+      })
 
       if (newTerm) {
         return {

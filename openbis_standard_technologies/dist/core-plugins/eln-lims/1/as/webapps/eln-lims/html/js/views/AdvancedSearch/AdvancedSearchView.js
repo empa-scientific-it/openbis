@@ -910,6 +910,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
+				filterable: false,
 				sortable : false,
 				render : function(data) {
 					if(data.entityKind === "Sample") {
@@ -924,6 +925,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 label : 'Name',
                 property : '$NAME',
                 isExportable: true,
+                filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
                     if(data[profile.propertyReplacingCode]) {
@@ -936,6 +938,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 label : 'Identifier',
                 property : 'identifier',
                 isExportable: true,
+                filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data, grid) {
                     var paginationInfo = null;
@@ -964,11 +967,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Type',
 				property : 'entityType',
 				isExportable: true,
+				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch
 			}, {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
+				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				render : function(data, grid) {
 					var paginationInfo = null;
@@ -997,6 +1002,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: false,
+				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
 
@@ -1007,6 +1013,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					label : 'Matched',
 					property : 'matched',
 					isExportable: true,
+					filterable: false,
 					sortable : false
 				});
 
@@ -1014,6 +1021,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					label : 'Rank',
 					property : 'rank',
 					isExportable: true,
+					filterable: false,
 					sortable : false,
                     render : function(data, grid) {
                         var indexFound = null;
@@ -1033,6 +1041,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : '---------------',
 				property : null,
 				isExportable: false,
+				filterable: false,
 				sortable : false
 			});
 
@@ -1074,10 +1083,44 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						continue;
 					}
 
+                    var propertyType = profile.getPropertyType(propertyCode)
+                    var renderFilter = null
+
+                    if(propertyType.dataType === "CONTROLLEDVOCABULARY"){
+                        renderFilter = (function(propertyType){
+                            return function(params){
+                                var options = []
+                                        
+                                if(propertyType.vocabulary && propertyType.vocabulary.terms){
+                                    propertyType.vocabulary.terms.forEach(function(term){
+                                        options.push({
+                                            label: term.code,
+                                            value: term.code
+                                        })
+                                    })
+                                }
+
+                                return React.createElement(window.NgUiGrid.default.SelectField, {
+                                    label: 'Filter',
+                                    variant: 'standard',
+                                    value: params.value,
+                                    emptyOption: {},
+                                    options: options,
+                                    onChange: params.onChange
+                                })
+                            }
+                        })(propertyType)
+                    }
+
 					propertyColumnsToSort.push({
-						label : profile.getPropertyType(propertyCode).label,
+						label : propertyType.label,
 						property : propertyCode,
-						sortable : !isGlobalSearch
+						filterable : !isGlobalSearch,
+						renderFilter: renderFilter,
+						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
+						metadata: {
+							dataType: propertyType.dataType
+						}
 					});
 				}
 
@@ -1095,6 +1138,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : '---------------',
 				property : null,
 				isExportable: false,
+				filterable: false,
 				sortable : false
 			});
 
@@ -1102,6 +1146,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registrator',
 				property : 'registrator',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : false
 			});
 
@@ -1109,6 +1154,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Registration Date',
 				property : 'registrationDate',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch
 			});
 
@@ -1116,6 +1162,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modifier',
 				property : 'modifier',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : false
 			});
 
@@ -1123,12 +1170,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Modification Date',
 				property : 'modificationDate',
 				isExportable: true,
+				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch
 			});
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
+            var filterModes = isGlobalSearch ? [] : null
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70);
+			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70, filterModes);
 			return dataGrid;
 	}
 

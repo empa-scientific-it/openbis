@@ -64,6 +64,22 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		};
 	}, {
 		typeId : "IPropertyTypeId",
+		label: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		description: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		schema: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
+		transformation: {
+			name: "FieldUpdateValue",
+			arguments: ["String"]
+		},
 		dataType : "DataType",
 		metaData : "ListUpdateMapValues"
 	});

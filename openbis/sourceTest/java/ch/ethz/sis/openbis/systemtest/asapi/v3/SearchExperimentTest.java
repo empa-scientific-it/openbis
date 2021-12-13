@@ -1481,85 +1481,85 @@ public class SearchExperimentTest extends AbstractExperimentTest
         final ExperimentSearchCriteria criteriaGE = new ExperimentSearchCriteria();
         criteriaGE.withNumberProperty("INT_NUMBER").thatIsGreaterThanOrEqualTo(2);
         final List<Experiment> experimentsGE = search(sessionToken, criteriaGE, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsGE, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsGE, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
 
         // Greater or Equal - Integer as Real
         final ExperimentSearchCriteria criteriaGEIR = new ExperimentSearchCriteria();
         criteriaGEIR.withNumberProperty("INT_NUMBER").thatIsGreaterThanOrEqualTo(2.0);
         final List<Experiment> experimentsGEIR = search(sessionToken, criteriaGEIR, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsGEIR, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsGEIR, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
 
         // Greater or Equal - Real
         final ExperimentSearchCriteria criteriaGER = new ExperimentSearchCriteria();
         criteriaGER.withNumberProperty("REAL_NUMBER").thatIsGreaterThanOrEqualTo(0.02);
         final List<Experiment> experimentsGER = search(sessionToken, criteriaGER, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsGER, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsGER, "/CISD/DEFAULT/TEST_2", "/CISD/DEFAULT/TEST_3");
 
         // Greater - Integer
         final ExperimentSearchCriteria criteriaG = new ExperimentSearchCriteria();
         criteriaG.withNumberProperty("INT_NUMBER").thatIsGreaterThan(2);
         final List<Experiment> experimentsG = search(sessionToken, criteriaG, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsG, "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsG, "/CISD/DEFAULT/TEST_3");
 
         // Greater - Integer as Real
         final ExperimentSearchCriteria criteriaGIR = new ExperimentSearchCriteria();
         criteriaGIR.withNumberProperty("INT_NUMBER").thatIsGreaterThan(2.0);
         final List<Experiment> experimentsGIR = search(sessionToken, criteriaGIR, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsGIR, "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsGIR, "/CISD/DEFAULT/TEST_3");
 
         // Greater - Real
         final ExperimentSearchCriteria criteriaGR = new ExperimentSearchCriteria();
         criteriaGR.withNumberProperty("REAL_NUMBER").thatIsGreaterThan(0.02);
         final List<Experiment> experimentsGR = search(sessionToken, criteriaGR, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsGR, "/CISD/DEFAULT/TEST_3");
+        assertExperimentIdentifiers(experimentsGR, "/CISD/DEFAULT/TEST_3");
 
         // Equal - Integer
         final ExperimentSearchCriteria criteriaE = new ExperimentSearchCriteria();
         criteriaE.withNumberProperty("INT_NUMBER").thatEquals(2);
         final List<Experiment> experimentsE = search(sessionToken, criteriaE, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsE, "/CISD/DEFAULT/TEST_2");
+        assertExperimentIdentifiers(experimentsE, "/CISD/DEFAULT/TEST_2");
 
         // Equal - Integer as String
         final ExperimentSearchCriteria criteriaES = new ExperimentSearchCriteria();
         criteriaES.withProperty("INT_NUMBER").thatEquals("2");
         final List<Experiment> experimentsES = search(sessionToken, criteriaES, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsES, "/CISD/DEFAULT/TEST_2");
+        assertExperimentIdentifiers(experimentsES, "/CISD/DEFAULT/TEST_2");
 
         // Equal - Integer as Real as String
         final ExperimentSearchCriteria criteriaERS = new ExperimentSearchCriteria();
         criteriaERS.withProperty("INT_NUMBER").thatEquals("2.0");
         final List<Experiment> experimentsERS = search(sessionToken, criteriaERS, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsERS, "/CISD/DEFAULT/TEST_2");
+        assertExperimentIdentifiers(experimentsERS, "/CISD/DEFAULT/TEST_2");
 
         // Greater or Equal - Integer
         final ExperimentSearchCriteria criteriaLE = new ExperimentSearchCriteria();
         criteriaLE.withNumberProperty("INT_NUMBER").thatIsLessThanOrEqualTo(2);
         final List<Experiment> experimentsLE = search(sessionToken, criteriaLE, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsLE, "/CISD/DEFAULT/TEST_1", "/CISD/DEFAULT/TEST_2");
+        assertExperimentIdentifiers(experimentsLE, "/CISD/DEFAULT/TEST_1", "/CISD/DEFAULT/TEST_2");
 
         // Less or Equal - Real
         final ExperimentSearchCriteria criteriaLER = new ExperimentSearchCriteria();
         criteriaLER.withNumberProperty("REAL_NUMBER").thatIsLessThanOrEqualTo(0.02);
         final List<Experiment> experimentsLER = search(sessionToken, criteriaLER, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsLER, "/CISD/DEFAULT/TEST_1", "/CISD/DEFAULT/TEST_2");
+        assertExperimentIdentifiers(experimentsLER, "/CISD/DEFAULT/TEST_1", "/CISD/DEFAULT/TEST_2");
 
         // Less - Integer
         final ExperimentSearchCriteria criteriaL = new ExperimentSearchCriteria();
         criteriaL.withNumberProperty("INT_NUMBER").thatIsLessThan(2);
         final List<Experiment> experimentsL = search(sessionToken, criteriaL, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsL, "/CISD/DEFAULT/TEST_1");
+        assertExperimentIdentifiers(experimentsL, "/CISD/DEFAULT/TEST_1");
 
         // Less - Integer as Real
         final ExperimentSearchCriteria criteriaLIR = new ExperimentSearchCriteria();
         criteriaLIR.withNumberProperty("INT_NUMBER").thatIsLessThan(2.0);
         final List<Experiment> experimentsLIR = search(sessionToken, criteriaLIR, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsLIR, "/CISD/DEFAULT/TEST_1");
+        assertExperimentIdentifiers(experimentsLIR, "/CISD/DEFAULT/TEST_1");
 
         // Less - Real
         final ExperimentSearchCriteria criteriaLR = new ExperimentSearchCriteria();
         criteriaLR.withNumberProperty("REAL_NUMBER").thatIsLessThan(0.02);
         final List<Experiment> experimentsLR = search(sessionToken, criteriaLR, emptyFetchOptions);
-        assertExperimentIdentifiersInOrder(experimentsLR, "/CISD/DEFAULT/TEST_1");
+        assertExperimentIdentifiers(experimentsLR, "/CISD/DEFAULT/TEST_1");
     }
 
     @Test

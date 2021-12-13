@@ -35,7 +35,7 @@ export default class VocabularyFormControllerValidate extends PageControllerVali
       })
 
       if (this.controller.gridController) {
-        await this.controller.gridController.showSelectedRow()
+        await this.controller.gridController.showRow(firstError.object.id)
       }
     }
   }

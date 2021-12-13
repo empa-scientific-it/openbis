@@ -91,7 +91,7 @@ function StorageController(configOverride) {
 							extraDragData,
 							_this._storageModel.storagePropertyGroup,
 							_this._storageModel.storageCode,
-							mainController.serverFacade.openbisServer.getSession().split("-")[0],
+							mainController.serverFacade.getUserId(),
 							(Util.getLetterForNumber(oldX) + oldY),
 							(Util.getLetterForNumber(newX) + newY),
 							newDataHolder);
@@ -109,7 +109,7 @@ function StorageController(configOverride) {
 							_this._storageModel.column,
 							_this._storageModel.boxName,
 							_this._storageModel.boxSize,
-							mainController.serverFacade.openbisServer.getSession().split("-")[0],
+							mainController.serverFacade.getUserId(),
 							(Util.getLetterForNumber(oldX) + oldY),
 							(Util.getLetterForNumber(newX) + newY),
 							newDataHolder);

@@ -389,6 +389,11 @@ $.extend(DefaultProfile.prototype, {
 		    return sampleTypeOnNav;
 		}
 
+        this.getSettingsSpacePrefix = function(spaceCode) {
+            var indexOfSettingsCode = spaceCode.indexOf("ELN_SETTINGS");
+            return spaceCode.substring(0, indexOfSettingsCode);
+        }
+
 		this.getSampleConfigSpacePrefix = function(sample) {
 			var prefix = null;
 			var spaceCode = sample.spaceCode;
@@ -1225,11 +1230,16 @@ $.extend(DefaultProfile.prototype, {
 
         this.initUserManagementMaintenanceTaskConfig = function(callback) {
             var _this = this;
-            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
-                _this.userManagementMaintenanceTaskConfig = config;
+            if (this.showUserManagementConfig) {
+                this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                    _this.userManagementMaintenanceTaskConfig = config;
+                    callback();
+                });
+            } else {
                 callback();
-            });
+            }
         }
+
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
 			this.serverFacade.listDataSetTypes(function(data) {
@@ -1310,7 +1320,7 @@ $.extend(DefaultProfile.prototype, {
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }
-	                callback();
+	                mainController.serverFacade.getSessionInformation(callback);
 	            });
 			});
 		}

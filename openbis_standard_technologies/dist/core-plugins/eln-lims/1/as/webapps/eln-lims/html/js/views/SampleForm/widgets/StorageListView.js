@@ -30,6 +30,7 @@ function StorageListView(storageListController, storageListModel) {
 			property : 'link',
 			isExportable: false,
 			sortable : false,
+			filterable: false,
 			showByDefault: true,
 			render : function(data) {
 				var storagePropertyGroup = profile.getStoragePropertyGroup();
@@ -44,9 +45,6 @@ function StorageListView(storageListController, storageListModel) {
 				var displayName = boxProperty + " - " + positionProperty;
 				var id = displayName.split(" ").join("").toLowerCase() + "-id";
 				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId, null, id);
-			},
-			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			}
 		});
 		columns.push({
@@ -54,20 +52,9 @@ function StorageListView(storageListController, storageListModel) {
 			property : 'identifier',
 			isExportable: true,
 			sortable : false,
+			filterable: false,
 			showByDefault: false,
 			hide : true,
-			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
-			},
-			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
-			},
-			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
-				var sortDirection = (asc)? 1 : -1;
-				return sortDirection * naturalSort(value1, value2);
-			}
 		});
 		columns.push({
 			label : 'Storage Name',
@@ -115,6 +102,7 @@ function StorageListView(storageListController, storageListModel) {
 				}
 				
 				var object = { '$object' : sample };
+				object["id"] = sample.identifier
 				object["identifier"] = sample.identifier;
 				for (propertyCode in storagePropertyCodesAsMap) {
 					var propertyType = profile.getPropertyType(propertyCode);
@@ -232,15 +220,31 @@ function StorageListView(storageListController, storageListModel) {
 		var storageContainer = $("#storage-pop-up-container");
 		storageController.getView().repaint(storageContainer, function() {
 			storageContainer.append(containerButtons);
-			
+
+			if(!sampleChild.newSampleJustCreated) { //Restrict storages to the ones the created group
+				var storageToDropdown = storageController.getView().getStoragesDropdown();
+				var selectedStorageSpace = IdentifierUtil.getSpaceCodeFromIdentifier(sampleChild.identifier);
+				var selectedSpace = selectedStorageSpace.replace("STORAGE", "ELN_SETTINGS");
+				// Show/hide storages from Storage To based on the one from the sample
+				for(var sIdx = 0; sIdx < storageToDropdown[0].childNodes.length; sIdx++) {
+					var spaceCode = storageToDropdown[0].childNodes[sIdx].attributes.spaceCode;
+					var show = spaceCode && spaceCode.value === selectedSpace;
+					storageToDropdown[0].childNodes[sIdx].disabled = !show;
+				}
+			}
 			$("#storage-accept").on("click", function(event) {
 				storageController.isValid(function(isValid) {
 					if(isValid) {
                         // 1. Find the Space of the selected storage
-                        var spaceCode = storageController.getModel().storageConfig.spaceCode;
-                        // 2. Update the Space the sample belongs to and with that the storage
-                        sampleChild.identifier = IdentifierUtil.getSampleIdentifier(spaceCode, null, sampleChild.code);
-						delete sampleChild.newSampleJustCreated;
+                        var settingsSpaceCode = storageController.getModel().storageConfig.spaceCode;
+                        var storageSpaceCode = profile.getSettingsSpacePrefix(settingsSpaceCode) + "STORAGE";
+                        // 2. Set the Space the sample belongs to and with that the storage
+                        if(sampleChild.newSampleJustCreated) {
+                            sampleChild.identifier = IdentifierUtil.getSampleIdentifier(storageSpaceCode, null, sampleChild.code);
+                            delete sampleChild.newSampleJustCreated;
+                        } else {
+                            // On update the identifier should be set, fail if not
+                        }
 						Util.unblockUI();
 						_this._dataGrid.refresh();
 					}
