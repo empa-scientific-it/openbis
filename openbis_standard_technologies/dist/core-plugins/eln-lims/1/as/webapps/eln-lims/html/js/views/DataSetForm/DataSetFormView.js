@@ -156,6 +156,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                     }
                 }
             }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSet.code);
+                    }
+                });
+            }
 		} else if(!this._dataSetFormModel.isMini) {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._dataSetFormController.submitDataSet();

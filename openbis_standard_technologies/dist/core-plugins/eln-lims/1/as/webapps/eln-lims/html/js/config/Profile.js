@@ -461,7 +461,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.getDataSetTypeToolbarConfiguration = function(dataSetTypeCode) {
-			var defaultToolbar = { EDIT : true, FREEZE : true, MOVE : true, ARCHIVE : true, DELETE : true, HIERARCHY_TABLE : true, EXPORT_ALL : true, EXPORT_METADATA : true };
+			var defaultToolbar = { EDIT : true, FREEZE : true, MOVE : true, ARCHIVE : true, DELETE : true, HIERARCHY_TABLE : true, EXPORT_ALL : true, EXPORT_METADATA : true, HISTORY: true };
 			if(this.dataSetTypeDefinitionsExtension[dataSetTypeCode] && this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {

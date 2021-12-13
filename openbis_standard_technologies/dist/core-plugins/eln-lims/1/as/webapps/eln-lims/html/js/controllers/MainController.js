@@ -661,6 +661,10 @@ function MainController(profile) {
 					document.title = "History " + arg;
 					this._showSampleHistoryPage(arg);
 					break;
+				case "showDatasetHistoryPage":
+					document.title = "History " + arg;
+					this._showDatasetHistoryPage(arg);
+					break;
 				case "showDatasetHierarchyTablePage":
 					document.title = "Table Hierarchy " + arg;
 					this._showDatasetHierarchyTablePage(arg);
@@ -1172,7 +1176,7 @@ function MainController(profile) {
 	this._showExperimentHistoryPage = function(permId) {
 		var localInstance = this;
 		
-		var sCriteria = {
+		var criteria = {
 			entityKind : "EXPERIMENT", 
 			logicalOperator : "AND", 
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
@@ -1180,7 +1184,7 @@ function MainController(profile) {
 
 		var fetchOptions = { only : true, withHistory: true }
 
-		this.serverFacade.searchForExperimentsAdvanced(sCriteria, fetchOptions, function(results) {
+		this.serverFacade.searchForExperimentsAdvanced(criteria, fetchOptions, function(results) {
 			var experiment = results.objects[0];
 			var views = localInstance._getNewViewModel(true, true, false);
 			var historyController = new HistoryController(this, experiment);
@@ -1192,7 +1196,7 @@ function MainController(profile) {
 	this._showSampleHistoryPage = function(permId) {
 		var localInstance = this;
 		
-		var sCriteria = {
+		var criteria = {
 			entityKind : "SAMPLE", 
 			logicalOperator : "AND", 
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
@@ -1200,10 +1204,30 @@ function MainController(profile) {
 
 		var fetchOptions = { only : true, withHistory: true }
 
-		this.serverFacade.searchForSamplesAdvanced(sCriteria, fetchOptions, function(results) {
+		this.serverFacade.searchForSamplesAdvanced(criteria, fetchOptions, function(results) {
 			var sample = results.objects[0];
 			var views = localInstance._getNewViewModel(true, true, false);
 			var historyController = new HistoryController(this, sample);
+			historyController.init(views);
+			localInstance.currentView = historyController;
+		});
+	}
+
+	this._showDatasetHistoryPage = function(permId) {
+		var localInstance = this;
+		
+		var criteria = {
+			entityKind : "DATASET", 
+			logicalOperator : "AND", 
+			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
+		};
+
+		var fetchOptions = { only : true, withHistory: true }
+
+		this.serverFacade.searchForDataSetsAdvanced(criteria, fetchOptions, function(results) {
+			var dataset = results.objects[0];
+			var views = localInstance._getNewViewModel(true, true, false);
+			var historyController = new HistoryController(this, dataset);
 			historyController.init(views);
 			localInstance.currentView = historyController;
 		});
