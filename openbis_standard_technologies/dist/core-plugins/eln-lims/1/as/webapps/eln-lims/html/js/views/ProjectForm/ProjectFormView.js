@@ -145,6 +145,14 @@ function ProjectFormView(projectFormController, projectFormModel) {
                 }
 
             }
+
+            //History
+            dropdownOptionsModel.push({
+                label : "History",
+                action : function() {
+                    mainController.changeView('showProjectHistoryPage', _this._projectFormModel.project.permId);
+                }
+            });
 		} else {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._projectFormController.updateProject();

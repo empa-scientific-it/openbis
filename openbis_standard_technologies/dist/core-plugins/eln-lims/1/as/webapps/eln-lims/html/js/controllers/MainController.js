@@ -653,6 +653,10 @@ function MainController(profile) {
 					this._showSampleHierarchyTablePage(arg);
 					//window.scrollTo(0,0);
 					break;
+				case "showProjectHistoryPage":
+					document.title = "History " + arg;
+					this._showProjectHistoryPage(arg);
+					break;
 				case "showExperimentHistoryPage":
 					document.title = "History " + arg;
 					this._showExperimentHistoryPage(arg);
@@ -1172,6 +1176,27 @@ function MainController(profile) {
 			localInstance.currentView = hierarchyTableController;
 		});
 	}
+
+	this._showProjectHistoryPage = function(permId) {
+		var localInstance = this;
+		
+		var criteria = {
+			entityKind : "PROJECT", 
+			logicalOperator : "AND", 
+			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
+		};
+
+		var fetchOptions = { only : true, withHistory: true }
+
+		this.serverFacade.searchForProjectsAdvanced(criteria, fetchOptions, function(results) {
+			var project = results.objects[0];
+			var views = localInstance._getNewViewModel(true, true, false);
+			var historyController = new HistoryController(this, project);
+			historyController.init(views);
+			localInstance.currentView = historyController;
+		});
+	}
+
 
 	this._showExperimentHistoryPage = function(permId) {
 		var localInstance = this;
