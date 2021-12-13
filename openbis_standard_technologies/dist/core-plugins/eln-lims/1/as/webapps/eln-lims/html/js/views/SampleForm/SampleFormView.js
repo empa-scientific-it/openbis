@@ -275,16 +275,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                 });
 			}
 
-            //History
-            if(toolbarConfig.HISTORY) {
-                dropdownOptionsModel.push({
-                    label : "History",
-                    action : function() {
-                        mainController.changeView('showSampleHistoryPage', _this._sampleFormModel.sample.permId);
-                    }
-                });
-            }
-
 			if(_this._allowedToRegisterDataSet()) {
 				//Create Dataset
 				var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
@@ -362,6 +352,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                         });
                     }
                 }
+            }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showSampleHistoryPage', _this._sampleFormModel.sample.permId);
+                    }
+                });
             }
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {

@@ -450,7 +450,7 @@ $.extend(DefaultProfile.prototype, {
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 
         this.getExperimentTypeToolbarConfiguration = function(experimentTypeCode) {
-			var defaultToolbar = { CREATE: true, FREEZE: true, EDIT: true, MOVE: true, DELETE: true, UPLOAD_DATASET: true, UPLOAD_DATASET_HELPER: true, EXPORT_ALL: true, EXPORT_METADATA: true };
+			var defaultToolbar = { CREATE: true, FREEZE: true, EDIT: true, MOVE: true, DELETE: true, UPLOAD_DATASET: true, UPLOAD_DATASET_HELPER: true, EXPORT_ALL: true, EXPORT_METADATA: true, HISTORY: true };
 			if(this.experimentTypeDefinitionsExtension[experimentTypeCode] && this.experimentTypeDefinitionsExtension[experimentTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.experimentTypeDefinitionsExtension[experimentTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {

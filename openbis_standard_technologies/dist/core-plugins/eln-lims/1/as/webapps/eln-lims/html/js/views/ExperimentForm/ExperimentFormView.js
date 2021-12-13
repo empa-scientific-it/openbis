@@ -224,6 +224,16 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     });
                 }
             }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showExperimentHistoryPage', _this._experimentFormModel.experiment.permId);
+                    }
+                });
+            }
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._experimentFormController.updateExperiment();
