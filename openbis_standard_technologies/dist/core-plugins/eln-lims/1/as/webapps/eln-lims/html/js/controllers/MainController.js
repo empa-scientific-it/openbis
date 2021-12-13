@@ -653,6 +653,10 @@ function MainController(profile) {
 					this._showSampleHierarchyTablePage(arg);
 					//window.scrollTo(0,0);
 					break;
+				case "showSampleHistoryPage":
+					document.title = "History " + arg;
+					this._showSampleHistoryPage(arg);
+					break;
 				case "showDatasetHierarchyTablePage":
 					document.title = "Table Hierarchy " + arg;
 					this._showDatasetHierarchyTablePage(arg);
@@ -1158,6 +1162,26 @@ function MainController(profile) {
 			var hierarchyTableController = new HierarchyTableController(this, sample);
 			hierarchyTableController.init(views);
 			localInstance.currentView = hierarchyTableController;
+		});
+	}
+
+	this._showSampleHistoryPage = function(permId) {
+		var localInstance = this;
+		
+		var sCriteria = {
+			entityKind : "SAMPLE", 
+			logicalOperator : "AND", 
+			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
+		};
+
+		var fetchOptions = { only : true, withHistory: true }
+
+		this.serverFacade.searchForSamplesAdvanced(sCriteria, fetchOptions, function(results) {
+			var sample = results.objects[0];
+			var views = localInstance._getNewViewModel(true, true, false);
+			var historyController = new HistoryController(this, sample);
+			historyController.init(views);
+			localInstance.currentView = historyController;
 		});
 	}
 	

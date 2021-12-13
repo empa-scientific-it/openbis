@@ -1435,6 +1435,9 @@ function ServerFacade(openbisServer) {
 						}
 						ancestorsFetchOptions.withParentsUsing(ancestorsFetchOptions);
 					}
+					if(advancedFetchOptions.withHistory) {
+						fetchOptions.withHistory().withAuthor()
+					}
 				}
 
 				if(advancedFetchOptions && advancedFetchOptions.cache) {
