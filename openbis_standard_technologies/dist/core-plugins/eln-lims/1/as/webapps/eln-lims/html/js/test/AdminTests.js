@@ -39,6 +39,7 @@ var AdminTests = new function() {
                        "_METHODS_PROTOCOLS_PCR_PROTOCOLS",
                        "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS",
                        "PUBLICATIONS",
+                       "PUBLIC_REPOSITORIES",
                        "_PUBLICATIONS_PUBLIC_REPOSITORIES_PUBLICATIONS_COLLECTION",
                        "STOCK",
                        "USER_PROFILE",

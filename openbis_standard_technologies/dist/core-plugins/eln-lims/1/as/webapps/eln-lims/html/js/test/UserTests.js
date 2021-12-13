@@ -23,7 +23,10 @@ var UserTests = new function() {
                        "METHODS",
                        "_METHODS_PROTOCOLS_GENERAL_PROTOCOLS",
                        "_METHODS_PROTOCOLS_PCR_PROTOCOLS",
-                       "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS"];
+                       "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS",
+                       "PUBLICATIONS",
+                       "PUBLIC_REPOSITORIES",
+                       "_PUBLICATIONS_PUBLIC_REPOSITORIES_PUBLICATIONS_COLLECTION"];
 
             Promise.resolve().then(() => TestUtil.verifyInventory(5, ids))
                              .then(() => e.verifyExistence("USER_MANAGER", false))
@@ -106,8 +109,9 @@ var UserTests = new function() {
                              .then(() => e.waitForCkeditor("BACTERIA.GENOTYPE"))
                              .then(() => TestUtil.ckeditorDropFile("BACTERIA.GENOTYPE", "test-image.png", baseURL + pathToResource))
                              // add mother
-                             .then(() => e.waitForId("plus-btn-bacteria-parents"))
-                             .then(() => e.click("plus-btn-bacteria-parents"))
+                             .then(() => e.waitForId("search-btn-bacteria-parents"))
+                             .then(() => e.click("search-btn-bacteria-parents"))
+
                              .then(() => e.waitForId("bac1-column-id"))
                              .then(() => e.click("bac1-column-id"))
                              .then(() => e.waitForId("comments-bac1"))
