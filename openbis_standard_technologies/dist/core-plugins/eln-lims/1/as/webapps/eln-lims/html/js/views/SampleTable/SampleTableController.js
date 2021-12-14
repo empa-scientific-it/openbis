@@ -127,7 +127,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 								if(data.error) {
 									Util.showError(data.error.message);
 								} else {
-									Util.showSuccess("" + ELNDictionary.Sample + "/s Deleted");
+									Util.showSuccess("" + ELNDictionary.Sample + "/s moved to Trashcan");
 									mainController.refreshView();
 								}
 							});

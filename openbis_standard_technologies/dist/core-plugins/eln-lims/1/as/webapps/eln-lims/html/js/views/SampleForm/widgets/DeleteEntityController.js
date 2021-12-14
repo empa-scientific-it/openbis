@@ -21,4 +21,12 @@ function DeleteEntityController(deleteFunction, includeReason, warningText, $plu
 	this.init = function() {
 		this._deleteEntityView.repaint();
 	}
+
+    this.setNumberOfEntities = function(numberOfEntities) {
+        this._deleteEntityModel.numberOfEntities = numberOfEntities;
+    }
+
+    this.setAdditionalTest = function(additionalTest) {
+        this._deleteEntityModel.additionalTest = additionalTest;
+    }
 }

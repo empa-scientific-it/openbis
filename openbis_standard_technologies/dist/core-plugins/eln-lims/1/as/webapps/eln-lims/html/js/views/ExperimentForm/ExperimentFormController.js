@@ -74,7 +74,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 				if(dataExperiment.error) {
 					Util.showError(dataExperiment.error.message);
 				} else {
-					Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.identifier) + " Deleted");
+					Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.identifier) + " moved to Trashcan");
 					
 					//Delete experiment from UI
 					mainController.sideMenu.deleteNodeByEntityPermId(_this._experimentFormModel.experiment.permId, true);

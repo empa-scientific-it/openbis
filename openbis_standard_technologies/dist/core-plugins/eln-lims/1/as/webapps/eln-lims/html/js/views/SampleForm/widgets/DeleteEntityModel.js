@@ -19,4 +19,5 @@ function DeleteEntityModel(deleteFunction, includeReason, warningText) {
 	this.includeReason = includeReason;
 	this.warningText = warningText;
 	this.reason = null;
+	this.numberOfEntities = 1;
 }

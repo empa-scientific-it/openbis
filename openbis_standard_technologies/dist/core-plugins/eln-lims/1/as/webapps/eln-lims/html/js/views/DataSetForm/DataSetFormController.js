@@ -88,7 +88,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
-				Util.showSuccess("Data Set Deleted");
+				Util.showSuccess("Data Set moved to Trashcan");
 				
 //				setTimeout(function() { //Give some time to update the index
 					var space = null;
