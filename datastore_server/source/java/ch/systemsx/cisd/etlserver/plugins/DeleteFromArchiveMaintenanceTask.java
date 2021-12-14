@@ -36,13 +36,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
  * @author Kaloyan Enimanev
  */
 public class DeleteFromArchiveMaintenanceTask extends
-        AbstractDataSetDeletionPostProcessingMaintenanceTask
+        AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
 {
 
     // a file name to store the last seen event id
     private static final String STATUS_FILENAME = "status-filename";
-
-    private File lastSeenEventIdFile;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -70,49 +68,6 @@ public class DeleteFromArchiveMaintenanceTask extends
                         CollectionUtils.abbreviate(datasets, 10));
         operationLog.info(logMessage);
 
-    }
-
-    @Override
-    protected Long getLastSeenEventId()
-    {
-        Long result = null;
-        if (lastSeenEventIdFile.exists())
-        {
-            try
-            {
-                String statusFileContent = FileUtilities.loadToString(lastSeenEventIdFile);
-                statusFileContent = statusFileContent.trim();
-                result = Long.parseLong(statusFileContent);
-            } catch (Exception ex)
-            {
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("Cannot load last seen event id from file :"
-                            + lastSeenEventIdFile, ex);
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
-    protected void updateLastSeenEventId(Long newLastSeenEventId)
-    {
-        try
-        {
-            // create a temporary file (not an atomic operation)
-            File tmpFile =
-                    File.createTempFile(lastSeenEventIdFile.getName(), "tmp",
-                            lastSeenEventIdFile.getParentFile());
-            String fileContent = String.valueOf(newLastSeenEventId);
-            FileUtilities.writeToFile(tmpFile, fileContent);
-
-            // move operation (should be atomic)
-            tmpFile.renameTo(lastSeenEventIdFile);
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
     }
 
     // NOTE: Before the introduction of eager-archiving the column which now corresponds to

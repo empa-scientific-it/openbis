@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  * @author pkupczyk
  */
 public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask extends
-        AbstractDataSetDeletionPostProcessingMaintenanceTask
+        AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
 {
 
     static final String TIMING_PARAMETERS_KEY = "timing-parameters";
@@ -53,8 +53,6 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
 
     private static final String LAST_SEEN_DATA_SET_FILE_DEFAULT =
             "deleteDatasetsAlreadyDeletedFromApplicationServerTaskLastSeen";
-
-    private File lastSeenDataSetFile;
 
     private TimingParameters timingParameters;
 
@@ -68,45 +66,15 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
 
         if (lastSeenDataSetFileProperty == null)
         {
-            lastSeenDataSetFile =
+            lastSeenEventIdFile =
                     new File(getConfigProvider().getStoreRoot(), LAST_SEEN_DATA_SET_FILE_DEFAULT);
         } else
         {
-            lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
+            lastSeenEventIdFile = new File(lastSeenDataSetFileProperty);
         }
         timingParameters =
                 TimingParameters.create(PropertyParametersUtil.extractSingleSectionProperties(
                         properties, TIMING_PARAMETERS_KEY, false).getProperties());
-    }
-
-    @Override
-    protected Long getLastSeenEventId()
-    {
-        if (lastSeenDataSetFile.exists())
-        {
-            String lastSeenEventId = FileUtilities.loadToString(lastSeenDataSetFile).trim();
-            try
-            {
-                return Long.valueOf(lastSeenEventId);
-            } catch (NumberFormatException e)
-            {
-                operationLog
-                        .error("Couldn't get the last seen data set from file: "
-                                + lastSeenDataSetFile.getAbsolutePath()
-                                + " because the contents of that file cannot be parsed to a long value. "
-                                + " As there is no last seen data set available all data sets deletions will be taken into consideration.");
-                return null;
-            }
-        } else
-        {
-            return null;
-        }
-    }
-
-    @Override
-    protected void updateLastSeenEventId(Long eventId)
-    {
-        FileUtilities.writeToFile(lastSeenDataSetFile, String.valueOf(eventId));
     }
 
     @Override
