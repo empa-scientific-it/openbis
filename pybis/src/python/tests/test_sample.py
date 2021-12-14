@@ -1,11 +1,9 @@
-import json
 import random
 import re
-
+import uuid
 import pytest
 import time
-from pybis import DataSet
-from pybis import Openbis
+import pandas as pd
 
 
 def test_create_delete_sample(space):
@@ -107,7 +105,7 @@ def test_parent_child(space):
 
 def test_empty_data_frame(openbis_instance):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
-    sample_type_code = "test_sample_type_" + timestamp + "_" + str(random.randint(0, 1000))
+    sample_type_code = "test_sample_type_" + timestamp + "_" + str(uuid.uuid4())
 
     sample_type = openbis_instance.new_sample_type(
         code=sample_type_code,
@@ -124,5 +122,4 @@ def test_empty_data_frame(openbis_instance):
     s = openbis_instance.get_sample_type(sample_type_code)
     pa = s.get_property_assignments()
 
-    # Smoke testing if empty df can be fetched with no exceptions
-    print(pa.df)
+    pd.testing.assert_frame_equal(pa.df, pd.DataFrame())
