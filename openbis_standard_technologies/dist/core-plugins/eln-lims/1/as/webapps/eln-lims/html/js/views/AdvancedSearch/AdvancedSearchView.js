@@ -374,7 +374,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         if (dataType) {
             var operatorOptions = null;
 
-            if (dataType === "INTEGER" || dataType === "NUMBER") {
+            if (dataType === "INTEGER" || dataType === "REAL") {
                 operatorOptions = [ { value : "thatEqualsNumber",                    label : "thatEquals (Number)", selected : true },
                                     { value : "thatIsLessThanNumber",                label : "thatIsLessThan (Number)" },
                                     { value : "thatIsLessThanOrEqualToNumber",       label : "thatIsLessThanOrEqualTo (Number)" },
