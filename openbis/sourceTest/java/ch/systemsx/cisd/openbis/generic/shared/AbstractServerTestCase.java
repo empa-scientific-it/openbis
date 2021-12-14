@@ -26,6 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -118,6 +119,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected IAuthenticationService authenticationService;
 
     protected IOpenBisSessionManager sessionManager;
+
+    protected ICacheManager cacheManager;
 
     protected IPersonDAO personDAO;
 
@@ -229,6 +232,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(IOpenBisSessionManager.class);
+        cacheManager = context.mock(ICacheManager.class);
         propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
         // DAO
         daoFactory = context.mock(IDAOFactory.class);

@@ -200,6 +200,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
         server.setDisplaySettingsProvider(new DisplaySettingsProvider());
         server.setSessionWorkspaceProvider(sessionWorkspaceProvider);
+        server.setCacheManager(cacheManager);
         return server;
     }
 
@@ -276,6 +277,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(cacheManager);
+
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(mySession));
                     one(sessionManager).closeSession(SESSION_TOKEN);

@@ -241,6 +241,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     // For unit tests - in production Spring will inject this object.
+    public void setCacheManager(final ICacheManager cacheManager)
+    {
+        this.cacheManager = cacheManager;
+    }
+
+    // For unit tests - in production Spring will inject this object.
     public void setDssFactory(IDataStoreServiceFactory dssFactory)
     {
         this.dssFactory = dssFactory;
