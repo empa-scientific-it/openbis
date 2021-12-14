@@ -117,6 +117,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     public static final String CACHE_CLASS = CACHE_PREFIX + "class";
 
+    public static final String CACHE_DIRECTORY = CACHE_PREFIX + "directory";
+
     public static final String CACHE_CAPACITY = CACHE_PREFIX + "capacity";
 
     // defaults
@@ -164,6 +166,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     public static final int CACHE_CLEARANCE_TIMEOUT_DEFAULT = 3600;
 
     public static final int CACHE_CAPACITY_DEFAULT = (int) (10 * ONE_KB);
+
+    public static final String CACHE_DIRECTORY_DEFAULT = "targets/sessionWorkspace/cache";
 
     // fields
 

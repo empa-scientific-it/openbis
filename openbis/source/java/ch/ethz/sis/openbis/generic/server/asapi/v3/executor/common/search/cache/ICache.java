@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
 import java.util.Date;
 

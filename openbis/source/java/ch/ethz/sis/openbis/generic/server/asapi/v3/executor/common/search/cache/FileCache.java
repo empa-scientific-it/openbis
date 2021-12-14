@@ -1,7 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
-
-import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_DEFAULT;
-import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +10,6 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -21,7 +17,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -29,9 +26,6 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 public class FileCache<V> implements ICache<V>
 {
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, FileCache.class);
-
-    /** Name of the cache subfolder in session workspace. */
-    public static final String CACHE_FOLDER_NAME = "cache";
 
     /** Whether at least one instance of this cache has been created. */
     private static boolean instanceCreated = false;
@@ -63,9 +57,8 @@ public class FileCache<V> implements ICache<V>
         keyQueue = capacity > 0 ? new ArrayDeque<>(this.capacity) : new ArrayDeque<>();
 
         cacheDirString = PropertyUtils.getProperty(cacheOptionsVO.getServiceProperties(),
-                SESSION_WORKSPACE_ROOT_DIR_KEY, SESSION_WORKSPACE_ROOT_DIR_DEFAULT) + File.separator +
-                CACHE_FOLDER_NAME + File.separator +
-                cacheOptionsVO.getSessionToken().replaceAll("\\W+", "");
+                OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
+                File.separator + cacheOptionsVO.getSessionToken().replaceAll("\\W+", "");
         cacheDir = new File(cacheDirString);
 
         if (!instanceCreated)

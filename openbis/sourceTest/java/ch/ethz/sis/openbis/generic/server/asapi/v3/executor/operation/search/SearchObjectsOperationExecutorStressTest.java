@@ -60,13 +60,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.FileCache;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.FileCache;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.MemoryCache;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.MemoryCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -601,8 +602,8 @@ public class SearchObjectsOperationExecutorStressTest
         @SuppressWarnings("ConstantConditions")
         private void assertCacheDirectoryEmpty(final Properties properties, final String sessionToken)
         {
-            final String cacheDirString = PropertyUtils.getProperty(properties, SESSION_WORKSPACE_ROOT_DIR_KEY,
-                    SESSION_WORKSPACE_ROOT_DIR_DEFAULT) + File.separator + FileCache.CACHE_FOLDER_NAME +
+            final String cacheDirString = PropertyUtils.getProperty(properties,
+                    OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
                     File.separator + sessionToken.replaceAll("\\W+", "");
             final File cacheDir = new File(cacheDirString);
 

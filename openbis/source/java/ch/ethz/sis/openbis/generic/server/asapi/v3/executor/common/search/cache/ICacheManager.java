@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
 
 public interface ICacheManager
 {

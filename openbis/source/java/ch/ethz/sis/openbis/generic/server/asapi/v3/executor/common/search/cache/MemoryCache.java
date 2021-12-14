@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
 import java.util.ArrayDeque;
 import java.util.Date;
@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
 
 public class MemoryCache<V> implements ICache<V>
 {

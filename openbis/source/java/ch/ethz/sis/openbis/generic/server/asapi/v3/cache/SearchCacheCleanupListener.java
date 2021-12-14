@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.cache;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ICache;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
