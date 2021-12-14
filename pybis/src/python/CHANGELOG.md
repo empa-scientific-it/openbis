@@ -1,3 +1,6 @@
+## Changes with pybis-1.30.2
+- Possible issue fixes with data frame in create_data_frame() in entity_type.py 
+- Code fix for create_data_frame() in pybis.py to make group ID and user ID separate
 ## Changes with pybis-1.30.1
 - fixed KeyError when creating an empty data frame
 ## Changes with pybis-1.30.0
