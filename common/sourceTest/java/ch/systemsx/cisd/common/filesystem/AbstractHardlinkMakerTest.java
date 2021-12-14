@@ -31,6 +31,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.RetryTen;
@@ -191,10 +193,14 @@ public abstract class AbstractHardlinkMakerTest
                 createBigStructureCreator(new File(workingDirectory, "big-structure"));
         final File src = creator.createBigStructure();
         assertTrue(creator.verifyStructure());
-        creator.deleteBigStructureAsync();
+        MessageChannel channel = new MessageChannel();
+        
+        creator.deleteBigStructureAsync(channel);
         IImmutableCopier copier =
                 new AssertionCatchingImmutableCopierWrapper(createHardLinkCopier());
-        assertFalse(copier.copyImmutably(src, outputDir, null).isOK());
+        creator.waitUntilDeletionStarted(channel);
+        Status status = copier.copyImmutably(src, outputDir, null);
+        assertFalse(status.isOK());
         File dest = new File(outputDir, src.getName());
 
         TestBigStructureCreator structureCopy = new TestBigStructureCreator(dest);

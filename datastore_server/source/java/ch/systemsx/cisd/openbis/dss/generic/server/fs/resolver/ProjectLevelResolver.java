@@ -79,9 +79,9 @@ class ProjectLevelResolver extends AbstractResolver
                 Experiment experiment = sample.getExperiment();
                 if (experiment == null || experimentPermIds.contains(experiment.getPermId().getPermId()) == false)
                 {
-                    response.addDirectory(sample.getCode(), sample.getModificationDate());
+                    response.addDirectory(SAMPLE_PREFIX + sample.getCode(), sample.getModificationDate());
                     cache.putNode(new Node(SAMPLE_TYPE, sample.getPermId().getPermId()), 
-                            projectIdentifier.getIdentifier() + "/" + sample.getCode());
+                            projectIdentifier.getIdentifier() + "/" + SAMPLE_PREFIX + sample.getCode());
                 }
             }
             return response;
@@ -89,7 +89,7 @@ class ProjectLevelResolver extends AbstractResolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            String path = projectIdentifier.getIdentifier() + "/" + item;
+            String path = projectIdentifier.getIdentifier() + "/" + removeSamplePrefix(item);
             String type = getType(path, context);
             if (type.equals(EXPERIMENT_TYPE))
             {

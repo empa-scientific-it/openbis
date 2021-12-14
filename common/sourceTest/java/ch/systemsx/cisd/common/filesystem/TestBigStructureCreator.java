@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.io.CollectionIO;
 
 /**
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.common.io.CollectionIO;
  */
 public class TestBigStructureCreator
 {
+    private static final String START_DELETING_MSG = "Start deleting";
+
     private final File root;
 
     private final int[] numberOfFoldersPerLevel;
@@ -75,25 +78,42 @@ public class TestBigStructureCreator
      */
     public void deleteBigStructureAsync()
     {
+        deleteBigStructureAsync(null);
+    }
+
+    /**
+     * Delete the structure asynchronously.
+     */
+    public void deleteBigStructureAsync(MessageChannel channel)
+    {
         Runnable deleter = new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    try
+                    if (channel == null)
                     {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e)
+                        try
+                        {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e)
+                        {
+                        }
+                    } else
                     {
+                        channel.send(START_DELETING_MSG);
                     }
-                    System.out.println("Deleting source");
                     FileUtilities.deleteRecursively(root);
                 }
-
             };
 
         Thread deleterThread = new Thread(deleter);
         deleterThread.start();
+    }
+
+    public void waitUntilDeletionStarted(MessageChannel channel)
+    {
+        channel.assertNextMessage(START_DELETING_MSG);
     }
 
     /**

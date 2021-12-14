@@ -345,14 +345,12 @@ function ProjectFormView(projectFormController, projectFormModel) {
                 var $warning = FormUtil.getFieldForLabelWithText(null, warningText + ".");
                 $warning.css('color', FormUtil.warningColor);
                 $component.append($warning);
-                var infoText = "You can move ";
-                infoText += (numberOfExperiments + numberOfSamples) > 1 ? "these entities" : "this entity";
-                infoText += " to the trash can by enter a reason an click 'Accept'.";
-                $component.append(FormUtil.getFieldForLabelWithText(null, infoText));
-
-                new DeleteEntityController(function(reason) {
+                var deleteEntityController = new DeleteEntityController(function(reason) {
                     _this._projectFormController.deleteDependentEntities(reason, experiments, samples);
-                }, true, null, $component).init();
+                }, true, null, $component);
+                deleteEntityController.setNumberOfEntities(numberOfExperiments + numberOfSamples);
+                deleteEntityController.setAdditionalTest("After removal of the entities from the Trashcan, you will be able to delete this Project.");
+                deleteEntityController.init();
             } else {
                 var modalView = new DeleteEntityController(function(reason) {
                     _this._projectFormController.deleteProject(reason);

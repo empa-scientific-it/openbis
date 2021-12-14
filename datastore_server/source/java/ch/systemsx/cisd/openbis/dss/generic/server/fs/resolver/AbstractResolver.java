@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
  */
 abstract class AbstractResolver implements IResolver
 {
+    protected static final String SAMPLE_PREFIX = "Object:";
+
     protected static final String PROJECT_TYPE = "PROJECT";
 
     protected static final String EXPERIMENT_TYPE = "EXPERIMENT";
@@ -35,6 +37,11 @@ abstract class AbstractResolver implements IResolver
     protected Cache getCache(IResolverContext context)
     {
         return ((ResolverContext) context).getCache();
+    }
+
+    protected String removeSamplePrefix(String name)
+    {
+        return name.startsWith(SAMPLE_PREFIX) ? name.substring(SAMPLE_PREFIX.length()) : name;
     }
 
 }

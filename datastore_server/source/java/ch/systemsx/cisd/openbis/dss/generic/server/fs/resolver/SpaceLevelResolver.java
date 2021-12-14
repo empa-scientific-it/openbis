@@ -85,7 +85,7 @@ class SpaceLevelResolver extends AbstractResolver
                 Project project = sample.getProject();
                 if (project == null || projectPermIds.contains(project.getPermId().getPermId()) == false)
                 {
-                    response.addDirectory(sample.getCode(), sample.getModificationDate());
+                    response.addDirectory(SAMPLE_PREFIX + sample.getCode(), sample.getModificationDate());
                     cache.putNode(new Node(SAMPLE_TYPE, sample.getPermId().getPermId()), sample.getIdentifier().getIdentifier());
                 }
             }
@@ -94,7 +94,7 @@ class SpaceLevelResolver extends AbstractResolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            String path = "/" + spaceCode + "/" + item;
+            String path = "/" + spaceCode + "/" + removeSamplePrefix(item);
             String type = getType(path, context);
             if (type.equals(PROJECT_TYPE))
             {

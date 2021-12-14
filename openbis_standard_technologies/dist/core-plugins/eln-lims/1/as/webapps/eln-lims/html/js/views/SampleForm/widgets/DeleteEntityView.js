@@ -36,6 +36,14 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel, $plugin) {
 		}
 		
 		if(this._deleteEntityModel.includeReason) {
+            var infoText = "By providing a reason for deletion and clicking 'Accept', ";
+            infoText += _this._deleteEntityModel.numberOfEntities > 1 ? "these entities" : "this entity";
+            infoText += " will be moved to the Trashcan.";
+            $window.append(FormUtil.getFieldForLabelWithText(null, infoText));
+            if (this._deleteEntityModel.additionalTest) {
+                $window.append(FormUtil.getFieldForLabelWithText(null, this._deleteEntityModel.additionalTest));
+            }
+
 			var $reasonTextBox = FormUtil._getTextBox("reason-to-delete-id", 'Reason for the delete', true);
 			$reasonTextBox.keyup(function(event) {
 				_this._deleteEntityModel.reason = $(this).val();

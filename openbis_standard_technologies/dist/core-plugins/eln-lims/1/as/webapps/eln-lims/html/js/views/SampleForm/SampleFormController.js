@@ -149,7 +149,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 if(response.error) {
                     Util.showError(response.error.message);
                 } else {
-                    Util.showSuccess("" + ELNDictionary.Sample + "(s) Deleted");
+                    Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
                     if(_this._sampleFormModel.isELNSample) {
                         mainController.sideMenu.deleteNodeByEntityPermId(_this._sampleFormModel.sample.permId, true);
                     } else {
