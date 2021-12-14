@@ -1111,9 +1111,10 @@ class Openbis:
         token_user_name = self.token.split("-")[0]
         from pwd import getpwnam
         token_user_name_uid = getpwnam(token_user_name).pw_uid
+        token_user_name_gid = getpwnam(token_user_name).pw_gid
 
         # Token
-        os.chown(token_path, token_user_name_uid, token_user_name_uid)
+        os.chown(token_path, token_user_name_uid, token_user_name_gid)
 
         # Parent directory
         from pathlib import Path
