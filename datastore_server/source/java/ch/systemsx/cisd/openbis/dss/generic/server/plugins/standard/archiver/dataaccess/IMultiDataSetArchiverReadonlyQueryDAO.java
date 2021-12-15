@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.da
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
@@ -42,6 +43,13 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_CONTAINER + "WHERE unarchiving_requested = 't'")
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving();
+
+    @Select(sql = SELECT_CONTAINER + "WHERE id in (" +
+                                        "select ctnr_id " +
+                                        "from data_sets " +
+                                        "where code = any(?{1})" +
+                                      ")", parameterBindings = {StringArrayMapper.class })
+    public List<MultiDataSetArchiverContainerDTO> listContainersWithDataSets(String[] dataSetCodes);
 
     /*
      * SELECT DATA_SET
