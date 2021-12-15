@@ -1120,7 +1120,7 @@ class Openbis:
         from pathlib import Path
         path = Path(token_path)
         token_parent_path = path.parent.absolute()
-        os.chown(token_parent_path, token_user_name_uid, token_user_name_uid)
+        os.chown(token_parent_path, token_user_name_uid, token_user_name_gid)
 
     def _save_token_to_disk(self, os_home = None):
         """saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default."""
