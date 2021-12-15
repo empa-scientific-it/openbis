@@ -2,6 +2,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+
 public class CacheOptionsVO
 {
 
@@ -13,13 +15,16 @@ public class CacheOptionsVO
 
     private final boolean asyncStorage;
 
+    final ITimeProvider timeProvider;
+
     public CacheOptionsVO(final int capacity, final Properties serviceProperties, final String sessionToken,
-            final boolean asyncStorage)
+            final boolean asyncStorage, final ITimeProvider timeProvider)
     {
         this.capacity = capacity;
         this.serviceProperties = serviceProperties;
         this.sessionToken = sessionToken;
         this.asyncStorage = asyncStorage;
+        this.timeProvider = timeProvider;
     }
 
     public int getCapacity()
@@ -40,6 +45,11 @@ public class CacheOptionsVO
     public boolean isAsyncStorage()
     {
         return asyncStorage;
+    }
+
+    public ITimeProvider getTimeProvider()
+    {
+        return timeProvider;
     }
 
 }

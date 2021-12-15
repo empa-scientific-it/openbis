@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.Ope
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 public class FileCache<V> implements ICache<V>
 {
@@ -43,14 +44,17 @@ public class FileCache<V> implements ICache<V>
     /** If true cache values will be stored asynchronously in a separate thread. */
     private final boolean asyncStorage;
 
+    private final ITimeProvider timeProvider;
+
     public FileCache(final CacheOptionsVO cacheOptionsVO)
     {
+        this.timeProvider = cacheOptionsVO.getTimeProvider();
         this.asyncStorage = cacheOptionsVO.isAsyncStorage();
 
         final int capacity = cacheOptionsVO.getCapacity();
         if (capacity < 0)
         {
-            throw new RuntimeException("capacity cannot be negative.");
+            throw new RuntimeException("Capacity cannot be negative.");
         }
 
         this.capacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
@@ -108,7 +112,7 @@ public class FileCache<V> implements ICache<V>
             {
                 try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
                 {
-                    out.writeObject(new ImmutablePair<>(new Date(), value));
+                    out.writeObject(new ImmutablePair<>(new Date(timeProvider.getTimeInMilliseconds()), value));
                 } catch (final IOException e)
                 {
                     OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),

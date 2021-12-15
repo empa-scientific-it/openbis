@@ -15,6 +15,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheO
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 @Component("cache-manager")
 public class CacheManager implements ICacheManager
@@ -37,8 +39,9 @@ public class CacheManager implements ICacheManager
         {
             try
             {
-                cache = (ICache<Object>) cacheClass.getConstructor(CacheOptionsVO.class).newInstance(
-                        new CacheOptionsVO(cacheCapacity, serviceProperties, sessionToken, true));
+                cache = (ICache<Object>) cacheClass.getConstructor(CacheOptionsVO.class, ITimeProvider.class)
+                        .newInstance(new CacheOptionsVO(cacheCapacity, serviceProperties, sessionToken, true,
+                                SystemTimeProvider.SYSTEM_TIME_PROVIDER));
             } catch (final InstantiationException | IllegalAccessException | InvocationTargetException |
                     NoSuchMethodException e)
             {

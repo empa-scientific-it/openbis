@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 public class MemoryCache<V> implements ICache<V>
 {
@@ -25,12 +26,16 @@ public class MemoryCache<V> implements ICache<V>
 
     private final Set<String> writingKeys = new CopyOnWriteArraySet<>();
 
+    private final ITimeProvider timeProvider;
+
     public MemoryCache(final CacheOptionsVO cacheOptionsVO)
     {
+        this.timeProvider = cacheOptionsVO.getTimeProvider();
+
         final int capacity = cacheOptionsVO.getCapacity();
         if (capacity < 0)
         {
-            throw new RuntimeException("capacity cannot be negative.");
+            throw new RuntimeException("Capacity cannot be negative.");
         }
 
         this.capacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
@@ -75,7 +80,7 @@ public class MemoryCache<V> implements ICache<V>
             keyQueue.add(key);
             writingKeys.remove(key);
         }
-        cachedResults.put(key, new ImmutablePair<>(new Date(), value));
+        cachedResults.put(key, new ImmutablePair<>(new Date(timeProvider.getTimeInMilliseconds()), value));
     }
 
     @Override
@@ -119,6 +124,16 @@ public class MemoryCache<V> implements ICache<V>
                 keyQueue.removeIf(s -> Objects.equals(s, entry.getKey()));
             }
         }
+    }
+
+    Map<String, ImmutablePair<Date, V>> getCachedResults()
+    {
+        return cachedResults;
+    }
+
+    Queue<String> getKeyQueue()
+    {
+        return keyQueue;
     }
 
 }

@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
 
-import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_DEFAULT;
-import static ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -59,15 +57,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.FileCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.MemoryCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -75,10 +69,8 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
-import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -89,13 +81,6 @@ public class SearchObjectsOperationExecutorStressTest
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SearchObjectsOperationExecutorStressTest.class);
-
-    private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
-
-    private static final String TARGETS_DIRECTORY = "targets";
-
-    private static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY + File.separator +
-            UNIT_TEST_WORKING_DIRECTORY);
 
     @BeforeMethod
     public void setUp()
@@ -514,109 +499,6 @@ public class SearchObjectsOperationExecutorStressTest
                 cacheByUserSessionToken.put(sessionToken, cache);
             }
             return cache;
-        }
-
-    }
-
-    private interface CacheFactory
-    {
-
-        Class<?> getCacheClass();
-
-        ICache<Object> getCache(final IOperationContext iOperationContext);
-
-    }
-
-    private static class MemoryCacheFactory implements CacheFactory
-    {
-
-        final int cacheSize;
-
-        private MemoryCacheFactory(final int cacheSize)
-        {
-            this.cacheSize = cacheSize;
-        }
-
-        @Override
-        public Class<?> getCacheClass()
-        {
-            return MemoryCache.class;
-        }
-
-        @Override
-        public ICache<Object> getCache(final IOperationContext iOperationContext)
-        {
-            return new MemoryCache<>(new CacheOptionsVO(cacheSize, null, null, false));
-        }
-
-    }
-
-    private static class FileCacheFactory implements CacheFactory
-    {
-
-        /** Whether at least one instance of this cache has been created. */
-        private static boolean applyCalled = false;
-
-        private final int cacheSize;
-
-        private FileCacheFactory(final int cacheSize)
-        {
-            this.cacheSize = cacheSize;
-        }
-
-        @Override
-        public Class<?> getCacheClass()
-        {
-            return FileCache.class;
-        }
-
-        @Override
-        public ICache<Object> getCache(final IOperationContext context)
-        {
-            final Properties properties = new Properties();
-            final File workingDirectory = createDirectoryInUnitTestRoot(getClass().getName());
-            properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
-
-            final String sessionToken = context.getSession().getSessionToken();
-            final FileCache<Object> fileCache = new FileCache<>(
-                    new CacheOptionsVO(cacheSize, properties, sessionToken, false));
-
-            synchronized (FileCacheFactory.class)
-            {
-                if (!applyCalled)
-                {
-                    applyCalled = true;
-                    assertCacheDirectoryEmpty(properties, sessionToken);
-                }
-            }
-
-            return fileCache;
-        }
-
-        /**
-         * Asserts that cache is cleared before start.
-         *
-         * @param properties configuration properties.
-         * @param sessionToken current session token.
-         */
-        @SuppressWarnings("ConstantConditions")
-        private void assertCacheDirectoryEmpty(final Properties properties, final String sessionToken)
-        {
-            final String cacheDirString = PropertyUtils.getProperty(properties,
-                    OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
-                    File.separator + sessionToken.replaceAll("\\W+", "");
-            final File cacheDir = new File(cacheDirString);
-
-            assertTrue(cacheDir.isDirectory());
-            assertEquals(cacheDir.listFiles().length, 0);
-        }
-
-        protected final File createDirectoryInUnitTestRoot(String dirName)
-        {
-            final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, dirName);
-            directory.mkdirs();
-            directory.deleteOnExit();
-            return directory;
         }
 
     }
