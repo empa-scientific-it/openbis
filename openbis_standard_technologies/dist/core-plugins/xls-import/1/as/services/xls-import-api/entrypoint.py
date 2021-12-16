@@ -3,6 +3,7 @@ import os
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.operation import SynchronousOperationExecutionOptions
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from parsers import get_creations_from, get_definitions_from_xls, get_definitions_from_csv, get_creation_metadata_from, \
     CreationOrUpdateToOperationParser, versionable_types
 from processors import OpenbisDuplicatesHandler, PropertiesLabelHandler, DuplicatesHandler, \
@@ -129,6 +130,7 @@ def process(context, parameters):
     xls_byte_arrays = parameters.get('xls', None)
     csv_strings = parameters.get('csv', None)
     xls_name = parameters.get('xls_name', None)
+    experiment_identifier = parameters.get('experiment_identifier', None)
     scripts = parameters.get('scripts', {})
     update_mode = parameters.get('update_mode', None)
     validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
@@ -156,6 +158,7 @@ def process(context, parameters):
     creations = server_duplicates_handler.handle_existing_elements_in_creations()
     entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations = CreationOrUpdateToOperationParser.parse(
         creations)
+    inject_experiment(entity_creation_operations, experiment_identifier)
 
     entity_type_update_results = str(api.executeOperations(session_token, entity_type_update_operations,
                                                            SynchronousOperationExecutionOptions()).getResults())
@@ -171,3 +174,10 @@ def process(context, parameters):
     return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
         entity_type_update_results, entity_update_results,
         entity_type_creation_results, entity_creation_results)
+
+def inject_experiment(entity_creation_operations, experiment_identifier):
+    if experiment_identifier is not None:
+        for eco in entity_creation_operations:
+            for creation in eco.getCreations():
+                creation.setExperimentId(experiment_identifier)
+                creation.setSpaceId(SpacePermId(experiment_identifier.getIdentifier().split("/")[1]))
