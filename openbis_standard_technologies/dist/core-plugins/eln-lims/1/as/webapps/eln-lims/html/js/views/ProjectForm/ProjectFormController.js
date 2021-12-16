@@ -80,7 +80,7 @@ function ProjectFormController(mainController, mode, project) {
         });
         this._deleteExperiments(reason, Array.from(experimentIds), function() {
             _this._deleteSamples(reason, independentSamples, function() {
-                Util.showSuccess("Entities deleted", function() {
+                Util.showSuccess("Entities moved to Thrashcan", function() {
                     _this._mainController.sideMenu.refreshCurrentNode();
                     Util.unblockUI();
                 });
