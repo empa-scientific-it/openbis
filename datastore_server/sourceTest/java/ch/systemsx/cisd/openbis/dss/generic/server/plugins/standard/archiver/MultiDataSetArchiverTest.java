@@ -324,6 +324,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public List<MultiDataSetArchiverContainerDTO> listContainersWithDataSets(String[] dataSetCodes)
+        {
+            return null;
+        }
+
+        @Override
         public String toString()
         {
             StringBuilder builder = new StringBuilder();
