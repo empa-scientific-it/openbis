@@ -20,7 +20,7 @@ public class MemoryCache<V> implements ICache<V>
 
     private final int capacity;
 
-    private final Map<String, ImmutablePair<Date, V>> cachedResults;
+    private final Map<String, ImmutablePair<Long, V>> cachedResults;
 
     private final Queue<String> keyQueue;
 
@@ -68,7 +68,7 @@ public class MemoryCache<V> implements ICache<V>
             if (cacheSize == capacity)
             {
                 final String removedKey = keyQueue.remove();
-                final ImmutablePair<Date, V> removedValue = cachedResults.remove(removedKey);
+                final ImmutablePair<?, ?> removedValue = cachedResults.remove(removedKey);
 
                 if (removedValue == null)
                 {
@@ -80,13 +80,13 @@ public class MemoryCache<V> implements ICache<V>
             keyQueue.add(key);
             writingKeys.remove(key);
         }
-        cachedResults.put(key, new ImmutablePair<>(new Date(timeProvider.getTimeInMilliseconds()), value));
+        cachedResults.put(key, new ImmutablePair<>(timeProvider.getTimeInMilliseconds(), value));
     }
 
     @Override
     public V get(final String key)
     {
-        final ImmutablePair<Date, V> cachedResult = cachedResults.get(key);
+        final ImmutablePair<?, V> cachedResult = cachedResults.get(key);
         return cachedResult != null ? cachedResult.getRight() : null;
     }
 
@@ -111,14 +111,14 @@ public class MemoryCache<V> implements ICache<V>
     }
 
     @Override
-    public synchronized void clearOld(final Date date)
+    public synchronized void clearOld(final long time)
     {
-        for (final Iterator<Map.Entry<String, ImmutablePair<Date, V>>> iterator = cachedResults.entrySet().iterator();
+        for (final Iterator<Map.Entry<String, ImmutablePair<Long, V>>> iterator = cachedResults.entrySet().iterator();
                 iterator.hasNext();)
         {
-            final Map.Entry<String, ImmutablePair<Date, V>> entry = iterator.next();
+            final Map.Entry<String, ImmutablePair<Long, V>> entry = iterator.next();
 
-            if (date.after(entry.getValue().getLeft()))
+            if (time > entry.getValue().getLeft())
             {
                 iterator.remove();
                 keyQueue.removeIf(s -> Objects.equals(s, entry.getKey()));
@@ -126,7 +126,7 @@ public class MemoryCache<V> implements ICache<V>
         }
     }
 
-    Map<String, ImmutablePair<Date, V>> getCachedResults()
+    Map<String, ImmutablePair<Long, V>> getCachedResults()
     {
         return cachedResults;
     }

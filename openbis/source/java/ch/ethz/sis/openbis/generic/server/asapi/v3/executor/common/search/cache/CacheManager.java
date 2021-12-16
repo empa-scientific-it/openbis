@@ -70,7 +70,7 @@ public class CacheManager implements ICacheManager
     {
         synchronized (cacheByUserSessionToken)
         {
-            cacheByUserSessionToken.values().forEach(cache -> cache.clearOld(date));
+            cacheByUserSessionToken.values().forEach(cache -> cache.clearOld(date.getTime()));
         }
     }
 

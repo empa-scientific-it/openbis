@@ -1,10 +1,13 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
 
@@ -58,16 +61,14 @@ public class MemoryCacheTest
     {
         // Test that cache is empty
 
-        assertEquals(cache.getCachedResults().size(), 0);
+        assertTrue(cache.getCachedResults().isEmpty());
+        assertTrue(cache.getKeyQueue().isEmpty());
 
-        // General test that put sets the values correctly
+        // General test that the put method sets values correctly
 
-        for (int i = 0; i < CACHE_SIZE; i++)
-        {
-            cache.put("k" + i, i);
-        }
+        fillCacheWithValues(cache);
 
-        final Map<String, ImmutablePair<Date, Object>> cachedResults1 = cache.getCachedResults();
+        final Map<String, ImmutablePair<Long, Object>> cachedResults1 = cache.getCachedResults();
         assertEquals(cachedResults1.size(), CACHE_SIZE);
 
         final Queue<String> keyQueue1 = cache.getKeyQueue();
@@ -83,7 +84,7 @@ public class MemoryCacheTest
 
         cache.put("k" + CACHE_SIZE, CACHE_SIZE);
 
-        final Map<String, ImmutablePair<Date, Object>> cachedResults2 = cache.getCachedResults();
+        final Map<String, ImmutablePair<Long, Object>> cachedResults2 = cache.getCachedResults();
         assertEquals(cachedResults2.size(), limited ? CACHE_SIZE : CACHE_SIZE + 1);
 
         final Queue<String> keyQueue2 = cache.getKeyQueue();
@@ -96,13 +97,16 @@ public class MemoryCacheTest
         {
             // The very first element should be evicted.
             assertNull(cachedResults2.get("k0"));
+        } else
+        {
+            assertNotNull(cachedResults2.get("k0"));
         }
 
         // Replacing
 
         cache.put("k1", -1);
 
-        final Map<String, ImmutablePair<Date, Object>> cachedResults3 = cache.getCachedResults();
+        final Map<String, ImmutablePair<Long, Object>> cachedResults3 = cache.getCachedResults();
         assertEquals(cachedResults3.size(), limited ? CACHE_SIZE : CACHE_SIZE + 1);
 
         final Queue<String> keyQueue3 = cache.getKeyQueue();
@@ -112,39 +116,200 @@ public class MemoryCacheTest
         assertEquals(keyQueue3.peek(), limited ? "k1" : "k0");
     }
 
-    private void checkCacheItem(final Map<String, ImmutablePair<Date, Object>> cachedResults1, final int i)
+    private void checkCacheItem(final Map<String, ImmutablePair<Long, Object>> cachedResults1, final int i)
     {
-        final ImmutablePair<Date, Object> cacheItem = cachedResults1.get("k" + i);
+        final ImmutablePair<Long, Object> cacheItem = cachedResults1.get("k" + i);
         assertNotNull(cacheItem);
 
         // Timer mock works in steps.
-        assertEquals(cacheItem.getLeft().getTime(), i * 1000L);
+        assertEquals(cacheItem.getLeft().longValue(), i * 1000L);
         assertEquals(cacheItem.getRight(), i);
     }
 
     @Test(dataProvider = "cacheImplementations")
     public void testGet(final MemoryCache<Object> cache, final boolean limited)
     {
+        // Test empty cache
+
+        assertNull(cache.get("k1"));
+
+        // General test that the get method retrieves values correctly
+
+        fillCacheWithValues(cache);
+
+        for (int i = 0; i < CACHE_SIZE; i++)
+        {
+            assertEquals(cache.get("k" + i), i);
+        }
+
+        // Add an extra element that should evict the first one in the limited cache
+
+        cache.put("k" + CACHE_SIZE, CACHE_SIZE);
+        assertEquals(cache.get("k" + CACHE_SIZE), CACHE_SIZE);
+
+        if (limited)
+        {
+            // The very first element should be evicted.
+            assertNull(cache.get("k0"));
+        } else
+        {
+            assertNotNull(cache.get("k0"));
+        }
+
+        // Replace
+
+        cache.put("k1", -1);
+        assertEquals(cache.get("k1"), -1);
+    }
+
+    private void fillCacheWithValues(final MemoryCache<Object> cache)
+    {
+        for (int i = 0; i < CACHE_SIZE; i++)
+        {
+            cache.put("k" + i, i);
+        }
     }
 
     @Test(dataProvider = "cacheImplementations")
     public void testRemove(final MemoryCache<Object> cache, final boolean limited)
     {
+        // Test empty cache
+
+        cache.remove("k0");
+
+        // Remove not existing element
+
+        fillCacheWithValues(cache);
+
+        cache.remove("k" + CACHE_SIZE);
+
+        assertEquals(cache.getCachedResults().size(), CACHE_SIZE);
+        assertEquals(cache.getKeyQueue().size(), CACHE_SIZE);
+
+        // Remove last element
+
+        removeElement(cache, "k" + (CACHE_SIZE - 1));
+
+        // Remove middle element
+
+        removeElement(cache, "k" + (CACHE_SIZE - 1) / 2);
+
+        // Remove first element
+
+        removeElement(cache, "k0");
+
+        // Remove all remaining elements in random order
+
+        final ArrayList<String> keys = new ArrayList<>(cache.getCachedResults().keySet());
+        Collections.shuffle(keys);
+        keys.forEach(key -> removeElement(cache, key));
+
+        // Test empty cache again
+
+        cache.remove("k1");
+        assertEquals(cache.getCachedResults().size(), 0);
+        assertEquals(cache.getKeyQueue().size(), 0);
+    }
+
+    private void removeElement(final MemoryCache<Object> cache, final String key)
+    {
+        final int initialCacheSize = cache.getCachedResults().size();
+        assertEquals(cache.getKeyQueue().size(), initialCacheSize);
+
+        cache.remove(key);
+        assertNull(cache.get(key));
+        assertEquals(cache.getCachedResults().size(), initialCacheSize - 1);
+        assertEquals(cache.getKeyQueue().size(), initialCacheSize - 1);
     }
 
     @Test(dataProvider = "cacheImplementations")
     public void testContains(final MemoryCache<Object> cache, final boolean limited)
     {
+        // Test empty cache
+
+        assertFalse(cache.contains("k0"));
+        assertFalse(cache.contains(""));
+
+        // General test that the contains method finds values correctly
+
+        fillCacheWithValues(cache);
+
+        for (int i = 0; i < CACHE_SIZE; i++)
+        {
+            assertTrue(cache.contains("k" + i));
+        }
+
+        // Add an extra element that should evict the first one in the limited cache
+
+        cache.put("k" + CACHE_SIZE, CACHE_SIZE);
+        assertTrue(cache.contains("k" + CACHE_SIZE));
+
+        if (limited)
+        {
+            // The very first element should be evicted.
+            assertFalse(cache.contains("k0"));
+        } else
+        {
+            assertTrue(cache.contains("k0"));
+        }
+
+        // Replace
+
+        cache.put("k1", -1);
+        assertTrue(cache.contains("k1"));
     }
 
     @Test(dataProvider = "cacheImplementations")
     public void testClear(final MemoryCache<Object> cache, final boolean limited)
     {
+        // Test empty cache
+
+        assertTrue(cache.getCachedResults().isEmpty());
+        assertTrue(cache.getKeyQueue().isEmpty());
+        cache.clear();
+        assertTrue(cache.getCachedResults().isEmpty());
+        assertTrue(cache.getKeyQueue().isEmpty());
+
+        // General test that cache is cleared correctly
+
+        fillCacheWithValues(cache);
+        assertFalse(cache.getCachedResults().isEmpty());
+        assertFalse(cache.getKeyQueue().isEmpty());
+        cache.clear();
+        assertTrue(cache.getCachedResults().isEmpty());
+        assertTrue(cache.getKeyQueue().isEmpty());
+
+        for (int i = 0; i < CACHE_SIZE; i++)
+        {
+            assertFalse(cache.contains("k" + i));
+            assertNull(cache.get("k" + i));
+        }
     }
 
     @Test(dataProvider = "cacheImplementations")
     public void testClearOld(final MemoryCache<Object> cache, final boolean limited)
     {
+        // Test empty cache
+
+        cache.clearOld(0L);
+
+        // Fill cache and empty it completely
+
+        fillCacheWithValues(cache);
+        final long time1 = cache.getCachedResults().get("k" + (CACHE_SIZE - 1)).getLeft() + 1;
+        cache.clearOld(time1);
+        assertTrue(cache.getCachedResults().isEmpty());
+        assertTrue(cache.getKeyQueue().isEmpty());
+
+        // Splitting the cache in half
+
+        fillCacheWithValues(cache);
+        final long time2 = cache.getCachedResults().get("k" + (CACHE_SIZE - 1) / 2).getLeft() + 1;
+        cache.clearOld(time2);
+        assertEquals(cache.getCachedResults().size(), CACHE_SIZE / 2);
+        assertEquals(cache.getKeyQueue().size(), CACHE_SIZE / 2);
+        assertTrue(cache.getCachedResults().values().stream().allMatch(
+                cacheItem -> (Integer) cacheItem.getRight() > (CACHE_SIZE - 1) / 2));
     }
 
 }

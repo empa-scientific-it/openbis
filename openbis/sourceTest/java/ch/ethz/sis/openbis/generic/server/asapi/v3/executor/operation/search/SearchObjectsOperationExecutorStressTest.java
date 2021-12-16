@@ -254,7 +254,8 @@ public class SearchObjectsOperationExecutorStressTest
         keys.addAll(olderKeys);
         keys.addAll(newerKeys);
 
-        olderContexts.values().forEach(context -> executor.getCacheManager().getCache(context).clearOld(newerKeysDate));
+        olderContexts.values().forEach(context ->
+                executor.getCacheManager().getCache(context).clearOld(newerKeysDate.getTime()));
 
         for (int i = 0; i < keys.size(); i++)
         {

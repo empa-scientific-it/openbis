@@ -20,7 +20,6 @@ import java.lang.Thread.State;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -374,7 +373,7 @@ public class SearchObjectsOperationExecutorTest
         }
 
         @Override
-        public void clearOld(final Date date)
+        public void clearOld(final long time)
         {
         }
 

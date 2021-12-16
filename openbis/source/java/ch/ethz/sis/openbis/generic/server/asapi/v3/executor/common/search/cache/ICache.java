@@ -1,7 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
-import java.util.Date;
-
 public interface ICache<V>
 {
 
@@ -15,6 +13,6 @@ public interface ICache<V>
 
     void clear();
 
-    void clearOld(Date date);
+    void clearOld(long time);
 
 }

@@ -112,7 +112,7 @@ public class FileCache<V> implements ICache<V>
             {
                 try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
                 {
-                    out.writeObject(new ImmutablePair<>(new Date(timeProvider.getTimeInMilliseconds()), value));
+                    out.writeObject(new ImmutablePair<>(timeProvider.getTimeInMilliseconds(), value));
                 } catch (final IOException e)
                 {
                     OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),
@@ -176,7 +176,7 @@ public class FileCache<V> implements ICache<V>
     }
 
     @Override
-    public void clearOld(final Date date)
+    public void clearOld(final long time)
     {
         final File cacheDir = new File(cacheDirString);
 
@@ -184,17 +184,17 @@ public class FileCache<V> implements ICache<V>
 
         for (final File file : files)
         {
-            ImmutablePair<Date, V> cachedResult;
+            ImmutablePair<Long, V> cachedResult;
             try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(file)))
             {
-                cachedResult = (ImmutablePair<Date, V>) in.readObject();
+                cachedResult = (ImmutablePair<Long, V>) in.readObject();
             } catch (final IOException | ClassNotFoundException e)
             {
                 OPERATION_LOG.error(String.format("Error reading value from file. [file=%s]", file), e);
                 cachedResult = null;
             }
 
-            if (cachedResult != null && date.after(cachedResult.getLeft()))
+            if (cachedResult != null && time > cachedResult.getLeft())
             {
                 file.delete();
                 keyQueue.removeIf(s -> Objects.equals(s, file.getName()));
