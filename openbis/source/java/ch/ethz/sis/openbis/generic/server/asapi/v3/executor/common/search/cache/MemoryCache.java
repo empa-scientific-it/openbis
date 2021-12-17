@@ -15,7 +15,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
-public class MemoryCache<V> implements ICache<V>
+public class MemoryCache<V> implements ITestableCache<V>
 {
 
     private final int capacity;
@@ -126,12 +126,14 @@ public class MemoryCache<V> implements ICache<V>
         }
     }
 
-    Map<String, ImmutablePair<Long, V>> getCachedResults()
+    @Override
+    public Map<String, ImmutablePair<Long, V>> getCachedResults()
     {
         return cachedResults;
     }
 
-    Queue<String> getKeyQueue()
+    @Override
+    public Queue<String> getKeyQueue()
     {
         return keyQueue;
     }

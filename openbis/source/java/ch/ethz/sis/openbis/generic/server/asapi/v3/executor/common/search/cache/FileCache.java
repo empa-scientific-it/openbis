@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -24,7 +25,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
-public class FileCache<V> implements ICache<V>
+public class FileCache<V> implements ITestableCache<V>
 {
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, FileCache.class);
 
@@ -241,7 +242,14 @@ public class FileCache<V> implements ICache<V>
         dir.delete();
     }
 
-    Queue<String> getKeyQueue()
+    @Override
+    public Map<String, ImmutablePair<Long, V>> getCachedResults()
+    {
+        return null;
+    }
+
+    @Override
+    public Queue<String> getKeyQueue()
     {
         return keyQueue;
     }
