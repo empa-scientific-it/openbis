@@ -8,18 +8,16 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search.MemoryCacheFactory;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -31,7 +29,7 @@ public class MemoryCacheTest
     private static int counter = 0;
 
     @DataProvider
-    protected Object[][] cacheImplementations()
+    protected Object[][] cacheInstances()
     {
         return new Object[][]
         {
@@ -46,17 +44,7 @@ public class MemoryCacheTest
         return new OperationContext(new Session("user" + suffix, "token" + suffix, new Principal(), "", 1));
     }
 
-    @BeforeMethod
-    public void setUp()
-    {
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-    }
-
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testPut(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test that cache is empty
@@ -116,17 +104,16 @@ public class MemoryCacheTest
         assertEquals(keyQueue3.peek(), limited ? "k1" : "k0");
     }
 
-    private void checkCacheItem(final Map<String, ImmutablePair<Long, Object>> cachedResults1, final int i)
+    private void checkCacheItem(final Map<String, ImmutablePair<Long, Object>> cachedResults, final int i)
     {
-        final ImmutablePair<Long, Object> cacheItem = cachedResults1.get("k" + i);
+        final ImmutablePair<Long, Object> cacheItem = cachedResults.get("k" + i);
         assertNotNull(cacheItem);
 
         // Timer mock works in steps.
-        assertEquals(cacheItem.getLeft().longValue(), i * 1000L);
         assertEquals(cacheItem.getRight(), i);
     }
 
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testGet(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test empty cache
@@ -170,7 +157,7 @@ public class MemoryCacheTest
         }
     }
 
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testRemove(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test empty cache
@@ -200,7 +187,7 @@ public class MemoryCacheTest
 
         // Remove all remaining elements in random order
 
-        final ArrayList<String> keys = new ArrayList<>(cache.getCachedResults().keySet());
+        final List<String> keys = new ArrayList<>(cache.getCachedResults().keySet());
         Collections.shuffle(keys);
         keys.forEach(key -> removeElement(cache, key));
 
@@ -222,7 +209,7 @@ public class MemoryCacheTest
         assertEquals(cache.getKeyQueue().size(), initialCacheSize - 1);
     }
 
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testContains(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test empty cache
@@ -259,7 +246,7 @@ public class MemoryCacheTest
         assertTrue(cache.contains("k1"));
     }
 
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testClear(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test empty cache
@@ -286,7 +273,7 @@ public class MemoryCacheTest
         }
     }
 
-    @Test(dataProvider = "cacheImplementations")
+    @Test(dataProvider = "cacheInstances")
     public void testClearOld(final MemoryCache<Object> cache, final boolean limited)
     {
         // Test empty cache

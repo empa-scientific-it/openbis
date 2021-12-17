@@ -16,11 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,11 +54,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.CacheManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.FileCacheFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.MemoryCacheFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -214,7 +214,6 @@ public class SearchObjectsOperationExecutorStressTest
 
     @Test(timeOut = 30000, dataProvider = "cache factories without evicting")
     public void testEvictionByDate(final int cacheSize, final CacheFactory cacheFactory)
-            throws InterruptedException
     {
         final int sessionCount = 5;
 
@@ -242,9 +241,7 @@ public class SearchObjectsOperationExecutorStressTest
                 executor, olderContexts, 0, 20);
         populateCache(executor, contexts, olderKeys);
 
-        Thread.sleep(1);
-        final Date newerKeysDate = new Date();
-        Thread.sleep(1);
+        final Date newerKeysDate = new Date(CacheFactory.TIME_PROVIDER.getTimeInMilliseconds() + 1);
 
         final List<SearchCacheKey> newerKeys = prepareSearchCacheKeys(cacheSize, executor, newerContexts, 20, 20);
         populateCache(executor, contexts, newerKeys);

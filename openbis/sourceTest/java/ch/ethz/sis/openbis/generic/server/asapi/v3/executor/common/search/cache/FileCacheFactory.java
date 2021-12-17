@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -8,11 +8,6 @@ import java.util.Properties;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CacheOptionsVO;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.FileCache;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config.OperationExecutionConfig;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 
 public final class FileCacheFactory implements CacheFactory
@@ -46,20 +41,25 @@ public final class FileCacheFactory implements CacheFactory
     @Override
     public ICache<Object> getCache(final IOperationContext context)
     {
+        return getCache(context, createDirectoryInUnitTestRoot(getClass().getName()));
+    }
+
+    public FileCache<Object> getCache(final IOperationContext context, final File workingDirectory)
+    {
         final Properties properties = new Properties();
-        final File workingDirectory = createDirectoryInUnitTestRoot(getClass().getName());
         properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
         final String sessionToken = context.getSession().getSessionToken();
         final FileCache<Object> fileCache = new FileCache<>(
-                new CacheOptionsVO(cacheSize, properties, sessionToken, false, new MockTimeProvider()));
+                new CacheOptionsVO(cacheSize, properties, sessionToken, false, TIME_PROVIDER),
+                workingDirectory.getPath());
 
         synchronized (FileCacheFactory.class)
         {
             if (!applyCalled)
             {
                 applyCalled = true;
-                assertCacheDirectoryEmpty(properties, sessionToken);
+                assertCacheDirectoryEmpty(properties, sessionToken, workingDirectory);
             }
         }
 
@@ -73,15 +73,11 @@ public final class FileCacheFactory implements CacheFactory
      * @param sessionToken current session token.
      */
     @SuppressWarnings("ConstantConditions")
-    private void assertCacheDirectoryEmpty(final Properties properties, final String sessionToken)
+    private void assertCacheDirectoryEmpty(final Properties properties, final String sessionToken,
+            final File workingDirectory)
     {
-        final String cacheDirString = PropertyUtils.getProperty(properties,
-                OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
-                File.separator + sessionToken.replaceAll("\\W+", "");
-        final File cacheDir = new File(cacheDirString);
-
-        assertTrue(cacheDir.isDirectory());
-        assertEquals(cacheDir.listFiles().length, 0);
+        assertTrue(workingDirectory.isDirectory());
+        assertEquals(workingDirectory.listFiles().length, 0);
     }
 
     protected final File createDirectoryInUnitTestRoot(final String dirName)

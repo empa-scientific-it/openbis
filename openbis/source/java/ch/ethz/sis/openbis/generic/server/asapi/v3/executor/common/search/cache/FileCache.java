@@ -8,12 +8,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.log4j.Logger;
 
@@ -37,7 +37,7 @@ public class FileCache<V> implements ICache<V>
 
     private final Set<String> writingKeys = new CopyOnWriteArraySet<>();
 
-    private final String cacheDirString;
+    private final String cacheDirPath;
 
     private final File cacheDir;
 
@@ -47,6 +47,13 @@ public class FileCache<V> implements ICache<V>
     private final ITimeProvider timeProvider;
 
     public FileCache(final CacheOptionsVO cacheOptionsVO)
+    {
+        this(cacheOptionsVO, PropertyUtils.getProperty(cacheOptionsVO.getServiceProperties(),
+                OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
+                File.separator + cacheOptionsVO.getSessionToken().replaceAll("\\W+", ""));
+    }
+
+    FileCache(final CacheOptionsVO cacheOptionsVO, final String cacheDirPath)
     {
         this.timeProvider = cacheOptionsVO.getTimeProvider();
         this.asyncStorage = cacheOptionsVO.isAsyncStorage();
@@ -58,78 +65,89 @@ public class FileCache<V> implements ICache<V>
         }
 
         this.capacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
-        keyQueue = capacity > 0 ? new ArrayDeque<>(this.capacity) : new ArrayDeque<>();
+        this.keyQueue = capacity > 0 ? new ArrayDeque<>(this.capacity) : new ArrayDeque<>();
 
-        cacheDirString = PropertyUtils.getProperty(cacheOptionsVO.getServiceProperties(),
-                OperationExecutionConfig.CACHE_DIRECTORY, OperationExecutionConfig.CACHE_DIRECTORY_DEFAULT) +
-                File.separator + cacheOptionsVO.getSessionToken().replaceAll("\\W+", "");
-        cacheDir = new File(cacheDirString);
+        this.cacheDirPath = cacheDirPath;
+        this.cacheDir = new File(cacheDirPath);
 
         if (!instanceCreated)
         {
             instanceCreated = true;
             deleteDir(cacheDir);
         }
-        cacheDir.mkdirs();
+        this.cacheDir.mkdirs();
 
-        cacheDir.deleteOnExit();
+        this.cacheDir.deleteOnExit();
     }
 
     @Override
     public synchronized void put(final String key, final V value)
     {
-        if (contains(key) == false && writingKeys.contains(key) == false)
+        if (writingKeys.contains(key) == false)
         {
             writingKeys.add(key);
 
-            final int queueSize = keyQueue.size();
-
-            if (queueSize > capacity)
+            final boolean containsKey = contains(key);
+            if (containsKey == false)
             {
-                throw new RuntimeException(String.format("Cash has exceeded the allocated capacity. "
-                        + "[queueSize=%d, capacity=%d]", queueSize, capacity));
-            }
+                final int queueSize = keyQueue.size();
 
-            if (queueSize == capacity)
-            {
-                final String removedKey = keyQueue.remove();
-                final boolean deleted = getCacheFile(removedKey).delete();
-
-                if (!deleted)
+                if (queueSize > capacity)
                 {
-                    final String message = getCacheFile(removedKey).exists()
-                            ? String.format("The key removed from the queue cannot be removed from the cache. "
-                            + "[removedKey=%s]", removedKey)
-                            : String.format("Cache file to remove is not found. [removedKey=%s]", removedKey);
-                    throw new RuntimeException(message);
+                    throw new RuntimeException(String.format("Cash has exceeded the allocated capacity. "
+                            + "[queueSize=%d, capacity=%d]", queueSize, capacity));
+                }
+
+                if (queueSize == capacity)
+                {
+                    final String removedKey = keyQueue.remove();
+                    final boolean deleted = getCacheFile(removedKey).delete();
+
+                    if (!deleted)
+                    {
+                        final String message = getCacheFile(removedKey).exists()
+                                ? String.format("The key removed from the queue cannot be removed from the cache. "
+                                + "[removedKey=%s]", removedKey)
+                                : String.format("Cache file to remove is not found. [removedKey=%s]", removedKey);
+                        throw new RuntimeException(message);
+                    }
                 }
             }
 
-            final File cacheFile = getCacheFile(key);
-            cacheFile.deleteOnExit();
+            storeValue(key, value);
 
-            final Runnable fileOutputRunnable = () ->
+            if (containsKey == false)
             {
-                try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
-                {
-                    out.writeObject(new ImmutablePair<>(timeProvider.getTimeInMilliseconds(), value));
-                } catch (final IOException e)
-                {
-                    OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),
-                            e);
-                }
-            };
-
-            if (asyncStorage)
-            {
-                new Thread(fileOutputRunnable).start();
-            } else
-            {
-                fileOutputRunnable.run();
+                keyQueue.add(key);
             }
 
-            keyQueue.add(key);
             writingKeys.remove(key);
+        }
+    }
+
+    private void storeValue(final String key, final V value)
+    {
+        final File cacheFile = getCacheFile(key);
+        cacheFile.deleteOnExit();
+
+        final Runnable fileOutputRunnable = () ->
+        {
+            try (final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile)))
+            {
+                out.writeObject(new ImmutablePair<>(timeProvider.getTimeInMilliseconds(), value));
+            } catch (final IOException e)
+            {
+                OPERATION_LOG.error(String.format("Error storing value in cache. [key=%s, value=%s]", key, value),
+                        e);
+            }
+        };
+
+        if (asyncStorage)
+        {
+            new Thread(fileOutputRunnable).start();
+        } else
+        {
+            fileOutputRunnable.run();
         }
     }
 
@@ -143,7 +161,7 @@ public class FileCache<V> implements ICache<V>
         {
             try (final ObjectInputStream in = new ObjectInputStream(new FileInputStream(cacheFile)))
             {
-                final ImmutablePair<Date, V> cachedResult = (ImmutablePair<Date, V>) in.readObject();
+                final ImmutablePair<Long, V> cachedResult = (ImmutablePair<Long, V>) in.readObject();
                 return cachedResult != null ? cachedResult.getRight() : null;
             } catch (final IOException | ClassNotFoundException e)
             {
@@ -157,8 +175,9 @@ public class FileCache<V> implements ICache<V>
     }
 
     @Override
-    public void remove(final String key)
+    public synchronized void remove(final String key)
     {
+        keyQueue.remove(key);
         getCacheFile(key).delete();
     }
 
@@ -171,14 +190,20 @@ public class FileCache<V> implements ICache<V>
     @Override
     public synchronized void clear()
     {
-        cacheDir.delete();
-        cacheDir.mkdir();
+        keyQueue.clear();
+        try
+        {
+            FileUtils.cleanDirectory(cacheDir);
+        } catch (final IOException e)
+        {
+            throw new RuntimeException(String.format("Cannot clean cache. [cacheDir=%s]", cacheDir), e);
+        }
     }
 
     @Override
     public void clearOld(final long time)
     {
-        final File cacheDir = new File(cacheDirString);
+        final File cacheDir = new File(cacheDirPath);
 
         final File[] files = cacheDir.listFiles();
 
@@ -204,7 +229,7 @@ public class FileCache<V> implements ICache<V>
 
     private File getCacheFile(final String key)
     {
-        return new File(cacheDirString + File.separator + key);
+        return new File(cacheDirPath + File.separator + key.replaceAll("[^\\w-]+", ""));
     }
 
     private static void deleteDir(final File dir) {
@@ -214,6 +239,11 @@ public class FileCache<V> implements ICache<V>
             Arrays.stream(files).forEach(FileCache::deleteDir);
         }
         dir.delete();
+    }
+
+    Queue<String> getKeyQueue()
+    {
+        return keyQueue;
     }
 
 }
