@@ -48,80 +48,79 @@ function HistoryView(controller, model) {
                 showByDefault: true,
             },
             {
-                label: "Type",
-                property: "type",
-                showByDefault: true,
-            },
-            {
-                label: "Property Name",
-                property: "propertyName",
-                showByDefault: true,
-            },
-            {
-                label: "Property Value",
-                property: "propertyValue",
-                showByDefault: true,
-            },
-            {
-                label: "Relation Type",
-                property: "relationType",
-                showByDefault: true,
-            },
-            {
-                label: "Related Object Id",
-                property: "relatedObjectId",
-                showByDefault: true,
-            }
-        )
+                label: "Changes",
+                property: "changes",
+                render: function (row) {
+                    var $container = $("<div>")
 
-        if (this._model.entity["@type"] === "as.dto.dataset.DataSet") {
-            columns.push(
-                {
-                    label: "External Code",
-                    property: "externalCode",
-                    showByDefault: true,
-                },
-                {
-                    label: "Path",
-                    property: "path",
-                    showByDefault: true,
-                },
-                {
-                    label: "Git Commit Hash",
-                    property: "gitCommitHash",
-                },
-                {
-                    label: "Git Repository Id",
-                    property: "gitRepositoryId",
-                },
-                {
-                    label: "External DMS Id",
-                    property: "externalDmsId",
-                },
-                {
-                    label: "External DMS Code",
-                    property: "externalDmsCode",
-                },
-                {
-                    label: "External DMS Label",
-                    property: "externalDmsLabel",
-                },
-                {
-                    label: "External DMS Address",
-                    property: "externalDmsAddress",
-                }
-            )
-        }
+                    var relations = row.changesObject.relations
+                    if (!_.isEmpty(relations)) {
+                        var $relations = $("<ul>").append("Relations:").appendTo($container)
+                        Object.keys(relations)
+                            .sort(function (r1, r2) {
+                                var sortings = {
+                                    SPACE: 1,
+                                    PROJECT: 2,
+                                    EXPERIMENT: 3,
+                                    SAMPLE: 4,
+                                    DATA_SET: 5,
+                                    PARENT: 6,
+                                    CHILD: 7,
+                                    CONTAINER: 8,
+                                    COMPONENT: 9,
+                                }
+                                return sortings[r1] - sortings[r2]
+                            })
+                            .forEach(function (relationType) {
+                                var $relation = $("<li>").text(relationType + ": " + relations[relationType])
+                                $relation.appendTo($relations)
+                            })
+                    }
 
-        columns.push(
-            {
-                label: "Valid From",
-                property: "validFrom",
+                    var properties = row.changesObject.properties
+                    if (!_.isEmpty(properties)) {
+                        var $properties = $("<ul>").append("Properties:").appendTo($container)
+                        Object.keys(properties)
+                            .sort()
+                            .forEach(function (propertyName) {
+                                var $property = $("<li>").text(propertyName + ": " + properties[propertyName])
+                                $property.appendTo($properties)
+                            })
+                    }
+
+                    return $container
+                },
                 showByDefault: true,
             },
             {
-                label: "Valid To",
-                property: "validTo",
+                label: "Full Document",
+                property: "fullDocument",
+                render: function (row) {
+                    var visible = false
+
+                    var $json = $("<pre>")
+                    $json.text(JSON.stringify(row.fullDocumentObject, null, 4))
+                    $json.hide()
+
+                    var $showHide = $("<a>").text("show")
+                    $showHide.click(function () {
+                        if (visible) {
+                            $showHide.text("show")
+                            $json.hide()
+                        } else {
+                            $showHide.text("hide")
+                            $json.show()
+                        }
+                        visible = !visible
+                    })
+
+                    return $("<div>").append($showHide).append($json)
+                },
+                showByDefault: true,
+            },
+            {
+                label: "Timestamp",
+                property: "timestamp",
                 showByDefault: true,
             }
         )
