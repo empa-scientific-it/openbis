@@ -53,9 +53,9 @@ function HistoryView(controller, model) {
                 render: function (row) {
                     var $container = $("<div>")
 
-                    var relations = row.changesObject.relations
+                    var relations = row.$object.relations
                     if (!_.isEmpty(relations)) {
-                        var $relations = $("<ul>").append("Relations:").appendTo($container)
+                        var $relations = $("<ul>")
                         Object.keys(relations)
                             .sort(function (r1, r2) {
                                 var sortings = {
@@ -73,19 +73,21 @@ function HistoryView(controller, model) {
                             })
                             .forEach(function (relationType) {
                                 var $relation = $("<li>").text(relationType + ": " + relations[relationType])
-                                $relation.appendTo($relations)
+                                $relations.append($relation)
                             })
+                        $container.append("Relations:").append($relations)
                     }
 
-                    var properties = row.changesObject.properties
+                    var properties = row.$object.properties
                     if (!_.isEmpty(properties)) {
-                        var $properties = $("<ul>").append("Properties:").appendTo($container)
+                        var $properties = $("<ul>")
                         Object.keys(properties)
                             .sort()
                             .forEach(function (propertyName) {
                                 var $property = $("<li>").text(propertyName + ": " + properties[propertyName])
-                                $property.appendTo($properties)
+                                $properties.append($property)
                             })
+                        $container.append("Properties:").append($properties)
                     }
 
                     return $container
@@ -99,17 +101,17 @@ function HistoryView(controller, model) {
                     var visible = false
 
                     var $json = $("<pre>")
-                    $json.text(JSON.stringify(row.fullDocumentObject, null, 4))
+                    $json.text(JSON.stringify(row.$object.fullDocument, null, 4))
                     $json.hide()
 
                     var $showHide = $("<a>").text("show")
                     $showHide.click(function () {
                         if (visible) {
                             $showHide.text("show")
-                            $json.hide()
+                            $json.hide(500)
                         } else {
                             $showHide.text("hide")
-                            $json.show()
+                            $json.show(500)
                         }
                         visible = !visible
                     })
@@ -139,9 +141,21 @@ function HistoryView(controller, model) {
             null,
             false,
             this._model.entity["@type"] + "_HISTORY",
-            false
+            true
         )
-        this._dataGrid.init(this._container)
+
+        this._dataGrid.init(this._container, [
+            {
+                name: "Compare",
+                action: function (selected) {
+                    if (selected.length !== 2) {
+                        alert("Please select 2 versions to compare")
+                        return
+                    }
+                },
+            },
+        ])
+
         this._container.prepend($("<legend>").append("History"))
     }
 }

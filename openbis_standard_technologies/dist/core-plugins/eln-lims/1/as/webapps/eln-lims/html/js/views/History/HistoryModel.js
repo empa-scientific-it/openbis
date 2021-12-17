@@ -117,21 +117,18 @@ function HistoryModel(entity) {
                     var fullDocument = JSON.parse(JSON.stringify(previousFullDocument))
                     applyChanges(fullDocument.properties, changes.properties)
                     applyChanges(fullDocument.relations, changes.relations)
+                    changes.fullDocument = fullDocument
                     previousFullDocument = fullDocument
                     return {
                         id: index,
                         author: changes.author,
-                        changesObject: {
-                            properties: changes.properties,
-                            relations: changes.relations,
-                        },
                         changes: JSON.stringify({
                             properties: changes.properties,
                             relations: changes.relations,
                         }),
-                        fullDocumentObject: fullDocument,
                         fullDocument: JSON.stringify(fullDocument),
                         timestamp: Util.getFormatedDate(new Date(changes.timestamp)),
+                        $object: changes,
                     }
                 })
         } else {
