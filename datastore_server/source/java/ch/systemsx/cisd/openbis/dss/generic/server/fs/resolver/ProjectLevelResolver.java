@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
@@ -34,8 +33,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Node;
 
 class ProjectLevelResolver extends AbstractResolver
 {
@@ -49,7 +46,6 @@ class ProjectLevelResolver extends AbstractResolver
     @Override
     public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
-        Cache cache = getCache(context);
         if (subPath.length == 0)
         {
             ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
@@ -71,17 +67,13 @@ class ProjectLevelResolver extends AbstractResolver
                 String permId = exp.getPermId().getPermId();
                 experimentPermIds.add(permId);
                 response.addDirectory(exp.getCode(), exp.getModificationDate());
-                cache.putNode(new Node(EXPERIMENT_TYPE, permId), 
-                        projectIdentifier.getIdentifier() + "/" + exp.getCode());
             }
             for (Sample sample : project.getSamples())
             {
                 Experiment experiment = sample.getExperiment();
                 if (experiment == null || experimentPermIds.contains(experiment.getPermId().getPermId()) == false)
                 {
-                    response.addDirectory(SAMPLE_PREFIX + sample.getCode(), sample.getModificationDate());
-                    cache.putNode(new Node(SAMPLE_TYPE, sample.getPermId().getPermId()), 
-                            projectIdentifier.getIdentifier() + "/" + SAMPLE_PREFIX + sample.getCode());
+                    response.addDirectory(getFullCodeWithPrefix(sample), sample.getModificationDate());
                 }
             }
             return response;
@@ -89,33 +81,14 @@ class ProjectLevelResolver extends AbstractResolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            String path = projectIdentifier.getIdentifier() + "/" + removeSamplePrefix(item);
-            String type = getType(path, context);
-            if (type.equals(EXPERIMENT_TYPE))
+            String pathWithPrefix = projectIdentifier.getIdentifier() + "/" + item;
+            String path = removeSamplePrefix(pathWithPrefix);
+            if (hasSamplePrefix(pathWithPrefix))
             {
-                return new ExperimentLevelResolver(new ExperimentIdentifier(path)).resolve(remaining, context);
-            } if (type.equals(SAMPLE_TYPE))
-            {
-                return new SampleLevelResolver(new SampleIdentifier(path)).resolve(remaining, context);
+                SampleIdentifier sampleIdentifier = new SampleIdentifier(path);
+                return new SampleLevelResolver(sampleIdentifier).resolve(remaining, context);
             }
-            throw new IllegalArgumentException("Unknown node type: " + type);
+            return new ExperimentLevelResolver(new ExperimentIdentifier(path)).resolve(remaining, context);
         }
-    }
-
-    private String getType(String path, IResolverContext context)
-    {
-        Node node = getCache(context).getNode(path);
-        if (node != null)
-        {
-            return node.getType();
-        }
-        
-        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier(path);
-        if (context.getApi().getExperiments(context.getSessionToken(), Collections.singletonList(experimentIdentifier),
-                new ExperimentFetchOptions()).containsKey(experimentIdentifier))
-        {
-            return EXPERIMENT_TYPE;
-        }
-        return SAMPLE_TYPE;
     }
 }

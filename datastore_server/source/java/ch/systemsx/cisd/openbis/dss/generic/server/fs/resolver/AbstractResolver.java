@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 
 /**
  * @author Franz-Josef Elmer
@@ -28,20 +26,20 @@ abstract class AbstractResolver implements IResolver
 {
     protected static final String SAMPLE_PREFIX = "Object:";
 
-    protected static final String PROJECT_TYPE = "PROJECT";
-
-    protected static final String EXPERIMENT_TYPE = "EXPERIMENT";
-
-    protected static final String SAMPLE_TYPE = "SAMPLE";
-
-    protected Cache getCache(IResolverContext context)
+    protected boolean hasSamplePrefix(String nameOrPath)
     {
-        return ((ResolverContext) context).getCache();
+        return nameOrPath.contains(SAMPLE_PREFIX);
     }
 
-    protected String removeSamplePrefix(String name)
+    protected String removeSamplePrefix(String nameOrPath)
     {
-        return name.startsWith(SAMPLE_PREFIX) ? name.substring(SAMPLE_PREFIX.length()) : name;
+        return String.join("", nameOrPath.split(SAMPLE_PREFIX));
     }
 
+    protected String getFullCodeWithPrefix(Sample sample)
+    {
+        String identifier = sample.getIdentifier().getIdentifier();
+        int indexOfLastDelim = identifier.lastIndexOf("/");
+        return SAMPLE_PREFIX + identifier.substring(indexOfLastDelim + 1);
+    }
 }
