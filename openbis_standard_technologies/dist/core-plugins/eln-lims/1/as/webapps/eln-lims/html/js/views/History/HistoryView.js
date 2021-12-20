@@ -45,99 +45,39 @@ function HistoryView(controller, model) {
             {
                 label: "Author",
                 property: "author",
+                getValue: function (params) {
+                    return params.row.changes.author
+                },
                 showByDefault: true,
             },
             {
                 label: "Changes",
                 property: "changes",
-                render: function (row) {
-                    var $container = $("<div>")
-
-                    var relations = row.changesObject.relations
-                    if (!_.isEmpty(relations)) {
-                        var $relations = $("<ul>")
-                        Object.keys(relations)
-                            .sort(function (r1, r2) {
-                                var sortings = {
-                                    SPACE: 1,
-                                    PROJECT: 2,
-                                    EXPERIMENT: 3,
-                                    SAMPLE: 4,
-                                    DATA_SET: 5,
-                                    PARENT: 6,
-                                    CHILD: 7,
-                                    CONTAINER: 8,
-                                    COMPONENT: 9,
-                                }
-                                return sortings[r1] - sortings[r2]
-                            })
-                            .forEach(function (relationType) {
-                                var relation = relations[relationType]
-                                if (!_.isEmpty(relation.removed)) {
-                                    $("<li>")
-                                        .text(relationType + " removed: " + JSON.stringify(relation.removed))
-                                        .appendTo($relations)
-                                }
-                                if (!_.isEmpty(relation.added)) {
-                                    $("<li>")
-                                        .text(relationType + " added: " + JSON.stringify(relation.added))
-                                        .appendTo($relations)
-                                }
-                                if (relation.set !== undefined) {
-                                    $("<li>")
-                                        .text(relationType + " set: " + relation.set)
-                                        .appendTo($relations)
-                                }
-                            })
-                        $container.append("Relations:").append($relations)
-                    }
-
-                    var properties = row.changesObject.properties
-                    if (!_.isEmpty(properties)) {
-                        var $properties = $("<ul>")
-                        Object.keys(properties)
-                            .sort()
-                            .forEach(function (propertyName) {
-                                var $property = $("<li>").text(propertyName + ": " + properties[propertyName])
-                                $properties.append($property)
-                            })
-                        $container.append("Properties:").append($properties)
-                    }
-
-                    return $container
+                getValue: function (params) {
+                    $element = _this._renderChanges(params.row)
+                    return $element ? $element.text() : null
                 },
+                render: this._renderChanges,
                 showByDefault: true,
             },
             {
                 label: "Full Document",
                 property: "fullDocument",
-                render: function (row) {
-                    var visible = false
-
-                    var $json = $("<pre>")
-                    $json.text(JSON.stringify(row.fullDocumentObject, null, 4))
-                    $json.hide()
-
-                    var $showHide = $("<a>").text("show")
-                    $showHide.click(function () {
-                        if (visible) {
-                            $showHide.text("show")
-                            $json.hide(500)
-                        } else {
-                            $showHide.text("hide")
-                            $json.show(500)
-                        }
-                        visible = !visible
-                    })
-
-                    return $("<div>").append($showHide).append($json)
+                getValue: function (params) {
+                    $element = _this._renderFullDocument(params.row)
+                    return $element ? $element.text() : null
                 },
+                render: this._renderFullDocument,
                 showByDefault: true,
                 sortable: false,
             },
             {
                 label: "Timestamp",
                 property: "timestamp",
+                getValue: function (params) {
+                    var timestamp = params.row.changes.timestamp
+                    return Util.getFormatedDate(new Date(timestamp))
+                },
                 showByDefault: true,
             }
         )
@@ -172,5 +112,84 @@ function HistoryView(controller, model) {
         ])
 
         this._container.prepend($("<legend>").append("History"))
+    }
+
+    this._renderChanges = function (row) {
+        var $container = $("<div>")
+
+        var relations = row.changes.relations
+        if (!_.isEmpty(relations)) {
+            var $relations = $("<ul>")
+            Object.keys(relations)
+                .sort(function (r1, r2) {
+                    var sortings = {
+                        SPACE: 1,
+                        PROJECT: 2,
+                        EXPERIMENT: 3,
+                        SAMPLE: 4,
+                        DATA_SET: 5,
+                        PARENT: 6,
+                        CHILD: 7,
+                        CONTAINER: 8,
+                        COMPONENT: 9,
+                    }
+                    return sortings[r1] - sortings[r2]
+                })
+                .forEach(function (relationType) {
+                    var relation = relations[relationType]
+                    if (!_.isEmpty(relation.removed)) {
+                        $("<li>")
+                            .text(relationType + " removed: " + JSON.stringify(relation.removed))
+                            .appendTo($relations)
+                    }
+                    if (!_.isEmpty(relation.added)) {
+                        $("<li>")
+                            .text(relationType + " added: " + JSON.stringify(relation.added))
+                            .appendTo($relations)
+                    }
+                    if (relation.set !== undefined) {
+                        $("<li>")
+                            .text(relationType + ": " + relation.set)
+                            .appendTo($relations)
+                    }
+                })
+            $container.append("Relations:").append($relations)
+        }
+
+        var properties = row.changes.properties
+        if (!_.isEmpty(properties)) {
+            var $properties = $("<ul>")
+            Object.keys(properties)
+                .sort()
+                .forEach(function (propertyName) {
+                    var $property = $("<li>").text(propertyName + ": " + properties[propertyName])
+                    $properties.append($property)
+                })
+            $container.append("Properties:").append($properties)
+        }
+
+        return $container
+    }
+
+    this._renderFullDocument = function (row) {
+        var visible = false
+
+        var $json = $("<pre>")
+        $json.text(JSON.stringify(row.fullDocument, null, 4))
+        $json.hide()
+
+        var $showHide = $("<a>").text("show")
+        $showHide.click(function () {
+            if (visible) {
+                $showHide.text("show")
+                $json.hide(500)
+            } else {
+                $showHide.text("hide")
+                $json.show(500)
+            }
+            visible = !visible
+        })
+
+        return $("<div>").append($showHide).append($json)
     }
 }

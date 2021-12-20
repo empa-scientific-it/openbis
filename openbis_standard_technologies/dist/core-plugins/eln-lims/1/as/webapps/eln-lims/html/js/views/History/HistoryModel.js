@@ -23,6 +23,9 @@ function HistoryModel(entity) {
 
             if (!changes) {
                 changes = {
+                    author: undefined,
+                    properties: {},
+                    relations: {},
                     timestamp: timestamp,
                 }
                 timestampToChangesMap[timestamp] = changes
@@ -31,67 +34,45 @@ function HistoryModel(entity) {
             return changes
         }
 
-        function getPropertyChanges(changes) {
-            var properties = changes.properties
+        function applyChanges(object, changes) {
+            Object.keys(changes.properties).forEach(function (propertyName) {
+                var propertyValue = changes.properties[propertyName]
+                if (propertyValue === null) {
+                    delete object.properties[propertyName]
+                } else {
+                    object.properties[propertyName] = propertyValue
+                }
+            })
+            Object.keys(changes.relations).forEach(function (relationType) {
+                var relationChanges = changes.relations[relationType]
 
-            if (!properties) {
-                properties = {}
-                changes.properties = properties
-            }
-
-            return properties
+                if (isRelationOneToMany(relationType)) {
+                    var objectRelations = object.relations[relationType]
+                    if (!objectRelations) {
+                        objectRelations = []
+                    }
+                    objectRelations = _.without(objectRelations, relationChanges.removed)
+                    objectRelations = _.union(objectRelations, relationChanges.added)
+                    object.relations[relationType] = objectRelations
+                } else {
+                    object.relations[relationType] = relationChanges.set
+                }
+            })
         }
 
         function getRelationChanges(changes, relationType) {
-            var relations = changes.relations
-
-            if (!relations) {
-                relations = {}
-                changes.relations = relations
-            }
-
-            var relationChanges = relations[relationType]
+            var relationChanges = changes.relations[relationType]
 
             if (!relationChanges) {
-                relationChanges = {}
-                relations[relationType] = relationChanges
+                relationChanges = {
+                    added: [],
+                    removed: [],
+                    set: undefined,
+                }
+                changes.relations[relationType] = relationChanges
             }
 
             return relationChanges
-        }
-
-        function applyChanges(object, changes) {
-            if (changes.properties) {
-                Object.keys(changes.properties).forEach(function (propertyName) {
-                    var propertyValue = changes.properties[propertyName]
-                    if (propertyValue === null) {
-                        delete object.properties[propertyName]
-                    } else {
-                        object.properties[propertyName] = propertyValue
-                    }
-                })
-            }
-            if (changes.relations) {
-                Object.keys(changes.relations).forEach(function (relationType) {
-                    var relationChanges = changes.relations[relationType]
-
-                    if (isRelationOneToMany(relationType)) {
-                        var objectRelations = object.relations[relationType]
-                        if (!objectRelations) {
-                            objectRelations = []
-                        }
-                        if (relationChanges.removed) {
-                            objectRelations = _.without(objectRelations, relationChanges.removed)
-                        }
-                        if (relationChanges.added) {
-                            objectRelations = _.union(objectRelations, relationChanges.added)
-                        }
-                        object.relations[relationType] = objectRelations
-                    } else {
-                        object.relations[relationType] = relationChanges.set
-                    }
-                })
-            }
         }
 
         function isRelationOneToMany(relationType) {
@@ -172,18 +153,15 @@ function HistoryModel(entity) {
                 validFromChanges.author = entry.author.userId
 
                 if (entryType === "PROPERTY") {
-                    var validFromPropertyChanges = getPropertyChanges(validFromChanges)
-                    validFromPropertyChanges[entry.propertyName] = entry.propertyValue
+                    validFromChanges.properties[entry.propertyName] = entry.propertyValue
                     if (validToChanges) {
-                        var validToPropertyChanges = getPropertyChanges(validToChanges)
-                        validToPropertyChanges[entry.propertyName] = null
+                        validToChanges[entry.propertyName] = null
                     }
                 } else if (entryType === "RELATION") {
                     var relatedObjectId = getEntryRelatedObjectId(entry)
 
                     var validFromRelationChanges = getRelationChanges(validFromChanges, entry.relationType)
                     if (isRelationOneToMany(entry.relationType)) {
-                        validFromRelationChanges.added = validFromRelationChanges.added || []
                         validFromRelationChanges.added.push(relatedObjectId)
                     } else {
                         validFromRelationChanges.set = relatedObjectId
@@ -192,7 +170,6 @@ function HistoryModel(entity) {
                     if (validToChanges) {
                         var validToRelationChanges = getRelationChanges(validToChanges, entry.relationType)
                         if (isRelationOneToMany(entry.relationType)) {
-                            validToRelationChanges.removed = validToRelationChanges.removed || []
                             validToRelationChanges.removed.push(relatedObjectId)
                         } else {
                             validToRelationChanges.set = null
@@ -212,26 +189,14 @@ function HistoryModel(entity) {
                     return ch1.timestamp - ch2.timestamp
                 })
                 .map(function (changes, index) {
-                    var changesObject = {}
-                    if (changes.properties) {
-                        changesObject.properties = changes.properties
-                    }
-                    if (changes.relations) {
-                        changesObject.relations = changes.relations
-                    }
-
-                    var fullDocumentObject = JSON.parse(JSON.stringify(previousFullDocument))
-                    applyChanges(fullDocumentObject, changes)
-                    previousFullDocument = fullDocumentObject
+                    var fullDocument = JSON.parse(JSON.stringify(previousFullDocument))
+                    applyChanges(fullDocument, changes)
+                    previousFullDocument = fullDocument
 
                     return {
                         id: index,
-                        author: changes.author,
-                        changes: JSON.stringify(changesObject),
-                        changesObject: changesObject,
-                        fullDocument: JSON.stringify(fullDocumentObject),
-                        fullDocumentObject: fullDocumentObject,
-                        timestamp: Util.getFormatedDate(new Date(changes.timestamp)),
+                        changes: changes,
+                        fullDocument: fullDocument,
                     }
                 })
         } else {
