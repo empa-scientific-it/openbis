@@ -23,9 +23,6 @@ function HistoryModel(entity) {
 
             if (!changes) {
                 changes = {
-                    author: null,
-                    properties: {},
-                    relations: {},
                     timestamp: timestamp,
                 }
                 timestampToChangesMap[timestamp] = changes
@@ -34,15 +31,99 @@ function HistoryModel(entity) {
             return changes
         }
 
+        function getPropertyChanges(changes) {
+            var properties = changes.properties
+
+            if (!properties) {
+                properties = {}
+                changes.properties = properties
+            }
+
+            return properties
+        }
+
+        function getRelationChanges(changes, relationType) {
+            var relations = changes.relations
+
+            if (!relations) {
+                relations = {}
+                changes.relations = relations
+            }
+
+            var relationChanges = relations[relationType]
+
+            if (!relationChanges) {
+                relationChanges = {}
+                relations[relationType] = relationChanges
+            }
+
+            return relationChanges
+        }
+
         function applyChanges(object, changes) {
-            Object.keys(changes).forEach(function (fieldName) {
-                var fieldValue = changes[fieldName]
-                if (fieldValue === null) {
-                    delete object[fieldName]
-                } else {
-                    object[fieldName] = fieldValue
-                }
-            })
+            if (changes.properties) {
+                Object.keys(changes.properties).forEach(function (propertyName) {
+                    var propertyValue = changes.properties[propertyName]
+                    if (propertyValue === null) {
+                        delete object.properties[propertyName]
+                    } else {
+                        object.properties[propertyName] = propertyValue
+                    }
+                })
+            }
+            if (changes.relations) {
+                Object.keys(changes.relations).forEach(function (relationType) {
+                    var relationChanges = changes.relations[relationType]
+
+                    if (isRelationOneToMany(relationType)) {
+                        var objectRelations = object.relations[relationType]
+                        if (!objectRelations) {
+                            objectRelations = []
+                        }
+                        if (relationChanges.removed) {
+                            objectRelations = _.without(objectRelations, relationChanges.removed)
+                        }
+                        if (relationChanges.added) {
+                            objectRelations = _.union(objectRelations, relationChanges.added)
+                        }
+                        object.relations[relationType] = objectRelations
+                    } else {
+                        object.relations[relationType] = relationChanges.set
+                    }
+                })
+            }
+        }
+
+        function isRelationOneToMany(relationType) {
+            var entityKind = getEntityKind()
+
+            if (entityKind === "PROJECT") {
+                return ["EXPERIMENT", "SAMPLE"].includes(relationType)
+            } else if (entityKind === "EXPERIMENT") {
+                return ["SAMPLE", "DATA_SET"].includes(relationType)
+            } else if (entityKind === "SAMPLE") {
+                return ["PARENT", "CHILD", "COMPONENT", "DATA_SET"].includes(relationType)
+            } else if (entityKind === "DATA_SET") {
+                return ["PARENT", "CHILD", "CONTAINER", "COMPONENT"].includes(relationType)
+            } else {
+                throw new Error("Unknown entity kind: " + entityKind)
+            }
+        }
+
+        function getEntityKind() {
+            var type = entity["@type"]
+
+            if (type === "as.dto.project.Project") {
+                return "PROJECT"
+            } else if (type === "as.dto.experiment.Experiment") {
+                return "EXPERIMENT"
+            } else if (type === "as.dto.sample.Sample") {
+                return "SAMPLE"
+            } else if (type === "as.dto.dataset.DataSet") {
+                return "DATA_SET"
+            } else {
+                throw new Error("Unknown entity kind: " + JSON.stringify(entity))
+            }
         }
 
         function getEntryType(entry) {
@@ -91,14 +172,31 @@ function HistoryModel(entity) {
                 validFromChanges.author = entry.author.userId
 
                 if (entryType === "PROPERTY") {
-                    validFromChanges.properties[entry.propertyName] = entry.propertyValue
+                    var validFromPropertyChanges = getPropertyChanges(validFromChanges)
+                    validFromPropertyChanges[entry.propertyName] = entry.propertyValue
                     if (validToChanges) {
-                        validToChanges.properties[entry.propertyName] = null
+                        var validToPropertyChanges = getPropertyChanges(validToChanges)
+                        validToPropertyChanges[entry.propertyName] = null
                     }
                 } else if (entryType === "RELATION") {
-                    validFromChanges.relations[entry.relationType] = getEntryRelatedObjectId(entry)
+                    var relatedObjectId = getEntryRelatedObjectId(entry)
+
+                    var validFromRelationChanges = getRelationChanges(validFromChanges, entry.relationType)
+                    if (isRelationOneToMany(entry.relationType)) {
+                        validFromRelationChanges.added = validFromRelationChanges.added || []
+                        validFromRelationChanges.added.push(relatedObjectId)
+                    } else {
+                        validFromRelationChanges.set = relatedObjectId
+                    }
+
                     if (validToChanges) {
-                        validToChanges.relations[entry.relationType] = null
+                        var validToRelationChanges = getRelationChanges(validToChanges, entry.relationType)
+                        if (isRelationOneToMany(entry.relationType)) {
+                            validToRelationChanges.removed = validToRelationChanges.removed || []
+                            validToRelationChanges.removed.push(relatedObjectId)
+                        } else {
+                            validToRelationChanges.set = null
+                        }
                     }
                 }
             })
@@ -114,21 +212,26 @@ function HistoryModel(entity) {
                     return ch1.timestamp - ch2.timestamp
                 })
                 .map(function (changes, index) {
-                    var fullDocument = JSON.parse(JSON.stringify(previousFullDocument))
-                    applyChanges(fullDocument.properties, changes.properties)
-                    applyChanges(fullDocument.relations, changes.relations)
-                    changes.fullDocument = fullDocument
-                    previousFullDocument = fullDocument
+                    var changesObject = {}
+                    if (changes.properties) {
+                        changesObject.properties = changes.properties
+                    }
+                    if (changes.relations) {
+                        changesObject.relations = changes.relations
+                    }
+
+                    var fullDocumentObject = JSON.parse(JSON.stringify(previousFullDocument))
+                    applyChanges(fullDocumentObject, changes)
+                    previousFullDocument = fullDocumentObject
+
                     return {
                         id: index,
                         author: changes.author,
-                        changes: JSON.stringify({
-                            properties: changes.properties,
-                            relations: changes.relations,
-                        }),
-                        fullDocument: JSON.stringify(fullDocument),
+                        changes: JSON.stringify(changesObject),
+                        changesObject: changesObject,
+                        fullDocument: JSON.stringify(fullDocumentObject),
+                        fullDocumentObject: fullDocumentObject,
                         timestamp: Util.getFormatedDate(new Date(changes.timestamp)),
-                        $object: changes,
                     }
                 })
         } else {

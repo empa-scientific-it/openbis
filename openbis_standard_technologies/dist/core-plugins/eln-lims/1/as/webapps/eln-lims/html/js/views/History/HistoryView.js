@@ -53,7 +53,7 @@ function HistoryView(controller, model) {
                 render: function (row) {
                     var $container = $("<div>")
 
-                    var relations = row.$object.relations
+                    var relations = row.changesObject.relations
                     if (!_.isEmpty(relations)) {
                         var $relations = $("<ul>")
                         Object.keys(relations)
@@ -72,13 +72,27 @@ function HistoryView(controller, model) {
                                 return sortings[r1] - sortings[r2]
                             })
                             .forEach(function (relationType) {
-                                var $relation = $("<li>").text(relationType + ": " + relations[relationType])
-                                $relations.append($relation)
+                                var relation = relations[relationType]
+                                if (!_.isEmpty(relation.removed)) {
+                                    $("<li>")
+                                        .text(relationType + " removed: " + JSON.stringify(relation.removed))
+                                        .appendTo($relations)
+                                }
+                                if (!_.isEmpty(relation.added)) {
+                                    $("<li>")
+                                        .text(relationType + " added: " + JSON.stringify(relation.added))
+                                        .appendTo($relations)
+                                }
+                                if (relation.set !== undefined) {
+                                    $("<li>")
+                                        .text(relationType + " set: " + relation.set)
+                                        .appendTo($relations)
+                                }
                             })
                         $container.append("Relations:").append($relations)
                     }
 
-                    var properties = row.$object.properties
+                    var properties = row.changesObject.properties
                     if (!_.isEmpty(properties)) {
                         var $properties = $("<ul>")
                         Object.keys(properties)
@@ -101,7 +115,7 @@ function HistoryView(controller, model) {
                     var visible = false
 
                     var $json = $("<pre>")
-                    $json.text(JSON.stringify(row.$object.fullDocument, null, 4))
+                    $json.text(JSON.stringify(row.fullDocumentObject, null, 4))
                     $json.hide()
 
                     var $showHide = $("<a>").text("show")
@@ -119,6 +133,7 @@ function HistoryView(controller, model) {
                     return $("<div>").append($showHide).append($json)
                 },
                 showByDefault: true,
+                sortable: false,
             },
             {
                 label: "Timestamp",
