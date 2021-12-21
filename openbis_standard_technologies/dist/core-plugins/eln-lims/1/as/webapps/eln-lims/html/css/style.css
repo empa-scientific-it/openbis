@@ -957,3 +957,39 @@ Preserve the relative scale, though. */
 .ck.ck-editor__editable_inline>:first-child {
      margin-top: 5px !important;
 }
+
+/* 
+ * History View
+ */
+
+.history-view .changes-list ul {
+    padding-inline-start: 0px; 
+    margin-bottom: 0px; 
+    list-style-type: none;
+}
+
+.history-view .changes-list ul li {
+    padding: 4px;
+}
+
+.history-view .relation-type, .history-view .property-name {
+    font-weight: bold;
+}
+
+.history-view .relation-value-set, .history-view .relation-value-added, .history-view .relation-value-removed, .history-view .property-value {
+    padding: 4px;
+    font-family: monospace;
+}
+
+.history-view .relation-value-set, .history-view .property-value, .history-view .relation-value-added {
+    background-color: #E6EFC2;
+}
+
+.history-view .relation-value-removed {
+    background-color:#FBE3E4;
+}
+
+.history-view .full-document {
+    white-space: pre-wrap; 
+    min-width: 30vw;
+}

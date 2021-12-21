@@ -17,7 +17,7 @@
 function HistoryView(controller, model) {
     this._model = model
     this._controller = controller
-    this._container = $("<div>")
+    this._container = $("<div>", { class: "history-view" })
     this._dataGrid
 
     this.repaint = function (views) {
@@ -133,10 +133,13 @@ function HistoryView(controller, model) {
     }
 
     this._renderChanges = function (row) {
-        var $container = $("<div>")
-        var ulStyle = { style: "padding-inline-start: 20px" }
+        var $container = $("<div>", { class: "changes-list" })
 
         function abbreviate(array) {
+            if (array.length === 1) {
+                return array[0]
+            }
+
             var limit = 100
             var str = "["
 
@@ -157,7 +160,7 @@ function HistoryView(controller, model) {
 
         var relations = row.changes.relations
         if (!_.isEmpty(relations)) {
-            var $relations = $("<ul>", ulStyle)
+            var $relations = $("<ul>")
             Object.keys(relations)
                 .sort(function (r1, r2) {
                     var sortings = {
@@ -175,35 +178,41 @@ function HistoryView(controller, model) {
                 })
                 .forEach(function (relationType) {
                     var relation = relations[relationType]
+
+                    var $relation = $("<li>")
+                    $relation.append($("<span>", { class: "relation-type" }).text(relationType))
+
                     if (!_.isEmpty(relation.removed)) {
-                        $("<li>")
-                            .text(relationType + " removed: " + abbreviate(relation.removed))
-                            .appendTo($relations)
+                        $relation.append(" relation removed: ")
+                        $relation.append($("<span>", { class: "relation-value-removed" }).text(abbreviate(relation.removed)))
                     }
                     if (!_.isEmpty(relation.added)) {
-                        $("<li>")
-                            .text(relationType + " added: " + abbreviate(relation.added))
-                            .appendTo($relations)
+                        $relation.append(" relation added: ")
+                        $relation.append($("<span>", { class: "relation-value-added" }).text(abbreviate(relation.added)))
                     }
                     if (relation.set !== undefined) {
-                        $("<li>")
-                            .text(relationType + ": " + relation.set)
-                            .appendTo($relations)
+                        $relation.append(" relation set to: ")
+                        $relation.append($("<span>", { class: "relation-value-set" }).text(relation.set))
                     }
+
+                    $relations.append($relation)
                 })
-            $container.append("Relations:").append($relations)
+            $container.append($relations)
         }
 
         var properties = row.changes.properties
         if (!_.isEmpty(properties)) {
-            var $properties = $("<ul>", ulStyle)
+            var $properties = $("<ul>")
             Object.keys(properties)
                 .sort()
                 .forEach(function (propertyName) {
-                    var $property = $("<li>").text(propertyName + ": " + properties[propertyName])
+                    var $property = $("<li>")
+                    $property.append($("<span>", { class: "property-name" }).text(propertyName))
+                    $property.append(" property set to ")
+                    $property.append($("<span>", { class: "property-value" }).text(properties[propertyName]))
                     $properties.append($property)
                 })
-            $container.append("Properties:").append($properties)
+            $container.append($properties)
         }
 
         return $container
@@ -212,7 +221,7 @@ function HistoryView(controller, model) {
     this._renderFullDocument = function (row) {
         var visible = false
 
-        var $json = $("<pre>", { style: "white-space: pre-wrap; min-width: 30vw" })
+        var $json = $("<pre>", { class: "full-document" })
         $json.text(JSON.stringify(row.fullDocument, null, 4))
         $json.hide()
 

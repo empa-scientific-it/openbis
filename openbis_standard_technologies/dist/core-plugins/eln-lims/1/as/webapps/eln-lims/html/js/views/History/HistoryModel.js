@@ -199,14 +199,11 @@ function HistoryModel(entity) {
 
                 if (entryType === "PROPERTY") {
                     var propertyType = getEntityPropertyType(entry.propertyName)
-
-                    var propertyFullName = propertyType
-                        ? propertyType.label + " [" + propertyType.code + "]"
-                        : entry.propertyName
-
-                    validFromChanges.properties[propertyFullName] = entry.propertyValue
+                    var propertyName = propertyType ? propertyType.label : entry.propertyName
+                    
+                    validFromChanges.properties[propertyName] = entry.propertyValue
                     if (validToChanges) {
-                        validToChanges[propertyFullName] = null
+                        validToChanges[propertyName] = null
                     }
                 } else if (entryType === "RELATION") {
                     if (!entry.relationType) {
