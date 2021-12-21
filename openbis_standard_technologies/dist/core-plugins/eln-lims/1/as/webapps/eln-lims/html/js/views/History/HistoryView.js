@@ -43,6 +43,14 @@ function HistoryView(controller, model) {
 
         columns.push(
             {
+                label: "Version",
+                property: "version",
+                getValue: function (params) {
+                    return params.row.version
+                },
+                showByDefault: true,
+            },
+            {
                 label: "Author",
                 property: "author",
                 getValue: function (params) {

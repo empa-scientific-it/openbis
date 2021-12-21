@@ -232,6 +232,7 @@ function HistoryModel(entity) {
 
                     return {
                         id: index,
+                        version: index + 1,
                         changes: changes,
                         fullDocument: fullDocument,
                     }
