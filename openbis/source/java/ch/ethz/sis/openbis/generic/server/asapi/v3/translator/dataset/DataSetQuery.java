@@ -50,8 +50,9 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPhysicalDataIds(LongSet dataSetIds);
 
-    @Select(sql = "select ed.id as id, ed.share_id as shareId, ed.location, ed.size, ed.status, ed.is_complete as isComplete, ed.present_in_archive as isPresentInArchive, ed.storage_confirmation as isStorageConfirmed, ed.speed_hint as speedHint, ed.archiving_requested as isArchivingRequested "
-            + "from external_data ed where ed.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select ed.id as id, ed.share_id as shareId, ed.location, ed.size, ed.status, ed.is_complete as isComplete, ed.present_in_archive as isPresentInArchive, ed.storage_confirmation as isStorageConfirmed, ed.speed_hint as speedHint, ed.archiving_requested as isArchivingRequested "
+                    + "from external_data ed where ed.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PhysicalDataBaseRecord> getPhysicalDatas(LongSet dataSetIds);
 
     @Select(sql = "select ld.id as objectId, ld.id as relatedId from link_data ld where ld.id = any(?{1})", parameterBindings = {
@@ -92,62 +93,69 @@ public interface DataSetQuery extends ObjectQuery
 
     @Select(sql = "select dt.id, dt.code, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
             + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.ds_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, "
-            + "p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, "
-            + "s.perm_id as sample_perm_id, s.id as sample_id, "
-            + "cvt.code as vocabularyPropertyValue "
-            + "from data_set_properties p "
-            + "left join samples s on p.samp_prop_id = s.id "
-            + "left join materials m on p.mate_prop_id = m.id "
-            + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
-            + "left join material_types mt on m.maty_id = mt.id "
-            + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
-            + "join property_types pt on etpt.prty_id = pt.id "
-            + "where p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select p.ds_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, "
+                    + "p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, "
+                    + "s.perm_id as sample_perm_id, s.id as sample_id, "
+                    + "cvt.code as vocabularyPropertyValue, "
+                    + "cv.code as vocabularyPropertyValueTypeCode "
+                    + "from data_set_properties p "
+                    + "left join samples s on p.samp_prop_id = s.id "
+                    + "left join materials m on p.mate_prop_id = m.id "
+                    + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
+                    + "left join controlled_vocabularies cv on cvt.covo_id = cv.id "
+                    + "left join material_types mt on m.maty_id = mt.id "
+                    + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
+                    + "join property_types pt on etpt.prty_id = pt.id "
+                    + "where p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet dataSetIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.ds_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.mate_prop_id as propertyValue "
-            + "from data_set_properties p "
-            + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
-            + "join property_types pt on etpt.prty_id = pt.id "
-            + "where p.mate_prop_id is not null and p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select p.ds_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.mate_prop_id as propertyValue "
+                    + "from data_set_properties p "
+                    + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
+                    + "join property_types pt on etpt.prty_id = pt.id "
+                    + "where p.mate_prop_id is not null and p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getMaterialProperties(LongSet dataSetIds);
 
-    @Select(sql = "select p.ds_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.samp_prop_id as propertyValue "
-            + "from data_set_properties p "
-            + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
-            + "join property_types pt on etpt.prty_id = pt.id "
-            + "where p.samp_prop_id is not null and p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select p.ds_id as objectId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.samp_prop_id as propertyValue "
+                    + "from data_set_properties p "
+                    + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
+                    + "join property_types pt on etpt.prty_id = pt.id "
+                    + "where p.samp_prop_id is not null and p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SamplePropertyRecord> getSampleProperties(LongSet dataSetIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select ph.ds_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
-            + "from data_set_properties_history ph "
-            + "join data_set_type_property_types etpt on ph.dstpt_id = etpt.id "
-            + "join property_types pt on etpt.prty_id = pt.id "
-            + "where ph.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select ph.ds_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+                    + "from data_set_properties_history ph "
+                    + "join data_set_type_property_types etpt on ph.dstpt_id = etpt.id "
+                    + "join property_types pt on etpt.prty_id = pt.id "
+                    + "where ph.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet dataSetIds);
 
     @Select(sql = "select drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
             + "drh.entity_kind as entityKind, "
             + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
-            + "from data_set_relationships_history drh where drh.valid_until_timestamp is not null and drh.main_data_id = any(?{1})", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            + "from data_set_relationships_history drh where drh.main_data_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds);
 
-    @Select(sql = "select dsch.id as id, dsch.data_id as dataSetId, dsch.external_code as externalCode, dsch.path as path, dsch.git_commit_hash as gitCommitHash, "
-            + "dsch.git_repository_id as gitRepositoryId, dsch.edms_id as externalDmsId, dsch.edms_code as externalDmsCode, dsch.edms_label as externalDmsLabel, "
-            + "dsch.edms_address as externalDmsAddress, dsch.pers_id_author as authorId, dsch.valid_from_timestamp as validFrom, dsch.valid_until_timestamp as validTo "
-            + "from data_set_copies_history dsch "
-            + "where dsch.valid_until_timestamp is not null and dsch.data_id = any(?{1})", parameterBindings = {
-                    LongSetMapper.class
-            }, fetchSize = FETCH_SIZE)
+    @Select(sql =
+            "select dsch.id as id, dsch.data_id as dataSetId, dsch.external_code as externalCode, dsch.path as path, dsch.git_commit_hash as gitCommitHash, "
+                    + "dsch.git_repository_id as gitRepositoryId, dsch.edms_id as externalDmsId, dsch.edms_code as externalDmsCode, dsch.edms_label as externalDmsLabel, "
+                    + "dsch.edms_address as externalDmsAddress, dsch.pers_id_author as authorId, dsch.valid_from_timestamp as validFrom, dsch.valid_until_timestamp as validTo "
+                    + "from data_set_copies_history dsch "
+                    + "where dsch.valid_until_timestamp is not null and dsch.data_id = any(?{1})", parameterBindings = {
+            LongSetMapper.class
+    }, fetchSize = FETCH_SIZE)
     public List<HistoryContentCopyRecord> getContentCopyHistory(LongSet dataSetIds);
 
     @Select(sql = "select ds_id from post_registration_dataset_queue where ds_id = any(?{1})", parameterBindings = {
@@ -169,25 +177,25 @@ public interface DataSetQuery extends ObjectQuery
     @Select(sql = "select dr.data_id_child as objectId, dr.data_id_parent as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and dr.data_id_child = any(?{1}) order by dr.ordinal", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getParentIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_parent as objectId, dr.data_id_child as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and dr.data_id_parent = any(?{1}) order by dr.ordinal", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getChildIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_child as objectId, dr.data_id_parent as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'CONTAINER_COMPONENT' and dr.data_id_child = any(?{1}) order by dr.ordinal", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getContainerIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_parent as objectId, dr.data_id_child as relatedId from "
             + "data_set_relationships dr, relationship_types rt "
             + "where dr.relationship_id = rt.id and rt.code = 'CONTAINER_COMPONENT' and dr.data_id_parent = any(?{1}) order by dr.ordinal", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getComponentIds(LongSet dataSetIds);
 
     @Select(sql = "select ma.data_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.data_id = any(?{1})", parameterBindings = {

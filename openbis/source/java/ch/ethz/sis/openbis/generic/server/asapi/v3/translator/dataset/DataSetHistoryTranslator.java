@@ -68,7 +68,8 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
 
     @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
     {
-        return null;
+        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
+        return query.getProperties(new LongOpenHashSet(entityIds));
     }
 
     @Override

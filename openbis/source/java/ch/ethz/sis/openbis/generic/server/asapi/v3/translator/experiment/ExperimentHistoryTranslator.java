@@ -63,7 +63,8 @@ public class ExperimentHistoryTranslator extends HistoryTranslator implements IE
 
     @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
     {
-        return null;
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
+        return query.getProperties(new LongOpenHashSet(entityIds));
     }
 
     @Override

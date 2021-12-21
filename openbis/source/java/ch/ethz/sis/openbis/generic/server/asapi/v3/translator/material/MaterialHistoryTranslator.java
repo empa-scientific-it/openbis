@@ -38,7 +38,8 @@ public class MaterialHistoryTranslator extends HistoryTranslator implements IMat
 
     @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
     {
-        return null;
+        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
+        return query.getProperties(new LongOpenHashSet(entityIds));
     }
 
     @Override
