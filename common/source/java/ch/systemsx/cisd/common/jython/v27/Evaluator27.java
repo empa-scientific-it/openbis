@@ -493,6 +493,15 @@ public final class Evaluator27 implements IJythonEvaluator
         if (expressionOrNull != null)
         {
             PyTraceback traceback = ex.traceback;
+            while (true)
+            {
+                PyObject next = traceback.tb_next;
+                if (next instanceof PyTraceback == false)
+                {
+                    break;
+                }
+                traceback = (PyTraceback) next;
+            }
             String details =
                     traceback == null ? "" : "occurred in line " + traceback.tb_lineno
                             + " of the script when ";
