@@ -203,7 +203,7 @@ function HistoryView(controller, model) {
     this._renderFullDocument = function (row) {
         var visible = false
 
-        var $json = $("<pre>")
+        var $json = $("<pre>", { style: "white-space: pre-wrap; min-width: 30vw" })
         $json.text(JSON.stringify(row.fullDocument, null, 4))
         $json.hide()
 
@@ -211,10 +211,10 @@ function HistoryView(controller, model) {
         $showHide.click(function () {
             if (visible) {
                 $showHide.text("show")
-                $json.hide(500)
+                $json.slideUp()
             } else {
                 $showHide.text("hide")
-                $json.show(500)
+                $json.slideDown()
             }
             visible = !visible
         })
