@@ -18,20 +18,29 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 
 import java.io.Serializable;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IImportService;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * @author Franz-Josef Elmer
  */
 class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            CustomASServiceScriptRunnerFactory.class);
+
     private final String scriptPath;
 
     private final IApplicationServerApi applicationService;
@@ -94,7 +103,16 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
         @Override
         public Serializable process(CustomASServiceExecutionOptions options)
         {
-            Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, context, options.getParameters());
+            Object result = null;
+            try
+            {
+                result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, context, options.getParameters());
+            } catch (EvaluatorException e)
+            {
+                operationLog.error("Evaluation failed", e);
+                Throwable throwable = ExceptionUtils.getEndOfChain(e);
+                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+            }
             if (result == null || result instanceof Serializable)
             {
                 return (Serializable) result;

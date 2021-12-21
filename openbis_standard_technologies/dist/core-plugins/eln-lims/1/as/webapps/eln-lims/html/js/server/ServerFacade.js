@@ -107,6 +107,19 @@ function ServerFacade(openbisServer) {
         });
     }
 
+
+    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, sessionKey, callback) {
+        this.customELNASAPI({
+            "method" : "registerSamples",
+            "allowedSampleTypes" : allowedSampleTypes,
+            "experimentsByType" : experimentsByType,
+            "spacesByType" : spacesByType,
+            "sessionKey" : sessionKey
+        }, function(result) {
+            callback(result)
+        });
+    }
+
     //
     // User Management 
     
@@ -3336,7 +3349,11 @@ function ServerFacade(openbisServer) {
 					    if (errorHandler) {
 							errorHandler(result);
 					    } else {
-							alert("Call failed to server: " + JSON.stringify(result));
+                            var msg = result.message;
+                            if (!msg) {
+                                msg = "Call failed to server: " + JSON.stringify(result);
+                            }
+                            Util.showError(msg);
 						}
 				   });
 		});

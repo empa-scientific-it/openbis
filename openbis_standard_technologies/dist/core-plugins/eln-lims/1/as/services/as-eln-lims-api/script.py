@@ -52,7 +52,58 @@ def process(context, parameters):
         result = getUserManagementMaintenanceTaskReport(context, parameters)
     elif method == "removeUserManagementMaintenanceTaskReport":
         result = removeUserManagementMaintenanceTaskReport(context, parameters)
+    elif method == "registerSamples":
+        result = registerSamples(context, parameters)
     return result;
+
+def registerSamples(context, parameters):
+    from org.apache.commons.io import IOUtils
+
+    sessionKey = parameters.get("sessionKey")
+    allowedSampleTypes = parameters.get("allowedSampleTypes")
+    experimentsByType = parameters.get("experimentsByType")
+    spacesByType = parameters.get("spacesByType")
+    contextProvider = CommonServiceProvider.getApplicationContext().getBean("request-context-provider")
+    uploadedFiles = contextProvider.getHttpServletRequest().getSession(False).getAttribute(sessionKey)
+    for file in uploadedFiles.iterable():
+        bytes = IOUtils.toByteArray(file.getInputStream())
+        validateSampleImport(context, bytes, file.getOriginalFilename(), allowedSampleTypes)
+        result = importData(context, bytes, file.getOriginalFilename(), experimentsByType, spacesByType, False)
+        print(">>>>> result: %s" % result)
+    return "done"
+
+def validateSampleImport(context, bytes, fileName, allowedSampleTypes):
+    definitions = importData(context, bytes, fileName, None, None, True)
+    for definition in definitions:
+        row_number = definition.row_number
+        print("DEFINITION:%s" % definition)
+        entityType = definition.type
+        key = 'sample type'
+        if key not in definition.attributes:
+            raise UserFailureException("Error in row %s: First cell should contain '%s'." % (row_number + 1, key))
+        sampleType = definition.attributes[key]
+        if entityType != 'SAMPLE':
+            raise UserFailureException("Error in row %s: Type %s is not allowed to import." % (row_number, entityType))
+        if sampleType not in allowedSampleTypes:
+            raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
+
+def importData(context, bytes, fileName, experimentsByType, spacesByType, definitionsOnly):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
+
+    sessionToken = context.getSessionToken()
+    api = context.getApplicationService()
+    props = CustomASServiceExecutionOptions().withParameter('xls', [bytes]) \
+            .withParameter('xls_name', fileName) \
+            .withParameter('update_mode', 'IGNORE_EXISTING')
+    if definitionsOnly:
+        props.withParameter('definitions_only', "true")
+    if experimentsByType is not None:
+        props.withParameter('experiments_by_type', experimentsByType)
+    if spacesByType is not None:
+        props.withParameter('spaces_by_type', spacesByType)
+    return api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
 
 def getUserManagementMaintenanceTaskConfig(context, parameters):
     from ch.systemsx.cisd.common.filesystem import FileUtilities

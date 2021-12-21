@@ -170,4 +170,29 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			this._dataGridController.refreshHeight();
 		}
 	}
+
+    this.registerSamples = function(experimentIdentifier) {
+        var _this = this;
+        var allowedSampleTypes = null;
+        var experimentsByType = {};
+        var spacesByType = {};
+        if (this._sampleTableModel.sampleTypeCodeToUse) {
+            allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+            experimentsByType[this._sampleTableModel.sampleTypeCodeToUse] = experimentIdentifier;
+            var space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
+            spacesByType["STORAGE_POSITION"] = profile.getStorageSpaceForSpace(space);
+        }
+        var title = 'Register ' + ELNDictionary.Samples;
+        var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, function(file) {
+            Util.blockUI();
+            mainController.serverFacade.fileUpload(file, function() {
+                mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType, "sample-file-upload", 
+                function(result) {
+                    Util.unblockUI();
+                    mainController.changeView('showSamplesPage', experimentIdentifier);
+                });
+            });
+        });
+        batchController.init();
+    }
 }
