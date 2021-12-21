@@ -1403,6 +1403,9 @@ function ServerFacade(openbisServer) {
 					}
 					if(advancedFetchOptions.withType) {
 						fetchOptions.withType();
+						if(advancedFetchOptions.withType.withPropertyTypes){
+							fetchOptions.withType().withPropertyAssignments().withPropertyType()
+						}
 					}
 					if(advancedFetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
@@ -1436,7 +1439,10 @@ function ServerFacade(openbisServer) {
 						ancestorsFetchOptions.withParentsUsing(ancestorsFetchOptions);
 					}
 					if(advancedFetchOptions.withHistory) {
-						fetchOptions.withHistory().withAuthor()
+						fetchOptions.withHistory()
+						if(advancedFetchOptions.withHistory.withAuthor){
+							fetchOptions.withHistory().withAuthor()
+						}
 					}
 				}
 

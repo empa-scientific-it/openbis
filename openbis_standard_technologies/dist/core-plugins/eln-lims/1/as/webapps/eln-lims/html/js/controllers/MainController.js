@@ -1186,7 +1186,7 @@ function MainController(profile) {
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
 		};
 
-		var fetchOptions = { only : true, withHistory: true }
+		var fetchOptions = { only : true, withHistory: { withAuthor: true } }
 
 		this.serverFacade.searchForProjectsAdvanced(criteria, fetchOptions, function(results) {
 			var project = results.objects[0];
@@ -1207,7 +1207,7 @@ function MainController(profile) {
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
 		};
 
-		var fetchOptions = { only : true, withHistory: true }
+		var fetchOptions = { only : true, withType: { withPropertyTypes: true }, withHistory: { withAuthor: true } }
 
 		this.serverFacade.searchForExperimentsAdvanced(criteria, fetchOptions, function(results) {
 			var experiment = results.objects[0];
@@ -1227,7 +1227,7 @@ function MainController(profile) {
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
 		};
 
-		var fetchOptions = { only : true, withHistory: true }
+		var fetchOptions = { only : true, withType: { withPropertyTypes: true }, withHistory: { withAuthor: true } }
 
 		this.serverFacade.searchForSamplesAdvanced(criteria, fetchOptions, function(results) {
 			var sample = results.objects[0];
@@ -1247,7 +1247,7 @@ function MainController(profile) {
 			rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } }
 		};
 
-		var fetchOptions = { only : true, withHistory: true }
+		var fetchOptions = { only : true, withType: { withPropertyTypes: true }, withHistory: { withAuthor: true } }
 
 		this.serverFacade.searchForDataSetsAdvanced(criteria, fetchOptions, function(results) {
 			var dataset = results.objects[0];

@@ -138,6 +138,18 @@ function HistoryModel(entity) {
             }
         }
 
+        function getEntityPropertyType(propertyName) {
+            if (entity.type && entity.type.propertyAssignments) {
+                var propertyAssignment = entity.type.propertyAssignments.find(function (propertyAssignment) {
+                    return propertyAssignment.propertyType && propertyAssignment.propertyType.code === propertyName
+                })
+                if (propertyAssignment) {
+                    return propertyAssignment.propertyType
+                }
+            }
+            return null
+        }
+
         function getEntryType(entry) {
             var type = entry["@type"]
 
@@ -186,9 +198,15 @@ function HistoryModel(entity) {
                 }
 
                 if (entryType === "PROPERTY") {
-                    validFromChanges.properties[entry.propertyName] = entry.propertyValue
+                    var propertyType = getEntityPropertyType(entry.propertyName)
+
+                    var propertyFullName = propertyType
+                        ? propertyType.label + " [" + propertyType.code + "]"
+                        : entry.propertyName
+
+                    validFromChanges.properties[propertyFullName] = entry.propertyValue
                     if (validToChanges) {
-                        validToChanges[entry.propertyName] = null
+                        validToChanges[propertyFullName] = null
                     }
                 } else if (entryType === "RELATION") {
                     if (!entry.relationType) {
