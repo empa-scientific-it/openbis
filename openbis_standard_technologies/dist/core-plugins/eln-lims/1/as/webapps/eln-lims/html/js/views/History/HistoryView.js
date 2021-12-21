@@ -136,12 +136,8 @@ function HistoryView(controller, model) {
         var $container = $("<div>", { class: "changes-list" })
 
         function abbreviate(array) {
-            if (array.length === 1) {
-                return array[0]
-            }
-
             var limit = 100
-            var str = "["
+            var str = ""
 
             for (var index = 0; index < Math.min(array.length, limit); index++) {
                 if (index > 0) {
@@ -154,7 +150,6 @@ function HistoryView(controller, model) {
                 str += ", ... and " + (array.length - limit) + " more"
             }
 
-            str += "]"
             return str
         }
 
@@ -173,6 +168,7 @@ function HistoryView(controller, model) {
                         CHILD: 7,
                         CONTAINER: 8,
                         COMPONENT: 9,
+                        UNKNOWN: 10,
                     }
                     return sortings[r1] - sortings[r2]
                 })
@@ -183,16 +179,23 @@ function HistoryView(controller, model) {
                     $relation.append($("<span>", { class: "relation-type" }).text(relationType))
 
                     if (!_.isEmpty(relation.removed)) {
-                        $relation.append(" relation removed: ")
-                        $relation.append($("<span>", { class: "relation-value-removed" }).text(abbreviate(relation.removed)))
+                        $relation.append(" relation(s) removed: ")
+                        $relation.append(
+                            $("<div>", { class: "relation-value-removed" }).text(abbreviate(relation.removed))
+                        )
                     }
                     if (!_.isEmpty(relation.added)) {
-                        $relation.append(" relation added: ")
-                        $relation.append($("<span>", { class: "relation-value-added" }).text(abbreviate(relation.added)))
+                        $relation.append(" relation(s) added: ")
+                        $relation.append($("<div>", { class: "relation-value-added" }).text(abbreviate(relation.added)))
                     }
-                    if (relation.set !== undefined) {
-                        $relation.append(" relation set to: ")
-                        $relation.append($("<span>", { class: "relation-value-set" }).text(relation.set))
+                    if (relation.oldValue !== undefined || relation.newValue !== undefined) {
+                        $relation.append(" relation changed: ")
+
+                        $diff = $("<div>", { class: "relation-diff" })
+                        $diff.append($("<div>", { class: "relation-old-value" }).text(relation.oldValue))
+                        $diff.append($("<div>", { class: "relation-new-value" }).text(relation.newValue))
+
+                        $relation.append($diff)
                     }
 
                     $relations.append($relation)
@@ -206,10 +209,22 @@ function HistoryView(controller, model) {
             Object.keys(properties)
                 .sort()
                 .forEach(function (propertyName) {
+                    var property = properties[propertyName]
+
                     var $property = $("<li>")
-                    $property.append($("<span>", { class: "property-name" }).text(propertyName))
-                    $property.append(" property set to ")
-                    $property.append($("<span>", { class: "property-value" }).text(properties[propertyName]))
+                    $property.append($("<span>", { class: "property-name" }).text(property.label))
+                    $property.append(" [" + property.code + "]")
+                    $property.append(" property changed: ")
+
+                    $diff = $("<div>", { class: "property-diff" })
+                    $diff.append(
+                        $("<div>", { class: "property-old-value" }).html(DOMPurify.sanitize(property.oldValue))
+                    )
+                    $diff.append(
+                        $("<div>", { class: "property-new-value" }).html(DOMPurify.sanitize(property.newValue))
+                    )
+
+                    $property.append($diff)
                     $properties.append($property)
                 })
             $container.append($properties)

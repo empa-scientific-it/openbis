@@ -63,11 +63,13 @@ function HistoryModel(entity) {
             }
 
             Object.keys(changes.properties).forEach(function (propertyName) {
-                var propertyValue = changes.properties[propertyName]
-                if (propertyValue === null) {
-                    delete object.properties[propertyName]
+                var property = changes.properties[propertyName]
+                var propertyKey = property.label + " [" + property.code + "]"
+
+                if (property.newValue === null) {
+                    delete object.properties[propertyKey]
                 } else {
-                    object.properties[propertyName] = propertyValue
+                    object.properties[propertyKey] = property.newValue
                 }
             })
             Object.keys(changes.relations).forEach(function (relationType) {
@@ -82,7 +84,7 @@ function HistoryModel(entity) {
                     objectRelations = addAll(objectRelations, relationChanges.added)
                     object.relations[relationType] = objectRelations
                 } else {
-                    object.relations[relationType] = relationChanges.set
+                    object.relations[relationType] = relationChanges.newValue
                 }
             })
         }
@@ -94,12 +96,31 @@ function HistoryModel(entity) {
                 relationChanges = {
                     added: [],
                     removed: [],
-                    set: undefined,
+                    oldValue: undefined,
+                    newValue: undefined,
                 }
                 changes.relations[relationType] = relationChanges
             }
 
             return relationChanges
+        }
+
+        function getPropertyChanges(changes, propertyName) {
+            var propertyChanges = changes.properties[propertyName]
+
+            if (!propertyChanges) {
+                var propertyType = getEntityPropertyType(propertyName)
+
+                propertyChanges = {
+                    code: propertyType.code,
+                    label: propertyType.label,
+                    oldValue: undefined,
+                    newValue: undefined,
+                }
+                changes.properties[propertyName] = propertyChanges
+            }
+
+            return propertyChanges
         }
 
         function isRelationOneToMany(relationType) {
@@ -198,12 +219,11 @@ function HistoryModel(entity) {
                 }
 
                 if (entryType === "PROPERTY") {
-                    var propertyType = getEntityPropertyType(entry.propertyName)
-                    var propertyName = propertyType ? propertyType.label : entry.propertyName
-                    
-                    validFromChanges.properties[propertyName] = entry.propertyValue
+                    var validFromPropertyChanges = getPropertyChanges(validFromChanges, entry.propertyName)
+                    validFromPropertyChanges.newValue = entry.propertyValue
                     if (validToChanges) {
-                        validToChanges[propertyName] = null
+                        var validToPropertyChanges = getPropertyChanges(validToChanges, entry.propertyName)
+                        validToPropertyChanges.oldValue = entry.propertyValue
                     }
                 } else if (entryType === "RELATION") {
                     if (!entry.relationType) {
@@ -216,7 +236,7 @@ function HistoryModel(entity) {
                     if (isRelationOneToMany(entry.relationType)) {
                         validFromRelationChanges.added.push(relatedObjectId)
                     } else {
-                        validFromRelationChanges.set = relatedObjectId
+                        validFromRelationChanges.newValue = relatedObjectId
                     }
 
                     if (validToChanges) {
@@ -224,7 +244,7 @@ function HistoryModel(entity) {
                         if (isRelationOneToMany(entry.relationType)) {
                             validToRelationChanges.removed.push(relatedObjectId)
                         } else {
-                            validToRelationChanges.set = null
+                            validToRelationChanges.oldValue = relatedObjectId
                         }
                     }
                 }
