@@ -35,6 +35,33 @@ function HistoryModel(entity) {
         }
 
         function applyChanges(object, changes) {
+            function addAll(array, toAdd) {
+                var addedMap = {}
+                array.forEach(function (item) {
+                    addedMap[item] = true
+                })
+                toAdd.forEach(function (item) {
+                    if (!addedMap[item]) {
+                        array.push(item)
+                    }
+                })
+                return array
+            }
+
+            function removeAll(array, toRemove) {
+                var toRemoveMap = {}
+                toRemove.forEach(function (item) {
+                    toRemoveMap[item] = true
+                })
+                var newArray = []
+                array.forEach(function (item) {
+                    if (!toRemoveMap[item]) {
+                        newArray.push(item)
+                    }
+                })
+                return newArray
+            }
+
             Object.keys(changes.properties).forEach(function (propertyName) {
                 var propertyValue = changes.properties[propertyName]
                 if (propertyValue === null) {
@@ -51,8 +78,8 @@ function HistoryModel(entity) {
                     if (!objectRelations) {
                         objectRelations = []
                     }
-                    objectRelations = _.without(objectRelations, relationChanges.removed)
-                    objectRelations = _.union(objectRelations, relationChanges.added)
+                    objectRelations = removeAll(objectRelations, relationChanges.removed)
+                    objectRelations = addAll(objectRelations, relationChanges.added)
                     object.relations[relationType] = objectRelations
                 } else {
                     object.relations[relationType] = relationChanges.set
@@ -77,6 +104,10 @@ function HistoryModel(entity) {
 
         function isRelationOneToMany(relationType) {
             var entityKind = getEntityKind()
+
+            if (relationType === "UNKNOWN") {
+                return true
+            }
 
             if (entityKind === "PROJECT") {
                 return ["EXPERIMENT", "SAMPLE"].includes(relationType)
@@ -150,7 +181,9 @@ function HistoryModel(entity) {
                 var validFromChanges = getChanges(timestampToChangesMap, entry.validFrom)
                 var validToChanges = entry.validTo ? getChanges(timestampToChangesMap, entry.validTo) : null
 
-                validFromChanges.author = entry.author.userId
+                if (entry.author) {
+                    validFromChanges.author = entry.author.userId
+                }
 
                 if (entryType === "PROPERTY") {
                     validFromChanges.properties[entry.propertyName] = entry.propertyValue
@@ -158,6 +191,10 @@ function HistoryModel(entity) {
                         validToChanges[entry.propertyName] = null
                     }
                 } else if (entryType === "RELATION") {
+                    if (!entry.relationType) {
+                        entry.relationType = "UNKNOWN"
+                    }
+
                     var relatedObjectId = getEntryRelatedObjectId(entry)
 
                     var validFromRelationChanges = getRelationChanges(validFromChanges, entry.relationType)

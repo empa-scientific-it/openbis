@@ -54,8 +54,13 @@ function HistoryView(controller, model) {
                 label: "Changes",
                 property: "changes",
                 getValue: function (params) {
-                    $element = _this._renderChanges(params.row)
-                    return $element ? $element.text() : null
+                    if (params.row._changes) {
+                        return params.row._changes
+                    } else {
+                        var $changes = _this._renderChanges(params.row)
+                        params.row._changes = $changes ? $changes.text() : null
+                        return params.row._changes
+                    }
                 },
                 render: this._renderChanges,
                 showByDefault: true,
@@ -64,8 +69,13 @@ function HistoryView(controller, model) {
                 label: "Full Document",
                 property: "fullDocument",
                 getValue: function (params) {
-                    $element = _this._renderFullDocument(params.row)
-                    return $element ? $element.text() : null
+                    if (params.row._fullDocument) {
+                        return params.row._fullDocument
+                    } else {
+                        var $fullDocument = _this._renderFullDocument(params.row)
+                        params.row._fullDocument = $fullDocument ? $fullDocument.text() : null
+                        return params.row._fullDocument
+                    }
                 },
                 render: this._renderFullDocument,
                 showByDefault: true,
@@ -117,6 +127,25 @@ function HistoryView(controller, model) {
     this._renderChanges = function (row) {
         var $container = $("<div>")
 
+        function abbreviate(array) {
+            var limit = 100
+            var str = "["
+
+            for (var index = 0; index < Math.min(array.length, limit); index++) {
+                if (index > 0) {
+                    str += ", "
+                }
+                str += array[index]
+            }
+
+            if (array.length > limit) {
+                str += ", ... and " + (array.length - limit) + " more"
+            }
+
+            str += "]"
+            return str
+        }
+
         var relations = row.changes.relations
         if (!_.isEmpty(relations)) {
             var $relations = $("<ul>")
@@ -139,12 +168,12 @@ function HistoryView(controller, model) {
                     var relation = relations[relationType]
                     if (!_.isEmpty(relation.removed)) {
                         $("<li>")
-                            .text(relationType + " removed: " + JSON.stringify(relation.removed))
+                            .text(relationType + " removed: " + abbreviate(relation.removed))
                             .appendTo($relations)
                     }
                     if (!_.isEmpty(relation.added)) {
                         $("<li>")
-                            .text(relationType + " added: " + JSON.stringify(relation.added))
+                            .text(relationType + " added: " + abbreviate(relation.added))
                             .appendTo($relations)
                     }
                     if (relation.set !== undefined) {
