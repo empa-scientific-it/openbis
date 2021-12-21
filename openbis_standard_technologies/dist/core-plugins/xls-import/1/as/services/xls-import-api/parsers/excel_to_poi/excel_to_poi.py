@@ -36,7 +36,7 @@ class ExcelToPoiParser(object):
         for definition in definitions:
             definition_stripped = []
             for row in definition:
-                row_stripped = {}
+                row_stripped = {'row number' : row.getRowNum() + 1}
                 for cell in row.cellIterator():
                     cell_value = ExcelToPoiParser.extract_string_value_from(cell)
                     cell_value = cell_value if cell_value != '' else None
@@ -59,11 +59,11 @@ class ExcelToPoiParser(object):
         elif cell_type == CellType.STRING:
             return cell.getStringCellValue()
         elif cell_type == CellType.FORMULA:
-            raise SyntaxError("Excel formulas are not supported but one was found in the sheet")
+            raise SyntaxError("Excel formulas are not supported but one was found in cell %s" % cell.getAddress())
         elif cell_type == CellType.ERROR:
-            raise SyntaxError("There is an error in a cell in the excel sheet")
+            raise SyntaxError("There is an error in cell %s" % cell.getAddress())
         else:
-            raise SyntaxError("Unknown data type of cell in the excel sheet")
+            raise SyntaxError("Unknown data type of cell %s" % cell.getAddress())
 
     @staticmethod
     def is_row_empty(row):

@@ -17,6 +17,7 @@ class PoiCleaner(object):
         PROPERTIES_VALUES_ROW_START = row_numbers['PROPERTIES_VALUES_ROW_START']
 
         definition = deepcopy(xls_definition)
+        PoiCleaner.delete_row_numbers(definition)
         '''
             First row can only have definition type, rest is trimmed. Rules for cleaning are the following:
             1. Header rows cannot have empty cells
@@ -45,6 +46,11 @@ class PoiCleaner(object):
             definition[PROPERTIES_HEADER_ROW] = PoiCleaner.dict_values_to_lowercase(definition[PROPERTIES_HEADER_ROW])
 
         return definition
+
+    @staticmethod
+    def delete_row_numbers(definitions):
+        for defintion in definitions:
+            del defintion['row number']
 
     @staticmethod
     def delete_empty_cells_from(definition, row_number):

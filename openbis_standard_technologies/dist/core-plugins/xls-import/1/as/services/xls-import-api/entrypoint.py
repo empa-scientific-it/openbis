@@ -4,6 +4,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.operation import SynchronousOperat
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 from parsers import get_creations_from, get_definitions_from_xls, get_definitions_from_csv, get_creation_metadata_from, \
     CreationOrUpdateToOperationParser, versionable_types
 from processors import OpenbisDuplicatesHandler, PropertiesLabelHandler, DuplicatesHandler, \
@@ -119,6 +120,9 @@ def process(context, parameters):
                             'scripts': {                - optional
                                 file path: loaded file
                             },
+                            'experiments_by_type', - optional
+                            'spaces_by_type', - optional
+                            'definitions_only', - optional (default: False)
                             update_mode: [IGNORE_EXISTING|FAIL_IF_EXISTS|UPDATE_IF_EXISTS] - optional, default FAIL_IF_EXISTS
                                                                                              This only takes duplicates that are ON THE SERVER
                         }
@@ -130,12 +134,15 @@ def process(context, parameters):
     xls_byte_arrays = parameters.get('xls', None)
     csv_strings = parameters.get('csv', None)
     xls_name = parameters.get('xls_name', None)
-    experiment_identifier = parameters.get('experiment_identifier', None)
+    experiments_by_type = parameters.get('experiments_by_type', None)
+    spaces_by_type = parameters.get('spaces_by_type', None)
     scripts = parameters.get('scripts', {})
     update_mode = parameters.get('update_mode', None)
     validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
     definitions = get_definitions_from_xls(xls_byte_arrays)
     definitions.extend(get_definitions_from_csv(csv_strings))
+    if parameters.get('definitions_only', False):
+        return definitions
     creations = get_creations_from(definitions, FileHandler(scripts))
     validate_creations(creations)
     creations_metadata = get_creation_metadata_from(definitions)
@@ -158,7 +165,7 @@ def process(context, parameters):
     creations = server_duplicates_handler.handle_existing_elements_in_creations()
     entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations = CreationOrUpdateToOperationParser.parse(
         creations)
-    inject_experiment(entity_creation_operations, experiment_identifier)
+    inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type)
 
     entity_type_update_results = str(api.executeOperations(session_token, entity_type_update_operations,
                                                            SynchronousOperationExecutionOptions()).getResults())
@@ -175,9 +182,13 @@ def process(context, parameters):
         entity_type_update_results, entity_update_results,
         entity_type_creation_results, entity_creation_results)
 
-def inject_experiment(entity_creation_operations, experiment_identifier):
-    if experiment_identifier is not None:
-        for eco in entity_creation_operations:
-            for creation in eco.getCreations():
-                creation.setExperimentId(experiment_identifier)
-                creation.setSpaceId(SpacePermId(experiment_identifier.getIdentifier().split("/")[1]))
+def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type):
+    for eco in entity_creation_operations:
+        for creation in eco.getCreations():
+            type = creation.getTypeId().getPermId();
+            if experiments_by_type is not None and type in experiments_by_type:
+                experiment_identifier = experiments_by_type[type]
+                creation.setExperimentId(ExperimentIdentifier(experiment_identifier))
+                creation.setSpaceId(SpacePermId(experiment_identifier.split("/")[1]))
+            if spaces_by_type is not None and type in spaces_by_type:
+                creation.setSpaceId(SpacePermId(spaces_by_type[type]))

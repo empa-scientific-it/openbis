@@ -7,12 +7,15 @@ class Definition(object):
     '''
 
     def __init__(self):
+        self.row_number = 0
         self.type = None
         self.attributes = dotdict()
         self.properties = []
 
     def __str__(self):
         return "\n".join([
+            "Row number:",
+            str(self.row_number),
             "Definition type:",
             str(self.type),
             "Attributes:",

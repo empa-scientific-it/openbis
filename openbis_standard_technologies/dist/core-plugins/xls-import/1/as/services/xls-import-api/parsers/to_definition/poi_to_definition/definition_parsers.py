@@ -6,16 +6,19 @@ from .poi_cleaner import PoiCleaner
 class DefinitionParserFactory(object):
 
     @staticmethod
-    def get_parser(definition_type):
-        if definition_type in ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT',
-                               'SAMPLE']:
+    def get_parser(definition):
+        general_definitions = ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT',
+                               'SAMPLE']
+        properties_only_definitions = ['PROPERTY_TYPE', 'SPACE', 'PROJECT']
+        definition_type = definition[0]
+        if definition_type in general_definitions:
             return GeneralDefinitionParser
-        elif definition_type in ['PROPERTY_TYPE', 'SPACE', 'PROJECT']:
+        elif definition_type in properties_only_definitions:
             return PropertiesOnlyDefinitionParser
         else:
-            raise UnsupportedOperationException(
-                "Cannot create  " + str(
-                    definition_type) + ". Make sure Definition (First row, first cell of each definit)")
+            raise UnsupportedOperationException("Error in row %s: Cannot create %s. Only the following types are allowed: %s" 
+                                                % (definition['row number'], definition_type,
+                                                   general_definitions + properties_only_definitions))
 
 
 class PropertiesOnlyDefinitionParser(object):

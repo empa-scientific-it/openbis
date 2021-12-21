@@ -1,4 +1,5 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.property import DataType
+from ch.systemsx.cisd.common.exceptions import UserFailureException
 from parsers import SampleDefinitionToCreationType, ExperimentDefinitionToCreationType
 from .representation_unifier import entity_and_type_uniform_mapping, unify_properties_representation_of
 
@@ -29,7 +30,7 @@ class PropertiesLabelHandler(object):
                                             break
                                 new_properties[entity_property_types[key.lower()].code] = new_val
                             except:
-                                raise Exception("Entity " + str(creation.code) + " of type " + str(creation.typeId) + \
-                                                " doesn't have such (" + str(key) + ") code or label")
+                                raise UserFailureException("Entity %s of type %s doesn't have such code or label: %s"
+                                                            % (creation.code, creation.typeId, key))
                         creation.properties = new_properties
         return creations_map
