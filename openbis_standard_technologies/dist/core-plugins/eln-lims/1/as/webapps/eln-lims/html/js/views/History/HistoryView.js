@@ -126,6 +126,7 @@ function HistoryView(controller, model) {
 
     this._renderChanges = function (row) {
         var $container = $("<div>")
+        var ulStyle = { style: "padding-inline-start: 20px" }
 
         function abbreviate(array) {
             var limit = 100
@@ -148,7 +149,7 @@ function HistoryView(controller, model) {
 
         var relations = row.changes.relations
         if (!_.isEmpty(relations)) {
-            var $relations = $("<ul>")
+            var $relations = $("<ul>", ulStyle)
             Object.keys(relations)
                 .sort(function (r1, r2) {
                     var sortings = {
@@ -187,7 +188,7 @@ function HistoryView(controller, model) {
 
         var properties = row.changes.properties
         if (!_.isEmpty(properties)) {
-            var $properties = $("<ul>")
+            var $properties = $("<ul>", ulStyle)
             Object.keys(properties)
                 .sort()
                 .forEach(function (propertyName) {
