@@ -185,10 +185,12 @@ def process(context, parameters):
 def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type):
     for eco in entity_creation_operations:
         for creation in eco.getCreations():
-            type = creation.getTypeId().getPermId();
-            if experiments_by_type is not None and type in experiments_by_type:
-                experiment_identifier = experiments_by_type[type]
-                creation.setExperimentId(ExperimentIdentifier(experiment_identifier))
-                creation.setSpaceId(SpacePermId(experiment_identifier.split("/")[1]))
-            if spaces_by_type is not None and type in spaces_by_type:
-                creation.setSpaceId(SpacePermId(spaces_by_type[type]))
+            class_name = creation.getClass().getSimpleName()
+            if class_name == 'SampleCreation':
+                type = creation.getTypeId().getPermId();
+                if experiments_by_type is not None and type in experiments_by_type:
+                    experiment_identifier = experiments_by_type[type]
+                    creation.setExperimentId(ExperimentIdentifier(experiment_identifier))
+                    creation.setSpaceId(SpacePermId(experiment_identifier.split("/")[1]))
+                if spaces_by_type is not None and type in spaces_by_type:
+                    creation.setSpaceId(SpacePermId(spaces_by_type[type]))
