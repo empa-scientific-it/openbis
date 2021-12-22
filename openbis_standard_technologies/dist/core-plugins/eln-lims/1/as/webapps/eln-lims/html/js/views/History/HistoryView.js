@@ -30,9 +30,7 @@ function HistoryView(controller, model) {
         })
         $containerColumn.append(this._container)
         views.content.append($containerColumn)
-
-        views.header.append($("<h1>").append("History of " + Util.getDisplayNameForEntity(this._model.entity)))
-
+        views.header.append($("<h2>").append(this._model.getHeader()))
         this._showHistory()
     }
 

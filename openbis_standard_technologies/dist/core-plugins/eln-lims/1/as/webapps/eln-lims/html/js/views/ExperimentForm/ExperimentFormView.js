@@ -48,13 +48,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		if (this._experimentFormModel.mode === FormMode.CREATE) {
 			title = "Create " + typeTitle;
 		} else {
-			var nameLabel = this._experimentFormModel.experiment.properties[profile.propertyReplacingCode];
-			if(nameLabel) {
-				//nameLabel = html.sanitize(nameLabel);
-				nameLabel = DOMPurify.sanitize(nameLabel);
-			} else {
-				nameLabel = this._experimentFormModel.experiment.code;
-			}
+			var nameLabel = FormUtil.getExperimentName(this._experimentFormModel.experiment.code, this._experimentFormModel.experiment.properties)
 			title = typeTitle + ": " + nameLabel;
 			if (this._experimentFormModel.mode === FormMode.EDIT) {
 				title = "Update " + title;

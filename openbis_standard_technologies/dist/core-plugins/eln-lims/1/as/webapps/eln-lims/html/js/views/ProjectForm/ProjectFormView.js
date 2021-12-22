@@ -41,9 +41,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create " + typeTitle;
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
-			title = "Update " + typeTitle + Util.getDisplayNameFromCode(this._projectFormModel.project.code);
+			title = "Update " + typeTitle + FormUtil.getProjectName(this._projectFormModel.project.code);
 		} else {
-			title = typeTitle + Util.getDisplayNameFromCode(this._projectFormModel.project.code);
+			title = typeTitle + FormUtil.getProjectName(this._projectFormModel.project.code);
 		}
 		
 		var $formTitle = $("<div>");
