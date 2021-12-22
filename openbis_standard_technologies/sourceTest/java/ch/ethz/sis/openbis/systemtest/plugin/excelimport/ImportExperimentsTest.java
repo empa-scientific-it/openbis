@@ -231,7 +231,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void shouldThrowExceptionIfExperimentNoProject() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_NO_PROJECT_ATTRIBUTE)));

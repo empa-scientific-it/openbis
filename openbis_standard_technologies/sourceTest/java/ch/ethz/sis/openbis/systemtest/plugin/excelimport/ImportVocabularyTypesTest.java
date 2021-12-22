@@ -159,7 +159,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         assertNull(detection.getTerms().get(0).getDescription());
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void shouldThrowExceptionIfNoVocabularyCode() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_CODE)));

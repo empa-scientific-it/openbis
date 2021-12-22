@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.io.FilenameUtils;
+import org.python27.core.PyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -118,7 +119,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertNull(notes.getVocabulary());
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void testPropertyTypeNoCode() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_CODE)));
@@ -136,13 +137,13 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_DUPLICATES_DIFFERENT)));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void testPropertyTypeNoVocabularyCodeWhenVocabularyType() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_VOCAB_TYPE_NO_VOCABULARY_CODE)));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void testPropertyTypeNoDataType() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DATA_TYPE)));
