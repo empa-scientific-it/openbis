@@ -49,8 +49,9 @@ class PoiCleaner(object):
 
     @staticmethod
     def delete_row_numbers(definitions):
-        for defintion in definitions:
-            del defintion['row number']
+        for definition in definitions:
+            if 'row number' in definition:
+                del definition['row number']
 
     @staticmethod
     def delete_empty_cells_from(definition, row_number):

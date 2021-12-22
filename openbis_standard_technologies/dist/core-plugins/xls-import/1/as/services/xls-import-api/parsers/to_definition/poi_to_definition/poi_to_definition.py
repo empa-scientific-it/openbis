@@ -30,7 +30,7 @@ class PoiToDefinitionParser(object):
             definition_type = poi_definition[FIRST_ROW]
             definition_parser = DefinitionParserFactory.get_parser(definition_type)
             definition = definition_parser.parse(poi_definition)
-            definition.row_number = poi_definition[0]['row number']
+            definition.row_number = definition_type['row number'] if 'row number' in definition_type else None
             definitions.append(definition)
 
         return definitions

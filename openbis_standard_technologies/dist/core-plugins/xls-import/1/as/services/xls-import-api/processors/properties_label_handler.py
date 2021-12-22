@@ -30,7 +30,7 @@ class PropertiesLabelHandler(object):
                                             break
                                 new_properties[entity_property_types[key.lower()].code] = new_val
                             except:
-                                raise UserFailureException("Entity %s of type %s doesn't have such code or label: %s"
+                                raise Exception("Entity %s of type %s doesn't have such code or label: %s"
                                                             % (creation.code, creation.typeId, key))
                         creation.properties = new_properties
         return creations_map
