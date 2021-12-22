@@ -20,7 +20,8 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIde
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
-from utils.openbis_utils import is_internal_namespace, get_script_name_for, upper_case_code
+from utils.openbis_utils import is_internal_namespace, get_script_name_for, upper_case_code, \
+                                get_normalized_code, get_normalized
 from .creation_types import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
     VocabularyTermDefinitionToCreationType, \
     PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType, \
@@ -29,6 +30,7 @@ from .creation_types import PropertyTypeDefinitionToCreationType, VocabularyDefi
     ExperimentDefinitionToCreationType, \
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
 import json
+import re
 
 
 def get_boolean_from_string(text):
@@ -37,6 +39,13 @@ def get_boolean_from_string(text):
             "Boolean field should either be 'true' or 'false' (case insensitive) but was " + text)
     return True if text and text.lower() == u'true' else False
 
+def get_project_identifier(dict, row_number):
+    project_identifier = upper_case_code(dict['project'])
+    if project_identifier is None:
+        return None
+    if re.match('(/[A-Z0-9_\-.]+){2}$', project_identifier) is None:
+        raise UserFailureException("Error in row %s: Invalid project identifier: %s" % (row_number, project_identifier))
+    return ProjectIdentifier(project_identifier)
 
 class DefinitionToCreationParserFactory(object):
 
@@ -239,14 +248,15 @@ class DatasetTypeDefinitionToCreationParser(object):
 class SpaceDefinitionToCreationParser(object):
 
     def parse(self, definition):
+        row_number = definition.row_number + 2
         space_creations = []
         for prop in definition.properties:
             space_creation = SpaceCreation()
-            space_creation.code = upper_case_code(prop.get(u'code'))
+            space_creation.code = get_normalized_code(prop, row_number)
             space_creation.description = prop.get(u'description')
-            creation_id = upper_case_code(prop.get(u'code'))
-            space_creation.creationId = CreationId(creation_id)
+            space_creation.creationId = CreationId(space_creation.code)
             space_creations.append(space_creation)
+            row_number += 1
         return space_creations
 
     def get_type(self):
@@ -256,15 +266,16 @@ class SpaceDefinitionToCreationParser(object):
 class ProjectDefinitionToCreationParser(object):
 
     def parse(self, definition):
+        row_number = definition.row_number + 2
         project_creations = []
         for prop in definition.properties:
             project_creation = ProjectCreation()
-            project_creation.code = upper_case_code(prop.get(u'code'))
+            project_creation.code = get_normalized_code(prop, row_number)
             project_creation.description = prop.get(u'description')
-            project_creation.spaceId = CreationId(prop.get(u'space'))
-            creation_id = upper_case_code(prop.get(u'code'))
-            project_creation.creationId = CreationId(creation_id)
+            project_creation.spaceId = CreationId(get_normalized(prop, u'space', row_number))
+            project_creation.creationId = CreationId(project_creation.code)
             project_creations.append(project_creation)
+            row_number += 1
         return project_creations
 
     def get_type(self):
@@ -276,17 +287,19 @@ class ExperimentDefinitionToCreationParser(object):
     def parse(self, definition):
         experiments = []
         project_attributes = [u'code', u'project']
+        row_number = definition.row_number + 4
         for experiment_properties in definition.properties:
             experiment_creation = ExperimentCreation()
             experiment_creation.typeId = EntityTypePermId(definition.attributes.get(u'experiment type'))
-            experiment_creation.code = upper_case_code(experiment_properties.get(u'code'))
-            experiment_creation.projectId = ProjectIdentifier(experiment_properties.get(u'project'))
-            creation_id = upper_case_code(experiment_properties.get(u'code'))
+            experiment_creation.code = get_normalized_code(experiment_properties, row_number)
+            experiment_creation.projectId = get_project_identifier(experiment_properties, row_number)
+            creation_id = get_normalized_code(experiment_properties, row_number)
             experiment_creation.creationId = CreationId(creation_id)
             for prop, value in experiment_properties.items():
                 if prop not in project_attributes:
                     experiment_creation.setProperty(prop, value)
             experiments.append(experiment_creation)
+            row_number += 1
         return experiments
 
     def get_type(self):
@@ -299,13 +312,13 @@ class SampleDefinitionToCreationParser(object):
         samples = []
         sample_attributes = [u'$', u'code', u'space', u'project', u'experiment', u'auto generate code', u'parents',
                              u'children']
+        row_number = definition.row_number + 4
         for sample_properties in definition.properties:
             sample_creation = SampleCreation()
             sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
             if self._has_property(sample_properties, u'code'):
-                sample_creation.code = upper_case_code(sample_properties.get(u'code'))
-                creation_id = upper_case_code(sample_properties.get(u'code'))
-                sample_creation.creationId = CreationId(creation_id)
+                sample_creation.code = get_normalized_code(sample_properties, row_number)
+                sample_creation.creationId = CreationId(sample_creation.code)
             if self._has_property(sample_properties, u'$'):
                 # may overwrite creationId from code, which is intended
                 sample_creation.creationId = CreationId(sample_properties.get(u'$'))
@@ -314,9 +327,9 @@ class SampleDefinitionToCreationParser(object):
                 sample_creation.autoGeneratedCode = get_boolean_from_string(
                     sample_properties.get(u'auto generate code'))
             if self._has_property(sample_properties, u'space'):
-                sample_creation.spaceId = CreationId(sample_properties.get(u'space'))
+                sample_creation.spaceId = CreationId(get_normalized(sample_properties, u'space', row_number))
             if self._has_property(sample_properties, u'project'):
-                sample_creation.projectId = ProjectIdentifier(sample_properties.get(u'project'))
+                sample_creation.projectId = get_project_identifier(sample_properties, row_number)
             if self._has_property(sample_properties, u'experiment'):
                 sample_creation.experimentId = ExperimentIdentifier(sample_properties.get(u'experiment'))
             if self._has_property(sample_properties, u'parents'):
@@ -336,6 +349,7 @@ class SampleDefinitionToCreationParser(object):
                 if prop not in sample_attributes:
                     sample_creation.setProperty(prop, value)
             samples.append(sample_creation)
+            row_number += 1
         return samples
 
     def get_type(self):

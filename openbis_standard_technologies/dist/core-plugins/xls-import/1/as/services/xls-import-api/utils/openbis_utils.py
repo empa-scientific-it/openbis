@@ -1,7 +1,9 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
+from ch.systemsx.cisd.common.exceptions import UserFailureException
 import os
+import re
 
 # TODO DRY IT WITH CreationTYpes in definition_to_creation!!!
 VocabularyTermDefinitionToCreationType = "VocabularyTerm"
@@ -18,9 +20,9 @@ def get_script_name_for(owner_code, script_path):
 def create_sample_identifier_string(sample_creation):
     # No automagical detection of project_samples flag on openbis
     spaceId = str(sample_creation.spaceId) if sample_creation.spaceId is not None else None
-    projectId = str(sample_creation.projectId).split("/")[-1] if sample_creation.projectId is not None else None
+    projectCode = str(sample_creation.projectId).split("/")[2] if sample_creation.projectId is not None else None
     code = sample_creation.code
-    sample_identifier = SampleIdentifier(spaceId, projectId, None, code)
+    sample_identifier = SampleIdentifier(spaceId, projectCode, None, code)
     return sample_identifier.identifier
 
 
@@ -65,6 +67,23 @@ def get_metadata_name_for_existing_element(existing_type, existing_element):
     code = "{}-{}".format(existing_type, code)
     code = code.upper()
     return code
+
+
+def get_normalized_code(dict, row_number, dollar_prefix_allowed=False):
+    return get_normalized(dict, 'code', row_number, dollar_prefix_allowed)
+
+def get_normalized(dict, key, row_number, dollar_prefix_allowed=False):
+    value = upper_case_code(dict[key])
+    if value is not None:
+        if value.startswith('$') and not dollar_prefix_allowed:
+            raise UserFailureException("Error in row %s: %s starts with '$': %s" 
+                                       % (row_number, key.capitalize(), value))
+        if re.match('\$?[A-Z0-9_\-.]+$', value) is None:
+            leading_dollar_test = " after the leasing $" if value.startswith('$') else ""
+            raise UserFailureException(("Error in row %s: %s contains an invalid character. "
+                + "Only digits, letter, '-', '_', and '.' are allowed%s: %s") 
+                % (row_number, key.capitalize(), leading_dollar_test, value))
+    return value
 
 
 def upper_case_code(code):
