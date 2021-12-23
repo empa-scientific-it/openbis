@@ -17,7 +17,7 @@ dependencies {
             'maxmind:maxmind-db:2.0.0',
             'fasterxml:jackson-core:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
             'fasterxml:jackson-annotations:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
-            'fasterxml:jackson-databind:2.9.10', // It actually requires 2.11.2 needs to be added to the repo
+            'fasterxml:jackson-databind:2.9.10.8', // It actually requires 2.11.2 needs to be added to the repo
             'apache:commons-codec:1.10', // It actually requires 1.15 needs to be added to the repo
             'apache:httpclient:4.3.6' // It actually requires 4.5.13 needs to be added to the repo
 }
