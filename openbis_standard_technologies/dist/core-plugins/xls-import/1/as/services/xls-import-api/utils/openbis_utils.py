@@ -73,7 +73,7 @@ def get_normalized_code(dict, row_number, dollar_prefix_allowed=False):
     return get_normalized(dict, 'code', row_number, dollar_prefix_allowed)
 
 def get_normalized(dict, key, row_number, dollar_prefix_allowed=False):
-    value = upper_case_code(dict[key])
+    value = upper_case_code(dict[key]) if key in dict else None 
     if value is not None:
         if value.startswith('$') and not dollar_prefix_allowed:
             raise UserFailureException("Error in row %s: %s starts with '$': %s" 
