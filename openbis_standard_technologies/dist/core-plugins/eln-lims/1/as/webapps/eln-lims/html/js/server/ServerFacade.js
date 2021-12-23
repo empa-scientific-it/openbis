@@ -113,7 +113,7 @@ function ServerFacade(openbisServer) {
             "allowedSampleTypes" : allowedSampleTypes,
             "experimentsByType" : experimentsByType,
             "spacesByType" : spacesByType,
-            "mode" : "IGNORE_EXISTING",
+            "mode" : "FAIL_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)

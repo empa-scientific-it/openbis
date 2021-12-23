@@ -98,6 +98,7 @@ def importData(context, bytes, file_name, experimentsByType, spacesByType, mode,
     props = CustomASServiceExecutionOptions().withParameter('xls', [bytes])
     props.withParameter('xls_name', file_name)
     props.withParameter('update_mode', mode)
+    props.withParameter('ignore_versioning', True)
     if definitionsOnly:
         props.withParameter('definitions_only', True)
     if experimentsByType is not None:
