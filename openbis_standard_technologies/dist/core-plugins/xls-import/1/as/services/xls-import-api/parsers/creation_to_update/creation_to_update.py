@@ -14,7 +14,6 @@ class CreationToUpdateParser(object):
             for creation in creations:
                 existing_element = get_existing_element_based_on(creation_type, creation,
                                                                  existing_elements[creation_type])
-
                 if existing_element:
                     for parser in parsers:
                         update = parser.parse(creation, existing_element)
@@ -29,8 +28,8 @@ class CreationToUpdateParser(object):
 def get_existing_element_based_on(creation_type, creation, existing_elements):
     if creation_type == SampleDefinitionToCreationType:
         existing_element = list(filter(
-            lambda existing_element: creation.code is not None and create_sample_identifier_string(
-                creation) == existing_element.identifier.identifier, existing_elements))
+            lambda existing_element: create_sample_identifier_string(creation) == existing_element.identifier.identifier,
+            existing_elements))
     elif creation_type == ProjectDefinitionToCreationType:
         existing_element = list(filter(
             lambda existing_element: create_project_identifier_string(creation) == str(existing_element.identifier),

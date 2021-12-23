@@ -141,12 +141,10 @@ class OpenbisDuplicatesHandler(object):
                         self.creations[VocabularyTermDefinitionToCreationType]))
                 elif creations_type == SampleDefinitionToCreationType:
                     existing_object_codes = [obj.identifier.identifier for obj in existing_elements]
-                    duplicates_list[creations_type] = list(filter(
-                        lambda creation: creation.code is not None and create_sample_identifier_string(
-                            creation) in existing_object_codes, self.creations[creations_type]))
-                    self.creations[creations_type] = list(filter(
-                        lambda creation: creation.code is None or create_sample_identifier_string(
-                            creation) not in existing_object_codes, self.creations[creations_type]))
+                    filter_func = lambda c: create_sample_identifier_string(c) in existing_object_codes
+                    duplicates_list[creations_type] = list(filter(filter_func, self.creations[creations_type]))
+                    self.creations[creations_type] = list(filter(lambda c: not filter_func(c),
+                                                                 self.creations[creations_type]))
                 elif creations_type == ProjectDefinitionToCreationType:
                     existing_object_codes = [str(obj.identifier) for obj in existing_elements]
                     duplicates_list[creations_type] = list(

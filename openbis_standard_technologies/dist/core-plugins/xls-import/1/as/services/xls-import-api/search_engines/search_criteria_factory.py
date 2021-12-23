@@ -89,7 +89,9 @@ class SampleCreationSampleSearchCriteria(object):
                 else:
                     search_criteria.withoutSpace()
                 search_criterias.append(search_criteria)
-
+            elif creation.creationId is not None:
+                search_criteria.withIdentifier().thatEquals(creation.getCreationId().getCreationId())
+                search_criterias.append(search_criteria)
         return search_criterias
 
 

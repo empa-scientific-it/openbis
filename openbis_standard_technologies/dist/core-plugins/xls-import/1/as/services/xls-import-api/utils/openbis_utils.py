@@ -8,6 +8,7 @@ import re
 # TODO DRY IT WITH CreationTYpes in definition_to_creation!!!
 VocabularyTermDefinitionToCreationType = "VocabularyTerm"
 
+CODE_REGEX = '[A-Z0-9_\-.]+'
 
 def is_internal_namespace(property_value):
     return property_value and property_value.startswith(u'$')
@@ -18,10 +19,11 @@ def get_script_name_for(owner_code, script_path):
 
 
 def create_sample_identifier_string(sample_creation):
-    # No automagical detection of project_samples flag on openbis
+    code = sample_creation.getCode()
+    if code is None and sample_creation.getCreationId() is not None:
+        return sample_creation.getCreationId().getCreationId()
     spaceId = str(sample_creation.spaceId) if sample_creation.spaceId is not None else None
     projectCode = str(sample_creation.projectId).split("/")[2] if sample_creation.projectId is not None else None
-    code = sample_creation.code
     sample_identifier = SampleIdentifier(spaceId, projectCode, None, code)
     return sample_identifier.identifier
 
@@ -78,7 +80,7 @@ def get_normalized(dict, key, row_number, dollar_prefix_allowed=False):
         if value.startswith('$') and not dollar_prefix_allowed:
             raise UserFailureException("Error in row %s: %s starts with '$': %s" 
                                        % (row_number, key.capitalize(), value))
-        if re.match('\$?[A-Z0-9_\-.]+$', value) is None:
+        if re.match('\$?%s$' % CODE_REGEX, value) is None:
             leading_dollar_test = " after the leasing $" if value.startswith('$') else ""
             raise UserFailureException(("Error in row %s: %s contains an invalid character. "
                 + "Only digits, letter, '-', '_', and '.' are allowed%s: %s") 

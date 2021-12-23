@@ -215,10 +215,13 @@ class SampleCreationToUpdateParser(TypedEntityCreationToUpdateParser):
     def parse(self, creation, existing_sample):
         super(SampleCreationToUpdateParser, self).parse(creation, existing_sample)
         sample_update = SampleUpdate()
-        sample_update.sampleId = existing_sample.permId
-        sample_update.setExperimentId(creation.experimentId)
-        sample_update.setProjectId(creation.projectId)
-        sample_update.setSpaceId(creation.spaceId)
+        sample_update.setSampleId(existing_sample.getPermId())
+        if creation.getExperimentId() is not None:
+            sample_update.setExperimentId(creation.getExperimentId())
+        if creation.getProjectId() is not None:
+            sample_update.setProjectId(creation.getProjectId())
+        if creation.getSpaceId() is not None:
+            sample_update.setSpaceId(creation.getSpaceId())
         sample_update.setProperties(creation.properties)
 
         existing_parent_identifiers = []
