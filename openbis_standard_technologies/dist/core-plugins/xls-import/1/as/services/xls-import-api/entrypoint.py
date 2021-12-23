@@ -123,7 +123,8 @@ def process(context, parameters):
                             'experiments_by_type', - optional
                             'spaces_by_type', - optional
                             'definitions_only', - optional (default: False)
-                            update_mode: [IGNORE_EXISTING|FAIL_IF_EXISTS|UPDATE_IF_EXISTS] - optional, default FAIL_IF_EXISTS
+                            'ignore_versioning', - optional (default: False)
+                            'update_mode': [IGNORE_EXISTING|FAIL_IF_EXISTS|UPDATE_IF_EXISTS] - optional, default FAIL_IF_EXISTS
                                                                                              This only takes duplicates that are ON THE SERVER
                         }
         :return: Openbis's execute operations result string. It should contain report on what was created.
@@ -137,7 +138,8 @@ def process(context, parameters):
     experiments_by_type = parameters.get('experiments_by_type', None)
     spaces_by_type = parameters.get('spaces_by_type', None)
     scripts = parameters.get('scripts', {})
-    update_mode = parameters.get('update_mode', None)
+    update_mode = parameters.get('update_mode', 'FAIL_IF_EXISTS')
+    ignore_versioning = parameters.get('ignore_versioning', False)
     validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
     definitions = get_definitions_from_xls(xls_byte_arrays)
     definitions.extend(get_definitions_from_csv(csv_strings))
@@ -147,13 +149,16 @@ def process(context, parameters):
     validate_creations(creations)
     creations_metadata = get_creation_metadata_from(definitions)
     creations = DuplicatesHandler.get_distinct_creations(creations)
-    xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
-    xls_version_name = get_version_name_for(xls_name)
-    all_versioning_information = read_versioning_information(xls_version_filepath)
-    versioning_information = create_versioning_information(all_versioning_information, creations, creations_metadata,
-                                                           update_mode, xls_version_name)
     existing_elements = search_engine.find_all_existing_elements(creations)
-    checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations)
+
+    versioning_information = {}
+    if not ignore_versioning:
+        xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
+        xls_version_name = get_version_name_for(xls_name)
+        all_versioning_information = read_versioning_information(xls_version_filepath)
+        checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations)
+        versioning_information = create_versioning_information(all_versioning_information, creations, creations_metadata,
+                                                               update_mode, xls_version_name)
     entity_kinds = search_engine.find_existing_entity_kind_definitions_for(creations)
     existing_vocabularies = search_engine.find_all_existing_vocabularies()
     existing_unified_kinds = unify_properties_representation_of(creations, entity_kinds, existing_vocabularies,
@@ -176,8 +181,9 @@ def process(context, parameters):
     entity_update_results = str(api.executeOperations(session_token, entity_update_operations,
                                                       SynchronousOperationExecutionOptions()).getResults())
 
-    all_versioning_information[xls_version_name] = versioning_information
-    save_versioning_information(all_versioning_information, xls_version_filepath)
+    if not ignore_versioning:
+        all_versioning_information[xls_version_name] = versioning_information
+        save_versioning_information(all_versioning_information, xls_version_filepath)
     return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
         entity_type_update_results, entity_update_results,
         entity_type_creation_results, entity_creation_results)
