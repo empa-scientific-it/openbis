@@ -195,4 +195,26 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
         });
         batchController.init();
     }
+    
+    this.updateSamples = function(experimentIdentifier) {
+        var _this = this;
+        var allowedSampleTypes = null;
+        var experimentsByType = {};
+        var spacesByType = {};
+        if (this._sampleTableModel.sampleTypeCodeToUse) {
+            allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
+        }
+        var title = 'Update ' + ELNDictionary.Samples;
+        var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, function(file) {
+            Util.blockUI();
+            mainController.serverFacade.fileUpload(file, function() {
+                mainController.serverFacade.updateSamples(allowedSampleTypes, "sample-file-upload", 
+                        function(result) {
+                    Util.unblockUI();
+                    mainController.changeView('showSamplesPage', experimentIdentifier);
+                });
+            });
+        });
+        batchController.init();
+    }
 }

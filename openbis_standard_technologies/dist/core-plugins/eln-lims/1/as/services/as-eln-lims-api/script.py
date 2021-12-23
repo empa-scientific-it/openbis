@@ -52,53 +52,54 @@ def process(context, parameters):
         result = getUserManagementMaintenanceTaskReport(context, parameters)
     elif method == "removeUserManagementMaintenanceTaskReport":
         result = removeUserManagementMaintenanceTaskReport(context, parameters)
-    elif method == "registerSamples":
-        result = registerSamples(context, parameters)
+    elif method == "importSamples":
+        result = importSamples(context, parameters)
     return result;
 
-def registerSamples(context, parameters):
+def importSamples(context, parameters):
     from org.apache.commons.io import IOUtils
 
     sessionKey = parameters.get("sessionKey")
     allowedSampleTypes = parameters.get("allowedSampleTypes")
-    experimentsByType = parameters.get("experimentsByType")
-    spacesByType = parameters.get("spacesByType")
+    experimentsByType = parameters.get("experimentsByType", {})
+    spacesByType = parameters.get("spacesByType", {})
+    mode = parameters.get("mode")
     contextProvider = CommonServiceProvider.getApplicationContext().getBean("request-context-provider")
     uploadedFiles = contextProvider.getHttpServletRequest().getSession(False).getAttribute(sessionKey)
+    results = []
     for file in uploadedFiles.iterable():
+        file_name = file.getOriginalFilename()
         bytes = IOUtils.toByteArray(file.getInputStream())
-        validateSampleImport(context, bytes, file.getOriginalFilename(), allowedSampleTypes)
-        result = importData(context, bytes, file.getOriginalFilename(), experimentsByType, spacesByType, False)
-        print(">>>>> result: %s" % result)
-    return "done"
+        validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode)
+        results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
+    return results
 
-def validateSampleImport(context, bytes, fileName, allowedSampleTypes):
-    definitions = importData(context, bytes, fileName, None, None, True)
+def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode):
+    definitions = importData(context, bytes, file_name, None, None, mode, True)
     for definition in definitions:
         row_number = definition.row_number
-        print("DEFINITION:%s" % definition)
         entityType = definition.type
+        if entityType != 'SAMPLE':
+            raise UserFailureException("Error in row %s: Type %s is not allowed to import." % (row_number, entityType))
         key = 'sample type'
         if key not in definition.attributes:
             raise UserFailureException("Error in row %s: First cell should contain '%s'." % (row_number + 1, key))
         sampleType = definition.attributes[key]
-        if entityType != 'SAMPLE':
-            raise UserFailureException("Error in row %s: Type %s is not allowed to import." % (row_number, entityType))
         if sampleType not in allowedSampleTypes:
             raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
 
-def importData(context, bytes, fileName, experimentsByType, spacesByType, definitionsOnly):
+def importData(context, bytes, file_name, experimentsByType, spacesByType, mode, definitionsOnly):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 
     sessionToken = context.getSessionToken()
     api = context.getApplicationService()
-    props = CustomASServiceExecutionOptions().withParameter('xls', [bytes]) \
-            .withParameter('xls_name', fileName) \
-            .withParameter('update_mode', 'IGNORE_EXISTING')
+    props = CustomASServiceExecutionOptions().withParameter('xls', [bytes])
+    props.withParameter('xls_name', file_name)
+    props.withParameter('update_mode', mode)
     if definitionsOnly:
-        props.withParameter('definitions_only', "true")
+        props.withParameter('definitions_only', True)
     if experimentsByType is not None:
         props.withParameter('experiments_by_type', experimentsByType)
     if spacesByType is not None:

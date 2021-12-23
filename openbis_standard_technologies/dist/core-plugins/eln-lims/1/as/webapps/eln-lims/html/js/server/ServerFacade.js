@@ -107,13 +107,24 @@ function ServerFacade(openbisServer) {
         });
     }
 
-
     this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, sessionKey, callback) {
         this.customELNASAPI({
-            "method" : "registerSamples",
+            "method" : "importSamples",
             "allowedSampleTypes" : allowedSampleTypes,
             "experimentsByType" : experimentsByType,
             "spacesByType" : spacesByType,
+            "mode" : "IGNORE_EXISTING",
+            "sessionKey" : sessionKey
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.updateSamples = function(allowedSampleTypes, sessionKey, callback) {
+        this.customELNASAPI({
+            "method" : "importSamples",
+            "allowedSampleTypes" : allowedSampleTypes,
+            "mode" : "UPDATE_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)
