@@ -4,6 +4,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -19,6 +21,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.shared.*;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -48,15 +51,20 @@ public class MultiDataSetDeletionMaintenanceTask
     {
         super.setUp(pluginName, properties);
         String eventIdFileName = PropertyUtils.getMandatoryProperty(properties, LAST_SEEN_EVENT_ID_FILE);
-        properties.setProperty("final-destination", properties.getProperty("archiver.final-destination"));
-        shareFinder = new MappingBasedShareFinder(properties);
         lastSeenEventIdFile = new File(eventIdFileName);
+
+        properties.setProperty("final-destination", properties.getProperty("archiver.final-destination"));
+        properties.setProperty("replicated-destination", properties.getProperty("archiver.replicated-destination"));
+
         v3 = ServiceProvider.getV3ApplicationService();
+        shareFinder = new MappingBasedShareFinder(properties);
         openBISService = ServiceProvider.getOpenBISService();
         simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
         shareIdManager = ServiceProvider.getShareIdManager();
-        multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(),
-                new SshCommandExecutorFactory(), simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
+                properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER
+        );
         shares = getShares();
     }
 
@@ -92,10 +100,34 @@ public class MultiDataSetDeletionMaintenanceTask
                     Share share = shareFinder.tryToFindShare(simpleDataSet, shares);
                     shareIdManager.setShareId(dataSet.getCode(), share.getShareId());
                     notDeletedDataSets.add(simpleDataSet);
+                    openBISService.updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
                 }
             }
-            Status status = multiDataSetFileOperationsManager.restoreDataSetsFromContainerInFinalDestination(container.getPath(), notDeletedDataSets);
+            Status restoreStatus = multiDataSetFileOperationsManager.restoreDataSetsFromContainerInFinalDestination(
+                    container.getPath(), notDeletedDataSets
+            );
+            updateDataSetsStatusAndFlags(notDeletedDataSets);
         }
+    }
+
+    private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets) {
+        // Reset the flag is_present_in_archive back to false
+        List<String> codes = notDeletedDataSets.stream()
+                                               .map(SimpleDataSetInformationDTO::getDataSetCode)
+                                               .collect(Collectors.toList());
+        openBISService.updateDataSetStatuses(codes, DataSetArchivingStatus.AVAILABLE, false);
+
+        // Set request_archiving flag to true
+        List<DataSetUpdate> dataSetUpdates = new ArrayList<>();
+        for (String code: codes)
+        {
+            DataSetUpdate dataSetUpdate = new DataSetUpdate();
+            dataSetUpdate.setDataSetId(new DataSetPermId(code));
+            PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();
+            physicalDataUpdate.setArchivingRequested(true);
+            dataSetUpdate.setPhysicalData(physicalDataUpdate);
+        }
+        v3.updateDataSets(openBISService.getSessionToken(), dataSetUpdates);
     }
 
     private SimpleDataSetInformationDTO getSimpleDataSet(MultiDataSetArchiverDataSetDTO dataSet)
@@ -106,7 +138,8 @@ public class MultiDataSetDeletionMaintenanceTask
         fetchOptions.withSample().withProject().withSpace();
         fetchOptions.withSample().withSpace();
         DataSetPermId dataSetPermId = new DataSetPermId(dataSet.getCode());
-        DataSet dataSet1 = v3.getDataSets(openBISService.getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions).get(dataSetPermId);
+        DataSet dataSet1 = v3.getDataSets(openBISService.getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions)
+                             .get(dataSetPermId);
         SimpleDataSetInformationDTO simpleDataSet = new SimpleDataSetInformationDTO();
         simpleDataSet.setDataSetSize(dataSet1.getPhysicalData().getSize());
         simpleDataSet.setDataSetCode(dataSet1.getCode());
