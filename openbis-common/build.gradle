@@ -8,6 +8,7 @@ dependencies {
 	compile project(':common'),
 		project(':dbmigration'),
 		'googlecode:jsonrpc4j:1.5.3',
+        'fasterxml:jackson-databind:2.9.10.8',
 		'reflections:reflections:0.9.10',
 		'sis:sis-jhdf5:19.04.0',
 		'lemnik:eodsql:2.2-CISD',
