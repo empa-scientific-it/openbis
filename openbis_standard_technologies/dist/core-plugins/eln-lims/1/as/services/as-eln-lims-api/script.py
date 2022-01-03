@@ -148,6 +148,11 @@ def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode):
         sampleType = definition.attributes[key]
         if sampleType not in allowedSampleTypes:
             raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
+        row_number += 3
+        for properties in definition.properties:
+            if properties.get("$") == "$":
+                raise UserFailureException("Empty row expected before row %s" % (row_number - 2))
+            row_number += 1
 
 def importData(context, bytes, file_name, experimentsByType, spacesByType, mode, definitionsOnly):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
