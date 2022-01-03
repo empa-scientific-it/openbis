@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -413,7 +412,7 @@ public class GetProjectTest extends AbstractTest
     }
 
     @Test
-    public void testGetWithHistoryEmpty()
+    public void testGetWithHistoryNoChanges()
     {
         ProjectCreation creation = new ProjectCreation();
         creation.setCode("PROJECT_WITH_EMPTY_HISTORY");
@@ -421,7 +420,11 @@ public class GetProjectTest extends AbstractTest
 
         List<HistoryEntry> history = testGetWithHistory(creation, null);
 
-        assertEquals(history, Collections.emptyList());
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
+        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
     }
 
     @Test
@@ -436,11 +439,15 @@ public class GetProjectTest extends AbstractTest
 
         List<HistoryEntry> history = testGetWithHistory(creation, update);
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), ProjectRelationType.SPACE);
-        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
+        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
+
+        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
+        assertEquals(entry1.getRelationType(), ProjectRelationType.SPACE);
+        assertEquals(entry1.getRelatedObjectId(), new SpacePermId("TEST-SPACE"));
     }
 
     @Test
@@ -477,11 +484,15 @@ public class GetProjectTest extends AbstractTest
         Project project = map.get(projectPermIds.get(0));
 
         List<HistoryEntry> history = project.getHistory();
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), ProjectRelationType.EXPERIMENT);
-        assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
+        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
+        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
+
+        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
+        assertEquals(entry1.getRelationType(), ProjectRelationType.EXPERIMENT);
+        assertEquals(entry1.getRelatedObjectId(), experimentPermIds.get(0));
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
@@ -497,13 +508,13 @@ public class GetProjectTest extends AbstractTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
-                    }
-                });
+                    v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());
+                }
+            });
         } else
         {
             Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, projectFetchOptionsFull());

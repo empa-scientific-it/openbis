@@ -141,7 +141,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(sharedSampleId);
 
         // Then
-        assertRelationshipHistory(history, null, null);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), spaceId1, SampleRelationType.SPACE);
     }
 
     @Test
@@ -159,7 +161,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(sharedSampleId);
 
         // Then
-        assertRelationshipHistory(history, null, null);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), projectId1, SampleRelationType.PROJECT);
     }
 
     @Test
@@ -178,7 +182,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(sharedSampleId);
 
         // Then
-        assertRelationshipHistory(history, null, null);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), experimentId1, SampleRelationType.EXPERIMENT);
     }
 
     @Test
@@ -199,7 +205,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(spaceSampleId);
 
         // Then
-        assertRelationshipHistory(history, spaceId1, SampleRelationType.SPACE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), spaceId1, SampleRelationType.SPACE);
     }
 
     @Test
@@ -220,7 +228,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(spaceSampleId);
 
         // Then
-        assertRelationshipHistory(history, spaceId1, SampleRelationType.SPACE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), spaceId2, SampleRelationType.SPACE);
+        assertRelationshipHistory(history.get(1), spaceId1, SampleRelationType.SPACE);
     }
 
     @Test
@@ -242,7 +252,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(spaceSampleId);
 
         // Then
-        assertRelationshipHistory(history, spaceId1, SampleRelationType.SPACE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), spaceId1, SampleRelationType.SPACE);
     }
 
     @Test
@@ -265,7 +277,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(spaceSampleId);
 
         // Then
-        assertRelationshipHistory(history, spaceId1, SampleRelationType.SPACE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId1, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), spaceId1, SampleRelationType.SPACE);
     }
 
     @Test
@@ -287,7 +301,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, projectId1, SampleRelationType.PROJECT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), projectId1, SampleRelationType.PROJECT);
     }
 
     @Test
@@ -309,7 +325,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, projectId1, SampleRelationType.PROJECT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), spaceId1, SampleRelationType.SPACE);
+        assertRelationshipHistory(history.get(1), projectId1, SampleRelationType.PROJECT);
     }
 
     @Test
@@ -330,7 +348,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, projectId1, SampleRelationType.PROJECT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId2, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), projectId1, SampleRelationType.PROJECT);
     }
 
     @Test
@@ -353,7 +373,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, projectId1, SampleRelationType.PROJECT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId1, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), projectId1, SampleRelationType.PROJECT);
     }
 
     @Test
@@ -377,7 +399,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
 
         // Then
-        assertRelationshipHistory(history, experimentId1, SampleRelationType.EXPERIMENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), null, null);
+        assertRelationshipHistory(history.get(1), experimentId1, SampleRelationType.EXPERIMENT);
     }
 
     @Test
@@ -401,7 +425,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
 
         // Then
-        assertRelationshipHistory(history, experimentId1, SampleRelationType.EXPERIMENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), spaceId1, SampleRelationType.SPACE);
+        assertRelationshipHistory(history.get(1), experimentId1, SampleRelationType.EXPERIMENT);
     }
 
     @Test
@@ -425,7 +451,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
 
         // Then
-        assertRelationshipHistory(history, experimentId1, SampleRelationType.EXPERIMENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), experimentId1, SampleRelationType.EXPERIMENT);
     }
 
     @Test
@@ -449,7 +477,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
 
         // Then
-        assertRelationshipHistory(history, experimentId1, SampleRelationType.EXPERIMENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId2, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), experimentId1, SampleRelationType.EXPERIMENT);
     }
 
     @Test
@@ -480,7 +510,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, childId, SampleRelationType.CHILD);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), childId, SampleRelationType.CHILD);
     }
 
     @Test
@@ -511,7 +543,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, parentId, SampleRelationType.PARENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), parentId, SampleRelationType.PARENT);
     }
 
     @Test
@@ -542,7 +576,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, componentId, SampleRelationType.COMPONENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), componentId, SampleRelationType.COMPONENT);
     }
 
     @Test
@@ -573,7 +609,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(projectSampleId);
 
         // Then
-        assertRelationshipHistory(history, containerId, SampleRelationType.CONTAINER);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, SampleRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), containerId, SampleRelationType.CONTAINER);
     }
 
     @Test
@@ -604,7 +642,9 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
 
         // Then
-        assertRelationshipHistory(history, id, SampleRelationType.DATA_SET);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId1, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), id, SampleRelationType.DATA_SET);
     }
 
     @Test
@@ -630,14 +670,16 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         IDeletionId deletionId = v3api.deleteDataSets(systemSessionToken, Arrays.asList(id), deletionOptions);
         v3api.confirmDeletions(systemSessionToken, Arrays.asList(deletionId));
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(id), new DataSetFetchOptions()).size(), 0);
-        
+
         // When
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
-        
+
         // Then
-        assertRelationshipHistory(history, id, SampleRelationType.DATA_SET);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId1, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), id, SampleRelationType.DATA_SET);
     }
-    
+
     @Test
     public void moveSampleDataSetToAnExperiment()
     {
@@ -661,14 +703,16 @@ public class SampleRelationshipHistoryTest extends AbstractTest
         IDeletionId deletionId = v3api.deleteDataSets(systemSessionToken, Arrays.asList(id), deletionOptions);
         v3api.confirmDeletions(systemSessionToken, Arrays.asList(deletionId));
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(id), new DataSetFetchOptions()).size(), 0);
-        
+
         // When
         List<RelationHistoryEntry> history = getSampleHistory(experimentSampleId);
-        
+
         // Then
-        assertRelationshipHistory(history, id, SampleRelationType.DATA_SET);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), experimentId1, SampleRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), id, SampleRelationType.DATA_SET);
     }
-    
+
     private List<RelationHistoryEntry> getSampleHistory(SamplePermId sampleId)
     {
         SampleFetchOptions fo = new SampleFetchOptions();

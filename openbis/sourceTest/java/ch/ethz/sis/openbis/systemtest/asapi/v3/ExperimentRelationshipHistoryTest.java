@@ -116,7 +116,9 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getExperimentHistory();
 
         // Then
-        assertRelationshipHistory(history, projectId1, ExperimentRelationType.PROJECT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId2, ExperimentRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), projectId1, ExperimentRelationType.PROJECT);
     }
 
     @Test
@@ -150,7 +152,9 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getExperimentHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ExperimentRelationType.SAMPLE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, ExperimentRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), id, ExperimentRelationType.SAMPLE);
     }
 
     @Test
@@ -183,7 +187,9 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getExperimentHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ExperimentRelationType.SAMPLE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, ExperimentRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), id, ExperimentRelationType.SAMPLE);
     }
 
     @Test
@@ -214,7 +220,10 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getExperimentHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ExperimentRelationType.DATA_SET);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, ExperimentRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), id, ExperimentRelationType.DATA_SET);
+
     }
 
     @Test
@@ -252,7 +261,9 @@ public class ExperimentRelationshipHistoryTest extends AbstractTest
         List<RelationHistoryEntry> history = getExperimentHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ExperimentRelationType.DATA_SET);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), projectId1, ExperimentRelationType.PROJECT);
+        assertRelationshipHistory(history.get(1), id, ExperimentRelationType.DATA_SET);
     }
 
     private List<RelationHistoryEntry> getExperimentHistory()
