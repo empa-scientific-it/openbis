@@ -476,6 +476,21 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
     }
 
+    @Override
+    public Status deleteContainerFromFinalReplicatedDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath)
+    {
+        try
+        {
+            ArchiveDestination finalDestination = getFinalReplicatedArchive();
+            File containerInFinalDestination = new File(finalDestination.getDestination(), containerLocalPath);
+            cleaner.delete(containerInFinalDestination);
+            return Status.OK;
+        } catch (ExceptionWithStatus ex)
+        {
+            return ex.getStatus();
+        }
+    }
+
     private static final IHierarchicalContentNodeFilter METADATA_IN_CONTAINER_FILTER = new IHierarchicalContentNodeFilter()
         {
             @Override

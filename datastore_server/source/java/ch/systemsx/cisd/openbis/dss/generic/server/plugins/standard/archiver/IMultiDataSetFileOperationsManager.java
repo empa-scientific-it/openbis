@@ -34,6 +34,8 @@ public interface IMultiDataSetFileOperationsManager
 
     Status deleteContainerFromFinalDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath);
 
+    Status deleteContainerFromFinalReplicatedDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath);
+
     Status deleteContainerFromStage(IMultiDataSetArchiveCleaner cleaner, String containerPath);
 
     /**

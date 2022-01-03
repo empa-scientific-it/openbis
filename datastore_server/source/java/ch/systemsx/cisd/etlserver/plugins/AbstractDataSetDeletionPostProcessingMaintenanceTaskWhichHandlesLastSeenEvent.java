@@ -39,7 +39,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichH
         File parent = lastSeenEventIdFile.getParentFile();
         parent.mkdirs();
         File newLastSeenEventIdFile = new File(parent, lastSeenEventIdFile.getName() + ".new");
-        FileUtilities.writeToFile(newLastSeenEventIdFile, eventId);
+        FileUtilities.writeToFile(newLastSeenEventIdFile, String.valueOf(eventId));
         newLastSeenEventIdFile.renameTo(lastSeenEventIdFile);
     }
 }
