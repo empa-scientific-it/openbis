@@ -89,23 +89,22 @@ def getSamplesImportTemplate(context, parameters):
         row = sheet.createRow(row_index + 3)
         cell = row.createCell(0)
         cell.setCellValue("$")
-        cell_index = 1
+        cell = row.createCell(1)
+        cell.setCellValue("Code")
+        cell_index = 2
         if importMode == "UPDATE":
             cell = row.createCell(cell_index)
             cell.setCellValue("Identifier")
             cell_index += 1
-        cell = row.createCell(cell_index)
-        cell.setCellValue("Code")
-        cell_index += 1
-        cell = row.createCell(cell_index)
-        cell.setCellValue("Experiment")
-        cell_index += 1
-        cell = row.createCell(cell_index)
-        cell.setCellValue("Project")
-        cell_index += 1
-        cell = row.createCell(cell_index)
-        cell.setCellValue("Space")
-        cell_index += 1
+            cell = row.createCell(cell_index)
+            cell.setCellValue("Experiment")
+            cell_index += 1
+            cell = row.createCell(cell_index)
+            cell.setCellValue("Project")
+            cell_index += 1
+            cell = row.createCell(cell_index)
+            cell.setCellValue("Space")
+            cell_index += 1
         cell = row.createCell(cell_index)
         cell.setCellValue("Parents")
         cell_index += 1
