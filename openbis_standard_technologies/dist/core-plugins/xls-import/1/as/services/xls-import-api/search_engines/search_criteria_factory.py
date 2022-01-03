@@ -44,7 +44,7 @@ class SampleCreationSampleChildrenParentSearchCriteria(object):
             sample_code = identifier.sampleCode
             search_criteria.withCode().thatEquals(sample_code)
             if project_code is not None:
-                search_criteria.withProject().withIdentifier().thatEquals(project_code)
+                search_criteria.withProject().withCode().thatEquals(project_code)
             else:
                 search_criteria.withoutProject()
 
