@@ -1,6 +1,7 @@
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames as ComponentNames
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider as CommonServiceProvider
 import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureException
+import base64
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -54,7 +55,68 @@ def process(context, parameters):
         result = removeUserManagementMaintenanceTaskReport(context, parameters)
     elif method == "importSamples":
         result = importSamples(context, parameters)
+    elif method == "getSamplesImportTemplate":
+        result = getSamplesImportTemplate(context, parameters)
     return result;
+
+def getSamplesImportTemplate(context, parameters):
+    from java.io import ByteArrayOutputStream
+    from org.apache.poi.xssf.usermodel import XSSFWorkbook
+    from org.apache.poi.ss.usermodel import IndexedColors
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleTypeFetchOptions
+
+    allowedSampleTypes = [EntityTypePermId(code) for code in parameters.get("allowedSampleTypes")]
+    importMode = parameters.get("importMode")
+    sessionToken = context.getSessionToken()
+    api = context.getApplicationService()
+    fetchOptions = SampleTypeFetchOptions()
+    fetchOptions.withPropertyAssignments().withPropertyType()
+    sampleTypes = api.getSampleTypes(sessionToken, allowedSampleTypes, fetchOptions)
+    workbook = XSSFWorkbook()
+    sheet = workbook.createSheet()
+    row_index = 0
+    for sampleTypeId in allowedSampleTypes:
+        row = sheet.createRow(row_index)
+        cell = row.createCell(0)
+        cell.setCellValue("SAMPLE")
+        row = sheet.createRow(row_index + 1)
+        cell = row.createCell(0)
+        cell.setCellValue("Sample Type")
+        row = sheet.createRow(row_index + 2)
+        cell = row.createCell(0)
+        cell.setCellValue(sampleTypeId.getPermId())
+        row = sheet.createRow(row_index + 3)
+        cell = row.createCell(0)
+        cell.setCellValue("$")
+        cell_index = 1
+        if importMode == "UPDATE":
+            cell = row.createCell(cell_index)
+            cell.setCellValue("Identifier")
+            cell_index += 1
+        cell = row.createCell(cell_index)
+        cell.setCellValue("Code")
+        cell_index += 1
+        cell = row.createCell(cell_index)
+        cell.setCellValue("Experiment")
+        cell_index += 1
+        cell = row.createCell(cell_index)
+        cell.setCellValue("Project")
+        cell_index += 1
+        cell = row.createCell(cell_index)
+        cell.setCellValue("Space")
+        cell_index += 1
+        cell = row.createCell(cell_index)
+        cell.setCellValue("Parents")
+        cell_index += 1
+        for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
+            cell = row.createCell(cell_index)
+            cell.setCellValue(propertyAssignment.getPropertyType().getLabel())
+            cell_index += 1
+        row_index += 5
+    baos = ByteArrayOutputStream()
+    workbook.write(baos)
+    return baos.toByteArray()
 
 def importSamples(context, parameters):
     from org.apache.commons.io import IOUtils

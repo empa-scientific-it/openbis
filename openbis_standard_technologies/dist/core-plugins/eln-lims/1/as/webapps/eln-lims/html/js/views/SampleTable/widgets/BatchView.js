@@ -29,6 +29,26 @@ function BatchView(controller, model) {
         $window.append($('<legend>').append(this._model.title));
 
         $window.append("Allowed " + ELNDictionary.sample + " types: " + this._model.allowedSampleTypes.join(", "));
+        
+        var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
+        var $templateLink = $("<a>").text("Download");
+        $templateLink.on("click", function() {
+            var allowedSampleTypes = _this._model.allowedSampleTypes;
+            var importMode = _this._model.linkType;
+            mainController.serverFacade.getSamplesImportTemplate(allowedSampleTypes, importMode, function(result) {
+                var link = document.createElement('a');
+                var mimeType = "application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                link.href = "data:" + mimeType + ";base64," + result;
+                link.download = "SAMPLE-" + importMode + "-" + allowedSampleTypes.join("-") + "-template.xlsx";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+        $component.append($templateLink);
+        var $linkGroup = FormUtil.getFieldForComponentWithLabel($component, 'Template');
+        $window.append($linkGroup);
+        
         this._fileChooser.change(function(event) {
             _this._model.file = _this._fileChooser[0].files[0];
         });
