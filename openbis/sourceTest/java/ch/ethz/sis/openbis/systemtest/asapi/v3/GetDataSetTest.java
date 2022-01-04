@@ -919,11 +919,17 @@ public class GetDataSetTest extends AbstractDataSetTest
         Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions);
         DataSet dataSet = map.get(id);
 
-        assertEquals(dataSet.getHistory().size(), 1);
+        assertEquals(dataSet.getHistory().size(), 2);
         assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE,
                 dataSet.getRegistrationDate(), null);
 
         assertEquals(dataSet.getLinkedData().getContentCopies().size(), 1);
+        ContentCopyHistoryEntry entry = (ContentCopyHistoryEntry) dataSet.getHistory().get(1);
+        assertEquals(entry.getPath(), contentCopyCreation.getPath());
+        assertEquals(entry.getGitCommitHash(), contentCopyCreation.getGitCommitHash());
+        assertEquals(entry.getExternalDmsAddress(), "sprint:/path/to/location");
+        assertEquals(entry.getValidFrom(), dataSet.getRegistrationDate());
+        assertEquals(entry.getValidTo(), null);
 
         // when - remove content copy
         DataSetUpdate update = new DataSetUpdate();
@@ -941,18 +947,16 @@ public class GetDataSetTest extends AbstractDataSetTest
         dataSet = map.get(id);
 
         assertEquals(dataSet.getHistory().size(), 2);
-
         assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE,
                 dataSet.getRegistrationDate(), null);
 
         assertEquals(dataSet.getLinkedData().getContentCopies().size(), 0);
-
-        ContentCopyHistoryEntry entry1 = (ContentCopyHistoryEntry) dataSet.getHistory().get(1);
-        assertEquals(entry1.getPath(), contentCopyCreation.getPath());
-        assertEquals(entry1.getGitCommitHash(), contentCopyCreation.getGitCommitHash());
-        assertEquals(entry1.getExternalDmsAddress(), "sprint:/path/to/location");
-        assertEquals(entry1.getValidFrom(), dataSet.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), dataSet.getModificationDate());
+        entry = (ContentCopyHistoryEntry) dataSet.getHistory().get(1);
+        assertEquals(entry.getPath(), contentCopyCreation.getPath());
+        assertEquals(entry.getGitCommitHash(), contentCopyCreation.getGitCommitHash());
+        assertEquals(entry.getExternalDmsAddress(), "sprint:/path/to/location");
+        assertEquals(entry.getValidFrom(), dataSet.getRegistrationDate());
+        assertEquals(entry.getValidTo(), dataSet.getModificationDate());
 
         v3api.logout(sessionToken);
     }

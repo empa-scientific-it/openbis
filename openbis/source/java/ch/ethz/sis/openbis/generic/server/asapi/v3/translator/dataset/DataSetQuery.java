@@ -153,7 +153,7 @@ public interface DataSetQuery extends ObjectQuery
                     + "dsch.git_repository_id as gitRepositoryId, dsch.edms_id as externalDmsId, dsch.edms_code as externalDmsCode, dsch.edms_label as externalDmsLabel, "
                     + "dsch.edms_address as externalDmsAddress, dsch.pers_id_author as authorId, dsch.valid_from_timestamp as validFrom, dsch.valid_until_timestamp as validTo "
                     + "from data_set_copies_history dsch "
-                    + "where dsch.valid_until_timestamp is not null and dsch.data_id = any(?{1})", parameterBindings = {
+                    + "where dsch.data_id = any(?{1})", parameterBindings = {
             LongSetMapper.class
     }, fetchSize = FETCH_SIZE)
     public List<HistoryContentCopyRecord> getContentCopyHistory(LongSet dataSetIds);
