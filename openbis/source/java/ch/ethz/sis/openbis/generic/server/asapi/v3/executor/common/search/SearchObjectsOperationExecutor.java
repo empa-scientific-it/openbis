@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
@@ -39,13 +39,13 @@ public abstract class SearchObjectsOperationExecutor<OBJECT, OBJECT_PE, CRITERIA
     protected abstract ITranslator<OBJECT_PE, OBJECT, FETCH_OPTIONS> getTranslator();
 
     @Override
-    protected final List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    protected List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         return getExecutor().search(context, criteria);
     }
 
     @Override
-    protected final Map<OBJECT_PE, OBJECT> doTranslate(final TranslationContext translationContext, final Collection<OBJECT_PE> objectPes,
+    protected Map<OBJECT_PE, OBJECT> doTranslate(final TranslationContext translationContext, final Collection<OBJECT_PE> objectPes,
             final FETCH_OPTIONS fetchOptions)
     {
         return getTranslator().translate(translationContext, objectPes, fetchOptions);

@@ -64,4 +64,8 @@ public interface IOperationExecutionConfig
 
     int getMarkTimedOutOrDeletedTaskInterval();
 
+    String getCacheClearanceTaskName();
+
+    int getCacheClearanceTaskInterval();
+
 }

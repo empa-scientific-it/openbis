@@ -59,6 +59,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleTechIdByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;

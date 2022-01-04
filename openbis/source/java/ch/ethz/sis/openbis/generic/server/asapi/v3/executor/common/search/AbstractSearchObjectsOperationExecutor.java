@@ -16,33 +16,49 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search;
 
-import java.util.*;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.Sorting;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchObjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchObjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.ISearchCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheCleanupListener;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheEntry;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICache;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
@@ -52,18 +68,19 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         implements ISearchObjectsOperationExecutor
 {
 
-    private static final String[] SORTS_TO_IGNORE = new String[] {
-            EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE
-    };
+    private static final String[] SORTS_TO_IGNORE = new String[]
+            {
+                    EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE
+            };
 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractSearchObjectsOperationExecutor.class);
 
     @Autowired
-    protected ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> cache;
+    private AuthorizationConfig authorizationConfig;
 
     @Autowired
-    private AuthorizationConfig authorizationConfig;
+    private ICacheManager cacheManager;
 
     protected abstract List<OBJECT_PE> doSearch(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions);
 
@@ -95,9 +112,11 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return getOperationResult(searchResult);
     }
 
-    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria,
+            FETCH_OPTIONS fetchOptions)
     {
-        CacheMode cacheMode = fetchOptions.getCacheMode();
+        final CacheMode cacheMode = getCacheManager().getCacheClass() != null ? fetchOptions.getCacheMode()
+                : CacheMode.NO_CACHE;
         OPERATION_LOG.info("Cache mode: " + cacheMode);
 
         if (CacheMode.NO_CACHE.equals(cacheMode))
@@ -105,29 +124,56 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
             return doSearchAndTranslate(context, criteria, fetchOptions);
         } else if (CacheMode.CACHE.equals(cacheMode) || CacheMode.RELOAD_AND_CACHE.equals(cacheMode))
         {
-            SearchCacheEntry<OBJECT> entry = getCacheEntry(context, criteria, fetchOptions);
-            populateCacheEntry(context, criteria, fetchOptions, entry);
-            return entry.getObjects();
+            final Set<OBJECT_PE> ids;
+
+            synchronized (context.getSession())
+            {
+                final Set<OBJECT_PE> cachedIds = getCacheEntry(context, criteria, fetchOptions);
+
+                if (cachedIds == null)
+                {
+                    ids = new LinkedHashSet<>(doSearch(context, criteria, fetchOptions));
+                    populateCache(context, criteria, Collections.unmodifiableSet(ids));
+                } else
+                {
+                    OPERATION_LOG.info("Found cache entry " + cachedIds.hashCode() +
+                            " that contains search result with " + cachedIds.size() + " object(s).");
+                    ids = cachedIds;
+                }
+            }
+
+            return doTranslate(context, fetchOptions, ids);
         } else
         {
             throw new IllegalArgumentException("Unsupported cache mode: " + cacheMode);
         }
     }
 
+    protected void populateCache(final IOperationContext context, final CRITERIA criteria, final Collection<OBJECT_PE> ids)
+    {
+        final String key = getMD5Hash(criteria);
+
+        final ICache<Object> cache = getCacheManager().getCache(context);
+        cache.put(key, ids);
+    }
+
     protected Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         OPERATION_LOG.info("Searching...");
-
-        List<OBJECT_PE> ids = doSearch(context, criteria, fetchOptions);
-
+        final Collection<OBJECT_PE> ids = doSearch(context, criteria, fetchOptions);
         OPERATION_LOG.info("Found " + ids.size() + " object id(s).");
 
-        TranslationContext translationContext = new TranslationContext(context.getSession());
-        Map<OBJECT_PE, OBJECT> idToObjectMap = doTranslate(translationContext, ids, fetchOptions);
-        Collection<OBJECT> objects = idToObjectMap.values();
+        return doTranslate(context, fetchOptions, ids);
+    }
+
+    private Collection<OBJECT> doTranslate(final IOperationContext context, final FETCH_OPTIONS fetchOptions,
+            final Collection<OBJECT_PE> ids)
+    {
+        final TranslationContext translationContext = new TranslationContext(context.getSession());
+        final Map<OBJECT_PE, OBJECT> idToObjectMap = doTranslate(translationContext, ids, fetchOptions);
+        final Collection<OBJECT> objects = idToObjectMap.values();
 
         OPERATION_LOG.info("Translated " + objects.size() + " object(s).");
-
         return objects;
     }
 
@@ -146,79 +192,46 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return new ArrayList<OBJECT>(objects);
     }
 
-    private SearchCacheEntry<OBJECT> getCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    private <T> Set<T> getCacheEntry(final IOperationContext context, final CRITERIA criteria,
+            final FETCH_OPTIONS fetchOptions)
     {
-        SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
-                new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
-        SearchCacheEntry<OBJECT> entry = null;
+        final String key = getMD5Hash(criteria);
 
+        final int sessionHashCode = context.getSession().hashCode();
         if (OPERATION_LOG.isDebugEnabled())
         {
-            OPERATION_LOG.debug("Will try to lock on session " + context.getSession().hashCode());
+            OPERATION_LOG.debug("Will try to lock on session " + sessionHashCode);
         }
 
+        final Set<T> entry;
         synchronized (context.getSession())
         {
             if (OPERATION_LOG.isDebugEnabled())
             {
-                OPERATION_LOG.debug("Locked on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Locked on session " + sessionHashCode);
             }
+
+            final ICache<Object> cache = getCacheManager().getCache(context);
 
             if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
             {
                 cache.remove(key);
             }
 
-            entry = cache.get(key);
+            entry = (Set<T>) cache.get(key);
 
             if (entry == null)
             {
-                entry = new SearchCacheEntry<OBJECT>();
-                cache.put(key, entry);
-                context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS>(cache, key));
+                context.getSession().addCleanupListener(new SearchCacheCleanupListener(cache, key));
             }
 
             if (OPERATION_LOG.isDebugEnabled())
             {
-                OPERATION_LOG.debug("Released lock on session " + context.getSession().hashCode());
+                OPERATION_LOG.debug("Released lock on session " + sessionHashCode);
             }
         }
 
         return entry;
-    }
-
-    private void populateCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions, SearchCacheEntry<OBJECT> entry)
-    {
-        if (OPERATION_LOG.isDebugEnabled())
-        {
-            OPERATION_LOG.debug("Will try to lock on cache entry " + entry.hashCode());
-        }
-
-        synchronized (entry)
-        {
-            if (OPERATION_LOG.isDebugEnabled())
-            {
-                OPERATION_LOG.debug("Locked on cache entry " + entry.hashCode());
-            }
-
-            if (entry.getObjects() == null)
-            {
-                entry.setObjects(doSearchAndTranslate(context, criteria, fetchOptions));
-                SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
-                        new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
-                // put the entry to the cache again to trigger the size recalculation
-                cache.put(key, entry);
-            } else
-            {
-                OPERATION_LOG.info("Found cache entry " + entry.hashCode() + " that contains search result with " + entry.getObjects().size()
-                        + " object(s).");
-            }
-
-            if (OPERATION_LOG.isDebugEnabled())
-            {
-                OPERATION_LOG.debug("Released lock on cache entry " + entry.hashCode());
-            }
-        }
     }
 
     public Collection<Long> executeDirectSQLSearchForIds(final PersonPE personPE,
@@ -227,8 +240,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         final AuthorisationInformation authorisationInformation = AuthorisationInformation.getInstance(personPE,
                 authorizationConfig);
         final Long userId = personPE.getId();
-        final Set<Long> allResultsIds = getSearchManager().searchForIDs(userId, authorisationInformation, criteria,
-                null, ID_COLUMN);
+        final Set<Long> allResultsIds = performDirectSearch(criteria, authorisationInformation, userId);
         return sortAndPage(allResultsIds, fetchOptions);
     }
 
@@ -247,17 +259,11 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
             throw new IllegalArgumentException("Fetch options cannot be null.");
         }
 
-        final PersonPE personPE = context.getSession().tryGetPerson();
-        final AuthorisationInformation authorisationInformation = AuthorisationInformation.getInstance(personPE,
-                authorizationConfig);
+        Set<Long> ids = getIds(context, criteria, fetchOptions);
 
-        final Long userId = personPE.getId();
-        final TranslationContext translationContext = new TranslationContext(context.getSession());
-
-        final Set<Long> allResultsIds = getSearchManager().searchForIDs(userId, authorisationInformation, criteria,
-                null, ID_COLUMN);
-        final Collection<Long> pagedResultIds = sortAndPage(allResultsIds, fetchOptions);
+        final Collection<Long> pagedResultIds = sortAndPage(ids, fetchOptions);
         final Collection<OBJECT_PE> pagedResultPEs = getSearchManager().map(pagedResultIds);
+        final TranslationContext translationContext = new TranslationContext(context.getSession());
         // TODO: doTranslate() should only filter nested objects of the results (parents, children, components...).
         final Map<OBJECT_PE, OBJECT> pagedResultV3DTOs = doTranslate(translationContext, pagedResultPEs, fetchOptions);
 
@@ -277,8 +283,66 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         // Sorting and paging parents and children in a "conventional" way.
         new SortAndPage().nest(objectResults, criteria, fetchOptions);
 
-        final SearchResult<OBJECT> searchResult = new SearchResult<>(objectResults, allResultsIds.size());
+        final SearchResult<OBJECT> searchResult = new SearchResult<>(objectResults, ids.size());
         return getOperationResult(searchResult);
+    }
+
+    private Set<Long> getIds(final IOperationContext context, final CRITERIA criteria, final FETCH_OPTIONS fetchOptions)
+    {
+        final PersonPE personPE = context.getSession().tryGetPerson();
+        final AuthorisationInformation authorisationInformation = AuthorisationInformation.getInstance(personPE,
+                authorizationConfig);
+
+        final Long userId = personPE.getId();
+
+        final CacheMode cacheMode = getCacheManager().getCacheClass() != null ? fetchOptions.getCacheMode()
+                : CacheMode.NO_CACHE;
+        OPERATION_LOG.info("Cache mode: " + cacheMode);
+
+        if (CacheMode.NO_CACHE.equals(cacheMode))
+        {
+            return performDirectSearch(criteria, authorisationInformation, userId);
+        } else if (CacheMode.CACHE.equals(cacheMode) || CacheMode.RELOAD_AND_CACHE.equals(cacheMode))
+        {
+            Set<Long> ids = getCacheEntry(context, criteria, fetchOptions);
+            if (ids == null)
+            {
+                ids = performDirectSearch(criteria, authorisationInformation, userId);
+                final String key = getMD5Hash(criteria);
+
+                final ICache<Object> cache = getCacheManager().getCache(context);
+                // put the entry to the cache again to trigger the size recalculation
+                cache.put(key, Collections.unmodifiableSet(ids));
+            } else
+            {
+                OPERATION_LOG.info("Found cache entry " + ids.hashCode() + " that contains search result with "
+                        + ids.size() + " object(s).");
+            }
+            return ids;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported cache mode: " + cacheMode);
+        }
+    }
+
+    protected static String getMD5Hash(Object criteria)
+    {
+        try
+        {
+            final MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(criteria.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest).toUpperCase();
+        } catch (final NoSuchAlgorithmException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
+    }
+
+    private Set<Long> performDirectSearch(final CRITERIA criteria,
+            final AuthorisationInformation authorisationInformation, final Long userId)
+    {
+        return getSearchManager().searchForIDs(userId, authorisationInformation, criteria, null, ID_COLUMN);
     }
 
     private Collection<Long> sortAndPage(final Set<Long> ids, final FETCH_OPTIONS fetchOptions)
@@ -338,6 +402,16 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
     private static void throwIllegalArgumentException(final String message) throws RuntimeException {
         throw new IllegalArgumentException(message);
+    }
+
+    public ICacheManager getCacheManager()
+    {
+        return cacheManager;
+    }
+
+    protected void setCacheManager(final ICacheManager cacheManager)
+    {
+        this.cacheManager = cacheManager;
     }
 
 }

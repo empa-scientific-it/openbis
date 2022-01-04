@@ -136,6 +136,7 @@ public final class ClassUtils
         assert superClazz != null : "Missing super class";
         assert clazz != null : "Missing class name";
 
+        final Exception exception;
         try
         {
             assert clazz.isInterface() == false : "Interface '" + clazz.getName()
@@ -160,17 +161,20 @@ public final class ClassUtils
             return constructor.newInstance(arguments);
         } catch (final InstantiationException ex)
         {
+            exception = ex;
         } catch (final IllegalAccessException ex)
         {
+            exception = ex;
         } catch (final InvocationTargetException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
         } catch (final NoSuchMethodException ex)
         {
+            exception = ex;
         }
-        throw new IllegalArgumentException(String.format(
-                "Cannot instantiate class '%s' with given arguments '%s'.", clazz.getName(), Arrays
-                        .asList(arguments)));
+
+        throw new IllegalArgumentException(String.format("Cannot instantiate class '%s' with given arguments '%s'.",
+                clazz.getName(), Arrays.asList(arguments)), exception);
     }
 
     /**

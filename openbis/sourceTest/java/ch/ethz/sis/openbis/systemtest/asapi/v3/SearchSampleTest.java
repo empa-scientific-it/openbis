@@ -204,7 +204,18 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
         sampleSearchCriteria.withCode().thatEndsWith("P");
-        testSearch(TEST_SPACE_USER, sampleSearchCriteria, "/DP", "/MP");
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final List<Sample> samples1 = searchSamples(sessionToken, sampleSearchCriteria, new SampleFetchOptions());
+        assertSampleIdentifiers(samples1, "/DP", "/MP");
+
+        final List<Sample> samples2 = searchSamples(sessionToken, sampleSearchCriteria, new SampleFetchOptions());
+        assertSampleIdentifiers(samples2, "/DP", "/MP");
+
+        final List<Sample> samples3 = searchSamples(sessionToken, sampleSearchCriteria, new SampleFetchOptions());
+        assertSampleIdentifiers(samples3, "/DP", "/MP");
+
+        v3api.logout(sessionToken);
     }
 
     @Test

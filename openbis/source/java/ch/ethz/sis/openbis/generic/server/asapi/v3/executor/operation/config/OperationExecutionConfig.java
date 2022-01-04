@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.config;
 
+import static org.apache.commons.io.FileUtils.ONE_KB;
+
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -67,6 +69,8 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     private static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_PREFIX = STATE_UPDATE_PREFIX + "mark-failed-after-server-restart-task.";
 
+    private static final String CACHE_PREFIX = PREFIX + "cache.";
+
     // properties
 
     public static final String STORE_PATH = STORE_PREFIX + "path";
@@ -105,6 +109,18 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
     public static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME = MARK_FAILED_AFTER_SERVER_RESTART_TASK_PREFIX + "name";
 
+    public static final String CACHE_CLEARANCE_TASK_NAME = CACHE_PREFIX + "clearance-task-name";
+
+    public static final String CACHE_CLEARANCE_TASK_INTERVAL = CACHE_PREFIX + "timeout-check-interval";
+
+    public static final String CACHE_CLEARANCE_TIMEOUT = CACHE_PREFIX + "timeout";
+
+    public static final String CACHE_CLASS = CACHE_PREFIX + "class";
+
+    public static final String CACHE_DIRECTORY = CACHE_PREFIX + "directory";
+
+    public static final String CACHE_CAPACITY = CACHE_PREFIX + "capacity";
+
     // defaults
 
     private static final String STORE_PATH_DEFAULT = "operation-execution-store";
@@ -142,6 +158,16 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     private static final int MARK_TIMED_OUT_OR_DELETED_TASK_INTERVAL_DEFAULT = 300;
 
     private static final String MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME_DEFAULT = "operation-execution-mark-failed-after-server-restart-task";
+
+    private static final String CACHE_CLEARANCE_TASK_NAME_DEFAULT = "cache-clearance-task";
+
+    private static final int CACHE_CLEARANCE_TASK_INTERVAL_DEFAULT = 300;
+
+    public static final int CACHE_CLEARANCE_TIMEOUT_DEFAULT = 3600;
+
+    public static final int CACHE_CAPACITY_DEFAULT = (int) (10 * ONE_KB);
+
+    public static final String CACHE_DIRECTORY_DEFAULT = "targets/sessionWorkspace/cache";
 
     // fields
 
@@ -185,6 +211,10 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     private String markTimedOutOrDeletedTaskName;
 
     private int markTimedOutOrDeletedTaskInterval;
+
+    private String cacheClearanceTaskName;
+
+    private int cacheClearanceTaskInterval;
 
     @PostConstruct
     private void init()
@@ -254,6 +284,13 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
 
         markFailedAfterServerRestartTaskName = getStringPropertyOrDefault(properties, MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME,
                 MARK_FAILED_AFTER_SERVER_RESTART_TASK_NAME_DEFAULT);
+
+        cacheClearanceTaskName =
+                getStringPropertyOrDefault(properties, CACHE_CLEARANCE_TASK_NAME, CACHE_CLEARANCE_TASK_NAME_DEFAULT);
+
+        cacheClearanceTaskInterval = getIntegerPropertyOrDefault(properties, CACHE_CLEARANCE_TASK_INTERVAL,
+                CACHE_CLEARANCE_TASK_INTERVAL_DEFAULT);
+        checkPositiveProperty(properties, CACHE_CLEARANCE_TASK_INTERVAL, cacheClearanceTaskInterval);
 
     }
 
@@ -402,6 +439,19 @@ public class OperationExecutionConfig implements IOperationExecutionConfig
     {
         init();
         return markTimedOutOrDeletedTaskInterval;
+    }
+
+    @Override
+    public String getCacheClearanceTaskName()
+    {
+        init();
+        return cacheClearanceTaskName;
+    }
+
+    @Override public int getCacheClearanceTaskInterval()
+    {
+        init();
+        return cacheClearanceTaskInterval;
     }
 
     private static int getAvailabilityTimeOrDefault(Integer availabilityTimeOrNull, int availabilityTimeDefault, int availabilityTimeMax)

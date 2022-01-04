@@ -38,6 +38,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.ICacheManager;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionActionListener;
@@ -180,12 +182,16 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private IApplicationServerApi v3Api;
 
     protected String CISDHelpdeskEmail;
+
+    @Autowired
+    private ICacheManager cacheManager;
     
     private ISessionActionListener sessionActionListener = new ISessionActionListener()
     {
         @Override
         public void sessionClosed(String sessionToken)
         {
+            cacheManager.clearCacheOfUser(sessionToken);
             logout(sessionToken);
         }
     };
@@ -232,6 +238,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     public void setSessionWorkspaceProvider(ISessionWorkspaceProvider sessionWorkspaceProvider)
     {
         this.sessionWorkspaceProvider = sessionWorkspaceProvider;
+    }
+
+    // For unit tests - in production Spring will inject this object.
+    public void setCacheManager(final ICacheManager cacheManager)
+    {
+        this.cacheManager = cacheManager;
     }
 
     // For unit tests - in production Spring will inject this object.
@@ -433,6 +445,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         try
         {
+            cacheManager.clearCacheOfUser(sessionToken);
             sessionManager.closeSession(sessionToken);
             sessionWorkspaceProvider.deleteSessionWorkspace(sessionToken);
             SessionFactory.cleanUpSessionOnDataStoreServers(sessionToken,
