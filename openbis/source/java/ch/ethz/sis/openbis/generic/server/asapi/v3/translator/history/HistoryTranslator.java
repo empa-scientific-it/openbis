@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -84,6 +85,7 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
             for (PropertyRecord currentProperty : currentProperties)
             {
                 HistoryPropertyRecord currentPropertyRecord = new HistoryPropertyRecord();
+                currentPropertyRecord.id = currentProperty.id;
                 currentPropertyRecord.authorId = currentProperty.authorId;
                 currentPropertyRecord.validFrom = currentProperty.modificationTimestamp;
                 currentPropertyRecord.validTo = null;
@@ -180,7 +182,14 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
             Map<Long, Person> authorMap,
             HistoryEntryFetchOptions fetchOptions)
     {
-        for (HistoryPropertyRecord record : records)
+        List<? extends HistoryPropertyRecord> sortedRecords = new ArrayList<>(records);
+
+        sortedRecords.sort(Comparator.comparing(HistoryPropertyRecord::getValidFrom)
+                .thenComparing(HistoryPropertyRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HistoryPropertyRecord::getPropertyCode)
+                .thenComparing(HistoryPropertyRecord::getId));
+
+        for (HistoryPropertyRecord record : sortedRecords)
         {
             List<HistoryEntry> entries = entriesMap.get(record.objectId);
 
@@ -236,7 +245,15 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
     private void createRelationshipEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRelationshipRecord> records,
             Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
     {
-        for (HistoryRelationshipRecord record : records)
+        List<? extends HistoryRelationshipRecord> sortedRecords = new ArrayList<>(records);
+
+        sortedRecords.sort(Comparator.comparing(HistoryRelationshipRecord::getValidFrom)
+                .thenComparing(HistoryRelationshipRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HistoryRelationshipRecord::getRelationType)
+                .thenComparing(HistoryRelationshipRecord::getRelatedObjectId)
+                .thenComparing(HistoryRelationshipRecord::getId));
+
+        for (HistoryRelationshipRecord record : sortedRecords)
         {
             List<HistoryEntry> entries = entriesMap.get(record.objectId);
 

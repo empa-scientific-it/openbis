@@ -56,7 +56,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.ContentCopyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
@@ -863,13 +862,8 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
 
         v3api.logout(sessionToken);
     }
@@ -898,17 +892,9 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getPropertyName(), "COMMENT");
-        assertEquals(entry1.getPropertyValue(), "new comment");
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertPropertyHistory(history.get(1), "COMMENT", "new comment");
+        assertRelationshipHistory(history.get(2), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
 
         v3api.logout(sessionToken);
     }
@@ -935,10 +921,7 @@ public class GetDataSetTest extends AbstractDataSetTest
         DataSet dataSet = map.get(id);
 
         assertEquals(dataSet.getHistory().size(), 1);
-
-        RelationHistoryEntry entry = (RelationHistoryEntry) dataSet.getHistory().get(0);
-        assertEquals(entry.getRelationType(), DataSetRelationType.SAMPLE);
-        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-9"));
+        assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE);
 
         assertEquals(dataSet.getLinkedData().getContentCopies().size(), 1);
 
@@ -1013,21 +996,10 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 4);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.EXPERIMENT);
-        assertEquals(entry2.getRelatedObjectId(), new ExperimentPermId("200811050951882-1028"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.EXPERIMENT);
-        assertEquals(entry3.getRelatedObjectId(), new ExperimentPermId("200811050940555-1032"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(2), new ExperimentPermId("200811050951882-1028"), DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(3), new ExperimentPermId("200811050940555-1032"), DataSetRelationType.EXPERIMENT);
     }
 
     @Test
@@ -1046,21 +1018,10 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 4);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.SAMPLE);
-        assertEquals(entry2.getRelatedObjectId(), new SamplePermId("200811050946559-979"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.SAMPLE);
-        assertEquals(entry3.getRelatedObjectId(), new SamplePermId("200811050946559-980"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(2), new SamplePermId("200811050946559-979"), DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(3), new SamplePermId("200811050946559-980"), DataSetRelationType.SAMPLE);
     }
 
     @Test
@@ -1079,21 +1040,10 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 4);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.CONTAINER);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.CONTAINER);
-        assertEquals(entry3.getRelatedObjectId(), new DataSetPermId("CONTAINER_2"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(2), new DataSetPermId("CONTAINER_2"), DataSetRelationType.CONTAINER);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("CONTAINER_1"), DataSetRelationType.CONTAINER);
     }
 
     @Test
@@ -1112,25 +1062,11 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 5);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry0.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("COMPONENT_1B"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("ROOT_CONTAINER"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.COMPONENT);
-        assertEquals(entry3.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-
-        RelationHistoryEntry entry4 = (RelationHistoryEntry) history.get(4);
-        assertEquals(entry4.getRelationType(), DataSetRelationType.COMPONENT);
-        assertEquals(entry4.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
+        assertRelationshipHistory(history.get(0), new DataSetPermId("ROOT_CONTAINER"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(1), new DataSetPermId("COMPONENT_1A"), DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(2), new DataSetPermId("COMPONENT_1B"), DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("COMPONENT_2A"), DataSetRelationType.COMPONENT);
+        assertRelationshipHistory(history.get(4), new DataSetPermId("COMPONENT_1A"), DataSetRelationType.COMPONENT);
     }
 
     @Test
@@ -1149,21 +1085,10 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 4);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "co comment");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("CONTAINER_1"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry3.getRelatedObjectId(), new DataSetPermId("CONTAINER_2"));
+        assertPropertyHistory(history.get(0), "COMMENT", "co comment");
+        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(2), new DataSetPermId("CONTAINER_2"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
     }
 
     @Test
@@ -1182,25 +1107,11 @@ public class GetDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 5);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry0.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("COMPONENT_1B"));
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.PARENT);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("ROOT_CONTAINER"));
-
-        RelationHistoryEntry entry3 = (RelationHistoryEntry) history.get(3);
-        assertEquals(entry3.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry3.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-
-        RelationHistoryEntry entry4 = (RelationHistoryEntry) history.get(4);
-        assertEquals(entry4.getRelationType(), DataSetRelationType.CHILD);
-        assertEquals(entry4.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
+        assertRelationshipHistory(history.get(0), new DataSetPermId("ROOT_CONTAINER"), DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(1), new DataSetPermId("COMPONENT_1A"), DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(2), new DataSetPermId("COMPONENT_1B"), DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("COMPONENT_2A"), DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(4), new DataSetPermId("COMPONENT_1A"), DataSetRelationType.CHILD);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)

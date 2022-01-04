@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -205,7 +206,13 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
     protected void createArbitraryEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRecord> records,
             Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
     {
-        for (HistoryRecord record : records)
+        List<? extends HistoryRecord> sortedRecords = new ArrayList<>(records);
+
+        sortedRecords.sort(Comparator.comparing(HistoryRecord::getValidFrom)
+                .thenComparing(HistoryRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HistoryRecord::getId));
+
+        for (HistoryRecord record : sortedRecords)
         {
             HistoryContentCopyRecord contentCopyRecord = (HistoryContentCopyRecord) record;
             List<HistoryEntry> entries = entriesMap.get(contentCopyRecord.dataSetId);

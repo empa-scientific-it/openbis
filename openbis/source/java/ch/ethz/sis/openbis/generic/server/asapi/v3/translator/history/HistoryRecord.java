@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
 
 import java.util.Date;
+
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectBaseRecord;
 
 public class HistoryRecord extends ObjectBaseRecord
@@ -28,4 +29,13 @@ public class HistoryRecord extends ObjectBaseRecord
 
     public Long authorId;
 
+    public Date getValidFrom()
+    {
+        return validFrom;
+    }
+
+    public Date getValidTo()
+    {
+        return validTo;
+    }
 }

@@ -63,7 +63,7 @@ public interface SampleQuery extends ObjectQuery
 
     // PropertyQueryGenerator was used to generate this query
     @Select(sql =
-            "select p.samp_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, "
+            "select p.id as id, p.samp_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, "
                     + "p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, "
                     + "s.perm_id as sample_perm_id, s.id as sample_id, "
                     + "cvt.code as vocabularyPropertyValue, "
@@ -100,14 +100,14 @@ public interface SampleQuery extends ObjectQuery
 
     // PropertyQueryGenerator was used to generate this query
     @Select(sql =
-            "select ph.samp_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            "select ph.id as id, ph.samp_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
                     + "from sample_properties_history ph "
                     + "join sample_type_property_types etpt on ph.stpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "
                     + "where ph.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet sampleIds);
 
-    @Select(sql = "select srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
+    @Select(sql = "select srh.id as id, srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
             + "srh.entity_kind as entityKind, "
             + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
             + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "

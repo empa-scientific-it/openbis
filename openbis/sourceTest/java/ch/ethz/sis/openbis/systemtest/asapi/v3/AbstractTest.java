@@ -98,6 +98,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.IRelationType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
@@ -942,11 +943,36 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualIds, expectedIds);
     }
 
+    protected void assertPropertyHistory(HistoryEntry entry, String propertyName, String propertyValue)
+    {
+        PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
+        assertEquals(relationEntry.getPropertyName(), propertyName);
+        assertEquals(relationEntry.getPropertyValue(), propertyValue);
+    }
+
+    protected void assertPropertyHistory(HistoryEntry entry, String propertyName, String propertyValue, Date validFrom, Date validTo)
+    {
+        PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
+        assertEquals(relationEntry.getPropertyName(), propertyName);
+        assertEquals(relationEntry.getPropertyValue(), propertyValue);
+        assertEquals(relationEntry.getValidFrom(), validFrom);
+        assertEquals(relationEntry.getValidTo(), validTo);
+    }
+
     protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type)
     {
         RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
         assertEquals(relationEntry.getRelatedObjectId(), id);
         assertEquals(relationEntry.getRelationType(), type);
+    }
+
+    protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type, Date validFrom, Date validTo)
+    {
+        RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
+        assertEquals(relationEntry.getRelatedObjectId(), id);
+        assertEquals(relationEntry.getRelationType(), type);
+        assertEquals(relationEntry.getValidFrom(), validFrom);
+        assertEquals(relationEntry.getValidTo(), validTo);
     }
 
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)

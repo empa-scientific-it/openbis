@@ -48,7 +48,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -811,11 +810,7 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 1);
-        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry.getPropertyValue(), "200811050924898-997");
-        assertEquals(entry.getValidFrom(), sample.getModificationDate());
-        assertNull(entry.getValidTo());
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050924898-997", sample.getModificationDate(), null);
     }
 
     @Test
@@ -850,19 +845,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry0.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry0.getPropertyValue(), "200811050919915-8");
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), sample.getModificationDate());
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry1.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry1.getPropertyValue(), "200811050924898-997");
-        assertEquals(entry1.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry1.getValidTo());
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -893,11 +878,12 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getProperties().toString(), "{}");
         assertEquals(sample.getSampleProperties().toString(), "{}");
+
         List<HistoryEntry> history = sample.getHistory();
-        assertEquals(history.get(0).getAuthor().getUserId(), TEST_USER);
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyName(), propertyType.getPermId());
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyValue(), "200811050919915-8");
         assertEquals(history.size(), 1);
+
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", sample.getRegistrationDate(),
+                sample.getModificationDate());
     }
 
     @Test

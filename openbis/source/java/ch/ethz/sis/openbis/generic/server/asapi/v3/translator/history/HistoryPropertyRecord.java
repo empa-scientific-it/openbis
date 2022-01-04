@@ -34,4 +34,8 @@ public class HistoryPropertyRecord extends HistoryRecord
 
     public String vocabularyPropertyValue;
 
+    public String getPropertyCode()
+    {
+        return propertyCode;
+    }
 }

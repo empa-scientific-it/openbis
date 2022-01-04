@@ -48,8 +48,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -1245,20 +1243,9 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry0.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry0.getPropertyValue(), "200811050919915-8");
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry1.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry1.getPropertyValue(), "200811050924898-997");
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry2.getRelationType(), DataSetRelationType.EXPERIMENT);
-        assertEquals(entry2.getRelatedObjectId(), new ExperimentPermId("201206190940555-1032"));
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8");
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997");
+        assertRelationshipHistory(history.get(2), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT);
     }
 
     @Test
@@ -1293,15 +1280,8 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry0.getPropertyName(), propertyType.getPermId());
-        assertEquals(entry0.getPropertyValue(), "200811050919915-8");
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getAuthor().getUserId(), TEST_USER);
-        assertEquals(entry1.getRelationType(), DataSetRelationType.EXPERIMENT);
-        assertEquals(entry1.getRelatedObjectId(), new ExperimentPermId("201206190940555-1032"));
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8");
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT);
     }
 
     @Test

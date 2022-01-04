@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
@@ -422,9 +421,7 @@ public class GetProjectTest extends AbstractTest
 
         assertEquals(history.size(), 1);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE);
     }
 
     @Test
@@ -441,13 +438,8 @@ public class GetProjectTest extends AbstractTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ProjectRelationType.SPACE);
-        assertEquals(entry1.getRelatedObjectId(), new SpacePermId("TEST-SPACE"));
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE);
+        assertRelationshipHistory(history.get(1), new SpacePermId("TEST-SPACE"), ProjectRelationType.SPACE);
     }
 
     @Test
@@ -486,13 +478,8 @@ public class GetProjectTest extends AbstractTest
         List<HistoryEntry> history = project.getHistory();
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), ProjectRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ProjectRelationType.EXPERIMENT);
-        assertEquals(entry1.getRelatedObjectId(), experimentPermIds.get(0));
+        assertRelationshipHistory(history.get(0), experimentPermIds.get(0), ProjectRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), ProjectRelationType.SPACE);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)

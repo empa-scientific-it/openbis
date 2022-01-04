@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -1391,11 +1390,7 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 1);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry.getValidTo());
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test(enabled = false)
@@ -1452,26 +1447,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "COMMENT");
-        assertEquals(entry0.getPropertyValue(), "comment1");
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), sample.getModificationDate());
-        assertEquals(entry0.getAuthor().getUserId(), TEST_USER);
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getPropertyName(), "COMMENT");
-        assertEquals(entry1.getPropertyValue(), "comment2");
-        assertEquals(entry1.getValidFrom(), sample.getModificationDate());
-        assertNull(entry1.getValidTo());
-        assertEquals(entry1.getAuthor().getUserId(), TEST_USER);
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry2.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry2.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry2.getValidTo());
-        assertEquals(entry2.getAuthor().getUserId(), TEST_USER);
+        assertPropertyHistory(history.get(0), "COMMENT", "comment1", sample.getRegistrationDate(), sample.getModificationDate());
+        assertPropertyHistory(history.get(1), "COMMENT", "comment2", sample.getModificationDate(), null);
+        assertRelationshipHistory(history.get(2), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1504,25 +1482,11 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 5);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), systemPropertyCode);
-        assertEquals(entry0.getPropertyValue(), originalSystemPropertyValue + " [PLATE_GEOMETRY]");
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getPropertyName(), simplePropertyCode);
-        assertEquals(entry1.getPropertyValue(), originalSimplePropertyValue);
-
-        PropertyHistoryEntry entry2 = (PropertyHistoryEntry) history.get(2);
-        assertEquals(entry2.getPropertyName(), systemPropertyCode);
-        assertEquals(entry2.getPropertyValue(), update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]");
-
-        PropertyHistoryEntry entry3 = (PropertyHistoryEntry) history.get(3);
-        assertEquals(entry3.getPropertyName(), simplePropertyCode);
-        assertEquals(entry3.getPropertyValue(), update2.getProperty(simplePropertyCode));
-
-        RelationHistoryEntry entry4 = (RelationHistoryEntry) history.get(4);
-        assertEquals(entry4.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry4.getRelatedObjectId(), creation.getSpaceId());
+        assertPropertyHistory(history.get(0), systemPropertyCode, originalSystemPropertyValue + " [PLATE_GEOMETRY]");
+        assertPropertyHistory(history.get(1), simplePropertyCode, originalSimplePropertyValue);
+        assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]");
+        assertPropertyHistory(history.get(3), simplePropertyCode, update2.getProperty(simplePropertyCode));
+        assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE);
     }
 
     @Test
@@ -1541,17 +1505,10 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), sample.getModificationDate());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry1.getRelatedObjectId(), new SpacePermId("TEST-SPACE"));
-        assertEquals(entry1.getValidFrom(), sample.getModificationDate());
-        assertNull(entry1.getValidTo());
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE,
+                sample.getRegistrationDate(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("TEST-SPACE"), SampleRelationType.SPACE,
+                sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1667,17 +1624,10 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.EXPERIMENT);
-        assertEquals(entry0.getRelatedObjectId(), new ExperimentPermId("200811050951882-1028"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), sample.getModificationDate());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.EXPERIMENT);
-        assertEquals(entry1.getRelatedObjectId(), new ExperimentPermId("200811050952663-1030"));
-        assertEquals(entry1.getValidFrom(), sample.getModificationDate());
-        assertNull(entry1.getValidTo());
+        assertRelationshipHistory(history.get(0), new ExperimentPermId("200811050951882-1028"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050952663-1030"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1722,17 +1672,11 @@ public class GetSampleTest extends AbstractSampleTest
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.EXPERIMENT);
-        assertEquals(entry0.getRelatedObjectId(), new ExperimentPermId("200811050940555-1032"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.DATA_SET);
-        assertEquals(entry1.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-        assertEquals(entry1.getValidFrom(), dataSetAfterUpdate1.getModificationDate());
-        assertEquals(entry1.getValidTo(), dataSetAfterUpdate2.getModificationDate());
+        assertRelationshipHistory(history.get(0), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050940555-1032"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(),
+                null);
     }
 
     @Test
@@ -1752,17 +1696,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.CONTAINER);
-        assertEquals(entry1.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
-        assertEquals(entry1.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CONTAINER, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1782,17 +1718,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.COMPONENT);
-        assertEquals(entry1.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
-        assertEquals(entry1.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.COMPONENT, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1812,17 +1740,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.PARENT);
-        assertEquals(entry1.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
-        assertEquals(entry1.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.PARENT, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1842,17 +1762,10 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry0.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry0.getRelatedObjectId(), new SpacePermId("CISD"));
-        assertEquals(entry0.getValidFrom(), sample.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), SampleRelationType.CHILD);
-        assertEquals(entry1.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
-        assertEquals(entry1.getValidFrom(), sample.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CHILD, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(),
+                null);
     }
 
     private Sample testGetWithHistory(SampleCreation creation, SampleUpdate... updates)

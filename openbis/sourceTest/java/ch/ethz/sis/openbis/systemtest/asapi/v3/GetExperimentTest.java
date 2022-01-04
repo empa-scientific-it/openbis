@@ -51,8 +51,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
@@ -985,17 +983,9 @@ public class GetExperimentTest extends AbstractExperimentTest
 
         assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "a description");
-        assertEquals(entry0.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry1.getRelatedObjectId(), new ProjectPermId("20120814110011738-101"));
-        assertEquals(entry1.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry1.getValidTo());
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test
@@ -1015,23 +1005,10 @@ public class GetExperimentTest extends AbstractExperimentTest
 
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "a description");
-        assertEquals(entry0.getValidFrom(), experiment.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), experiment.getModificationDate());
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry1.getPropertyValue(), "a description 2");
-        assertEquals(entry1.getValidFrom(), experiment.getModificationDate());
-        assertNull(entry1.getValidTo());
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry2.getRelatedObjectId(), new ProjectPermId("20120814110011738-101"));
-        assertEquals(entry2.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry2.getValidTo());
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), experiment.getModificationDate());
+        assertPropertyHistory(history.get(1), "DESCRIPTION", "a description 2", experiment.getModificationDate(), null);
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test(enabled = false)
@@ -1052,23 +1029,11 @@ public class GetExperimentTest extends AbstractExperimentTest
 
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "a description");
-        assertEquals(entry0.getValidFrom(), experiment.getRegistrationDate());
-        assertEquals(entry0.getValidTo(), experiment.getModificationDate());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry1.getRelatedObjectId(), new ProjectPermId("20120814110011738-101"));
-        assertEquals(entry1.getValidFrom(), experiment.getRegistrationDate());
-        assertEquals(entry1.getValidTo(), experiment.getModificationDate());
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry2.getRelatedObjectId(), new ProjectPermId("20120814110011738-103"));
-        assertEquals(entry2.getValidFrom(), experiment.getModificationDate());
-        assertNull(entry2.getValidTo());
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), experiment.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), experiment.getModificationDate());
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-103"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test
@@ -1109,23 +1074,10 @@ public class GetExperimentTest extends AbstractExperimentTest
         List<HistoryEntry> history = experiment.getHistory();
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "a description");
-        assertEquals(entry0.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry1.getRelatedObjectId(), new ProjectPermId("20120814110011738-101"));
-        assertEquals(entry1.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry1.getValidTo());
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), ExperimentRelationType.SAMPLE);
-        assertEquals(entry2.getRelatedObjectId(), samplePermIds.get(0));
-        assertNotNull(entry2.getValidFrom());
-        assertNotNull(entry2.getValidTo());
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), samplePermIds.get(0), ExperimentRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test
@@ -1164,23 +1116,11 @@ public class GetExperimentTest extends AbstractExperimentTest
         List<HistoryEntry> history = experiment.getHistory();
         assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "a description");
-        assertEquals(entry0.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry0.getValidTo());
-
-        RelationHistoryEntry entry1 = (RelationHistoryEntry) history.get(1);
-        assertEquals(entry1.getRelationType(), ExperimentRelationType.PROJECT);
-        assertEquals(entry1.getRelatedObjectId(), new ProjectPermId("20120814110011738-101"));
-        assertEquals(entry1.getValidFrom(), experiment.getRegistrationDate());
-        assertNull(entry1.getValidTo());
-
-        RelationHistoryEntry entry2 = (RelationHistoryEntry) history.get(2);
-        assertEquals(entry2.getRelationType(), ExperimentRelationType.DATA_SET);
-        assertEquals(entry2.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
-        assertEquals(entry2.getValidFrom(), experiment.getRegistrationDate());
-        assertEquals(entry2.getValidTo(), experiment.getModificationDate());
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), new DataSetPermId("COMPONENT_1A"), ExperimentRelationType.DATA_SET,
+                experiment.getRegistrationDate(), experiment.getModificationDate());
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     private Experiment testGetWithHistory(ExperimentCreation creation, ExperimentUpdate update)

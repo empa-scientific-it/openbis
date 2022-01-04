@@ -51,7 +51,7 @@ public interface MaterialQuery extends ObjectQuery
 
     // PropertyQueryGenerator was used to generate this query
     @Select(sql =
-            "select p.mate_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue, cv.code as vocabularyPropertyValueTypeCode "
+            "select p.id as id, p.mate_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue, cv.code as vocabularyPropertyValueTypeCode "
                     + "from material_properties p "
                     + "left join materials m on p.mate_prop_id = m.id "
                     + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
@@ -74,7 +74,7 @@ public interface MaterialQuery extends ObjectQuery
 
     // PropertyQueryGenerator was used to generate this query
     @Select(sql =
-            "select ph.mate_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            "select ph.id as id, ph.mate_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
                     + "from material_properties_history ph "
                     + "join material_type_property_types etpt on ph.mtpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "

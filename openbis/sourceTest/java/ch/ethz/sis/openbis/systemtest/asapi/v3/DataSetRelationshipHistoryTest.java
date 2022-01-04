@@ -140,8 +140,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), sampleId1, DataSetRelationType.SAMPLE);
     }
 
     @Test
@@ -166,8 +166,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId2, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), experimentId2, DataSetRelationType.EXPERIMENT);
     }
 
     @Test
@@ -192,8 +192,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), sampleId2, DataSetRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(1), sampleId1, DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(1), sampleId2, DataSetRelationType.SAMPLE);
     }
 
     @Test
@@ -248,8 +248,9 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), childId, DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(0), childId, DataSetRelationType.CHILD);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+
     }
 
     @Test
@@ -278,8 +279,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), parentId, DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(0), parentId, DataSetRelationType.PARENT);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
     }
 
     @Test
@@ -308,8 +309,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), componentId, DataSetRelationType.COMPONENT);
+        assertRelationshipHistory(history.get(0), componentId, DataSetRelationType.COMPONENT);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
     }
 
     @Test
@@ -338,8 +339,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), containerId, DataSetRelationType.CONTAINER);
+        assertRelationshipHistory(history.get(0), containerId, DataSetRelationType.CONTAINER);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
     }
 
     private DataSetCreation createDataSet(String code)

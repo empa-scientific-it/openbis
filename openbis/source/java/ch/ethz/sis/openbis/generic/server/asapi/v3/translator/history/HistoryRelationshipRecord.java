@@ -30,4 +30,13 @@ public class HistoryRelationshipRecord extends HistoryRecord
 
     public String relatedObjectId;
 
+    public String getRelationType()
+    {
+        return relationType;
+    }
+
+    public String getRelatedObjectId()
+    {
+        return relatedObjectId;
+    }
 }

@@ -24,6 +24,8 @@ import java.util.Date;
 public class PropertyRecord
 {
 
+    public Long id;
+
     public Long objectId;
 
     public Long authorId;

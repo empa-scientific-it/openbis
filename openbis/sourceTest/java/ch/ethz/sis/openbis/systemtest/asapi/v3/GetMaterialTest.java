@@ -27,7 +27,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
@@ -258,9 +257,7 @@ public class GetMaterialTest extends AbstractDataSetTest
         List<HistoryEntry> history = material.getHistory();
         assertEquals(history.size(), 1);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "test virus 1");
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "test virus 1");
 
         v3api.logout(sessionToken);
     }
@@ -289,13 +286,8 @@ public class GetMaterialTest extends AbstractDataSetTest
         List<HistoryEntry> history = material.getHistory();
         assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry0 = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry0.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry0.getPropertyValue(), "test virus 1");
-
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(1);
-        assertEquals(entry1.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry1.getPropertyValue(), "new description");
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "test virus 1");
+        assertPropertyHistory(history.get(1), "DESCRIPTION", "new description");
 
         v3api.logout(sessionToken);
     }
