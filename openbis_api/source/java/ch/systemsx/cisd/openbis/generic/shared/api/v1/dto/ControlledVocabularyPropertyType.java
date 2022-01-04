@@ -84,11 +84,6 @@ public class ControlledVocabularyPropertyType extends PropertyType
         super(initializer);
         terms = initializer.terms;
         vocabulary = initializer.vocabulary;
-        if (terms == null || terms.isEmpty())
-        {
-            throw new IllegalArgumentException(
-                    "A controlled vocabulary property type must have terms");
-        }
     }
 
     public List<VocabularyTerm> getTerms()
