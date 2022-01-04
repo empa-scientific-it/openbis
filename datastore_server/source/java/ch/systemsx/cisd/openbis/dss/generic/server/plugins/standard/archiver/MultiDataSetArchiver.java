@@ -37,7 +37,6 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -56,7 +55,6 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
@@ -476,44 +474,15 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
-        operationLog.info("Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
-        Status status;
-        for (DatasetDescription dataset : dataSets)
+        Map<String, Status> statusMap = MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, operationLog);
+
+        if (needsToWaitForReplication() == false)
         {
-            String dataSetCode = dataset.getDataSetCode();
-            IHierarchicalContent content = null;
-            try
+            for (String dataSetCode : statusMap.keySet())
             {
-                content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
-
-                IHierarchicalContentNode root = content.getRootNode();
-                IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataset.getDataSetCode());
-
-                status =
-                        RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
-                                RsyncArchiver.ChecksumVerificationCondition.IF_AVAILABLE);
-
-                if (status.isError())
-                {
-                    throw new RuntimeException(status.tryGetErrorMessage());
-                }
-            } catch (RuntimeException ex)
-            {
-                operationLog.error("Sanity check for data set " + dataSetCode + " failed: " + ex);
-                throw ex;
-            } finally
-            {
-                if (content != null)
-                {
-                    content.close();
-                }
-            }
-            if (needsToWaitForReplication() == false)
-            {
-                statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
+                statuses.addResult(dataSetCode, statusMap.get(dataSetCode), Operation.ARCHIVE);
             }
         }
-        operationLog.info("Sanity check finished.");
     }
 
     @Override

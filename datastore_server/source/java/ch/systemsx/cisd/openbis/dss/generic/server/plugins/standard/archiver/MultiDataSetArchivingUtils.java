@@ -16,6 +16,18 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import org.apache.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -28,5 +40,47 @@ class MultiDataSetArchivingUtils
     static IMultiDataSetArchiveCleaner createCleaner(Properties properties)
     {
         return new MultiDataSetArchiveCleaner(properties);
+    }
+
+    static Map<String, Status> sanityCheck(IHierarchicalContent archivedContent,
+                                                  List<DatasetDescription> dataSets,
+                                                  ArchiverTaskContext context,
+                                                  Logger logger) {
+        Map<String, Status> statuses = new HashMap<>();
+        logger.info("Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
+        for (DatasetDescription dataSet : dataSets)
+        {
+            String dataSetCode = dataSet.getDataSetCode();
+            IHierarchicalContent content = null;
+            try
+            {
+                content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
+
+                IHierarchicalContentNode root = content.getRootNode();
+                IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataSetCode);
+
+                Status status = RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
+                        RsyncArchiver.ChecksumVerificationCondition.IF_AVAILABLE);
+
+                if (status.isError())
+                {
+                    throw new RuntimeException(status.tryGetErrorMessage());
+                }
+                statuses.put(dataSetCode, status);
+            } catch (RuntimeException ex)
+            {
+                logger.error("Sanity check for data set " + dataSetCode + " failed: " + ex);
+                throw ex;
+            } finally
+            {
+                if (content != null)
+                {
+                    content.close();
+                }
+            }
+        }
+        logger.info("Sanity check finished.");
+
+        return statuses;
     }
 }
