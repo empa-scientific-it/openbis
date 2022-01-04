@@ -54,7 +54,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.Sync
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.EntitySynchronizer;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.SynchronizationContext;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
