@@ -1,13 +1,5 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -20,6 +12,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
@@ -28,8 +21,12 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
@@ -39,7 +36,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
@@ -65,10 +71,18 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private transient IMultiDataSetArchiveCleaner cleaner;
 
+    private IDataSetDirectoryProvider dataSetDirectoryProvider;
+
+    private IHierarchicalContentProvider hierarchicalContentProvider;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
         super.setUp(pluginName, properties);
+
+        IDataStoreServiceInternal dataStoreService = ServiceProvider.getDataStoreService();
+        dataSetDirectoryProvider = dataStoreService.getDataSetDirectoryProvider();
+        hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
 
         cleaner = MultiDataSetArchivingUtils.createCleaner(
                 PropertyParametersUtil.extractSingleSectionProperties(
@@ -136,6 +150,7 @@ public class MultiDataSetDeletionMaintenanceTask
             }
             multiDataSetFileOperationsManager.restoreDataSetsFromContainerInFinalDestination(
                     container.getPath(), notDeletedDataSets);
+            sanityCheck(notDeletedDataSets, container.getPath());
             multiDataSetFileOperationsManager.deleteContainerFromFinalDestination(cleaner, container.getPath());
             multiDataSetFileOperationsManager.deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
             deleteContainer(transaction, container.getId());
@@ -144,6 +159,25 @@ public class MultiDataSetDeletionMaintenanceTask
                 updateDataSetsStatusAndFlags(notDeletedDataSets);
             }
         }
+    }
+
+    private List<DatasetDescription> convertToDataSetDescription(List<SimpleDataSetInformationDTO> notDeletedDataSets) {
+        List<DatasetDescription> list = new ArrayList<>();
+        for (SimpleDataSetInformationDTO simpleDataSet : notDeletedDataSets) {
+            DatasetDescription description = new DatasetDescription();
+            description.setDataSetCode(simpleDataSet.getDataSetCode());
+            // Add to description H5 info for IHierarchicalContent.
+            description.setH5arFolders(simpleDataSet.isH5Folders());
+            description.setH5arFolders(simpleDataSet.isH5ArFolders());
+        }
+        return list;
+    }
+
+    private void sanityCheck(List<SimpleDataSetInformationDTO> notDeletedDataSets, String containerPath) {
+        List<DatasetDescription> dataSet = convertToDataSetDescription(notDeletedDataSets);
+        IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSet);
+        ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, hierarchicalContentProvider);
+        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSet, context, operationLog);
     }
 
     private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets)
