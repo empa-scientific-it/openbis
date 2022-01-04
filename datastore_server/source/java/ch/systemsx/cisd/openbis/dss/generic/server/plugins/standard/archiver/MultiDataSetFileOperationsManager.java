@@ -464,25 +464,20 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     @Override
     public Status deleteContainerFromFinalDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath)
     {
-        try
-        {
-            ArchiveDestination finalDestination = getFinalArchive();
-            File containerInFinalDestination = new File(finalDestination.getDestination(), containerLocalPath);
-            cleaner.delete(containerInFinalDestination);
-            return Status.OK;
-        } catch (ExceptionWithStatus ex)
-        {
-            return ex.getStatus();
-        }
+        return deleteContainerFromDestination(cleaner, containerLocalPath, getFinalArchive());
     }
 
     @Override
     public Status deleteContainerFromFinalReplicatedDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath)
     {
+        return deleteContainerFromDestination(cleaner, containerLocalPath, getFinalReplicatedArchive());
+    }
+
+    protected Status deleteContainerFromDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath, ArchiveDestination destination)
+    {
         try
         {
-            ArchiveDestination finalDestination = getFinalReplicatedArchive();
-            File containerInFinalDestination = new File(finalDestination.getDestination(), containerLocalPath);
+            File containerInFinalDestination = new File(destination.getDestination(), containerLocalPath);
             cleaner.delete(containerInFinalDestination);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
