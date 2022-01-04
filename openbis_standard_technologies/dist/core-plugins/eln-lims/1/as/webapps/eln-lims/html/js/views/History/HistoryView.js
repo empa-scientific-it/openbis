@@ -112,20 +112,10 @@ function HistoryView(controller, model) {
             null,
             false,
             this._model.entity["@type"] + "_HISTORY",
-            true
+            false
         )
 
-        this._dataGrid.init(this._container, [
-            {
-                name: "Compare",
-                action: function (selected) {
-                    if (selected.length !== 2) {
-                        alert("Please select 2 versions to compare")
-                        return
-                    }
-                },
-            },
-        ])
+        this._dataGrid.init(this._container)
 
         this._container.prepend($("<legend>").append("History"))
     }
