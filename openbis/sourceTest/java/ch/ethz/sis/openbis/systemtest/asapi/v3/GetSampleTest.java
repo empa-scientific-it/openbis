@@ -1478,15 +1478,17 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update2 = new SampleUpdate();
         update2.setProperty(simplePropertyCode, "I have been updated");
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update1, update2).getHistory();
+        Sample sample = testGetWithHistory(creation, update1, update2);
+        List<HistoryEntry> history = sample.getHistory();
 
         assertEquals(history.size(), 5);
 
         assertPropertyHistory(history.get(0), systemPropertyCode, originalSystemPropertyValue + " [PLATE_GEOMETRY]");
         assertPropertyHistory(history.get(1), simplePropertyCode, originalSimplePropertyValue);
-        assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]");
-        assertPropertyHistory(history.get(3), simplePropertyCode, update2.getProperty(simplePropertyCode));
-        assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE);
+        assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]",
+                sample.getModificationDate(), null);
+        assertPropertyHistory(history.get(3), simplePropertyCode, update2.getProperty(simplePropertyCode), sample.getModificationDate(), null);
+        assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1672,8 +1674,8 @@ public class GetSampleTest extends AbstractSampleTest
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET, sample.getRegistrationDate(),
-                sample.getModificationDate());
+        assertRelationshipHistory(history.get(0), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET,
+                dataSetAfterUpdate1.getModificationDate(), dataSetAfterUpdate2.getModificationDate());
         assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050940555-1032"), SampleRelationType.EXPERIMENT,
                 sample.getRegistrationDate(),
                 null);

@@ -20,7 +20,6 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -40,7 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -136,12 +135,14 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getExperiments(systemSessionToken, Arrays.asList(experimentId1), fetchOptions).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), sampleId1, DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertRelationshipHistory(history.get(1), sampleId1, DataSetRelationType.SAMPLE, dataSet.getModificationDate(), null);
     }
 
     @Test
@@ -162,12 +163,14 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getExperiments(systemSessionToken, Arrays.asList(experimentId1), fetchOptions).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), experimentId2, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertRelationshipHistory(history.get(1), experimentId2, DataSetRelationType.EXPERIMENT, dataSet.getModificationDate(), null);
     }
 
     @Test
@@ -188,12 +191,14 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getSamples(systemSessionToken, Arrays.asList(sampleId1), fetchOptions).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(sampleDataSet);
+        DataSet dataSet = getDataSetHistory(sampleDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(1), sampleId2, DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE, dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertRelationshipHistory(history.get(1), sampleId2, DataSetRelationType.SAMPLE, dataSet.getModificationDate(), null);
     }
 
     @Test
@@ -214,12 +219,14 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getSamples(systemSessionToken, Arrays.asList(sampleId1), fetchOptions).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(sampleDataSet);
+        DataSet dataSet = getDataSetHistory(sampleDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE, dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getModificationDate(), null);
     }
 
     @Test
@@ -244,13 +251,13 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(childId), new DataSetFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
         assertRelationshipHistory(history.get(0), childId, DataSetRelationType.CHILD);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
-
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
     }
 
     @Test
@@ -275,12 +282,13 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(parentId), new DataSetFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
         assertRelationshipHistory(history.get(0), parentId, DataSetRelationType.PARENT);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
     }
 
     @Test
@@ -305,12 +313,13 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(componentId), new DataSetFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
         assertRelationshipHistory(history.get(0), componentId, DataSetRelationType.COMPONENT);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
     }
 
     @Test
@@ -335,12 +344,13 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getDataSets(systemSessionToken, Arrays.asList(containerId), new DataSetFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getDataSetHistory(experimentDataSet);
+        DataSet dataSet = getDataSetHistory(experimentDataSet);
+        List<HistoryEntry> history = dataSet.getHistory();
 
         // Then
         assertEquals(history.size(), 2);
         assertRelationshipHistory(history.get(0), containerId, DataSetRelationType.CONTAINER);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
     }
 
     private DataSetCreation createDataSet(String code)
@@ -353,11 +363,11 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
         return dataSetCreation;
     }
 
-    private List<RelationHistoryEntry> getDataSetHistory(DataSetPermId dataSetId)
+    private DataSet getDataSetHistory(DataSetPermId dataSetId)
     {
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withHistory();
-        DataSet dataSet = v3api.getDataSets(systemSessionToken, Arrays.asList(dataSetId), fo).get(dataSetId);
-        return dataSet.getHistory().stream().map(e -> (RelationHistoryEntry) e).collect(Collectors.toList());
+        return v3api.getDataSets(systemSessionToken, Arrays.asList(dataSetId), fo).get(dataSetId);
     }
+
 }

@@ -417,11 +417,12 @@ public class GetProjectTest extends AbstractTest
         creation.setCode("PROJECT_WITH_EMPTY_HISTORY");
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        List<HistoryEntry> history = testGetWithHistory(creation, null);
+        Project project = testGetWithHistory(creation, null);
+        List<HistoryEntry> history = project.getHistory();
 
         assertEquals(history.size(), 1);
 
-        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE);
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE, project.getRegistrationDate(), null);
     }
 
     @Test
@@ -434,12 +435,14 @@ public class GetProjectTest extends AbstractTest
         ProjectUpdate update = new ProjectUpdate();
         update.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Project project = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = project.getHistory();
 
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE);
-        assertRelationshipHistory(history.get(1), new SpacePermId("TEST-SPACE"), ProjectRelationType.SPACE);
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE, project.getRegistrationDate(),
+                project.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("TEST-SPACE"), ProjectRelationType.SPACE, project.getModificationDate(), null);
     }
 
     @Test
@@ -479,7 +482,7 @@ public class GetProjectTest extends AbstractTest
         assertEquals(history.size(), 2);
 
         assertRelationshipHistory(history.get(0), experimentPermIds.get(0), ProjectRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), ProjectRelationType.SPACE);
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), ProjectRelationType.SPACE, project.getRegistrationDate(), null);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
@@ -537,7 +540,7 @@ public class GetProjectTest extends AbstractTest
                 "get-projects  PROJECT_IDS('[/CISD/NEMO, 20120814110011738-105]') FETCH_OPTIONS('Project\n    with Experiments\n    with Space\n')");
     }
 
-    private List<HistoryEntry> testGetWithHistory(ProjectCreation creation, ProjectUpdate update)
+    private Project testGetWithHistory(ProjectCreation creation, ProjectUpdate update)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -559,7 +562,7 @@ public class GetProjectTest extends AbstractTest
 
         v3api.logout(sessionToken);
 
-        return project.getHistory();
+        return project;
     }
 
 }

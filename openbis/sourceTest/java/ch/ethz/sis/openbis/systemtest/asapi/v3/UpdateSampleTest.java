@@ -847,7 +847,7 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", sample.getRegistrationDate(),
                 sample.getModificationDate());
-        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", sample.getRegistrationDate(), null);
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", sample.getModificationDate(), null);
     }
 
     @Test

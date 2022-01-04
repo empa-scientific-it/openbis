@@ -1243,9 +1243,11 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 3);
 
-        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8");
-        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997");
-        assertRelationshipHistory(history.get(2), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT);
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", dataSet.getModificationDate(), null);
+        assertRelationshipHistory(history.get(2), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT,
+                dataSet.getRegistrationDate(), null);
     }
 
     @Test
@@ -1280,8 +1282,10 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 2);
 
-        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8");
-        assertRelationshipHistory(history.get(1), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT);
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", dataSet.getRegistrationDate(),
+                dataSet.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("201206190940555-1032"), DataSetRelationType.EXPERIMENT,
+                dataSet.getRegistrationDate(), null);
     }
 
     @Test

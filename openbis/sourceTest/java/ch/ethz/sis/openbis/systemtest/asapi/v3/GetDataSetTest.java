@@ -56,7 +56,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.ContentCopyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
@@ -893,7 +892,7 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(history.size(), 3);
 
         assertPropertyHistory(history.get(0), "COMMENT", "co comment");
-        assertPropertyHistory(history.get(1), "COMMENT", "new comment");
+        assertPropertyHistory(history.get(1), "COMMENT", "new comment", dataSet.getModificationDate(), null);
         assertRelationshipHistory(history.get(2), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
 
         v3api.logout(sessionToken);
@@ -921,7 +920,8 @@ public class GetDataSetTest extends AbstractDataSetTest
         DataSet dataSet = map.get(id);
 
         assertEquals(dataSet.getHistory().size(), 1);
-        assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE,
+                dataSet.getRegistrationDate(), null);
 
         assertEquals(dataSet.getLinkedData().getContentCopies().size(), 1);
 
@@ -942,9 +942,8 @@ public class GetDataSetTest extends AbstractDataSetTest
 
         assertEquals(dataSet.getHistory().size(), 2);
 
-        RelationHistoryEntry entry0 = (RelationHistoryEntry) dataSet.getHistory().get(0);
-        assertEquals(entry0.getRelationType(), DataSetRelationType.SAMPLE);
-        assertEquals(entry0.getRelatedObjectId(), new SamplePermId("200811050919915-9"));
+        assertRelationshipHistory(dataSet.getHistory().get(0), new SamplePermId("200811050919915-9"), DataSetRelationType.SAMPLE,
+                dataSet.getRegistrationDate(), null);
 
         assertEquals(dataSet.getLinkedData().getContentCopies().size(), 0);
 
@@ -952,6 +951,8 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(entry1.getPath(), contentCopyCreation.getPath());
         assertEquals(entry1.getGitCommitHash(), contentCopyCreation.getGitCommitHash());
         assertEquals(entry1.getExternalDmsAddress(), "sprint:/path/to/location");
+        assertEquals(entry1.getValidFrom(), dataSet.getRegistrationDate());
+        assertEquals(entry1.getValidTo(), dataSet.getModificationDate());
 
         v3api.logout(sessionToken);
     }
