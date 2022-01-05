@@ -22,6 +22,8 @@ import java.util.Properties;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -67,6 +69,11 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
     {
         LogInitializer.init();
         openBISService = ServiceProvider.getOpenBISService();
+    }
+
+    protected ISimpleLogger getOperationLogAsSimpleLogger()
+    {
+        return new Log4jSimpleLogger(operationLog);
     }
 
     @Override

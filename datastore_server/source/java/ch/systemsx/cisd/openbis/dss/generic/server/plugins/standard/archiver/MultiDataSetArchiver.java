@@ -474,7 +474,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
-        Map<String, Status> statusMap = MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, operationLog);
+        Map<String, Status> statusMap = MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
+                new Log4jSimpleLogger(operationLog));
 
         if (needsToWaitForReplication() == false)
         {

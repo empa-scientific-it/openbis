@@ -1,5 +1,13 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -7,7 +15,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -38,14 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
@@ -117,11 +116,10 @@ public class MultiDataSetDeletionMaintenanceTask
         File storeRoot = configProvider.getStoreRoot();
         String dataStoreCode = configProvider.getDataStoreCode();
         Set<String> idsOfIncomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
-        Log4jSimpleLogger log4jSimpleLogger = new Log4jSimpleLogger(operationLog);
 
         return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
                 SegmentedStoreUtils.FilterOptions.AVAILABLE_FOR_SHUFFLING,
-                idsOfIncomingShares, simpleFreeSpaceProvider, openBISService, log4jSimpleLogger);
+                idsOfIncomingShares, simpleFreeSpaceProvider, openBISService, getOperationLogAsSimpleLogger());
     }
 
     @Override
@@ -180,7 +178,7 @@ public class MultiDataSetDeletionMaintenanceTask
         List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
         IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSets);
         ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, hierarchicalContentProvider);
-        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, operationLog);
+        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, getOperationLogAsSimpleLogger());
     }
 
     private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets)

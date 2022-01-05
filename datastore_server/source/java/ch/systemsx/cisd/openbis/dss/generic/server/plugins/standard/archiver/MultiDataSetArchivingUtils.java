@@ -16,19 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import org.apache.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Helper methods for multi data set archiving.
@@ -45,9 +46,9 @@ class MultiDataSetArchivingUtils
     static Map<String, Status> sanityCheck(IHierarchicalContent archivedContent,
                                                   List<DatasetDescription> dataSets,
                                                   ArchiverTaskContext context,
-                                                  Logger logger) {
+                                                  ISimpleLogger logger) {
         Map<String, Status> statuses = new HashMap<>();
-        logger.info("Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
+        logger.log(LogLevel.INFO, "Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
         for (DatasetDescription dataSet : dataSets)
         {
             String dataSetCode = dataSet.getDataSetCode();
@@ -69,7 +70,7 @@ class MultiDataSetArchivingUtils
                 statuses.put(dataSetCode, status);
             } catch (RuntimeException ex)
             {
-                logger.error("Sanity check for data set " + dataSetCode + " failed: " + ex);
+                logger.log(LogLevel.ERROR, "Sanity check for data set " + dataSetCode + " failed: " + ex);
                 throw ex;
             } finally
             {
@@ -79,7 +80,7 @@ class MultiDataSetArchivingUtils
                 }
             }
         }
-        logger.info("Sanity check finished.");
+        logger.log(LogLevel.INFO, "Sanity check finished.");
 
         return statuses;
     }
