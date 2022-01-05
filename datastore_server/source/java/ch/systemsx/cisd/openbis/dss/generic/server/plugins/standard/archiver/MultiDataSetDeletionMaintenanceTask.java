@@ -161,9 +161,11 @@ public class MultiDataSetDeletionMaintenanceTask
         }
     }
 
-    private List<DatasetDescription> convertToDataSetDescription(List<SimpleDataSetInformationDTO> notDeletedDataSets) {
+    private List<DatasetDescription> convertToDataSetDescription(List<SimpleDataSetInformationDTO> notDeletedDataSets)
+    {
         List<DatasetDescription> list = new ArrayList<>();
-        for (SimpleDataSetInformationDTO simpleDataSet : notDeletedDataSets) {
+        for (SimpleDataSetInformationDTO simpleDataSet : notDeletedDataSets)
+        {
             DatasetDescription description = new DatasetDescription();
             description.setDataSetCode(simpleDataSet.getDataSetCode());
             // Add to description H5 info for IHierarchicalContent.
@@ -173,11 +175,12 @@ public class MultiDataSetDeletionMaintenanceTask
         return list;
     }
 
-    private void sanityCheck(List<SimpleDataSetInformationDTO> notDeletedDataSets, String containerPath) {
-        List<DatasetDescription> dataSet = convertToDataSetDescription(notDeletedDataSets);
-        IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSet);
+    private void sanityCheck(List<SimpleDataSetInformationDTO> notDeletedDataSets, String containerPath)
+    {
+        List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
+        IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSets);
         ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, hierarchicalContentProvider);
-        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSet, context, operationLog);
+        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, operationLog);
     }
 
     private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets)
