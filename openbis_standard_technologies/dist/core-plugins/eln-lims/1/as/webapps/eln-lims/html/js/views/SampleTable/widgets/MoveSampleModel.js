@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-function MoveSampleModel(samplePermId, successAction) {
-	this.samplePermId = samplePermId;
+function MoveSampleModel(samplePermIdOrIds, successAction) {
+	this.samplePermIds = Array.isArray(samplePermIdOrIds) ? samplePermIdOrIds : [samplePermIdOrIds];
 	this.successAction = successAction;
-	this.sample = null;
+	this.samples = [];
 	this.isNewExperiment = null;
 	this.experimentIdentifier = null;
 	this.experimentType = null;

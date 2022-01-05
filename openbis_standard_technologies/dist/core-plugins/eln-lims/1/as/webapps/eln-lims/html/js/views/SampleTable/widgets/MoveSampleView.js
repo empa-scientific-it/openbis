@@ -27,13 +27,16 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			_this._moveSampleController.move();
 		});
 		
-		$window.append($('<legend>').append("Move " + ELNDictionary.Sample + ""));
-		$window.append(FormUtil.getFieldForLabelWithText("Type", this._moveSampleModel.sample.sampleTypeCode));
-		$window.append(FormUtil.getFieldForLabelWithText("Identifier", this._moveSampleModel.sample.identifier));
-		$window.append(FormUtil.getFieldForLabelWithText("Current " + ELNDictionary.getExperimentDualName() + "", this._moveSampleModel.sample.experimentIdentifierOrNull));
+        var onlyOne = this._moveSampleModel.samples.length == 1;
+		$window.append($('<legend>').append("Move " + (onlyOne ? ELNDictionary.Sample : ELNDictionary.Samples)));
+        if (onlyOne) {
+            $window.append(FormUtil.getFieldForLabelWithText("Type", this._moveSampleModel.samples[0].sampleTypeCode));
+            $window.append(FormUtil.getFieldForLabelWithText("Identifier", this._moveSampleModel.samples[0].identifier));
+        }
+		$window.append(FormUtil.getFieldForLabelWithText("Current " + ELNDictionary.getExperimentDualName(), this._moveSampleModel.samples[0].experimentIdentifierOrNull));
 		$window.append(FormUtil.getFieldForComponentWithLabel(FormUtil.getOptionsRadioButtons("oldOrNewExp",true, ["Existing " + ELNDictionary.getExperimentDualName() + "", "New " + ELNDictionary.getExperimentDualName() + ""], function(event) {
 			var value = $(event.target).val();
-			if(value === "Existing " + ELNDictionary.getExperimentDualName() + "") {
+			if(value === "Existing " + ELNDictionary.getExperimentDualName()) {
 				_this._moveSampleModel.isNewExperiment = false;
 				_this.repaintExistingExperiment();
 			} else {
@@ -111,7 +114,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 				_this._moveSampleModel.experimentIdentifier = value;
 			});
 			//Attach Fields
-			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future " + ELNDictionary.getExperimentDualName() + ""));
+			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future " + ELNDictionary.getExperimentDualName()));
 		});
 	}
 	

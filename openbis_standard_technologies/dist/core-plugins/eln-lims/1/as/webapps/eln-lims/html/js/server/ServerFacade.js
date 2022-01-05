@@ -942,22 +942,29 @@ function ServerFacade(openbisServer) {
 	//
 	// Sample Others functions
 	//
-	this.moveSample = function(sampleIdentifier, experimentIdentifier, experimentType, callbackFunction) {
-		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
-				{
-					"method" : "moveSample",
-					"sampleIdentifier" : sampleIdentifier,
-					"experimentIdentifier" : experimentIdentifier,
-					"experimentType" : experimentType
-				},
-				function(data){
-					if(data.result.rows[0][0].value == "OK") {
-						callbackFunction(true);
-					} else {
-						callbackFunction(false, data.result.rows[0][1].value);
-					}
-				});
-	}
+    this.moveSample = function(samplePermIds, experimentIdentifier, callback) {
+        require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/update/SampleUpdate", 
+                  "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier"],
+            function(SamplePermId, SampleUpdate, SpacePermId, ExperimentIdentifier) {
+                var expeId = new ExperimentIdentifier(experimentIdentifier);
+                var spaceId = new SpacePermId(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
+                var updates = samplePermIds.map(function(id) {
+                    var update = new SampleUpdate();
+                    update.setSampleId(new SamplePermId(id));
+                    update.setExperimentId(expeId);
+                    update.setSpaceId(spaceId);
+                    return update;
+                });
+                Util.blockUI();
+                mainController.openbisV3.updateSamples(updates)
+                .done(function() {
+                    callback();
+                }).fail(function(error) {
+                    Util.showFailedServerCallError(error);
+                    Util.unblockUI();
+                });
+            });
+    }
 	//
 	// Data Set Import Related Functions
 	//
@@ -2479,15 +2486,17 @@ function ServerFacade(openbisServer) {
             		childrenfetchOptions.withChildrenUsing(childrenfetchOptions);
             }
 
-            var id = null;
+            var ids = [];
             if(fechOptions["samplePermId"]) {
-            		id = new SamplePermId(fechOptions["samplePermId"]);
+                var idOrIds = fechOptions["samplePermId"];
+                ids = (Array.isArray(idOrIds) ? idOrIds : [idOrIds]).map(id => new SamplePermId(id));
             }
             if(fechOptions["sampleIdentifier"]) {
-            		id = new SampleIdentifier(fechOptions["sampleIdentifier"]);
+                var idOrIds = fechOptions["sampleIdentifier"];
+                ids = (Array.isArray(idOrIds) ? idOrIds : [idOrIds]).map(id => new SampleIdentifier(id));
             }
 
-            mainController.openbisV3.getSamples([id], fetchOptions).done(function(map) {
+            mainController.openbisV3.getSamples(ids, fetchOptions).done(function(map) {
                 var samples = Util.mapValuesToList(map);
                 callbackFunction(_this.getV3SamplesAsV1(samples));
             }).fail(function(result) {

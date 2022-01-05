@@ -95,9 +95,9 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			
 			
 			var extraOptions = [];
-			extraOptions.push({ name : "Delete (Selected Objects)", action : function(selected) {
+			extraOptions.push({ name : "Delete (Selected " + ELNDictionary.Samples + ")", action : function(selected) {
 				if(selected != undefined && selected.length == 0){
-					Util.showUserError("Please select at least one sample to delete!");
+					Util.showUserError("Please select at least one " + ELNDictionary.sample + " to delete!");
 				} else {
 					var warningText = "The next " + ELNDictionary.samples + " will be deleted: ";
 					
@@ -138,6 +138,18 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					
 				}
 			}});
+	
+            extraOptions.push({ name : "Move (Selected " + ELNDictionary.Samples + ")", action : function(selected) {
+                if(selected != undefined && selected.length == 0){
+                    Util.showUserError("Please select at least one " + ELNDictionary.sample + " to move!");
+                } else {
+                    var sampleIds = selected.map(s => s.permId);
+                    var moveSampleController = new MoveSampleController(sampleIds, function() {
+                        mainController.refreshView();
+                    });
+                    moveSampleController.init();
+                }
+            }});
 
 			if(profile.mainMenu.showBarcodes) {
                 extraOptions.push({ name : "Generate Barcodes (Selected)", action : function(selected) {
