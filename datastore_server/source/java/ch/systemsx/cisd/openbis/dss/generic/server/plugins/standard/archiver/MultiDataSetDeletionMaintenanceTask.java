@@ -166,6 +166,7 @@ public class MultiDataSetDeletionMaintenanceTask
         {
             DatasetDescription description = new DatasetDescription();
             description.setDataSetCode(simpleDataSet.getDataSetCode());
+            list.add(description);
         }
         return list;
     }
