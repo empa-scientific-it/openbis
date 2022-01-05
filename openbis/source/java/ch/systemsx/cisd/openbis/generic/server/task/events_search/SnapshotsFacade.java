@@ -108,7 +108,6 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         ProjectFetchOptions fo = new ProjectFetchOptions();
-        fo.withSpace();
         fo.withHistory();
 
         List<IProjectId> ids = toLoad.stream().map(ProjectPermId::new).collect(Collectors.toList());
@@ -116,8 +115,6 @@ class SnapshotsFacade
 
         for (Project project : projects)
         {
-            RelationHistoryEntry lastSpaceRelationship = null;
-
             for (HistoryEntry historyEntry : project.getHistory())
             {
                 if (historyEntry instanceof RelationHistoryEntry)
@@ -150,29 +147,9 @@ class SnapshotsFacade
                         }
 
                         snapshots.add(snapshot);
-
-                        if (lastSpaceRelationship == null || relationHistoryEntry.getValidFrom().after(lastSpaceRelationship.getValidFrom()))
-                        {
-                            lastSpaceRelationship = relationHistoryEntry;
-                        }
                     }
                 }
             }
-
-            Snapshot snapshot = new Snapshot();
-            snapshot.entityCode = project.getCode();
-            snapshot.entityPermId = project.getPermId().getPermId();
-            snapshot.spaceCode = project.getSpace().getCode();
-
-            if (lastSpaceRelationship != null)
-            {
-                snapshot.from = lastSpaceRelationship.getValidTo();
-            } else
-            {
-                snapshot.from = project.getRegistrationDate();
-            }
-
-            snapshots.add(snapshot);
         }
 
         putProjects(snapshots);
@@ -190,7 +167,6 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         ExperimentFetchOptions fo = new ExperimentFetchOptions();
-        fo.withProject();
         fo.withHistory();
 
         List<IExperimentId> ids = toLoad.stream().map(ExperimentPermId::new).collect(Collectors.toList());
@@ -198,8 +174,6 @@ class SnapshotsFacade
 
         for (Experiment experiment : experiments)
         {
-            RelationHistoryEntry lastProjectRelationship = null;
-
             for (HistoryEntry historyEntry : experiment.getHistory())
             {
                 if (historyEntry instanceof RelationHistoryEntry)
@@ -232,30 +206,9 @@ class SnapshotsFacade
                         }
 
                         snapshots.add(snapshot);
-
-                        if (lastProjectRelationship == null || relationHistoryEntry.getValidFrom()
-                                .after(lastProjectRelationship.getValidFrom()))
-                        {
-                            lastProjectRelationship = relationHistoryEntry;
-                        }
                     }
                 }
             }
-
-            Snapshot snapshot = new Snapshot();
-            snapshot.entityCode = experiment.getCode();
-            snapshot.entityPermId = experiment.getPermId().getPermId();
-            snapshot.projectPermId = experiment.getProject().getPermId().getPermId();
-
-            if (lastProjectRelationship != null)
-            {
-                snapshot.from = lastProjectRelationship.getValidTo();
-            } else
-            {
-                snapshot.from = experiment.getRegistrationDate();
-            }
-
-            snapshots.add(snapshot);
         }
 
         putExperiments(snapshots);
@@ -273,9 +226,6 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         SampleFetchOptions fo = new SampleFetchOptions();
-        fo.withSpace();
-        fo.withProject();
-        fo.withExperiment();
         fo.withHistory();
 
         List<ISampleId> ids = toLoad.stream().map(SamplePermId::new).collect(Collectors.toList());
@@ -283,8 +233,6 @@ class SnapshotsFacade
 
         for (Sample sample : samples)
         {
-            RelationHistoryEntry lastRelationship = null;
-
             for (HistoryEntry historyEntry : sample.getHistory())
             {
                 if (historyEntry instanceof RelationHistoryEntry)
@@ -325,39 +273,9 @@ class SnapshotsFacade
                         }
 
                         snapshots.add(snapshot);
-
-                        if (lastRelationship == null || relationHistoryEntry.getValidFrom().after(lastRelationship.getValidFrom()))
-                        {
-                            lastRelationship = relationHistoryEntry;
-                        }
                     }
                 }
             }
-
-            Snapshot snapshot = new Snapshot();
-            snapshot.entityCode = sample.getCode();
-            snapshot.entityPermId = sample.getPermId().getPermId();
-
-            if (sample.getExperiment() != null)
-            {
-                snapshot.experimentPermId = sample.getExperiment().getPermId().getPermId();
-            } else if (sample.getProject() != null)
-            {
-                snapshot.projectPermId = sample.getProject().getPermId().getPermId();
-            } else if (sample.getSpace() != null)
-            {
-                snapshot.spaceCode = sample.getSpace().getCode();
-            }
-
-            if (lastRelationship != null)
-            {
-                snapshot.from = lastRelationship.getValidTo();
-            } else
-            {
-                snapshot.from = sample.getRegistrationDate();
-            }
-
-            snapshots.add(snapshot);
         }
 
         putSamples(snapshots);
