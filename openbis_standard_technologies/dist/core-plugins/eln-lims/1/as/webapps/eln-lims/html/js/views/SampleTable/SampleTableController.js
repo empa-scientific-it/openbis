@@ -185,7 +185,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 
     this.registerSamples = function(experimentIdentifier) {
         var _this = this;
-        var allowedSampleTypes = null;
+        var allowedSampleTypes = this.getAllowedSampleTypes();
         var experimentsByType = {};
         var spacesByType = {};
         if (this._sampleTableModel.sampleTypeCodeToUse) {
@@ -210,7 +210,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
     
     this.updateSamples = function(experimentIdentifier) {
         var _this = this;
-        var allowedSampleTypes = null;
+        var allowedSampleTypes = this.getAllowedSampleTypes();
         var experimentsByType = {};
         var spacesByType = {};
         if (this._sampleTableModel.sampleTypeCodeToUse) {
@@ -228,5 +228,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             });
         });
         batchController.init();
+    }
+    
+    this.getAllowedSampleTypes = function() {
+        return profile.getAllSampleTypes().map(t => t.code).filter(function(type) {
+            return profile.isSampleTypeHidden(type) == false;
+        });
     }
 }
