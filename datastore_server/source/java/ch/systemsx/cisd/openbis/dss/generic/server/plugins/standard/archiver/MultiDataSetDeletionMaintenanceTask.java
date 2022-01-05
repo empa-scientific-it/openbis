@@ -166,9 +166,6 @@ public class MultiDataSetDeletionMaintenanceTask
         {
             DatasetDescription description = new DatasetDescription();
             description.setDataSetCode(simpleDataSet.getDataSetCode());
-            // Add to description H5 info for IHierarchicalContent.
-            description.setH5arFolders(simpleDataSet.isH5Folders());
-            description.setH5arFolders(simpleDataSet.isH5ArFolders());
         }
         return list;
     }
