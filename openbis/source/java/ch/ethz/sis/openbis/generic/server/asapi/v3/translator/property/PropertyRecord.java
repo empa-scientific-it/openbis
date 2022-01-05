@@ -16,13 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
+import java.util.Date;
+
 /**
  * @author pkupczyk
  */
 public class PropertyRecord
 {
 
+    public Long id;
+
     public Long objectId;
+
+    public Long authorId;
 
     public String propertyCode;
 
@@ -34,8 +40,12 @@ public class PropertyRecord
 
     public String vocabularyPropertyValue;
 
+    public String vocabularyPropertyValueTypeCode;
+
     public Long sample_id;
 
     public String sample_perm_id;
+
+    public Date modificationTimestamp;
 
 }

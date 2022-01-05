@@ -304,7 +304,52 @@ var FormUtil = new function() {
 		Select2Manager.add($component);
 		return $component;
 	}
-	
+
+	this.getProjectName = function(projectCode){
+		return Util.getDisplayNameFromCode(projectCode)
+	}
+
+	this.getExperimentName = function(experimentCode, experimentProperties){
+		var nameLabel = experimentProperties[this.profile.propertyReplacingCode];
+		if(nameLabel) {
+			nameLabel = DOMPurify.sanitize(nameLabel);
+		} else {
+			nameLabel = experimentCode;
+		}
+		return nameLabel
+	}
+
+	this.getSampleName = function(sampleCode, sampleProperties, sampleTypeCode){
+		var nameLabel = sampleProperties[this.profile.propertyReplacingCode];
+		if(nameLabel) {
+			nameLabel = DOMPurify.sanitize(nameLabel);
+		} else if(sampleTypeCode === "STORAGE_POSITION") {
+			var storagePropertyGroup = this.profile.getStoragePropertyGroup();
+			var boxProperty = sampleProperties[storagePropertyGroup.boxProperty];
+			if(!boxProperty) {
+				boxProperty = "NoBox";
+			}
+			var positionProperty = sampleProperties[storagePropertyGroup.positionProperty];
+			if(!positionProperty) {
+				positionProperty = "NoPos";
+			}
+			nameLabel = boxProperty + " - " + positionProperty;
+		} else {
+			nameLabel = sampleCode;
+		}
+		return nameLabel
+	}
+
+	this.getDataSetName = function(dataSetCode, dataSetProperties){
+		var nameLabel = dataSetProperties[this.profile.propertyReplacingCode];
+		if(nameLabel) {
+			nameLabel = DOMPurify.sanitize(nameLabel);
+		} else {
+			nameLabel = dataSetCode;
+		}
+		return nameLabel
+	}
+
 	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		

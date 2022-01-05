@@ -24,4 +24,8 @@ public class ObjectBaseRecord
 
     public Long id;
 
+    public Long getId()
+    {
+        return id;
+    }
 }

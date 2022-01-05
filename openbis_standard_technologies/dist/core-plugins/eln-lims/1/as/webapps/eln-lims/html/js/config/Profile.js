@@ -450,7 +450,7 @@ $.extend(DefaultProfile.prototype, {
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 
         this.getExperimentTypeToolbarConfiguration = function(experimentTypeCode) {
-			var defaultToolbar = { CREATE: true, FREEZE: true, EDIT: true, MOVE: true, DELETE: true, UPLOAD_DATASET: true, UPLOAD_DATASET_HELPER: true, EXPORT_ALL: true, EXPORT_METADATA: true };
+			var defaultToolbar = { CREATE: true, FREEZE: true, EDIT: true, MOVE: true, DELETE: true, UPLOAD_DATASET: true, UPLOAD_DATASET_HELPER: true, EXPORT_ALL: true, EXPORT_METADATA: true, HISTORY: true };
 			if(this.experimentTypeDefinitionsExtension[experimentTypeCode] && this.experimentTypeDefinitionsExtension[experimentTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.experimentTypeDefinitionsExtension[experimentTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {
@@ -461,7 +461,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.getDataSetTypeToolbarConfiguration = function(dataSetTypeCode) {
-			var defaultToolbar = { EDIT : true, FREEZE : true, MOVE : true, ARCHIVE : true, DELETE : true, HIERARCHY_TABLE : true, EXPORT_ALL : true, EXPORT_METADATA : true };
+			var defaultToolbar = { EDIT : true, FREEZE : true, MOVE : true, ARCHIVE : true, DELETE : true, HIERARCHY_TABLE : true, EXPORT_ALL : true, EXPORT_METADATA : true, HISTORY: true };
 			if(this.dataSetTypeDefinitionsExtension[dataSetTypeCode] && this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {
@@ -472,7 +472,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.getSampleTypeToolbarConfiguration = function(sampleTypeCode) {
-			var defaultToolbar = { CREATE : true, EDIT : true, FREEZE : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true, TEMPLATES : true, BARCODE : true };
+			var defaultToolbar = { CREATE : true, EDIT : true, FREEZE : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true, TEMPLATES : true, BARCODE : true, HISTORY: true };
 			if(this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {

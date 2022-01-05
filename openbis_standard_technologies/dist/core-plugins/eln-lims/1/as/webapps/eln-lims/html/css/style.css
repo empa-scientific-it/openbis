@@ -957,3 +957,52 @@ Preserve the relative scale, though. */
 .ck.ck-editor__editable_inline>:first-child {
      margin-top: 5px !important;
 }
+
+/* 
+ * History View
+ */
+
+.history-view .changes-list ul {
+    padding-inline-start: 0px; 
+    list-style-type: none;
+}
+
+.history-view .changes-list ul:last-child {
+    margin-bottom: 0px; 
+}
+
+.history-view .changes-list ul li {
+    padding-bottom: 8px;
+}
+
+.history-view .changes-list ul li:last-child {
+    padding-bottom: 0px;
+}
+
+.history-view .relation-type, .history-view .property-name {
+    font-weight: bold;
+}
+
+.history-view .relation-value-removed, .history-view .content-copy-removed, .history-view .property-old-value, .history-view .relation-old-value {
+    padding: 8px;
+    background-color: #FBE3E4;
+}
+
+.history-view .relation-value-added, .history-view .content-copy-added, .history-view .property-new-value, .history-view .relation-new-value {
+    padding: 8px;
+    background-color: #E6EFC2;
+}
+
+.history-view .property-diff, .history-view .relation-diff {
+    display: flex;
+}
+
+.history-view .property-old-value, .history-view .property-new-value, .history-view .relation-old-value, .history-view .relation-new-value {
+    flex: 1 1 50%;
+}
+
+
+.history-view .full-document {
+    white-space: pre-wrap; 
+    min-width: 30vw;
+}

@@ -16,12 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.material;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.Collection;
 import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
@@ -29,6 +25,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -36,6 +35,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTra
 @Component
 public class MaterialHistoryTranslator extends HistoryTranslator implements IMaterialHistoryTranslator
 {
+
+    @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
+    {
+        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
+        return query.getProperties(new LongOpenHashSet(entityIds));
+    }
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)

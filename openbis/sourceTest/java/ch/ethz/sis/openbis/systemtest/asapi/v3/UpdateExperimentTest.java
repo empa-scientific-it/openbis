@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -41,15 +40,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.history.ExperimentRelationType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
@@ -100,13 +100,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setExperimentId(experimentId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, experimentId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, experimentId);
     }
 
     @Test
@@ -119,13 +119,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setExperimentId(experimentId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, experimentId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, experimentId);
     }
 
     @Test
@@ -190,13 +190,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProjectId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, "Project id cannot be null");
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, "Project id cannot be null");
     }
 
     @Test
@@ -252,13 +252,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProjectId(projectId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, projectId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, projectId);
     }
 
     @Test
@@ -273,13 +273,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProjectId(projectId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, projectId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, projectId);
     }
 
     @Test
@@ -331,13 +331,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
     }
 
     @Test
@@ -358,13 +358,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProperty("PURCHASE_DATE", "this should be a date");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, "Date value 'this should be a date' has improper format");
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, "Date value 'this should be a date' has improper format");
     }
 
     @Test
@@ -379,13 +379,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProperty("DESCRIPTION", null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, "Value of mandatory property 'DESCRIPTION' not specified");
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, "Value of mandatory property 'DESCRIPTION' not specified");
     }
 
     @Test
@@ -576,13 +576,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.getTagIds().add(tagId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, tagId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, tagId);
     }
 
     @Test
@@ -646,13 +646,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.getTagIds().remove(tagId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, tagId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, tagId);
     }
 
     @Test
@@ -700,13 +700,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.getTagIds().set(tagId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, tagId);
+                v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            }
+        }, tagId);
     }
 
     @Test
@@ -715,18 +715,18 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    final ExperimentUpdate update = new ExperimentUpdate();
-                    update.setExperimentId(permId);
+                final ExperimentUpdate update = new ExperimentUpdate();
+                update.setExperimentId(permId);
 
-                    v3api.updateExperiments(sessionToken, Collections.singletonList(update));
-                }
-            }, permId);
+                v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+            }
+        }, permId);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
@@ -746,26 +746,26 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.updateExperiments(sessionToken, Collections.singletonList(update));
-                    }
-                });
+                    v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+                }
+            });
         } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             v3api.updateExperiments(sessionToken, Collections.singletonList(update));
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.updateExperiments(sessionToken, Collections.singletonList(update));
-                    }
-                }, update.getExperimentId());
+                    v3api.updateExperiments(sessionToken, Collections.singletonList(update));
+                }
+            }, update.getExperimentId());
         }
     }
 
@@ -1147,11 +1147,15 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
         assertEquals(experiment.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
         assertEquals(experiment.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+
         List<HistoryEntry> history = experiment.getHistory();
-        assertEquals(history.get(0).getAuthor().getUserId(), TEST_USER);
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyName(), propertyType.getPermId());
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyValue(), "200811050919915-8");
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 3);
+
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", experiment.getRegistrationDate(),
+                experiment.getModificationDate());
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-105"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test
@@ -1183,11 +1187,14 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
         assertEquals(experiment.getProperties().toString(), "{}");
         assertEquals(experiment.getSampleProperties().toString(), "{}");
+
         List<HistoryEntry> history = experiment.getHistory();
-        assertEquals(history.get(0).getAuthor().getUserId(), TEST_USER);
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyName(), propertyType.getPermId());
-        assertEquals(((PropertyHistoryEntry) history.get(0)).getPropertyValue(), "200811050919915-8");
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
+
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", experiment.getRegistrationDate(),
+                experiment.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-105"), ExperimentRelationType.PROJECT,
+                experiment.getRegistrationDate(), null);
     }
 
     @Test

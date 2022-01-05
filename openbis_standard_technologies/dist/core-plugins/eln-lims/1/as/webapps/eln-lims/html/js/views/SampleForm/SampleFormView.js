@@ -67,26 +67,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifier, sampleCode, samplePermId);
 
 		var $formTitle = $("<div>");
-		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		if(nameLabel) {
-			//nameLabel = html.sanitize(nameLabel);
-			nameLabel = DOMPurify.sanitize(nameLabel);
-		} else if(this._sampleFormModel.sample.sampleTypeCode === "STORAGE_POSITION") {
-			var properties = this._sampleFormModel.sample.properties;
-			var storagePropertyGroup = profile.getStoragePropertyGroup();
-			var boxProperty = properties[storagePropertyGroup.boxProperty];
-			if(!boxProperty) {
-				boxProperty = "NoBox";
-			}
-			var positionProperty = properties[storagePropertyGroup.positionProperty];
-			if(!positionProperty) {
-				positionProperty = "NoPos";
-			}
-			nameLabel = boxProperty + " - " + positionProperty;
-		} else {
-			nameLabel = this._sampleFormModel.sample.code;
-		}
-
+		var nameLabel = FormUtil.getSampleName(this._sampleFormModel.sample.code, this._sampleFormModel.sample.properties, this._sampleFormModel.sample.sampleTypeCode)
 		var title = null;
 
 		switch(this._sampleFormModel.mode) {
@@ -352,6 +333,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                         });
                     }
                 }
+            }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showSampleHistoryPage', _this._sampleFormModel.sample.permId);
+                    }
+                });
             }
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {

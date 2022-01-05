@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperi
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.ISpaceAuthorizationValidator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -56,9 +57,14 @@ public class ProjectHistoryTranslator extends HistoryTranslator implements IProj
 
     @Autowired
     private IExperimentAuthorizationValidator experimentValidator;
-    
+
     @Autowired
     private ISampleAuthorizationValidator sampleValidator;
+
+    @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
+    {
+        return null;
+    }
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)

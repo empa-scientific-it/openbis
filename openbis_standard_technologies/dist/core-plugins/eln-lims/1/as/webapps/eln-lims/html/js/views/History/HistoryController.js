@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
+function HistoryController(parentController, entity) {
+	this._parentController = parentController;
+	this._model = new HistoryModel(entity);
+	this._view = new HistoryView(this, this._model);
+	
+	this.init = function(views) {
+		this._view.repaint(views);
+	}
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectBaseRecord;
-
-public class HistoryRecord extends ObjectBaseRecord
-{
-
-    public Date validFrom;
-
-    public Date validTo;
-
-    public Long authorId;
-
-    public Date getValidFrom()
-    {
-        return validFrom;
-    }
-
-    public Date getValidTo()
-    {
-        return validTo;
-    }
 }

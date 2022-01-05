@@ -57,7 +57,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationExecutionResults;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionEmailNotification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
@@ -173,13 +172,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         v3api.executeOperations(sessionToken, Arrays.asList(new CreateSpacesOperation(spaceCreation())), options);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.executeOperations(sessionToken, Arrays.asList(new CreateSpacesOperation(spaceCreation())), options);
-                }
-            }, "already exists in the database");
+                v3api.executeOperations(sessionToken, Arrays.asList(new CreateSpacesOperation(spaceCreation())), options);
+            }
+        }, "already exists in the database");
     }
 
     @Test
@@ -284,18 +283,18 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
             {
                 Assert.assertFalse(transaction.isRollbackOnly());
                 assertUserFailureException(new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
                     {
-                        @Override
-                        public void execute()
-                        {
-                            v3api.executeOperations(sessionToken, operations, new SynchronousOperationExecutionOptions());
-                        }
-                    }, "Space id cannot be null");
+                        v3api.executeOperations(sessionToken, operations, new SynchronousOperationExecutionOptions());
+                    }
+                }, "Space id cannot be null");
                 Assert.assertTrue(transaction.isRollbackOnly());
 
                 Map<ISpaceId, Space> spaces = v3api.getSpaces(sessionToken, Arrays.asList(id1, id2), new SpaceFetchOptions());
                 assertEquals(spaces.size(), 2); // operations are grouped by type before execution, therefore 2 creations got already executed before
-                                                // the failing update
+                // the failing update
             } finally
             {
                 txManager.rollback(transaction);
@@ -407,7 +406,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertEquals(sample.getPermId(), createId);
         assertEquals(sample.getProperties().size(), 1);
         assertEquals(sample.getProperty("COMMENT"), "updated");
-        assertEquals(sample.getHistory().size(), 1);
+        assertEquals(sample.getHistory().size(), 3);
 
         PropertyHistoryEntry historyEntry = (PropertyHistoryEntry) sample.getHistory().get(0);
 
@@ -523,13 +522,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         List<OperationExecution> beforeList = listExecutions(sessionToken);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.executeOperations(sessionToken, operations, options);
-                }
-            }, "Code cannot be empty");
+                v3api.executeOperations(sessionToken, operations, options);
+            }
+        }, "Code cannot be empty");
 
         List<OperationExecution> afterList = listExecutions(sessionToken);
 
@@ -549,13 +548,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         assertNull(beforeExecution);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.executeOperations(sessionToken, operations, options);
-                }
-            }, "Code cannot be empty");
+                v3api.executeOperations(sessionToken, operations, options);
+            }
+        }, "Code cannot be empty");
 
         OperationExecution afterExecution =
                 getExecutionInState(sessionToken, options.getExecutionId(), OperationExecutionState.FAILED, emptyOperationExecutionFetchOptions());
@@ -866,13 +865,13 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         options.setNotification(new OperationExecutionEmailNotification(EMAIL_TO_1, EMAIL_TO_2));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.executeOperations(sessionToken, operations, options);
-                }
-            }, "Code cannot be empty");
+                v3api.executeOperations(sessionToken, operations, options);
+            }
+        }, "Code cannot be empty");
 
         Email email = EmailUtil.findLatestEmail();
         assertEquals(email.from, EMAIL_FROM);
@@ -892,33 +891,33 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         MessageChannel threadsChannel = new MessageChannelBuilder(1000).name("threads").getChannel();
 
         Thread thread1 = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation1(mainChannel, threadsChannel)),
-                            new SynchronousOperationExecutionOptions());
-                }
-            });
+                v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation1(mainChannel, threadsChannel)),
+                        new SynchronousOperationExecutionOptions());
+            }
+        });
 
         Thread thread2 = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                try
                 {
-                    try
-                    {
-                        v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation2()), new SynchronousOperationExecutionOptions());
-                        threadsChannel.send("thread-2-success");
-                    } catch (UserFailureException e)
-                    {
-                        AssertionUtil.assertContains(
-                                "Sorry, the server is very loaded at the moment. Your request can not be currently processed. Please try again later.",
-                                e.getMessage());
-                        threadsChannel.send("thread-2-timeout");
-                    }
+                    v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation2()), new SynchronousOperationExecutionOptions());
+                    threadsChannel.send("thread-2-success");
+                } catch (UserFailureException e)
+                {
+                    AssertionUtil.assertContains(
+                            "Sorry, the server is very loaded at the moment. Your request can not be currently processed. Please try again later.",
+                            e.getMessage());
+                    threadsChannel.send("thread-2-timeout");
                 }
-            });
+            }
+        });
 
         thread1.start();
         threadsChannel.assertNextMessage("execute-1-start");

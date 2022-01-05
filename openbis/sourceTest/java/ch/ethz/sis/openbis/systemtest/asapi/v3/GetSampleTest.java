@@ -16,9 +16,29 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.testng.annotations.Test;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -59,13 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.testng.annotations.Test;
-
-import java.util.*;
-
-import static org.testng.Assert.*;
 
 /**
  * @author pkupczyk
@@ -1058,7 +1071,7 @@ public class GetSampleTest extends AbstractSampleTest
         fetchOptions.withExperiment();
 
         Map<ISampleId, Sample> map =
-                v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), 
+                v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"),
                         new SampleIdentifier("/CISD/DEFAULT/RP1-B1X"),
                         new SampleIdentifier("/CISD/DEFAULT/RP2-A1X")), fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -1365,16 +1378,19 @@ public class GetSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testGetWithHistoryEmpty()
+    public void testGetWithHistoryNoChanges()
     {
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_EMPTY_HISTORY");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        List<HistoryEntry> history = testGetWithHistory(creation, new SampleUpdate[] {});
+        Sample sample = testGetWithHistory(creation, new SampleUpdate[] {});
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history, Collections.emptyList());
+        assertEquals(history.size(), 1);
+
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test(enabled = false)
@@ -1426,16 +1442,14 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.setProperty("COMMENT", "comment2");
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 3);
 
-        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry.getPropertyName(), "COMMENT");
-        assertEquals(entry.getPropertyValue(), "comment1");
-        assertTrue(entry.getValidFrom() != null);
-        assertTrue(entry.getValidTo() != null);
-        assertEquals(entry.getAuthor().getUserId(), TEST_USER);
+        assertPropertyHistory(history.get(0), "COMMENT", "comment1", sample.getRegistrationDate(), sample.getModificationDate());
+        assertPropertyHistory(history.get(1), "COMMENT", "comment2", sample.getModificationDate(), null);
+        assertRelationshipHistory(history.get(2), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1464,18 +1478,17 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update2 = new SampleUpdate();
         update2.setProperty(simplePropertyCode, "I have been updated");
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update1, update2);
+        Sample sample = testGetWithHistory(creation, update1, update2);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 2);
+        assertEquals(history.size(), 5);
 
-        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(0);
-        PropertyHistoryEntry entry2 = (PropertyHistoryEntry) history.get(1);
-
-        assertEquals(entry1.getPropertyName(), systemPropertyCode);
-        assertEquals(entry1.getPropertyValue(), originalSystemPropertyValue + " [PLATE_GEOMETRY]");
-
-        assertEquals(entry2.getPropertyName(), simplePropertyCode);
-        assertEquals(entry2.getPropertyValue(), originalSimplePropertyValue);
+        assertPropertyHistory(history.get(0), systemPropertyCode, originalSystemPropertyValue + " [PLATE_GEOMETRY]");
+        assertPropertyHistory(history.get(1), simplePropertyCode, originalSimplePropertyValue);
+        assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]",
+                sample.getModificationDate(), null);
+        assertPropertyHistory(history.get(3), simplePropertyCode, update2.getProperty(simplePropertyCode), sample.getModificationDate(), null);
+        assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1489,13 +1502,15 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE,
+                sample.getRegistrationDate(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("TEST-SPACE"), SampleRelationType.SPACE,
+                sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1564,16 +1579,16 @@ public class GetSampleTest extends AbstractSampleTest
         // get history with CISD space user
         String cisdSpaceUserSessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
         Sample sample = v3api.getSamples(cisdSpaceUserSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1), projectIds.get(2));
 
         // get history with user that has access to project A and C
         String projectUserACSessionToken = v3api.login(projectUserACCreation.getUserId(), PASSWORD);
         sample = v3api.getSamples(projectUserACSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0));
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(2));
 
         // get history with instance admin
         sample = v3api.getSamples(instanceAdminSessionToken, Arrays.asList(sampleId), fetchOptions).get(sampleId);
-        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1));
+        assertRelationHistory(sample, SampleRelationType.PROJECT, projectIds.get(0), projectIds.get(1), projectIds.get(2));
     }
 
     private void assertRelationHistory(Sample sample, SampleRelationType relationType, ProjectPermId... permIds)
@@ -1606,13 +1621,15 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP11"));
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.EXPERIMENT);
-        assertEquals(entry.getRelatedObjectId(), new ExperimentPermId("200811050951882-1028"));
+        assertRelationshipHistory(history.get(0), new ExperimentPermId("200811050951882-1028"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(), sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050952663-1030"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1628,17 +1645,23 @@ public class GetSampleTest extends AbstractSampleTest
 
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
-        update.setSampleId(permIds.get(0));
+        DataSetUpdate update1 = new DataSetUpdate();
+        update1.setDataSetId(new DataSetPermId("COMPONENT_1A"));
+        update1.setSampleId(permIds.get(0));
 
-        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        v3api.updateDataSets(sessionToken, Arrays.asList(update1));
 
-        update = new DataSetUpdate();
-        update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
-        update.setSampleId(null);
+        DataSet dataSetAfterUpdate1 =
+                v3api.getDataSets(sessionToken, Arrays.asList(update1.getDataSetId()), new DataSetFetchOptions()).get(update1.getDataSetId());
 
-        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(new DataSetPermId("COMPONENT_1A"));
+        update2.setSampleId(null);
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update2));
+
+        DataSet dataSetAfterUpdate2 =
+                v3api.getDataSets(sessionToken, Arrays.asList(update2.getDataSetId()), new DataSetFetchOptions()).get(update2.getDataSetId());
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withHistory();
@@ -1649,11 +1672,13 @@ public class GetSampleTest extends AbstractSampleTest
         Sample sample = map.get(permIds.get(0));
 
         List<HistoryEntry> history = sample.getHistory();
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.DATA_SET);
-        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
+        assertRelationshipHistory(history.get(0), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET,
+                dataSetAfterUpdate1.getModificationDate(), dataSetAfterUpdate2.getModificationDate());
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050940555-1032"), SampleRelationType.EXPERIMENT,
+                sample.getRegistrationDate(),
+                null);
     }
 
     @Test
@@ -1668,13 +1693,14 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.setContainerId(null);
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.CONTAINER);
-        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CONTAINER, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1689,13 +1715,14 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.getComponentIds().set();
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.COMPONENT);
-        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.COMPONENT, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1710,13 +1737,14 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.getParentIds().set();
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.PARENT);
-        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.PARENT, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1731,16 +1759,18 @@ public class GetSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.getChildIds().set();
 
-        List<HistoryEntry> history = testGetWithHistory(creation, update);
+        Sample sample = testGetWithHistory(creation, update);
+        List<HistoryEntry> history = sample.getHistory();
 
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.CHILD);
-        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CHILD, sample.getRegistrationDate(),
+                sample.getModificationDate());
+        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(),
+                null);
     }
 
-    private List<HistoryEntry> testGetWithHistory(SampleCreation creation, SampleUpdate... updates)
+    private Sample testGetWithHistory(SampleCreation creation, SampleUpdate... updates)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -1765,7 +1795,7 @@ public class GetSampleTest extends AbstractSampleTest
 
         v3api.logout(sessionToken);
 
-        return sample.getHistory();
+        return sample;
     }
 
     @Test
@@ -1833,7 +1863,8 @@ public class GetSampleTest extends AbstractSampleTest
         fo.withSpace();
         fo.withProject();
 
-        v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200902091219327-1025"), new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4")), fo);
+        v3api.getSamples(sessionToken, Arrays.asList(new SamplePermId("200902091219327-1025"), new SampleIdentifier("/TEST-SPACE/NOE/CP-TEST-4")),
+                fo);
 
         assertAccessLog(
                 "get-samples  SAMPLE_IDS('[200902091219327-1025, /TEST-SPACE/NOE/CP-TEST-4]') FETCH_OPTIONS('Sample\n    with Project\n    with Space\n')");

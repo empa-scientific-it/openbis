@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTra
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 
 /**
  * @author pkupczyk
@@ -48,11 +50,14 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
     @Autowired
     private IPersonTranslator personTranslator;
 
+    protected abstract List<? extends PropertyRecord> loadProperties(Collection<Long> entityIds);
+
     protected abstract List<? extends HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds);
 
     protected abstract List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds);
 
-    protected List<? extends HistoryRecord> loadAbritraryHistory(TranslationContext context, Collection<Long> entityIds) {
+    protected List<? extends HistoryRecord> loadAbritraryHistory(TranslationContext context, Collection<Long> entityIds)
+    {
         return null;
     }
 
@@ -65,7 +70,46 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
     @Override
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
     {
-        List<? extends HistoryPropertyRecord> properties = loadPropertyHistory(entityIds);
+        List<? extends HistoryPropertyRecord> oldProperties = loadPropertyHistory(entityIds);
+        List<? extends PropertyRecord> currentProperties = loadProperties(entityIds);
+
+        List<HistoryPropertyRecord> properties = new ArrayList<>();
+
+        if (oldProperties != null)
+        {
+            properties.addAll(oldProperties);
+        }
+
+        if (currentProperties != null)
+        {
+            for (PropertyRecord currentProperty : currentProperties)
+            {
+                HistoryPropertyRecord currentPropertyRecord = new HistoryPropertyRecord();
+                currentPropertyRecord.id = currentProperty.id;
+                currentPropertyRecord.authorId = currentProperty.authorId;
+                currentPropertyRecord.validFrom = currentProperty.modificationTimestamp;
+                currentPropertyRecord.validTo = null;
+                currentPropertyRecord.objectId = currentProperty.objectId;
+                currentPropertyRecord.propertyCode = currentProperty.propertyCode;
+                currentPropertyRecord.propertyValue = currentProperty.propertyValue;
+                currentPropertyRecord.samplePropertyValue = currentProperty.sample_perm_id;
+
+                if (currentProperty.vocabularyPropertyValue != null && currentProperty.vocabularyPropertyValueTypeCode != null)
+                {
+                    currentPropertyRecord.vocabularyPropertyValue =
+                            currentProperty.vocabularyPropertyValue + " [" + currentProperty.vocabularyPropertyValueTypeCode + "]";
+                }
+
+                if (currentProperty.materialPropertyValueCode != null && currentProperty.materialPropertyValueTypeCode != null)
+                {
+                    currentPropertyRecord.materialPropertyValue =
+                            currentProperty.materialPropertyValueCode + " [" + currentProperty.materialPropertyValueTypeCode + "]";
+                }
+
+                properties.add(currentPropertyRecord);
+            }
+        }
+
         List<? extends HistoryRelationshipRecord> relationships = loadRelationshipHistory(context, entityIds);
         List<? extends HistoryRecord> arbitraryRecords = loadAbritraryHistory(context, entityIds);
 
@@ -73,10 +117,9 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
 
         if (fetchOptions.hasAuthor())
         {
-
             Set<Long> authorIds = new HashSet<Long>();
-
             List<HistoryRecord> completeHistory = new ArrayList<>();
+
             if (properties != null)
             {
                 completeHistory.addAll(properties);
@@ -119,7 +162,7 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
         {
             if (false == entriesMap.containsKey(entityId))
             {
-                entriesMap.put(entityId, Collections.<HistoryEntry> emptyList());
+                entriesMap.put(entityId, Collections.<HistoryEntry>emptyList());
             }
         }
 
@@ -139,7 +182,14 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
             Map<Long, Person> authorMap,
             HistoryEntryFetchOptions fetchOptions)
     {
-        for (HistoryPropertyRecord record : records)
+        List<? extends HistoryPropertyRecord> sortedRecords = new ArrayList<>(records);
+
+        sortedRecords.sort(Comparator.comparing(HistoryPropertyRecord::getValidFrom)
+                .thenComparing(HistoryPropertyRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HistoryPropertyRecord::getPropertyCode)
+                .thenComparing(HistoryPropertyRecord::getId));
+
+        for (HistoryPropertyRecord record : sortedRecords)
         {
             List<HistoryEntry> entries = entriesMap.get(record.objectId);
 
@@ -195,7 +245,15 @@ public abstract class HistoryTranslator extends AbstractCachingTranslator<Long, 
     private void createRelationshipEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRelationshipRecord> records,
             Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
     {
-        for (HistoryRelationshipRecord record : records)
+        List<? extends HistoryRelationshipRecord> sortedRecords = new ArrayList<>(records);
+
+        sortedRecords.sort(Comparator.comparing(HistoryRelationshipRecord::getValidFrom)
+                .thenComparing(HistoryRelationshipRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HistoryRelationshipRecord::getRelationType)
+                .thenComparing(HistoryRelationshipRecord::getRelatedObjectId)
+                .thenComparing(HistoryRelationshipRecord::getId));
+
+        for (HistoryRelationshipRecord record : sortedRecords)
         {
             List<HistoryEntry> entries = entriesMap.get(record.objectId);
 

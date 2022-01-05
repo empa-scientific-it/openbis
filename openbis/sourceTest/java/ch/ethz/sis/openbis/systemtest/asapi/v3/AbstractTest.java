@@ -98,6 +98,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.IRelationType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
@@ -156,13 +157,13 @@ import junit.framework.Assert;
 public class AbstractTest extends SystemTestCase
 {
     private static final Comparator<PropertyAssignment> ASSIGNMENT_COMPARATOR = new SimpleComparator<PropertyAssignment, String>()
+    {
+        @Override
+        public String evaluate(PropertyAssignment item)
         {
-            @Override
-            public String evaluate(PropertyAssignment item)
-            {
-                return item.getPermId().toString();
-            }
-        };
+            return item.getPermId().toString();
+        }
+    };
 
     protected BufferedAppender logRecorder;
 
@@ -219,481 +220,481 @@ public class AbstractTest extends SystemTestCase
     protected void assertTypeNotFetched(final Experiment experiment)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    experiment.getType();
-                }
-            });
+                experiment.getType();
+            }
+        });
     }
 
     protected void assertTypeNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    dataSet.getType();
-                }
-            });
+                dataSet.getType();
+            }
+        });
     }
 
     protected void assertSpaceNotFetched(final ISpaceHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getSpace();
-                }
-            });
+                holder.getSpace();
+            }
+        });
     }
 
     protected void assertProjectNotFetched(final IProjectHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getProject();
-                }
-            });
+                holder.getProject();
+            }
+        });
     }
 
     protected void assertProjectsNotFetched(final IProjectsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getProjects();
-                }
-            });
+                holder.getProjects();
+            }
+        });
     }
 
     protected void assertExperimentsNotFetched(final IExperimentsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getExperiments();
-                }
-            });
+                holder.getExperiments();
+            }
+        });
     }
 
     protected void assertTagsNotFetched(final ITagsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getTags();
-                }
-            });
+                holder.getTags();
+            }
+        });
     }
 
     protected void assertExperimentNotFetched(final IExperimentHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getExperiment();
-                }
-            });
+                holder.getExperiment();
+            }
+        });
     }
 
     protected void assertSampleNotFetched(final ISampleHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getSample();
-                }
-            });
+                holder.getSample();
+            }
+        });
     }
 
     protected void assertSamplesNotFetched(final ISamplesHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getSamples();
-                }
-            });
+                holder.getSamples();
+            }
+        });
     }
 
     protected void assertDataSetsNotFetched(final IDataSetsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getDataSets();
-                }
-            });
+                holder.getDataSets();
+            }
+        });
     }
 
     protected void assertMaterialsNotFetched(final IMaterialsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getMaterials();
-                }
-            });
+                holder.getMaterials();
+            }
+        });
     }
 
     protected void assertPhysicalDataNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    dataSet.getPhysicalData();
-                }
-            });
+                dataSet.getPhysicalData();
+            }
+        });
     }
 
     protected void assertPropertyTypeNotFetched(final IPropertyTypeHolder propertyTypeHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    propertyTypeHolder.getPropertyType();
-                }
-            });
+                propertyTypeHolder.getPropertyType();
+            }
+        });
     }
 
     protected void assertPropertiesNotFetched(final IPropertiesHolder propertiesHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    propertiesHolder.getProperties();
-                }
-            });
+                propertiesHolder.getProperties();
+            }
+        });
     }
 
     protected void assertPropertyAssignmentsNotFetched(final IPropertyAssignmentsHolder propertyAssignmentsHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    propertyAssignmentsHolder.getPropertyAssignments();
-                }
-            });
+                propertyAssignmentsHolder.getPropertyAssignments();
+            }
+        });
     }
 
     protected void assertSemanticAnnotationsNotFetched(final ISemanticAnnotationsHolder annotationsHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    annotationsHolder.getSemanticAnnotations();
-                }
-            });
+                annotationsHolder.getSemanticAnnotations();
+            }
+        });
     }
 
     protected void assertValidationPluginNotFetched(final IValidationPluginHolder pluginHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    pluginHolder.getValidationPlugin();
-                }
-            });
+                pluginHolder.getValidationPlugin();
+            }
+        });
     }
 
     protected void assertContainerNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    sample.getContainer();
-                }
-            });
+                sample.getContainer();
+            }
+        });
     }
 
     protected void assertComponentsNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    sample.getComponents();
-                }
-            });
+                sample.getComponents();
+            }
+        });
     }
 
     protected void assertParentsNotFetched(final IParentChildrenHolder<?> parentChildrenHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    parentChildrenHolder.getParents();
-                }
-            });
+                parentChildrenHolder.getParents();
+            }
+        });
     }
 
     protected void assertChildrenNotFetched(final IParentChildrenHolder<?> parentChildrenHolder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    parentChildrenHolder.getChildren();
-                }
-            });
+                parentChildrenHolder.getChildren();
+            }
+        });
     }
 
     protected void assertContainersNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    dataSet.getContainers();
-                }
-            });
+                dataSet.getContainers();
+            }
+        });
     }
 
     protected void assertComponentsNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    dataSet.getComponents();
-                }
-            });
+                dataSet.getComponents();
+            }
+        });
     }
 
     protected void assertOwnerNotFetched(final IOwnerHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getOwner();
-                }
-            });
+                holder.getOwner();
+            }
+        });
     }
 
     protected void assertRegistratorNotFetched(final IRegistratorHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    entity.getRegistrator();
-                }
-            });
+                entity.getRegistrator();
+            }
+        });
     }
 
     protected void assertModifierNotFetched(final IModifierHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    entity.getModifier();
-                }
-            });
+                entity.getModifier();
+            }
+        });
     }
 
     protected void assertLeaderNotFetched(final Project entity)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    entity.getLeader();
-                }
-            });
+                entity.getLeader();
+            }
+        });
     }
 
     protected void assertPreviousAttachmentNotFetched(final Attachment att)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    att.getPreviousVersion();
-                }
-            });
+                att.getPreviousVersion();
+            }
+        });
     }
 
     protected void assertAttachmentContentNotFetched(final Attachment att)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    att.getContent();
-                }
-            });
+                att.getContent();
+            }
+        });
     }
 
     protected void assertAttachmentsNotFetched(final IAttachmentsHolder exp)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    exp.getAttachments();
-                }
-            });
+                exp.getAttachments();
+            }
+        });
     }
 
     protected void assertHistoryNotFetched(final HistoryEntry history)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    history.getAuthor();
-                }
-            });
+                history.getAuthor();
+            }
+        });
     }
 
     protected void assertVocabularyNotFetched(final VocabularyTerm term)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    term.getVocabulary();
-                }
-            });
+                term.getVocabulary();
+            }
+        });
     }
 
     protected void assertVocabularyNotFetched(final PropertyType propertyType)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    propertyType.getVocabulary();
-                }
-            });
+                propertyType.getVocabulary();
+            }
+        });
     }
 
     protected void assertMaterialTypeNotFetched(final PropertyType propertyType)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    propertyType.getMaterialType();
-                }
-            });
+                propertyType.getMaterialType();
+            }
+        });
     }
 
     protected void assertSummaryNotFetched(final OperationExecution execution)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    execution.getSummary();
-                }
-            });
+                execution.getSummary();
+            }
+        });
     }
 
     protected void assertDetailsNotFetched(final OperationExecution execution)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    execution.getDetails();
-                }
-            });
+                execution.getDetails();
+            }
+        });
     }
 
     protected void assertEntityTypeNotFetched(final SemanticAnnotation holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getEntityType();
-                }
-            });
+                holder.getEntityType();
+            }
+        });
     }
 
     protected void assertPropertyTypeNotFetched(final SemanticAnnotation holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getPropertyType();
-                }
-            });
+                holder.getPropertyType();
+            }
+        });
     }
 
     protected void assertPropertyAssignmentNotFetched(final SemanticAnnotation holder)
     {
         assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    holder.getPropertyAssignment();
-                }
-            });
+                holder.getPropertyAssignment();
+            }
+        });
     }
 
     protected void assertNotFetched(final IDelegatedAction action)
@@ -730,13 +731,13 @@ public class AbstractTest extends SystemTestCase
     protected void assertUserFailureException(Consumer<Void> action, String expectedMessage)
     {
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    action.accept(null);
-                }
-            }, expectedMessage);
+                action.accept(null);
+            }
+        }, expectedMessage);
     }
 
     protected void assertUserFailureException(IDelegatedAction action, String expectedMessage)
@@ -785,13 +786,13 @@ public class AbstractTest extends SystemTestCase
     protected void assertAuthorizationFailureException(Consumer<Void> action, String expectedContextPattern)
     {
         assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    action.accept(null);
-                }
-            }, expectedContextPattern);
+                action.accept(null);
+            }
+        }, expectedContextPattern);
     }
 
     protected void assertAuthorizationFailureException(IDelegatedAction action, String expectedContextPattern)
@@ -815,13 +816,13 @@ public class AbstractTest extends SystemTestCase
             String expectedContextPattern)
     {
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    action.accept(null);
-                }
-            }, expectedObjectId, expectedContextPattern);
+                action.accept(null);
+            }
+        }, expectedObjectId, expectedContextPattern);
     }
 
     protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId)
@@ -942,12 +943,36 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualIds, expectedIds);
     }
 
-    protected void assertRelationshipHistory(List<RelationHistoryEntry> history, IObjectId id, IRelationType type)
+    protected void assertPropertyHistory(HistoryEntry entry, String propertyName, String propertyValue)
     {
-        RelationHistoryEntry entry = history.get(0);
-        assertEquals(entry.getRelatedObjectId(), id);
-        assertEquals(entry.getRelationType(), type);
-        assertEquals(history.size(), 1);
+        PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
+        assertEquals(relationEntry.getPropertyName(), propertyName);
+        assertEquals(relationEntry.getPropertyValue(), propertyValue);
+    }
+
+    protected void assertPropertyHistory(HistoryEntry entry, String propertyName, String propertyValue, Date validFrom, Date validTo)
+    {
+        PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
+        assertEquals(relationEntry.getPropertyName(), propertyName);
+        assertEquals(relationEntry.getPropertyValue(), propertyValue);
+        assertEquals(relationEntry.getValidFrom(), validFrom);
+        assertEquals(relationEntry.getValidTo(), validTo);
+    }
+
+    protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type)
+    {
+        RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
+        assertEquals(relationEntry.getRelatedObjectId(), id);
+        assertEquals(relationEntry.getRelationType(), type);
+    }
+
+    protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type, Date validFrom, Date validTo)
+    {
+        RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
+        assertEquals(relationEntry.getRelatedObjectId(), id);
+        assertEquals(relationEntry.getRelationType(), type);
+        assertEquals(relationEntry.getValidFrom(), validFrom);
+        assertEquals(relationEntry.getValidTo(), validTo);
     }
 
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)

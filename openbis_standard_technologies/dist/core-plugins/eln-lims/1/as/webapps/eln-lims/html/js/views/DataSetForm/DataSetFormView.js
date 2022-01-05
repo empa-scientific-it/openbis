@@ -35,16 +35,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		//
 		// Title
 		//
-		
-		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode];
-		if(nameLabel) {
-			//nameLabel = html.sanitize(nameLabel);
-			nameLabel = DOMPurify.sanitize(nameLabel);
-		} else {
-			nameLabel = this._dataSetFormModel.dataSet.code;
-		}
-		
+
+		var nameLabel = FormUtil.getDataSetName(this._dataSetFormModel.dataSet.code, this._dataSetFormModel.dataSet.properties)
 		var titleText = null;
+
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
@@ -155,6 +149,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                         });
                     }
                 }
+            }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSet.code);
+                    }
+                });
             }
 		} else if(!this._dataSetFormModel.isMini) {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {

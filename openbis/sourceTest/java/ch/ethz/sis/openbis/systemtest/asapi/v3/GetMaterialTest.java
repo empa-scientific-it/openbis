@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
@@ -242,7 +240,7 @@ public class GetMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testGetWithHistoryEmpty()
+    public void testGetWithHistoryNoChanges()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -257,7 +255,9 @@ public class GetMaterialTest extends AbstractDataSetTest
         Material material = map.get(id);
 
         List<HistoryEntry> history = material.getHistory();
-        assertEquals(history, Collections.emptyList());
+        assertEquals(history.size(), 1);
+
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "test virus 1");
 
         v3api.logout(sessionToken);
     }
@@ -284,11 +284,10 @@ public class GetMaterialTest extends AbstractDataSetTest
         Material material = map.get(id);
 
         List<HistoryEntry> history = material.getHistory();
-        assertEquals(history.size(), 1);
+        assertEquals(history.size(), 2);
 
-        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
-        assertEquals(entry.getPropertyName(), "DESCRIPTION");
-        assertEquals(entry.getPropertyValue(), "test virus 1");
+        assertPropertyHistory(history.get(0), "DESCRIPTION", "test virus 1");
+        assertPropertyHistory(history.get(1), "DESCRIPTION", "new description");
 
         v3api.logout(sessionToken);
     }

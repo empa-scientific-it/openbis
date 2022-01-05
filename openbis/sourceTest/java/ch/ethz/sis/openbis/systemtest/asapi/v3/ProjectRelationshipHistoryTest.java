@@ -20,7 +20,6 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,7 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDele
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
@@ -99,10 +98,13 @@ public class ProjectRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getSpaces(systemSessionToken, Arrays.asList(spaceId1), new SpaceFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getProjectHistory();
+        Project project = getProjectHistory();
+        List<HistoryEntry> history = project.getHistory();
 
         // Then
-        assertRelationshipHistory(history, spaceId1, ProjectRelationType.SPACE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), project.getModificationDate());
+        assertRelationshipHistory(history.get(1), spaceId2, ProjectRelationType.SPACE, project.getModificationDate(), null);
     }
 
     @Test
@@ -128,10 +130,13 @@ public class ProjectRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getExperiments(systemSessionToken, Arrays.asList(id), new ExperimentFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getProjectHistory();
+        Project project = getProjectHistory();
+        List<HistoryEntry> history = project.getHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ProjectRelationType.EXPERIMENT);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), id, ProjectRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
     }
 
     @Test
@@ -159,17 +164,19 @@ public class ProjectRelationshipHistoryTest extends AbstractTest
         assertEquals(v3api.getSamples(systemSessionToken, Arrays.asList(id), new SampleFetchOptions()).size(), 0);
 
         // When
-        List<RelationHistoryEntry> history = getProjectHistory();
+        Project project = getProjectHistory();
+        List<HistoryEntry> history = project.getHistory();
 
         // Then
-        assertRelationshipHistory(history, id, ProjectRelationType.SAMPLE);
+        assertEquals(history.size(), 2);
+        assertRelationshipHistory(history.get(0), id, ProjectRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(1), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
     }
 
-    private List<RelationHistoryEntry> getProjectHistory()
+    private Project getProjectHistory()
     {
         ProjectFetchOptions fo = new ProjectFetchOptions();
         fo.withHistory();
-        Project project = v3api.getProjects(systemSessionToken, Arrays.asList(projectId1), fo).get(projectId1);
-        return project.getHistory().stream().map(e -> (RelationHistoryEntry) e).collect(Collectors.toList());
+        return v3api.getProjects(systemSessionToken, Arrays.asList(projectId1), fo).get(projectId1);
     }
 }
