@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -47,7 +47,7 @@ class MultiDataSetArchivingUtils
                                                   List<DatasetDescription> dataSets,
                                                   ArchiverTaskContext context,
                                                   ISimpleLogger logger) {
-        Map<String, Status> statuses = new HashMap<>();
+        Map<String, Status> statuses = new LinkedHashMap<>();
         logger.log(LogLevel.INFO, "Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
         for (DatasetDescription dataSet : dataSets)
         {
