@@ -94,6 +94,25 @@ function HistoryModel(entity) {
                             validToRelationChanges.oldValue = relatedObjectId
                         }
                     }
+                } else if (entryType === "CONTENT_COPY") {
+                    var contentCopy = {
+                        externalCode: entry.externalCode,
+                        path: entry.path,
+                        gitCommitHash: entry.gitCommitHash,
+                        gitRepositoryId: entry.gitRepositoryId,
+                        externalDmsId: entry.externalDmsId,
+                        externalDmsCode: entry.externalDmsCode,
+                        externalDmsLabel: entry.externalDmsLabel,
+                        externalDmsAddress: entry.externalDmsAddress,
+                    }
+
+                    var validFromContentCopyChanges = _this._getContentCopyChanges(validFromChanges)
+                    validFromContentCopyChanges.added.push(contentCopy)
+
+                    if (validToChanges) {
+                        var validToContentCopyChanges = _this._getContentCopyChanges(validToChanges)
+                        validToContentCopyChanges.removed.push(contentCopy)
+                    }
                 }
             })
 
@@ -169,13 +188,17 @@ function HistoryModel(entity) {
     }
 
     this._applyChanges = function (object, changes) {
+        function getKey(item) {
+            return item !== null && typeof item === "object" ? JSON.stringify(item) : item
+        }
+
         function addAll(array, toAdd) {
             var addedMap = {}
             array.forEach(function (item) {
-                addedMap[item] = true
+                addedMap[getKey(item)] = true
             })
             toAdd.forEach(function (item) {
-                if (!addedMap[item]) {
+                if (!addedMap[getKey(item)]) {
                     array.push(item)
                 }
             })
@@ -185,11 +208,11 @@ function HistoryModel(entity) {
         function removeAll(array, toRemove) {
             var toRemoveMap = {}
             toRemove.forEach(function (item) {
-                toRemoveMap[item] = true
+                toRemoveMap[getKey(item)] = true
             })
             var newArray = []
             array.forEach(function (item) {
-                if (!toRemoveMap[item]) {
+                if (!toRemoveMap[getKey(item)]) {
                     newArray.push(item)
                 }
             })
@@ -206,6 +229,7 @@ function HistoryModel(entity) {
                 object.properties[propertyKey] = property.newValue
             }
         })
+
         Object.keys(changes.relations).forEach(function (relationType) {
             var relationChanges = changes.relations[relationType]
 
@@ -221,6 +245,14 @@ function HistoryModel(entity) {
                 object.relations[relationType] = relationChanges.newValue
             }
         })
+
+        if (changes.contentCopies) {
+            if (!object.contentCopies) {
+                object.contentCopies = []
+            }
+            object.contentCopies = removeAll(object.contentCopies, changes.contentCopies.removed)
+            object.contentCopies = addAll(object.contentCopies, changes.contentCopies.added)
+        }
     }
 
     this._getRelationChanges = function (changes, relationType) {
@@ -255,6 +287,20 @@ function HistoryModel(entity) {
         }
 
         return propertyChanges
+    }
+
+    this._getContentCopyChanges = function (changes) {
+        var contentCopyChanges = changes.contentCopies
+
+        if (!contentCopyChanges) {
+            contentCopyChanges = {
+                added: [],
+                removed: [],
+            }
+            changes.contentCopies = contentCopyChanges
+        }
+
+        return contentCopyChanges
     }
 
     this._isRelationOneToMany = function (relationType) {

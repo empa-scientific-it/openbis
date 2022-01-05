@@ -218,6 +218,46 @@ function HistoryView(controller, model) {
             $container.append($properties)
         }
 
+        var contentCopies = row.changes.contentCopies
+        if (!_.isEmpty(contentCopies)) {
+            var $contentCopies = $("<ul>")
+
+            function renderContentCopy(contentCopy) {
+                var $contentCopy = $("<div>")
+                $contentCopy.append($("<div>").text("External Code: " + contentCopy.externalCode))
+                $contentCopy.append($("<div>").text("Path: " + contentCopy.path))
+                $contentCopy.append($("<div>").text("Git Commit Hash: " + contentCopy.gitCommitHash))
+                $contentCopy.append($("<div>").text("Git Repository Id: " + contentCopy.gitRepositoryId))
+                $contentCopy.append($("<div>").text("External DMS Id: " + contentCopy.externalDmsId))
+                $contentCopy.append($("<div>").text("External DMS Code: " + contentCopy.externalDmsCode))
+                $contentCopy.append($("<div>").text("External DMS Label: " + contentCopy.externalDmsLabel))
+                $contentCopy.append($("<div>").text("External DMS Address: " + contentCopy.externalDmsAddress))
+                return $contentCopy
+            }
+
+            if (!_.isEmpty(contentCopies.removed)) {
+                contentCopies.removed.forEach(function (contentCopy) {
+                    var $contentCopy = $("<li>")
+                    $contentCopy.append(" content copy removed: ")
+                    $contentCopy.append(
+                        $("<div>", { class: "content-copy-removed" }).append(renderContentCopy(contentCopy))
+                    )
+                    $contentCopies.append($contentCopy)
+                })
+            }
+            if (!_.isEmpty(contentCopies.added)) {
+                contentCopies.added.forEach(function (contentCopy) {
+                    var $contentCopy = $("<li>")
+                    $contentCopy.append(" content copy added: ")
+                    $contentCopy.append(
+                        $("<div>", { class: "content-copy-added" }).append(renderContentCopy(contentCopy))
+                    )
+                    $contentCopies.append($contentCopy)
+                })
+            }
+            $container.append($contentCopies)
+        }
+
         return $container
     }
 

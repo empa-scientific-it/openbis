@@ -983,12 +983,12 @@ Preserve the relative scale, though. */
     font-weight: bold;
 }
 
-.history-view .relation-value-removed, .history-view .property-old-value, .history-view .relation-old-value {
+.history-view .relation-value-removed, .history-view .content-copy-removed, .history-view .property-old-value, .history-view .relation-old-value {
     padding: 8px;
     background-color: #FBE3E4;
 }
 
-.history-view .relation-value-added, .history-view .property-new-value, .history-view .relation-new-value {
+.history-view .relation-value-added, .history-view .content-copy-added, .history-view .property-new-value, .history-view .relation-new-value {
     padding: 8px;
     background-color: #E6EFC2;
 }
