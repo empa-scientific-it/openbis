@@ -39,7 +39,7 @@ public class CacheManager implements ICacheManager
         {
             try
             {
-                cache = (ICache<Object>) cacheClass.getConstructor(CacheOptionsVO.class, ITimeProvider.class)
+                cache = (ICache<Object>) cacheClass.getConstructor(CacheOptionsVO.class)
                         .newInstance(new CacheOptionsVO(cacheCapacity, serviceProperties, sessionToken, true,
                                 SystemTimeProvider.SYSTEM_TIME_PROVIDER));
             } catch (final InstantiationException | IllegalAccessException | InvocationTargetException |
