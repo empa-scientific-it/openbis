@@ -7,6 +7,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -51,8 +52,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final String LAST_SEEN_DATA_SET_FILE = "last-seen-data-set";
 
-    private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask {
+    private static final String DSS_CODE = "dss1";
 
+    private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
+    {
         private IMultiDataSetArchiverDBTransaction transaction;
 
         private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
@@ -67,13 +70,17 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         private IApplicationServerApi v3api;
 
+        private IConfigProvider configProvider;
+
         public MockMultiDataSetDeletionMaintenanceTask(IMultiDataSetArchiverDBTransaction transaction,
                                                        IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
                                                        IEncapsulatedOpenBISService openBISService,
                                                        IDataStoreServiceInternal dataStoreService,
                                                        IHierarchicalContentProvider contentProvider,
                                                        IShareIdManager shareIdManager,
-                                                       IApplicationServerApi v3api) {
+                                                       IApplicationServerApi v3api,
+                                                       IConfigProvider configProvider)
+        {
             this.transaction = transaction;
             this.readonlyDAO = readonlyDAO;
             this.openBISService = openBISService;
@@ -81,6 +88,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             this.contentProvider = contentProvider;
             this.shareIdManager = shareIdManager;
             this.v3api = v3api;
+            this.configProvider = configProvider;
         }
 
         @Override
@@ -96,28 +104,39 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         }
 
         @Override
-        protected IEncapsulatedOpenBISService getOpenBISService() {
+        protected IEncapsulatedOpenBISService getOpenBISService()
+        {
             return openBISService;
         }
 
         @Override
-        protected IDataStoreServiceInternal dataStoreService() {
+        protected IDataStoreServiceInternal dataStoreService()
+        {
             return dataStoreService;
         }
 
         @Override
-        protected IHierarchicalContentProvider getHierarchicalContentProvider() {
+        protected IHierarchicalContentProvider getHierarchicalContentProvider()
+        {
             return contentProvider;
         }
 
         @Override
-        protected IApplicationServerApi getV3ApplicationService() {
+        protected IApplicationServerApi getV3ApplicationService()
+        {
             return v3api;
         }
 
         @Override
-        protected IShareIdManager getShareIdManager() {
+        protected IShareIdManager getShareIdManager()
+        {
             return shareIdManager;
+        }
+
+        @Override
+        protected IConfigProvider getConfigProvider()
+        {
+            return configProvider;
         }
     }
 
@@ -126,6 +145,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         transaction = new MockMultiDataSetArchiverDBTransaction();
+        createStore();
 
         context = new Mockery();
 
@@ -135,23 +155,30 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         IShareIdManager shareIdManager = context.mock(IShareIdManager.class);
         IApplicationServerApi v3api = context.mock(IApplicationServerApi.class);
         IDataSetDirectoryProvider directoryProvider = context.mock(IDataSetDirectoryProvider.class);
+        IConfigProvider configProvider = context.mock(IConfigProvider.class);
 
         context.checking(new Expectations()
         {
             {
                 allowing(dataStoreService).getDataSetDirectoryProvider();
                 will(returnValue(directoryProvider));
+
+                allowing(configProvider).getStoreRoot();
+                will(returnValue(store));
+
+                allowing(configProvider).getDataStoreCode();
+                will(returnValue(DSS_CODE));
             }
         });
         task = new MockMultiDataSetDeletionMaintenanceTask(
-                transaction, transaction, openBISService,
-                dataStoreService, contentProvider, shareIdManager, v3api
+                transaction, transaction, openBISService, dataStoreService,
+                contentProvider, shareIdManager, v3api, configProvider
         );
-        createStore();
         task.setUp("", createProperties());
     }
 
-    private Properties createProperties() {
+    private Properties createProperties()
+    {
         Properties properties = new Properties();
 
         lastSeenDataSetFile = new File(workingDirectory, LAST_SEEN_DATA_SET_FILE);

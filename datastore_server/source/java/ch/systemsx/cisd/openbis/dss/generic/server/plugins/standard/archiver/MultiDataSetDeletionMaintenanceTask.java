@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -62,8 +61,6 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private IApplicationServerApi v3;
 
-    private IEncapsulatedOpenBISService openBISService;
-
     private SimpleFreeSpaceProvider simpleFreeSpaceProvider;
 
     private MultiDataSetFileOperationsManager multiDataSetFileOperationsManager;
@@ -77,6 +74,8 @@ public class MultiDataSetDeletionMaintenanceTask
     private IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
     private IDataStoreServiceInternal dataStoreService;
+
+    private IConfigProvider configProvider;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -110,7 +109,7 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private List<Share> getShares()
     {
-        IConfigProvider configProvider = ServiceProvider.getConfigProvider();
+        IConfigProvider configProvider = getConfigProvider();
         File storeRoot = configProvider.getStoreRoot();
         String dataStoreCode = configProvider.getDataStoreCode();
         Set<String> idsOfIncomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
@@ -134,32 +133,44 @@ public class MultiDataSetDeletionMaintenanceTask
         return new MultiDataSetArchiverDBTransaction();
     }
 
-    protected IDataStoreServiceInternal dataStoreService() {
+    protected IDataStoreServiceInternal dataStoreService()
+    {
         if (dataStoreService == null) {
             dataStoreService = ServiceProvider.getDataStoreService();
         }
         return dataStoreService;
     }
 
-    protected IHierarchicalContentProvider getHierarchicalContentProvider() {
+    protected IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
         if (hierarchicalContentProvider == null) {
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
     }
 
-    protected IApplicationServerApi getV3ApplicationService() {
+    protected IApplicationServerApi getV3ApplicationService()
+    {
         if (v3 == null) {
             v3 = ServiceProvider.getV3ApplicationService();
         }
         return v3;
     }
 
-    protected IShareIdManager getShareIdManager() {
+    protected IShareIdManager getShareIdManager()
+    {
         if (shareIdManager == null) {
             shareIdManager = ServiceProvider.getShareIdManager();
         }
         return shareIdManager;
+    }
+
+    protected IConfigProvider getConfigProvider()
+    {
+        if (configProvider == null) {
+            configProvider = ServiceProvider.getConfigProvider();
+        }
+        return configProvider;
     }
 
     @Override
