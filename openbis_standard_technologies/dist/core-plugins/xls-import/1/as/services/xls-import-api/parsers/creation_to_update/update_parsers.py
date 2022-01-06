@@ -222,7 +222,13 @@ class SampleCreationToUpdateParser(TypedEntityCreationToUpdateParser):
             sample_update.setProjectId(creation.getProjectId())
         if creation.getSpaceId() is not None:
             sample_update.setSpaceId(creation.getSpaceId())
-        sample_update.setProperties(creation.properties)
+        for key in creation.properties:
+            new_value = creation.properties[key]
+            if new_value is not None:
+                if new_value == '--DELETE--' or new_value == '__DELETE__':
+                    new_value = None
+                existing_sample.properties[key] = new_value
+        sample_update.setProperties(existing_sample.properties)
 
         existing_parent_identifiers = []
         existing_children_identifiers = []

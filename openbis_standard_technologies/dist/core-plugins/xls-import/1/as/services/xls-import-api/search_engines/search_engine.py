@@ -131,6 +131,7 @@ class SearchEngine():
         sample_fetch_options.withType()
         sample_fetch_options.withChildren()
         sample_fetch_options.withParents()
+        sample_fetch_options.withProperties()
         experiment_fetch_options = ExperimentFetchOptions()
         experiment_fetch_options.withType()
         search_strategy = [
