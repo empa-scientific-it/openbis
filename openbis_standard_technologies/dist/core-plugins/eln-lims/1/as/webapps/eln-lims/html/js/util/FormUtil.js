@@ -864,6 +864,9 @@ var FormUtil = new function() {
 			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
 			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+			if(profile.isForcedMonospaceFont(propertyType)) {
+				$component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
+			}
 		} else if (propertyType.dataType === "REAL") {
 			$component = this._getNumberInputField(propertyType.code, propertyType.description, 'any', propertyType.mandatory);
 		} else if (propertyType.dataType === "TIMESTAMP") {
@@ -1154,24 +1157,13 @@ var FormUtil = new function() {
 	}
 
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType, value, isReadOnly, toolbarContainer) {
-		if(profile.isForcedDisableRTF(propertyType)) {
-			$component.change(function(event) {
-				componentOnChange(event, $(this).val());
-			});
-		} else {
-		    // InlineEditor is not working with textarea that is why $component was changed on div
-		    var $component = this._getDiv($component.attr('id'), $component.attr('alt'), $component.attr('isRequired'));
-		    FormUtil.createCkeditor($component, componentOnChange, value, isReadOnly, toolbarContainer);
-		}
-
-        if(profile.isForcedMonospaceFont(propertyType)) {
-            $component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
-        }
+		// InlineEditor is not working with textarea that is why $component was changed on div
+		var $component = this._getDiv($component.attr('id'), $component.attr('alt'), $component.attr('isRequired'));
+		FormUtil.createCkeditor($component, componentOnChange, value, isReadOnly, toolbarContainer);
 
 		if (propertyType && propertyType.mandatory) {
 			$component.attr('required', '');
 		}
-
 		return $component;
 	}
 	
