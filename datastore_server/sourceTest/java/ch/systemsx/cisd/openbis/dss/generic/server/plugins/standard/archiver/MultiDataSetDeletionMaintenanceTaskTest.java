@@ -44,9 +44,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         context = new Mockery();
-        task = new MultiDataSetDeletionMaintenanceTask();
+//        task = new MultiDataSetDeletionMaintenanceTask();
         createStore();
-        task.setUp("", createProperties());
+//        task.setUp("", createProperties());
     }
 
     private Properties createProperties() {
