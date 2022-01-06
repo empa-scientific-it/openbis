@@ -65,7 +65,7 @@ class GridCell extends React.PureComponent {
   renderValue() {
     const { row, column } = this.props
 
-    const value = column.getValue({ row, column })
+    const value = column.getValue({ row, column, operation: 'render' })
     const renderedValue = column.renderValue
       ? column.renderValue({
           value,
@@ -87,7 +87,7 @@ class GridCell extends React.PureComponent {
     const { row, column } = this.props
 
     if (column.renderDOMValue && this.ref.current) {
-      const value = column.getValue({ row, column })
+      const value = column.getValue({ row, column, operation: 'render' })
       column.renderDOMValue({
         container: this.ref.current,
         value,

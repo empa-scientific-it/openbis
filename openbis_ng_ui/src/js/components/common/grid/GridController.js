@@ -313,7 +313,7 @@ export default class GridController {
           }
         }
 
-        const value = column.getValue({ row, column })
+        const value = column.getValue({ row, column, operation: 'match' })
 
         if (column.matchesValue) {
           return column.matchesValue({
@@ -329,8 +329,16 @@ export default class GridController {
       },
       compare: (row1, row2) => {
         const defaultCompare = compare
-        const value1 = column.getValue({ row: row1, column })
-        const value2 = column.getValue({ row: row2, column })
+        const value1 = column.getValue({
+          row: row1,
+          column,
+          operation: 'compare'
+        })
+        const value2 = column.getValue({
+          row: row2,
+          column,
+          operation: 'compare'
+        })
         const { sortDirection } = this.context.getState()
 
         if (column.compareValue) {
@@ -921,7 +929,12 @@ export default class GridController {
       rows.forEach(row => {
         var rowAsArray = []
         columns.forEach(column => {
-          var rowValue = column.getValue({ row, column })
+          var rowValue = column.getValue({
+            row,
+            column,
+            operation: 'export',
+            exportOptions
+          })
           if (!rowValue) {
             rowValue = ''
           } else {
