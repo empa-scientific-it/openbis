@@ -64,6 +64,12 @@ from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
 from ch.systemsx.cisd.common.shared.basic.string import StringUtils 
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions import PropertyTypeFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype import EntityKind
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentTypeFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleTypeFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetTypeFetchOptions
 
 #Plasmapper server used
 PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
@@ -121,30 +127,35 @@ def getSampleTypes(tr, parameters):
 	types = infService.listSampleTypes(sessionToken);
 	return types
 
-def getProperties(tr, parameters):
+def getProperties(tr, parameters, entityTypeCode, entityKind):
+	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	sessionToken = parameters.get("sessionToken");
-	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-	infService = servFinder.createService(IGeneralInformationService, OPENBISURL);
-	properties = infService.listPropertyTypes(sessionToken, False);
-	return properties
-
-rtpropertiesToIgnore = ["FREEFORM_TABLE_STATE", "NAME", "SEQUENCE"];
-
-def updatePropertiesToIgnore(tr):
-	global rtpropertiesToIgnore;
-	sample = tr.getSample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS");
-	if sample != None:
-		settingsJson = sample.getPropertyValue("ELN_SETTINGS");
-		if settingsJson != None:
-			settings = json.loads(settingsJson);
-			if "forcedDisableRTF" in settings:
-				rtpropertiesToIgnore = settings["forcedDisableRTF"];
+	propertyTypeFetchOptions = PropertyTypeFetchOptions();
+	typeId = EntityTypePermId(entityTypeCode, entityKind);
+	entityType = None
+	if entityKind == EntityKind.EXPERIMENT:
+		fetchOptions = ExperimentTypeFetchOptions();
+		fetchOptions.withPropertyAssignments().withPropertyType();
+		entityType = v3.getExperimentTypes(sessionToken, [typeId], fetchOptions).get(typeId);
+	if entityKind == EntityKind.SAMPLE:
+		fetchOptions = SampleTypeFetchOptions();
+		fetchOptions.withPropertyAssignments().withPropertyType();
+		entityType = v3.getSampleTypes(sessionToken, [typeId], fetchOptions).get(typeId);
+	if entityKind == EntityKind.DATA_SET:
+		fetchOptions = DataSetTypeFetchOptions();
+		fetchOptions.withPropertyAssignments().withPropertyType();
+		entityType = v3.getDataSetTypes(sessionToken, [typeId], fetchOptions).get(typeId);
+	entityTypeProperties = {};
+	for propertyAssignment in entityType.getPropertyAssignments():
+		propertyType = propertyAssignment.getPropertyType();
+		entityTypeProperties[propertyType.getCode()] = propertyType;
+	return entityTypeProperties;
 
 def isPropertyRichText(properties, propertyCode):
-	for property in properties:
-		if property.getCode() == propertyCode and property.getCode() not in rtpropertiesToIgnore:
-			return property.getDataType() == DataTypeCode.MULTILINE_VARCHAR;
-	return None;
+	if propertyCode in properties:
+		metaData = properties[propertyCode].getMetaData();
+		return ("custom_widget" in metaData) and metaData["custom_widget"] == "Word Processor";
+	return False;
 
 def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 	if isPropertyRichText(properties, propertyCode):
@@ -227,58 +238,52 @@ def process(tr, parameters, tableBuilder):
 	if method == "getDirectLinkURL":
 		result = getDirectLinkURL();
 		isOk = True;
-	
 	if method == "copyAndLinkAsParent":
 		isOk = copyAndLinkAsParent(tr, parameters, tableBuilder);
-	
 	if method == "batchOperation":
 		isOk = batchOperation(tr, projectSamplesEnabled, parameters, tableBuilder);
-		
+	if method == "listAvailableFeatures":
+		result = listAvailableFeatures(tr, parameters, tableBuilder);
+		isOk = True;
+	if method == "getDiskSpace":
+		result = getDiskSpace(tr, parameters, tableBuilder)
+		isOk = True
 	if method == "insertProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	if method == "updateProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
-	
-	if method == "insertExperiment":
-		updatePropertiesToIgnore(tr);
-		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
-	if method == "updateExperiment":
-		updatePropertiesToIgnore(tr);
-		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
-	
 	if method == "copySample":
 		result = copySample(tr, projectSamplesEnabled, parameters, tableBuilder);
 		isOk = True;
+	if method == "moveSample":
+		isOk = moveSample(tr, parameters, tableBuilder);
+	##
+	## Insert/Update Entities with properties
+	##
 	if method == "insertSample":
-		updatePropertiesToIgnore(tr);
 		result = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
 		isOk = True;
 	if method == "updateSample":
-		updatePropertiesToIgnore(tr);
 		result = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
 		isOk = True;
-	if method == "moveSample":
-		isOk = moveSample(tr, parameters, tableBuilder);
+	if method == "insertExperiment":
+		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
+	if method == "updateExperiment":
+		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
-		updatePropertiesToIgnore(tr);
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 	if method == "updateDataSet":
-		updatePropertiesToIgnore(tr);
 		isOk = updateDataSet(tr, parameters, tableBuilder);
-	
-	if method == "listFeatureVectorDatasetsPermIds":
-		result = listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder);
-		isOk = True;
-	if method == "listAvailableFeatures":
-		result = listAvailableFeatures(tr, parameters, tableBuilder);
-		isOk = True;
+
+	##
+	## Deprecated
+	##
 	if method == "getFeaturesFromFeatureVector":
 		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
 		isOk = True;
-
-	if method == "getDiskSpace":
-		result = getDiskSpace(tr, parameters, tableBuilder)
-		isOk = True
+	if method == "listFeatureVectorDatasetsPermIds":
+		result = listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder);
+		isOk = True;
 
 	if isOk:
 		tableBuilder.addHeader("STATUS");
@@ -484,7 +489,7 @@ def updateDataSet(tr, parameters, tableBuilder):
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	dataSet = tr.getDataSetForUpdate(dataSetCode);
 	dataSet.setParentDatasets(dataSetParents);
-	properties = getProperties(tr, parameters);
+	properties = getProperties(tr, parameters, dataset.getDataSetType(), EntityKind.DATA_SET);
 	#Hack - Fix Sample Lost bug from openBIS, remove when SSDM-1979 is fix
 	#Found in S211: In new openBIS versions if you set the already existing sample when doing a dataset update is deleted
 	#sampleIdentifier = parameters.get("sampleIdentifier"); #String
@@ -509,7 +514,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	dataSetParents = parameters.get("dataSetParents"); #List<String>
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
-	properties = getProperties(tr, parameters);
+	properties = getProperties(tr, parameters, dataSetType, EntityKind.DATA_SET);
 
 	#Create Dataset
 	dataSet = tr.createNewDataSet(dataSetType);
@@ -686,8 +691,6 @@ def batchOperation(tr, projectSamplesEnabled, parameters, tableBuilder):
 	return True;
 	
 def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
-	properties = getProperties(tr, parameters);
-	
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
 	sampleProject = parameters.get("sampleProject"); #String
@@ -703,7 +706,8 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	sampleChildrenAdded = parameters.get("sampleChildrenAdded"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
 	sampleParentsNew = parameters.get("sampleParentsNew");
-	
+
+	properties = getProperties(tr, parameters, sampleType, EntityKind.SAMPLE);
 	#Create/Get for update sample	
 	sampleIdentifier = createSampleIdentifier(sampleSpace, sampleProject, sampleCode, projectSamplesEnabled)
 	print "sampleIdentifier: " + sampleIdentifier
@@ -843,12 +847,11 @@ def moveSample(tr, parameters, tableBuilder):
 	return True
 
 def insertUpdateExperiment(tr, parameters, tableBuilder):
-	
 	#Mandatory parameters
 	experimentType = parameters.get("experimentType"); #String
 	experimentIdentifier = parameters.get("experimentIdentifier"); #String
 	experimentProperties = parameters.get("experimentProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
-	properties = getProperties(tr, parameters);
+	properties = getProperties(tr, parameters, experimentType, EntityKind.EXPERIMENT);
 	
 	experiment = None;
 	method = parameters.get("method");
