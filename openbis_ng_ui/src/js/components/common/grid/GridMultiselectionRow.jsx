@@ -40,7 +40,7 @@ class GridMultiselectionRow extends React.PureComponent {
       classes
     } = this.props
 
-    if (!multiselectable) {
+    if (columns.length === 0 || !multiselectable) {
       return null
     }
 

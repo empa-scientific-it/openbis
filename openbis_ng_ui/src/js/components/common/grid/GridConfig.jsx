@@ -1,10 +1,12 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
+import Link from '@src/js/components/common/form/Link.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import IconButton from '@material-ui/core/IconButton'
 import SettingsIcon from '@material-ui/icons/Settings'
@@ -26,19 +28,23 @@ const styles = theme => ({
     listStyle: 'none',
     margin: 0,
     padding: 0
+  },
+  columnsShowHide: {
+    fontSize: theme.typography.body2.fontSize,
+    textTransform: 'lowercase',
+    '& a': {
+      paddingRight: theme.spacing(1)
+    }
   }
 })
 
 class GridConfig extends React.PureComponent {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.state = {
       el: null
     }
-    this.handleOpen = this.handleOpen.bind(this)
-    this.handleClose = this.handleClose.bind(this)
-    this.handleDragEnd = this.handleDragEnd.bind(this)
-    this.handleFilterModeChange = this.handleFilterModeChange.bind(this)
   }
 
   handleOpen(event) {
@@ -65,6 +71,25 @@ class GridConfig extends React.PureComponent {
     if (onFilterModeChange) {
       onFilterModeChange(event.target.value)
     }
+  }
+
+  handleShowAll() {
+    this.handleVisibleChangeAll(true)
+  }
+
+  handleHideAll() {
+    this.handleVisibleChangeAll(false)
+  }
+
+  handleVisibleChangeAll(visibility) {
+    const { columns, onVisibleChange } = this.props
+
+    const visibilityMap = columns.reduce((map, column) => {
+      map[column.name] = visibility
+      return map
+    }, {})
+
+    onVisibleChange(visibilityMap)
   }
 
   render() {
@@ -137,6 +162,14 @@ class GridConfig extends React.PureComponent {
     return (
       <div>
         <Header size='small'>{messages.get(messages.COLUMNS)}</Header>
+        <div className={classes.columnsShowHide}>
+          <Link onClick={this.handleShowAll}>
+            ({messages.get(messages.SHOW_ALL)})
+          </Link>
+          <Link onClick={this.handleHideAll}>
+            ({messages.get(messages.HIDE_ALL)})
+          </Link>
+        </div>
         <DragDropContext onDragEnd={this.handleDragEnd}>
           <Droppable droppableId='root'>
             {provided => (

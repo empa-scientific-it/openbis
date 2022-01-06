@@ -750,29 +750,32 @@ export default class GridController {
     }
   }
 
-  async handleColumnVisibleChange(name) {
+  async handleColumnVisibleChange(visibilityMap) {
     const { allColumns } = this.context.getState()
 
-    const column = _.find(allColumns, column => column.name === name)
-    if (!column || !column.configurable) {
-      return
-    }
+    allColumns.forEach(column => {
+      if (!column.configurable) {
+        delete visibilityMap[column.name]
+      }
+    })
 
     await this.context.setState(state => {
-      const newColumnsVisibility = { ...state.columnsVisibility }
-      newColumnsVisibility[name] = !newColumnsVisibility[name]
+      const newColumnsVisibility = {
+        ...state.columnsVisibility,
+        ...visibilityMap
+      }
+      const newFilters = { ...state.filters }
 
-      if (newColumnsVisibility[name]) {
-        return {
-          columnsVisibility: newColumnsVisibility
+      Object.keys(visibilityMap).forEach(columnName => {
+        const visible = visibilityMap[columnName]
+        if (!visible) {
+          delete newFilters[columnName]
         }
-      } else {
-        const newFilters = { ...state.filters }
-        delete newFilters[name]
-        return {
-          columnsVisibility: newColumnsVisibility,
-          filters: newFilters
-        }
+      })
+
+      return {
+        columnsVisibility: newColumnsVisibility,
+        filters: newFilters
       }
     })
 

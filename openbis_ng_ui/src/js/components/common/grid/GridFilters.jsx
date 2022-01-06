@@ -86,9 +86,9 @@ class GridFilters extends React.PureComponent {
   }
 
   renderMultiselectCell() {
-    const { multiselectable, classes } = this.props
+    const { columns, multiselectable, classes } = this.props
 
-    if (multiselectable) {
+    if (columns.length > 0 && multiselectable) {
       return <TableCell classes={{ root: classes.multiselectCell }}></TableCell>
     } else {
       return null

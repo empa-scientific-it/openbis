@@ -27,7 +27,9 @@ class GridConfigRow extends React.PureComponent {
   }
 
   handleVisibleChange() {
-    this.props.onVisibleChange(this.props.column.name)
+    this.props.onVisibleChange({
+      [this.props.column.name]: !this.props.visible
+    })
   }
 
   render() {

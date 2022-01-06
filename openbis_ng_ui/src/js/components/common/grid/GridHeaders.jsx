@@ -65,9 +65,10 @@ class GridHeaders extends React.PureComponent {
   }
 
   renderMultiselectCell() {
-    const { multiselectable, multiselectedRows, rows, classes } = this.props
+    const { columns, multiselectable, multiselectedRows, rows, classes } =
+      this.props
 
-    if (multiselectable) {
+    if (columns.length > 0 && multiselectable) {
       const multiselectedRowIds = Object.keys(multiselectedRows)
       const rowIds = rows.map(row => String(row.id))
       const rowIdsSelected = _.intersection(rowIds, multiselectedRowIds)

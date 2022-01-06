@@ -189,7 +189,7 @@ function DataGridController(
                     (showAllColumns ||
                         column.showByDefault ||
                         column.canNotBeHidden ||
-                        index < 3 ||
+                        index < 50 ||
                         index === columns.length - 1),
                 configurable: !column.hide && !column.canNotBeHidden,
                 exportable: column.isExportable,

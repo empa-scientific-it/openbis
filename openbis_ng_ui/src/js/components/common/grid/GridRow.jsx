@@ -76,9 +76,9 @@ class GridRow extends React.PureComponent {
   }
 
   renderMultiselect() {
-    const { multiselectable, multiselected, classes } = this.props
+    const { columns, multiselectable, multiselected, classes } = this.props
 
-    if (multiselectable) {
+    if (columns.length > 0 && multiselectable) {
       return (
         <TableCell classes={{ root: classes.multiselect }}>
           <div className={classes.checkbox}>
