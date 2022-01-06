@@ -193,6 +193,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             experimentsByType[this._sampleTableModel.sampleTypeCodeToUse] = experimentIdentifier;
             var space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
             spacesByType["STORAGE_POSITION"] = profile.getStorageSpaceForSpace(space);
+        } else {
+            allowedSampleTypes.forEach(t => experimentsByType[t] = experimentIdentifier);
         }
         var title = 'Register ' + ELNDictionary.Samples;
         var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, function(file) {
