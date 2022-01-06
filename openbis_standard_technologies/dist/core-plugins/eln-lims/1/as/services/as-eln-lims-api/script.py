@@ -65,6 +65,7 @@ def getSamplesImportTemplate(context, parameters):
     from org.apache.poi.ss.usermodel import IndexedColors
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleTypeFetchOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 
     allowedSampleTypes = [EntityTypePermId(code) for code in parameters.get("allowedSampleTypes")]
     importMode = parameters.get("importMode")
@@ -72,6 +73,7 @@ def getSamplesImportTemplate(context, parameters):
     api = context.getApplicationService()
     fetchOptions = SampleTypeFetchOptions()
     fetchOptions.withPropertyAssignments().withPropertyType()
+    fetchOptions.withPropertyAssignments().withPlugin()
     sampleTypes = api.getSampleTypes(sessionToken, allowedSampleTypes, fetchOptions)
     workbook = XSSFWorkbook()
     sheet = workbook.createSheet()
@@ -97,7 +99,9 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
-            cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+            plugin = propertyAssignment.getPlugin()
+            if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
+                cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
         max_number_of_columns = max(max_number_of_columns, cell_index)
         row_index += 6
     for i in range(max_number_of_columns):
