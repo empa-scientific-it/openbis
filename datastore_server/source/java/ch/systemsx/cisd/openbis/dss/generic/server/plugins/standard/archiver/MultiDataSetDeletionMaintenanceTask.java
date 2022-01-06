@@ -74,15 +74,16 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
+    private IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
+
+    private IDataStoreServiceInternal dataStoreService;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
         super.setUp(pluginName, properties);
 
-        IDataStoreServiceInternal dataStoreService = ServiceProvider.getDataStoreService();
-        dataSetDirectoryProvider = dataStoreService.getDataSetDirectoryProvider();
-        hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
-
+        dataSetDirectoryProvider = dataStoreService().getDataSetDirectoryProvider();
         cleaner = MultiDataSetArchivingUtils.createCleaner(
                 PropertyParametersUtil.extractSingleSectionProperties(
                         properties, ARCHIVER_PREFIX + MultiDataSetArchiver.CLEANER_PROPS, false).getProperties());
@@ -99,11 +100,8 @@ public class MultiDataSetDeletionMaintenanceTask
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
-        v3 = ServiceProvider.getV3ApplicationService();
         shareFinder = new MappingBasedShareFinder(properties);
-        openBISService = ServiceProvider.getOpenBISService();
         simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
-        shareIdManager = ServiceProvider.getShareIdManager();
         multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
                 properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
                 simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
@@ -119,21 +117,60 @@ public class MultiDataSetDeletionMaintenanceTask
 
         return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
                 SegmentedStoreUtils.FilterOptions.AVAILABLE_FOR_SHUFFLING,
-                idsOfIncomingShares, simpleFreeSpaceProvider, openBISService, getOperationLogAsSimpleLogger());
+                idsOfIncomingShares, simpleFreeSpaceProvider, getOpenBISService(), getOperationLogAsSimpleLogger());
+    }
+
+    protected IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+    {
+        if (readonlyQuery == null)
+        {
+            readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
+        }
+        return readonlyQuery;
+    }
+
+    protected IMultiDataSetArchiverDBTransaction getTransaction()
+    {
+        return new MultiDataSetArchiverDBTransaction();
+    }
+
+    protected IDataStoreServiceInternal dataStoreService() {
+        if (dataStoreService == null) {
+            dataStoreService = ServiceProvider.getDataStoreService();
+        }
+        return dataStoreService;
+    }
+
+    protected IHierarchicalContentProvider getHierarchicalContentProvider() {
+        if (hierarchicalContentProvider == null) {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
+    }
+
+    protected IApplicationServerApi getV3ApplicationService() {
+        if (v3 == null) {
+            v3 = ServiceProvider.getV3ApplicationService();
+        }
+        return v3;
+    }
+
+    protected IShareIdManager getShareIdManager() {
+        if (shareIdManager == null) {
+            shareIdManager = ServiceProvider.getShareIdManager();
+        }
+        return shareIdManager;
     }
 
     @Override
     protected void execute(List<DeletedDataSet> datasetCodes)
     {
-        IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
-        IMultiDataSetArchiverDBTransaction transaction = new MultiDataSetArchiverDBTransaction();
-
-        List<MultiDataSetArchiverContainerDTO> containers = findArchivesWithDeletedDataSets(readonlyQuery, datasetCodes);
+        List<MultiDataSetArchiverContainerDTO> containers = findArchivesWithDeletedDataSets(datasetCodes);
         Set<String> codes = datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toSet());
 
         for (MultiDataSetArchiverContainerDTO container : containers)
         {
-            List<MultiDataSetArchiverDataSetDTO> dataSets = readonlyQuery.listDataSetsForContainerId(container.getId());
+            List<MultiDataSetArchiverDataSetDTO> dataSets = getReadonlyQuery().listDataSetsForContainerId(container.getId());
             List<SimpleDataSetInformationDTO> notDeletedDataSets = new ArrayList<>();
             for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
             {
@@ -141,8 +178,8 @@ public class MultiDataSetDeletionMaintenanceTask
                 {
                     SimpleDataSetInformationDTO simpleDataSet = getSimpleDataSet(dataSet);
                     Share share = shareFinder.tryToFindShare(simpleDataSet, shares);
-                    shareIdManager.setShareId(dataSet.getCode(), share.getShareId());
-                    openBISService.updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
+                    getShareIdManager().setShareId(dataSet.getCode(), share.getShareId());
+                    getOpenBISService().updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
                     notDeletedDataSets.add(simpleDataSet);
                 }
             }
@@ -151,7 +188,7 @@ public class MultiDataSetDeletionMaintenanceTask
             sanityCheck(notDeletedDataSets, container.getPath());
             multiDataSetFileOperationsManager.deleteContainerFromFinalDestination(cleaner, container.getPath());
             multiDataSetFileOperationsManager.deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
-            deleteContainer(transaction, container.getId());
+            deleteContainer(container.getId());
             if (notDeletedDataSets.isEmpty() == false)
             {
                 updateDataSetsStatusAndFlags(notDeletedDataSets);
@@ -175,7 +212,7 @@ public class MultiDataSetDeletionMaintenanceTask
     {
         List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
         IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSets);
-        ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, hierarchicalContentProvider);
+        ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, getHierarchicalContentProvider());
         MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, getOperationLogAsSimpleLogger());
     }
 
@@ -185,7 +222,7 @@ public class MultiDataSetDeletionMaintenanceTask
         List<String> codes = notDeletedDataSets.stream()
                 .map(SimpleDataSetInformationDTO::getDataSetCode)
                 .collect(Collectors.toList());
-        openBISService.updateDataSetStatuses(codes, DataSetArchivingStatus.AVAILABLE, false);
+        getOpenBISService().updateDataSetStatuses(codes, DataSetArchivingStatus.AVAILABLE, false);
 
         // Set request_archiving flag to true
         List<DataSetUpdate> dataSetUpdates = new ArrayList<>();
@@ -198,7 +235,7 @@ public class MultiDataSetDeletionMaintenanceTask
             dataSetUpdate.setPhysicalData(physicalDataUpdate);
             dataSetUpdates.add(dataSetUpdate);
         }
-        v3.updateDataSets(openBISService.getSessionToken(), dataSetUpdates);
+        getV3ApplicationService().updateDataSets(getOpenBISService().getSessionToken(), dataSetUpdates);
     }
 
     private SimpleDataSetInformationDTO getSimpleDataSet(MultiDataSetArchiverDataSetDTO dataSet)
@@ -209,7 +246,7 @@ public class MultiDataSetDeletionMaintenanceTask
         fetchOptions.withSample().withProject().withSpace();
         fetchOptions.withSample().withSpace();
         DataSetPermId dataSetPermId = new DataSetPermId(dataSet.getCode());
-        DataSet dataSet1 = v3.getDataSets(openBISService.getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions)
+        DataSet dataSet1 = getV3ApplicationService().getDataSets(getOpenBISService().getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions)
                 .get(dataSetPermId);
         SimpleDataSetInformationDTO simpleDataSet = new SimpleDataSetInformationDTO();
         simpleDataSet.setDataSetSize(dataSet1.getPhysicalData().getSize());
@@ -232,8 +269,9 @@ public class MultiDataSetDeletionMaintenanceTask
         return simpleDataSet;
     }
 
-    private void deleteContainer(IMultiDataSetArchiverDBTransaction transaction, long containerId)
+    private void deleteContainer(long containerId)
     {
+        IMultiDataSetArchiverDBTransaction transaction = getTransaction();
         try
         {
             transaction.deleteContainer(containerId);
@@ -245,10 +283,9 @@ public class MultiDataSetDeletionMaintenanceTask
         transaction.close();
     }
 
-    private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(
-            IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery, List<DeletedDataSet> datasetCodes)
+    private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)
     {
         String[] dataSetCodes = datasetCodes.stream().map(DeletedDataSet::getCode).toArray(String[]::new);
-        return readonlyQuery.listContainersWithDataSets(dataSetCodes);
+        return getReadonlyQuery().listContainersWithDataSets(dataSetCodes);
     }
 }
