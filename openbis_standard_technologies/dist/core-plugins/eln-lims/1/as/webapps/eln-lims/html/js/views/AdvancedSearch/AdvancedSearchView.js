@@ -1086,28 +1086,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     var propertyType = profile.getPropertyType(propertyCode)
                     var renderFilter = null
 
-                    if(propertyType.dataType === "CONTROLLEDVOCABULARY"){
+                    if(propertyType.dataType === "BOOLEAN"){
+                        renderFilter = function(params){
+                            return FormUtil.renderBooleanGridFilter(params);
+                        }
+                    } else if(propertyType.dataType === "CONTROLLEDVOCABULARY"){
                         renderFilter = (function(propertyType){
                             return function(params){
-                                var options = []
-                                        
-                                if(propertyType.vocabulary && propertyType.vocabulary.terms){
-                                    propertyType.vocabulary.terms.forEach(function(term){
-                                        options.push({
-                                            label: term.code,
-                                            value: term.code
-                                        })
-                                    })
-                                }
-
-                                return React.createElement(window.NgUiGrid.default.SelectField, {
-                                    label: 'Filter',
-                                    variant: 'standard',
-                                    value: params.value,
-                                    emptyOption: {},
-                                    options: options,
-                                    onChange: params.onChange
-                                })
+                                return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
                             }
                         })(propertyType)
                     }

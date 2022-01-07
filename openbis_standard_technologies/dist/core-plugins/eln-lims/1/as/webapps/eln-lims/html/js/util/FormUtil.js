@@ -2268,4 +2268,38 @@ var FormUtil = new function() {
 		}
 		return id;
 	}
+
+    this.renderBooleanGridFilter = function(params){
+        return React.createElement(window.NgUiGrid.default.SelectField, {
+            label: 'Filter',
+            variant: 'standard',
+            value: params.value,
+            emptyOption: {},
+            options: [{value: "true"}, {value: "false"}],
+            onChange: params.onChange
+        })
+    }
+
+    this.renderVocabularyGridFilter = function(params, vocabulary){
+        var options = []
+
+        if(vocabulary && vocabulary.terms){
+            vocabulary.terms.forEach(function(term){
+                options.push({
+                    label: term.label,
+                    value: term.code
+                })
+            })
+        }
+
+        return React.createElement(window.NgUiGrid.default.SelectField, {
+            label: 'Filter',
+            variant: 'standard',
+            value: params.value,
+            emptyOption: {},
+            options: options,
+            onChange: params.onChange
+        })
+    }
+
 }

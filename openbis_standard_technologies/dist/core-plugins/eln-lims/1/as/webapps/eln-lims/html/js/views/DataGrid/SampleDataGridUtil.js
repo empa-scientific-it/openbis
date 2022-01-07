@@ -133,7 +133,25 @@ var SampleDataGridUtil = new function() {
 					continue;
 				}
 				var propertyType = profile.getPropertyType(propertyCode);
-				if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+
+				if(propertyType.dataType === "BOOLEAN"){
+					var getBooleanColumn = function(propertyType) {
+						return {
+							label : propertyType.label,
+							property : propertyType.code,
+							isExportable: true,
+							filterable : true,
+							sortable : true,
+							metadata: {
+								dataType: propertyType.dataType
+							},
+							renderFilter : function(params) {
+								return FormUtil.renderBooleanGridFilter(params);
+							}
+						};
+					}
+					propertyColumnsToSort.push(getBooleanColumn(propertyType));
+				} else if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
 					var getVocabularyColumn = function(propertyType) {
 						return function() {
 							return {
@@ -149,25 +167,7 @@ var SampleDataGridUtil = new function() {
 									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
 								},
 								renderFilter: function(params){
-                                    var options = []
-                                    
-                                    if(propertyType.vocabulary && propertyType.vocabulary.terms){
-                                        propertyType.vocabulary.terms.forEach(function(term){
-                                            options.push({
-                                                label: term.label,
-                                                value: term.code
-                                            })
-                                        })
-                                    }
-
-                                    return React.createElement(window.NgUiGrid.default.SelectField, {
-                                        label: 'Filter',
-                                        variant: 'standard',
-                                        value: params.value,
-                                        emptyOption: {},
-                                        options: options,
-                                        onChange: params.onChange
-                                    })
+									return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
 								},
 								filter : function(data, filter) {
 									var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
