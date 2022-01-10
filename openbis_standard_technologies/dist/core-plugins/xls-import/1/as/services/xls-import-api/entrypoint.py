@@ -123,6 +123,7 @@ def process(context, parameters):
                             'experiments_by_type', - optional
                             'spaces_by_type', - optional
                             'definitions_only', - optional (default: False)
+                            'disallow_creations', - optional (default: False)
                             'ignore_versioning', - optional (default: False)
                             'update_mode': [IGNORE_EXISTING|FAIL_IF_EXISTS|UPDATE_IF_EXISTS] - optional, default FAIL_IF_EXISTS
                                                                                              This only takes duplicates that are ON THE SERVER
@@ -139,6 +140,7 @@ def process(context, parameters):
     spaces_by_type = parameters.get('spaces_by_type', None)
     scripts = parameters.get('scripts', {})
     update_mode = parameters.get('update_mode', 'FAIL_IF_EXISTS')
+    disallow_creations = parameters.get("disallow_creations", False)
     ignore_versioning = parameters.get('ignore_versioning', False)
     validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
     definitions = get_definitions_from_xls(xls_byte_arrays)
@@ -170,6 +172,7 @@ def process(context, parameters):
     creations = server_duplicates_handler.handle_existing_elements_in_creations()
     entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations = CreationOrUpdateToOperationParser.parse(
         creations)
+    assert_allowed_creations(disallow_creations, entity_creation_operations)
     inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type)
 
     entity_type_update_results = str(api.executeOperations(session_token, entity_type_update_operations,
@@ -187,6 +190,19 @@ def process(context, parameters):
     return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
         entity_type_update_results, entity_update_results,
         entity_type_creation_results, entity_creation_results)
+
+def assert_allowed_creations(disallow_creations, entity_creation_operations):
+    if disallow_creations:
+        unknown_entities = ""
+        counter = 0
+        for entity_creation_operation in entity_creation_operations:
+            for creation in entity_creation_operation.getCreations():
+                unknown_entities += "\n%s [%s]" % (creation.getCreationId(),creation.getTypeId())
+                counter += 1
+        if counter == 1:
+            raise UserFailureException("Unknown entity: %s" % unknown_entities)
+        elif counter > 1:
+            raise UserFailureException("%s unknown entities: %s" % (counter, unknown_entities))
 
 def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type):
     for eco in entity_creation_operations:
