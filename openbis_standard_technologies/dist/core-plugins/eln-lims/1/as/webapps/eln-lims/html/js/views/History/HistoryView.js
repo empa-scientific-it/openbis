@@ -116,8 +116,6 @@ function HistoryView(controller, model) {
         )
 
         this._dataGrid.init(this._container)
-
-        this._container.prepend($("<legend>").append("History"))
     }
 
     this._renderChanges = function (row) {
