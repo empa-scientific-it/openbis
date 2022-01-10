@@ -413,7 +413,7 @@ export default class GridController {
       )
     }
 
-    if (loaded.globalFilter) {
+    if (_.isObject(loaded.globalFilter)) {
       const globalFilter = {}
 
       globalFilter.operator = this._getEnumValue(
@@ -421,23 +421,59 @@ export default class GridController {
         GridFilterOptions.OPERATOR_OPTIONS
       )
 
-      settings.globalFilter = globalFilter
+      if (globalFilter.operator !== undefined) {
+        settings.globalFilter = globalFilter
+      }
     }
 
     settings.pageSize = this._getEnumValue(
       loaded.pageSize,
       GridPagingOptions.PAGE_SIZE_OPTIONS
     )
-    settings.sort = this._getStringValue(loaded.sort)
-    settings.sortDirection = this._getEnumValue(
-      loaded.sortDirection,
-      GridSortingOptions.SORTING_DIRECTION_OPTIONS
-    )
+
+    if (_.isArray(loaded.sortings)) {
+      const sortings = []
+      loaded.sortings.forEach(loadedSorting => {
+        if (_.isObject(loadedSorting)) {
+          const sorting = {}
+          sorting.columnName = this._getStringValue(loadedSorting.columnName)
+          sorting.sortDirection = this._getEnumValue(
+            loadedSorting.sortDirection,
+            GridSortingOptions.SORTING_DIRECTION_OPTIONS
+          )
+          if (
+            sorting.columnName !== undefined &&
+            sorting.sortDirection !== undefined
+          ) {
+            sortings.push(sorting)
+          }
+        }
+      })
+      if (sortings.length > 0) {
+        settings.sortings = sortings
+      }
+    }
+
+    if (settings.sortings === undefined) {
+      const sort = this._getStringValue(loaded.sort)
+      const sortDirection = this._getEnumValue(
+        loaded.sortDirection,
+        GridSortingOptions.SORTING_DIRECTION_OPTIONS
+      )
+      if (sort !== undefined && sortDirection !== undefined) {
+        settings.sortings = [
+          {
+            columnName: sort,
+            sortDirection: sortDirection
+          }
+        ]
+      }
+    }
+
     settings.columnsVisibility = this._getObjectValue(loaded.columnsVisibility)
     settings.columnsSorting = this._getArrayValue(loaded.columnsSorting)
-    settings.exportOptions = this._getObjectValue(loaded.exportOptions)
 
-    if (loaded.exportOptions) {
+    if (_.isObject(loaded.exportOptions)) {
       const exportOptions = {}
 
       exportOptions.columns = this._getEnumValue(
@@ -453,7 +489,13 @@ export default class GridController {
         GridExportOptions.VALUES_OPTIONS
       )
 
-      settings.exportOptions = exportOptions
+      if (
+        exportOptions.columns !== undefined &&
+        exportOptions.rows !== undefined &&
+        exportOptions.values !== undefined
+      ) {
+        settings.exportOptions = exportOptions
+      }
     }
 
     return settings
@@ -471,8 +513,7 @@ export default class GridController {
           operator: state.globalFilter.operator
         },
         pageSize: state.pageSize,
-        sort: state.sort,
-        sortDirection: state.sortDirection,
+        sortings: state.sortings,
         columnsVisibility: state.columnsVisibility,
         columnsSorting: state.columnsSorting,
         exportOptions: state.exportOptions
