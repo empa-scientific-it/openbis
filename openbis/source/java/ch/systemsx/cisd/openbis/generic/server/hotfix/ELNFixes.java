@@ -23,6 +23,7 @@ public class ELNFixes {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         String sessionToken = api.loginAsSystem();
         storageValidationLevelFix(sessionToken, api);
+        nameNoRTFFix(sessionToken, api);
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
@@ -53,5 +54,30 @@ public class ELNFixes {
             api.updateSamples(sessionToken, storageUpdates);
         }
         operationLog.info("ELNFixes storageValidationLevelFix: " + storageUpdates.size());
+    }
+
+    private static final String NAME_PROPERTY_CODE = "$NAME";
+
+    private static void nameNoRTFFix(String sessionToken, IApplicationServerInternalApi api) {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withStringProperty(NAME_PROPERTY_CODE).thatContains("<");
+        criteria.withType().withCode().thatEquals("ENTRY");
+        SampleFetchOptions options = new SampleFetchOptions();
+        options.withProperties();
+
+        SearchResult<Sample> namesRTF = api.searchSamples(sessionToken, criteria, options);
+
+        List<SampleUpdate> nameUpdates = new ArrayList<>();
+        for (Sample nameRTF:namesRTF.getObjects()) {
+            SampleUpdate nameUpdate = new SampleUpdate();
+            nameUpdate.setSampleId(nameRTF.getPermId());
+            nameUpdate.setProperty(NAME_PROPERTY_CODE, nameRTF.getProperty(NAME_PROPERTY_CODE).replaceAll( "(<([^>]+)>)", ""));
+            nameUpdates.add(nameUpdate);
+        }
+
+        if (!nameUpdates.isEmpty()) {
+            api.updateSamples(sessionToken, nameUpdates);
+        }
+        operationLog.info("ELNFixes nameNoRTFFix: " + nameUpdates.size());
     }
 }
