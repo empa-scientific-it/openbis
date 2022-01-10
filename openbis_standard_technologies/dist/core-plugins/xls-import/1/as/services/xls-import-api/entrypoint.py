@@ -125,6 +125,7 @@ def process(context, parameters):
                             'definitions_only', - optional (default: False)
                             'disallow_creations', - optional (default: False)
                             'ignore_versioning', - optional (default: False)
+                            'render_result', - optional (default: True)
                             'update_mode': [IGNORE_EXISTING|FAIL_IF_EXISTS|UPDATE_IF_EXISTS] - optional, default FAIL_IF_EXISTS
                                                                                              This only takes duplicates that are ON THE SERVER
                         }
@@ -142,6 +143,8 @@ def process(context, parameters):
     update_mode = parameters.get('update_mode', 'FAIL_IF_EXISTS')
     disallow_creations = parameters.get("disallow_creations", False)
     ignore_versioning = parameters.get('ignore_versioning', False)
+    render_result = parameters.get('render_result', True)
+
     validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
     definitions = get_definitions_from_xls(xls_byte_arrays)
     definitions.extend(get_definitions_from_csv(csv_strings))
@@ -175,21 +178,33 @@ def process(context, parameters):
     assert_allowed_creations(disallow_creations, entity_creation_operations)
     inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type)
 
-    entity_type_update_results = str(api.executeOperations(session_token, entity_type_update_operations,
-                                                           SynchronousOperationExecutionOptions()).getResults())
-    entity_type_creation_results = str(api.executeOperations(session_token, entity_type_creation_operations,
-                                                             SynchronousOperationExecutionOptions()).getResults())
-    entity_creation_results = str(api.executeOperations(session_token, entity_creation_operations,
-                                                        SynchronousOperationExecutionOptions()).getResults())
-    entity_update_results = str(api.executeOperations(session_token, entity_update_operations,
-                                                      SynchronousOperationExecutionOptions()).getResults())
+    entity_type_update_results = api.executeOperations(session_token, entity_type_update_operations,
+                                                           SynchronousOperationExecutionOptions()).getResults()
+    entity_type_creation_results = api.executeOperations(session_token, entity_type_creation_operations,
+                                                             SynchronousOperationExecutionOptions()).getResults()
+    entity_creation_results = api.executeOperations(session_token, entity_creation_operations,
+                                                        SynchronousOperationExecutionOptions()).getResults()
+    entity_update_results = api.executeOperations(session_token, entity_update_operations,
+                                                      SynchronousOperationExecutionOptions()).getResults()
 
     if not ignore_versioning:
         all_versioning_information[xls_version_name] = versioning_information
         save_versioning_information(all_versioning_information, xls_version_filepath)
-    return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
-        entity_type_update_results, entity_update_results,
-        entity_type_creation_results, entity_creation_results)
+    if render_result:
+        return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
+            entity_type_update_results, entity_update_results,
+            entity_type_creation_results, entity_creation_results)
+    ids = []
+    add_results(ids, entity_type_update_results)
+    add_results(ids, entity_update_results)
+    add_results(ids, entity_type_creation_results)
+    add_results(ids, entity_creation_results)
+    return ids
+
+def add_results(ids, results):
+    for result in results:
+        for id in result.getObjectIds():
+            ids.append(id)
 
 def assert_allowed_creations(disallow_creations, entity_creation_operations):
     if disallow_creations:
