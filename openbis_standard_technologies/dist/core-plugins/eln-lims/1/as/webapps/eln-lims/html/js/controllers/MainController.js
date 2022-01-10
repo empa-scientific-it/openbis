@@ -1140,7 +1140,7 @@ function MainController(profile) {
 				_this.currentView = sampleTableController;
 			});
 		} else {
-			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null);
+			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null, null);
 			sampleTableController.init(views);
 			this.currentView = sampleTableController;
 		}
