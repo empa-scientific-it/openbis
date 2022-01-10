@@ -202,14 +202,13 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             mainController.serverFacade.fileUpload(file, function() {
                 mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType, "sample-file-upload", 
                 function(result) {
-                    Util.unblockUI();
-                    mainController.changeView('showSamplesPage', experimentIdentifier);
+                    _this._handleResult(result, "created", experimentIdentifier);
                 });
             });
         });
         batchController.init();
     }
-    
+
     this.updateSamples = function(experimentIdentifier) {
         var _this = this;
         var allowedSampleTypes = this.getAllowedSampleTypes();
@@ -224,17 +223,30 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             mainController.serverFacade.fileUpload(file, function() {
                 mainController.serverFacade.updateSamples(allowedSampleTypes, "sample-file-upload", 
                         function(result) {
-                    Util.unblockUI();
-                    mainController.changeView('showSamplesPage', experimentIdentifier);
+                    _this._handleResult(result, "updated", experimentIdentifier);
                 });
             });
         });
         batchController.init();
     }
-    
+
     this.getAllowedSampleTypes = function() {
         return profile.getAllSampleTypes().map(t => t.code).filter(function(type) {
             return profile.isSampleTypeHidden(type) == false;
         });
+    }
+
+    this._handleResult = function(result, verb, experimentIdentifier) {
+        Util.showSuccess(result[0].length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
+            Util.unblockUI();
+            mainController.changeView('showSamplesPage', experimentIdentifier);
+        });
+    }
+    
+    this._countEntities = function(description) {
+        if (description.length == 0) {
+            return 0;
+        }
+        
     }
 }

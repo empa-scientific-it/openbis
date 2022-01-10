@@ -177,6 +177,7 @@ def importData(context, bytes, file_name, experimentsByType, spacesByType, mode,
     props.withParameter('xls_name', file_name)
     props.withParameter('update_mode', mode)
     props.withParameter('disallow_creations', mode == 'UPDATE_IF_EXISTS')
+    props.withParameter('render_result', False)
     props.withParameter('ignore_versioning', True)
     if definitionsOnly:
         props.withParameter('definitions_only', True)
