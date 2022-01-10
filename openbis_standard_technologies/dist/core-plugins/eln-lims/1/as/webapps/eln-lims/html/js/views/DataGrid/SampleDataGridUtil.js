@@ -623,41 +623,43 @@ var SampleDataGridUtil = new function() {
                 }
             }
 
-			if(options && options.sortProperty && options.sortDirection) {
-				fetchOptions.sort = { 
-						type : null,
-						name : null,
-						direction : options.sortDirection
-				}
-				
-				switch(options.sortProperty) {
-					case "code":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "code";
-						break;
-					case "identifier":
-					case "default_space":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "identifier";
-						break;
-					case "sampleTypeCode":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "type";
-						break;
-					case "registrationDate":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "registrationDate"
-						break;
-					case "modificationDate":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "modificationDate";
-						break;
-					default: //Properties
-						fetchOptions.sort.type = "Property";
-						fetchOptions.sort.name = options.sortProperty;
-						break;
-				}
-			}
+            if(options && options.sortings) {
+                var sortings = []
+                options.sortings.forEach(function(optionsSorting){
+                    var sorting = {
+                        direction: optionsSorting.sortDirection
+                    }
+                    switch(optionsSorting.columnName) {
+                        case "code":
+                            sorting.type = "Attribute";
+                            sorting.name = "code";
+                            break;
+                        case "identifier":
+                        case "default_space":
+                            sorting.type = "Attribute";
+                            sorting.name = "identifier";
+                            break;
+                        case "sampleTypeCode":
+                            sorting.type = "Attribute";
+                            sorting.name = "type";
+                            break;
+                        case "registrationDate":
+                            sorting.type = "Attribute";
+                            sorting.name = "registrationDate"
+                            break;
+                        case "modificationDate":
+                            sorting.type = "Attribute";
+                            sorting.name = "modificationDate";
+                            break;
+                        default: //Properties
+                            sorting.type = "Property";
+                            sorting.name = optionsSorting.columnName;
+                            break;
+                    }
+                    sortings.push(sorting)
+                })
+                fetchOptions.sortings = sortings
+            }
 			
 //			Util.blockUI();
 //			mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, function(result) {

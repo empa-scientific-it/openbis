@@ -266,54 +266,59 @@ function AdvancedSearchController(mainController, forceSearch) {
                         }
                     }
                 }
-			}
+            }
 
-			if(options && options.sortProperty && options.sortDirection) {
-				fetchOptions.sort = {
-						type : null,
-						name : null,
-						direction : options.sortDirection
-				}
-				switch(options.sortProperty) {
-					case "code":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "code";
-						break;
-					case "identifier":
-						if(criteria.entityKind === "DATASET"){
-							fetchOptions.sort.type = "Attribute";
-							fetchOptions.sort.name = "code";
-						}else{
-							fetchOptions.sort.type = "Attribute";
-							fetchOptions.sort.name = "identifier";
-						}
-						break;
-					case "entityType":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "type";
-						break;
-					case "registrationDate":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "registrationDate"
-
-						break;
-					case "modificationDate":
-						fetchOptions.sort.type = "Attribute";
-						fetchOptions.sort.name = "modificationDate";
-						break;
-					case "entityKind":
-					case "identifier":
-					case "experiment":
-					case "matched":
-					case "score":
-						fetchOptions.sort = null;
-						break;
-					default: //Properties
-						fetchOptions.sort.type = "Property";
-						fetchOptions.sort.name = options.sortProperty;
-						break;
-				}
-			}
+            if(options && options.sortings) {
+                var sortings = []
+                options.sortings.forEach(function(optionsSorting){
+                    var sorting = {
+                        direction: optionsSorting.sortDirection
+                    }
+                    switch(optionsSorting.columnName) {
+                        case "code":
+                            sorting.type = "Attribute";
+                            sorting.name = "code";
+                            break;
+                        case "identifier":
+                            if(criteria.entityKind === "DATASET"){
+                                sorting.type = "Attribute";
+                                sorting.name = "code";
+                            }else{
+                                sorting.type = "Attribute";
+                                sorting.name = "identifier";
+                            }
+                            break;
+                        case "entityType":
+                            sorting.type = "Attribute";
+                            sorting.name = "type";
+                            break;
+                        case "registrationDate":
+                            sorting.type = "Attribute";
+                            sorting.name = "registrationDate"
+    
+                            break;
+                        case "modificationDate":
+                            sorting.type = "Attribute";
+                            sorting.name = "modificationDate";
+                            break;
+                        case "entityKind":
+                        case "identifier":
+                        case "experiment":
+                        case "matched":
+                        case "score":
+                            sorting = null
+                            break;
+                        default: //Properties
+                            sorting.type = "Property";
+                            sorting.name = optionsSorting.columnName;
+                            break;
+                    }
+                    if(sorting){
+                        sortings.push(sorting)
+                    }
+                })
+                fetchOptions.sortings = sortings
+            }
 
 			$(".repeater-search").remove();
 

@@ -1500,18 +1500,20 @@ function ServerFacade(openbisServer) {
 					fetchOptions.count(advancedFetchOptions.count);
 				}
 
-				if(advancedFetchOptions && advancedFetchOptions.sort) {
-					switch(advancedFetchOptions.sort.type) {
-						case "Attribute":
-							if(fetchOptions.sortBy()[advancedFetchOptions.sort.name]) {
-								fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
-							}
-							break;
-						case "Property":
-							fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();
-							break;
-					}
-				}
+                if(advancedFetchOptions && advancedFetchOptions.sortings) {
+                    advancedFetchOptions.sortings.forEach(function(sorting){
+                        switch(sorting.type) {
+                            case "Attribute":
+                                if(fetchOptions.sortBy()[sorting.name]) {
+                                    fetchOptions.sortBy()[sorting.name]()[sorting.direction]();
+                                }
+                                break;
+                            case "Property":
+                                fetchOptions.sortBy().property(sorting.name)[sorting.direction]();
+                                break;
+                        }
+                    })
+                }
 
 				var setOperator = function(criteria, operator) {
 					//Operator
