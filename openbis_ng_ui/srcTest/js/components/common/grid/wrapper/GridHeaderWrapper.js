@@ -1,12 +1,12 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 
-export default class GridColumnLabelWrapper extends BaseWrapper {
+export default class GridHeaderWrapper extends BaseWrapper {
   getValue() {
     return this.wrapper.text()
   }
 
   click() {
-    this.wrapper.instance().handleClick()
+    this.wrapper.instance().handleClick({})
   }
 
   toJSON() {

@@ -51,14 +51,20 @@ class GridHeaders extends React.PureComponent {
   }
 
   renderHeaderCell(column) {
-    const { sort, sortDirection, onSortChange } = this.props
+    const { sortings, onSortChange } = this.props
+
+    const index = _.findIndex(
+      sortings,
+      sorting => sorting.columnName === column.name
+    )
 
     return (
       <GridHeader
         key={column.name}
         column={column}
-        sort={sort}
-        sortDirection={sortDirection}
+        sortCount={sortings.length}
+        sortIndex={index !== -1 ? index : null}
+        sortDirection={index !== -1 ? sortings[index].sortDirection : null}
         onSortChange={onSortChange}
       />
     )

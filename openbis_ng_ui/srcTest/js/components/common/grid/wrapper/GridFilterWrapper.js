@@ -1,6 +1,6 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 
-export default class GridColumnFilterWrapper extends BaseWrapper {
+export default class GridFilterWrapper extends BaseWrapper {
   getValue() {
     return this.getStringValue(this.wrapper.prop('filter'))
   }

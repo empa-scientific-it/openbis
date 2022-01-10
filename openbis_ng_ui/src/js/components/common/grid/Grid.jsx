@@ -122,8 +122,7 @@ class Grid extends React.PureComponent {
       filterMode,
       filters,
       globalFilter,
-      sort,
-      sortDirection,
+      sortings,
       page,
       pageSize,
       columnsVisibility,
@@ -168,8 +167,7 @@ class Grid extends React.PureComponent {
                     <GridHeaders
                       columns={visibleColumns}
                       rows={rows}
-                      sort={sort}
-                      sortDirection={sortDirection}
+                      sortings={sortings}
                       onSortChange={this.controller.handleSortChange}
                       onMultiselectAllRowsChange={
                         this.controller.handleMultiselectAllRowsChange

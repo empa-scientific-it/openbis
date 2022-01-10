@@ -31,10 +31,7 @@ class HistoryGrid extends React.PureComponent {
     }
   }
 
-  async loadHistory(
-    eventType,
-    { filters, page, pageSize, sort, sortDirection }
-  ) {
+  async loadHistory(eventType, { filters, page, pageSize, sortings }) {
     const criteria = new openbis.EventSearchCriteria()
     criteria.withEventType().thatEquals(eventType)
 
@@ -68,9 +65,9 @@ class HistoryGrid extends React.PureComponent {
     fo.from(page * pageSize)
     fo.count(pageSize)
 
-    if (sort && sortDirection) {
-      fo.sortBy()[sort]()[sortDirection]()
-    }
+    sortings.forEach(sorting => {
+      fo.sortBy()[sorting.columnName]()[sorting.sortDirection]()
+    })
 
     const result = await openbis.searchEvents(criteria, fo)
 
@@ -218,7 +215,6 @@ class HistoryGrid extends React.PureComponent {
             name: 'registrationDate',
             label: messages.get(messages.DATE),
             sortable: true,
-            sort: 'desc',
             getValue: ({ row }) => date.format(row.registrationDate.value),
             renderFilter: ({ value, onChange }) => {
               return <DateRangeField value={value} onChange={onChange} />
@@ -226,6 +222,8 @@ class HistoryGrid extends React.PureComponent {
           }
         ]}
         loadRows={this.load}
+        sort='registrationDate'
+        sortDirection='desc'
         selectable={true}
       />
     )

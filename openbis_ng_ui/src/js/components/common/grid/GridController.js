@@ -27,6 +27,17 @@ export default class GridController {
       }
     }
 
+    let sortings = []
+
+    if (props.sort) {
+      sortings.push({
+        columnName: props.sort,
+        sortDirection: props.sortDirection
+          ? props.sortDirection
+          : GridSortingOptions.ASC
+      })
+    }
+
     context.initState({
       loaded: false,
       loading: false,
@@ -48,10 +59,7 @@ export default class GridController {
       allRows: [],
       selectedRow: null,
       multiselectedRows: {},
-      sort: props.sort,
-      sortDirection: props.sortDirection
-        ? props.sortDirection
-        : GridSortingOptions.ASC,
+      sortings: sortings,
       totalCount: 0,
       exportOptions: {
         columns: GridExportOptions.VISIBLE_COLUMNS,
@@ -118,8 +126,7 @@ export default class GridController {
         globalFilter: newState.globalFilter,
         page: newState.page,
         pageSize: newState.pageSize,
-        sort: newState.sort,
-        sortDirection: newState.sortDirection
+        sortings: newState.sortings
       })
       if (_.isArray(loadedResult)) {
         result.rows = loadedResult
@@ -158,8 +165,7 @@ export default class GridController {
       newState.sortedRows = this._sortRows(
         newState.filteredRows,
         newState.allColumns,
-        newState.sort,
-        newState.sortDirection
+        newState.sortings
       )
       newState.totalCount = newState.filteredRows.length
 
@@ -294,25 +300,27 @@ export default class GridController {
   }
 
   _loadColumn(column) {
+    const defaultMatches = function (value, filter) {
+      if (filter) {
+        return value !== null && value !== undefined
+          ? String(value)
+              .trim()
+              .toUpperCase()
+              .includes(filter.trim().toUpperCase())
+          : false
+      } else {
+        return true
+      }
+    }
+
+    const defaultCompare = compare
+
     return {
       ...column,
       name: column.name,
       label: column.label,
       getValue: column.getValue,
       matches: (row, filter) => {
-        function defaultMatches(value, filter) {
-          if (filter) {
-            return value !== null && value !== undefined
-              ? String(value)
-                  .trim()
-                  .toUpperCase()
-                  .includes(filter.trim().toUpperCase())
-              : false
-          } else {
-            return true
-          }
-        }
-
         const value = column.getValue({ row, column, operation: 'match' })
 
         if (column.matchesValue) {
@@ -327,8 +335,7 @@ export default class GridController {
           return defaultMatches(value, filter)
         }
       },
-      compare: (row1, row2) => {
-        const defaultCompare = compare
+      compare: (row1, row2, sortDirection) => {
         const value1 = column.getValue({
           row: row1,
           column,
@@ -339,7 +346,6 @@ export default class GridController {
           column,
           operation: 'compare'
         })
-        const { sortDirection } = this.context.getState()
 
         if (column.compareValue) {
           return column.compareValue({
@@ -550,13 +556,32 @@ export default class GridController {
     }
   }
 
-  _sortRows(rows, columns, sort, sortDirection) {
-    if (sort) {
-      const column = _.find(columns, ['name', sort])
-      if (column) {
+  _sortRows(rows, columns, sortings) {
+    if (sortings && sortings.length > 0) {
+      const columnSortings = []
+
+      sortings.forEach(sorting => {
+        const column = _.find(columns, ['name', sorting.columnName])
+        if (column) {
+          columnSortings.push({
+            column,
+            sorting
+          })
+        }
+      })
+
+      if (columnSortings.length > 0) {
         return rows.sort((t1, t2) => {
-          let sign = sortDirection === GridSortingOptions.ASC ? 1 : -1
-          return sign * column.compare(t1, t2)
+          let result = 0
+          let index = 0
+          while (index < columnSortings.length && result === 0) {
+            const { column, sorting } = columnSortings[index]
+            const sign =
+              sorting.sortDirection === GridSortingOptions.ASC ? 1 : -1
+            result = sign * column.compare(t1, t2, sorting.sortDirection)
+            index++
+          }
+          return result
         })
       }
     }
@@ -811,24 +836,57 @@ export default class GridController {
     await this._saveSettings()
   }
 
-  async handleSortChange(column) {
+  async handleSortChange(column, append) {
     if (!column.sortable) {
       return
     }
 
+    function createInitialSorting(column) {
+      return {
+        columnName: column.name,
+        sortDirection: GridSortingOptions.ASC
+      }
+    }
+
+    function createReversedSorting(column, sorting) {
+      return {
+        columnName: column.name,
+        sortDirection:
+          sorting.sortDirection === GridSortingOptions.ASC
+            ? GridSortingOptions.DESC
+            : GridSortingOptions.ASC
+      }
+    }
+
     await this.context.setState(state => {
-      if (column.name === state.sort) {
-        return {
-          sortDirection:
-            state.sortDirection === GridSortingOptions.ASC
-              ? GridSortingOptions.DESC
-              : GridSortingOptions.ASC
+      const newSortings = []
+
+      const index = _.findIndex(
+        state.sortings,
+        sorting => sorting.columnName === column.name
+      )
+      const sorting = state.sortings[index]
+
+      if (append) {
+        if (index !== -1) {
+          newSortings.push(...state.sortings)
+          newSortings.splice(index, 1)
+        } else {
+          newSortings.push(...state.sortings)
+          newSortings.push(createInitialSorting(column))
         }
       } else {
-        return {
-          sort: column.name,
-          sortDirection: GridSortingOptions.ASC
+        if (index !== -1) {
+          newSortings.push(...state.sortings)
+          newSortings[index] = createReversedSorting(column, sorting)
+        } else {
+          newSortings.push(createInitialSorting(column))
         }
+      }
+
+      return {
+        page: 0,
+        sortings: newSortings
       }
     })
 
@@ -1006,8 +1064,7 @@ export default class GridController {
           globalFilter: state.globalFilter,
           page: 0,
           pageSize: 1000000,
-          sort: state.sort,
-          sortDirection: state.sortDirection
+          sortings: state.sortings
         })
         data = loadedResult.rows
       }
@@ -1064,14 +1121,9 @@ export default class GridController {
     return pageSize
   }
 
-  getSort() {
-    const { sort } = this.context.getState()
-    return sort
-  }
-
-  getSortDirection() {
-    const { sortDirection } = this.context.getState()
-    return sortDirection
+  getSortings() {
+    const { sortings } = this.context.getState()
+    return sortings
   }
 
   getFilters() {

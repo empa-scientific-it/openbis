@@ -15,6 +15,13 @@ const styles = theme => ({
     '&:last-child': {
       paddingRight: theme.spacing(2)
     }
+  },
+  sortIndex: {
+    color: theme.typography.label.color,
+    position: 'absolute',
+    right: 0,
+    paddingTop: '10px',
+    fontSize: theme.typography.label.fontSize
   }
 })
 
@@ -24,20 +31,20 @@ class GridHeader extends React.PureComponent {
     this.handleClick = this.handleClick.bind(this)
   }
 
-  handleClick() {
+  handleClick(event) {
     const { column, onSortChange } = this.props
     if (onSortChange) {
-      onSortChange(column)
+      onSortChange(column, event.ctrlKey || event.metaKey)
     }
   }
 
   render() {
     logger.log(logger.DEBUG, 'GridHeader.render')
 
-    const { column, sort, sortDirection, classes } = this.props
+    const { column, sortCount, sortIndex, sortDirection, classes } = this.props
 
     if (column.sortable) {
-      const active = sort === column.name
+      const active = sortIndex !== null && sortDirection !== null
       return (
         <TableCell classes={{ root: classes.cell }}>
           <TableSortLabel
@@ -46,6 +53,9 @@ class GridHeader extends React.PureComponent {
             onClick={this.handleClick}
           >
             {column.label}
+            {sortCount > 1 && sortIndex !== null && (
+              <span className={classes.sortIndex}>{sortIndex + 1}</span>
+            )}
           </TableSortLabel>
         </TableCell>
       )
