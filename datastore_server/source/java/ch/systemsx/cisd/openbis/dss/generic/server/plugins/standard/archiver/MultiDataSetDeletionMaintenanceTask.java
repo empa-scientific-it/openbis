@@ -189,9 +189,11 @@ public class MultiDataSetDeletionMaintenanceTask
                 {
                     SimpleDataSetInformationDTO simpleDataSet = getSimpleDataSet(dataSet);
                     Share share = shareFinder.tryToFindShare(simpleDataSet, shares);
-                    getShareIdManager().setShareId(dataSet.getCode(), share.getShareId());
-                    getOpenBISService().updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
-                    notDeletedDataSets.add(simpleDataSet);
+                    if (share != null) {
+                        getShareIdManager().setShareId(dataSet.getCode(), share.getShareId());
+                        getOpenBISService().updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
+                        notDeletedDataSets.add(simpleDataSet);
+                    }
                 }
             }
             multiDataSetFileOperationsManager.restoreDataSetsFromContainerInFinalDestination(
@@ -257,7 +259,8 @@ public class MultiDataSetDeletionMaintenanceTask
         fetchOptions.withSample().withProject().withSpace();
         fetchOptions.withSample().withSpace();
         DataSetPermId dataSetPermId = new DataSetPermId(dataSet.getCode());
-        DataSet dataSet1 = getV3ApplicationService().getDataSets(getOpenBISService().getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions)
+        DataSet dataSet1 = getV3ApplicationService()
+                .getDataSets(getOpenBISService().getSessionToken(), Arrays.asList(dataSetPermId), fetchOptions)
                 .get(dataSetPermId);
         SimpleDataSetInformationDTO simpleDataSet = new SimpleDataSetInformationDTO();
         simpleDataSet.setDataSetSize(dataSet1.getPhysicalData().getSize());

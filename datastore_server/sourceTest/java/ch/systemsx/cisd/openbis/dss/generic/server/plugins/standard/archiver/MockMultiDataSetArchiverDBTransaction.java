@@ -8,8 +8,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import org.apache.commons.io.FileUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public final class MockMultiDataSetArchiverDBTransaction
         implements IMultiDataSetArchiverDBTransaction, IMultiDataSetArchiverReadonlyQueryDAO
@@ -210,7 +212,20 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public List<MultiDataSetArchiverContainerDTO> listContainersWithDataSets(String[] dataSetCodes)
     {
-        return new ArrayList<>();
+        Set<MultiDataSetArchiverContainerDTO> containers = new HashSet<>(); // only unique container
+        for (String dataSetCode : dataSetCodes)
+        {
+            MultiDataSetArchiverDataSetDTO dataSet = getDataSetForCode(dataSetCode);
+            if (dataSet != null)
+            {
+                MultiDataSetArchiverContainerDTO container = getContainerForId(dataSet.getContainerId());
+                if (container != null)
+                {
+                    containers.add(container);
+                }
+            }
+        }
+        return new ArrayList<>(containers);
     }
 
     @Override
