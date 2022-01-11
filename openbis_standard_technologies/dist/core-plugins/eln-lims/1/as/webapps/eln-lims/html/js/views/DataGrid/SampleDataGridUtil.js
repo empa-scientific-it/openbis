@@ -269,8 +269,11 @@ var SampleDataGridUtil = new function() {
                 label : 'Parents',
                 property : 'parents',
                 isExportable: true,
-			filterable: false,
+                filterable: false,
                 sortable : false,
+                getValue : function(params) {
+                    return _this.getRelatedSamples(params.row.parents, params);
+                },
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.parents, isLinksDisabled);
                 }
@@ -279,9 +282,12 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Children',
                 property : 'children',
-                isExportable: false,
-			filterable: false,
+                isExportable: true,
+                filterable: false,
                 sortable : false,
+                getValue : function(params) {
+                    return _this.getRelatedSamples(params.row.children, params);
+                },
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.children, isLinksDisabled);
                 }
@@ -413,16 +419,26 @@ var SampleDataGridUtil = new function() {
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
-	
+
+    this.getRelatedSamples = function(samples, params) {
+        if (params.operation === 'export') {
+            if (params.exportOptions.values === 'RICH_TEXT') {
+                return samples ? samples.map(s => s.getIdentifier().getIdentifier()).join(", ") : "";
+            }
+            return this.renderRelatedSamples(samples, true).text();
+        }
+        return samples;
+    }
+
     this.renderRelatedSamples = function(samples, isLinksDisabled) {
         var output = $("<span>");
         if (samples) {
-            var elements = samples.split(", ");
-            for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-                var element = elements[eIdx];
-                var eIdentifier = element.split(" (")[0];
-                var eComponent = isLinksDisabled ? element : FormUtil.getFormLink(element, "Sample", eIdentifier, null);
-                if(eIdx != 0) {
+            for (var idx = 0; idx < samples.length; idx++) {
+                var sample = samples[idx];
+                var id = sample.getIdentifier().getIdentifier();
+                var rendered = Util.getDisplayNameForEntity2(sample);
+                var eComponent = isLinksDisabled ? rendered : FormUtil.getFormLink(rendered, "Sample", id, null);
+                if (idx != 0) {
                     output.append(", ");
                 }
                 output.append(eComponent);
@@ -480,35 +496,16 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 					
-					var parents = "";
-                    var sampleParents = result.objects[sIdx].parents;
-                    if (sampleParents) {
-                        for (var paIdx = 0; paIdx < sampleParents.length; paIdx++) {
-                            if(paIdx !== 0) {
-                                parents += ", ";
-                            }
-//                            parents += Util.getDisplayNameForEntity2(sampleParents[paIdx]);
-                            parents += sampleParents[paIdx].identifier;
-                        }
-                    }
+                    sampleModel['parents'] = result.objects[sIdx].parents;;
 					
-					sampleModel['parents'] = parents;
-					
-					var children = "";
+					var children = [];
                     var sampleChildren = result.objects[sIdx].children;
                     if(sampleChildren) {
-                        var isFirst = true;
                         for (var caIdx = 0; caIdx < sampleChildren.length; caIdx++) {
                             if(sampleChildren[caIdx].sampleTypeCode === "STORAGE_POSITION") {
                                 continue;
                             }
-
-                            if(!isFirst) {
-                                children += ", ";
-                            }
-//                            children += Util.getDisplayNameForEntity2(sampleChildren[caIdx]);
-                            children += sampleChildren[caIdx].identifier;
-                            isFirst = false;
+                            children.push(sampleChildren[caIdx]);
                         }
                     }
 					
