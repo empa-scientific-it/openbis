@@ -1081,8 +1081,9 @@ test("searchForExperiments() withModifierUserId", function() {
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
-			assertObjectsCount(response.result, 2);
-			assertObjectsWithCodes(response.result, ["SCREENING-EXAMPLES", "TEST-PROJECT" ]);
+			assertObjectsCount(response.result, 11);
+			assertObjectsWithCodes(response.result, ["BACTERIA", "CELL_LINES", "FLIES", "PLANTS", "PLASMIDS", 
+                "POLYNUCLEOTIDES", "PROTOCOLS", "REAGENTS", "SCREENING-EXAMPLES", "TEST-PROJECT", "YEASTS" ]);
 			facade.close();
 		});
 	});
