@@ -382,7 +382,7 @@ test("listNamedRoleSets()", function() {
 test("listSpacesWithProjectsAndRoleAssignments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response) {
-			assertObjectsCount(response.result, 2);
+			assertObjectsCount(response.result, 4);
 			facade.close();
 		});
 	});
