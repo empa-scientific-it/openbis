@@ -77,10 +77,13 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private IConfigProvider configProvider;
 
+    private Properties properties;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
         super.setUp(pluginName, properties);
+        this.properties = properties;
 
         dataSetDirectoryProvider = dataStoreService().getDataSetDirectoryProvider();
         cleaner = MultiDataSetArchivingUtils.createCleaner(
@@ -101,9 +104,6 @@ public class MultiDataSetDeletionMaintenanceTask
 
         shareFinder = new MappingBasedShareFinder(properties);
         simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
-        multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
-                properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         shares = getShares();
     }
 
@@ -173,6 +173,18 @@ public class MultiDataSetDeletionMaintenanceTask
         return configProvider;
     }
 
+    protected MultiDataSetFileOperationsManager getMultiDataSetFileOperationsManager()
+    {
+        if (multiDataSetFileOperationsManager == null) {
+            multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
+                    properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                    simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+            ;
+        }
+        return multiDataSetFileOperationsManager;
+    }
+
+
     @Override
     protected void execute(List<DeletedDataSet> datasetCodes)
     {
@@ -196,11 +208,14 @@ public class MultiDataSetDeletionMaintenanceTask
                     }
                 }
             }
-            multiDataSetFileOperationsManager.restoreDataSetsFromContainerInFinalDestination(
-                    container.getPath(), notDeletedDataSets);
-            sanityCheck(notDeletedDataSets, container.getPath());
-            multiDataSetFileOperationsManager.deleteContainerFromFinalDestination(cleaner, container.getPath());
-            multiDataSetFileOperationsManager.deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
+            if (notDeletedDataSets.isEmpty() == false)
+            {
+                getMultiDataSetFileOperationsManager().restoreDataSetsFromContainerInFinalDestination(
+                        container.getPath(), notDeletedDataSets);
+                sanityCheck(notDeletedDataSets, container.getPath());
+            }
+            getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
+            getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
             deleteContainer(container.getId());
             if (notDeletedDataSets.isEmpty() == false)
             {
@@ -224,7 +239,7 @@ public class MultiDataSetDeletionMaintenanceTask
     private void sanityCheck(List<SimpleDataSetInformationDTO> notDeletedDataSets, String containerPath)
     {
         List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
-        IHierarchicalContent archivedContent = multiDataSetFileOperationsManager.getContainerAsHierarchicalContent(containerPath, dataSets);
+        IHierarchicalContent archivedContent = getMultiDataSetFileOperationsManager().getContainerAsHierarchicalContent(containerPath, dataSets);
         ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, getHierarchicalContentProvider());
         MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, getOperationLogAsSimpleLogger());
     }
