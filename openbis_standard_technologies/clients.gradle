@@ -21,6 +21,7 @@ dependencies {
                  'imagej:ij:1.43u',
                  'python:jython:2.5.2',
                  'sybit:image-viewer:0.3.6',
+                 'fasterxml:jackson-databind:2.9.10.8',
                  'springframework:spring-aop:5.0.1.RELEASE',
                  'springframework:spring-beans:5.0.1.RELEASE',
                  'springframework:spring-context:5.0.1.RELEASE',
