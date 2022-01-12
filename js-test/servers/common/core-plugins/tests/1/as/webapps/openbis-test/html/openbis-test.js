@@ -382,7 +382,7 @@ test("listNamedRoleSets()", function() {
 test("listSpacesWithProjectsAndRoleAssignments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response) {
-			assertObjectsCount(response.result, 10);
+			assertObjectsCount(response.result, 2);
 			facade.close();
 		});
 	});
@@ -664,7 +664,7 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-			assertObjectsCount(response.result, 38);
+			assertObjectsCount(response.result, 28);
 			facade.close();
 		});
 	});
@@ -673,7 +673,7 @@ test("listDataSetTypes()", function() {
 test("listSampleTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSampleTypes(function(response) {
-			assertObjectsCount(response.result, 39);
+			assertObjectsCount(response.result, 13);
 			facade.close();
 		});
 	});
@@ -682,7 +682,7 @@ test("listSampleTypes()", function() {
 test("listExperimentTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listExperimentTypes(function(response) {
-			assertObjectsCount(response.result, 7);
+			assertObjectsCount(response.result, 5);
 			facade.close();
 		});
 	});
@@ -691,7 +691,7 @@ test("listExperimentTypes()", function() {
 test("listVocabularies()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listVocabularies(function(response) {
-			assertObjectsCount(response.result, 60);
+			assertObjectsCount(response.result, 25);
 			facade.close();
 		});
 	});
@@ -1081,11 +1081,8 @@ test("searchForExperiments() withModifierUserId", function() {
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
-			assertObjectsCount(response.result, 19);
-			assertObjectsWithCodes(response.result, ["BACTERIA", "CELL_LINES", "DEFAULT_PROJECT", "FLIES", "ORDERS",
-                                                     "PLANTS", "PLASMIDS", "POLYNUCLEOTIDES", "PRODUCTS", "PROTOCOLS",
-                                                     "PUBLIC_REPOSITORIES", "REAGENTS", "REQUESTS", "SCREENING-EXAMPLES",
-                                                     "STORAGES", "SUPPLIERS", "TEMPLATES", "TEST-PROJECT", "YEASTS" ]);
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, ["SCREENING-EXAMPLES", "TEST-PROJECT" ]);
 			facade.close();
 		});
 	});
