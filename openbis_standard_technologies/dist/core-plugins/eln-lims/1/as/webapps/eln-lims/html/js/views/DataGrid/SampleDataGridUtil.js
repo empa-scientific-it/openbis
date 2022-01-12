@@ -282,7 +282,7 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Children',
                 property : 'children',
-                isExportable: true,
+                isExportable: false,
                 filterable: false,
                 sortable : false,
                 getValue : function(params) {
