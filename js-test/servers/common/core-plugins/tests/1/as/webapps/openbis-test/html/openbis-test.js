@@ -664,7 +664,7 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-			assertObjectsCount(response.result, 28);
+			assertObjectsCount(response.result, 29);
 			facade.close();
 		});
 	});
@@ -673,7 +673,7 @@ test("listDataSetTypes()", function() {
 test("listSampleTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSampleTypes(function(response) {
-			assertObjectsCount(response.result, 13);
+			assertObjectsCount(response.result, 28);
 			facade.close();
 		});
 	});
@@ -682,7 +682,7 @@ test("listSampleTypes()", function() {
 test("listExperimentTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listExperimentTypes(function(response) {
-			assertObjectsCount(response.result, 5);
+			assertObjectsCount(response.result, 6);
 			facade.close();
 		});
 	});
@@ -691,7 +691,7 @@ test("listExperimentTypes()", function() {
 test("listVocabularies()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listVocabularies(function(response) {
-			assertObjectsCount(response.result, 25);
+			assertObjectsCount(response.result, 53);
 			facade.close();
 		});
 	});
