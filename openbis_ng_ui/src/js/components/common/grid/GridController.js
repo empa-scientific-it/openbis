@@ -1213,8 +1213,12 @@ export default class GridController {
     return _.includes(allowedValues, value) ? value : undefined
   }
 
-  _isEmpty(str) {
-    return str === null || str === undefined || str.trim().length === 0
+  _isEmpty(value) {
+    return (
+      value === null ||
+      value === undefined ||
+      (_.isString(value) && value.trim().length === 0)
+    )
   }
 
   _split(str) {

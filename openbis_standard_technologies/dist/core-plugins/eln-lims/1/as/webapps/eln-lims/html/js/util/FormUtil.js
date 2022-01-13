@@ -2302,4 +2302,11 @@ var FormUtil = new function() {
         })
     }
 
+    this.renderDateRangeGridFilter = function(params){
+        return React.createElement(window.NgUiGrid.default.DateRangeField, {
+            value: params.value,
+            onChange: params.onChange
+        })
+    }
+
 }

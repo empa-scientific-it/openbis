@@ -4,6 +4,31 @@ var ExperimentDataGridUtil = new function() {
 		var propertyCodes = profile.getAllPropertiCodesForExperimentTypeCode(typeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForExperimentTypeCode(typeCode, propertyCodes);
 		
+		var getDateColumn = function(label, property, isExportable){
+			return {
+				label : label,
+				property : property,
+				isExportable: isExportable,
+				sortable : true,
+				renderFilter : function(params) {
+					return FormUtil.renderDateRangeGridFilter(params);
+				},
+				filter : function(data, filter){
+					var value = data[property]
+					var matches = true
+
+					if(filter.from && filter.from.value){
+						matches = matches && value >= filter.from.valueString
+					}
+					if(filter.to && filter.to.value){
+						matches = matches && value <= filter.to.valueString
+					}
+
+					return matches
+				}
+			}
+		}
+
 		//Fill Columns model
 		var columns = [];
 
@@ -108,6 +133,8 @@ var ExperimentDataGridUtil = new function() {
 					};
 				}
 				propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
+			} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
+				propertyColumnsToSort.push(getDateColumn(propertyCodesDisplayNames[idx], propertyCodes[idx]), true)
 			} else {
 				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
@@ -161,12 +188,7 @@ var ExperimentDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		columns.push({
-			label : 'Registration Date',
-			property : 'registrationDate',
-			isExportable: false,
-			sortable : true
-		});
+		columns.push(getDateColumn('Registration Date','registrationDate', false))
 		
 		columns.push({
 			label : 'Modifier',
@@ -175,12 +197,7 @@ var ExperimentDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		columns.push({
-			label : 'Modification Date',
-			property : 'modificationDate',
-			isExportable: false,
-			sortable : true
-		});
+		columns.push(getDateColumn('Modification Date','modificationDate', false))
 		
 		//Fill data model
 		var getDataList = function(callback) {

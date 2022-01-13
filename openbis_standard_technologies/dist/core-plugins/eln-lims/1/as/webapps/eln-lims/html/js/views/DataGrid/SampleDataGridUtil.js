@@ -208,6 +208,20 @@ var SampleDataGridUtil = new function() {
 						};
 					}
 					propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
+				} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
+					propertyColumnsToSort.push({
+						label : propertyType.label,
+						property : propertyType.code,
+						isExportable: true,
+						filterable : true,
+						sortable : true,
+						metadata: {
+							dataType: propertyType.dataType
+						},
+						renderFilter : function(params) {
+							return FormUtil.renderDateRangeGridFilter(params);
+						}
+					});
 				} else {			
 					propertyColumnsToSort.push({
 						label : propertyType.label,
@@ -377,7 +391,10 @@ var SampleDataGridUtil = new function() {
 			property : 'registrationDate',
 			isExportable: false,
 			filterable: true,
-			sortable : true
+			sortable : true,
+			renderFilter : function(params) {
+				return FormUtil.renderDateRangeGridFilter(params);
+			}
 		});
 		
 		columnsLast.push({
@@ -385,7 +402,7 @@ var SampleDataGridUtil = new function() {
 			property : 'modifier',
 			isExportable: false,
 			filterable: true,
-			sortable : false
+			sortable : false,
 		});
 		
 		columnsLast.push({
@@ -393,7 +410,10 @@ var SampleDataGridUtil = new function() {
 			property : 'modificationDate',
 			isExportable: false,
 			filterable: true,
-			sortable : true
+			sortable : true,
+			renderFilter : function(params) {
+				return FormUtil.renderDateRangeGridFilter(params);
+			}
 		});
 		
 		if(!isOperationsDisabled && customOperations) {
@@ -573,7 +593,9 @@ var SampleDataGridUtil = new function() {
                     for(var field in options.searchMap){
                         var search = options.searchMap[field] || ""
 
-                        search = search.trim()
+                        if(_.isString(search)){
+                            search = search.trim()
+                        }
 
                         if(field === "sampleTypeCode"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SAMPLE_TYPE", value : search, operator: "thatContains" };
@@ -588,33 +610,51 @@ var SampleDataGridUtil = new function() {
                         }else if(field === "registrator"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                         }else if(field === "registrationDate"){
-                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search, operator: "thatEqualsDate" };
+                            if(search.from && search.from.value){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            }
+                            if(search.to && search.to.value){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            }
                         }else if(field === "modifier"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                         }else if(field === "modificationDate"){
-                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search, operator: "thatEqualsDate" };
+                            if(search.from && search.from.value){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            }
+                            if(search.to && search.to.value){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            }
                         }else{
                             var column = options.columnMap[field]
                             var dataType = null
-                            var operator = null
 
                             if(column && column.metadata){
                                 dataType = column.metadata.dataType
                             }
 
-                            if(dataType === "INTEGER" || dataType === "REAL"){
-                                operator = "thatEqualsNumber"
-                            }else if(dataType === "DATE" || dataType === "TIMESTAMP"){
-                                operator = "thatEqualsDate"
-                            }else if(dataType === "BOOLEAN"){
-                                operator = "thatEqualsBoolean"
-                            }else if(dataType === "CONTROLLEDVOCABULARY"){
-                                operator = "thatEqualsString"
-                            }else{
-                                operator = "thatContainsString"
-                            }
+                            if(dataType === "DATE" || dataType === "TIMESTAMP"){
+                                if(search.from && search.from.value){
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                                }
+                                if(search.to && search.to.value){
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                                }
+                            } else {
+                                var operator = null
 
-                            gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
+                                if(dataType === "INTEGER" || dataType === "REAL"){
+                                    operator = "thatEqualsNumber"
+                                }else if(dataType === "BOOLEAN"){
+                                    operator = "thatEqualsBoolean"
+                                }else if(dataType === "CONTROLLEDVOCABULARY"){
+                                    operator = "thatEqualsString"
+                                }else{
+                                    operator = "thatContainsString"
+                                }
+    
+                                gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search, operator: operator };
+                            }
                         }
                     }
                 }

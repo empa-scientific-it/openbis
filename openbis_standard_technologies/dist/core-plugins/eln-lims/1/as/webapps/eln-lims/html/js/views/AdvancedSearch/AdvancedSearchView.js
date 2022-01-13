@@ -1096,6 +1096,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                                 return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
                             }
                         })(propertyType)
+                    } else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
+                        renderFilter = function(params) {
+                            return FormUtil.renderDateRangeGridFilter(params)
+                        }
                     }
 
 					propertyColumnsToSort.push({
@@ -1141,7 +1145,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				property : 'registrationDate',
 				isExportable: true,
 				filterable : !isGlobalSearch,
-				sortable : !isGlobalSearch
+				sortable : !isGlobalSearch,
+				renderFilter : function(params) {
+					return FormUtil.renderDateRangeGridFilter(params)
+				}
 			});
 
 			columnsLast.push({
@@ -1157,7 +1164,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				property : 'modificationDate',
 				isExportable: true,
 				filterable : !isGlobalSearch,
-				sortable : !isGlobalSearch
+				sortable : !isGlobalSearch,
+				renderFilter : function(params) {
+					return FormUtil.renderDateRangeGridFilter(params)
+				}
 			});
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 

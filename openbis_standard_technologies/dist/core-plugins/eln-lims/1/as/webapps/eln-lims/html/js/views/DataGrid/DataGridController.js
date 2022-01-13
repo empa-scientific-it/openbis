@@ -54,21 +54,25 @@ function DataGridController(
         var GridElement = React.createElement(
             window.NgUiGrid.default.ThemeProvider,
             {},
-            React.createElement(window.NgUiGrid.default.Grid, {
-                controllerRef: function (controller) {
-                    _this.controller = controller
-                },
-                header: title,
-                filterModes: filterModes,
-                loadSettings: _this._loadSettings,
-                loadColumns: _this._loadColumns,
-                loadRows: _this._loadRows,
-                onSettingsChange: _this._onSettingsChange,
-                onRowClick: rowClickEventHandler,
-                selectable: false,
-                multiselectable: isMultiselectable,
-                actions: _this._actions(extraOptions),
-            })
+            React.createElement(
+                window.NgUiGrid.default.DatePickerProvider,
+                {},
+                React.createElement(window.NgUiGrid.default.Grid, {
+                    controllerRef: function (controller) {
+                        _this.controller = controller
+                    },
+                    header: title,
+                    filterModes: filterModes,
+                    loadSettings: _this._loadSettings,
+                    loadColumns: _this._loadColumns,
+                    loadRows: _this._loadRows,
+                    onSettingsChange: _this._onSettingsChange,
+                    onRowClick: rowClickEventHandler,
+                    selectable: false,
+                    multiselectable: isMultiselectable,
+                    actions: _this._actions(extraOptions),
+                })
+            )
         )
 
         ReactDOM.render(GridElement, $container.get(0))
