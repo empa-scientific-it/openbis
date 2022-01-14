@@ -66,17 +66,19 @@ class DateRangeField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { value, classes } = this.props
+    const { dateTime, value, classes } = this.props
 
     return (
       <div className={classes.container}>
         <DateField
           label='From'
+          dateTime={dateTime}
           value={value && value.from ? value.from.valueString : null}
           onChange={this.handleFromChange}
         />
         <DateField
           label='To'
+          dateTime={dateTime}
           value={value && value.to ? value.to.valueString : null}
           onChange={this.handleToChange}
         />

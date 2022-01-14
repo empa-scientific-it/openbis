@@ -2,7 +2,10 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
-import { KeyboardDateTimePicker } from '@material-ui/pickers'
+import {
+  KeyboardDatePicker,
+  KeyboardDateTimePicker
+} from '@material-ui/pickers'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -19,7 +22,8 @@ const styles = theme => ({
 
 class DateField extends React.PureComponent {
   static defaultProps = {
-    mode: 'edit'
+    mode: 'edit',
+    dateTime: true
   }
 
   constructor(props) {
@@ -62,22 +66,38 @@ class DateField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { name, value, classes } = this.props
+    const { dateTime, name, value, classes } = this.props
 
-    return (
-      <div className={classes.container}>
-        <KeyboardDateTimePicker
-          name={name}
-          variant='inline'
-          ampm={false}
-          label={this.renderEditLabel()}
-          value={value}
-          onChange={this.handleChange}
-          format='yyyy-MM-dd HH:mm:ss'
-          TextFieldComponent={this.renderEditInput}
-        />
-      </div>
-    )
+    if (dateTime) {
+      return (
+        <div className={classes.container}>
+          <KeyboardDateTimePicker
+            name={name}
+            variant='inline'
+            ampm={false}
+            label={this.renderEditLabel()}
+            value={value}
+            onChange={this.handleChange}
+            format={'yyyy-MM-dd HH:mm:ss'}
+            TextFieldComponent={this.renderEditInput}
+          />
+        </div>
+      )
+    } else {
+      return (
+        <div className={classes.container}>
+          <KeyboardDatePicker
+            name={name}
+            variant='inline'
+            label={this.renderEditLabel()}
+            value={value}
+            onChange={this.handleChange}
+            format={'yyyy-MM-dd'}
+            TextFieldComponent={this.renderEditInput}
+          />
+        </div>
+      )
+    }
   }
 
   renderEditLabel() {

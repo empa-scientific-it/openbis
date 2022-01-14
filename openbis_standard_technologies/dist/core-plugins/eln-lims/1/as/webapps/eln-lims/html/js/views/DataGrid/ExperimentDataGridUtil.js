@@ -4,21 +4,6 @@ var ExperimentDataGridUtil = new function() {
 		var propertyCodes = profile.getAllPropertiCodesForExperimentTypeCode(typeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForExperimentTypeCode(typeCode, propertyCodes);
 		
-		var getDateColumn = function(label, property, isExportable){
-			return {
-				label : label,
-				property : property,
-				isExportable: isExportable,
-				sortable : true,
-				renderFilter : function(params) {
-					return FormUtil.renderDateRangeGridFilter(params);
-				},
-				filter : function(data, filter){
-					return FormUtil.filterDateRangeGridColumn(data[property], filter)
-				}
-			}
-		}
-
 		//Fill Columns model
 		var columns = [];
 
@@ -124,7 +109,21 @@ var ExperimentDataGridUtil = new function() {
 				}
 				propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
 			} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
-				propertyColumnsToSort.push(getDateColumn(propertyCodesDisplayNames[idx], propertyCodes[idx]), true)
+				var getDateColumn = function(propertyType, idx){
+					return {
+						label : propertyCodesDisplayNames[idx],
+						property : propertyCodes[idx],
+						isExportable: true,
+						sortable : true,
+						renderFilter : function(params) {
+							return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType);
+						},
+						filter : function(data, filter){
+							return FormUtil.filterDateRangeGridColumn(data[propertyCodes[idx]], filter)
+						}
+					}
+				}
+				propertyColumnsToSort.push(getDateColumn(propertyType, idx))
 			} else {
 				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
@@ -178,16 +177,38 @@ var ExperimentDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		columns.push(getDateColumn('Registration Date','registrationDate', false))
-		
+		columns.push({
+			label : 'Registration Date',
+			property : 'registrationDate',
+			isExportable: false,
+			sortable : true,
+			renderFilter : function(params) {
+				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
+			},
+			filter : function(data, filter){
+				return FormUtil.filterDateRangeGridColumn(data.registrationDate, filter)
+			}
+		})
+
 		columns.push({
 			label : 'Modifier',
 			property : 'modifier',
 			isExportable: false,
 			sortable : true
 		});
-		
-		columns.push(getDateColumn('Modification Date','modificationDate', false))
+
+		columns.push({
+			label : 'Modification Date',
+			property : 'modificationDate',
+			isExportable: false,
+			sortable : true,
+			renderFilter : function(params) {
+				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
+			},
+			filter : function(data, filter){
+				return FormUtil.filterDateRangeGridColumn(data.modificationDate, filter)
+			}
+		})
 		
 		//Fill data model
 		var getDataList = function(callback) {

@@ -209,19 +209,22 @@ var SampleDataGridUtil = new function() {
 					}
 					propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
 				} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
-					propertyColumnsToSort.push({
-						label : propertyType.label,
-						property : propertyType.code,
-						isExportable: true,
-						filterable : true,
-						sortable : true,
-						metadata: {
-							dataType: propertyType.dataType
-						},
-						renderFilter : function(params) {
-							return FormUtil.renderDateRangeGridFilter(params);
+					var getDateColumn = function(propertyType){
+						return {
+							label : propertyType.label,
+							property : propertyType.code,
+							isExportable: true,
+							filterable : true,
+							sortable : true,
+							metadata: {
+								dataType: propertyType.dataType
+							},
+							renderFilter : function(params) {
+								return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
+							}
 						}
-					});
+					}
+					propertyColumnsToSort.push(getDateColumn(propertyType));
 				} else {			
 					propertyColumnsToSort.push({
 						label : propertyType.label,
@@ -393,7 +396,7 @@ var SampleDataGridUtil = new function() {
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
-				return FormUtil.renderDateRangeGridFilter(params);
+				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
 			}
 		});
 		
@@ -412,7 +415,7 @@ var SampleDataGridUtil = new function() {
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
-				return FormUtil.renderDateRangeGridFilter(params);
+				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
 			}
 		});
 		

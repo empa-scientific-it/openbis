@@ -56,7 +56,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			property : 'deletionDate',
 			sortable : true,
 			renderFilter : function(params) {
-				return FormUtil.renderDateRangeGridFilter(params);
+				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
 			},
 			filter : function(data, filter){
 				return FormUtil.filterDateRangeGridColumn(data.deletionDate, filter)

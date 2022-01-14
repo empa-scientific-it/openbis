@@ -95,7 +95,7 @@ function HistoryView(controller, model) {
                     return Util.getFormatedDate(new Date(timestamp))
                 },
                 renderFilter : function(params) {
-                    return FormUtil.renderDateRangeGridFilter(params);
+                    return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
                 },
                 filter : function(data, filter){
                     var formattedTimestamp = Util.getFormatedDate(new Date(data.changes.timestamp))
