@@ -14,17 +14,7 @@ var ExperimentDataGridUtil = new function() {
 					return FormUtil.renderDateRangeGridFilter(params);
 				},
 				filter : function(data, filter){
-					var value = data[property]
-					var matches = true
-
-					if(filter.from && filter.from.value){
-						matches = matches && value >= filter.from.valueString
-					}
-					if(filter.to && filter.to.value){
-						matches = matches && value <= filter.to.valueString
-					}
-
-					return matches
+					return FormUtil.filterDateRangeGridColumn(data[property], filter)
 				}
 			}
 		}

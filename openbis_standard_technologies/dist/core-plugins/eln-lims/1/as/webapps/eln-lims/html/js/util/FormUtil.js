@@ -2309,4 +2309,17 @@ var FormUtil = new function() {
         })
     }
 
+    this.filterDateRangeGridColumn = function(value, filter){
+        var matches = true
+
+        if(filter.from && filter.from.value){
+            matches = matches && value >= filter.from.valueString
+        }
+        if(filter.to && filter.to.value){
+            matches = matches && value <= filter.to.valueString
+        }
+
+        return matches
+    }
+
 }

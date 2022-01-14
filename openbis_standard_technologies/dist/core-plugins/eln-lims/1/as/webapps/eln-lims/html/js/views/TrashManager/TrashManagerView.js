@@ -52,10 +52,16 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		// Table
 		//
 		var columns = [ {
-            label : 'Deletion Date',
-            property : 'deletionDate',
-            sortable : true
-        } , {
+			label : 'Deletion Date',
+			property : 'deletionDate',
+			sortable : true,
+			renderFilter : function(params) {
+				return FormUtil.renderDateRangeGridFilter(params);
+			},
+			filter : function(data, filter){
+				return FormUtil.filterDateRangeGridColumn(data.deletionDate, filter)
+			}
+		} , {
 			label : 'Entities',
 			property : 'entities',
 			sortable : true
