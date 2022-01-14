@@ -29,6 +29,34 @@ var EventUtil = new function() {
         });
     };
 
+    this.searchSelect2 = function(elementId, value, ignoreError) {
+         return new Promise(function executor(resolve, reject) {
+             try {
+                 var $el = EventUtil.getElementThatStartWith(elementId, ignoreError, resolve);
+                 $el.select2('open');
+                 var $search = $el.data('select2').dropdown.$search || $el.data('select2').selection.$search;
+                 $search.val(value);
+                 $search.trigger('input');
+                 resolve();
+             } catch(error) {
+                 reject(error);
+             }
+         });
+     };
+
+
+	this.mouseUp = function(className, ignoreError) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = EventUtil.getClass(className, ignoreError, resolve);
+                element.trigger("mouseup");
+                resolve();
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
     this.changeSelect2 = function(elementId, value, ignoreError) {
         return new Promise(function executor(resolve, reject) {
             try {
@@ -291,6 +319,30 @@ var EventUtil = new function() {
                 resolve();
             } else {
                 throw "Element not found: #" + elementId;
+            }
+        }
+        return element;
+    };
+
+    this.getElementThatStartWith = function(elementId, ignoreError, resolve) {
+        var element = $('[id^="' + elementId +'"]')
+        if(!element) {
+            if(ignoreError) {
+                resolve();
+            } else {
+                throw "Element not found: id start with" + elementId;
+            }
+        }
+        return element;
+    };
+
+    this.getClass = function(className, ignoreError, resolve) {
+        var element = $( "." + className );
+        if(!element) {
+            if(ignoreError) {
+                resolve();
+            } else {
+                throw "Element not found: class: " + elementId;
             }
         }
         return element;

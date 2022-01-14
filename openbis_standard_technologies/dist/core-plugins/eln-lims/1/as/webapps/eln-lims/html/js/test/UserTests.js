@@ -111,25 +111,22 @@ var UserTests = new function() {
                              // add mother
                              .then(() => e.waitForId("search-btn-bacteria-parents"))
                              .then(() => e.click("search-btn-bacteria-parents"))
-
-                             .then(() => e.waitForId("bac1-column-id"))
-                             .then(() => e.click("bac1-column-id"))
+                             .then(() => UserTests.searchForBacteriaInSelect2("BAC1"))
                              .then(() => e.waitForId("comments-bac1"))
                              .then(() => e.change("comments-bac1", "mother"))
                              // add father
-                             .then(() => e.click("plus-btn-bacteria-parents"))
-                             .then(() => e.waitForId("bac2-column-id"))
-                             .then(() => e.click("bac2-column-id"))
+                             .then(() => e.waitForId("search-btn-bacteria-parents"))
+                             .then(() => e.click("search-btn-bacteria-parents"))
+                             .then(() => UserTests.searchForBacteriaInSelect2("BAC2"))
                              .then(() => e.waitForId("comments-bac2"))
                              .then(() => e.change("comments-bac2", "father"))
                              // add Child
                              .then(() => e.waitForId("plus-btn-children-type-selector"))
                              .then(() => e.click("plus-btn-children-type-selector"))
                              .then(() => e.waitForId("sampleTypeSelector"))
-                             .then(() => e.changeSelect2("sampleTypeSelector", "Bacteria"))
+                             .then(() => e.changeSelect2("sampleTypeSelector", 'BACTERIA'))
+                             .then(() => UserTests.searchForBacteriaInSelect2("BAC4"))
                              .then(() => e.waitForId("bac4-column-id"))
-                             .then(() => e.click("bac4-column-id"))
-                             .then(() => e.waitForId("bac4-operations-column-id"))
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
@@ -141,6 +138,20 @@ var UserTests = new function() {
                              .then(() => TestUtil.testPassed(7))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(7, error, reject));
+        });
+    }
+
+    this.searchForBacteriaInSelect2 = function(id) {
+    return new Promise(function executor(resolve, reject) {
+        var e = EventUtil;
+            Promise.resolve().then(() => e.waitForId("add-object-bacteria"))
+                             .then(() => e.searchSelect2("advanced-entity-search-dropdown-id", id))
+                             .then(() => e.sleep(2000)) // wait when bacteria will be found
+                             .then(() => e.mouseUp("select2-results__option"))
+                             .then(() => e.sleep(1000)) // wait when bacteria will be selected
+                             .then(() => e.click("add-object-bacteria"))
+                             .then(() => resolve())
+                             .catch(error => reject(error));
         });
     }
 
