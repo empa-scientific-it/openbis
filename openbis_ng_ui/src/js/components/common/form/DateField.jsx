@@ -6,6 +6,7 @@ import {
   KeyboardDatePicker,
   KeyboardDateTimePicker
 } from '@material-ui/pickers'
+import DateFnsUtils from '@date-io/date-fns'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -29,6 +30,7 @@ class DateField extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
+    this.handleBlur = this.handleBlur.bind(this)
     this.renderEditInput = this.renderEditInput.bind(this)
   }
 
@@ -43,6 +45,58 @@ class DateField extends React.PureComponent {
           valueString: string
         }
       })
+    }
+  }
+
+  handleBlur(event) {
+    const { name, dateTime, onChange } = this.props
+
+    if (event.target.value === null || event.target.value === undefined) {
+      return
+    }
+
+    if (onChange) {
+      let string = null
+      let date = null
+
+      if (dateTime) {
+        const match = event.target.value
+          .trim()
+          .match(/^(.{4})-(.{2})-(.{2}) (.{2}):(.{2}):(.{2})$/)
+
+        if (match) {
+          const year = match[1]
+          const month = match[2] === '__' ? '01' : match[2]
+          const day = match[3] === '__' ? '01' : match[3]
+          const hour = match[4] === '__' ? '00' : match[4]
+          const minute = match[5] === '__' ? '00' : match[5]
+          const second = match[6] === '__' ? '00' : match[6]
+
+          string = `${year}-${month}-${day} ${hour}:${minute}:${second}`
+          date = new DateFnsUtils().parse(string, 'yyyy-MM-dd HH:mm:ss')
+        }
+      } else {
+        const match = event.target.value.trim().match(/^(.{4})-(.{2})-(.{2})$/)
+
+        if (match) {
+          const year = match[1]
+          const month = match[2] === '__' ? '01' : match[2]
+          const day = match[3] === '__' ? '01' : match[3]
+
+          string = `${year}-${month}-${day}`
+          date = new DateFnsUtils().parse(string, 'yyyy-MM-dd')
+        }
+      }
+
+      if (date !== null && false === Number.isNaN(date.getTime())) {
+        onChange({
+          target: {
+            name,
+            value: date,
+            valueString: string
+          }
+        })
+      }
     }
   }
 
@@ -78,6 +132,7 @@ class DateField extends React.PureComponent {
             label={this.renderEditLabel()}
             value={value}
             onChange={this.handleChange}
+            onBlur={this.handleBlur}
             format={'yyyy-MM-dd HH:mm:ss'}
             TextFieldComponent={this.renderEditInput}
           />
@@ -92,6 +147,7 @@ class DateField extends React.PureComponent {
             label={this.renderEditLabel()}
             value={value}
             onChange={this.handleChange}
+            onBlur={this.handleBlur}
             format={'yyyy-MM-dd'}
             TextFieldComponent={this.renderEditInput}
           />
