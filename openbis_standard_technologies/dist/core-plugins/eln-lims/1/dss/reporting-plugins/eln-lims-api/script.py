@@ -740,6 +740,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	if sampleParentsNew != None:
 		for newSampleParent in sampleParentsNew:
 			parent = tr.createNewSample(newSampleParent.get("identifier"), newSampleParent.get("sampleTypeCode")); #Create Sample given his id
+			properties = getProperties(tr, parameters, newSampleParent.get("sampleTypeCode"), EntityKind.SAMPLE);
 			if newSampleParent.get("annotations") != None and sampleProperties.get("$ANNOTATIONS_STATE") != None:
 				sample_ANNOTATIONS_STATE = sampleProperties.get("$ANNOTATIONS_STATE");
 				sample_ANNOTATIONS_STATE = sample_ANNOTATIONS_STATE.replace("PERM_ID_PLACEHOLDER_FOR" + newSampleParent.get("identifier"), parent.getPermId());
@@ -774,6 +775,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	if sampleChildrenNew != None:
 		for newSampleChild in sampleChildrenNew:
 			child = getSampleByIdentifierForUpdate(tr, newSampleChild["identifier"]); #Retrieve Sample
+			properties = getProperties(tr, parameters, newSampleChild["sampleTypeCode"], EntityKind.SAMPLE);
 			if child is None:
 				child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
