@@ -677,7 +677,7 @@ public class UserManager
     }
 
     private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved,
-            boolean useEmailAsUserId)
+                                      boolean useEmailAsUserId)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
         for (String userId : usersToBeRemoved)
@@ -690,6 +690,7 @@ public class UserManager
                 removePersonFromAuthorizationGroup(context, globalGroup.getCode(), userId);
             }
             Person user = context.currentState.getUser(userId);
+            Space homeSpace = user.getSpace();
             for (RoleAssignment roleAssignment : user.getRoleAssignments())
             {
                 Space space = roleAssignment.getSpace();
@@ -698,6 +699,10 @@ public class UserManager
                 {
                     context.delete(roleAssignment.getId());
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
+                    if (homeSpace != null && homeSpace.getCode().equals(space.getCode()))
+                    {
+                        getHomeSpaceRequest(userId).removeCurrentHomeSpace();
+                    }
                 }
             }
         }
