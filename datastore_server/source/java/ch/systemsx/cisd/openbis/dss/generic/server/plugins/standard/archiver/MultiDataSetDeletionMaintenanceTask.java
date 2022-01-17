@@ -85,7 +85,7 @@ public class MultiDataSetDeletionMaintenanceTask
         super.setUp(pluginName, properties);
         this.properties = properties;
 
-        dataSetDirectoryProvider = dataStoreService().getDataSetDirectoryProvider();
+        dataSetDirectoryProvider = getDataStoreService().getDataSetDirectoryProvider();
         cleaner = MultiDataSetArchivingUtils.createCleaner(
                 PropertyParametersUtil.extractSingleSectionProperties(
                         properties, ARCHIVER_PREFIX + MultiDataSetArchiver.CLEANER_PROPS, false).getProperties());
@@ -93,7 +93,7 @@ public class MultiDataSetDeletionMaintenanceTask
         String eventIdFileName = PropertyUtils.getMandatoryProperty(properties, LAST_SEEN_EVENT_ID_FILE);
         lastSeenEventIdFile = new File(eventIdFileName);
 
-        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, 
+        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY,
                 properties.getProperty(ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY));
         String replicatedDestination = properties.getProperty(
                 ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY);
@@ -133,9 +133,10 @@ public class MultiDataSetDeletionMaintenanceTask
         return new MultiDataSetArchiverDBTransaction();
     }
 
-    protected IDataStoreServiceInternal dataStoreService()
+    protected IDataStoreServiceInternal getDataStoreService()
     {
-        if (dataStoreService == null) {
+        if (dataStoreService == null)
+        {
             dataStoreService = ServiceProvider.getDataStoreService();
         }
         return dataStoreService;
@@ -143,7 +144,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     protected IHierarchicalContentProvider getHierarchicalContentProvider()
     {
-        if (hierarchicalContentProvider == null) {
+        if (hierarchicalContentProvider == null)
+        {
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
@@ -151,7 +153,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     protected IApplicationServerApi getV3ApplicationService()
     {
-        if (v3 == null) {
+        if (v3 == null)
+        {
             v3 = ServiceProvider.getV3ApplicationService();
         }
         return v3;
@@ -159,7 +162,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     protected IShareIdManager getShareIdManager()
     {
-        if (shareIdManager == null) {
+        if (shareIdManager == null)
+        {
             shareIdManager = ServiceProvider.getShareIdManager();
         }
         return shareIdManager;
@@ -167,7 +171,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     protected IConfigProvider getConfigProvider()
     {
-        if (configProvider == null) {
+        if (configProvider == null)
+        {
             configProvider = ServiceProvider.getConfigProvider();
         }
         return configProvider;
@@ -175,7 +180,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     protected MultiDataSetFileOperationsManager getMultiDataSetFileOperationsManager()
     {
-        if (multiDataSetFileOperationsManager == null) {
+        if (multiDataSetFileOperationsManager == null)
+        {
             multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
                     properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
                     simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
@@ -183,7 +189,6 @@ public class MultiDataSetDeletionMaintenanceTask
         }
         return multiDataSetFileOperationsManager;
     }
-
 
     @Override
     protected void execute(List<DeletedDataSet> datasetCodes)
@@ -201,7 +206,8 @@ public class MultiDataSetDeletionMaintenanceTask
                 {
                     SimpleDataSetInformationDTO simpleDataSet = getSimpleDataSet(dataSet);
                     Share share = shareFinder.tryToFindShare(simpleDataSet, shares);
-                    if (share != null) {
+                    if (share != null)
+                    {
                         getShareIdManager().setShareId(dataSet.getCode(), share.getShareId());
                         getOpenBISService().updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
                         notDeletedDataSets.add(simpleDataSet);

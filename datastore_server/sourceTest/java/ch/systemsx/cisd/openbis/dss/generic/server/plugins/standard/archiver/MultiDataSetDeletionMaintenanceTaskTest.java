@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-
 public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemTestCase
 {
     private File store;
@@ -110,14 +109,14 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         private MockMultiDataSetFileOperationsManager multiDataSetManager;
 
         public MockMultiDataSetDeletionMaintenanceTask(IMultiDataSetArchiverDBTransaction transaction,
-                                                       IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
-                                                       IEncapsulatedOpenBISService openBISService,
-                                                       IDataStoreServiceInternal dataStoreService,
-                                                       IHierarchicalContentProvider contentProvider,
-                                                       IShareIdManager shareIdManager,
-                                                       IApplicationServerApi v3api,
-                                                       IConfigProvider configProvider,
-                                                       MockMultiDataSetFileOperationsManager multiDataSetManager)
+                IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
+                IEncapsulatedOpenBISService openBISService,
+                IDataStoreServiceInternal dataStoreService,
+                IHierarchicalContentProvider contentProvider,
+                IShareIdManager shareIdManager,
+                IApplicationServerApi v3api,
+                IConfigProvider configProvider,
+                MockMultiDataSetFileOperationsManager multiDataSetManager)
         {
             this.transaction = transaction;
             this.readonlyDAO = readonlyDAO;
@@ -149,7 +148,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         }
 
         @Override
-        protected IDataStoreServiceInternal dataStoreService()
+        protected IDataStoreServiceInternal getDataStoreService()
         {
             return dataStoreService;
         }
@@ -179,15 +178,17 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         }
 
         @Override
-        protected MultiDataSetFileOperationsManager getMultiDataSetFileOperationsManager() {
+        protected MultiDataSetFileOperationsManager getMultiDataSetFileOperationsManager()
+        {
             return multiDataSetManager;
         }
     }
 
-    private static final class MockMultiDataSetFileOperationsManager extends MultiDataSetFileOperationsManager {
+    private static final class MockMultiDataSetFileOperationsManager extends MultiDataSetFileOperationsManager
+    {
 
         public MockMultiDataSetFileOperationsManager(Properties properties,
-                                                     IDataSetDirectoryProvider directoryProvider)
+                IDataSetDirectoryProvider directoryProvider)
         {
             super(properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
                     new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
@@ -222,45 +223,44 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
 
         context.checking(new Expectations()
-        {
             {
-                allowing(dataStoreService).getDataSetDirectoryProvider();
-                will(returnValue(directoryProvider));
+                {
+                    allowing(dataStoreService).getDataSetDirectoryProvider();
+                    will(returnValue(directoryProvider));
 
-                allowing(configProvider).getStoreRoot();
-                will(returnValue(store));
+                    allowing(configProvider).getStoreRoot();
+                    will(returnValue(store));
 
-                allowing(configProvider).getDataStoreCode();
-                will(returnValue(DSS_CODE));
+                    allowing(configProvider).getDataStoreCode();
+                    will(returnValue(DSS_CODE));
 
-                allowing(openBISService).getSessionToken();
-                will(returnValue(SESSION_TOKEN));
+                    allowing(openBISService).getSessionToken();
+                    will(returnValue(SESSION_TOKEN));
 
-                allowing(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
-                        with(any(DataSetFetchOptions.class)));
-                will(returnValue(dataSetMap));
+                    allowing(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                            with(any(DataSetFetchOptions.class)));
+                    will(returnValue(dataSetMap));
 
-                allowing(shareIdManager).setShareId(ds4Code, "1");
-                allowing(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
-                allowing(shareIdManager).setShareId(ds4Code, "1");
+                    allowing(shareIdManager).setShareId(ds4Code, "1");
+                    allowing(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+                    allowing(shareIdManager).setShareId(ds4Code, "1");
 
-                allowing(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
-                will(returnValue(share));
+                    allowing(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                    will(returnValue(share));
 
-                allowing(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
-                will(returnValue(ds4Content));
+                    allowing(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                    will(returnValue(ds4Content));
 
-                allowing(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code),  DataSetArchivingStatus.AVAILABLE, false);
-                allowing(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
-            }
-        });
+                    allowing(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                    allowing(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
+                }
+            });
 
         Properties properties = createProperties();
         MockMultiDataSetFileOperationsManager multiDataSetManager = new MockMultiDataSetFileOperationsManager(properties, directoryProvider);
         task = new MockMultiDataSetDeletionMaintenanceTask(
                 transaction, transaction, openBISService, dataStoreService,
-                contentProvider, shareIdManager, v3api, configProvider, multiDataSetManager
-        );
+                contentProvider, shareIdManager, v3api, configProvider, multiDataSetManager);
         task.setUp("", properties);
     }
 
@@ -297,7 +297,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         return dataSet;
     }
 
-    private DataSetFetchOptions fetchOptions() {
+    private DataSetFetchOptions fetchOptions()
+    {
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withPhysicalData();
         fetchOptions.withExperiment().withProject().withSpace();
@@ -321,8 +322,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         lastSeenDataSetFile = new File(workingDirectory, LAST_SEEN_DATA_SET_FILE);
         properties.setProperty(
                 MultiDataSetDeletionMaintenanceTask.LAST_SEEN_EVENT_ID_FILE,
-                lastSeenDataSetFile.getPath()
-        );
+                lastSeenDataSetFile.getPath());
         properties.setProperty("archiver." + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
         properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
         properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
@@ -356,8 +356,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     private File copyContainerToArchive(File parent, String folderName)
     {
         File dataSetFile = new File(
-            "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/plugins/standard/archiver/resource/container.tar"
-        );
+                "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/plugins/standard/archiver/resource/container.tar");
 
         File container = new File(parent, folderName);
         FileOperations.getInstance().copy(dataSetFile, container);
@@ -371,7 +370,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    private String getLogContent(BufferedAppender logRecorder) {
+    private String getLogContent(BufferedAppender logRecorder)
+    {
         String logContent = logRecorder.getLogContent();
         logContent = logContent.replaceAll("0\\.[0-9]{2,2} s", "?.?? s");
         return logContent;
@@ -383,10 +383,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         task.execute(new ArrayList<>());
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
-                        mappingFile +  "' successfully loaded.\n" +
+                        mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Obtained the list of all datasets in all shares in ?.?? s."
-                , getLogContent(logRecorder));
+                        "Obtained the list of all datasets in all shares in ?.?? s.",
+                getLogContent(logRecorder));
     }
 
     @Test
@@ -417,8 +417,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
-                        replicateContainer.getAbsolutePath()
-                , getLogContent(logRecorder));
+                        replicateContainer.getAbsolutePath(),
+                getLogContent(logRecorder));
     }
 
     @Test
@@ -453,7 +453,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
-                        replicateContainer.getAbsolutePath()
-                , getLogContent(logRecorder));
+                        replicateContainer.getAbsolutePath(),
+                getLogContent(logRecorder));
     }
 }
