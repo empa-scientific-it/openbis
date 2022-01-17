@@ -74,9 +74,6 @@ from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataS
 #JSON
 from com.fasterxml.jackson.databind import SerializationFeature
 
-#Session Workspace
-from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
-
 #Logging
 from ch.systemsx.cisd.common.logging import LogCategory;
 from org.apache.log4j import Logger;
@@ -401,11 +398,10 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
 
 
 def generateDownloadUrl(sessionToken, tempZipFileName, tempZipFilePath):
-    dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
-
     # Store on workspace to be able to generate a download link
     operationLog.info("Zip file can be found on the temporal directory: " + tempZipFilePath);
-    dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
+    dssService = ServiceProvider.getApplicationContext().getBean("dss-service-rpc-generic")
+    dssService.putFileToSessionWorkspace(sessionToken, tempZipFileName, FileInputStream(File(tempZipFilePath)))
     tempZipFileWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
     operationLog.info("Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL);
     return tempZipFileWorkspaceURL
