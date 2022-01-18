@@ -126,49 +126,51 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         {
             if (criterion instanceof StrictlyStringPropertySearchCriteria)
             {
-                final String dataType = dataTypeByPropertyCode.get(((StrictlyStringPropertySearchCriteria) criterion)
-                        .getFieldName());
+                final String fieldName = ((StrictlyStringPropertySearchCriteria) criterion).getFieldName();
+                final String dataType = dataTypeByPropertyCode.get(fieldName);
                 if (!DataTypeCode.VARCHAR.toString().equals(dataType)
                         && !DataTypeCode.MULTILINE_VARCHAR.toString().equals(dataType)
                         && !DataTypeCode.HYPERLINK.toString().equals(dataType)
                         && !DataTypeCode.XML.toString().equals(dataType))
                 {
-                    throwInconsistencyException(criterion, dataType);
+                    throwInconsistencyException(criterion, dataType, fieldName, dataTypeByPropertyCode);
                 }
             } if (criterion instanceof NumberPropertySearchCriteria)
             {
-                final String dataType = dataTypeByPropertyCode.get(((NumberPropertySearchCriteria) criterion)
-                        .getFieldName());
-                if (!dataType.equals(DataTypeCode.INTEGER.toString())
-                        && !dataType.equals(DataTypeCode.REAL.toString()))
+                final String fieldName = ((NumberPropertySearchCriteria) criterion).getFieldName();
+                final String dataType = dataTypeByPropertyCode.get(fieldName);
+                if (!DataTypeCode.INTEGER.toString().equals(dataType)
+                        && !DataTypeCode.REAL.toString().equals(dataType))
                 {
-                    throwInconsistencyException(criterion, dataType);
+                    throwInconsistencyException(criterion, dataType, fieldName, dataTypeByPropertyCode);
                 }
             } else if (criterion instanceof DatePropertySearchCriteria)
             {
-                final String dataType = dataTypeByPropertyCode.get(((DatePropertySearchCriteria) criterion)
-                        .getFieldName());
-                if (!dataType.equals(DataTypeCode.TIMESTAMP.toString())
-                        && !dataType.equals(DataTypeCode.DATE.toString()))
+                final String fieldName = ((DatePropertySearchCriteria) criterion).getFieldName();
+                final String dataType = dataTypeByPropertyCode.get(fieldName);
+                if (!DataTypeCode.TIMESTAMP.toString().equals(dataType)
+                        && !DataTypeCode.DATE.toString().equals(dataType))
                 {
-                    throwInconsistencyException(criterion, dataType);
+                    throwInconsistencyException(criterion, dataType, fieldName, dataTypeByPropertyCode);
                 }
             } else if (criterion instanceof BooleanPropertySearchCriteria)
             {
-                final String dataType = dataTypeByPropertyCode.get(((BooleanPropertySearchCriteria) criterion)
-                        .getFieldName());
-                if (!dataType.equals(DataTypeCode.BOOLEAN.toString()))
+                final String fieldName = ((BooleanPropertySearchCriteria) criterion).getFieldName();
+                final String dataType = dataTypeByPropertyCode.get(fieldName);
+                if (!DataTypeCode.BOOLEAN.toString().equals(dataType))
                 {
-                    throwInconsistencyException(criterion, dataType);
+                    throwInconsistencyException(criterion, dataType, fieldName, dataTypeByPropertyCode);
                 }
             }
         });
     }
 
-    private void throwInconsistencyException(final ISearchCriteria criterion, final String dataType)
+    private void throwInconsistencyException(final ISearchCriteria criterion, final String dataType,
+            final String fieldName, final Map<String, String> dataTypeByPropertyCode)
     {
-        throw new UserFailureException(String.format("Criterion of type %s cannot be applied to the data type %s.",
-                criterion.getClass().getSimpleName(), dataType));
+        throw new UserFailureException(String.format("Criterion of type %s cannot be applied to the data type %s. "
+                        + "[fieldName=%s, dataTypeByPropertyCode=%s]",
+                criterion.getClass().getSimpleName(), dataType, fieldName, dataTypeByPropertyCode.toString()));
     }
 
     @Override
