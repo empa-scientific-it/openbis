@@ -513,4 +513,47 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         replicateContainer.getAbsolutePath(),
                 getLogContent(logRecorder));
     }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testSanityCheckFailed()
+    {
+        // create dataSetMap
+        Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
+        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
+        // create content for ds4 with wrong path
+        final MockContent ds4Content = new MockContent(":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887");
+        // prepare context
+        context.checking(new Expectations()
+        {
+            {
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(dataSetMap));
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(ds4Content));
+            }
+        });
+        // Container2 contains one deleted and one not deleted dataSets
+        String containerName = "container2.tar";
+        MultiDataSetArchiverContainerDTO c = transaction.createContainer(containerName);
+        transaction.insertDataset(dataSetDescription(ds3Code), c);
+        transaction.insertDataset(dataSetDescription(ds4Code), c);
+        transaction.commit();
+        // Create a container in archive.
+        copyContainerToArchive(archive, containerName);
+        // One of the dataSets in Container 2 was deleted.
+        DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
+
+        // Should throw an exception "Sanity check for data set 20220111121934409-58 failed:
+        // java.lang.RuntimeException: Different paths:
+        // Path in the store is '20220111121934409-58/wrong_path' and in the archive '20220111121934409-58/original'."
+        task.execute(Arrays.asList(deleted3));
+    }
 }
