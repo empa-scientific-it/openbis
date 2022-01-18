@@ -416,6 +416,31 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     }
 
     @Test
+    public void testTaskIsWorkingWithoutReplica()
+    {
+        // Container1 contains only deleted dataSets
+        String containerName = "container1.tar";
+        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
+        transaction.insertDataset(dataSetDescription("ds1"), container);
+        transaction.commit();
+        // Create a container in archive WITHOUT replica.
+        File archiveContainer = copyContainerToArchive(archive, containerName);
+        // All dataSets in the Container 1 was deleted.
+        DeletedDataSet deleted1 = new DeletedDataSet(1, "ds1");
+
+        task.execute(Arrays.asList(deleted1));
+
+        // check that archive was deleted, but replica was not, because it is not exist
+        String replicatePath = archiveContainer.getAbsolutePath();
+        replicatePath = replicatePath.replace("/archive/", "/replicate/");
+        AssertionUtil.assertContainsLines(
+                    "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
+                            archiveContainer.getAbsolutePath() + "\n" +
+                            "WARN  OPERATION.MultiDataSetArchiveCleaner - Failed to delete file immediately: " + replicatePath + "\n",
+                getLogContent(logRecorder));
+    }
+
+    @Test
     public void testContainerContainsDeletedAndNoneDeletedDataSet()
     {
         // create dataSetMap
