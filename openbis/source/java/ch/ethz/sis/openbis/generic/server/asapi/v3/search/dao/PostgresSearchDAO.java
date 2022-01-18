@@ -128,10 +128,10 @@ public class PostgresSearchDAO implements ISQLSearchDAO
             {
                 final String dataType = dataTypeByPropertyCode.get(((StrictlyStringPropertySearchCriteria) criterion)
                         .getFieldName());
-                if (!dataType.equals(DataTypeCode.VARCHAR.toString())
-                        && !dataType.equals(DataTypeCode.MULTILINE_VARCHAR.toString())
-                        && !dataType.equals(DataTypeCode.HYPERLINK.toString())
-                        && !dataType.equals(DataTypeCode.XML.toString()))
+                if (!DataTypeCode.VARCHAR.toString().equals(dataType)
+                        && !DataTypeCode.MULTILINE_VARCHAR.toString().equals(dataType)
+                        && !DataTypeCode.HYPERLINK.toString().equals(dataType)
+                        && !DataTypeCode.XML.toString().equals(dataType))
                 {
                     throwInconsistencyException(criterion, dataType);
                 }
