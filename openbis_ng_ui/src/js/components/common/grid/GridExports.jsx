@@ -13,7 +13,7 @@ import logger from '@src/js/common/logger.js'
 const styles = theme => ({
   container: {
     padding: theme.spacing(1),
-    paddingLeft: 0
+    paddingLeft: theme.spacing(1)
   },
   popup: {
     maxWidth: '300px'
@@ -97,6 +97,7 @@ class GridExports extends React.PureComponent {
           label={messages.get(messages.EXPORTS)}
           color='default'
           disabled={disabled}
+          variant='outlined'
           onClick={this.handleOpen}
         />
         <Popover

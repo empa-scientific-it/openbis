@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   container: {
     padding: theme.spacing(2),
-    paddingTop: theme.spacing(1),
+    paddingTop: 0,
     paddingBottom: 0,
     height: '100%',
     boxSizing: 'border-box'

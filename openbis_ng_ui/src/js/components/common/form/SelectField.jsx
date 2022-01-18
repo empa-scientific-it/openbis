@@ -30,6 +30,7 @@ class SelectFormField extends React.PureComponent {
   static defaultProps = {
     mode: 'edit',
     variant: 'filled',
+    fullWidth: true,
     emptyOption: null
   }
 
@@ -109,7 +110,8 @@ class SelectFormField extends React.PureComponent {
       onChange,
       onClick,
       classes,
-      variant
+      variant,
+      fullWidth
     } = this.props
 
     this.fixReference(reference)
@@ -142,7 +144,7 @@ class SelectFormField extends React.PureComponent {
           onChange={onChange}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
-          fullWidth={true}
+          fullWidth={fullWidth}
           InputLabelProps={{
             shrink:
               !!value ||

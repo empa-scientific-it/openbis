@@ -10,7 +10,7 @@ import logger from '@src/js/common/logger.js'
 const styles = theme => ({
   cell: {
     paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2)
   },
@@ -48,7 +48,7 @@ class GridGlobalFilter extends React.PureComponent {
     const { columns, globalFilter, classes } = this.props
 
     return (
-      <TableCell classes={{ root: classes.cell }} colSpan={columns.length}>
+      <TableCell classes={{ root: classes.cell }} colSpan={columns.length + 1}>
         <div className={classes.fields}>
           <div className={classes.operator}>
             <SelectField

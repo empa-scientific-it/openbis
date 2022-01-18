@@ -15,6 +15,7 @@ import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridConfig from '@src/js/components/common/grid/GridConfig.jsx'
+import GridFiltersConfig from '@src/js/components/common/grid/GridFiltersConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import logger from '@src/js/common/logger.js'
 
@@ -52,9 +53,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   },
   tableBody: {
-    '& tr:last-child td': {
-      border: 0
-    }
+    '& tr:last-child td': {}
   },
   tableFooter: {
     position: 'sticky',
@@ -138,11 +137,6 @@ class Grid extends React.PureComponent {
 
     return (
       <div onClick={this.handleClickContainer} className={classes.container}>
-        <div>
-          {header && (
-            <Header styles={{ root: classes.header }}>{header}</Header>
-          )}
-        </div>
         <div className={classes.loadingContainer}>
           <Loading loading={loading} styles={{ root: classes.loading }}>
             <div className={classes.tableContainer}>
@@ -153,18 +147,83 @@ class Grid extends React.PureComponent {
                 <div className={classes.tableHeaderAndBody}>
                   <Table classes={{ root: classes.table }}>
                     <TableHead classes={{ root: classes.tableHead }}>
-                      <GridFilters
-                        columns={visibleColumns}
-                        filterModes={filterModes}
-                        filterMode={filterMode}
-                        filters={filters}
-                        onFilterChange={this.controller.handleFilterChange}
-                        globalFilter={globalFilter}
-                        onGlobalFilterChange={
-                          this.controller.handleGlobalFilterChange
-                        }
-                        multiselectable={multiselectable}
-                      />
+                      <tr>
+                        <td
+                          colSpan={visibleColumns.length + 1}
+                          style={{ paddingTop: '8px' }}
+                        >
+                          <div>
+                            {header && (
+                              <Header styles={{ root: classes.header }}>
+                                {header}
+                              </Header>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={visibleColumns.length + 1}>
+                          <div style={{ display: 'flex' }}>
+                            <GridActions
+                              actions={actions}
+                              disabled={
+                                Object.keys(multiselectedRows).length === 0
+                              }
+                              onExecute={this.controller.handleExecuteAction}
+                            />
+                            <GridPaging
+                              count={totalCount}
+                              page={page}
+                              pageSize={pageSize}
+                              onPageChange={this.controller.handlePageChange}
+                              onPageSizeChange={
+                                this.controller.handlePageSizeChange
+                              }
+                            />
+                            <GridConfig
+                              filterModes={filterModes}
+                              filterMode={filterMode}
+                              columns={allColumns}
+                              columnsVisibility={columnsVisibility}
+                              loading={loading}
+                              onVisibleChange={
+                                this.controller.handleColumnVisibleChange
+                              }
+                              onOrderChange={
+                                this.controller.handleColumnOrderChange
+                              }
+                              onFilterModeChange={
+                                this.controller.handleFilterModeChange
+                              }
+                            />
+                            <GridFiltersConfig
+                              filterModes={filterModes}
+                              filterMode={filterMode}
+                              columns={allColumns}
+                              columnsVisibility={columnsVisibility}
+                              loading={loading}
+                              onVisibleChange={
+                                this.controller.handleColumnVisibleChange
+                              }
+                              onOrderChange={
+                                this.controller.handleColumnOrderChange
+                              }
+                              onFilterModeChange={
+                                this.controller.handleFilterModeChange
+                              }
+                            />
+                            <GridExports
+                              disabled={rows.length === 0}
+                              exportOptions={exportOptions}
+                              multiselectable={multiselectable}
+                              onExport={this.controller.handleExport}
+                              onExportOptionsChange={
+                                this.controller.handleExportOptionsChange
+                              }
+                            />
+                          </div>
+                        </td>
+                      </tr>
                       <GridHeaders
                         columns={visibleColumns}
                         rows={rows}
@@ -176,8 +235,21 @@ class Grid extends React.PureComponent {
                         multiselectable={multiselectable}
                         multiselectedRows={multiselectedRows}
                       />
-                    </TableHead>
-                    <TableBody classes={{ root: classes.tableBody }}>
+                      <GridFilters
+                        columns={visibleColumns}
+                        filterModes={filterModes}
+                        filterMode={filterMode}
+                        filters={filters}
+                        onFilterChange={this.controller.handleFilterChange}
+                        onFilterModeChange={
+                          this.controller.handleFilterModeChange
+                        }
+                        globalFilter={globalFilter}
+                        onGlobalFilterChange={
+                          this.controller.handleGlobalFilterChange
+                        }
+                        multiselectable={multiselectable}
+                      />
                       <GridMultiselectionRow
                         columns={visibleColumns}
                         rows={rows}
@@ -187,6 +259,8 @@ class Grid extends React.PureComponent {
                         multiselectable={multiselectable}
                         multiselectedRows={multiselectedRows}
                       />
+                    </TableHead>
+                    <TableBody classes={{ root: classes.tableBody }}>
                       {rows.map(row => {
                         return (
                           <GridRow
@@ -210,39 +284,6 @@ class Grid extends React.PureComponent {
                       })}
                     </TableBody>
                   </Table>
-                </div>
-                <div className={classes.tableFooter}>
-                  <GridActions
-                    actions={actions}
-                    disabled={Object.keys(multiselectedRows).length === 0}
-                    onExecute={this.controller.handleExecuteAction}
-                  />
-                  <GridExports
-                    disabled={rows.length === 0}
-                    exportOptions={exportOptions}
-                    multiselectable={multiselectable}
-                    onExport={this.controller.handleExport}
-                    onExportOptionsChange={
-                      this.controller.handleExportOptionsChange
-                    }
-                  />
-                  <GridPaging
-                    count={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    onPageChange={this.controller.handlePageChange}
-                    onPageSizeChange={this.controller.handlePageSizeChange}
-                  />
-                  <GridConfig
-                    filterModes={filterModes}
-                    filterMode={filterMode}
-                    columns={allColumns}
-                    columnsVisibility={columnsVisibility}
-                    loading={loading}
-                    onVisibleChange={this.controller.handleColumnVisibleChange}
-                    onOrderChange={this.controller.handleColumnOrderChange}
-                    onFilterModeChange={this.controller.handleFilterModeChange}
-                  />
                 </div>
               </div>
             </div>

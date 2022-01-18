@@ -2,8 +2,8 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import Button from '@src/js/components/common/form/Button.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
-import Link from '@src/js/components/common/form/Link.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -15,7 +15,8 @@ const styles = theme => ({
     paddingRight: theme.spacing(2)
   },
   messages: {
-    display: 'flex'
+    display: 'flex',
+    alignItems: 'center'
   },
   message: {
     flex: '0 0 auto',
@@ -74,13 +75,21 @@ class GridMultiselectionRow extends React.PureComponent {
                   messages.NUMBER_OF_SELECTED_ROWS,
                   numberOfSelectedRows
                 )}
+                :
               </Message>
             </div>
-            <div className={classes.message}>
-              <Link onClick={onMultiselectionClear}>
-                ({messages.get(messages.CLEAR_SELECTION)})
-              </Link>
-            </div>
+            <Button label='Delete' color='primary' />
+            <span>&nbsp;&nbsp;</span>
+            <Button label='Move' color='primary' />
+            <span>&nbsp;&nbsp;</span>
+            <Button
+              label='Deselect'
+              onClick={onMultiselectionClear}
+              color='secondary'
+            />
+            <span>&nbsp;&nbsp;</span>
+            <span>&nbsp;&nbsp;</span>
+            <span>&nbsp;&nbsp;</span>
             {numberOfSelectedRowsNotVisible > 0 && (
               <div className={classes.message}>
                 <Message type='warning'>
