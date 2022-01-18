@@ -100,6 +100,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final Long DATA_SET_STANDARD_SIZE = 8L;
 
+    private final MockContent goodDs4Content = new MockContent(":0:0", "original/:0:0", "original/test.txt:8:70486887");
+
+    private final MockContent badDs4Content = new MockContent(":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887");
+
     private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
     {
         private IMultiDataSetArchiverDBTransaction transaction;
@@ -363,6 +367,21 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         return logContent;
     }
 
+    private Map<IDataSetId, DataSet> buildDataSetMap()
+    {
+        Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
+        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
+        return dataSetMap;
+    }
+
+    private void createContainer(String containerName, List<String> dataSetCodes) {
+        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
+        for (String code: dataSetCodes) {
+            transaction.insertDataset(dataSetDescription(code), container);
+        }
+        transaction.commit();
+    }
+
     @Test
     public void testExecuteWithEmptyDeletedDataSetList()
     {
@@ -382,10 +401,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     {
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
-        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
-        transaction.insertDataset(dataSetDescription("ds1"), container);
-        transaction.insertDataset(dataSetDescription("ds2"), container);
-        transaction.commit();
+        createContainer(containerName, Arrays.asList("ds1", "ds2"));
         // Create a container in archive and replicate it.
         File archiveContainer = copyContainerToArchive(archive, containerName);
         File replicateContainer = copyContainerToArchive(replicate, containerName);
@@ -420,15 +436,13 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     {
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
-        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
-        transaction.insertDataset(dataSetDescription("ds1"), container);
-        transaction.commit();
+        createContainer(containerName, Arrays.asList("ds1", "ds2"));
         // Create a container in archive WITHOUT replica.
         File archiveContainer = copyContainerToArchive(archive, containerName);
         // All dataSets in the Container 1 was deleted.
         DeletedDataSet deleted1 = new DeletedDataSet(1, "ds1");
-
-        task.execute(Arrays.asList(deleted1));
+        DeletedDataSet deleted2 = new DeletedDataSet(1, "ds2");
+        task.execute(Arrays.asList(deleted1, deleted2));
 
         // check that archive was deleted, but replica was not, because it is not exist
         String replicatePath = archiveContainer.getAbsolutePath();
@@ -443,11 +457,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testContainerContainsDeletedAndNoneDeletedDataSet()
     {
-        // create dataSetMap
-        Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
-        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
-        // create content for ds4
-        final MockContent ds4Content = new MockContent(":0:0", "original/:0:0", "original/test.txt:8:70486887");
         RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
         // prepare context
         context.checking(new Expectations()
@@ -455,7 +464,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             {
                 one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
-                will(returnValue(dataSetMap));
+                will(returnValue(buildDataSetMap()));
 
                 one(shareIdManager).setShareId(ds4Code, "1");
                 one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
@@ -464,7 +473,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(share));
 
                 one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
-                will(returnValue(ds4Content));
+                will(returnValue(goodDs4Content));
 
                 one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
                 one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
@@ -472,10 +481,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         });
         // Container2 contains one deleted and one not deleted dataSets
         String containerName = "container2.tar";
-        MultiDataSetArchiverContainerDTO c = transaction.createContainer(containerName);
-        transaction.insertDataset(dataSetDescription(ds3Code), c);
-        transaction.insertDataset(dataSetDescription(ds4Code), c);
-        transaction.commit();
+        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
         // Create a container in archive and replicate it.
         File archiveContainer = copyContainerToArchive(archive, containerName);
         File replicateContainer = copyContainerToArchive(replicate, containerName);
@@ -517,18 +523,13 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test(expectedExceptions = RuntimeException.class)
     public void testSanityCheckFailed()
     {
-        // create dataSetMap
-        Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
-        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
-        // create content for ds4 with wrong path
-        final MockContent ds4Content = new MockContent(":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887");
         // prepare context
         context.checking(new Expectations()
         {
             {
                 one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
-                will(returnValue(dataSetMap));
+                will(returnValue(buildDataSetMap()));
 
                 one(shareIdManager).setShareId(ds4Code, "1");
                 one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
@@ -537,15 +538,12 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(share));
 
                 one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
-                will(returnValue(ds4Content));
+                will(returnValue(badDs4Content));
             }
         });
         // Container2 contains one deleted and one not deleted dataSets
         String containerName = "container2.tar";
-        MultiDataSetArchiverContainerDTO c = transaction.createContainer(containerName);
-        transaction.insertDataset(dataSetDescription(ds3Code), c);
-        transaction.insertDataset(dataSetDescription(ds4Code), c);
-        transaction.commit();
+        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
         // Create a container in archive.
         copyContainerToArchive(archive, containerName);
         // One of the dataSets in Container 2 was deleted.
