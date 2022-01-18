@@ -14,6 +14,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -193,6 +195,10 @@ public class MultiDataSetDeletionMaintenanceTask
     @Override
     protected void execute(List<DeletedDataSet> datasetCodes)
     {
+        operationLog.info(String.format("MultiDataSetDeletionMaintenanceTask has started processing data sets %s.",
+                CollectionUtils.abbreviate(datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toList()),10))
+        );
+
         List<MultiDataSetArchiverContainerDTO> containers = findArchivesWithDeletedDataSets(datasetCodes);
         Set<String> codes = datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toSet());
 
@@ -214,8 +220,15 @@ public class MultiDataSetDeletionMaintenanceTask
                     }
                 }
             }
+            operationLog.info(String.format("Container %d contains %d not deleted data sets.", container.getId(), notDeletedDataSets.size()));
             if (notDeletedDataSets.isEmpty() == false)
             {
+
+                operationLog.info(String.format("Not deleted data sets %s.",
+                        CollectionUtils.abbreviate(
+                                notDeletedDataSets.stream().map(SimpleDataSetInformationDTO::getDataSetCode).collect(Collectors.toList()),
+                                10))
+                );
                 getMultiDataSetFileOperationsManager().restoreDataSetsFromContainerInFinalDestination(
                         container.getPath(), notDeletedDataSets);
                 sanityCheck(notDeletedDataSets, container.getPath());
@@ -313,7 +326,7 @@ public class MultiDataSetDeletionMaintenanceTask
             transaction.commit();
         } catch (Exception ex)
         {
-            transaction.rollback();
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         transaction.close();
     }

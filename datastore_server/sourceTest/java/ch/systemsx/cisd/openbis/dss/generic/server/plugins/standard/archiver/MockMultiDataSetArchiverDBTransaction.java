@@ -24,6 +24,8 @@ public final class MockMultiDataSetArchiverDBTransaction
 
     private List<MultiDataSetArchiverContainerDTO> uncommittedContainers = new ArrayList<>();
 
+    private List<MultiDataSetArchiverContainerDTO> uncommittedContainersDeletion = new ArrayList<>();
+
     private List<MultiDataSetArchiverDataSetDTO> uncommittedDataSets = new ArrayList<>();
 
     private boolean committed;
@@ -174,12 +176,20 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public void deleteContainer(long containerId)
     {
+        for (MultiDataSetArchiverContainerDTO container : containers)
+        {
+            if (container.getId() == containerId)
+            {
+                uncommittedContainersDeletion.add(container);
+            }
+        }
     }
 
     @Override
     public void commit()
     {
         containers.addAll(uncommittedContainers);
+        containers.removeAll(uncommittedContainersDeletion);
         dataSets.addAll(uncommittedDataSets);
         committed = true;
         clearUncommitted();
@@ -195,6 +205,7 @@ public final class MockMultiDataSetArchiverDBTransaction
     private void clearUncommitted()
     {
         uncommittedContainers.clear();
+        uncommittedContainersDeletion.clear();
         uncommittedDataSets.clear();
     }
 

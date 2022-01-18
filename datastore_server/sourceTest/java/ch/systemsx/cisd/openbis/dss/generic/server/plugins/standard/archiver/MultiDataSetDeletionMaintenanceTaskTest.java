@@ -72,6 +72,20 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private MockMultiDataSetArchiverDBTransaction transaction;
 
+    private IEncapsulatedOpenBISService openBISService;
+
+    private IDataStoreServiceInternal dataStoreService;
+
+    private IHierarchicalContentProvider contentProvider;
+
+    private IShareIdManager shareIdManager;
+
+    private IApplicationServerApi v3api;
+
+    private IDataSetDirectoryProvider directoryProvider;
+
+    private IConfigProvider configProvider;
+
     private MultiDataSetDeletionMaintenanceTask task;
 
     private static final String LAST_SEEN_DATA_SET_FILE = "last-seen-data-set";
@@ -85,8 +99,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     private static final String ds4Code = "20220111121934409-58";
 
     private static final Long DATA_SET_STANDARD_SIZE = 8L;
-
-    private Map<IDataSetId, DataSet> dataSetMap;
 
     private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
     {
@@ -210,17 +222,14 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         transaction = new MockMultiDataSetArchiverDBTransaction();
 
         createStore();
-        buildDataSetMap();
 
-        IEncapsulatedOpenBISService openBISService = context.mock(IEncapsulatedOpenBISService.class);
-        IDataStoreServiceInternal dataStoreService = context.mock(IDataStoreServiceInternal.class);
-        IHierarchicalContentProvider contentProvider = context.mock(IHierarchicalContentProvider.class);
-        IShareIdManager shareIdManager = context.mock(IShareIdManager.class);
-        IApplicationServerApi v3api = context.mock(IApplicationServerApi.class);
-        IDataSetDirectoryProvider directoryProvider = context.mock(IDataSetDirectoryProvider.class);
-        IConfigProvider configProvider = context.mock(IConfigProvider.class);
-        final MockContent ds4Content = new MockContent(":0:0", "original/:0:0", "original/test.txt:8:70486887");
-        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
+        openBISService = context.mock(IEncapsulatedOpenBISService.class);
+        dataStoreService = context.mock(IDataStoreServiceInternal.class);
+        contentProvider = context.mock(IHierarchicalContentProvider.class);
+        shareIdManager = context.mock(IShareIdManager.class);
+        v3api = context.mock(IApplicationServerApi.class);
+        directoryProvider = context.mock(IDataSetDirectoryProvider.class);
+        configProvider = context.mock(IConfigProvider.class);
 
         context.checking(new Expectations()
             {
@@ -236,23 +245,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
                     allowing(openBISService).getSessionToken();
                     will(returnValue(SESSION_TOKEN));
-
-                    allowing(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
-                            with(any(DataSetFetchOptions.class)));
-                    will(returnValue(dataSetMap));
-
-                    allowing(shareIdManager).setShareId(ds4Code, "1");
-                    allowing(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
-                    allowing(shareIdManager).setShareId(ds4Code, "1");
-
-                    allowing(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
-                    will(returnValue(share));
-
-                    allowing(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
-                    will(returnValue(ds4Content));
-
-                    allowing(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
-                    allowing(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
                 }
             });
 
@@ -262,12 +254,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 transaction, transaction, openBISService, dataStoreService,
                 contentProvider, shareIdManager, v3api, configProvider, multiDataSetManager);
         task.setUp("", properties);
-    }
-
-    private void buildDataSetMap()
-    {
-        dataSetMap = new HashMap<>();
-        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
     }
 
     private DataSet generateDataSet(String code, Long sizeInBytes)
@@ -385,7 +371,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
                         mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Obtained the list of all datasets in all shares in ?.?? s.",
+                        "Obtained the list of all datasets in all shares in ?.?? s.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "MultiDataSetDeletionMaintenanceTask has started processing data sets [].",
                 getLogContent(logRecorder));
     }
 
@@ -394,11 +382,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     {
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
-        MultiDataSetArchiverContainerDTO c1 = transaction.createContainer(containerName);
-        DatasetDescription ds1 = dataSetDescription("ds1");
-        DatasetDescription ds2 = dataSetDescription("ds2");
-        transaction.insertDataset(ds1, c1);
-        transaction.insertDataset(ds2, c1);
+        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
+        transaction.insertDataset(dataSetDescription("ds1"), container);
+        transaction.insertDataset(dataSetDescription("ds2"), container);
         transaction.commit();
         // Create a container in archive and replicate it.
         File archiveContainer = copyContainerToArchive(archive, containerName);
@@ -407,13 +393,21 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         DeletedDataSet deleted1 = new DeletedDataSet(1, "ds1");
         DeletedDataSet deleted2 = new DeletedDataSet(1, "ds2");
 
+        assertEquals(1, transaction.listContainers().size());
+
         task.execute(Arrays.asList(deleted1, deleted2));
+
+        assertEquals(0, transaction.listContainers().size());
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
                         mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "MultiDataSetDeletionMaintenanceTask has started processing data sets [ds1, ds2].\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 contains 0 not deleted data sets.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -424,6 +418,33 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testContainerContainsDeletedAndNoneDeletedDataSet()
     {
+        // create dataSetMap
+        Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
+        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
+        // create content for ds4
+        final MockContent ds4Content = new MockContent(":0:0", "original/:0:0", "original/test.txt:8:70486887");
+        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
+        // prepare context
+        context.checking(new Expectations()
+        {
+            {
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(dataSetMap));
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(ds4Content));
+
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
+            }
+        });
         // Container2 contains one deleted and one not deleted dataSets
         String containerName = "container2.tar";
         MultiDataSetArchiverContainerDTO c = transaction.createContainer(containerName);
@@ -436,13 +457,24 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         // One of the dataSets in Container 2 was deleted.
         DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
 
+        assertEquals(1, transaction.listContainers().size());
+
         task.execute(Arrays.asList(deleted3));
+
+        assertEquals(0, transaction.listContainers().size());
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
                         mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "MultiDataSetDeletionMaintenanceTask has started processing data sets " +
+                        "[20220111121909356-57].\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 contains 1 not deleted data sets.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Not deleted data sets [20220111121934409-58].\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Start sanity check on [Dataset '20220111121934409-58']\n" +
                         "INFO  OPERATION.MultiDataSetFileOperationsManager - " +
