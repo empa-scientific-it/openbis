@@ -95,7 +95,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			
 			
 			var extraOptions = [];
-			extraOptions.push({ name : "Delete (Selected " + ELNDictionary.Samples + ")", action : function(selected) {
+			extraOptions.push({ name : "Delete", action : function(selected) {
 				if(selected != undefined && selected.length == 0){
 					Util.showUserError("Please select at least one " + ELNDictionary.sample + " to delete!");
 				} else {
@@ -139,7 +139,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 				}
 			}});
 	
-            extraOptions.push({ name : "Move (Selected " + ELNDictionary.Samples + ")", action : function(selected) {
+            extraOptions.push({ name : "Move", action : function(selected) {
                 if(selected != undefined && selected.length == 0){
                     Util.showUserError("Please select at least one " + ELNDictionary.sample + " to move!");
                 } else {
@@ -152,7 +152,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             }});
 
 			if(profile.mainMenu.showBarcodes) {
-                extraOptions.push({ name : "Generate Barcodes (Selected)", action : function(selected) {
+                extraOptions.push({ name : "Generate Barcodes", action : function(selected) {
 			        var selectedBarcodes = [];
 			        for(var sIdx = 0; sIdx < selected.length; sIdx++) {
                         if(selected[sIdx].properties["$BARCODE"]) {
@@ -168,7 +168,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			        this.currentView = null;
                 }});
 
-                extraOptions.push({ name : "Update Custom Barcodes (Selected)", action : function(selected) {
+                extraOptions.push({ name : "Update Custom Barcodes", action : function(selected) {
 			        BarcodeUtil.readBarcode(selected);
 			        this.currentView = null;
                 }});
