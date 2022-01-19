@@ -20,7 +20,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 											.append($("<th>").append("Price"))
 											.append($("<th>").append("Currency"))
 											.append($("<th>").append("Supplier"))
-											.append($("<th>").append("Quantiy"))
+											.append($("<th>").append("Quantity"))
 											.append($("<th>").append(FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 												_this.addNewProduct(_this._$newProductsTableBody, spaceCode);
 												_this.rowIndex++;
@@ -54,19 +54,19 @@ function NewProductsView(newProductsController, newProductsModel) {
 			var currencyVocabulary = profile.getVocabularyByCode("$PRODUCT.CURRENCY");
 			var currencyDropdown = FormUtil.getDropDownForTerms("new-product-currency-" + _this.rowIndex, currencyVocabulary.terms, "Select a currency", false);
 			
-			var quantityField = FormUtil.getIntegerInputField("new-product-quantity-" + _this.rowIndex, "Quantiy", true);
+			var quantityField = FormUtil.getIntegerInputField("new-product-quantity-" + _this.rowIndex, "Quantity", true);
 			quantityField.change(function() {
 				var value = $(this).val();
 				try {
 					var valueParsed = parseInt(value);
 					if("" + valueParsed === "NaN") {
-						Util.showUserError("Please input a correct quantiy.");
+						Util.showUserError("Please input a correct quantity.");
 						$(this).val("");
 					} else {
 						$(this).val(valueParsed);
 					}
 				} catch(err) {
-					Util.showUserError("Please input a correct quantiy.");
+					Util.showUserError("Please input a correct quantity.");
 					$(this).val("");
 				}
 			});
