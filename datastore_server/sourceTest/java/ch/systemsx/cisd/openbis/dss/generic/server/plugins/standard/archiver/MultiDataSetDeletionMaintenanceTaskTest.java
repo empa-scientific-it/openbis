@@ -134,6 +134,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 IConfigProvider configProvider,
                 MockMultiDataSetFileOperationsManager multiDataSetManager)
         {
+            super();
             this.transaction = transaction;
             this.readonlyDAO = readonlyDAO;
             this.openBISService = openBISService;
@@ -493,6 +494,11 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         task.execute(Arrays.asList(deleted3));
 
         assertEquals(0, transaction.listContainers().size());
+        assertEquals(1, recordedUpdates.recordedObject().size());
+        DataSetUpdate dataSetUpdate = recordedUpdates.recordedObject().get(0);
+        assertEquals(true, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().isModified());
+        assertEquals(Boolean.TRUE, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().getValue());
+        assertEquals(ds4Code, ((DataSetPermId)dataSetUpdate.getDataSetId()).getPermId());
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
@@ -520,7 +526,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 getLogContent(logRecorder));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+          "Different paths: Path in the store is '20220111121934409-58/wrong_path' " +
+          "and in the archive '20220111121934409-58/original'.")
     public void testSanityCheckFailed()
     {
         // prepare context

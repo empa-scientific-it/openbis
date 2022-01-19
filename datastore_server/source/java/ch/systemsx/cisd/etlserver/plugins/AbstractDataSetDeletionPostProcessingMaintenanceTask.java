@@ -51,7 +51,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
 
     protected static final String CHUNK_SIZE = "chunk-size";
 
-    protected final IEncapsulatedOpenBISService openBISService;
+    protected IEncapsulatedOpenBISService openBISService;
 
     protected long delayAfterDeletion;
 
@@ -68,11 +68,13 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
     public AbstractDataSetDeletionPostProcessingMaintenanceTask()
     {
         LogInitializer.init();
-        openBISService = getOpenBISService();
     }
 
     protected IEncapsulatedOpenBISService getOpenBISService() {
-        return ServiceProvider.getOpenBISService();
+        if (openBISService == null) {
+            openBISService = ServiceProvider.getOpenBISService();
+        }
+        return openBISService;
     }
 
     protected ISimpleLogger getOperationLogAsSimpleLogger()
@@ -99,7 +101,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         {
             Long lastSeenEventId = getLastSeenEventId();
             List<DeletedDataSet> deletedDataSets =
-                    openBISService.listDeletedDataSets(lastSeenEventId, computeMaxDeletionDate());
+                    getOpenBISService().listDeletedDataSets(lastSeenEventId, computeMaxDeletionDate());
             if (deletedDataSets.size() > 0)
             {
 
