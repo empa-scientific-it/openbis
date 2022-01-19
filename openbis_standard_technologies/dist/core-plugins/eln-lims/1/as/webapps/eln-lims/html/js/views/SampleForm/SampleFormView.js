@@ -479,7 +479,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-                if(propertyTypeGroup.name === "General" || propertyTypeGroup.name === "General info") {
+                if(propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "General" || propertyTypeGroup.name.toLowerCase() === "General info")) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
@@ -561,7 +561,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-                if(propertyTypeGroup.name !== "General" && propertyTypeGroup.name !== "General info") {
+                if(propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "General" || propertyTypeGroup.name.toLowerCase() === "General info")) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
