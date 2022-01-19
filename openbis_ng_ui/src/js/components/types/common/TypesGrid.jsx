@@ -22,7 +22,6 @@ class TypesGrid extends React.PureComponent {
         rows={rows}
         sort='code'
         selectable={true}
-        multiselectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />
