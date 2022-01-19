@@ -11,7 +11,6 @@ import GridFilters from '@src/js/components/common/grid/GridFilters.jsx'
 import GridHeaders from '@src/js/components/common/grid/GridHeaders.jsx'
 import GridMultiselectionRow from '@src/js/components/common/grid/GridMultiselectionRow.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
-import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridColumnsConfig from '@src/js/components/common/grid/GridColumnsConfig.jsx'
@@ -161,13 +160,6 @@ class Grid extends React.PureComponent {
                       <tr>
                         <td colSpan={visibleColumns.length + 1}>
                           <div style={{ display: 'flex' }}>
-                            <GridActions
-                              actions={actions}
-                              disabled={
-                                Object.keys(multiselectedRows).length === 0
-                              }
-                              onExecute={this.controller.handleExecuteAction}
-                            />
                             <GridPaging
                               count={totalCount}
                               page={page}
@@ -237,6 +229,8 @@ class Grid extends React.PureComponent {
                       <GridMultiselectionRow
                         columns={visibleColumns}
                         rows={rows}
+                        actions={actions}
+                        onExecuteAction={this.controller.handleExecuteAction}
                         onMultiselectionClear={
                           this.controller.handleMultiselectionClear
                         }
