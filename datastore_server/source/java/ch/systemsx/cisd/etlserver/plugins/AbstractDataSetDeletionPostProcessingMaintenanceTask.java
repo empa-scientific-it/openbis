@@ -126,7 +126,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         }
     }
 
-    private Date computeMaxDeletionDate()
+    protected Date computeMaxDeletionDate()
     {
         long now = getCurrentTime();
         long maxDeletionTimestamp = now - delayAfterDeletion;

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -47,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +92,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final String LAST_SEEN_DATA_SET_FILE = "last-seen-data-set";
 
+    private static final Date MAX_DELETION_DATE = new Date(22);
+
     private static final String SESSION_TOKEN = "sessionToken";
 
     private static final String DSS_CODE = "dss1";
@@ -100,9 +104,16 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final Long DATA_SET_STANDARD_SIZE = 8L;
 
-    private final MockContent goodDs4Content = new MockContent(":0:0", "original/:0:0", "original/test.txt:8:70486887");
+    private final MockContent goodDs4Content = new MockContent(
+            ":0:0", "original/:0:0", "original/test.txt:8:70486887"
+    );
 
-    private final MockContent badDs4Content = new MockContent(":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887");
+    private final MockContent badDs4Content = new MockContent(
+            ":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887"
+    );
+
+    private final String WRONG_PATH_ERROR = "Different paths: Path in the store is '20220111121934409-58/wrong_path' " +
+            "and in the archive '20220111121934409-58/original'.";
 
     private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
     {
@@ -198,6 +209,12 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         protected MultiDataSetFileOperationsManager getMultiDataSetFileOperationsManager()
         {
             return multiDataSetManager;
+        }
+
+        @Override
+        protected Date computeMaxDeletionDate()
+        {
+            return MAX_DELETION_DATE;
         }
     }
 
@@ -375,9 +392,11 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         return dataSetMap;
     }
 
-    private void createContainer(String containerName, List<String> dataSetCodes) {
+    private void createContainer(String containerName, List<String> dataSetCodes)
+    {
         MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
-        for (String code: dataSetCodes) {
+        for (String code: dataSetCodes)
+        {
             transaction.insertDataset(dataSetDescription(code), container);
         }
         transaction.commit();
@@ -526,9 +545,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 getLogContent(logRecorder));
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
-          "Different paths: Path in the store is '20220111121934409-58/wrong_path' " +
-          "and in the archive '20220111121934409-58/original'.")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = WRONG_PATH_ERROR)
     public void testSanityCheckFailed()
     {
         // prepare context
@@ -561,5 +578,96 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         // java.lang.RuntimeException: Different paths:
         // Path in the store is '20220111121934409-58/wrong_path' and in the archive '20220111121934409-58/original'."
         task.execute(Arrays.asList(deleted3));
+    }
+
+    @Test
+    public void testTaskWillProcessDataSetAgainIfItFails()
+    {
+        // Container2 contains one deleted and one not deleted dataSets
+        String containerName = "container2.tar";
+        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
+        // Create a container in archive and replicate it.
+        copyContainerToArchive(archive, containerName);
+        copyContainerToArchive(replicate, containerName);
+        // One of the dataSets in Container 2 was deleted.
+        DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
+
+        final Sequence sequence = context.sequence("tasks");
+        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
+
+        // prepare context
+        context.checking(new Expectations()
+        {
+            {
+                // first task.execute() call
+                one(openBISService).listDeletedDataSets(null, MAX_DELETION_DATE);
+                will(returnValue(Arrays.asList(deleted3)));
+                inSequence(sequence);
+
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(buildDataSetMap()));
+                inSequence(sequence);
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                inSequence(sequence);
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+                inSequence(sequence);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+                inSequence(sequence);
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(badDs4Content));
+                inSequence(sequence);
+
+                // second task.execute() call
+                one(openBISService).listDeletedDataSets(null, MAX_DELETION_DATE);
+                will(returnValue(Arrays.asList(deleted3)));
+                inSequence(sequence);
+
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(buildDataSetMap()));
+                inSequence(sequence);
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                inSequence(sequence);
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+                inSequence(sequence);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+                inSequence(sequence);
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(goodDs4Content));
+                inSequence(sequence);
+
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                inSequence(sequence);
+                one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
+                inSequence(sequence);
+            }
+        });
+
+        // Call task.execute() for the first time. It should fail and NOT UPDATE lastSeenDataSetFile.
+        assertEquals(false, lastSeenDataSetFile.exists());
+        try
+        {
+            task.execute();
+        } catch (RuntimeException e)
+        {
+            assertEquals(e.getMessage(), WRONG_PATH_ERROR);
+        }
+
+        assertEquals(false, lastSeenDataSetFile.exists());
+
+        // Call task.execute() for the second time. It should pass and UPDATE lastSeenDataSetFile.
+        task.execute();
+
+        assertEquals(true, lastSeenDataSetFile.exists());
+        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
     }
 }
