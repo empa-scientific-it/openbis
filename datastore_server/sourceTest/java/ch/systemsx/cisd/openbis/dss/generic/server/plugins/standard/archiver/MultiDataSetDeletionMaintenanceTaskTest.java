@@ -545,41 +545,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 getLogContent(logRecorder));
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = WRONG_PATH_ERROR)
-    public void testSanityCheckFailed()
-    {
-        // prepare context
-        context.checking(new Expectations()
-        {
-            {
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
-                        with(any(DataSetFetchOptions.class)));
-                will(returnValue(buildDataSetMap()));
-
-                one(shareIdManager).setShareId(ds4Code, "1");
-                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
-
-                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
-                will(returnValue(share));
-
-                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
-                will(returnValue(badDs4Content));
-            }
-        });
-        // Container2 contains one deleted and one not deleted dataSets
-        String containerName = "container2.tar";
-        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
-        // Create a container in archive.
-        copyContainerToArchive(archive, containerName);
-        // One of the dataSets in Container 2 was deleted.
-        DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
-
-        // Should throw an exception "Sanity check for data set 20220111121934409-58 failed:
-        // java.lang.RuntimeException: Different paths:
-        // Path in the store is '20220111121934409-58/wrong_path' and in the archive '20220111121934409-58/original'."
-        task.execute(Arrays.asList(deleted3));
-    }
-
     @Test
     public void testTaskWillProcessDataSetAgainIfItFails()
     {
@@ -669,5 +634,86 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         assertEquals(true, lastSeenDataSetFile.exists());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = WRONG_PATH_ERROR)
+    public void testSanityCheckFailedBecauseOfDifferentPaths()
+    {
+        testSanityCheckThrowRuntimeException(badDs4Content);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+            "The path '20220111121934409-58/original/test.txt' should be in store and archive either both " +
+            "directories or files but not mixed: In the store it is a directory but in the archive it is a file.")
+    public void testSanityCheckFailedBecauseItExpectsFileButGotDir()
+    {
+        MockContent content = new MockContent(
+                ":0:0", "original/:0:0", "original/test.txt/:0:0"
+        );
+
+        testSanityCheckThrowRuntimeException(content);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+            "The directory '20220111121934409-58/original' has in the store 2 files but 1 in the archive.")
+    public void testSanityCheckFailedBecauseItHasToManyFiles()
+    {
+        MockContent content = new MockContent(
+                ":0:0", "original/:0:0", "original/test1.txt:0:0", "original/test2.txt:0:0"
+        );
+        testSanityCheckThrowRuntimeException(content);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+            "The file '20220111121934409-58/original/test.txt' has in the store 10 bytes but 8 in the archive.")
+    public void testSanityCheckFailedBecauseFileHasWrongSize()
+    {
+        MockContent content = new MockContent(
+                ":0:0", "original/:0:0", "original/test.txt:10:70486887"
+        );
+        testSanityCheckThrowRuntimeException(content);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+            "The file '20220111121934409-58/original/test.txt' has in the store the checksum 00000000 " +
+            "but 70486887 in the archive.")
+    public void testSanityCheckFailedBecauseFileHasWrongChecksum()
+    {
+        MockContent content = new MockContent(
+                ":0:0", "original/:0:0", "original/test.txt:8:0"
+        );
+        testSanityCheckThrowRuntimeException(content);
+    }
+
+    private void testSanityCheckThrowRuntimeException(MockContent badContent)
+    {
+        // prepare context
+        context.checking(new Expectations()
+        {
+            {
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(buildDataSetMap()));
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(badContent));
+            }
+        });
+        // Container2 contains one deleted and one not deleted dataSets
+        String containerName = "container2.tar";
+        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
+        // Create a container in archive.
+        copyContainerToArchive(archive, containerName);
+        // One of the dataSets in Container 2 was deleted.
+        DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
+
+        // task will throw RuntimeException because of the badContent.
+        task.execute(Arrays.asList(deleted3));
     }
 }
