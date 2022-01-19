@@ -9,7 +9,13 @@ const styles = theme => ({
   row: {
     display: 'flex',
     alignItems: 'center',
-    padding: `${theme.spacing(1) / 2}px 0px`
+    padding: `${theme.spacing(1) / 2}px 0px`,
+    '&:first-child': {
+      paddingTop: 0
+    },
+    '&:last-child': {
+      paddingBottom: 0
+    }
   },
   label: {
     marginLeft: 0
@@ -20,7 +26,7 @@ const styles = theme => ({
   }
 })
 
-class GridConfigRow extends React.PureComponent {
+class GridColumnsConfigRow extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
@@ -61,4 +67,4 @@ class GridConfigRow extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(GridConfigRow)
+export default withStyles(styles)(GridColumnsConfigRow)

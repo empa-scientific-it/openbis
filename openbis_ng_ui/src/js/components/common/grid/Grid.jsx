@@ -14,7 +14,7 @@ import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridActions from '@src/js/components/common/grid/GridActions.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
-import GridConfig from '@src/js/components/common/grid/GridConfig.jsx'
+import GridColumnsConfig from '@src/js/components/common/grid/GridColumnsConfig.jsx'
 import GridFiltersConfig from '@src/js/components/common/grid/GridFiltersConfig.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import logger from '@src/js/common/logger.js'
@@ -51,9 +51,6 @@ const styles = theme => ({
     top: 0,
     zIndex: '200',
     backgroundColor: theme.palette.background.paper
-  },
-  tableBody: {
-    '& tr:last-child td': {}
   },
   tableFooter: {
     position: 'sticky',
@@ -180,9 +177,7 @@ class Grid extends React.PureComponent {
                                 this.controller.handlePageSizeChange
                               }
                             />
-                            <GridConfig
-                              filterModes={filterModes}
-                              filterMode={filterMode}
+                            <GridColumnsConfig
                               columns={allColumns}
                               columnsVisibility={columnsVisibility}
                               loading={loading}
@@ -191,23 +186,12 @@ class Grid extends React.PureComponent {
                               }
                               onOrderChange={
                                 this.controller.handleColumnOrderChange
-                              }
-                              onFilterModeChange={
-                                this.controller.handleFilterModeChange
                               }
                             />
                             <GridFiltersConfig
                               filterModes={filterModes}
                               filterMode={filterMode}
-                              columns={allColumns}
-                              columnsVisibility={columnsVisibility}
                               loading={loading}
-                              onVisibleChange={
-                                this.controller.handleColumnVisibleChange
-                              }
-                              onOrderChange={
-                                this.controller.handleColumnOrderChange
-                              }
                               onFilterModeChange={
                                 this.controller.handleFilterModeChange
                               }

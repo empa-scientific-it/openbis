@@ -3,13 +3,11 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
-import Button from '@src/js/components/common/form/Button.jsx'
+import Popover from '@material-ui/core/Popover'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
-import Link from '@src/js/components/common/form/Link.jsx'
-import SettingsIcon from '@material-ui/icons/Settings'
-import GridConfigRow from '@src/js/components/common/grid/GridConfigRow.jsx'
-import Popover from '@material-ui/core/Popover'
+import Button from '@src/js/components/common/form/Button.jsx'
+import GridColumnsConfigRow from '@src/js/components/common/grid/GridColumnsConfigRow.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -19,17 +17,20 @@ const styles = theme => ({
     alignItems: 'center',
     paddingRight: theme.spacing(1)
   },
-  filters: {
-    paddingBottom: theme.spacing(1)
-  },
-  columnsList: {
+  columns: {
     listStyle: 'none',
     margin: 0,
     padding: 0
+  },
+  buttons: {
+    marginBottom: theme.spacing(1),
+    '& button': {
+      marginRight: theme.spacing(1)
+    }
   }
 })
 
-class GridConfig extends React.PureComponent {
+class GridColumnsConfig extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -77,7 +78,7 @@ class GridConfig extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'GridConfig.render')
+    logger.log(logger.DEBUG, 'GridColumnsConfig.render')
 
     const { classes, loading } = this.props
     const { el } = this.state
@@ -85,13 +86,11 @@ class GridConfig extends React.PureComponent {
     return (
       <div className={classes.container}>
         <Button
-          label='Columns'
+          label={messages.get(messages.COLUMNS)}
           color='default'
           variant='outlined'
           onClick={this.handleOpen}
-        >
-          <SettingsIcon fontSize='small' />
-        </Button>
+        />
         <Popover
           open={Boolean(el)}
           anchorEl={el}
@@ -106,7 +105,7 @@ class GridConfig extends React.PureComponent {
           }}
         >
           <Mask visible={loading}>
-            <Container>{this.renderColumns()}</Container>
+            <Container square={true}>{this.renderColumns()}</Container>
           </Mask>
         </Popover>
       </div>
@@ -117,16 +116,26 @@ class GridConfig extends React.PureComponent {
     const { classes, columns, columnsVisibility, onVisibleChange } = this.props
     return (
       <div>
+        <div className={classes.buttons}>
+          <Button
+            label={messages.get(messages.SHOW_ALL)}
+            onClick={this.handleShowAll}
+          />
+          <Button
+            label={messages.get(messages.HIDE_ALL)}
+            onClick={this.handleHideAll}
+          />
+        </div>
         <DragDropContext onDragEnd={this.handleDragEnd}>
           <Droppable droppableId='root'>
             {provided => (
               <ol
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={classes.columnsList}
+                className={classes.columns}
               >
                 {columns.map((column, index) => (
-                  <GridConfigRow
+                  <GridColumnsConfigRow
                     key={column.name}
                     column={column}
                     visible={columnsVisibility[column.name]}
@@ -139,19 +148,9 @@ class GridConfig extends React.PureComponent {
             )}
           </Droppable>
         </DragDropContext>
-        <br />
-        <Button
-          label={messages.get(messages.SHOW_ALL)}
-          onClick={this.handleShowAll}
-        />
-        <span>&nbsp;</span>
-        <Button
-          label={messages.get(messages.HIDE_ALL)}
-          onClick={this.handleHideAll}
-        />
       </div>
     )
   }
 }
 
-export default _.flow(withStyles(styles))(GridConfig)
+export default _.flow(withStyles(styles))(GridColumnsConfig)

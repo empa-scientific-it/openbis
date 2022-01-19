@@ -12,14 +12,23 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    padding: theme.spacing(1),
-    paddingLeft: theme.spacing(1)
+    display: 'flex',
+    alignItems: 'center'
   },
   popup: {
     maxWidth: '300px'
   },
   field: {
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(1),
+    '&:first-child': {
+      paddingTop: 0
+    },
+    '&:last-child': {
+      paddingBottom: 0
+    }
+  },
+  button: {
+    paddingTop: theme.spacing(1)
   }
 })
 
@@ -113,63 +122,65 @@ class GridExports extends React.PureComponent {
             horizontal: 'left'
           }}
         >
-          <Container className={classes.popup}>
-            <div className={classes.field}>
-              <SelectField
-                label={messages.get(messages.COLUMNS)}
-                name='columns'
-                options={[
-                  {
-                    label: messages.get(messages.ALL_COLUMNS),
-                    value: GridExportOptions.ALL_COLUMNS
-                  },
-                  {
-                    label: messages.get(messages.VISIBLE_COLUMNS),
-                    value: GridExportOptions.VISIBLE_COLUMNS
-                  }
-                ]}
-                value={exportOptions.columns}
-                variant='standard'
-                onChange={this.handleChange}
-              />
-            </div>
-            <div className={classes.field}>
-              <SelectField
-                label={messages.get(messages.ROWS)}
-                name='rows'
-                options={rowsOptions}
-                value={exportOptions.rows}
-                variant='standard'
-                onChange={this.handleChange}
-              />
-            </div>
-            <div className={classes.field}>
-              <SelectField
-                label={messages.get(messages.VALUES)}
-                name='values'
-                options={[
-                  {
-                    label: messages.get(messages.PLAIN_TEXT),
-                    value: GridExportOptions.PLAIN_TEXT
-                  },
-                  {
-                    label: messages.get(messages.RICH_TEXT),
-                    value: GridExportOptions.RICH_TEXT
-                  }
-                ]}
-                value={exportOptions.values}
-                variant='standard'
-                onChange={this.handleChange}
-              />
-            </div>
-            {exportOptions.values === GridExportOptions.PLAIN_TEXT && (
+          <Container square={true} className={classes.popup}>
+            <div>
               <div className={classes.field}>
-                <Message type='warning'>
-                  {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
-                </Message>
+                <SelectField
+                  label={messages.get(messages.COLUMNS)}
+                  name='columns'
+                  options={[
+                    {
+                      label: messages.get(messages.ALL_COLUMNS),
+                      value: GridExportOptions.ALL_COLUMNS
+                    },
+                    {
+                      label: messages.get(messages.VISIBLE_COLUMNS),
+                      value: GridExportOptions.VISIBLE_COLUMNS
+                    }
+                  ]}
+                  value={exportOptions.columns}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
               </div>
-            )}
-            <div className={classes.field}>
+              <div className={classes.field}>
+                <SelectField
+                  label={messages.get(messages.ROWS)}
+                  name='rows'
+                  options={rowsOptions}
+                  value={exportOptions.rows}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
+              </div>
+              <div className={classes.field}>
+                <SelectField
+                  label={messages.get(messages.VALUES)}
+                  name='values'
+                  options={[
+                    {
+                      label: messages.get(messages.PLAIN_TEXT),
+                      value: GridExportOptions.PLAIN_TEXT
+                    },
+                    {
+                      label: messages.get(messages.RICH_TEXT),
+                      value: GridExportOptions.RICH_TEXT
+                    }
+                  ]}
+                  value={exportOptions.values}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
+              </div>
+              {exportOptions.values === GridExportOptions.PLAIN_TEXT && (
+                <div className={classes.field}>
+                  <Message type='warning'>
+                    {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
+                  </Message>
+                </div>
+              )}
+            </div>
+            <div className={classes.button}>
               <Button
                 label={messages.get(messages.EXPORT)}
                 type='neutral'
