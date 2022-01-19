@@ -1036,7 +1036,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															requiredChildren,
 															isDisabled,
 															currentChildrenLinksNoStorage,
-															this._sampleFormModel.mode === FormMode.CREATE,
+															this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations);
