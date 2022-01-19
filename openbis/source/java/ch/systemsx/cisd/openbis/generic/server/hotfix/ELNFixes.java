@@ -9,7 +9,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,5 +84,11 @@ public class ELNFixes {
             api.updateSamples(sessionToken, nameUpdates);
         }
         operationLog.info("ELNFixes nameNoRTFFix: " + nameUpdates.size());
+    }
+
+    public static boolean isELNInstalled() {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        List<CorePluginPE> elnLims = daoFactory.getCorePluginDAO().listCorePluginsByName("eln-lims");
+        return (elnLims != null && elnLims.size() > 0);
     }
 }
