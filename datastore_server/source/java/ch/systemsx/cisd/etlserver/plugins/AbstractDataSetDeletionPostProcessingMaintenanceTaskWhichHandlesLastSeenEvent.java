@@ -5,7 +5,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import java.io.File;
 
 public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
-        extends AbstractDataSetDeletionPostProcessingMaintenanceTask {
+        extends AbstractDataSetDeletionPostProcessingMaintenanceTask
+{
 
     protected File lastSeenEventIdFile;
 

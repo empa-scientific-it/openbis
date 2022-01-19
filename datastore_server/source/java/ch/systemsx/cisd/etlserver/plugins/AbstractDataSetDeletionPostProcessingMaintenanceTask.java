@@ -70,8 +70,10 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         LogInitializer.init();
     }
 
-    protected IEncapsulatedOpenBISService getOpenBISService() {
-        if (openBISService == null) {
+    protected IEncapsulatedOpenBISService getOpenBISService()
+    {
+        if (openBISService == null)
+        {
             openBISService = ServiceProvider.getOpenBISService();
         }
         return openBISService;
