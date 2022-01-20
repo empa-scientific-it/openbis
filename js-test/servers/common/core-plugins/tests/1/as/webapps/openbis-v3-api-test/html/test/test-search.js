@@ -2111,7 +2111,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				}
 				codes.sort();
 				var actual = codes.toString();
-				var expected = "AGILENT_KIT,KIT,SAMPLE_TYPE";
+				var expected = "$STORAGE.STORAGE_VALIDATION_LEVEL,AGILENT_KIT,KIT,SAMPLE_TYPE";
 				c.assertEqual(actual, expected, "Vocabularies Expected: [" + expected + "] - Actual: [" + actual + "]");
 			}
 
