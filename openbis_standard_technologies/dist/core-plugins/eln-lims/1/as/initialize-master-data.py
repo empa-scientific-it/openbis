@@ -27,8 +27,8 @@ from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNCollectionTypeMigr
 
 if ELNFixes.isELNInstalled():
     ELNFixes.beforeUpgrade()
-ELNAnnotationsMigration.beforeUpgrade()
-ELNCollectionTypeMigration.beforeUpgrade()
+    ELNAnnotationsMigration.beforeUpgrade()
+    ELNCollectionTypeMigration.beforeUpgrade()
 
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
