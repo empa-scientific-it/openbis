@@ -2110,7 +2110,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					codes.push(vocabularies[i].getCode());
 				}
 				codes.sort();
-				c.assertEqual(codes.toString(), "AGILENT_KIT,KIT,SAMPLE_TYPE", "Vocabularies");
+				var actual = codes.toString();
+				var expected = "AGILENT_KIT,KIT,SAMPLE_TYPE";
+				c.assertEqual(actual, expected, "Vocabularies Expected: [" + expected + "] - Actual: [" + actual + "]");
 			}
 
 			testSearch(c, fSearch, fCheck);
