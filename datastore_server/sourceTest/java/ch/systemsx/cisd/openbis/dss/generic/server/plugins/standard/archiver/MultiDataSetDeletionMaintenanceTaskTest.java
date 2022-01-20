@@ -271,11 +271,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 }
             });
 
-        Properties properties = createProperties();
-        MockMultiDataSetFileOperationsManager multiDataSetManager = new MockMultiDataSetFileOperationsManager(properties, directoryProvider);
+        Properties properties = createProperties(true);
         task = new MockMultiDataSetDeletionMaintenanceTask(
                 transaction, transaction, openBISService, dataStoreService,
-                contentProvider, shareIdManager, v3api, configProvider, multiDataSetManager);
+                contentProvider, shareIdManager, v3api, configProvider, new MockMultiDataSetFileOperationsManager(properties, directoryProvider));
         task.setUp("", properties);
     }
 
@@ -324,7 +323,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         return description;
     }
 
-    private Properties createProperties()
+    private Properties createProperties(boolean withReplica)
     {
         Properties properties = new Properties();
 
@@ -334,8 +333,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 lastSeenDataSetFile.getPath());
         properties.setProperty("archiver." + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
         properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
-        properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
-        properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+        if (withReplica) {
+            properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+            properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+        }
         properties.setProperty("mapping-file", mappingFile.getPath());
         return properties;
     }
@@ -464,6 +465,13 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     public void testTaskIsWorkingWithoutReplica()
     {
         // GIVEN
+        Properties properties = createProperties(false);
+        MockMultiDataSetDeletionMaintenanceTask taskWithoutReplica = new MockMultiDataSetDeletionMaintenanceTask(
+                transaction, transaction, openBISService, dataStoreService,
+                contentProvider, shareIdManager, v3api, configProvider,
+                new MockMultiDataSetFileOperationsManager(properties, directoryProvider));
+        taskWithoutReplica.setUp("", properties);
+
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
         createContainer(containerName, Arrays.asList("ds1", "ds2"));
@@ -474,17 +482,25 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         DeletedDataSet deleted2 = new DeletedDataSet(1, "ds2");
 
         // WHEN
-        task.execute(Arrays.asList(deleted1, deleted2));
+        taskWithoutReplica.execute(Arrays.asList(deleted1, deleted2));
 
         // THEN
         // check that archive was deleted, but replica was not, because it is not exist
         String replicatePath = archiveContainer.getAbsolutePath();
         replicatePath = replicatePath.replace("/archive/", "/replicate/");
+
+        String log = getLogContent(logRecorder);
         AssertionUtil.assertContainsLines(
                     "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
-                            archiveContainer.getAbsolutePath() + "\n" +
-                            "WARN  OPERATION.MultiDataSetArchiveCleaner - Failed to delete file immediately: " + replicatePath + "\n",
-                getLogContent(logRecorder));
+                            archiveContainer.getAbsolutePath() + "\n", log);
+
+        // There is no information of replicate file.
+        AssertionUtil.assertContainsNot(
+                "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
+                        replicatePath + "\n", log);
+        AssertionUtil.assertContainsNot(
+                "WARN  OPERATION.MultiDataSetArchiveCleaner - Failed to delete file immediately: " +
+                        replicatePath + "\n", log);
     }
 
     @Test

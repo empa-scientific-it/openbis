@@ -82,6 +82,8 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private Properties properties;
 
+    private boolean hasReplication = false;
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
@@ -102,6 +104,7 @@ public class MultiDataSetDeletionMaintenanceTask
                 ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY);
         if (replicatedDestination != null)
         {
+            hasReplication = true;
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
@@ -237,8 +240,9 @@ public class MultiDataSetDeletionMaintenanceTask
             }
             deleteContainer(container);
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
-            // TODO: Delete only if MultiDataSetArchiver is configured such that replica are created
-            getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
+            if (hasReplication) {
+                getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
+            }
             if (notDeletedDataSets.isEmpty() == false)
             {
                 updateDataSetsStatusAndFlags(notDeletedDataSets);
