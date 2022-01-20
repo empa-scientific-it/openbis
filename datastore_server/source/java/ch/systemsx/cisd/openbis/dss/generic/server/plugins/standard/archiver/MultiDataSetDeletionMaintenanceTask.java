@@ -235,7 +235,7 @@ public class MultiDataSetDeletionMaintenanceTask
                         container.getPath(), notDeletedDataSets);
                 sanityCheck(notDeletedDataSets, container.getPath());
             }
-            deleteContainer(container.getId());
+            deleteContainer(container);
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
             // TODO: Delete only if MultiDataSetArchiver is configured such that replica are created
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
@@ -320,12 +320,12 @@ public class MultiDataSetDeletionMaintenanceTask
         return simpleDataSet;
     }
 
-    private void deleteContainer(long containerId)
+    private void deleteContainer(MultiDataSetArchiverContainerDTO container)
     {
         IMultiDataSetArchiverDBTransaction transaction = getTransaction();
         try
         {
-            transaction.deleteContainer(containerId);
+            transaction.deleteContainer(container.getId());
             transaction.commit();
         } catch (Exception ex)
         {
@@ -333,7 +333,7 @@ public class MultiDataSetDeletionMaintenanceTask
         }
         transaction.close();
         getOperationLogAsSimpleLogger().log(LogLevel.INFO,
-                String.format("Container %d was successfully deleted.", containerId));
+                String.format("Container %s was successfully deleted.", container.getPath()));
     }
 
     private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)
