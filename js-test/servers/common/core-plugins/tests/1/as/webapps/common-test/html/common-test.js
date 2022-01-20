@@ -73,7 +73,7 @@ var assertArrays = function(array1, array2, msg) {
 }
 
 var assertObjectsCount = function(objects, count) {
-	equal(objects.length, count, 'Got ' + count + ' object(s)');
+	equal(objects.length, count, 'Got ' + objects.length + ' object(s) instead of ' + count + '.');
 }
 
 var assertDate = function(millis, msg, year, month, day, hour, minute) {
