@@ -220,11 +220,11 @@ public class MultiDataSetDeletionMaintenanceTask
                     }
                 }
             }
-            operationLog.info(String.format("Container %d contains %d not deleted data sets.", container.getId(), notDeletedDataSets.size()));
+            operationLog.info(String.format("Container %s contains %d not deleted data sets.", container.getPath(), notDeletedDataSets.size()));
             if (notDeletedDataSets.isEmpty() == false)
             {
 
-                operationLog.info(String.format("Not deleted data sets %s.",
+                operationLog.info(String.format("Not deleted data sets: %s.",
                         CollectionUtils.abbreviate(
                                 notDeletedDataSets.stream().map(SimpleDataSetInformationDTO::getDataSetCode).collect(Collectors.toList()),
                                 10))

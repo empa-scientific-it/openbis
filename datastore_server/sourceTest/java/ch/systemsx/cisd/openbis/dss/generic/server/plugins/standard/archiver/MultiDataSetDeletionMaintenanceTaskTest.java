@@ -443,7 +443,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "MultiDataSetDeletionMaintenanceTask has started processing data sets [ds1, ds2].\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container 0 contains 0 not deleted data sets.\n" +
+                        "Container container1.tar contains 0 not deleted data sets.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -528,9 +528,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "MultiDataSetDeletionMaintenanceTask has started processing data sets " +
                         "[20220111121909356-57].\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container 0 contains 1 not deleted data sets.\n" +
+                        "Container container2.tar contains 1 not deleted data sets.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Not deleted data sets [20220111121934409-58].\n" +
+                        "Not deleted data sets: [20220111121934409-58].\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Start sanity check on [Dataset '20220111121934409-58']\n" +
                         "INFO  OPERATION.MultiDataSetFileOperationsManager - " +
