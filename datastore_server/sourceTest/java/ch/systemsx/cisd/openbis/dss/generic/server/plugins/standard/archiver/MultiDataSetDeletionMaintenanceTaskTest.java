@@ -451,6 +451,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "MultiDataSetDeletionMaintenanceTask has started processing data sets [ds1, ds2].\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Container container1.tar contains 0 not deleted data sets.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 was successfully deleted.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -552,10 +554,112 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.MultiDataSetFileOperationsManager - " +
                         "Writing statistics for output stream: 1.06 KB in 4 chunks took < 1sec.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - Sanity check finished.\n" +
+                        "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 was successfully deleted.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         replicateContainer.getAbsolutePath(),
+                getLogContent(logRecorder));
+    }
+
+    @Test
+    public void testDeleteContainerThrowAnException()
+    {
+        // GIVEN
+
+        // Container2 contains one deleted and one not deleted dataSets
+        String containerName = "container2.tar";
+        createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
+        // Create a container in archive and replicate it.
+        copyContainerToArchive(archive, containerName);
+        copyContainerToArchive(replicate, containerName);
+        // One of the dataSets in Container 2 was deleted.
+        DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
+
+        final Sequence sequence = context.sequence("tasks");
+        RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
+        // prepare context
+        context.checking(new Expectations()
+        {
+            {
+                // first task.execute() call
+                one(openBISService).listDeletedDataSets(null, MAX_DELETION_DATE);
+                will(returnValue(Arrays.asList(deleted3)));
+                inSequence(sequence);
+
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(buildDataSetMap()));
+                inSequence(sequence);
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                inSequence(sequence);
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+                inSequence(sequence);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+                inSequence(sequence);
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(goodDs4Content));
+                inSequence(sequence);
+
+                // second task.execute() call
+                one(openBISService).listDeletedDataSets(null, MAX_DELETION_DATE);
+                will(returnValue(Arrays.asList(deleted3)));
+                inSequence(sequence);
+
+                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                        with(any(DataSetFetchOptions.class)));
+                will(returnValue(buildDataSetMap()));
+                inSequence(sequence);
+
+                one(shareIdManager).setShareId(ds4Code, "1");
+                inSequence(sequence);
+                one(openBISService).updateShareIdAndSize(ds4Code, "1", DATA_SET_STANDARD_SIZE);
+                inSequence(sequence);
+
+                one(directoryProvider).getDataSetDirectory(with(any(IDatasetLocation.class)));
+                will(returnValue(share));
+                inSequence(sequence);
+
+                one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
+                will(returnValue(goodDs4Content));
+                inSequence(sequence);
+
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                inSequence(sequence);
+                one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
+                inSequence(sequence);
+            }
+        });
+
+        // let's test that transaction throw an exception
+        transaction.setThrowAnException(true);
+
+        // WHEN
+        try
+        {
+            task.execute();
+        } catch (RuntimeException e)
+        {
+            assertEquals(e.getMessage(), "Can't delete the container because something bad happened!");
+        }
+
+        AssertionUtil.assertContainsNot(
+                "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 was successfully deleted.\n",
+                getLogContent(logRecorder));
+
+        transaction.setThrowAnException(false);
+        task.execute();
+
+        // THEN
+        AssertionUtil.assertContainsLines(
+                "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
+                        "Container 0 was successfully deleted.\n",
                 getLogContent(logRecorder));
     }
 
@@ -632,6 +736,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             }
         });
 
+        // WHEN
         // Call task.execute() for the first time. It should fail and NOT UPDATE lastSeenDataSetFile.
         assertEquals(false, lastSeenDataSetFile.exists());
         try
@@ -644,7 +749,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         assertEquals(false, lastSeenDataSetFile.exists());
 
-        // WHEN
         // Call task.execute() for the second time. It should pass and UPDATE lastSeenDataSetFile.
         task.execute();
 

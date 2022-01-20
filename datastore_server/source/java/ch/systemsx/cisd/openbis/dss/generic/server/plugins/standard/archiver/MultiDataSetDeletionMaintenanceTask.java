@@ -235,10 +235,10 @@ public class MultiDataSetDeletionMaintenanceTask
                         container.getPath(), notDeletedDataSets);
                 sanityCheck(notDeletedDataSets, container.getPath());
             }
+            deleteContainer(container.getId());
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
             // TODO: Delete only if MultiDataSetArchiver is configured such that replica are created
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
-            deleteContainer(container.getId());
             if (notDeletedDataSets.isEmpty() == false)
             {
                 updateDataSetsStatusAndFlags(notDeletedDataSets);
@@ -332,6 +332,8 @@ public class MultiDataSetDeletionMaintenanceTask
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         transaction.close();
+        getOperationLogAsSimpleLogger().log(LogLevel.INFO,
+                String.format("Container %d was successfully deleted.", containerId));
     }
 
     private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)
