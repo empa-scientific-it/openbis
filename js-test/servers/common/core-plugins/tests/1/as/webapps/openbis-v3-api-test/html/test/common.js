@@ -1476,7 +1476,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				}
 			});
 
-			this.assert.deepEqual(Object.keys(values).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
+            var expected = propertyValues.sort();
+            var actual = Object.keys(values).sort();
+			this.assert.deepEqual(actual, expected, 'Objects have correct ' + propertyName + ' values. Expected: [' + expected + '] - Actual: [' + actual + ']');
 		};
 
 		this.assertObjectsWithOrWithoutCollections = function(objects, accessor, checker) {
