@@ -25,8 +25,8 @@ from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNFixes
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNAnnotationsMigration
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNCollectionTypeMigration
 
-# if ELNFixes.isELNInstalled():
-ELNFixes.beforeUpgrade()
+if ELNFixes.isELNInstalled():
+    ELNFixes.beforeUpgrade()
 ELNAnnotationsMigration.beforeUpgrade()
 ELNCollectionTypeMigration.beforeUpgrade()
 
