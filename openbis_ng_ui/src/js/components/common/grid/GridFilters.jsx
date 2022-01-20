@@ -9,12 +9,22 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   multiselectCell: {
-    padding: 0,
-    paddingTop: theme.spacing(1)
+    padding: 0
   },
-  noFilters: {
-    padding: 0,
-    paddingTop: theme.spacing(1)
+  columnFilterCell: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: 0,
+    '&:last-child': {
+      paddingRight: theme.spacing(2)
+    }
+  },
+  globalFilterCell: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2)
   }
 })
 
@@ -24,65 +34,65 @@ class GridFilters extends React.PureComponent {
 
     const { columns, filterModes, filterMode } = this.props
 
+    if (columns.length === 0) {
+      return null
+    }
+
     if (filterModes && !filterModes.includes(filterMode)) {
-      return (
-        <TableRow>
-          {this.renderMultiselectCell()}
-          {this.renderNoFiltersCell()}
-        </TableRow>
-      )
+      return null
     } else if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
-      return (
-        <TableRow>
-          {this.renderMultiselectCell()}
-          {this.renderGlobalFilterCell()}
-        </TableRow>
-      )
+      return <TableRow>{this.renderGlobalFilterCell()}</TableRow>
     } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
-      return (
-        <TableRow>
-          {this.renderMultiselectCell()}
-          {columns.map(column => this.renderFilterCell(column))}
-        </TableRow>
-      )
+      const someFilterable = columns.some(column => column.filterable)
+      if (someFilterable) {
+        return (
+          <TableRow>
+            {this.renderMultiselectCell()}
+            {this.renderColumnFiltersCells()}
+          </TableRow>
+        )
+      } else {
+        return null
+      }
     } else {
       throw new Error('Unsupported filter mode: ' + filterMode)
     }
   }
 
-  renderNoFiltersCell() {
-    const { columns, classes } = this.props
+  renderGlobalFilterCell() {
+    const {
+      columns,
+      multiselectable,
+      globalFilter,
+      onGlobalFilterChange,
+      classes
+    } = this.props
+
     return (
       <TableCell
-        colSpan={columns.length}
-        classes={{ root: classes.noFilters }}
-      ></TableCell>
+        colSpan={columns.length + (multiselectable ? 1 : 0)}
+        classes={{ root: classes.globalFilterCell }}
+      >
+        <GridGlobalFilter
+          globalFilter={globalFilter}
+          onGlobalFilterChange={onGlobalFilterChange}
+        />
+      </TableCell>
     )
   }
 
-  renderGlobalFilterCell() {
-    const { columns, globalFilter, onGlobalFilterChange } = this.props
+  renderColumnFiltersCells() {
+    const { columns, filters, onFilterChange, classes } = this.props
 
-    return (
-      <GridGlobalFilter
-        columns={columns}
-        globalFilter={globalFilter}
-        onGlobalFilterChange={onGlobalFilterChange}
-      />
-    )
-  }
-
-  renderFilterCell(column) {
-    const { filters, onFilterChange } = this.props
-
-    return (
-      <GridFilter
-        key={column.name}
-        column={column}
-        filter={filters[column.name]}
-        onFilterChange={onFilterChange}
-      />
-    )
+    return columns.map(column => (
+      <TableCell key={column.name} classes={{ root: classes.columnFilterCell }}>
+        <GridFilter
+          column={column}
+          filter={filters[column.name]}
+          onFilterChange={onFilterChange}
+        />
+      </TableCell>
+    ))
   }
 
   renderMultiselectCell() {

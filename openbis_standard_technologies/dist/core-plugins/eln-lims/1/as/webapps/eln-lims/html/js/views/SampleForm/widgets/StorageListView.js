@@ -137,7 +137,7 @@ function StorageListView(storageListController, storageListModel) {
 		var extraOptions = [];
 		if(!this._storageListModel.isDisabled) {
 			isMultiselectable = true;
-			extraOptions.push({ name : "Delete selected", action : function(selected) {
+			extraOptions.push({ name : "Delete", action : function(selected) {
 				for (var i=0; i<selected.length; i++) {
 					_this.removeChildFromSampleOrMarkToDelete(selected[i]);
 				}

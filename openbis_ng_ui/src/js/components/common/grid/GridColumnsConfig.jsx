@@ -3,42 +3,34 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import Popover from '@material-ui/core/Popover'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
-import Header from '@src/js/components/common/form/Header.jsx'
-import Link from '@src/js/components/common/form/Link.jsx'
-import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import SettingsIcon from '@material-ui/icons/Settings'
-import GridConfigRow from '@src/js/components/common/grid/GridConfigRow.jsx'
-import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
-import Popover from '@material-ui/core/Popover'
+import Button from '@src/js/components/common/form/Button.jsx'
+import GridColumnsConfigRow from '@src/js/components/common/grid/GridColumnsConfigRow.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingRight: theme.spacing(1)
   },
-  filters: {
-    paddingBottom: theme.spacing(1)
-  },
-  columnsList: {
+  columns: {
     listStyle: 'none',
     margin: 0,
     padding: 0
   },
-  columnsShowHide: {
-    fontSize: theme.typography.body2.fontSize,
-    textTransform: 'lowercase',
-    '& a': {
-      paddingRight: theme.spacing(1)
+  buttons: {
+    marginBottom: theme.spacing(1),
+    '& button': {
+      marginRight: theme.spacing(1)
     }
   }
 })
 
-class GridConfig extends React.PureComponent {
+class GridColumnsConfig extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -66,13 +58,6 @@ class GridConfig extends React.PureComponent {
     this.props.onOrderChange(result.source.index, result.destination.index)
   }
 
-  handleFilterModeChange(event) {
-    const { onFilterModeChange } = this.props
-    if (onFilterModeChange) {
-      onFilterModeChange(event.target.value)
-    }
-  }
-
   handleShowAll() {
     this.handleVisibleChangeAll(true)
   }
@@ -93,16 +78,19 @@ class GridConfig extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'GridConfig.render')
+    logger.log(logger.DEBUG, 'GridColumnsConfig.render')
 
     const { classes, loading } = this.props
     const { el } = this.state
 
     return (
       <div className={classes.container}>
-        <IconButton onClick={this.handleOpen}>
-          <SettingsIcon fontSize='small' />
-        </IconButton>
+        <Button
+          label={messages.get(messages.COLUMNS)}
+          color='default'
+          variant='outlined'
+          onClick={this.handleOpen}
+        />
         <Popover
           open={Boolean(el)}
           anchorEl={el}
@@ -117,42 +105,9 @@ class GridConfig extends React.PureComponent {
           }}
         >
           <Mask visible={loading}>
-            <Container>
-              {this.renderFilters()}
-              {this.renderColumns()}
-            </Container>
+            <Container square={true}>{this.renderColumns()}</Container>
           </Mask>
         </Popover>
-      </div>
-    )
-  }
-
-  renderFilters() {
-    const { classes, filterModes, filterMode } = this.props
-
-    if (filterModes && filterModes.length <= 1) {
-      return null
-    }
-
-    return (
-      <div className={classes.filters}>
-        <Header size='small'>{messages.get(messages.FILTERS)}</Header>
-        <SelectField
-          name='filters'
-          options={[
-            {
-              label: messages.get(messages.GLOBAL_FILTER),
-              value: GridFilterOptions.GLOBAL_FILTER
-            },
-            {
-              label: messages.get(messages.COLUMN_FILTERS),
-              value: GridFilterOptions.COLUMN_FILTERS
-            }
-          ]}
-          value={filterMode}
-          variant='standard'
-          onChange={this.handleFilterModeChange}
-        />
       </div>
     )
   }
@@ -161,14 +116,15 @@ class GridConfig extends React.PureComponent {
     const { classes, columns, columnsVisibility, onVisibleChange } = this.props
     return (
       <div>
-        <Header size='small'>{messages.get(messages.COLUMNS)}</Header>
-        <div className={classes.columnsShowHide}>
-          <Link onClick={this.handleShowAll}>
-            ({messages.get(messages.SHOW_ALL)})
-          </Link>
-          <Link onClick={this.handleHideAll}>
-            ({messages.get(messages.HIDE_ALL)})
-          </Link>
+        <div className={classes.buttons}>
+          <Button
+            label={messages.get(messages.SHOW_ALL)}
+            onClick={this.handleShowAll}
+          />
+          <Button
+            label={messages.get(messages.HIDE_ALL)}
+            onClick={this.handleHideAll}
+          />
         </div>
         <DragDropContext onDragEnd={this.handleDragEnd}>
           <Droppable droppableId='root'>
@@ -176,10 +132,10 @@ class GridConfig extends React.PureComponent {
               <ol
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={classes.columnsList}
+                className={classes.columns}
               >
                 {columns.map((column, index) => (
-                  <GridConfigRow
+                  <GridColumnsConfigRow
                     key={column.name}
                     column={column}
                     visible={columnsVisibility[column.name]}
@@ -197,4 +153,4 @@ class GridConfig extends React.PureComponent {
   }
 }
 
-export default _.flow(withStyles(styles))(GridConfig)
+export default _.flow(withStyles(styles))(GridColumnsConfig)

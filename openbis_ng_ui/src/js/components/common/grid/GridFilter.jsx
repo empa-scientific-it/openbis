@@ -1,22 +1,11 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import TableCell from '@material-ui/core/TableCell'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-const styles = theme => ({
-  cell: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: 0,
-    '&:last-child': {
-      paddingRight: theme.spacing(2)
-    }
-  }
-})
+const styles = () => ({})
 
 class GridFilter extends React.PureComponent {
   constructor(props) {
@@ -43,12 +32,12 @@ class GridFilter extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridFilter.render')
 
-    const { column, classes } = this.props
+    const { column } = this.props
 
     return (
-      <TableCell ref={this.ref} classes={{ root: classes.cell }}>
+      <div ref={this.ref}>
         {column.renderDOMFilter ? null : this.renderFilter()}
-      </TableCell>
+      </div>
     )
   }
 

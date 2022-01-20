@@ -20,8 +20,7 @@ const styles = theme => ({
     flexShrink: 0
   },
   pageSize: {
-    marginLeft: -theme.spacing(1),
-    marginRight: theme.spacing(1)
+    marginLeft: -theme.spacing(2)
   },
   pageSizeLabelPlacement: {
     marginRight: 0
@@ -43,8 +42,8 @@ const styles = theme => ({
     borderLeftStyle: 'solid',
     borderLeftColor: theme.palette.border.secondary,
     height: theme.spacing(3),
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1)
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2)
   }
 })
 
@@ -87,29 +86,6 @@ class GridPaging extends React.PureComponent {
 
     return (
       <div className={classes.container}>
-        <div className={classes.separator}></div>
-        <div className={classes.pageSize}>
-          <FormControlLabel
-            control={
-              <SelectField
-                value={pageSize}
-                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
-                  label: pageSize,
-                  value: pageSize
-                }))}
-                onChange={this.handlePageSizeChange}
-                variant='standard'
-              />
-            }
-            classes={{
-              label: classes.pageSizeLabel,
-              labelPlacementStart: classes.pageSizeLabelPlacement
-            }}
-            label={messages.get(messages.ROWS_PER_PAGE)}
-            labelPlacement='start'
-          />
-        </div>
-        <div className={classes.separator}></div>
         <div className={classes.pagePrevButtons}>
           <IconButton
             onClick={this.handleFirstPageButtonClick}
@@ -150,6 +126,28 @@ class GridPaging extends React.PureComponent {
           >
             <LastPageIcon fontSize='small' />
           </IconButton>
+        </div>
+        <div className={classes.separator}></div>
+        <div className={classes.pageSize}>
+          <FormControlLabel
+            control={
+              <SelectField
+                value={pageSize}
+                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
+                  label: pageSize,
+                  value: pageSize
+                }))}
+                onChange={this.handlePageSizeChange}
+                variant='standard'
+              />
+            }
+            classes={{
+              label: classes.pageSizeLabel,
+              labelPlacementStart: classes.pageSizeLabelPlacement
+            }}
+            label={messages.get(messages.ROWS_PER_PAGE)}
+            labelPlacement='start'
+          />
         </div>
         <div className={classes.separator}></div>
       </div>
