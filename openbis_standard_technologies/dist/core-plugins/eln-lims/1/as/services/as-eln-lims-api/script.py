@@ -76,19 +76,20 @@ def getSamplesImportTemplate(context, parameters):
     fetchOptions.withPropertyAssignments().withPlugin()
     sampleTypes = api.getSampleTypes(sessionToken, allowedSampleTypes, fetchOptions)
     workbook = XSSFWorkbook()
-    sheet = workbook.createSheet()
     kind_style = _create_style(workbook, IndexedColors.LIGHT_ORANGE)
     type_style = _create_style(workbook, bold=True)
     header_style = _create_style(workbook, IndexedColors.GREY_25_PERCENT, True)
-    row_index = 0
-    max_number_of_columns = 0
     for sampleTypeId in allowedSampleTypes:
+        sampleTypePermId = sampleTypeId.getPermId()
+        sheet = workbook.createSheet(sampleTypePermId)
+        row_index = 0
+        max_number_of_columns = 0
         row = sheet.createRow(row_index)
         _create_cell(row, 0, kind_style, "SAMPLE")
         row = sheet.createRow(row_index + 1)
         _create_cell(row, 0, None, "Sample Type")
         row = sheet.createRow(row_index + 2)
-        _create_cell(row, 0, type_style, sampleTypeId.getPermId())
+        _create_cell(row, 0, type_style, sampleTypePermId)
         row = sheet.createRow(row_index + 3)
         cell_index = _create_cell(row, 0, header_style, "$")
         cell_index = _create_cell(row, cell_index, header_style, "Code")
@@ -104,8 +105,8 @@ def getSamplesImportTemplate(context, parameters):
                 cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
         max_number_of_columns = max(max_number_of_columns, cell_index)
         row_index += 6
-    for i in range(max_number_of_columns):
-        sheet.autoSizeColumn(i)
+        for i in range(max_number_of_columns):
+            sheet.autoSizeColumn(i)
     baos = ByteArrayOutputStream()
     workbook.write(baos)
     return baos.toByteArray()
