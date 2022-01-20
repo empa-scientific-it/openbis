@@ -1082,8 +1082,9 @@ test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
 			assertObjectsCount(response.result, 19);
-			assertObjectsWithCodes(response.result, ["BACTERIA", "CELL_LINES", "FLIES", "PLANTS", "PLASMIDS", 
-                "POLYNUCLEOTIDES", "PROTOCOLS", "REAGENTS", "SCREENING-EXAMPLES", "TEST-PROJECT", "YEASTS" ]);
+			assertObjectsWithCodes(response.result, [ "BACTERIA" ,"CELL_LINES" ,"DEFAULT_PROJECT" ,"FLIES" ,"ORDERS"
+			,"PLANTS" ,"PLASMIDS" ,"POLYNUCLEOTIDES" ,"PRODUCTS" ,"PROTOCOLS" ,"PUBLIC_REPOSITORIES" ,"REAGENTS"
+			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);
 			facade.close();
 		});
 	});
