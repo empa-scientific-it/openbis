@@ -16,7 +16,7 @@
 function SampleTableView(sampleTableController, sampleTableModel) {
 	this._sampleTableController = sampleTableController;
 	this._sampleTableModel = sampleTableModel;
-	this._tableContainer = $("<div>");
+	this._tableContainer = $("<div>").css("margin-top", "-10px");
 	this.sampleTypeSelector = null;
 	
 	this.repaint = function(views) {
