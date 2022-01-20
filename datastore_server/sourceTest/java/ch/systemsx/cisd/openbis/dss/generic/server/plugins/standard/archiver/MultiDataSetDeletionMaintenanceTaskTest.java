@@ -220,6 +220,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final class MockMultiDataSetFileOperationsManager extends MultiDataSetFileOperationsManager
     {
+        private static final long serialVersionUID = 1L;
 
         public MockMultiDataSetFileOperationsManager(Properties properties,
                 IDataSetDirectoryProvider directoryProvider)
@@ -405,7 +406,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testExecuteWithEmptyDeletedDataSetList()
     {
+        // GIVEN
+        // WHEN
         task.execute(new ArrayList<>());
+        // THEN
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
                         mappingFile + "' successfully loaded.\n" +
@@ -419,6 +423,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testContainerContainsOnlyDeletedDataSetList()
     {
+        // GIVEN
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
         createContainer(containerName, Arrays.asList("ds1", "ds2"));
@@ -431,8 +436,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         assertEquals(1, transaction.listContainers().size());
 
+        // WHEN
         task.execute(Arrays.asList(deleted1, deleted2));
 
+        // THEN
         assertEquals(0, transaction.listContainers().size());
 
         AssertionUtil.assertContainsLines(
@@ -454,6 +461,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testTaskIsWorkingWithoutReplica()
     {
+        // GIVEN
         // Container1 contains only deleted dataSets
         String containerName = "container1.tar";
         createContainer(containerName, Arrays.asList("ds1", "ds2"));
@@ -462,8 +470,11 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         // All dataSets in the Container 1 was deleted.
         DeletedDataSet deleted1 = new DeletedDataSet(1, "ds1");
         DeletedDataSet deleted2 = new DeletedDataSet(1, "ds2");
+
+        // WHEN
         task.execute(Arrays.asList(deleted1, deleted2));
 
+        // THEN
         // check that archive was deleted, but replica was not, because it is not exist
         String replicatePath = archiveContainer.getAbsolutePath();
         replicatePath = replicatePath.replace("/archive/", "/replicate/");
@@ -477,6 +488,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testContainerContainsDeletedAndNoneDeletedDataSet()
     {
+        // GIVEN
         RecordingMatcher<List<DataSetUpdate>> recordedUpdates = new RecordingMatcher<>();
         // prepare context
         context.checking(new Expectations()
@@ -510,8 +522,10 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         assertEquals(1, transaction.listContainers().size());
 
+        // WHEN
         task.execute(Arrays.asList(deleted3));
 
+        // THEN
         assertEquals(0, transaction.listContainers().size());
         assertEquals(1, recordedUpdates.recordedObject().size());
         DataSetUpdate dataSetUpdate = recordedUpdates.recordedObject().get(0);
@@ -548,6 +562,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @Test
     public void testTaskWillProcessDataSetAgainIfItFails()
     {
+        // GIVEN
         // Container2 contains one deleted and one not deleted dataSets
         String containerName = "container2.tar";
         createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
@@ -629,9 +644,11 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         assertEquals(false, lastSeenDataSetFile.exists());
 
+        // WHEN
         // Call task.execute() for the second time. It should pass and UPDATE lastSeenDataSetFile.
         task.execute();
 
+        // THEN
         assertEquals(true, lastSeenDataSetFile.exists());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
     }

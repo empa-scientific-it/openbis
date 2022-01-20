@@ -17,6 +17,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdat
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -195,9 +196,9 @@ public class MultiDataSetDeletionMaintenanceTask
     @Override
     protected void execute(List<DeletedDataSet> datasetCodes)
     {
-        operationLog.info(String.format("MultiDataSetDeletionMaintenanceTask has started processing data sets %s.",
-                CollectionUtils.abbreviate(datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toList()),10))
-        );
+        getOperationLogAsSimpleLogger().log(LogLevel.INFO,
+                String.format("MultiDataSetDeletionMaintenanceTask has started processing data sets %s.",
+                        CollectionUtils.abbreviate(datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toList()), 10)));
 
         List<MultiDataSetArchiverContainerDTO> containers = findArchivesWithDeletedDataSets(datasetCodes);
         Set<String> codes = datasetCodes.stream().map(DeletedDataSet::getCode).collect(Collectors.toSet());
@@ -220,20 +221,22 @@ public class MultiDataSetDeletionMaintenanceTask
                     }
                 }
             }
-            operationLog.info(String.format("Container %s contains %d not deleted data sets.", container.getPath(), notDeletedDataSets.size()));
+            getOperationLogAsSimpleLogger().log(LogLevel.INFO,
+                    String.format("Container %s contains %d not deleted data sets.", container.getPath(), notDeletedDataSets.size()));
             if (notDeletedDataSets.isEmpty() == false)
             {
 
-                operationLog.info(String.format("Not deleted data sets: %s.",
-                        CollectionUtils.abbreviate(
-                                notDeletedDataSets.stream().map(SimpleDataSetInformationDTO::getDataSetCode).collect(Collectors.toList()),
-                                10))
-                );
+                getOperationLogAsSimpleLogger().log(LogLevel.INFO,
+                        String.format("Not deleted data sets: %s.",
+                                CollectionUtils.abbreviate(
+                                        notDeletedDataSets.stream().map(SimpleDataSetInformationDTO::getDataSetCode).collect(Collectors.toList()),
+                                        10)));
                 getMultiDataSetFileOperationsManager().restoreDataSetsFromContainerInFinalDestination(
                         container.getPath(), notDeletedDataSets);
                 sanityCheck(notDeletedDataSets, container.getPath());
             }
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
+            // TODO: Delete only if MultiDataSetArchiver is configured such that replica are created
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
             deleteContainer(container.getId());
             if (notDeletedDataSets.isEmpty() == false)
