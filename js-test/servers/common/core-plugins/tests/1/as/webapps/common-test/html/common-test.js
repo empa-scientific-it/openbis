@@ -130,7 +130,7 @@ var assertObjectsWithValues = function(objects, propertyName, propertyValues) {
 
     var expected = propertyValues.sort();
     var actual = Object.keys(values).sort();
-	deepEqual(actual, expected, 'Objects have correct ' + propertyName + ' values. Expected: [' + expected + '] - Actual: [' + actual + ']')
+	deepEqual(actual, expected, 'Objects have correct ' + propertyName + ' values. Expected: [' + expected + '] - Actual: [' + actual + ']');
 }
 
 var assertObjectsWithValuesFunction = function(objects, propertyName, propertyFunction, propertyValues) {
@@ -143,7 +143,9 @@ var assertObjectsWithValuesFunction = function(objects, propertyName, propertyFu
 		}
 	});
 
-	deepEqual(Object.keys(values).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
+    var expected = propertyValues.sort();
+    var actual = Object.keys(values).sort();
+	deepEqual(actual, expected, 'Objects have correct ' + propertyName + ' values. Expected: [' + expected + '] - Actual: [' + actual + ']');
 }
 
 var assertObjectsWithOrWithoutCollections = function(objects, accessor, checker) {
