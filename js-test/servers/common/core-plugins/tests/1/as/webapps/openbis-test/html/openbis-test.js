@@ -382,7 +382,7 @@ test("listNamedRoleSets()", function() {
 test("listSpacesWithProjectsAndRoleAssignments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response) {
-			assertObjectsCount(response.result, 4);
+			assertObjectsCount(response.result, 10);
 			facade.close();
 		});
 	});
@@ -664,7 +664,7 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-			assertObjectsCount(response.result, 29);
+			assertObjectsCount(response.result, 38);
 			facade.close();
 		});
 	});
@@ -673,7 +673,7 @@ test("listDataSetTypes()", function() {
 test("listSampleTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSampleTypes(function(response) {
-			assertObjectsCount(response.result, 28);
+			assertObjectsCount(response.result, 39);
 			facade.close();
 		});
 	});
@@ -682,7 +682,7 @@ test("listSampleTypes()", function() {
 test("listExperimentTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listExperimentTypes(function(response) {
-			assertObjectsCount(response.result, 6);
+			assertObjectsCount(response.result, 7);
 			facade.close();
 		});
 	});
@@ -691,7 +691,7 @@ test("listExperimentTypes()", function() {
 test("listVocabularies()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listVocabularies(function(response) {
-			assertObjectsCount(response.result, 53);
+			assertObjectsCount(response.result, 60);
 			facade.close();
 		});
 	});
@@ -1081,7 +1081,7 @@ test("searchForExperiments() withModifierUserId", function() {
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
-			assertObjectsCount(response.result, 11);
+			assertObjectsCount(response.result, 19);
 			assertObjectsWithCodes(response.result, ["BACTERIA", "CELL_LINES", "FLIES", "PLANTS", "PLASMIDS", 
                 "POLYNUCLEOTIDES", "PROTOCOLS", "REAGENTS", "SCREENING-EXAMPLES", "TEST-PROJECT", "YEASTS" ]);
 			facade.close();
