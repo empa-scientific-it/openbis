@@ -192,12 +192,6 @@ var UserTests = new function() {
                              .then(() => e.waitForId("hierarchy-table"))
                              .then(() => e.click("hierarchy-table"))
                              .then(() => e.sleep(2000)) // wait for table
-                             // show Identifier
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("identifier-cln"))
-                             .then(() => e.click("identifier-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              // check parents and children
                              .then(() => e.waitForId("bac1"))
                              .then(() => e.waitForId("bac2"))
