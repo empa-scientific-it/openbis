@@ -59,7 +59,8 @@ var SampleDataGridUtil = new function() {
                 if(data[profile.propertyReplacingCode]) {
                     nameToUse = data[profile.propertyReplacingCode];
                 }
-				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId);
+                var nameId = data.code.toLowerCase() + "-name-id";
+				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId, null, nameId);
 			}
 		});
 

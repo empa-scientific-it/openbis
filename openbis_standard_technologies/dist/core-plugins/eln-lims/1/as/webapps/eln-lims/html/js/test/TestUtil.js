@@ -161,17 +161,12 @@ var TestUtil = new function() {
     }
 
     this.idReplacer = function(text) {
-        text = text.replaceAll( new RegExp('"/openbis/openbis/file-service/eln-lims/[A-Za-z0-9/-]+"'),
-                                           '"/openbis/openbis/file-service/eln-lims/identifier"');
-
-        return text;
+        return text.replace(new RegExp('/openbis/openbis/file-service/eln-lims/[A-Za-z0-9/-]+', 'g'),
+                                       '/openbis/openbis/file-service/eln-lims/identifier');
     }
 
     this.dateReplacer = function(text) {
-        text = text.replaceAll( new RegExp('Date: [0-9-]+ [0-9:]+'),
-                                           'Date: YYYY-MM-DD HH:MM:SS');
-
-        return text;
+        return text.replace(new RegExp('Date: [0-9-]+ [0-9:]+', 'g'), 'Date: YYYY-MM-DD HH:MM:SS');
     }
 
     this.fetchBytes = function(url, action) {
