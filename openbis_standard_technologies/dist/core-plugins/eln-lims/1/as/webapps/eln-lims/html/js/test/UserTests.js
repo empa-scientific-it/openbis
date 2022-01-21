@@ -350,7 +350,7 @@ var UserTests = new function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
             Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
-                             .then(() => e.sleep(3500)) // wait for saving
+                             .then(() => e.sleep(5000)) // wait for saving
                              // check that bacterias was created
                              .then(() => e.waitForId("next-page-id"))
                              .then(() => e.click("next-page-id"))
