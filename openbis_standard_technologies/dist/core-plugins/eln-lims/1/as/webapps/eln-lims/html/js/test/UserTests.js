@@ -175,7 +175,8 @@ var UserTests = new function() {
     }
 
     this.sampleHierarchyAsTable = function() {
-        var parentAnnotations = "<b>Code</b>: BAC1, <b>Comments</b>: mother<br><br><b>Code</b>: BAC2, <b>Comments</b>: father";
+        var motherFirst = "<b>Code</b>: BAC1, <b>Comments</b>: mother<br><br><b>Code</b>: BAC2, <b>Comments</b>: father";
+        var fatherFirst = "<b>Code</b>: BAC2, <b>Comments</b>: father<br><br><b>Code</b>: BAC1, <b>Comments</b>: mother";
         var childrenAnnotations = "<b>Code</b>: BAC4";
 
         return new Promise(function executor(resolve, reject) {
@@ -206,7 +207,7 @@ var UserTests = new function() {
                              .then(() => e.click("columns-dropdown-id"))
                              // check parents comments
                              .then(() => e.waitForId("parent-annotations-bac3"))
-                             .then(() => e.equalTo("parent-annotations-bac3", parentAnnotations, true, false))
+                             .then(() => e.contains("parent-annotations-bac3", [motherFirst, fatherFirst], false))
                              .then(() => TestUtil.testPassed(9))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(9, error, reject));

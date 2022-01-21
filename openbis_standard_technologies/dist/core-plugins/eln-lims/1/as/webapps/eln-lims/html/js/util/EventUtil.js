@@ -99,6 +99,21 @@ var EventUtil = new function() {
         });
     };
 
+    this.contains = function(elementId, values, ignoreError) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = EventUtil.getElement(elementId, ignoreError, resolve);
+                if (values.indexOf(element.html()) >= 0 || values.indexOf(element.val()) >= 0) {
+                    resolve();
+                } else {
+                    throw "Element #" + elementId + " should be in " + values;
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
     this.equalTo = function(elementId, value, isEqual, ignoreError) {
         return new Promise(function executor(resolve, reject) {
             try {
