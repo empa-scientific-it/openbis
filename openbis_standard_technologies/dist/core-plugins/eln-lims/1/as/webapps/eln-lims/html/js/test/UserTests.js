@@ -270,16 +270,10 @@ var UserTests = new function() {
                              // delete
                              .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
-                             .then(() => e.waitForId("delete"))
-                             .then(() => e.click("delete"))
-                             // fill Confirm form
-                             .then(() => e.waitForId("reason-to-delete-id"))
-                             .then(() => e.write("reason-to-delete-id", "test"))
-                             .then(() => e.waitForId("accept-btn"))
-                             .then(() => e.click("accept-btn"))
-                             //You should see the error
-                             .then(() => e.waitForId("jNotifyDismiss"))
-                             .then(() => e.click("jNotifyDismiss"))
+                             // wait for "copy" to make sure that "More..." menu has shown
+                             .then(() => e.waitForId("copy"))
+                             // make sure Delete option is not available in the "More..." dropdown
+                             .then(() => e.verifyExistence("delete", false))
                              .then(() => TestUtil.testPassed(11))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(11, error, reject));
