@@ -180,7 +180,7 @@ def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, ba
                 regex = barcodeValidationInfo['barcodePattern']
                 pattern = re.compile(regex)
                 if pattern.match(barcode) is None:
-                    raise UserFailureException("Error in row %s: custom barcode %s is does not match "
+                    raise UserFailureException("Error in row %s: custom barcode %s does not match "
                                                "the regular expression '%s'." % (row_number, barcode, pattern.pattern))
             row_number += 1
 
