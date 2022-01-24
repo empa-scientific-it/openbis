@@ -183,71 +183,75 @@ function MainController(profile) {
 		$("#login-form-div").hide();
 		$("#main").show();
 		
-		//Get Metadata from all sample types before showing the main menu
-		this.loadV3(function() {
-			_this.serverFacade.listSampleTypes (
-					function(result) {
-						//Load Sample Types
-						localReference.profile.allSampleTypes = result.result;
-						
-						//Load datastores for automatic DSS configuration, the first one will be used
-						localReference.serverFacade.listDataStores(function(dataStores) {
-								localReference.profile.allDataStores = dataStores.result;
-								
-								var nextInit = function() {
-									//Load display settings
-									localReference.serverFacade.getUserDisplaySettings( function(response) {
-										if(response.result) {
-											localReference.profile.displaySettings = response.result;
-										}
-										
-										//Load Experiment Types
-										localReference.serverFacade.listExperimentTypes(function(experiments) {
-											localReference.profile.allExperimentTypes = experiments.result;
-											
-											
-											//Init profile
-											var startAppFunc = function() {
-												//Start App
-												localReference.sideMenu = new SideMenuWidgetController(localReference);
-												localReference.views.menu = $("<div>");
-												localReference.sideMenu.init(localReference.views.menu, function() {
-													//Page reload using the URL info
-													var queryString = Util.queryString();
-													var menuUniqueId = queryString.menuUniqueId;
-													var viewName = queryString.viewName;
-													var viewData = queryString.viewData;
-													var hideMenu = queryString.hideMenu;
-													
-													LayoutManager.reloadView(localReference.views);
-													if(viewName && viewData) {
-														localReference.sideMenu.moveToNodeId(menuUniqueId);
-														localReference.changeView(viewName, viewData);
-													} else {
-														localReference.changeView(profile.defaultStartView.page, profile.defaultStartView.args);
-													}
-													
-													Util.unblockUI();
-													LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
+        //Get Metadata from all sample types before showing the main menu
+        this.loadV3(function() {
+            _this.serverFacade.listSampleTypes (
+                    function(result) {
+                        //Load Sample Types
+                        localReference.profile.allSampleTypes = result.result;
+                        
+                        //Load datastores for automatic DSS configuration, the first one will be used
+                        localReference.serverFacade.listDataStores(function(dataStores) {
+                                localReference.profile.allDataStores = dataStores.result;
+                                
+                                var nextInit = function() {
+                                    //Load display settings
+                                    localReference.serverFacade.getUserDisplaySettings( function(response) {
+                                        if(response.result) {
+                                            localReference.profile.displaySettings = response.result;
+                                        }
+                                        
+                                        //Load Experiment Types
+                                        localReference.serverFacade.listExperimentTypes(function(experiments) {
+                                            localReference.profile.allExperimentTypes = experiments.result;
+                                            
+                                            //Load DataSet Types
+                                            localReference.serverFacade.listDataSetTypes(function(dataSetTypes) {
+                                                localReference.profile.allDataSetTypes = dataSetTypes.result;
 
-													// Keep Alive
-													localReference.serverFacade.scheduleKeepAlive();
+                                                //Init profile
+                                                var startAppFunc = function() {
+                                                    //Start App
+                                                    localReference.sideMenu = new SideMenuWidgetController(localReference);
+                                                    localReference.views.menu = $("<div>");
+                                                    localReference.sideMenu.init(localReference.views.menu, function() {
+                                                        //Page reload using the URL info
+                                                        var queryString = Util.queryString();
+                                                        var menuUniqueId = queryString.menuUniqueId;
+                                                        var viewName = queryString.viewName;
+                                                        var viewData = queryString.viewData;
+                                                        var hideMenu = queryString.hideMenu;
+                                                        
+                                                        LayoutManager.reloadView(localReference.views);
+                                                        if(viewName && viewData) {
+                                                            localReference.sideMenu.moveToNodeId(menuUniqueId);
+                                                            localReference.changeView(viewName, viewData);
+                                                        } else {
+                                                            localReference.changeView(profile.defaultStartView.page, profile.defaultStartView.args);
+                                                        }
+                                                        
+                                                        Util.unblockUI();
+                                                        LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
 
-													// Barcode reading
-													BarcodeUtil.enableAutomaticBarcodeReading();
-												});
-											};
-											
-											localReference.profile.init(startAppFunc);
-										});
-									});
-								}
-								
-								nextInit();
-						});
-					}
-				);
-		});
+                                                        // Keep Alive
+                                                        localReference.serverFacade.scheduleKeepAlive();
+
+                                                        // Barcode reading
+                                                        BarcodeUtil.enableAutomaticBarcodeReading();
+                                                    });
+                                                };
+                                                
+                                                localReference.profile.init(startAppFunc);
+                                            });
+                                        });
+                                    });
+                                }
+                                
+                                nextInit();
+                        });
+                    }
+                );
+        });
 	}
 
 	this._enablePasswordResetLink = function() {

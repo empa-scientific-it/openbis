@@ -239,9 +239,13 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 
-			propertyColumnsToSort.sort(function(propertyA, propertyB) {
-				return propertyA.label.localeCompare(propertyB.label);
-			});
+			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
+				return {
+					entityKind: "SAMPLE",
+					entityType: sample.sampleTypeCode
+				}
+			}))
+
 			return propertyColumnsToSort;
 		}
 

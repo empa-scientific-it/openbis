@@ -1116,10 +1116,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					});
 				}
 
-				//3. Sort column properties by label
-				propertyColumnsToSort.sort(function(propertyA, propertyB) {
-					return propertyA.label.localeCompare(propertyB.label);
-				});
+				FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
+					return {
+						entityKind: entity.entityKind,
+						entityType: entity.entityType
+					}
+				}))
 
 				return propertyColumnsToSort;
 			}

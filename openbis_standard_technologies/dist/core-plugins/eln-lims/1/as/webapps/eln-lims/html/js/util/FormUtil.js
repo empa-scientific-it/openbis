@@ -2323,4 +2323,77 @@ var FormUtil = new function() {
         return matches
     }
 
+    this.sortPropertyColumns = function(propertyColumns, entities){
+        var isSortingByOrdinalPossible = entities.every(function(entity){
+            var entityKind = _.isString(entity.entityKind) ? entity.entityKind : null
+
+            if(entityKind === null || false === ["SAMPLE", "EXPERIMENT", "DATASET"].includes(entityKind.toUpperCase())){
+                return false
+            }
+
+            var entityType = _.isString(entity.entityType) ? entity.entityType : null
+
+            if(entityType === null){
+                return false
+            }
+
+            return true
+        })
+
+        if(false === isSortingByOrdinalPossible){
+            return propertyColumns.sort(function(p1, p2){
+                var label1 = _.isString(p1.label) ? p1.label : ""
+                var label2 = _.isString(p2.label) ? p2.label : ""
+                return label1.localeCompare(label2)
+            })
+        }
+
+        var propertyColumnsMap = {}
+        var entityTypePropertiesMap = {}
+        var sortedPropertyColumnsMap = {}
+        var sortedPropertyColumns = []
+
+        propertyColumns.forEach(function(propertyColumn){
+            propertyColumnsMap[propertyColumn.property] = propertyColumn
+        })
+
+        entities.forEach(function(entity){
+            var entityKind = entity.entityKind.toUpperCase()
+            var entityType = entity.entityType.toUpperCase()
+            
+            var entityTypePropertiesKey = entityKind + "-" + entityType
+            var entityTypeProperties = entityTypePropertiesMap[entityTypePropertiesKey]
+
+            if(!entityTypeProperties){
+                if(entityKind === "SAMPLE"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForTypeCode(entityType)
+                }else if(entityKind === "EXPERIMENT"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForExperimentTypeCode(entityType)
+                }else if(entityKind === "DATASET"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForDataSetTypeCode(entityType)
+                }else{
+                    throw new Error("Unsupported entity kind: " + entityKind)
+                }
+                entityTypePropertiesMap[entityTypePropertiesKey] = entityTypeProperties
+            }
+
+            if(entityTypeProperties){
+                entityTypeProperties.forEach(function(entityTypeProperty){
+                    if(!sortedPropertyColumnsMap[entityTypeProperty]){
+                        var propertyColumn = propertyColumnsMap[entityTypeProperty]
+                        if(propertyColumn){
+                            sortedPropertyColumnsMap[entityTypeProperty] = true
+                            sortedPropertyColumns.push(propertyColumn)
+                        }
+                    }
+                })
+            }
+        })
+
+        propertyColumns.splice(0, propertyColumns.length)
+        sortedPropertyColumns.forEach(function(sortedPropertyColumn){
+            propertyColumns.push(sortedPropertyColumn)
+        })
+    }
+
 }

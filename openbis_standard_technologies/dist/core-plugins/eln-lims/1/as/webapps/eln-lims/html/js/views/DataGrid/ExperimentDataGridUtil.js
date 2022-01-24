@@ -140,9 +140,14 @@ var ExperimentDataGridUtil = new function() {
 			isExportable: false,
 			sortable : false
 		});
-		propertyColumnsToSort.sort(function(propertyA, propertyB) {
-			return propertyA.label.localeCompare(propertyB.label);
-		});
+
+		FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
+            return {
+                entityKind: "EXPERIMENT",
+                entityType: typeCode
+            }
+        }))
+
 		columns = columns.concat(propertyColumnsToSort);
 		columns.push({
 			label : '---------------',
