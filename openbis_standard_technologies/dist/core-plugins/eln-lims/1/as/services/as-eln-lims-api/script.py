@@ -2,6 +2,8 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames as ComponentNames
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider as CommonServiceProvider
 import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureException
 import base64
+import json
+import re
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -138,17 +140,18 @@ def importSamples(context, parameters):
     experimentsByType = parameters.get("experimentsByType", {})
     spacesByType = parameters.get("spacesByType", {})
     mode = parameters.get("mode")
+    barcodeValidationInfo = json.loads(parameters.get("barcodeValidationInfo"))
     contextProvider = CommonServiceProvider.getApplicationContext().getBean("request-context-provider")
     uploadedFiles = contextProvider.getHttpServletRequest().getSession(False).getAttribute(sessionKey)
     results = []
     for file in uploadedFiles.iterable():
         file_name = file.getOriginalFilename()
         bytes = IOUtils.toByteArray(file.getInputStream())
-        validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode)
+        validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo)
         results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
     return results
 
-def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode):
+def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo):
     definitions = importData(context, bytes, file_name, None, None, mode, True)
     for definition in definitions:
         row_number = definition.row_number
@@ -165,6 +168,20 @@ def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode):
         for properties in definition.properties:
             if properties.get("$") == "$":
                 raise UserFailureException("Empty row expected before row %s" % (row_number - 2))
+            barcode = properties.get("custom barcode")
+            if barcode is None:
+                barcode = properties.get("$BARCODE")
+            if barcode is not None:
+                minBarcodeLength = barcodeValidationInfo['minBarcodeLength']
+                if len(barcode) < minBarcodeLength:
+                    raise UserFailureException("Error in row %s: custom barcode %s is too short. "
+                                               "Minimum barcode length has to be %s."
+                                               % (row_number, barcode, minBarcodeLength))
+                regex = barcodeValidationInfo['barcodePattern']
+                pattern = re.compile(regex)
+                if pattern.match(barcode) is None:
+                    raise UserFailureException("Error in row %s: custom barcode %s is does not match "
+                                               "the regular expression '%s'." % (row_number, barcode, pattern.pattern))
             row_number += 1
 
 def importData(context, bytes, file_name, experimentsByType, spacesByType, mode, definitionsOnly):
