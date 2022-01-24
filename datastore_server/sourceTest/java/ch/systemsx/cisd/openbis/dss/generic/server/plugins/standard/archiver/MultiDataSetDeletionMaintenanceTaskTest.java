@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -255,21 +254,21 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         configProvider = context.mock(IConfigProvider.class);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(dataStoreService).getDataSetDirectoryProvider();
-                    will(returnValue(directoryProvider));
+                allowing(dataStoreService).getDataSetDirectoryProvider();
+                will(returnValue(directoryProvider));
 
-                    allowing(configProvider).getStoreRoot();
-                    will(returnValue(store));
+                allowing(configProvider).getStoreRoot();
+                will(returnValue(store));
 
-                    allowing(configProvider).getDataStoreCode();
-                    will(returnValue(DSS_CODE));
+                allowing(configProvider).getDataStoreCode();
+                will(returnValue(DSS_CODE));
 
-                    allowing(openBISService).getSessionToken();
-                    will(returnValue(SESSION_TOKEN));
-                }
-            });
+                allowing(openBISService).getSessionToken();
+                will(returnValue(SESSION_TOKEN));
+            }
+        });
 
         Properties properties = createProperties(true);
         task = new MockMultiDataSetDeletionMaintenanceTask(
@@ -333,7 +332,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 lastSeenDataSetFile.getPath());
         properties.setProperty("archiver." + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
         properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
-        if (withReplica) {
+        if (withReplica)
+        {
             properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         }
@@ -376,7 +376,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @AfterMethod
     public void tearDown()
     {
-        ServiceProviderTestWrapper.restoreApplicationContext();
         context.assertIsSatisfied();
     }
 
@@ -397,7 +396,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     private void createContainer(String containerName, List<String> dataSetCodes)
     {
         MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerName);
-        for (String code: dataSetCodes)
+        for (String code : dataSetCodes)
         {
             transaction.insertDataset(dataSetDescription(code), container);
         }
@@ -453,7 +452,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Container container1.tar contains 0 not deleted data sets.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container1.tar was successfully deleted.\n" +
+                        "Container container1.tar was successfully deleted in the database.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -491,8 +490,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         String log = getLogContent(logRecorder);
         AssertionUtil.assertContainsLines(
-                    "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
-                            archiveContainer.getAbsolutePath() + "\n", log);
+                "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
+                        archiveContainer.getAbsolutePath() + "\n", log);
 
         // There is no information of replicate file.
         AssertionUtil.assertContainsNot(
@@ -549,7 +548,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         DataSetUpdate dataSetUpdate = recordedUpdates.recordedObject().get(0);
         assertEquals(true, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().isModified());
         assertEquals(Boolean.TRUE, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().getValue());
-        assertEquals(ds4Code, ((DataSetPermId)dataSetUpdate.getDataSetId()).getPermId());
+        assertEquals(ds4Code, ((DataSetPermId) dataSetUpdate.getDataSetId()).getPermId());
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
@@ -571,7 +570,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "Writing statistics for output stream: 1.06 KB in 4 chunks took < 1sec.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - Sanity check finished.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted.\n" +
+                        "Container container2.tar was successfully deleted in the database.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -588,8 +587,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         String containerName = "container2.tar";
         createContainer(containerName, Arrays.asList(ds3Code, ds4Code));
         // Create a container in archive and replicate it.
-        copyContainerToArchive(archive, containerName);
-        copyContainerToArchive(replicate, containerName);
+        File archiveContainer = copyContainerToArchive(archive, containerName);
+        File replicateContainer = copyContainerToArchive(replicate, containerName);
         // One of the dataSets in Container 2 was deleted.
         DeletedDataSet deleted3 = new DeletedDataSet(1, ds3Code);
 
@@ -653,7 +652,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         });
 
         // let's test that transaction throw an exception
-        transaction.setThrowAnException(true);
+        transaction.throwAnExceptionWhenUserTryToDeleteContainer = true;
 
         // WHEN
         try
@@ -664,18 +663,27 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             assertEquals(e.getMessage(), "Can't delete the container because something bad happened!");
         }
 
+        //check that archive and replica WAS NOT deleted.
+        assertEquals(true, archiveContainer.exists());
+        assertEquals(true, replicateContainer.exists());
+
         AssertionUtil.assertContainsNot(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted.\n",
+                        "Container container2.tar was successfully deleted in the database.\n",
                 getLogContent(logRecorder));
 
-        transaction.setThrowAnException(false);
+        transaction.throwAnExceptionWhenUserTryToDeleteContainer = false;
         task.execute();
 
         // THEN
+
+        //check that archive and replica WAS deleted.
+        assertEquals(false, archiveContainer.exists());
+        assertEquals(false, replicateContainer.exists());
+
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted.\n",
+                        "Container container2.tar was successfully deleted in the database.\n",
                 getLogContent(logRecorder));
     }
 
@@ -781,7 +789,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
             "The path '20220111121934409-58/original/test.txt' should be in store and archive either both " +
-            "directories or files but not mixed: In the store it is a directory but in the archive it is a file.")
+                    "directories or files but not mixed: In the store it is a directory but in the archive it is a file.")
     public void testSanityCheckFailedBecauseItExpectsFileButGotDir()
     {
         MockContent content = new MockContent(
@@ -813,7 +821,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
             "The file '20220111121934409-58/original/test.txt' has in the store the checksum 00000000 " +
-            "but 70486887 in the archive.")
+                    "but 70486887 in the archive.")
     public void testSanityCheckFailedBecauseFileHasWrongChecksum()
     {
         MockContent content = new MockContent(

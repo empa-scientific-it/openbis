@@ -240,7 +240,8 @@ public class MultiDataSetDeletionMaintenanceTask
             }
             deleteContainer(container);
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
-            if (hasReplication) {
+            if (hasReplication)
+            {
                 getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
             }
             if (notDeletedDataSets.isEmpty() == false)
@@ -337,7 +338,8 @@ public class MultiDataSetDeletionMaintenanceTask
         }
         transaction.close();
         getOperationLogAsSimpleLogger().log(LogLevel.INFO,
-                String.format("Container %s was successfully deleted.", container.getPath()));
+                String.format("Container %s was "
+                        + "successfully deleted in the database.", container.getPath()));
     }
 
     private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)

@@ -200,7 +200,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
         var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, function(file) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType, "sample-file-upload", 
+                mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType,
+                        _this.getBarcodeValidationInfo(), "sample-file-upload", 
                 function(result) {
                     _this._handleResult(result, "created", experimentIdentifier);
                 });
@@ -221,13 +222,19 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
         var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, function(file) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.updateSamples(allowedSampleTypes, "sample-file-upload", 
+                mainController.serverFacade.updateSamples(allowedSampleTypes,
+                        _this.getBarcodeValidationInfo(), "sample-file-upload", 
                         function(result) {
                     _this._handleResult(result, "updated", experimentIdentifier);
                 });
             });
         });
         batchController.init();
+    }
+
+    this.getBarcodeValidationInfo = function() {
+        return JSON.stringify({"minBarcodeLength" : BarcodeUtil.getMinBarcodeLength(),
+                "barcodePattern" : BarcodeUtil.getBarcodePattern().source});
     }
 
     this.getAllowedSampleTypes = function() {

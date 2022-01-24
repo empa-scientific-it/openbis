@@ -94,7 +94,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 							c.assertObjectsWithValues(results.getObjects(), "code", [ codesAsc[1] ]);
 						}
 
-
 						fetchOptions.sortBy()[fieldName](fieldParameters).desc();
 						return fSearch(facade).then(function(results) {
 							c.ok("Got results DESC");
@@ -334,9 +333,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fo = c.createExperimentFetchOptions();
 
-			testSearchWithPagingAndSorting(c, function(facade) {
+			testSearchWithPagingAndStringSorting(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
-			}, fo, "code", null, true, "EXP-1");
+			}, fo, "code", null, true, "DEFAULT_EXPERIMENT");
 		});
 
 		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {

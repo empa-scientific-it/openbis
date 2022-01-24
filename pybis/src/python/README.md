@@ -645,8 +645,8 @@ sample = o.new_sample(
     type       = 'YEAST', 
     space      = 'MY_SPACE',
     experiment = '/MY_SPACE/MY_PROJECT/EXPERIMENT_1',
-    parents    = [parent_sample, '/MY_SPACE/YEA66'], 
-    children   = [child_sample],
+    parents    = [parent_sample, '/MY_SPACE/YEA66'],   # you can use either permId, identifier
+    children   = [child_sample],                       # or sample object
     props      = {"name": "some name", "description": "something interesting"}
 )
 sample = space.new_sample( type='YEAST' )
