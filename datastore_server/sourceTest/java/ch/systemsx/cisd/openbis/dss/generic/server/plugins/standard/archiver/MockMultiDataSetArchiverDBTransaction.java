@@ -32,16 +32,11 @@ public final class MockMultiDataSetArchiverDBTransaction
 
     private boolean rolledBack;
 
-    private boolean readOnlyThrowAnException; // used to simulate an exception.
-
-    private boolean throwAnException; // used to simulate an exception.
+    boolean throwAnExceptionWhenUserTryToDeleteContainer;
 
     @Override
     public List<MultiDataSetArchiverDataSetDTO> getDataSetsForContainer(MultiDataSetArchiverContainerDTO container)
     {
-        if (throwAnException) {
-            throw new RuntimeException("Can't get the data sets for the container because something bad happened!");
-        }
         List<MultiDataSetArchiverDataSetDTO> result = new ArrayList<>();
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
@@ -56,9 +51,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public MultiDataSetArchiverContainerDTO createContainer(String path)
     {
-        if (throwAnException) {
-            throw new RuntimeException("Can't create a container because something bad happened!");
-        }
         MultiDataSetArchiverContainerDTO container = new MultiDataSetArchiverContainerDTO(id++, path);
         uncommittedContainers.add(container);
         return container;
@@ -67,10 +59,11 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public void deleteContainer(String container)
     {
-        if (throwAnException) {
+        if (throwAnExceptionWhenUserTryToDeleteContainer)
+        {
             throw new RuntimeException("Can't delete the container because something bad happened!");
         }
-        for (Iterator<MultiDataSetArchiverContainerDTO> iterator = containers.iterator(); iterator.hasNext();)
+        for (Iterator<MultiDataSetArchiverContainerDTO> iterator = containers.iterator(); iterator.hasNext(); )
         {
             MultiDataSetArchiverContainerDTO containerDTO = iterator.next();
             if (containerDTO.getPath().equals(container))
@@ -83,9 +76,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public MultiDataSetArchiverDataSetDTO insertDataset(DatasetDescription dataSet, MultiDataSetArchiverContainerDTO container)
     {
-        if (throwAnException) {
-            throw new RuntimeException("Can't insert dataset because something bad happened!");
-        }
         String dataSetCode = dataSet.getDataSetCode();
         Long dataSetSize = dataSet.getDataSetSize();
         MultiDataSetArchiverDataSetDTO dataSetDTO = new MultiDataSetArchiverDataSetDTO(id++, dataSetCode, container.getId(), dataSetSize);
@@ -96,9 +86,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public MultiDataSetArchiverDataSetDTO getDataSetForCode(String code)
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't get dataSet because something bad happened!");
-        }
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
             if (dataSet.getCode().equals(code))
@@ -112,9 +99,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public MultiDataSetArchiverContainerDTO getContainerForId(long containerId)
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't get container because something bad happened!");
-        }
         for (MultiDataSetArchiverContainerDTO container : containers)
         {
             if (container.getId() == containerId)
@@ -128,9 +112,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public MultiDataSetArchiverDataSetDTO getDataSetForId(long dataSetId)
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't get dataSet because something bad happened!");
-        }
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
             if (dataSet.getId() == dataSetId)
@@ -144,9 +125,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public List<MultiDataSetArchiverDataSetDTO> listDataSetsForContainerId(long containerId)
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't get dataSets for container because something bad happened!");
-        }
         List<MultiDataSetArchiverDataSetDTO> result = new ArrayList<MultiDataSetArchiverDataSetDTO>();
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
@@ -161,9 +139,6 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public void requestUnarchiving(List<String> dataSetCodes)
     {
-        if (throwAnException) {
-            throw new RuntimeException("Can't request unarchiving because something bad happened!");
-        }
         for (String dataSetCode : dataSetCodes)
         {
             MultiDataSetArchiverDataSetDTO dataSet = getDataSetForCode(dataSetCode);
@@ -181,18 +156,12 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public List<MultiDataSetArchiverContainerDTO> listContainers()
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't return list of containers because something bad happened!");
-        }
         return containers;
     }
 
     @Override
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving()
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't return list of containers because something bad happened!");
-        }
         List<MultiDataSetArchiverContainerDTO> result = new ArrayList<MultiDataSetArchiverContainerDTO>();
         for (MultiDataSetArchiverContainerDTO container : containers)
         {
@@ -207,16 +176,14 @@ public final class MockMultiDataSetArchiverDBTransaction
     @Override
     public void resetRequestUnarchiving(long containerId)
     {
-        if (throwAnException) {
-            throw new RuntimeException("Can't reset request unarchiving because something bad happened!");
-        }
         getContainerForId(containerId).setUnarchivingRequested(false);
     }
 
     @Override
     public void deleteContainer(long containerId)
     {
-        if (throwAnException) {
+        if (throwAnExceptionWhenUserTryToDeleteContainer)
+        {
             throw new RuntimeException("Can't delete the container because something bad happened!");
         }
         for (MultiDataSetArchiverContainerDTO container : containers)
@@ -263,20 +230,9 @@ public final class MockMultiDataSetArchiverDBTransaction
         return false;
     }
 
-    public void setThrowAnException(boolean throwAnException) {
-        this.throwAnException = throwAnException;
-    }
-
-    public void setReadOnlyThrowAnException(boolean throwAnException) {
-        this.readOnlyThrowAnException = throwAnException;
-    }
-
     @Override
     public List<MultiDataSetArchiverContainerDTO> listContainersWithDataSets(String[] dataSetCodes)
     {
-        if (readOnlyThrowAnException) {
-            throw new RuntimeException("Can't return list of containers because something bad happened!");
-        }
         Set<MultiDataSetArchiverContainerDTO> containers = new HashSet<>(); // only unique container
         for (String dataSetCode : dataSetCodes)
         {
