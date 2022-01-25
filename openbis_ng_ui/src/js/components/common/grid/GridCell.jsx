@@ -3,20 +3,16 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
 import logger from '@src/js/common/logger.js'
-import util from '@src/js/common/util.js'
 
 const styles = theme => ({
   cell: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: 0,
+    paddingLeft: 0,
+    paddingRight: theme.spacing(2),
     borderColor: theme.palette.border.secondary,
     '&:empty:before': {
       content: '"\\a0"'
-    },
-    '&:last-child': {
-      paddingRight: theme.spacing(2)
     }
   },
   wrap: {
@@ -44,18 +40,21 @@ class GridCell extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridCell.render')
 
-    const { column, classes } = this.props
+    const { column, styles, classes } = this.props
+
+    const cellClasses = [classes.cell]
+    if (column.wrappable) {
+      cellClasses.push(classes.wrap)
+    } else {
+      cellClasses.push(classes.nowrap)
+    }
+    cellClasses.push(styles.root)
 
     return (
       <TableCell
         ref={this.ref}
         key={column.name}
-        classes={{
-          root: util.classNames(
-            classes.cell,
-            column.wrappable ? classes.wrap : classes.nowrap
-          )
-        }}
+        classes={{ root: cellClasses.join(' ') }}
       >
         {column.renderDOMValue ? null : this.renderValue()}
       </TableCell>

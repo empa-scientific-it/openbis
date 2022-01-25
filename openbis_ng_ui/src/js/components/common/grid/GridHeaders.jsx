@@ -9,19 +9,30 @@ import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  header: {
-    backgroundColor: theme.palette.background.primary,
-    '& th': {
-      fontWeight: 'bold'
-    }
-  },
+  multiselectable: {},
   multiselect: {
+    backgroundColor: theme.palette.background.primary,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: 0,
-    width: '30px'
-  }
+    width: '30px',
+    position: 'sticky',
+    left: 0,
+    zIndex: 100
+  },
+  header: {
+    '&$firstHeader': {
+      paddingLeft: theme.spacing(2),
+      position: 'sticky',
+      left: 0,
+      zIndex: 100
+    },
+    '$multiselectable &$firstHeader': {
+      left: '44px'
+    }
+  },
+  firstHeader: {}
 })
 
 class GridHeaders extends React.PureComponent {
@@ -40,23 +51,35 @@ class GridHeaders extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridHeaders.render')
 
-    const { columns, classes } = this.props
+    const { multiselectable, columns, classes } = this.props
+
+    let rowClass = null
+    if (multiselectable) {
+      rowClass = classes.multiselectable
+    }
 
     return (
-      <TableRow classes={{ root: classes.header }}>
+      <TableRow classes={{ root: rowClass }}>
         {this.renderMultiselectCell()}
-        {columns.map(column => this.renderHeaderCell(column))}
+        {columns.map((column, columnIndex) =>
+          this.renderHeaderCell(column, columnIndex)
+        )}
       </TableRow>
     )
   }
 
-  renderHeaderCell(column) {
-    const { sortings, onSortChange } = this.props
+  renderHeaderCell(column, columnIndex) {
+    const { sortings, onSortChange, classes } = this.props
 
     const index = _.findIndex(
       sortings,
       sorting => sorting.columnName === column.name
     )
+
+    const headerClasses = [classes.header]
+    if (columnIndex === 0) {
+      headerClasses.push(classes.firstHeader)
+    }
 
     return (
       <GridHeader
@@ -66,6 +89,7 @@ class GridHeaders extends React.PureComponent {
         sortIndex={index !== -1 ? index : null}
         sortDirection={index !== -1 ? sortings[index].sortDirection : null}
         onSortChange={onSortChange}
+        styles={{ root: headerClasses.join(' ') }}
       />
     )
   }
