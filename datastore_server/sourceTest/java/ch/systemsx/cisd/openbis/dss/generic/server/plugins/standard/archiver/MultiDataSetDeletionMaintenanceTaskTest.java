@@ -44,7 +44,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -144,7 +143,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 IConfigProvider configProvider,
                 MockMultiDataSetFileOperationsManager multiDataSetManager)
         {
-            super();
             this.transaction = transaction;
             this.readonlyDAO = readonlyDAO;
             this.openBISService = openBISService;
@@ -239,7 +237,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         context = new Mockery();
         transaction = new MockMultiDataSetArchiverDBTransaction();
 
@@ -274,6 +271,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         task = new MockMultiDataSetDeletionMaintenanceTask(
                 transaction, transaction, openBISService, dataStoreService,
                 contentProvider, shareIdManager, v3api, configProvider, new MockMultiDataSetFileOperationsManager(properties, directoryProvider));
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         task.setUp("", properties);
     }
 
@@ -352,15 +350,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         replicate = new File(workingDirectory, "replicate");
         replicate.mkdirs();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
-        try
-        {
-            mappingFile.createNewFile();
-            FileUtilities.writeToFile(mappingFile, "Identifier\tShare IDs\tArchive Folder\n" +
-                    "/DEFAULT\t1\t" + archive + "\n");
-        } catch (IOException ex)
-        {
-            assertEquals("Invalid file path", ex.getMessage());
-        }
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare IDs\tArchive Folder\n" +
+                "/DEFAULT\t1\t" + archive + "\n");
     }
 
     private File copyContainerToArchive(File parent, String folderName)
@@ -379,7 +370,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    private String getLogContent(BufferedAppender logRecorder)
+    private String getLogContent()
     {
         String logContent = logRecorder.getLogContent();
         logContent = logContent.replaceAll("0\\.[0-9]{2,2} s", "?.?? s");
@@ -417,7 +408,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "MultiDataSetDeletionMaintenanceTask has started processing data sets [].",
-                getLogContent(logRecorder));
+                getLogContent());
     }
 
     @Test
@@ -457,7 +448,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         replicateContainer.getAbsolutePath(),
-                getLogContent(logRecorder));
+                getLogContent());
     }
 
     @Test
@@ -488,7 +479,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         String replicatePath = archiveContainer.getAbsolutePath();
         replicatePath = replicatePath.replace("/archive/", "/replicate/");
 
-        String log = getLogContent(logRecorder);
+        String log = getLogContent();
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n", log);
@@ -575,7 +566,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         replicateContainer.getAbsolutePath(),
-                getLogContent(logRecorder));
+                getLogContent());
     }
 
     @Test
@@ -670,7 +661,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         AssertionUtil.assertContainsNot(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Container container2.tar was successfully deleted in the database.\n",
-                getLogContent(logRecorder));
+                getLogContent());
 
         transaction.throwAnExceptionWhenUserTryToDeleteContainer = false;
         task.execute();
@@ -684,7 +675,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Container container2.tar was successfully deleted in the database.\n",
-                getLogContent(logRecorder));
+                getLogContent());
     }
 
     @Test
