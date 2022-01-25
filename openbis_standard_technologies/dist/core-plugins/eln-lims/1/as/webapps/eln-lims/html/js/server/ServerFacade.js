@@ -107,12 +107,13 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, sessionKey, callback) {
+    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",
             "allowedSampleTypes" : allowedSampleTypes,
             "experimentsByType" : experimentsByType,
             "spacesByType" : spacesByType,
+            "barcodeValidationInfo" : barcodeValidationInfo,
             "mode" : "FAIL_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
@@ -120,10 +121,11 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.updateSamples = function(allowedSampleTypes, sessionKey, callback) {
+    this.updateSamples = function(allowedSampleTypes, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",
             "allowedSampleTypes" : allowedSampleTypes,
+            "barcodeValidationInfo" : barcodeValidationInfo,
             "mode" : "UPDATE_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
