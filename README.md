@@ -59,3 +59,4 @@ openBISDevelopementEnvironmentDSSStart
 
 ## IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
 Turn off "File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use --release option for cross-compilation".
+
