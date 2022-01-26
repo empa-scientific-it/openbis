@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles'
 import GridGlobalFilter from '@src/js/components/common/grid/GridGlobalFilter.jsx'
 import GridFilter from '@src/js/components/common/grid/GridFilter.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
+import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import logger from '@src/js/common/logger.js'
@@ -37,6 +38,9 @@ const styles = theme => ({
   },
   globalFilterCell: {
     backgroundColor: 'inherit',
+    height: '62px'
+  },
+  globalFilterContent: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
@@ -64,11 +68,7 @@ class GridFilters extends React.PureComponent {
     if (filterModes && !filterModes.includes(filterMode)) {
       return null
     } else if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
-      return (
-        <TableRow classes={{ root: rowClasses.join(' ') }}>
-          {this.renderGlobalFilterCell()}
-        </TableRow>
-      )
+      return this.renderGlobalFilterRow()
     } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
       const someFilterable = columns.some(column => column.filterable)
       if (someFilterable) {
@@ -86,7 +86,7 @@ class GridFilters extends React.PureComponent {
     }
   }
 
-  renderGlobalFilterCell() {
+  renderGlobalFilterRow() {
     const {
       columns,
       multiselectable,
@@ -96,15 +96,19 @@ class GridFilters extends React.PureComponent {
     } = this.props
 
     return (
-      <TableCell
-        colSpan={columns.length + (multiselectable ? 1 : 0)}
-        classes={{ root: classes.globalFilterCell }}
+      <GridRowFullWidth
+        multiselectable={multiselectable}
+        columns={columns}
+        styles={{
+          cell: classes.globalFilterCell,
+          content: classes.globalFilterContent
+        }}
       >
         <GridGlobalFilter
           globalFilter={globalFilter}
           onGlobalFilterChange={onGlobalFilterChange}
         />
-      </TableCell>
+      </GridRowFullWidth>
     )
   }
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
@@ -9,12 +8,11 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   cell: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2)
+    height: '46px'
   },
-  container: {
+  content: {
+    paddingLeft: theme.spacing(2),
+    paddingTop: theme.spacing(1),
     display: 'flex',
     alignItems: 'center'
   },
@@ -33,13 +31,13 @@ const styles = theme => ({
   }
 })
 
-class GridMultiselectionRow extends React.PureComponent {
+class GridSelectionInfo extends React.PureComponent {
   constructor(props) {
     super(props)
   }
 
   render() {
-    logger.log(logger.DEBUG, 'GridMultiselectionRow.render')
+    logger.log(logger.DEBUG, 'GridSelectionInfo.render')
 
     const { columns, rows, multiselectable, multiselectedRows, classes } =
       this.props
@@ -64,22 +62,18 @@ class GridMultiselectionRow extends React.PureComponent {
     ).length
 
     return (
-      <TableRow selected={true}>
-        <TableCell
-          colSpan={columns.length + (multiselectable ? 1 : 0)}
-          classes={{
-            root: classes.cell
-          }}
-        >
-          <div className={classes.container}>
-            {this.renderNumberOfSelectedRows(numberOfSelectedRows)}
-            {this.renderButtons()}
-            {this.renderNumberOfSelectedRowsNotVisible(
-              numberOfSelectedRowsNotVisible
-            )}
-          </div>
-        </TableCell>
-      </TableRow>
+      <GridRowFullWidth
+        multiselectable={multiselectable}
+        columns={columns}
+        selected={true}
+        styles={{ cell: classes.cell, content: classes.content }}
+      >
+        {this.renderNumberOfSelectedRows(numberOfSelectedRows)}
+        {this.renderButtons()}
+        {this.renderNumberOfSelectedRowsNotVisible(
+          numberOfSelectedRowsNotVisible
+        )}
+      </GridRowFullWidth>
     )
   }
 
@@ -141,4 +135,4 @@ class GridMultiselectionRow extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(GridMultiselectionRow)
+export default withStyles(styles)(GridSelectionInfo)

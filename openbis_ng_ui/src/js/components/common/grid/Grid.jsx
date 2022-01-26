@@ -5,14 +5,13 @@ import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Table from '@material-ui/core/Table'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
 import Header from '@src/js/components/common/form/Header.jsx'
 import GridController from '@src/js/components/common/grid/GridController.js'
 import GridFilters from '@src/js/components/common/grid/GridFilters.jsx'
 import GridHeaders from '@src/js/components/common/grid/GridHeaders.jsx'
-import GridMultiselectionRow from '@src/js/components/common/grid/GridMultiselectionRow.jsx'
+import GridSelectionInfo from '@src/js/components/common/grid/GridSelectionInfo.jsx'
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
+import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridColumnsConfig from '@src/js/components/common/grid/GridColumnsConfig.jsx'
@@ -45,18 +44,20 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   },
   titleCell: {
-    padding: 0,
+    height: '46px',
     border: 0
+  },
+  titleContent: {
+    paddingLeft: theme.spacing(2)
   },
   title: {
     paddingTop: theme.spacing(1),
     paddingBottom: 0
   },
   pagingAndConfigsAndExportsCell: {
-    padding: 0,
-    border: 0
+    height: '46px'
   },
-  pagingAndConfigsAndExports: {
+  pagingAndConfigsAndExportsContent: {
     display: 'flex'
   }
 })
@@ -117,7 +118,7 @@ class Grid extends React.PureComponent {
                   {this.renderPagingAndConfigsAndExports()}
                   {this.renderHeaders()}
                   {this.renderFilters()}
-                  {this.renderSelection()}
+                  {this.renderSelectionInfo()}
                 </TableHead>
                 <TableBody>
                   {rows.map(row => {
@@ -142,16 +143,15 @@ class Grid extends React.PureComponent {
     const visibleColumns = this.controller.getVisibleColumns()
 
     return (
-      <TableRow>
-        <TableCell
-          colSpan={visibleColumns.length + (multiselectable ? 1 : 0)}
-          classes={{ root: classes.titleCell }}
-        >
-          <div onClick={this.handleClickContainer}>
-            <Header styles={{ root: classes.title }}>{header}</Header>
-          </div>
-        </TableCell>
-      </TableRow>
+      <GridRowFullWidth
+        multiselectable={multiselectable}
+        columns={visibleColumns}
+        styles={{ cell: classes.titleCell, content: classes.titleContent }}
+      >
+        <div onClick={this.handleClickContainer}>
+          <Header styles={{ root: classes.title }}>{header}</Header>
+        </div>
+      </GridRowFullWidth>
     )
   }
 
@@ -161,18 +161,18 @@ class Grid extends React.PureComponent {
     const visibleColumns = this.controller.getVisibleColumns()
 
     return (
-      <TableRow>
-        <TableCell
-          colSpan={visibleColumns.length + (multiselectable ? 1 : 0)}
-          classes={{ root: classes.pagingAndConfigsAndExportsCell }}
-        >
-          <div className={classes.pagingAndConfigsAndExports}>
-            {this.renderPaging()}
-            {this.renderConfigs()}
-            {this.renderExports()}
-          </div>
-        </TableCell>
-      </TableRow>
+      <GridRowFullWidth
+        multiselectable={multiselectable}
+        columns={visibleColumns}
+        styles={{
+          cell: classes.pagingAndConfigsAndExportsCell,
+          content: classes.pagingAndConfigsAndExportsContent
+        }}
+      >
+        {this.renderPaging()}
+        {this.renderConfigs()}
+        {this.renderExports()}
+      </GridRowFullWidth>
     )
   }
 
@@ -272,14 +272,14 @@ class Grid extends React.PureComponent {
     )
   }
 
-  renderSelection() {
+  renderSelectionInfo() {
     const { multiselectable, actions } = this.props
     const { rows, multiselectedRows } = this.state
 
     const visibleColumns = this.controller.getVisibleColumns()
 
     return (
-      <GridMultiselectionRow
+      <GridSelectionInfo
         columns={visibleColumns}
         rows={rows}
         actions={actions}
