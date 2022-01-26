@@ -16,6 +16,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
@@ -53,6 +54,8 @@ public class MultiDataSetDeletionMaintenanceTask
 {
 
     private static final String ARCHIVER_PREFIX = "archiver.";
+
+    private static final String FINAL_DESTINATION_KEY = ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 
     static final String LAST_SEEN_EVENT_ID_FILE = "last-seen-event-id-file";
 
@@ -98,8 +101,13 @@ public class MultiDataSetDeletionMaintenanceTask
         String eventIdFileName = PropertyUtils.getMandatoryProperty(properties, LAST_SEEN_EVENT_ID_FILE);
         lastSeenEventIdFile = new File(eventIdFileName);
 
-        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY,
-                properties.getProperty(ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY));
+        String finalDestination = properties.getProperty(FINAL_DESTINATION_KEY);
+        if (finalDestination == null)
+        {
+            throw new ConfigurationFailureException("Missing property " + FINAL_DESTINATION_KEY + ". Most likely reason: No "
+                    + MultiDataSetArchiver.class.getSimpleName() + " configured.");
+        }
+        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, finalDestination);
         String replicatedDestination = properties.getProperty(
                 ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY);
         if (replicatedDestination != null)
@@ -339,7 +347,7 @@ public class MultiDataSetDeletionMaintenanceTask
         transaction.close();
         getOperationLogAsSimpleLogger().log(LogLevel.INFO,
                 String.format("Container %s was "
-                        + "successfully deleted in the database.", container.getPath()));
+                        + "successfully deleted from the database.", container.getPath()));
     }
 
     private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)

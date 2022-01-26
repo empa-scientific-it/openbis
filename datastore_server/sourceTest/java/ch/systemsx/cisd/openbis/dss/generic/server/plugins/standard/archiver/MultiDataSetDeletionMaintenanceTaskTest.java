@@ -443,7 +443,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Container container1.tar contains 0 not deleted data sets.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container1.tar was successfully deleted in the database.\n" +
+                        "Container container1.tar was successfully deleted from the database.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -561,7 +561,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                         "Writing statistics for output stream: 1.06 KB in 4 chunks took < 1sec.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - Sanity check finished.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted in the database.\n" +
+                        "Container container2.tar was successfully deleted from the database.\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
                         archiveContainer.getAbsolutePath() + "\n" +
                         "INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " +
@@ -660,7 +660,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         AssertionUtil.assertContainsNot(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted in the database.\n",
+                        "Container container2.tar was successfully deleted from the database.\n",
                 getLogContent());
 
         transaction.throwAnExceptionWhenUserTryToDeleteContainer = false;
@@ -674,7 +674,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
-                        "Container container2.tar was successfully deleted in the database.\n",
+                        "Container container2.tar was successfully deleted from the database.\n",
                 getLogContent());
     }
 
