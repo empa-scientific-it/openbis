@@ -111,13 +111,13 @@ var UserTests = new function() {
                              // add mother
                              .then(() => e.waitForId("search-btn-bacteria-parents"))
                              .then(() => e.click("search-btn-bacteria-parents"))
-                             .then(() => UserTests.searchForBacteriaInSelect2("BAC1"))
+                             .then(() => e.searchForObjectInSelect2("BAC1", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac1"))
                              .then(() => e.change("comments-bac1", "mother"))
                              // add father
                              .then(() => e.waitForId("search-btn-bacteria-parents"))
                              .then(() => e.click("search-btn-bacteria-parents"))
-                             .then(() => UserTests.searchForBacteriaInSelect2("BAC2"))
+                             .then(() => e.searchForObjectInSelect2("BAC2", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac2"))
                              .then(() => e.change("comments-bac2", "father"))
                              // add Child
@@ -125,7 +125,7 @@ var UserTests = new function() {
                              .then(() => e.click("plus-btn-children-type-selector"))
                              .then(() => e.waitForId("sampleTypeSelector"))
                              .then(() => e.changeSelect2("sampleTypeSelector", 'BACTERIA'))
-                             .then(() => UserTests.searchForBacteriaInSelect2("BAC4"))
+                             .then(() => e.searchForObjectInSelect2("BAC4", "add-object-bacteria"))
                              .then(() => e.waitForId("bac4-column-id"))
                              // save
                              .then(() => e.waitForId("save-btn"))
@@ -138,20 +138,6 @@ var UserTests = new function() {
                              .then(() => TestUtil.testPassed(7))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(7, error, reject));
-        });
-    }
-
-    this.searchForBacteriaInSelect2 = function(id) {
-    return new Promise(function executor(resolve, reject) {
-        var e = EventUtil;
-            Promise.resolve().then(() => e.waitForId("add-object-bacteria"))
-                             .then(() => e.searchSelect2("advanced-entity-search-dropdown-id", id))
-                             .then(() => e.sleep(2000)) // wait when bacteria will be found
-                             .then(() => e.mouseUp("select2-results__option"))
-                             .then(() => e.sleep(1000)) // wait when bacteria will be selected
-                             .then(() => e.click("add-object-bacteria"))
-                             .then(() => resolve())
-                             .catch(error => reject(error));
         });
     }
 
@@ -620,15 +606,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("START_DATE"))
                              .then(() => e.change("START_DATE", tomorrow, false))
                              // add protocol
-                             .then(() => e.waitForId("plus-btn-general-protocol"))
-                             .then(() => e.click("plus-btn-general-protocol"))
-                             .then(() => e.waitForId("gen1-column-id"))
-                             .then(() => e.click("gen1-column-id"))
+                             .then(() => e.waitForId("search-btn-general-protocol"))
+                             .then(() => e.click("search-btn-general-protocol"))
+                             .then(() => e.searchForObjectInSelect2("GEN", "add-object-general_protocol"))
+                             .then(() => e.waitForId("gen10-column-id"))
                              // Operations
-                             .then(() => e.waitForId("gen1-operations-column-id"))
-                             .then(() => e.click("gen1-operations-column-id"))
-                             .then(() => e.waitForId("gen1-operations-column-id-use-as-template"))
-                             .then(() => e.click("gen1-operations-column-id-use-as-template"))
+                             .then(() => e.waitForId("gen10-operations-column-id"))
+                             .then(() => e.click("gen10-operations-column-id"))
+                             .then(() => e.waitForId("gen10-operations-column-id-use-as-template"))
+                             .then(() => e.click("gen10-operations-column-id-use-as-template"))
                              .then(() => e.waitForId("newSampleCodeForCopy"))
                              .then(() => e.write("newSampleCodeForCopy", "CODE1", false))
                              .then(() => e.waitForId("copyAccept"))

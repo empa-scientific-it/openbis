@@ -362,4 +362,18 @@ var EventUtil = new function() {
         }
         return element;
     };
+
+    this.searchForObjectInSelect2 = function(id, addBtnId) {
+    return new Promise(function executor(resolve, reject) {
+        var e = EventUtil;
+            Promise.resolve().then(() => e.waitForId(addBtnId))
+                             .then(() => e.searchSelect2("advanced-entity-search-dropdown-id", id))
+                             .then(() => e.sleep(2000)) // wait when object will be found
+                             .then(() => e.mouseUp("select2-results__option"))
+                             .then(() => e.sleep(1000)) // wait when object will be selected
+                             .then(() => e.click(addBtnId))
+                             .then(() => resolve())
+                             .catch(error => reject(error));
+        });
+    }
 }
