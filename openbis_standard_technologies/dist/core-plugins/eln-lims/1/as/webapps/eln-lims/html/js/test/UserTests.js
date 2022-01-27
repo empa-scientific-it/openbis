@@ -199,12 +199,6 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.equalTo("children-annotations-bac3", childrenAnnotations, true, false))
                              .then(() => e.waitForId("bac4"))
-                             // show the Parent/Annotations column
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("parentannotations-cln"))
-                             .then(() => e.click("parentannotations-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              // check parents comments
                              .then(() => e.waitForId("parent-annotations-bac3"))
                              .then(() => e.contains("parent-annotations-bac3", [motherFirst, fatherFirst], false))
