@@ -413,6 +413,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("storage-drop-down-id-C-2"))
                              .then(() => e.click("storage-drop-down-id-C-2"))
                              .then(() => e.click("storage-accept"))
+                             .then(() => e.sleep(2000)) // wait for accept
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              // check that new storage was created
