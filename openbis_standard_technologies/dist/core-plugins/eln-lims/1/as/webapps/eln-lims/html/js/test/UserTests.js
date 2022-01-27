@@ -822,9 +822,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("PRODUCTS"))
                              .then(() => e.click("PRODUCTS"))
                              //create English product form
-                             .then(() => UserTests.createProductForm("EN", "EUR", "sup1-column-id"))
+                             .then(() => UserTests.createProductForm("EN", "EUR", "SUP14"))
                              //create German product form
-                             .then(() => UserTests.createProductForm("DE", "EUR", "sup2-column-id"))
+                             .then(() => UserTests.createProductForm("DE", "EUR", "SUP15"))
                              .then(() => TestUtil.testPassed(28))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(28, error, reject));
@@ -854,12 +854,10 @@ var UserTests = new function() {
                              // Error: Currently only have 0 of the 1 required SUPPLIER.
                              .then(() => e.waitForId("jNotifyDismiss"))
                              .then(() => e.click("jNotifyDismiss"))
-                             .then(() => e.waitForId("plus-btn-suppliers"))
-                             .then(() => e.click("plus-btn-suppliers"))
-                             .then(() => e.waitForId(supId))
-                             .then(() => e.click(supId))
-                             .then(() => e.sleep(2000)) // wait for form's update
-                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.waitForId("search-btn-suppliers"))
+                             .then(() => e.click("search-btn-suppliers"))
+                             .then(() => e.searchForObjectInSelect2(supId, "add-object-supplier"))
+                             .then(() => e.waitForId(supId.toLocaleLowerCase() + "-column-id"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
