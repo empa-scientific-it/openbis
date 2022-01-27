@@ -50,6 +50,10 @@ function DataGridController(
         $container.empty().append($element)
     }
 
+    this.setId = function(id){
+        this.id = id
+    }
+
     this._init = function ($container, extraOptions) {
         var GridElement = React.createElement(
             window.NgUiGrid.default.ThemeProvider,
@@ -61,6 +65,7 @@ function DataGridController(
                     controllerRef: function (controller) {
                         _this.controller = controller
                     },
+                    id: _this.id,
                     header: title,
                     filterModes: filterModes,
                     loadSettings: _this._loadSettings,

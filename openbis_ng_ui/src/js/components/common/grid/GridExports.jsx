@@ -79,7 +79,7 @@ class GridExports extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridExports.render')
 
-    const { exportOptions, disabled, multiselectable, classes } = this.props
+    const { id, exportOptions, disabled, multiselectable, classes } = this.props
     const { el } = this.state
 
     const rowsOptions = [
@@ -103,6 +103,7 @@ class GridExports extends React.PureComponent {
     return (
       <div className={classes.container}>
         <Button
+          id={id + '.exports-button-id'}
           label={messages.get(messages.EXPORTS)}
           color='default'
           disabled={disabled}
@@ -110,6 +111,7 @@ class GridExports extends React.PureComponent {
           onClick={this.handleOpen}
         />
         <Popover
+          id={id + '.exports-popup-id'}
           open={Boolean(el)}
           anchorEl={el}
           onClose={this.handleClose}

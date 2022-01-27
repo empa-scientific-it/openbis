@@ -62,6 +62,10 @@ const styles = theme => ({
 })
 
 class Grid extends React.PureComponent {
+  static defaultProps = {
+    id: 'grid'
+  }
+
   constructor(props) {
     super(props)
     autoBind(this)
@@ -100,11 +104,15 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { classes } = this.props
+    const { id, classes } = this.props
     const { loading, rows } = this.state
 
     return (
-      <div onClick={this.handleClickContainer} className={classes.container}>
+      <div
+        id={id}
+        onClick={this.handleClickContainer}
+        className={classes.container}
+      >
         <div className={classes.loadingContainer}>
           <Loading loading={loading} styles={{ root: classes.loading }}>
             <div className={classes.tableContainer}>
@@ -177,10 +185,12 @@ class Grid extends React.PureComponent {
   }
 
   renderPaging() {
+    const { id } = this.props
     const { page, pageSize, totalCount } = this.state
 
     return (
       <GridPaging
+        id={id}
         count={totalCount}
         page={page}
         pageSize={pageSize}
@@ -191,7 +201,7 @@ class Grid extends React.PureComponent {
   }
 
   renderConfigs() {
-    const { filterModes } = this.props
+    const { id, filterModes } = this.props
     const { loading, filterMode, columnsVisibility } = this.state
 
     const allColumns = this.controller.getAllColumns()
@@ -199,6 +209,7 @@ class Grid extends React.PureComponent {
     return (
       <React.Fragment>
         <GridColumnsConfig
+          id={id}
           columns={allColumns}
           columnsVisibility={columnsVisibility}
           loading={loading}
@@ -206,6 +217,7 @@ class Grid extends React.PureComponent {
           onOrderChange={this.controller.handleColumnOrderChange}
         />
         <GridFiltersConfig
+          id={id}
           filterModes={filterModes}
           filterMode={filterMode}
           loading={loading}
@@ -216,11 +228,12 @@ class Grid extends React.PureComponent {
   }
 
   renderExports() {
-    const { multiselectable } = this.props
+    const { id, multiselectable } = this.props
     const { rows, exportOptions } = this.state
 
     return (
       <GridExports
+        id={id}
         disabled={rows.length === 0}
         exportOptions={exportOptions}
         multiselectable={multiselectable}

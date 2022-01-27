@@ -125,6 +125,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
+		dataGrid.setId("user-grid")
 		dataGrid.init(dataGridContainer);
 		
 		//

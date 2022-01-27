@@ -444,6 +444,7 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		dataGridController.setId("sample-grid")
 		return dataGridController;
 	}
 

@@ -80,18 +80,20 @@ class GridColumnsConfig extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridColumnsConfig.render')
 
-    const { classes, loading } = this.props
+    const { id, classes, loading } = this.props
     const { el } = this.state
 
     return (
       <div className={classes.container}>
         <Button
+          id={id + '.columns-button-id'}
           label={messages.get(messages.COLUMNS)}
           color='default'
           variant='outlined'
           onClick={this.handleOpen}
         />
         <Popover
+          id={id + '.columns-popup-id'}
           open={Boolean(el)}
           anchorEl={el}
           onClose={this.handleClose}
