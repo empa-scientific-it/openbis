@@ -210,9 +210,9 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      // delete request
-                     .then(() => e.waitForId("req1-column-id"))
-                     .then(() => e.click("req1-column-id"))
-                     .then(() => e.waitForId("pro1-column-id"))
+                     .then(() => e.waitForId("req16-column-id"))
+                     .then(() => e.click("req16-column-id"))
+                     .then(() => e.waitForId("pro14-column-id"))
                      .then(() => e.waitForId("options-menu-btn-sample-view-request"))
                      .then(() => e.click("options-menu-btn-sample-view-request"))
                      .then(() => e.waitForId("delete"))
@@ -221,12 +221,18 @@ var AdminTests = new function() {
                      .then(() => e.write("reason-to-delete-id", "test"))
                      .then(() => e.waitForId("accept-btn"))
                      .then(() => e.click("accept-btn"))
-                     .then(() => e.waitForId("create-btn"))
+                     .then(() => e.sleep(2000))
                      // go to the Order 1
+                     .then(() => e.waitForId("STOCK_ORDERS"))
+                     .then(() => e.click("STOCK_ORDERS"))
+                     .then(() => e.sleep(2000))
+                     .then(() => e.waitForId("ORDERS"))
+                     .then(() => e.click("ORDERS"))
+                     .then(() => e.sleep(2000))
                      .then(() => e.waitForId("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
                      .then(() => e.click("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
-                     .then(() => e.waitForId("ord1-column-id"))
-                     .then(() => e.click("ord1-column-id"))
+                     .then(() => e.waitForId("order1-column-id"))
+                     .then(() => e.click("order1-column-id"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data after delete (should be the same)
                      .then(() => e.waitForId("catalogNum-0"))
@@ -269,7 +275,7 @@ var AdminTests = new function() {
                      .then(() => e.click("TRASHCAN"))
                      // The Objects BAC1 and the deleted request should be there.
                      .then(() => e.waitForId("deleted--materials-bacteria-bac1-id"))
-                     .then(() => e.waitForId("deleted--stock_catalog-requests-req1-id"))
+                     .then(() => e.waitForId("deleted--stock_catalog-requests-req16-id"))
                      // clear Trash
                      .then(() => e.waitForId("empty-trash-btn"))
                      .then(() => e.click("empty-trash-btn"))
@@ -278,7 +284,7 @@ var AdminTests = new function() {
                      .then(() => e.sleep(2000)) // wait for delete
                      // check that trash is empty
                      .then(() => e.verifyExistence("deleted--materials-bacteria-bac1-id", false))
-                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req1-id", false))
+                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req16-id", false))
                      .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(33))
                      .then(() => resolve())
