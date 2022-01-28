@@ -33,12 +33,11 @@ const styles = theme => ({
       zIndex: 100
     },
     '$multiselectable &$firstCell': {
-      left: '44px'
+      left: '48px'
     }
   },
   globalFilterCell: {
-    backgroundColor: 'inherit',
-    height: '62px'
+    backgroundColor: 'inherit'
   },
   globalFilterContent: {
     paddingTop: theme.spacing(1),

@@ -10,10 +10,12 @@ const styles = () => ({
     position: 'sticky',
     left: 0
   },
+  contentWrapper: {
+    width: 0,
+    overflow: 'visible'
+  },
   content: {
-    position: 'absolute',
-    top: 0,
-    whiteSpace: 'nowrap'
+    width: '750px'
   },
   remainingCell: {
     padding: 0
@@ -41,8 +43,10 @@ class GridRowFullWidth extends React.PureComponent {
             root: `${classes.stickyCell} ${styles.cell}`
           }}
         >
-          <div className={`${classes.content} ${styles.content}`}>
-            {children}
+          <div className={classes.contentWrapper}>
+            <div className={`${classes.content} ${styles.content}`}>
+              {children}
+            </div>
           </div>
         </TableCell>
         {columns.length > 1 && (

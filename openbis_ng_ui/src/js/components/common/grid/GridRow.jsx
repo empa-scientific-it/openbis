@@ -48,7 +48,7 @@ const styles = theme => ({
       zIndex: 100
     },
     '$multiselectable &$firstCell': {
-      left: '44px'
+      left: '48px'
     }
   },
   firstCell: {}

@@ -21,6 +21,7 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
+    minWidth: '800px',
     height: '100%'
   },
   loadingContainer: {
@@ -44,7 +45,6 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   },
   titleCell: {
-    height: '46px',
     border: 0
   },
   titleContent: {
@@ -54,9 +54,7 @@ const styles = theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: 0
   },
-  pagingAndConfigsAndExportsCell: {
-    height: '46px'
-  },
+  pagingAndConfigsAndExportsCell: {},
   pagingAndConfigsAndExportsContent: {
     display: 'flex'
   }

@@ -7,12 +7,12 @@ import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  cell: {
-    height: '46px'
-  },
+  cell: {},
   content: {
     paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
     paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
     display: 'flex',
     alignItems: 'center'
   },

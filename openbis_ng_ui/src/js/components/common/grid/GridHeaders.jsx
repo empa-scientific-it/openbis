@@ -10,13 +10,15 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   multiselectable: {},
+  multiselectContainer: {
+    width: '32px'
+  },
   multiselect: {
     backgroundColor: theme.palette.background.primary,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: 0,
-    width: '30px',
     position: 'sticky',
     left: 0,
     zIndex: 100
@@ -29,7 +31,7 @@ const styles = theme => ({
       zIndex: 100
     },
     '$multiselectable &$firstHeader': {
-      left: '44px'
+      left: '48px'
     }
   },
   firstHeader: {}
@@ -109,11 +111,13 @@ class GridHeaders extends React.PureComponent {
 
       return (
         <TableCell classes={{ root: classes.multiselect }}>
-          <CheckboxField
-            value={value}
-            indeterminate={indeterminate}
-            onChange={this.handleMultiselectAllRowsChange}
-          />
+          <div className={classes.multiselectContainer}>
+            <CheckboxField
+              value={value}
+              indeterminate={indeterminate}
+              onChange={this.handleMultiselectAllRowsChange}
+            />
+          </div>
         </TableCell>
       )
     } else {
