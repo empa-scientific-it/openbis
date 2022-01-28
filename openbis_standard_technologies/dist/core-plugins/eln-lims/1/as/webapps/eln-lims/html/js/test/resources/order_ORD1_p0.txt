@@ -3,7 +3,7 @@
 Order Information
 - Date: YYYY-MM-DD HH:MM:SS
 - Status: ORDERED
-- Code: ORD1
+- Code: ORDER1
 
 
 Costumer Information
