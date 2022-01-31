@@ -62,6 +62,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private File replicate;
 
+    private File mappingFile;
+
     private File lastSeenDataSetFile;
 
     private BufferedAppender logRecorder;
@@ -289,7 +291,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         Sample sample = new Sample();
         sample.setCode("Sample1");
         Space space = new Space();
-        space.setCode("DEFAULT");
+        space.setCode("DEFAULT"); // should match to mappingFile input
         sample.setSpace(space);
         SampleFetchOptions sfo = new SampleFetchOptions();
         sfo.withSpace();
@@ -333,6 +335,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         }
+        properties.setProperty("mapping-file", mappingFile.getPath());
         return properties;
     }
 
@@ -346,6 +349,9 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         archive.mkdirs();
         replicate = new File(workingDirectory, "replicate");
         replicate.mkdirs();
+        mappingFile = new File(workingDirectory, "mapping-file.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare IDs\tArchive Folder\n" +
+                "/DEFAULT\t1\t" + archive + "\n");
     }
 
     private File copyContainerToArchive(File parent, String folderName)
@@ -396,6 +402,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         task.execute(new ArrayList<>());
         // THEN
         AssertionUtil.assertContainsLines(
+                "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
+                        mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
@@ -426,6 +434,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         assertEquals(0, transaction.listContainers().size());
 
         AssertionUtil.assertContainsLines(
+                "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
+                        mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
@@ -532,6 +542,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         assertEquals(ds4Code, ((DataSetPermId) dataSetUpdate.getDataSetId()).getPermId());
 
         AssertionUtil.assertContainsLines(
+                "INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" +
+                        mappingFile + "' successfully loaded.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
                         "Obtained the list of all datasets in all shares in ?.?? s.\n" +
                         "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +

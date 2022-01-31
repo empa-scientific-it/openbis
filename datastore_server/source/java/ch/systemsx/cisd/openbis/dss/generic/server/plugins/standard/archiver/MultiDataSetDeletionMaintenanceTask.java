@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.MappingBasedShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -140,7 +141,13 @@ public class MultiDataSetDeletionMaintenanceTask
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
-        shareFinder = new FirstSuitableShareFinder();
+        if (properties.containsKey("mapping-file"))
+        {
+            shareFinder = new MappingBasedShareFinder(properties);
+        } else
+        {
+            shareFinder = new FirstSuitableShareFinder();
+        }
         simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
         shares = getShares();
     }
