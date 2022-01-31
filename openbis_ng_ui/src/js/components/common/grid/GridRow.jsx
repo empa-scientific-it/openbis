@@ -1,9 +1,8 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
 import GridCell from '@src/js/components/common/grid/GridCell.jsx'
-import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
+import GridMultiselectCell from '@src/js/components/common/grid/GridMultiselectCell.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -26,19 +25,6 @@ const styles = theme => ({
     backgroundColor: '#e8f7fd'
   },
   multiselectable: {},
-  multiselect: {
-    backgroundColor: 'inherit',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: 0,
-    position: 'sticky',
-    left: 0,
-    zIndex: 100
-  },
-  checkbox: {
-    display: 'inline-block'
-  },
   cell: {
     backgroundColor: 'inherit',
     '&$firstCell': {
@@ -149,18 +135,14 @@ class GridRow extends React.PureComponent {
   }
 
   renderMultiselect() {
-    const { multiselectable, multiselected, classes } = this.props
+    const { multiselectable, multiselected } = this.props
 
     if (multiselectable) {
       return (
-        <TableCell classes={{ root: classes.multiselect }}>
-          <div className={classes.checkbox}>
-            <CheckboxField
-              value={multiselected}
-              onClick={this.handleMultiselect}
-            />
-          </div>
-        </TableCell>
+        <GridMultiselectCell
+          value={multiselected}
+          onClick={this.handleMultiselect}
+        />
       )
     } else {
       return null

@@ -40,7 +40,7 @@ class GridHeader extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridHeader.render')
 
-    const { column, sortCount, sortIndex, sortDirection, styles, classes } =
+    const { column, sortCount, sortIndex, sortDirection, className, classes } =
       this.props
 
     if (column.sortable) {
@@ -48,7 +48,7 @@ class GridHeader extends React.PureComponent {
       return (
         <TableCell
           classes={{
-            root: `${styles.root} ${classes.cell}`
+            root: `${className} ${classes.cell}`
           }}
         >
           <TableSortLabel
@@ -67,7 +67,7 @@ class GridHeader extends React.PureComponent {
       return (
         <TableCell
           classes={{
-            root: `${styles.root} ${classes.cell}`
+            root: `${className} ${classes.cell}`
           }}
         >
           {column.label}

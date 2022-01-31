@@ -95,7 +95,7 @@ class GridHeaders extends React.PureComponent {
         sortIndex={index !== -1 ? index : null}
         sortDirection={index !== -1 ? sortings[index].sortDirection : null}
         onSortChange={onSortChange}
-        styles={{ root: headerClasses.join(' ') }}
+        className={headerClasses.join(' ')}
       />
     )
   }
