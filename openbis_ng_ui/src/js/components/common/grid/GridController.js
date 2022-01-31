@@ -14,6 +14,7 @@ const REMOTE_GRID_RELOAD_PERIOD = 500
 export default class GridController {
   constructor() {
     autoBind(this)
+    this.cache = {}
   }
 
   init(context) {
@@ -1139,7 +1140,8 @@ export default class GridController {
 
     let columns = [...allColumns]
     this._sortColumns(columns, columnsSorting)
-    return columns
+
+    return this._getCachedValue('allColumns', columns)
   }
 
   getVisibleColumns() {
@@ -1149,7 +1151,8 @@ export default class GridController {
     let columns = [...allColumns]
     columns = columns.filter(column => columnsVisibility[column.name])
     this._sortColumns(columns, columnsSorting)
-    return columns
+
+    return this._getCachedValue('visibleColumns', columns)
   }
 
   getPage() {
@@ -1195,6 +1198,15 @@ export default class GridController {
   getTotalCount() {
     const { totalCount } = this.context.getState()
     return totalCount
+  }
+
+  _getCachedValue(key, newValue) {
+    if (_.isEqual(this.cache[key], newValue)) {
+      return this.cache[key]
+    } else {
+      this.cache[key] = newValue
+      return newValue
+    }
   }
 
   _getObjectValue(value) {
