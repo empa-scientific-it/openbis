@@ -5,20 +5,13 @@ import TableCell from '@material-ui/core/TableCell'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({
-  stickyCell: {
-    padding: 0,
-    position: 'sticky',
-    left: 0
-  },
-  contentWrapper: {
-    width: 0,
-    overflow: 'visible'
+  cell: {
+    padding: 0
   },
   content: {
+    position: 'sticky',
+    left: 0,
     width: '750px'
-  },
-  remainingCell: {
-    padding: 0
   }
 })
 
@@ -38,25 +31,19 @@ class GridRowFullWidth extends React.PureComponent {
     return (
       <TableRow selected={selected}>
         <TableCell
-          colSpan={1 + (multiselectable ? 1 : 0)}
+          colSpan={
+            columns.length === 0
+              ? 1
+              : columns.length + (multiselectable ? 1 : 0)
+          }
           classes={{
-            root: `${classes.stickyCell} ${styles.cell}`
+            root: `${classes.cell} ${styles.cell}`
           }}
         >
-          <div className={classes.contentWrapper}>
-            <div className={`${classes.content} ${styles.content}`}>
-              {children}
-            </div>
+          <div className={`${classes.content} ${styles.content}`}>
+            {children}
           </div>
         </TableCell>
-        {columns.length > 1 && (
-          <TableCell
-            colSpan={columns.length - 1 + (multiselectable ? 1 : 0)}
-            classes={{
-              root: `${classes.remainingCell} ${styles.cell}`
-            }}
-          ></TableCell>
-        )}
       </TableRow>
     )
   }

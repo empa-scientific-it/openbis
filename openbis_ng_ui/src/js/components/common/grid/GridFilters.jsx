@@ -36,9 +36,6 @@ const styles = theme => ({
       left: '48px'
     }
   },
-  globalFilterCell: {
-    backgroundColor: 'inherit'
-  },
   globalFilterContent: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
@@ -99,7 +96,6 @@ class GridFilters extends React.PureComponent {
         multiselectable={multiselectable}
         columns={columns}
         styles={{
-          cell: classes.globalFilterCell,
           content: classes.globalFilterContent
         }}
       >
@@ -134,9 +130,9 @@ class GridFilters extends React.PureComponent {
   }
 
   renderMultiselectCell() {
-    const { columns, multiselectable, classes } = this.props
+    const { multiselectable, classes } = this.props
 
-    if (columns.length > 0 && multiselectable) {
+    if (multiselectable) {
       return <TableCell classes={{ root: classes.multiselectCell }}></TableCell>
     } else {
       return null

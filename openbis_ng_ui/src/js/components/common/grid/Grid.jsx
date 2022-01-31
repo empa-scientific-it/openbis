@@ -54,7 +54,6 @@ const styles = theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: 0
   },
-  pagingAndConfigsAndExportsCell: {},
   pagingAndConfigsAndExportsContent: {
     display: 'flex'
   }
@@ -163,7 +162,6 @@ class Grid extends React.PureComponent {
         multiselectable={multiselectable}
         columns={visibleColumns}
         styles={{
-          cell: classes.pagingAndConfigsAndExportsCell,
           content: classes.pagingAndConfigsAndExportsContent
         }}
       >
