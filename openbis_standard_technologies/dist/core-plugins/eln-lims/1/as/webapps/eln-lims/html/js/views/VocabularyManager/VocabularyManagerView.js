@@ -17,7 +17,7 @@
 function VocabularyManagerView(vocabularyManagerController, vocabularyManagerModel) {
 	this._vocabularyManagerController = vocabularyManagerController;
 	this._vocabularyManagerModel = vocabularyManagerModel;
-	this._dataGridContainer = $("<div>").css("margin-top", "-10px");
+	this._dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
 	this._subtitle = $("<h4>", { "style" : "font-weight:normal;" });
 	
 	this.repaint = function(views) {

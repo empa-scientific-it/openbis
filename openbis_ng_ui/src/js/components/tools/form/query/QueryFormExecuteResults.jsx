@@ -2,7 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Header from '@src/js/components/common/form/Header.jsx'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
-import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import Container from '@src/js/components/common/form/Container.jsx'
 import QueryFormExecuteResultsGrid from '@src/js/components/tools/form/query/QueryFormExecuteResultsGrid.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
@@ -25,11 +25,11 @@ class QueryFormExecuteResults extends React.PureComponent {
       return (
         <Loading loading={loading}>
           {loaded && (
-            <GridContainer>
+            <Container>
               <Header>{messages.get(messages.RESULTS)}</Header>
               {this.renderMessageAuthorizationColumns()}
               {this.renderGrid()}
-            </GridContainer>
+            </Container>
           )}
         </Loading>
       )
