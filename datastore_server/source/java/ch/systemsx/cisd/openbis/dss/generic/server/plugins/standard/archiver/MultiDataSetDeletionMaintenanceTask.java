@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.MappingBasedShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -49,9 +48,34 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
+import static org.apache.commons.io.FileUtils.ONE_KB;
+import static org.apache.commons.io.FileUtils.ONE_MB;
+
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
 {
+    private static class FirstSuitableShareFinder implements IShareFinder
+    {
+        @Override
+        public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
+        {
+            long dataSetSize = dataSet.getDataSetSize();
+            // 10% but not more than 1 MB are added to the data set size to take into account that
+            // creating directories consume disk space.
+            dataSetSize += Math.max(ONE_KB, Math.min(ONE_MB, dataSet.getDataSetSize() / 10));
+
+            for (Share share : shares)
+            {
+                // take the first share which has enough free space
+                long freeSpace = share.calculateFreeSpace();
+                if (freeSpace > dataSetSize)
+                {
+                    return share;
+                }
+            }
+            return null;
+        }
+    }
 
     private static final String ARCHIVER_PREFIX = "archiver.";
 
@@ -116,7 +140,7 @@ public class MultiDataSetDeletionMaintenanceTask
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
-        shareFinder = new MappingBasedShareFinder(properties);
+        shareFinder = new FirstSuitableShareFinder();
         simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
         shares = getShares();
     }
