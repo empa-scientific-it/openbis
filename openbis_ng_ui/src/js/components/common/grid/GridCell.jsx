@@ -40,7 +40,7 @@ class GridCell extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridCell.render')
 
-    const { column, styles, classes } = this.props
+    const { column, className, classes } = this.props
 
     const cellClasses = [classes.cell]
     if (column.wrappable) {
@@ -48,7 +48,9 @@ class GridCell extends React.PureComponent {
     } else {
       cellClasses.push(classes.nowrap)
     }
-    cellClasses.push(styles.root)
+    if (className) {
+      cellClasses.push(className)
+    }
 
     return (
       <TableCell

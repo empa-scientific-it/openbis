@@ -143,7 +143,7 @@ class GridRow extends React.PureComponent {
         key={column.name}
         row={row}
         column={column}
-        styles={{ root: cellClasses.join(' ') }}
+        className={cellClasses.join(' ')}
       />
     )
   }
