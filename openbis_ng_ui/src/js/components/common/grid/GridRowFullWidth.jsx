@@ -11,6 +11,7 @@ const styles = () => ({
   content: {
     position: 'sticky',
     left: 0,
+    whiteSpace: 'nowrap',
     width: '750px'
   }
 })
