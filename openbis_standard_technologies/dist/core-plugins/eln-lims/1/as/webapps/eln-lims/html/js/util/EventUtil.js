@@ -376,4 +376,20 @@ var EventUtil = new function() {
                              .catch(error => reject(error));
         });
     }
+
+
+	this.checkGridRange = function(gridId, range, ignoreError) {
+	    return new Promise(function executor(resolve, reject) {
+	        try {
+                var element = EventUtil.getElement(gridId, ignoreError, resolve);
+                if (element.find('span').html() == range) {
+                    resolve();
+                } else {
+                    throw "Grid range #" + elementId + " should be equal " + value;
+                }
+            } catch(error) {
+                reject(error);
+            }
+	    });
+	};
 }

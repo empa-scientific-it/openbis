@@ -468,7 +468,7 @@ var UserTests = new function() {
                              .then(() => e.click("bac1-column-id"))
                              .then(() => e.waitForId("testbox-a3-id"))
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
-                             .then(() => e.sleep(1000))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(17))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(17, error, reject));
@@ -655,7 +655,7 @@ var UserTests = new function() {
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
-                             .then(() => e.sleep(1000))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(21))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(21, error, reject));

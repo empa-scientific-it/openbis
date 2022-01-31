@@ -302,8 +302,8 @@ var AdminTests = new function() {
                      .then(() => e.click("VOCABULARY_BROWSER"))
                      .then(() => e.waitForId("vocabulary-browser-title-id")) // wait for page reload
                      // check count
-                     .then(() => e.waitForId("total-count-id"))
-                     .then(() => e.equalTo("total-count-id", "36", true, false))
+                     .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
+                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of 36", false))
                      // search for PLASMID
                      .then(() => e.waitForId("search-input-id"))
                      .then(() => e.write("search-input-id", "PLASMID"))
@@ -313,8 +313,8 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("annotationplasmid_relationship_id"))
                      .then(() => e.click("annotationplasmid_relationship_id"))
                      .then(() => e.sleep(2000)) // wait for page reload
-                     .then(() => e.waitForId("total-count-id"))
-                     .then(() => e.equalTo("total-count-id", "5", true, false))
+                     .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
+                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-5 of 5", false))
                      .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(34))
                      .then(() => resolve())
