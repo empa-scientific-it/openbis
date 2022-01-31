@@ -223,7 +223,6 @@ public class MultiDataSetDeletionMaintenanceTask
             multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
                     properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
                     simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-            ;
         }
         return multiDataSetFileOperationsManager;
     }

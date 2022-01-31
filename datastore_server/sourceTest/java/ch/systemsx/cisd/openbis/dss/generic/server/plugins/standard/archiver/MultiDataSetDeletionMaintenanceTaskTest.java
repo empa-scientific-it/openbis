@@ -113,23 +113,23 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
     private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
     {
-        private IMultiDataSetArchiverDBTransaction transaction;
+        private final IMultiDataSetArchiverDBTransaction transaction;
 
-        private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
+        private final IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
 
-        private IEncapsulatedOpenBISService openBISService;
+        private final IEncapsulatedOpenBISService openBISService;
 
-        private IDataStoreServiceInternal dataStoreService;
+        private final IDataStoreServiceInternal dataStoreService;
 
-        private IHierarchicalContentProvider contentProvider;
+        private final IHierarchicalContentProvider contentProvider;
 
-        private IShareIdManager shareIdManager;
+        private final IShareIdManager shareIdManager;
 
-        private IApplicationServerApi v3api;
+        private final IApplicationServerApi v3api;
 
-        private IConfigProvider configProvider;
+        private final IConfigProvider configProvider;
 
-        private MockMultiDataSetFileOperationsManager multiDataSetManager;
+        private final MockMultiDataSetFileOperationsManager multiDataSetManager;
 
         public MockMultiDataSetDeletionMaintenanceTask(IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
@@ -527,7 +527,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         assertEquals(0, transaction.listContainers().size());
         assertEquals(1, recordedUpdates.recordedObject().size());
         DataSetUpdate dataSetUpdate = recordedUpdates.recordedObject().get(0);
-        assertEquals(true, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().isModified());
+        assertTrue(dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().isModified());
         assertEquals(Boolean.TRUE, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().getValue());
         assertEquals(ds4Code, ((DataSetPermId) dataSetUpdate.getDataSetId()).getPermId());
 
@@ -643,8 +643,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         }
 
         //check that archive and replica WAS NOT deleted.
-        assertEquals(true, archiveContainer.exists());
-        assertEquals(true, replicateContainer.exists());
+        assertTrue(archiveContainer.exists());
+        assertTrue(replicateContainer.exists());
 
         AssertionUtil.assertContainsNot(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
@@ -657,8 +657,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         // THEN
 
         //check that archive and replica WAS deleted.
-        assertEquals(false, archiveContainer.exists());
-        assertEquals(false, replicateContainer.exists());
+        assertFalse(archiveContainer.exists());
+        assertFalse(replicateContainer.exists());
 
         AssertionUtil.assertContainsLines(
                 "INFO  OPERATION.AbstractDataSetDeletionPostProcessingMaintenanceTask - " +
@@ -741,7 +741,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         // WHEN
         // Call task.execute() for the first time. It should fail and NOT UPDATE lastSeenDataSetFile.
-        assertEquals(false, lastSeenDataSetFile.exists());
+        assertFalse(lastSeenDataSetFile.exists());
         try
         {
             task.execute();
@@ -750,13 +750,13 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             assertEquals(e.getMessage(), WRONG_PATH_ERROR);
         }
 
-        assertEquals(false, lastSeenDataSetFile.exists());
+        assertFalse(lastSeenDataSetFile.exists());
 
         // Call task.execute() for the second time. It should pass and UPDATE lastSeenDataSetFile.
         task.execute();
 
         // THEN
-        assertEquals(true, lastSeenDataSetFile.exists());
+        assertTrue(lastSeenDataSetFile.exists());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
     }
 
@@ -839,5 +839,11 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         // task will throw RuntimeException because of the badContent.
         task.execute(Arrays.asList(deleted3));
+    }
+
+    @Test
+    public void testFirstSuitableShareFinder()
+    {
+
     }
 }
