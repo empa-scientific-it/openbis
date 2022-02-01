@@ -227,7 +227,11 @@ def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type
                 type = creation.getTypeId().getPermId();
                 if experiments_by_type is not None and type in experiments_by_type:
                     experiment_identifier = experiments_by_type[type]
-                    creation.setExperimentId(ExperimentIdentifier(experiment_identifier))
-                    creation.setSpaceId(SpacePermId(experiment_identifier.split("/")[1]))
+                    if experiment_identifier is not None:
+                        creation.setExperimentId(ExperimentIdentifier(experiment_identifier))
                 if spaces_by_type is not None and type in spaces_by_type:
                     creation.setSpaceId(SpacePermId(spaces_by_type[type]))
+                if creation.getExperimentId() is not None and creation.getSpaceId() is None:
+                    creation.setSpaceId(SpacePermId(creation.getExperimentId().getIdentifier().split("/")[1]))
+                if creation.getProjectId() is not None and creation.getSpaceId() is None:
+                    creation.setSpaceId(SpacePermId(creation.getProjectId().getIdentifier().split("/")[1]))

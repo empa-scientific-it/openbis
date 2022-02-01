@@ -197,10 +197,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             allowedSampleTypes.forEach(t => experimentsByType[t] = experimentIdentifier);
         }
         var title = 'Register ' + ELNDictionary.Samples;
-        var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, function(file) {
+        var allowSampleTypeSelection = experimentIdentifier == null;
+        var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType,
+                mainController.serverFacade.registerSamples(selectedSampleTypes, experimentsByType, spacesByType,
                         _this.getBarcodeValidationInfo(), "sample-file-upload", 
                 function(result) {
                     _this._handleResult(result, "created", experimentIdentifier);
@@ -219,10 +220,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
         }
         var title = 'Update ' + ELNDictionary.Samples;
-        var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, function(file) {
+        var allowSampleTypeSelection = experimentIdentifier == null;
+        var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.updateSamples(allowedSampleTypes,
+                mainController.serverFacade.updateSamples(selectedSampleTypes,
                         _this.getBarcodeValidationInfo(), "sample-file-upload", 
                         function(result) {
                     _this._handleResult(result, "updated", experimentIdentifier);
