@@ -888,6 +888,20 @@ $.extend(DefaultProfile.prototype, {
 		    }
 		}
 
+        this.getPropertyTypeFromSampleTypeV3 = function(sampleType, propertyTypeCode) {
+            if(!sampleType.propertyAssignments) {
+                return null;
+            }
+
+            for(var i = 0; i < sampleType.propertyAssignments.length; i++) {
+                var propertyType = sampleType.propertyAssignments[i].propertyType;
+                if(propertyType.code === propertyTypeCode) {
+                    return propertyType;
+                }
+            }
+            return null;
+        }
+
 		this.getPropertyTypeFromSampleType = function(sampleType, propertyTypeCode) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];

@@ -21,7 +21,9 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	
 	this.init = function(views) {
 		var _this = this;
-		
+
+		mainController.serverFacade.getDatasetTypes(function(dataSetTypesV3) {
+        _this._dataSetFormModel.dataSetTypesV3 = dataSetTypesV3;
 		mainController.serverFacade.listDataSetTypes(function(data) {
 					_this._dataSetFormModel.dataSetTypes = [];
                     for (var i = 0; i < data.result.length; i++) {
@@ -54,6 +56,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 							_this._dataSetFormView.repaint(views);
 						}
 					});
+		});
 		});
 	}
 	

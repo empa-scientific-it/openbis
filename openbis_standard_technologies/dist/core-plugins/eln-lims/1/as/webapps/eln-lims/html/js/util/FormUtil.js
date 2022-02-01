@@ -1169,7 +1169,7 @@ var FormUtil = new function() {
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
 		var originalValue = entity.properties[propertyType.code];
-		if (propertyType.dataType !== "XML") {
+		if(propertyType.metaData["custom_widget"] && propertyType.metaData["custom_widget"] === "Word Processor" && originalValue) { // Only filter properties rendered as HTML
 			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
 		}
 	}

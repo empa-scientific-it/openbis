@@ -494,7 +494,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeCode === "ENTRY") {
 		    var isReadOnly = this._sampleFormModel.mode === FormMode.VIEW;
 		    var documentPropertyType = profile.getPropertyType("$DOCUMENT");
-		    FormUtil.fixStringPropertiesForForm(documentPropertyType, this._sampleFormModel.sample);
+		    var documentPropertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, "$DOCUMENT");
+		    FormUtil.fixStringPropertiesForForm(documentPropertyTypeV3, this._sampleFormModel.sample);
             var documentChangeEvent = function(jsEvent, newValue) {
                 var newCleanValue = Util.getEmptyIfNull(newValue);
                 _this._sampleFormModel.isFormDirty = true;
@@ -716,8 +717,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-			var propertyType = propertyTypeGroup.propertyTypes[j];
-			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
+		    var propertyType = propertyTypeGroup.propertyTypes[j];
+			var propertyTypeV3 = this._sampleFormModel.sampleType.propertyAssignments[j].propertyType;
+			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip

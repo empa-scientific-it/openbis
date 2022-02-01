@@ -26,6 +26,8 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		var _this = this;
 		_this._sampleFormModel.views = views;
 
+        mainController.serverFacade.getSampleType(sample.sampleTypeCode, function(sampleType) {
+        _this._sampleFormModel.sampleType = sampleType;
 		if(mode !== FormMode.CREATE) {
 			require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier",
                 "as/dto/dataset/id/DataSetPermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
@@ -99,7 +101,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
             _this._sampleFormView.repaint(views, loadFromTemplate);
             Util.unblockUI();
 		}
-		
+		});
 	}
 		
 	this.isDirty = function() {

@@ -662,7 +662,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var _this = this;
 		$("#metadataContainer").empty();
 		var $wrapper = $("<div>");
-		
+		var dataSetTypeV3 = null;
+		for(var i = 0; i < _this._dataSetFormModel.dataSetTypesV3.length; i++) {
+		    if(dataSetType.code === _this._dataSetFormModel.dataSetTypesV3[i].code) {
+		        dataSetTypeV3 = _this._dataSetFormModel.dataSetTypesV3[i];
+		        break;
+		    }
+		}
 		for(var i = 0; i < dataSetType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = dataSetType.propertyTypeGroups[i];
 			
@@ -682,7 +688,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				profile.fixV1PropertyTypeVocabulary(propertyType);
-				FormUtil.fixStringPropertiesForForm(propertyType, this._dataSetFormModel.dataSet);
+				var propertyTypeV3 = dataSetTypeV3.propertyAssignments[j].propertyType;
+				FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._dataSetFormModel.dataSet);
 				
 				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 					continue;

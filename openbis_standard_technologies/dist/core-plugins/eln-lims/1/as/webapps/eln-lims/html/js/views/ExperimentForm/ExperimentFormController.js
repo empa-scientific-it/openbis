@@ -21,7 +21,8 @@ function ExperimentFormController(mainController, mode, experiment) {
 	
 	this.init = function(views) {
 		var _this = this;
-		
+		mainController.serverFacade.getExperimentType(experiment.experimentTypeCode, function(experimentType) {
+        _this._experimentFormModel.experimentType = experimentType;
 		require([ "as/dto/experiment/id/ExperimentPermId", "as/dto/sample/id/SampleIdentifier", 
             "as/dto/dataset/id/DataSetPermId", "as/dto/experiment/fetchoptions/ExperimentFetchOptions" ],
             function(ExperimentPermId, SampleIdentifier, DataSetPermId, ExperimentFetchOptions) {
@@ -48,6 +49,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 				} else {
 					_this._experimentFormView.repaint(views);
 				}
+		});
 		});
 	}
 	

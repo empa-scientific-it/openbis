@@ -605,6 +605,51 @@ function ServerFacade(openbisServer) {
 	//
 	// Metadata Related Functions
 	//
+	this.getSampleType = function(sampleType, callback) {
+		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/sample/fetchoptions/SampleTypeFetchOptions", "as/dto/entitytype/EntityKind" ],
+			function(EntityTypePermId, SampleTypeFetchOptions, EntityKind) {
+				var entityTypePermId = new EntityTypePermId(sampleType, EntityKind.SAMPLE);
+				var sampleTypeFetchOptions = new SampleTypeFetchOptions();
+                sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
+				mainController.openbisV3.getSampleTypes(entityTypePermId, sampleTypeFetchOptions).done(function(sampleTypesByIds) {
+					callback(sampleTypesByIds[entityTypePermId]);
+				}).fail(function(error) {
+					Util.showFailedServerCallError(error);
+					Util.unblockUI();
+				});
+		});
+	}
+
+	this.getExperimentType = function(experimentType, callback) {
+    		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/experiment/fetchoptions/ExperimentTypeFetchOptions", "as/dto/entitytype/EntityKind" ],
+    			function(EntityTypePermId, ExperimentTypeFetchOptions, EntityKind) {
+    				var entityTypePermId = new EntityTypePermId(experimentType, EntityKind.EXPERIMENT);
+    				var experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+                    experimentTypeFetchOptions.withPropertyAssignments().withPropertyType();
+    				mainController.openbisV3.getExperimentTypes(entityTypePermId, experimentTypeFetchOptions).done(function(experimentTypesByIds) {
+    					callback(experimentTypesByIds[entityTypePermId]);
+    				}).fail(function(error) {
+    					Util.showFailedServerCallError(error);
+    					Util.unblockUI();
+    				});
+    		});
+    }
+
+    	this.getDatasetTypes = function(callback) {
+        		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
+        			function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
+        				var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        				var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+                        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+        				mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
+        					callback(searchResults.objects);
+        				}).fail(function(error) {
+        					Util.showFailedServerCallError(error);
+        					Util.unblockUI();
+        				});
+        		});
+        }
+
 	this.listSampleTypes = function(callbackFunction) {
 		this.openbisServer.listSampleTypes(callbackFunction);
 	}
