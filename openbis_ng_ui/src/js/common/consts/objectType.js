@@ -20,6 +20,7 @@ const DYNAMIC_PROPERTY_PLUGIN = 'dynamicPropertyPlugin'
 const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
 const QUERY = 'query'
 const HISTORY = 'history'
+const IMPORT = 'import'
 
 const SEARCH = 'search'
 const OVERVIEW = 'overview'
@@ -46,6 +47,7 @@ export default {
   ENTITY_VALIDATION_PLUGIN,
   QUERY,
   HISTORY,
+  IMPORT,
   SEARCH,
   OVERVIEW
 }
