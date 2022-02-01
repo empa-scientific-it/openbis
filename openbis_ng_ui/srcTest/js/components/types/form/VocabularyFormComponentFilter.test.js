@@ -1,4 +1,5 @@
 import VocabularyFormComponentTest from '@srcTest/js/components/types/form/VocabularyFormComponentTest.js'
+import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 
 let common = null
 
@@ -29,6 +30,12 @@ async function testFilter() {
     form.getParameters().getTerm().getLabel().change(labels[i])
     await form.update()
   }
+
+  await form
+    .getGrid()
+    .wrapper.instance()
+    .controller.handleFilterModeChange(GridFilterOptions.COLUMN_FILTERS)
+  await form.update()
 
   form.getGrid().getColumns()[1].getFilter().change('some')
   await form.update()

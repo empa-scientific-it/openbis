@@ -101,17 +101,13 @@ async function testLoadExisting() {
       {
         name: 'code',
         label: 'Code',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: 'asc'
       },
       {
         name: 'description',
         label: 'Description',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       }
     ],
@@ -133,41 +129,31 @@ async function testLoadExisting() {
       {
         name: 'inheritedFrom',
         label: 'Inherited From',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: 'asc'
       },
       {
         name: 'level',
         label: 'Level',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'space',
         label: 'Space',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'project',
         label: 'Project',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'role',
         label: 'Role',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       }
     ],

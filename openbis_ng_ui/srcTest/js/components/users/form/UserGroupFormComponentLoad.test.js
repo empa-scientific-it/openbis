@@ -88,49 +88,37 @@ async function testLoadExisting() {
       {
         name: 'userId',
         label: 'User Id',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: 'asc'
       },
       {
         name: 'firstName',
         label: 'First Name',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'lastName',
         label: 'Last Name',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'email',
         label: 'Email',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'space',
         label: 'Home Space',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'active',
         label: 'Active',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       }
     ],
@@ -152,33 +140,25 @@ async function testLoadExisting() {
       {
         name: 'level',
         label: 'Level',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: 'asc'
       },
       {
         name: 'space',
         label: 'Space',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'project',
         label: 'Project',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'role',
         label: 'Role',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       }
     ],

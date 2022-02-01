@@ -68,33 +68,25 @@ async function testLoadExisting() {
       {
         name: 'code',
         label: 'Code',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: 'asc'
       },
       {
         name: 'label',
         label: 'Label',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'description',
         label: 'Description',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       },
       {
         name: 'official',
         label: 'Official',
-        filter: {
-          value: null
-        },
+        filter: null,
         sort: null
       }
     ],
