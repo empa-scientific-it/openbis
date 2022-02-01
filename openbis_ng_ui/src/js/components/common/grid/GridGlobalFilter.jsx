@@ -16,7 +16,7 @@ const styles = theme => ({
     marginRight: theme.spacing(1)
   },
   text: {
-    flex: '1 1 auto'
+    width: '100%'
   }
 })
 

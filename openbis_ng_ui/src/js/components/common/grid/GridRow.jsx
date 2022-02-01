@@ -1,24 +1,43 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
 import GridCell from '@src/js/components/common/grid/GridCell.jsx'
-import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
+import GridMultiselectCell from '@src/js/components/common/grid/GridMultiselectCell.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  pointer: {
+  row: {
+    backgroundColor: theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: '#f5f5f5'
+    },
+    '&:hover$selected': {
+      backgroundColor: '#e8f7fd'
+    }
+  },
+  clickable: {
     cursor: 'pointer'
   },
-  multiselect: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: 0
+  selectable: {
+    cursor: 'pointer'
   },
-  checkbox: {
-    display: 'inline-block'
-  }
+  selected: {
+    backgroundColor: '#e8f7fd'
+  },
+  multiselectable: {},
+  cell: {
+    backgroundColor: 'inherit',
+    '&$firstCell': {
+      paddingLeft: theme.spacing(2),
+      position: 'sticky',
+      left: 0,
+      zIndex: 100
+    },
+    '$multiselectable &$firstCell': {
+      left: '48px'
+    }
+  },
+  firstCell: {}
 })
 
 class GridRow extends React.PureComponent {
@@ -54,40 +73,76 @@ class GridRow extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridRow.render')
 
-    const { columns, row, clickable, selectable, selected, classes } =
-      this.props
+    const {
+      multiselectable,
+      columns,
+      row,
+      clickable,
+      selectable,
+      selected,
+      classes
+    } = this.props
+
+    if (columns.length === 0) {
+      return null
+    }
+
+    const rowClasses = [classes.row]
+
+    if (multiselectable) {
+      rowClasses.push(classes.multiselectable)
+    }
+    if (selectable) {
+      rowClasses.push(classes.selectable)
+    }
+    if (selected) {
+      rowClasses.push(classes.selected)
+    }
+    if (clickable) {
+      rowClasses.push(classes.clickable)
+    }
 
     return (
       <TableRow
         key={row.id}
         onClick={this.handleClick}
-        hover={true}
-        selected={selected}
-        classes={{
-          root: selectable || clickable ? classes.pointer : null
-        }}
+        classes={{ root: rowClasses.join(' ') }}
       >
         {this.renderMultiselect()}
-        {columns.map(column => (
-          <GridCell key={column.name} row={row} column={column} />
-        ))}
+        {columns.map((column, columnIndex) =>
+          this.renderCell(column, columnIndex, row)
+        )}
       </TableRow>
     )
   }
 
-  renderMultiselect() {
-    const { columns, multiselectable, multiselected, classes } = this.props
+  renderCell(column, columnIndex, row) {
+    const { classes } = this.props
 
-    if (columns.length > 0 && multiselectable) {
+    const cellClasses = [classes.cell]
+    if (columnIndex === 0) {
+      cellClasses.push(classes.firstCell)
+    }
+
+    return (
+      <GridCell
+        key={column.name}
+        row={row}
+        column={column}
+        className={cellClasses.join(' ')}
+      />
+    )
+  }
+
+  renderMultiselect() {
+    const { multiselectable, multiselected } = this.props
+
+    if (multiselectable) {
       return (
-        <TableCell classes={{ root: classes.multiselect }}>
-          <div className={classes.checkbox}>
-            <CheckboxField
-              value={multiselected}
-              onClick={this.handleMultiselect}
-            />
-          </div>
-        </TableCell>
+        <GridMultiselectCell
+          value={multiselected}
+          onClick={this.handleMultiselect}
+        />
       )
     } else {
       return null

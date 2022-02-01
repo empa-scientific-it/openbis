@@ -23,7 +23,8 @@ const styles = theme => ({
     marginLeft: -theme.spacing(2)
   },
   pageSizeLabelPlacement: {
-    marginRight: 0
+    marginRight: 0,
+    marginBottom: 0
   },
   pageSizeLabel: {
     fontSize: theme.typography.body2.fontSize,
