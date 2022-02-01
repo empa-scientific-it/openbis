@@ -17,6 +17,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdat
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -85,8 +86,6 @@ public class MultiDataSetDeletionMaintenanceTask
 
     static final String LAST_SEEN_EVENT_ID_FILE = "last-seen-event-id-file";
 
-    static final String MAPPING_FILE = "mapping-file";
-
     private List<Share> shares;
 
     private IShareFinder shareFinder;
@@ -144,7 +143,7 @@ public class MultiDataSetDeletionMaintenanceTask
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
-        if (properties.containsKey(MAPPING_FILE))
+        if (properties.containsKey(MappingBasedShareFinder.MAPPING_FILE_KEY))
         {
             shareFinder = new MappingBasedShareFinder(properties);
         } else
@@ -272,7 +271,7 @@ public class MultiDataSetDeletionMaintenanceTask
                         notDeletedDataSets.add(simpleDataSet);
                     } else
                     {
-                        throw ConfigurationFailureException.fromTemplate(
+                        throw EnvironmentFailureException.fromTemplate(
                                 "Unarchiving of data set '%s' has failed, because no appropriate "
                                         + "destination share was found. Most probably there is not enough "
                                         + "free space in the data store.", dataSet.getCode());
