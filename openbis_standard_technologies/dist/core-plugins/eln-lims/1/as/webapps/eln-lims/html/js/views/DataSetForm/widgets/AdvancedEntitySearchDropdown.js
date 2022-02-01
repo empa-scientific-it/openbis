@@ -178,7 +178,7 @@ function AdvancedEntitySearchDropdown(isMultiple,
 						logicalOperator : "OR", 
 						rules : {
 							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
-							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q }
+                            "UUIDv4-2": { type: "Property/Attribute",   name: "ATTR.IDENTIFIER", operator : "thatContains", value: storedParams.data.q }
 						}
 					};
 		mainController.serverFacade.searchForExperimentsAdvanced(criteria, null, function(results) { results.type = "Experiments"; action(results) });
