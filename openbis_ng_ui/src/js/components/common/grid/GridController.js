@@ -20,7 +20,7 @@ export default class GridController {
   init(context) {
     const props = context.getProps()
 
-    let filterMode = GridFilterOptions.COLUMN_FILTERS
+    let filterMode = GridFilterOptions.GLOBAL_FILTER
     if (props.filterModes) {
       filterMode = this._getEnumValue(filterMode, props.filterModes)
       if (!filterMode) {
