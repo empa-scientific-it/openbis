@@ -2,11 +2,13 @@ from utils.dotdict import dotdict
 from ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample import FullSampleIdentifier
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
-def projectAsTuple(projectId):
+
+def project_as_tuple(projectId):
     splitted = str(projectId).split('/')
     if len(splitted) < 3:
         raise UserFailureException("Invalid project identifier: %s" % projectId)
-    return (splitted[1], splitted[2]) 
+    return (splitted[1], splitted[2])
+
 
 class SampleCreationSampleChildrenParentSearchCriteria(object):
 
@@ -77,7 +79,7 @@ class SampleCreationSampleSearchCriteria(object):
                     search_criteria.withoutExperiment()
 
                 if creation.projectId is not None:
-                    space_code, project_code = projectAsTuple(creation.projectId)
+                    space_code, project_code = project_as_tuple(creation.projectId)
                     project_search_criteria = search_criteria.withProject()
                     project_search_criteria.withCode().thatEquals(project_code)
                     project_search_criteria.withSpace().withCode().thatEquals(space_code)
@@ -115,7 +117,7 @@ class ProjectFromPropertiesSearchCriteria(object):
         self.search_criteria = search_criteria_class
 
     def get_search_criteria(self, specific_creations):
-        space_project = [projectAsTuple(creation.projectId) for creation in specific_creations if
+        space_project = [project_as_tuple(creation.projectId) for creation in specific_creations if
                          creation.projectId is not None]
         project_codes = [dotdict({'code': project, 'spaceId': space}) for (space, project) in space_project]
         if project_codes == []:

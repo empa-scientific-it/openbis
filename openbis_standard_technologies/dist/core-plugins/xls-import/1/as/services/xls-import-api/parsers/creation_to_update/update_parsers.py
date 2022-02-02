@@ -27,27 +27,27 @@ class CreationToUpdateParserFactory(object):
             return [VocabularyCreationToUpdateParser()]
         if creation_type == VocabularyTermDefinitionToCreationType:
             return [VocabularyTermCreationToUpdateParser()]
-        elif creation_type == PropertyTypeDefinitionToCreationType:
+        if creation_type == PropertyTypeDefinitionToCreationType:
             return [PropertyTypeCreationToUpdateParser()]
-        elif creation_type == SampleTypeDefinitionToCreationType:
+        if creation_type == SampleTypeDefinitionToCreationType:
             return [SampleTypeCreationToUpdateParser()]
-        elif creation_type == ExperimentTypeDefinitionToCreationType:
+        if creation_type == ExperimentTypeDefinitionToCreationType:
             return [ExperimentTypeCreationToUpdateParser()]
-        elif creation_type == DatasetTypeDefinitionToCreationType:
+        if creation_type == DatasetTypeDefinitionToCreationType:
             return [DatasetTypeCreationToUpdateParser()]
-        elif creation_type == SpaceDefinitionToCreationType:
+        if creation_type == SpaceDefinitionToCreationType:
             return [SpaceCreationToUpdateParser()]
-        elif creation_type == ProjectDefinitionToCreationType:
+        if creation_type == ProjectDefinitionToCreationType:
             return [ProjectCreationToUpdateParser()]
-        elif creation_type == ExperimentDefinitionToCreationType:
+        if creation_type == ExperimentDefinitionToCreationType:
             return [ExperimentCreationToUpdateParser()]
-        elif creation_type == SampleDefinitionToCreationType:
+        if creation_type == SampleDefinitionToCreationType:
             return [SampleCreationToUpdateParser()]
-        elif creation_type == ScriptDefinitionToCreationType:
+        if creation_type == ScriptDefinitionToCreationType:
             return [ScriptCreationToUpdateParser()]
-        else:
-            raise UnsupportedOperationException(
-                "Creation type of " + creation_type + " is not supported.")
+
+        raise UnsupportedOperationException(
+            "Creation type of " + creation_type + " is not supported.")
 
 
 class VocabularyCreationToUpdateParser(object):
@@ -93,12 +93,12 @@ class PropertyTypeCreationToUpdateParser(object):
 
 class EntityTypeCreationToUpdateParser(object):
 
-    def parseAssignments(self, creation, existing_entity_type):
+    def parse_assignments(self, creation, existing_entity_type):
         assignments_update = ListUpdateValue()
-        existingPropertyAssignmentCodes = [str(property_assignment.propertyType.code) for property_assignment in
-                                           existing_entity_type.propertyAssignments]
+        existing_property_assignment_codes = [str(property_assignment.propertyType.code) for property_assignment in
+                                              existing_entity_type.propertyAssignments]
         for property_assignment in creation.propertyAssignments:
-            if str(property_assignment.propertyTypeId) in existingPropertyAssignmentCodes:
+            if str(property_assignment.propertyTypeId) in existing_property_assignment_codes:
                 continue
             assignments_update.add(property_assignment)
 
@@ -110,10 +110,9 @@ class TypedEntityCreationToUpdateParser(object):
     def parse(self, creation, existing_entity):
         if creation.typeId.getPermId() != existing_entity.type.permId.getPermId():
             raise UserFailureException(
-                "Entity Types mismatched. Change of entity type of existing entity not supported.\n" + "Tried to update " + str(
-                    existing_entity.identifier) + " of type: " + str(
-                    existing_entity.type) + "\nThe import file contains entity with same identifier, but with different type(" + str(
-                    creation.typeId) + ")\n")
+                "Entity Types mismatched. Change of entity type of existing entity not supported.\n" +
+                "Tried to update " + str(existing_entity.identifier) + " of type: " + str(existing_entity.type) +
+                "\nThe import file contains entity with same identifier, but with different type(" + str(creation.typeId) + ")\n")
 
 
 class SampleTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
@@ -125,7 +124,7 @@ class SampleTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         sample_type_update.setGeneratedCodePrefix(creation.generatedCodePrefix)
         sample_type_update.setDescription(creation.description)
         sample_type_update.setValidationPluginId(creation.validationPluginId)
-        sample_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_sample_type))
+        sample_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_sample_type))
 
         return sample_type_update
 
@@ -140,7 +139,7 @@ class ExperimentTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         experiment_type_update.typeId = existing_experiment_type.permId
         experiment_type_update.setDescription(creation.description)
         experiment_type_update.setValidationPluginId(creation.validationPluginId)
-        experiment_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_experiment_type))
+        experiment_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_experiment_type))
         return experiment_type_update
 
     def get_type(self):
@@ -153,7 +152,7 @@ class DatasetTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         dataset_type_update = DataSetTypeUpdate()
         dataset_type_update.typeId = existing_dataset_type.permId
         dataset_type_update.setValidationPluginId(creation.validationPluginId)
-        dataset_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_dataset_type))
+        dataset_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_dataset_type))
         return dataset_type_update
 
     def get_type(self):

@@ -1,10 +1,8 @@
 from parsers import SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, VocabularyDefinitionToCreationType, \
-    VocabularyTermDefinitionToCreationType, \
-    ExperimentDefinitionToCreationType, ScriptDefinitionToCreationType, SampleDefinitionToCreationType, \
+    VocabularyTermDefinitionToCreationType, ScriptDefinitionToCreationType, SampleDefinitionToCreationType, \
     CreationToUpdateParser
-from .version_handler import VersionHandler
-
 from utils.openbis_utils import create_sample_identifier_string, create_project_identifier_string
+from .version_handler import VersionHandler
 
 FAIL_IF_EXISTS = "FAIL_IF_EXISTS"
 IGNORE_EXISTING = "IGNORE_EXISTING"
@@ -46,16 +44,16 @@ class OpenbisDuplicatesHandler(object):
                             if existing_element.permId.permId == child_id:
                                 new_id = existing_element.permId
                                 break
-                            elif existing_element_id == child_id:
+                            if existing_element_id == child_id:
                                 new_id = existing_element.identifier
                                 break
-                            else:
-                                for child_creation in self.creations[SampleDefinitionToCreationType]:
-                                    child_creation_id = create_sample_identifier_string(child_creation)
-                                    creation_id_in_xls = str(child_creation.creationId)
-                                    if creation_id_in_xls == child_id and existing_element_id == child_creation_id:
-                                        new_id = existing_element.identifier
-                                        break
+
+                            for child_creation in self.creations[SampleDefinitionToCreationType]:
+                                child_creation_id = create_sample_identifier_string(child_creation)
+                                creation_id_in_xls = str(child_creation.creationId)
+                                if creation_id_in_xls == child_id and existing_element_id == child_creation_id:
+                                    new_id = existing_element.identifier
+                                    break
 
                         if new_id is None:
                             rewritten_children.append(child)
@@ -72,16 +70,15 @@ class OpenbisDuplicatesHandler(object):
                             if existing_element.permId.permId == parent_id:
                                 new_id = existing_element.permId
                                 break
-                            elif existing_element.identifier.identifier == parent_id:
+                            if existing_element.identifier.identifier == parent_id:
                                 new_id = existing_element.identifier
                                 break
-                            else:
-                                for parent_creation in self.creations[SampleDefinitionToCreationType]:
-                                    parent_creation_id = create_sample_identifier_string(parent_creation)
-                                    creation_id_in_xls = str(parent_creation.creationId)
-                                    if creation_id_in_xls == parent_id and existing_element_id == parent_creation_id:
-                                        new_id = existing_element.identifier
-                                        break
+                            for parent_creation in self.creations[SampleDefinitionToCreationType]:
+                                parent_creation_id = create_sample_identifier_string(parent_creation)
+                                creation_id_in_xls = str(parent_creation.creationId)
+                                if creation_id_in_xls == parent_id and existing_element_id == parent_creation_id:
+                                    new_id = existing_element.identifier
+                                    break
 
                         if new_id is None:
                             rewritten_parents.append(parent)
@@ -102,9 +99,9 @@ class OpenbisDuplicatesHandler(object):
             for creations_type, existing_elements in self.existing_elements.items():
                 if not creations_type in self.creations:
                     continue
-                elif creations_type == VocabularyTermDefinitionToCreationType:
+                if creations_type == VocabularyTermDefinitionToCreationType:
                     continue
-                elif creations_type == VocabularyDefinitionToCreationType:
+                if creations_type == VocabularyDefinitionToCreationType:
                     # VocabularyCreation
                     distinct_property_name = self._get_distinct_property_name(creations_type)
                     duplicates_list[creations_type] = self.get_creations_for_existing_objects(creations_type,
@@ -201,8 +198,8 @@ class OpenbisDuplicatesHandler(object):
     def _get_distinct_property_name(self, creation_type):
         if creation_type == ScriptDefinitionToCreationType:
             return 'name'
-        else:
-            return 'code'
+
+        return 'code'
 
     def _filter_creations_from_existing_objects(self, creations_type, existing_objects, attr):
         existing_object_codes = [getattr(obj, attr) for obj in existing_objects]

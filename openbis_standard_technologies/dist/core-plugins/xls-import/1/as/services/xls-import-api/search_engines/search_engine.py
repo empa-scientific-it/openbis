@@ -15,8 +15,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search import PropertyTyp
     SearchPropertyTypesOperation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleTypeFetchOptions, SampleFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleTypeSearchCriteria, \
-    SearchSampleTypesOperation, SampleSearchCriteria, SearchSamplesOperation, \
-    SampleSearchRelation
+    SearchSampleTypesOperation, SampleSearchCriteria, SearchSamplesOperation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions import SpaceFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria, SearchSpacesOperation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions import VocabularyFetchOptions, \
@@ -25,8 +24,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search import Vocabular
     SearchVocabulariesOperation, \
     SearchVocabularyTermsOperation, VocabularyTermSearchCriteria
 from parsers import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
-    VocabularyTermDefinitionToCreationType, \
-    PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType, \
+    VocabularyTermDefinitionToCreationType, SampleTypeDefinitionToCreationType, \
     ExperimentTypeDefinitionToCreationType, \
     DatasetTypeDefinitionToCreationType, SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, \
     ExperimentDefinitionToCreationType, \

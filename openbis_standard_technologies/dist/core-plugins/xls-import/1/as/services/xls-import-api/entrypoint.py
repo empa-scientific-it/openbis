@@ -25,10 +25,10 @@ def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
         raise UserFailureException('Excel name has not been provided.  parameter is mandatory')
 
 
-def get_property(key, defaultValue):
-    propertyConfigurer = CommonServiceProvider.getApplicationContext().getBean("propertyConfigurer")
-    properties = propertyConfigurer.getResolvedProps()
-    return properties.getProperty(key, defaultValue)
+def get_property(key, default_value):
+    property_configurer = CommonServiceProvider.getApplicationContext().getBean("propertyConfigurer")
+    properties = property_configurer.getResolvedProps()
+    return properties.getProperty(key, default_value)
 
 
 def read_versioning_information(xls_version_filepath):
@@ -71,7 +71,7 @@ def create_versioning_information(all_versioning_information, creations, creatio
     return versioning_information
 
 
-def checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations):
+def check_data_consistency(existing_elements, all_versioning_information, xls_version_name, creations):
     # This method throw an exception when DB is empty, but xls-import-version-info.json is not
 
     if xls_version_name not in all_versioning_information:
@@ -108,9 +108,9 @@ def checkDataConsistency(existing_elements, all_versioning_information, xls_vers
 def process(context, parameters):
     """
         Excel import AS service.
-        For extensive documentation of usage and Excel layout, 
+        For extensive documentation of usage and Excel layout,
         please visit https://wiki-bsse.ethz.ch/display/openBISDoc/Excel+import+service
-        
+
         :param context: Standard Openbis AS Service context object
         :param parameters: Contains two elements
                         {
@@ -160,7 +160,7 @@ def process(context, parameters):
         xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
         xls_version_name = get_version_name_for(xls_name)
         all_versioning_information = read_versioning_information(xls_version_filepath)
-        checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations)
+        check_data_consistency(existing_elements, all_versioning_information, xls_version_name, creations)
         versioning_information = create_versioning_information(all_versioning_information, creations, creations_metadata,
                                                                update_mode, xls_version_name)
     entity_kinds = search_engine.find_existing_entity_kind_definitions_for(creations)
@@ -178,13 +178,13 @@ def process(context, parameters):
     inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type)
 
     entity_type_update_results = api.executeOperations(session_token, entity_type_update_operations,
-                                                           SynchronousOperationExecutionOptions()).getResults()
+                                                       SynchronousOperationExecutionOptions()).getResults()
     entity_type_creation_results = api.executeOperations(session_token, entity_type_creation_operations,
-                                                             SynchronousOperationExecutionOptions()).getResults()
+                                                         SynchronousOperationExecutionOptions()).getResults()
     entity_creation_results = api.executeOperations(session_token, entity_creation_operations,
-                                                        SynchronousOperationExecutionOptions()).getResults()
+                                                    SynchronousOperationExecutionOptions()).getResults()
     entity_update_results = api.executeOperations(session_token, entity_update_operations,
-                                                      SynchronousOperationExecutionOptions()).getResults()
+                                                  SynchronousOperationExecutionOptions()).getResults()
 
     if not ignore_versioning:
         all_versioning_information[xls_version_name] = versioning_information
@@ -200,10 +200,12 @@ def process(context, parameters):
     add_results(ids, entity_creation_results)
     return ids
 
+
 def add_results(ids, results):
     for result in results:
         for id in result.getObjectIds():
             ids.append(id)
+
 
 def assert_allowed_creations(disallow_creations, entity_creation_operations):
     if disallow_creations:
@@ -211,12 +213,13 @@ def assert_allowed_creations(disallow_creations, entity_creation_operations):
         counter = 0
         for entity_creation_operation in entity_creation_operations:
             for creation in entity_creation_operation.getCreations():
-                unknown_entities += "\n%s [%s]" % (creation.getCreationId(),creation.getTypeId())
+                unknown_entities += "\n%s [%s]" % (creation.getCreationId(), creation.getTypeId())
                 counter += 1
         if counter == 1:
             raise UserFailureException("Unknown entity: %s" % unknown_entities)
-        elif counter > 1:
+        if counter > 1:
             raise UserFailureException("%s unknown entities: %s" % (counter, unknown_entities))
+
 
 def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type):
     for eco in entity_creation_operations:

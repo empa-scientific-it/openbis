@@ -11,13 +11,12 @@ ExperimentDefinitionToCreationType = "Experiment"
 SampleDefinitionToCreationType = "Sample"
 ScriptDefinitionToCreationType = "Script"
 
-CreationTypes = [PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, VocabularyTermDefinitionToCreationType,
-PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType,
-ExperimentTypeDefinitionToCreationType, DatasetTypeDefinitionToCreationType,
-SpaceDefinitionToCreationType, ProjectDefinitionToCreationType,
-ExperimentDefinitionToCreationType, SampleDefinitionToCreationType,
-ScriptDefinitionToCreationType]
+CreationTypes = [PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType,
+                 VocabularyTermDefinitionToCreationType, PropertyAssignmentDefinitionToCreationType,
+                 SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType,
+                 DatasetTypeDefinitionToCreationType, SpaceDefinitionToCreationType, ProjectDefinitionToCreationType,
+                 ExperimentDefinitionToCreationType, SampleDefinitionToCreationType, ScriptDefinitionToCreationType]
 
-versionable_types = [VocabularyDefinitionToCreationType, PropertyTypeDefinitionToCreationType, VocabularyTermDefinitionToCreationType,
-SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType,
-DatasetTypeDefinitionToCreationType]
+versionable_types = [VocabularyDefinitionToCreationType, PropertyTypeDefinitionToCreationType,
+                     VocabularyTermDefinitionToCreationType, SampleTypeDefinitionToCreationType,
+                     ExperimentTypeDefinitionToCreationType, DatasetTypeDefinitionToCreationType]

@@ -37,29 +37,33 @@ def get_boolean_from_string(text):
             "Boolean field should either be 'true' or 'false' (case insensitive) but was " + text)
     return True if text and text.lower() == u'true' else False
 
-def get_project_identifier(dict, row_number):
-    project_identifier = upper_case_code(dict['project'])
+
+def get_project_identifier(dictionary, row_number):
+    project_identifier = upper_case_code(dictionary['project'])
     if project_identifier is None:
         return None
     if re.match('(/%s){2}$' % CODE_REGEX, project_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid project identifier: %s" % (row_number, project_identifier))
     return ProjectIdentifier(project_identifier)
 
-def get_experiment_identifier(dict, row_number):
-    experiment_identifier = upper_case_code(dict['experiment'])
+
+def get_experiment_identifier(dictionary, row_number):
+    experiment_identifier = upper_case_code(dictionary['experiment'])
     if experiment_identifier is None:
         return None
     if re.match('(/%s){3}$' % CODE_REGEX, experiment_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid experiment identifier: %s" % (row_number, experiment_identifier))
     return ExperimentIdentifier(experiment_identifier)
 
-def get_sample_identifier(dict, row_number):
-    sample_identifier = upper_case_code(dict['identifier'])
+
+def get_sample_identifier(dictionary, row_number):
+    sample_identifier = upper_case_code(dictionary['identifier'])
     if sample_identifier is None:
         return None
     if re.match('(/%s){1,3}(:%s)?$' % (CODE_REGEX, CODE_REGEX), sample_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid sample identifier: %s" % (row_number, sample_identifier))
     return sample_identifier
+
 
 class DefinitionToCreationParserFactory(object):
 
@@ -67,28 +71,28 @@ class DefinitionToCreationParserFactory(object):
     def get_parsers(definition, context):
         if definition.type == u'VOCABULARY_TYPE':
             return [VocabularyDefinitionToCreationParser(), VocabularyTermDefinitionToCreationParser()]
-        elif definition.type == u'SAMPLE_TYPE':
+        if definition.type == u'SAMPLE_TYPE':
             return [SampleTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'EXPERIMENT_TYPE':
+        if definition.type == u'EXPERIMENT_TYPE':
             return [ExperimentTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'DATASET_TYPE':
+        if definition.type == u'DATASET_TYPE':
             return [DatasetTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'SPACE':
+        if definition.type == u'SPACE':
             return [SpaceDefinitionToCreationParser()]
-        elif definition.type == u'PROJECT':
+        if definition.type == u'PROJECT':
             return [ProjectDefinitionToCreationParser()]
-        elif definition.type == u'EXPERIMENT':
+        if definition.type == u'EXPERIMENT':
             return [ExperimentDefinitionToCreationParser()]
-        elif definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
+        if definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
             return [SampleDefinitionToCreationParser()]
-        elif definition.type == u'PROPERTY_TYPE':
+        if definition.type == u'PROPERTY_TYPE':
             return [PropertyTypeDefinitionToCreationParser()]
-        else:
-            raise UnsupportedOperationException(
-                "Definition of " + str(definition.type) + " is not supported.")
+
+        raise UnsupportedOperationException(
+            "Definition of " + str(definition.type) + " is not supported.")
 
 
 class PropertyTypeDefinitionToCreationParser(object):
@@ -111,7 +115,7 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_creations.append(property_type_creation)
 
         return property_creations
-    
+
     def get_type(self):
         return PropertyTypeDefinitionToCreationType
 
@@ -371,6 +375,7 @@ class SampleDefinitionToCreationParser(object):
 
     def _has_property(self, properties, key):
         return key in properties and properties.get(key) is not None
+
 
 class ScriptDefinitionToCreationParser(object):
     type = ScriptDefinitionToCreationType

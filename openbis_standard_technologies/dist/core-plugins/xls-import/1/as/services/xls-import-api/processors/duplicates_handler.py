@@ -2,6 +2,7 @@ from parsers import ScriptDefinitionToCreationType, SampleDefinitionToCreationTy
     VocabularyTermDefinitionToCreationType, ProjectDefinitionToCreationType, ExperimentDefinitionToCreationType
 from utils.openbis_utils import create_project_identifier_string
 
+
 class DuplicatesHandler(object):
 
     @staticmethod

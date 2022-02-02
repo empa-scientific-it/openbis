@@ -1,6 +1,5 @@
 from parsers import versionable_types
-from parsers import VocabularyTermCreationToUpdateType, ScriptDefinitionToCreationType, \
-    VocabularyTermDefinitionToCreationType, VocabularyDefinitionToCreationType
+from parsers import ScriptDefinitionToCreationType
 from utils.openbis_utils import get_metadata_name_for
 
 FORCE = -1

@@ -34,7 +34,7 @@ def _extract_creations_with_properties(creations_map):
 
 
 def get_value(dictionary, key):
-    if not key in dictionary:
+    if key not in dictionary:
         dictionary[key] = {}
     return dictionary[key]
 
@@ -70,7 +70,7 @@ def _find_vocabulary_terms(vocabulary_terms, vocabulary_code):
 
 
 def property_type_representation_from(property_type, creations, existing_vocabularies):
-    prop_type_representation = {}
+    prop_type_representation = dict()
     prop_type_representation['code'] = property_type.code
     prop_type_representation['label'] = property_type.label
     prop_type_representation['dataType'] = property_type.dataType
