@@ -9,16 +9,28 @@ class DefinitionParserFactory(object):
     def get_parser(definition):
         general_definitions = ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT',
                                'SAMPLE']
+        general_definitions_with_type = ['SAMPLE:']
         properties_only_definitions = ['PROPERTY_TYPE', 'SPACE', 'PROJECT']
         definition_type = definition[0]
         if definition_type in general_definitions:
             return GeneralDefinitionParser
+        elif DefinitionParserFactory.start_with(definition_type, general_definitions_with_type):
+            # expect to see all attributes after symbol ':'
+            return PropertiesOnlyDefinitionParser
         elif definition_type in properties_only_definitions:
             return PropertiesOnlyDefinitionParser
         else:
             raise UnsupportedOperationException("Error in row %s: Cannot create %s. Only the following types are allowed: %s" 
                                                 % (definition['row number'], definition_type,
                                                    general_definitions + properties_only_definitions))
+
+    @staticmethod
+    def start_with(type, definition_type_prefixes):
+        start_with = False
+        for prefix in definition_type_prefixes:
+            if type.startswith(prefix):
+                start_with = True
+        return start_with
 
 
 class PropertiesOnlyDefinitionParser(object):

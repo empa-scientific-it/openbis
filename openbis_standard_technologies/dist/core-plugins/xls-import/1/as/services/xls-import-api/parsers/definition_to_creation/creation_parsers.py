@@ -1,7 +1,6 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id import CreationId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create import DataSetTypeCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype import EntityKind
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create import ExperimentTypeCreation, ExperimentCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create import PluginCreation
@@ -84,7 +83,7 @@ class DefinitionToCreationParserFactory(object):
             return [ProjectDefinitionToCreationParser()]
         elif definition.type == u'EXPERIMENT':
             return [ExperimentDefinitionToCreationParser()]
-        elif definition.type == u'SAMPLE':
+        elif definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
             return [SampleDefinitionToCreationParser()]
         elif definition.type == u'PROPERTY_TYPE':
             return [PropertyTypeDefinitionToCreationParser()]
@@ -104,14 +103,7 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_type_creation.code = code
             property_type_creation.label = prop.get(u'property label')
             property_type_creation.description = prop.get(u'description')
-
-            data_type = prop.get(u'data type')
-            if data_type.startswith('SAMPLE:'):
-                property_type_creation.dataType = DataType.valueOf('SAMPLE')
-                #property_type_creation.setSampleTypeId(EntityTypePermId(data_type[7:], EntityKind.SAMPLE))
-            else:
-                property_type_creation.dataType = DataType.valueOf(data_type)
-
+            property_type_creation.dataType = DataType.valueOf(prop.get(u'data type'))
             property_type_creation.managedInternally = is_internal_namespace(upper_case_code(prop.get(u'code')))
             property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(
                 u'vocabulary code') is not None else None
@@ -326,12 +318,17 @@ class SampleDefinitionToCreationParser(object):
 
     def parse(self, definition):
         samples = []
+        sample_type = EntityTypePermId(definition.type[7:]) if definition.type.startswith('SAMPLE:') else None
+
         sample_attributes = [u'$', u'identifier', u'code', u'space', u'project', u'experiment', u'auto generate code', u'parents',
                              u'children']
         row_number = definition.row_number + 4
         for sample_properties in definition.properties:
             sample_creation = SampleCreation()
-            sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
+            if sample_type is not None:
+                sample_creation.typeId = sample_type
+            else:
+                sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
             if self._has_property(sample_properties, u'code'):
                 sample_creation.code = get_normalized_code(sample_properties, row_number)
                 sample_creation.creationId = CreationId(sample_creation.code)

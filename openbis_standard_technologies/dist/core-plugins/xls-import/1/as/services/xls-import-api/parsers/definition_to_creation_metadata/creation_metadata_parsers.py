@@ -6,6 +6,7 @@ from ..definition_to_creation import PropertyTypeDefinitionToCreationType, Vocab
 from utils.openbis_utils import get_metadata_name_for, upper_case_code, get_normalized_code
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.dotdict import dotdict
+from java.lang import UnsupportedOperationException
 
 
 def get_version(value):
@@ -40,7 +41,7 @@ class DefinitionToCreationMetadataParserFactory(object):
             return [ProjectDefinitionToCreationMetadataParser()]
         elif definition.type == u'EXPERIMENT':
             return [ExperimentDefinitionToCreationMetadataParser()]
-        elif definition.type == u'SAMPLE':
+        elif definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
             return [SampleDefinitionToCreationMetadataParser()]
         elif definition.type == u'PROPERTY_TYPE':
             return [PropertyTypeDefinitionToCreationMetadataParser()]
