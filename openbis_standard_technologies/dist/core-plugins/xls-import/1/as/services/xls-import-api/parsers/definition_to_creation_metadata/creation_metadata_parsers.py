@@ -1,5 +1,4 @@
 from ..definition_to_creation import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
-    VocabularyTermDefinitionToCreationType, PropertyAssignmentDefinitionToCreationType, \
     SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType, DatasetTypeDefinitionToCreationType, \
     SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, ExperimentDefinitionToCreationType, \
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
@@ -138,15 +137,6 @@ class DatasetTypeDefinitionToCreationMetadataParser(object):
 
     def get_type(self):
         return DatasetTypeDefinitionToCreationType
-
-
-class PropertyAssignmentDefinitionToCreationMetadataParser(object):
-
-    def parse(self, prop):
-        return dotdict()
-
-    def get_type(self):
-        return PropertyAssignmentDefinitionToCreationType
 
 
 class SpaceDefinitionToCreationMetadataParser(object):

@@ -12,7 +12,6 @@ from processors import OpenbisDuplicatesHandler, PropertiesLabelHandler, Duplica
 from search_engines import SearchEngine
 from utils import FileHandler
 from utils.openbis_utils import get_version_name_for, get_metadata_name_for, get_metadata_name_for_existing_element
-from parsers.definition_to_creation.creation_types import CreationTypes, VocabularyTermDefinitionToCreationType
 
 
 def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
@@ -224,7 +223,7 @@ def inject_owner(entity_creation_operations, experiments_by_type, spaces_by_type
         for creation in eco.getCreations():
             class_name = creation.getClass().getSimpleName()
             if class_name == 'SampleCreation':
-                type = creation.getTypeId().getPermId();
+                type = creation.getTypeId().getPermId()
                 if experiments_by_type is not None and type in experiments_by_type:
                     experiment_identifier = experiments_by_type[type]
                     if experiment_identifier is not None:

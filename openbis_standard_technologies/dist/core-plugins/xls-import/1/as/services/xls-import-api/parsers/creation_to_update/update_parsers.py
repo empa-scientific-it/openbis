@@ -83,10 +83,6 @@ class PropertyTypeCreationToUpdateParser(object):
         property_type_update.setLabel(creation.label)
         property_type_update.setDescription(creation.description)
         metadata_update = property_type_update.getMetaData()
-        # if existing_property_type.metaData:
-        # for metaDataEntry in existing_property_type.metaData:
-        #     if creation.metaData and metaDataEntry not in creation.metaData:
-        #         metadata_update.remove(metaDataEntry)
         if creation.metaData:
             metadata_update.add(creation.metaData)
         return property_type_update
@@ -99,14 +95,8 @@ class EntityTypeCreationToUpdateParser(object):
 
     def parseAssignments(self, creation, existing_entity_type):
         assignments_update = ListUpdateValue()
-        # creationPropertyAssignmentCodes = [str(property_assignment.propertyTypeId) for property_assignment in
-        #                                    creation.propertyAssignments]
         existingPropertyAssignmentCodes = [str(property_assignment.propertyType.code) for property_assignment in
                                            existing_entity_type.propertyAssignments]
-        # for property_assignment in existing_entity_type.propertyAssignments:
-        #     if str(property_assignment.propertyType.code) in creationPropertyAssignmentCodes:
-        #         continue
-        #     assignments_update.remove(property_assignment.permId)
         for property_assignment in creation.propertyAssignments:
             if str(property_assignment.propertyTypeId) in existingPropertyAssignmentCodes:
                 continue
@@ -163,7 +153,6 @@ class DatasetTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         dataset_type_update = DataSetTypeUpdate()
         dataset_type_update.typeId = existing_dataset_type.permId
         dataset_type_update.setValidationPluginId(creation.validationPluginId)
-        assignments_update = ListUpdateValue()
         dataset_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_dataset_type))
         return dataset_type_update
 
@@ -236,15 +225,6 @@ class SampleCreationToUpdateParser(TypedEntityCreationToUpdateParser):
             existing_parent_identifiers.extend([str(parent.permId), str(parent.identifier)])
         for child in existing_sample.children:
             existing_children_identifiers.extend([str(child.permId), str(child.identifier)])
-
-        # parentsToRemove = [parent.permId for parent in existing_sample.parents if
-        #                    parent.permId not in creation.parentIds and parent.identifier not in creation.parentIds]
-        # parentsToAdd = [parent for parent in creation.parentIds if str(parent) not in existing_parent_identifiers]
-        # childrenToRemove = [child.permId for child in existing_sample.children if
-        #                     child.permId not in creation.childIds and child.identifier not in creation.parentIds]
-        # childrenToAdd = [child for child in creation.childIds if str(child) not in existing_children_identifiers]
-        # sample_update.childIds.remove([parent.permId for parent in existing_sample.children])
-        # sample_update.parentIds.remove([child.permId for child in existing_sample.parents])
         sample_update.childIds.add(creation.childIds)
         sample_update.parentIds.add(creation.parentIds)
 

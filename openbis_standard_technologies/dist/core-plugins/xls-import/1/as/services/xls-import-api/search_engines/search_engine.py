@@ -50,7 +50,6 @@ class SearchEngine():
         vocabulary_ids = [code_perm_id]
         vocabulary_fetch_options = VocabularyFetchOptions()
         vocabulary_fetch_options.withTerms().withVocabulary()
-        results = self.api.getVocabularies(self.session_token, vocabulary_ids, vocabulary_fetch_options)
         xls_version_vocabulary = self.api.getVocabularies(self.session_token, vocabulary_ids,
                                                           vocabulary_fetch_options).get(code_perm_id)
         return xls_version_vocabulary

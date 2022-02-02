@@ -28,12 +28,6 @@ class OpenbisDuplicatesHandler(object):
                     if existing_element.code == str(creation.spaceId):
                         creation.spaceId = existing_element.permId
                         break
-        # if ExperimentDefinitionToCreationType in self.creations:
-        #     for creation in self.creations[ExperimentDefinitionToCreationType]:
-        #         for existing_element in self.existing_elements[ProjectDefinitionToCreationType]:
-        #             if existing_element.code == str(creation.projectId):
-        #                 creation.projectId = existing_element.permId
-        #                 break
         if SampleDefinitionToCreationType in self.creations:
             for creation in self.creations[SampleDefinitionToCreationType]:
                 if creation.spaceId is not None:
@@ -41,16 +35,6 @@ class OpenbisDuplicatesHandler(object):
                         if existing_element.code == str(creation.spaceId):
                             creation.spaceId = existing_element.permId
                             break
-                # if creation.projectId is not None:
-                #     for existing_element in self.existing_elements[ProjectDefinitionToCreationType]:
-                #         if existing_element.code == str(creation.projectId):
-                #             creation.projectId = existing_element.identifier
-                #             break
-                # if creation.experimentId is not None:
-                #     for existing_element in self.existing_elements[ExperimentDefinitionToCreationType]:
-                #         if existing_element.code == str(creation.experimentId):
-                #             creation.experimentId = existing_element.permId
-                #             break
 
                 rewritten_children = []
                 if creation.childIds is not None:

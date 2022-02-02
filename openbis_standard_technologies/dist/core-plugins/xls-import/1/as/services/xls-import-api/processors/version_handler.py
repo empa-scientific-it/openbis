@@ -1,5 +1,4 @@
 from parsers import versionable_types
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update import VocabularyTermUpdate
 from parsers import VocabularyTermCreationToUpdateType, ScriptDefinitionToCreationType, \
     VocabularyTermDefinitionToCreationType, VocabularyDefinitionToCreationType
 from utils.openbis_utils import get_metadata_name_for

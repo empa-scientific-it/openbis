@@ -1,7 +1,6 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.property import DataType
-from ch.systemsx.cisd.common.exceptions import UserFailureException
 from parsers import SampleDefinitionToCreationType, ExperimentDefinitionToCreationType
-from .representation_unifier import entity_and_type_uniform_mapping, unify_properties_representation_of
+from .representation_unifier import entity_and_type_uniform_mapping
 
 
 class PropertiesLabelHandler(object):

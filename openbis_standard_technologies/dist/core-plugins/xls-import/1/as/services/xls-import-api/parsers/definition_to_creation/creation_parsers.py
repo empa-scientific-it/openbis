@@ -16,7 +16,6 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create import Vocabular
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id import VocabularyPermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.openbis_utils import is_internal_namespace, get_script_name_for, upper_case_code, \
