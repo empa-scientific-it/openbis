@@ -66,10 +66,11 @@ class ImportAllForm extends React.PureComponent {
   }
 
   renderAdditionalPanel() {
-    const { fields } = this.state
+    const { fields, selection } = this.state
     return (
       <ImportAllFormParameters
         fields={fields}
+        selection={selection}
         onChange={this.controller.handleChange}
         onBlur={this.controller.handleBlur}
       />

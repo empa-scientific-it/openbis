@@ -38,7 +38,7 @@ class FileChooserField extends React.PureComponent {
   }
 
   async handleChange(event) {
-    const { name, onChange, onBlur } = this.props
+    const { reference, name, onChange, onBlur } = this.props
 
     var file = event.target.files.length > 0 ? event.target.files[0] : null
 
@@ -67,8 +67,16 @@ class FileChooserField extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'FileChooserField.render')
 
-    const { id, label, description, mandatory, error, styles, classes } =
-      this.props
+    const {
+      reference,
+      id,
+      label,
+      description,
+      mandatory,
+      error,
+      styles,
+      classes
+    } = this.props
     const { fileName } = this.state
 
     return (
@@ -97,6 +105,7 @@ class FileChooserField extends React.PureComponent {
         </div>
         <div className={classes.button}>
           <Button
+            reference={reference}
             label={messages.get(messages.CHOOSE_FILE)}
             onClick={this.handleClick}
           />

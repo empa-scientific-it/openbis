@@ -20,6 +20,23 @@ class ImportAllFormParameters extends React.PureComponent {
     super(props)
     autoBind(this)
     this.state = {}
+    this.references = {
+      file: React.createRef(),
+      updateMode: React.createRef()
+    }
+  }
+
+  componentDidMount() {
+    this.focus()
+  }
+
+  componentDidUpdate(prevProps) {
+    const prevSelection = prevProps.selection
+    const selection = this.props.selection
+
+    if (prevSelection !== selection) {
+      this.focus()
+    }
   }
 
   handleChange(event) {
@@ -31,6 +48,16 @@ class ImportAllFormParameters extends React.PureComponent {
 
   handleBlur() {
     this.props.onBlur()
+  }
+
+  focus() {
+    const { selection } = this.props
+    if (selection && selection.field) {
+      const reference = this.references[selection.field]
+      if (reference && reference.current) {
+        reference.current.focus()
+      }
+    }
   }
 
   render() {
@@ -56,6 +83,7 @@ class ImportAllFormParameters extends React.PureComponent {
     return (
       <div className={classes.field}>
         <FileChooserField
+          reference={this.references.file}
           label={messages.get(messages.XSL_FILE)}
           name='file'
           mandatory={true}
@@ -89,6 +117,7 @@ class ImportAllFormParameters extends React.PureComponent {
     return (
       <div className={classes.field}>
         <SelectField
+          reference={this.references.updateMode}
           label={messages.get(messages.UPDATE_MODE)}
           name='updateMode'
           mandatory={true}
