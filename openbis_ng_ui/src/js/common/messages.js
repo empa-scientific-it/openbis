@@ -17,6 +17,7 @@ const keys = {
   AUTHENTICATION_SERVICE_OPENBIS: 'AUTHENTICATION_SERVICE_OPENBIS',
   AUTHENTICATION_SERVICE_SWITCH_AAI: 'AUTHENTICATION_SERVICE_SWITCH_AAI',
   CANCEL: 'CANCEL',
+  CHOOSE_FILE: 'CHOOSE_FILE',
   CLEAR_SELECTION: 'CLEAR_SELECTION',
   CLOSE: 'CLOSE',
   CODE: 'CODE',
@@ -113,6 +114,7 @@ const keys = {
   NEW_USER: 'NEW_USER',
   NEW_VOCABULARY_TYPE: 'NEW_VOCABULARY_TYPE',
   NEXT_PAGE: 'NEXT_PAGE',
+  NO_FILE_CHOSEN: 'NO_FILE_CHOSEN',
   NO_RESULTS_FOUND: 'NO_RESULTS_FOUND',
   NUMBER_OF_SELECTED_ROWS: 'NUMBER_OF_SELECTED_ROWS',
   OBJECT_DOES_NOT_EXIST: 'OBJECT_DOES_NOT_EXIST',
@@ -193,6 +195,7 @@ const keys = {
   TOOLS: 'TOOLS',
   TYPES: 'TYPES',
   UNSAVED_CHANGES: 'UNSAVED_CHANGES',
+  UPDATE_MODE: "UPDATE_MODE",
   URL_TEMPLATE: 'URL_TEMPLATE',
   USER: 'USER',
   USERS: 'USERS',
@@ -211,6 +214,7 @@ const keys = {
   VOCABULARY_TYPE_IS_INTERNAL: 'VOCABULARY_TYPE_IS_INTERNAL',
   VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED: 'VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED',
   XML_SCHEMA: 'XML_SCHEMA',
+  XSL_FILE: 'XSL_FILE',
   XSLT_SCRIPT: 'XSLT_SCRIPT'
 }
 
@@ -233,6 +237,7 @@ const messages_en = {
   [keys.AUTHENTICATION_SERVICE_OPENBIS]: 'Default Login Service',
   [keys.AUTHENTICATION_SERVICE_SWITCH_AAI]: 'SWITCHaai Single Sign On Login Service',
   [keys.CANCEL]: 'Cancel',
+  [keys.CHOOSE_FILE]: 'Choose File',
   [keys.CLEAR_SELECTION]: 'Clear selection',
   [keys.CLOSE]: 'Close',
   [keys.CODE]: 'Code',
@@ -329,6 +334,7 @@ const messages_en = {
   [keys.NEW_USER]: 'New User',
   [keys.NEW_VOCABULARY_TYPE]: 'New Vocabulary Type',
   [keys.NEXT_PAGE]: 'Next Page',
+  [keys.NO_FILE_CHOSEN]: 'No file chosen',
   [keys.NO_RESULTS_FOUND]: 'No results found',
   [keys.NUMBER_OF_SELECTED_ROWS]: '${0} selected row(s)',
   [keys.OBJECT_DOES_NOT_EXIST]: 'Object does not exist',
@@ -409,6 +415,7 @@ const messages_en = {
   [keys.TOOLS]: 'Tools',
   [keys.TYPES]: 'Types',
   [keys.UNSAVED_CHANGES]: 'You have unsaved changes',
+  [keys.UPDATE_MODE]: 'Update Mode',
   [keys.URL_TEMPLATE]: 'URL Template',
   [keys.USERS]: 'Users',
   [keys.USERS_WHO_REGISTERED_SOME_DATA_CANNOT_BE_REMOVED]: 'Users who have already registered some data cannot be removed.',
@@ -427,6 +434,7 @@ const messages_en = {
   [keys.VOCABULARY_TYPE_IS_INTERNAL]: 'This is a system internal vocabulary.',
   [keys.VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED]: 'The vocabulary parameters cannot be changed. The vocabulary cannot be removed.',
   [keys.XML_SCHEMA]: 'XML Schema',
+  [keys.XSL_FILE]: 'XSL File',
   [keys.XSLT_SCRIPT]: 'XSLT Script',
 }
 

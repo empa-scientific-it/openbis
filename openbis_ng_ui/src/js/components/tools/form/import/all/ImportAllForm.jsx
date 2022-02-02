@@ -5,9 +5,18 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import ImportAllFormController from '@src/js/components/tools/form/import/all/ImportAllFormController.js'
 import ImportAllFormFacade from '@src/js/components/tools/form/import/all/ImportAllFormFacade.js'
+import ImportAllFormParameters from '@src/js/components/tools/form/import/all/ImportAllFormParameters.jsx'
+import Container from '@src/js/components/common/form/Container.jsx'
+import Button from '@src/js/components/common/form/Button.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = () => ({
+  buttons: {
+    display: 'flex',
+    justifyContent: 'flex-end'
+  }
+})
 
 class ImportAllForm extends React.PureComponent {
   constructor(props) {
@@ -25,8 +34,18 @@ class ImportAllForm extends React.PureComponent {
     this.controller.init(new ComponentContext(this))
   }
 
+  componentDidMount() {
+    this.controller.load()
+  }
+
   render() {
     logger.log(logger.DEBUG, 'ImportAllForm.render')
+
+    const { loaded } = this.state
+
+    if (!loaded) {
+      return null
+    }
 
     return (
       <PageWithTwoPanels
@@ -45,11 +64,26 @@ class ImportAllForm extends React.PureComponent {
   }
 
   renderAdditionalPanel() {
-    return <div>Additional Panel</div>
+    const { updateMode } = this.state.fields
+    return (
+      <ImportAllFormParameters
+        updateMode={updateMode}
+        onChange={this.controller.handleChange}
+      />
+    )
   }
 
   renderButtons() {
-    return <div>Buttons</div>
+    const { classes } = this.props
+    return (
+      <Container className={classes.buttons}>
+        <Button
+          name='import'
+          label={messages.get(messages.IMPORT)}
+          onClick={this.controller.import}
+        />
+      </Container>
+    )
   }
 }
 
