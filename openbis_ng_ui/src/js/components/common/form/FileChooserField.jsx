@@ -15,7 +15,8 @@ const styles = theme => ({
   },
   fileName: {
     flex: '1 1 auto',
-    paddingRight: theme.spacing(1)
+    paddingRight: theme.spacing(1),
+    cursor: 'pointer'
   },
   button: {
     marginTop: theme.spacing(1),
@@ -38,7 +39,7 @@ class FileChooserField extends React.PureComponent {
   }
 
   async handleChange(event) {
-    const { reference, name, onChange, onBlur } = this.props
+    const { name, onChange, onBlur } = this.props
 
     var file = event.target.files.length > 0 ? event.target.files[0] : null
 
@@ -98,6 +99,7 @@ class FileChooserField extends React.PureComponent {
                 : messages.get(messages.NO_FILE_CHOSEN)
             }
             mandatory={mandatory}
+            onClick={this.handleClick}
             disabled={true}
             error={error}
             styles={styles}
