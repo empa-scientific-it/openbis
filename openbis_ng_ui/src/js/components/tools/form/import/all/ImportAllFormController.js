@@ -1,5 +1,8 @@
 import autoBind from 'auto-bind'
-import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import ImportAllFormControllerLoad from '@src/js/components/tools/form/import/all/ImportAllFormControllerLoad.js'
+import ImportAllFormControllerValidate from '@src/js/components/tools/form/import/all/ImportAllFormControllerValidate.js'
+import ImportAllFormControllerChange from '@src/js/components/tools/form/import/all/ImportAllFormControllerChange.js'
+import ImportAllFormControllerImport from '@src/js/components/tools/form/import/all/ImportAllFormControllerImport.js'
 
 export default class ImportAllFormController {
   constructor(facade) {
@@ -13,29 +16,24 @@ export default class ImportAllFormController {
   }
 
   load() {
-    this.context.setState({
-      fields: {
-        updateMode: FormUtil.createField({})
-      },
-      loaded: true
-    })
+    return new ImportAllFormControllerLoad(this).execute()
   }
 
-  async handleChange(params) {
-    await this.context.setState(oldState => {
-      const { newObject } = FormUtil.changeObjectField(
-        oldState.fields,
-        params.field,
-        params.value
-      )
-      return {
-        ...oldState,
-        fields: newObject
-      }
-    })
+  handleChange(params) {
+    return new ImportAllFormControllerChange(this).execute(params)
   }
 
-  import() {}
+  handleBlur() {
+    return this.validate()
+  }
+
+  validate(autofocus) {
+    return new ImportAllFormControllerValidate(this).execute(autofocus)
+  }
+
+  import() {
+    return new ImportAllFormControllerImport(this).execute()
+  }
 
   getFacade() {
     return this.facade

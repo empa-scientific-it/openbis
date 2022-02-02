@@ -1,4 +1,5 @@
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import ImportAllUpdateMode from '@src/js/components/tools/form/import/all/ImportAllUpdateMode.js'
 import Container from '@src/js/components/common/form/Container.jsx'
@@ -17,8 +18,8 @@ const styles = theme => ({
 class ImportAllFormParameters extends React.PureComponent {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.state = {}
-    this.handleChange = this.handleChange.bind(this)
   }
 
   handleChange(event) {
@@ -26,6 +27,10 @@ class ImportAllFormParameters extends React.PureComponent {
       field: event.target.name,
       value: event.target.value
     })
+  }
+
+  handleBlur() {
+    this.props.onBlur()
   }
 
   render() {
@@ -86,6 +91,7 @@ class ImportAllFormParameters extends React.PureComponent {
           options={options}
           emptyOption={{}}
           onChange={this.handleChange}
+          onBlur={this.handleBlur}
         />
       </div>
     )

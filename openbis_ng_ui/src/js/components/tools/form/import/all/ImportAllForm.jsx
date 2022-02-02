@@ -1,5 +1,7 @@
+import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
+import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
@@ -69,6 +71,7 @@ class ImportAllForm extends React.PureComponent {
       <ImportAllFormParameters
         updateMode={updateMode}
         onChange={this.controller.handleChange}
+        onBlur={this.controller.handleBlur}
       />
     )
   }
@@ -87,4 +90,4 @@ class ImportAllForm extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(ImportAllForm)
+export default _.flow(connect(), withStyles(styles))(ImportAllForm)
