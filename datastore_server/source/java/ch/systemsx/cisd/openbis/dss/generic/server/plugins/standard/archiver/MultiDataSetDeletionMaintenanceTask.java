@@ -69,6 +69,12 @@ public class MultiDataSetDeletionMaintenanceTask
 
             for (Share share : shares)
             {
+                // Do not unarchive into unarchiving scratch share because data sets in this share 
+                // can be deleted at any time.
+                if (share.isUnarchivingScratchShare())
+                {
+                    continue;
+                }
                 // take the first share which has enough free space
                 long freeSpace = share.calculateFreeSpace();
                 if (freeSpace > dataSetSize)
