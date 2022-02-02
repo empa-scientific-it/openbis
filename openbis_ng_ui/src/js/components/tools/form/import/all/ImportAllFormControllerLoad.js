@@ -5,6 +5,7 @@ export default class ImportAllFormControllerLoad extends PageControllerLoad {
   async load() {
     return this.context.setState({
       fields: {
+        file: FormUtil.createField({}),
         updateMode: FormUtil.createField({})
       }
     })

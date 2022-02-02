@@ -66,10 +66,10 @@ class ImportAllForm extends React.PureComponent {
   }
 
   renderAdditionalPanel() {
-    const { updateMode } = this.state.fields
+    const { fields } = this.state
     return (
       <ImportAllFormParameters
-        updateMode={updateMode}
+        fields={fields}
         onChange={this.controller.handleChange}
         onBlur={this.controller.handleBlur}
       />

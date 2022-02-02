@@ -50,20 +50,26 @@ class ImportAllFormParameters extends React.PureComponent {
   }
 
   renderFileChooser() {
-    const { classes } = this.props
+    const { fields, classes } = this.props
+    const { error } = { ...fields.file }
+
     return (
       <div className={classes.field}>
         <FileChooserField
           label={messages.get(messages.XSL_FILE)}
+          name='file'
           mandatory={true}
+          error={error}
+          onChange={this.handleChange}
+          onBlur={this.handleBlur}
         />
       </div>
     )
   }
 
   renderUpdateMode() {
-    const { updateMode, classes } = this.props
-    const { error, value } = { ...updateMode }
+    const { fields, classes } = this.props
+    const { error, value } = { ...fields.updateMode }
 
     const options = [
       {

@@ -8,8 +8,7 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    display: 'flex',
-    alignItems: 'center'
+    display: 'flex'
   },
   input: {
     display: 'none'
@@ -19,6 +18,7 @@ const styles = theme => ({
     paddingRight: theme.spacing(1)
   },
   button: {
+    marginTop: theme.spacing(1),
     whiteSpace: 'nowrap'
   }
 })
@@ -37,8 +37,8 @@ class FileChooserField extends React.PureComponent {
     this.inputReference.current.click()
   }
 
-  handleChange(event) {
-    const { name, onChange } = this.props
+  async handleChange(event) {
+    const { name, onChange, onBlur } = this.props
 
     var file = event.target.files.length > 0 ? event.target.files[0] : null
 
@@ -46,15 +46,21 @@ class FileChooserField extends React.PureComponent {
       fileName: file ? file.name : null
     })
 
+    const newEvent = {
+      ...event,
+      target: {
+        ...event.target,
+        name: name,
+        value: file
+      }
+    }
+
     if (onChange) {
-      onChange({
-        ...event,
-        target: {
-          ...event.target,
-          name: name,
-          value: file
-        }
-      })
+      await onChange(newEvent)
+    }
+
+    if (onBlur) {
+      await onBlur(newEvent)
     }
   }
 

@@ -5,6 +5,7 @@ export default class ImportAllFormControllerValidate extends PageControllerValid
   validate(validator) {
     const { fields } = this.context.getState()
 
+    validator.validateNotEmpty(fields, 'file', messages.get(messages.XSL_FILE))
     validator.validateNotEmpty(
       fields,
       'updateMode',
