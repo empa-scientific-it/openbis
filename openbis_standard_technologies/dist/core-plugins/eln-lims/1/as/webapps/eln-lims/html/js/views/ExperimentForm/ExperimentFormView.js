@@ -503,7 +503,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
-			var propertyTypeV3 = this._experimentFormModel.experimentType.propertyAssignments[j].propertyType;
+			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._experimentFormModel.experimentType, propertyType.code);
 			profile.fixV1PropertyTypeVocabulary(propertyType);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._experimentFormModel.experiment);
 

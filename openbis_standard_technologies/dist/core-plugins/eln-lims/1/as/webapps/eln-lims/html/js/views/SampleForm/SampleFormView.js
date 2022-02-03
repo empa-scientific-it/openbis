@@ -718,7 +718,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
-			var propertyTypeV3 = this._sampleFormModel.sampleType.propertyAssignments[j].propertyType;
+			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
