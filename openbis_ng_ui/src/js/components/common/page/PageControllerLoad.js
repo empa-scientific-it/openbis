@@ -23,23 +23,32 @@ export default class PageControllerLoad {
         validate: FormValidator.MODE_BASIC
       })
 
-      const isNew = this.object.type === this.controller.getNewObjectType()
+      let isNew = undefined
 
-      if (isNew) {
-        await this.context.setState({
-          mode: PageMode.EDIT
-        })
-      } else {
-        await this.context.setState({
-          mode: PageMode.VIEW
-        })
+      if (
+        _.isFunction(this.controller.getNewObjectType) &&
+        _.isFunction(this.controller.getExistingObjectType)
+      ) {
+        isNew = this.object.type === this.controller.getNewObjectType()
+
+        if (isNew) {
+          await this.context.setState({
+            mode: PageMode.EDIT
+          })
+        } else {
+          await this.context.setState({
+            mode: PageMode.VIEW
+          })
+        }
       }
 
       await this.load(this.object, isNew)
     } catch (error) {
       this.context.dispatch(actions.errorChange(error))
     } finally {
-      this.controller.changed(false)
+      if (_.isFunction(this.controller.changed)) {
+        this.controller.changed(false)
+      }
       this.context.setState({
         loadId: _.uniqueId('load'),
         loaded: true,

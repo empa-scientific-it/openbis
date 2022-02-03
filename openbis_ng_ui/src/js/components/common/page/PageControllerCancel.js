@@ -1,3 +1,5 @@
+import PageMode from '@src/js/components/common/page/PageMode.js'
+
 export default class PageControllerCancel {
   constructor(controller) {
     this.controller = controller
@@ -7,7 +9,7 @@ export default class PageControllerCancel {
   execute() {
     return this.controller.load().then(() => {
       return this.context.setState({
-        mode: 'view'
+        mode: PageMode.VIEW
       })
     })
   }

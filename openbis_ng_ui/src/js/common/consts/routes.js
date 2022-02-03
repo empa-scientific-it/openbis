@@ -213,10 +213,9 @@ const routes = {
     page: pages.TOOLS,
     type: objectTypes.HISTORY
   }),
-  HISTORY_OVERVIEW: new Route('/history-overview', {
+  IMPORT: new Route('/import/:id', {
     page: pages.TOOLS,
-    type: objectTypes.OVERVIEW,
-    id: objectTypes.HISTORY
+    type: objectTypes.IMPORT
   }),
   DEFAULT: new DefaultRoute()
 }
