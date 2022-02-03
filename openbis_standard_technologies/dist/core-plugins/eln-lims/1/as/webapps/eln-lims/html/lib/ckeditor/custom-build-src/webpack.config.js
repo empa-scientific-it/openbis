@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -21,7 +21,7 @@ module.exports = {
 
 	output: {
 		// The name under which the editor will be exported.
-		library: 'CKEDITOR',
+		library: 'InlineEditor',
 
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'ckeditor.js',
@@ -69,18 +69,24 @@ module.exports = {
 					{
 						loader: 'style-loader',
 						options: {
-							injectType: 'singletonStyleTag'
+							injectType: 'singletonStyleTag',
+							attributes: {
+								'data-cke': true
+							}
 						}
 					},
+					'css-loader',
 					{
 						loader: 'postcss-loader',
-						options: styles.getPostCssConfig( {
-							themeImporter: {
-								themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
-							},
-							minify: true
-						} )
-					},
+						options: {
+							postcssOptions: styles.getPostCssConfig( {
+								themeImporter: {
+									themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
+								},
+								minify: true
+							} )
+						}
+					}
 				]
 			}
 		]

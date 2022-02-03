@@ -26,6 +26,7 @@ import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import Image from '@ckeditor/ckeditor5-image/src/image';
@@ -44,6 +45,7 @@ import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
 import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
+import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 
 class InlineEditor extends InlineEditorBase {}
 class DecoupledEditor extends DecoupledEditorBase {}
@@ -60,6 +62,8 @@ const plugins = [Essentials,
                  	Underline,
                  	BlockQuote,
                  	CKFinder,
+                 	UploadAdapter,
+                 	CloudServices,
                  	EasyImage,
                  	Heading,
                  	Image,
