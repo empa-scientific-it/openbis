@@ -138,7 +138,6 @@ public class UpdatePersonExecutor
         person.setActive(false);
         person.setDisplaySettings(null);
         person.clearAuthorizationGroups();
-        person.setHomeSpace(null);
         // Direct iteration over role assignments could lead to a
         // ConcurrentModificationException because roleAssignmentDAO.deleteRoleAssignment()
         // will remove the assignment from person.
