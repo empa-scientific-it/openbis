@@ -1,5 +1,6 @@
 import json
 import os
+import base64
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.operation import SynchronousOperationExecutionOptions
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
@@ -15,9 +16,9 @@ from utils.openbis_utils import get_version_name_for, get_metadata_name_for, get
 from parsers.definition_to_creation.creation_types import CreationTypes, VocabularyTermDefinitionToCreationType
 
 
-def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
-    if xls_byte_arrays is None and csv_strings is None:
-        raise UserFailureException('Nor Excel sheet nor csv has not been provided. "xls" and "csv" parameters are None')
+def validate_data(xls_byte_arrays, xls_base64_string, csv_strings, update_mode, xls_name):
+    if xls_byte_arrays is None and xls_base64_string is None and csv_strings is None:
+        raise UserFailureException('Nor Excel sheet nor csv has not been provided. "xls", "xls_base64" and "csv" parameters are None')
     if update_mode not in ['IGNORE_EXISTING', 'FAIL_IF_EXISTS', 'UPDATE_IF_EXISTS']:
         raise UserFailureException(
             'Update mode has to be one of following: IGNORE_EXISTING FAIL_IF_EXISTS UPDATE_IF_EXISTS but was ' + (
@@ -135,6 +136,7 @@ def process(context, parameters):
     search_engine = SearchEngine(api, session_token)
 
     xls_byte_arrays = parameters.get('xls', None)
+    xls_base64_string = parameters.get('xls_base64', None)
     csv_strings = parameters.get('csv', None)
     xls_name = parameters.get('xls_name', None)
     experiments_by_type = parameters.get('experiments_by_type', None)
@@ -145,7 +147,11 @@ def process(context, parameters):
     ignore_versioning = parameters.get('ignore_versioning', False)
     render_result = parameters.get('render_result', True)
 
-    validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
+    validate_data(xls_byte_arrays, xls_base64_string, csv_strings, update_mode, xls_name)
+
+    if xls_byte_arrays is None and xls_base64_string is not None:
+        xls_byte_arrays = [ base64.b64decode(xls_base64_string) ]
+
     definitions = get_definitions_from_xls(xls_byte_arrays)
     definitions.extend(get_definitions_from_csv(csv_strings))
     if parameters.get('definitions_only', False):

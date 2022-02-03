@@ -29,8 +29,13 @@ class FileChooserField extends React.PureComponent {
     super(props)
     autoBind(this)
     this.inputReference = React.createRef()
-    this.state = {
-      fileName: null
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      if (this.inputReference.current) {
+        this.inputReference.current.value = null
+      }
     }
   }
 
@@ -42,10 +47,6 @@ class FileChooserField extends React.PureComponent {
     const { name, onChange, onBlur } = this.props
 
     var file = event.target.files.length > 0 ? event.target.files[0] : null
-
-    this.setState({
-      fileName: file ? file.name : null
-    })
 
     const newEvent = {
       ...event,
@@ -72,13 +73,13 @@ class FileChooserField extends React.PureComponent {
       reference,
       id,
       label,
+      value,
       description,
       mandatory,
       error,
       styles,
       classes
     } = this.props
-    const { fileName } = this.state
 
     return (
       <div className={classes.container}>
@@ -94,8 +95,8 @@ class FileChooserField extends React.PureComponent {
             label={label}
             description={description}
             value={
-              fileName !== null && fileName !== undefined
-                ? fileName
+              value !== null && value !== undefined
+                ? value.name
                 : messages.get(messages.NO_FILE_CHOSEN)
             }
             mandatory={mandatory}

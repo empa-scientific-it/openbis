@@ -1,7 +1,42 @@
 import PageControllerSave from '@src/js/components/common/page/PageControllerSave.js'
+import ErrorObject from '@src/js/components/common/error/ErrorObject.js'
+import FormUtil from '@src/js/components/common/form/FormUtil.js'
 
 export default class ImportAllFormControllerImport extends PageControllerSave {
   async save() {
-    alert('Importing...')
+    const { fields } = this.context.getState()
+
+    try {
+      await this.context.setState({
+        loading: true
+      })
+
+      const output = await this.facade.import(
+        fields.file.value,
+        fields.updateMode.value
+      )
+
+      await this.context.setState({
+        fields: {
+          file: FormUtil.createField({}),
+          updateMode: FormUtil.createField({})
+        },
+        result: {
+          success: true,
+          output: output
+        }
+      })
+    } catch (error) {
+      this.context.setState({
+        result: {
+          success: false,
+          error: new ErrorObject(error).toString()
+        }
+      })
+    } finally {
+      await this.context.setState({
+        loading: false
+      })
+    }
   }
 }

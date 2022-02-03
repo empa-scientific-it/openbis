@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography'
 import InfoIcon from '@material-ui/icons/Info'
 import WarningIcon from '@material-ui/icons/Warning'
 import LockIcon from '@material-ui/icons/Lock'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import { withStyles } from '@material-ui/core/styles'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
@@ -35,6 +36,11 @@ const styles = theme => ({
     '& svg': {
       color: theme.palette.info.main
     }
+  },
+  success: {
+    '& svg': {
+      color: theme.palette.success.main
+    }
   }
 })
 
@@ -56,7 +62,9 @@ class Message extends React.PureComponent {
   }
 
   renderIcon(type) {
-    if (type === 'info' || type === 'error') {
+    if (type === 'success') {
+      return <CheckCircleIcon fontSize='small' />
+    } else if (type === 'info' || type === 'error') {
       return <InfoIcon fontSize='small' />
     } else if (type === 'warning') {
       return <WarningIcon fontSize='small' />

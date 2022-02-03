@@ -7,7 +7,8 @@ export default class ImportAllFormControllerLoad extends PageControllerLoad {
       fields: {
         file: FormUtil.createField({}),
         updateMode: FormUtil.createField({})
-      }
+      },
+      result: null
     })
   }
 }

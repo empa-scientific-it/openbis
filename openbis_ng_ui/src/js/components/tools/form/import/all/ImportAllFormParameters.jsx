@@ -78,7 +78,7 @@ class ImportAllFormParameters extends React.PureComponent {
 
   renderFileChooser() {
     const { fields, classes } = this.props
-    const { error } = { ...fields.file }
+    const { error, value } = { ...fields.file }
 
     return (
       <div className={classes.field}>
@@ -88,6 +88,7 @@ class ImportAllFormParameters extends React.PureComponent {
           name='file'
           mandatory={true}
           error={error}
+          value={value}
           onChange={this.handleChange}
           onBlur={this.handleBlur}
         />
