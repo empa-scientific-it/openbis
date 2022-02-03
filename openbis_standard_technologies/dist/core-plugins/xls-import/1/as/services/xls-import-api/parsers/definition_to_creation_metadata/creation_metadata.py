@@ -1,4 +1,3 @@
-from utils.dotdict import dotdict
 from parsers import VocabularyDefinitionToCreationType, VocabularyTermDefinitionToCreationType
 
 

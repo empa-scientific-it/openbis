@@ -1,5 +1,5 @@
-from .creation_metadata_parsers import DefinitionToCreationMetadataParserFactory
 from utils import merge_dicts
+from .creation_metadata_parsers import DefinitionToCreationMetadataParserFactory
 from .creation_metadata import CreationMetadata
 
 

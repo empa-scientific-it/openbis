@@ -1,7 +1,6 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id import CreationId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create import DataSetTypeCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype import EntityKind
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create import ExperimentTypeCreation, ExperimentCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create import PluginCreation
@@ -17,7 +16,6 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create import Vocabular
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id import VocabularyPermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.openbis_utils import is_internal_namespace, get_script_name_for, upper_case_code, \
@@ -39,29 +37,33 @@ def get_boolean_from_string(text):
             "Boolean field should either be 'true' or 'false' (case insensitive) but was " + text)
     return True if text and text.lower() == u'true' else False
 
-def get_project_identifier(dict, row_number):
-    project_identifier = upper_case_code(dict['project'])
+
+def get_project_identifier(dictionary, row_number):
+    project_identifier = upper_case_code(dictionary['project'])
     if project_identifier is None:
         return None
     if re.match('(/%s){2}$' % CODE_REGEX, project_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid project identifier: %s" % (row_number, project_identifier))
     return ProjectIdentifier(project_identifier)
 
-def get_experiment_identifier(dict, row_number):
-    experiment_identifier = upper_case_code(dict['experiment'])
+
+def get_experiment_identifier(dictionary, row_number):
+    experiment_identifier = upper_case_code(dictionary['experiment'])
     if experiment_identifier is None:
         return None
     if re.match('(/%s){3}$' % CODE_REGEX, experiment_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid experiment identifier: %s" % (row_number, experiment_identifier))
     return ExperimentIdentifier(experiment_identifier)
 
-def get_sample_identifier(dict, row_number):
-    sample_identifier = upper_case_code(dict['identifier'])
+
+def get_sample_identifier(dictionary, row_number):
+    sample_identifier = upper_case_code(dictionary['identifier'])
     if sample_identifier is None:
         return None
     if re.match('(/%s){1,3}(:%s)?$' % (CODE_REGEX, CODE_REGEX), sample_identifier) is None:
         raise UserFailureException("Error in row %s: Invalid sample identifier: %s" % (row_number, sample_identifier))
     return sample_identifier
+
 
 class DefinitionToCreationParserFactory(object):
 
@@ -69,28 +71,28 @@ class DefinitionToCreationParserFactory(object):
     def get_parsers(definition, context):
         if definition.type == u'VOCABULARY_TYPE':
             return [VocabularyDefinitionToCreationParser(), VocabularyTermDefinitionToCreationParser()]
-        elif definition.type == u'SAMPLE_TYPE':
+        if definition.type == u'SAMPLE_TYPE':
             return [SampleTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'EXPERIMENT_TYPE':
+        if definition.type == u'EXPERIMENT_TYPE':
             return [ExperimentTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'DATASET_TYPE':
+        if definition.type == u'DATASET_TYPE':
             return [DatasetTypeDefinitionToCreationParser(), PropertyTypeDefinitionToCreationParser(),
                     ScriptDefinitionToCreationParser(context)]
-        elif definition.type == u'SPACE':
+        if definition.type == u'SPACE':
             return [SpaceDefinitionToCreationParser()]
-        elif definition.type == u'PROJECT':
+        if definition.type == u'PROJECT':
             return [ProjectDefinitionToCreationParser()]
-        elif definition.type == u'EXPERIMENT':
+        if definition.type == u'EXPERIMENT':
             return [ExperimentDefinitionToCreationParser()]
-        elif definition.type == u'SAMPLE':
+        if definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
             return [SampleDefinitionToCreationParser()]
-        elif definition.type == u'PROPERTY_TYPE':
+        if definition.type == u'PROPERTY_TYPE':
             return [PropertyTypeDefinitionToCreationParser()]
-        else:
-            raise UnsupportedOperationException(
-                "Definition of " + str(definition.type) + " is not supported.")
+
+        raise UnsupportedOperationException(
+            "Definition of " + str(definition.type) + " is not supported.")
 
 
 class PropertyTypeDefinitionToCreationParser(object):
@@ -104,14 +106,7 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_type_creation.code = code
             property_type_creation.label = prop.get(u'property label')
             property_type_creation.description = prop.get(u'description')
-
-            data_type = prop.get(u'data type')
-            if data_type.startswith('SAMPLE:'):
-                property_type_creation.dataType = DataType.valueOf('SAMPLE')
-                #property_type_creation.setSampleTypeId(EntityTypePermId(data_type[7:], EntityKind.SAMPLE))
-            else:
-                property_type_creation.dataType = DataType.valueOf(data_type)
-
+            property_type_creation.dataType = DataType.valueOf(prop.get(u'data type'))
             property_type_creation.managedInternally = is_internal_namespace(upper_case_code(prop.get(u'code')))
             property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(
                 u'vocabulary code') is not None else None
@@ -120,7 +115,7 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_creations.append(property_type_creation)
 
         return property_creations
-    
+
     def get_type(self):
         return PropertyTypeDefinitionToCreationType
 
@@ -326,12 +321,17 @@ class SampleDefinitionToCreationParser(object):
 
     def parse(self, definition):
         samples = []
+        sample_type = EntityTypePermId(definition.type[7:]) if definition.type.startswith('SAMPLE:') else None
+
         sample_attributes = [u'$', u'identifier', u'code', u'space', u'project', u'experiment', u'auto generate code', u'parents',
                              u'children']
         row_number = definition.row_number + 4
         for sample_properties in definition.properties:
             sample_creation = SampleCreation()
-            sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
+            if sample_type is not None:
+                sample_creation.typeId = sample_type
+            else:
+                sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
             if self._has_property(sample_properties, u'code'):
                 sample_creation.code = get_normalized_code(sample_properties, row_number)
                 sample_creation.creationId = CreationId(sample_creation.code)
@@ -375,6 +375,7 @@ class SampleDefinitionToCreationParser(object):
 
     def _has_property(self, properties, key):
         return key in properties and properties.get(key) is not None
+
 
 class ScriptDefinitionToCreationParser(object):
     type = ScriptDefinitionToCreationType

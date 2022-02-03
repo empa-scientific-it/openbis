@@ -4,7 +4,7 @@ from copy import deepcopy
 class PoiCleaner(object):
 
     @staticmethod
-    def hasProperties(poi_definition, properties_header_row):
+    def has_properties(poi_definition, properties_header_row):
         return len(poi_definition) > properties_header_row
 
     @staticmethod
@@ -36,7 +36,7 @@ class PoiCleaner(object):
                                                                       ATTRIBUTES_VALUES_ROW)
             definition[ATTRIBUTES_HEADER_ROW] = PoiCleaner.dict_values_to_lowercase(definition[ATTRIBUTES_HEADER_ROW])
 
-        if PROPERTIES_HEADER_ROW is not None and PoiCleaner.hasProperties(definition, PROPERTIES_HEADER_ROW):
+        if PROPERTIES_HEADER_ROW is not None and PoiCleaner.has_properties(definition, PROPERTIES_HEADER_ROW):
             PoiCleaner.delete_empty_cells_from(definition, PROPERTIES_HEADER_ROW)
             if PROPERTIES_VALUES_ROW_START is not None:
                 for property_value_row_num in range(PROPERTIES_VALUES_ROW_START, len(definition)):

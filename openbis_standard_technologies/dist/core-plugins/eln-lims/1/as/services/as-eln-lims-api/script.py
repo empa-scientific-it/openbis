@@ -147,11 +147,11 @@ def importSamples(context, parameters):
     for file in uploadedFiles.iterable():
         file_name = file.getOriginalFilename()
         bytes = IOUtils.toByteArray(file.getInputStream())
-        validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo)
+        validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, mode, barcodeValidationInfo)
         results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
     return results
 
-def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo):
+def validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, mode, barcodeValidationInfo):
     definitions = importData(context, bytes, file_name, None, None, mode, True)
     for definition in definitions:
         row_number = definition.row_number
@@ -164,12 +164,22 @@ def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, ba
         sampleType = definition.attributes[key]
         if sampleType not in allowedSampleTypes:
             raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
+        experiment = None
+        if experimentsByType is not None and sampleType in experimentsByType:
+            experiment = experimentsByType[sampleType]
         row_number += 4
         for properties in definition.properties:
             if properties.get("$") == "$":
                 raise UserFailureException("Empty row expected before row %s" % (row_number - 2))
+            validateExperimentDefined(row_number, properties, mode, experiment)
             validateBarcode(row_number, properties, barcodeValidationInfo)
             row_number += 1
+
+def validateExperimentDefined(row_number, properties, mode, experiment):
+    if experiment is None and not mode.startswith("UPDATE"):
+        exp = properties.get("experiment")
+        if exp is None:
+            raise UserFailureException("Error in row %s: Empty column 'Experiment'" % row_number);
 
 def validateBarcode(row_number, properties, barcodeValidationInfo):
     barcode = properties.get("custom barcode")

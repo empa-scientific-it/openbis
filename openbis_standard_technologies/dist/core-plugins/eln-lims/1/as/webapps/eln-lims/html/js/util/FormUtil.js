@@ -1099,12 +1099,11 @@ var FormUtil = new function() {
             value.indexOf("<figure") === -1) {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
-
 	    var Builder = null;
 	    if(toolbarContainer) {
-            Builder = CKEDITOR.DecoupledEditor;
+            Builder = InlineEditor.DecoupledEditor;
 	    } else {
-	        Builder = CKEDITOR.InlineEditor;
+	        Builder = InlineEditor.InlineEditor;
 	    }
 
         Builder.create($component[0], {

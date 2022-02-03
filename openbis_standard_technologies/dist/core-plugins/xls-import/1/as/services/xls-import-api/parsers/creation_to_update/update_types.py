@@ -12,8 +12,8 @@ SampleCreationToUpdateType = "SampleUpdate"
 ScriptCreationToUpdateType = "ScriptUpdate"
 
 UpdateTypes = [PropertyTypeCreationToUpdateType, VocabularyCreationToUpdateType,
-VocabularyTermCreationToUpdateType, PropertyAssignmentCreationToUpdateType,
-SampleTypeCreationToUpdateType, ExperimentTypeCreationToUpdateType,
-DatasetTypeCreationToUpdateType, SpaceCreationToUpdateType,
-ProjectCreationToUpdateType, ExperimentCreationToUpdateType,
-SampleCreationToUpdateType, ScriptCreationToUpdateType]
+               VocabularyTermCreationToUpdateType, PropertyAssignmentCreationToUpdateType,
+               SampleTypeCreationToUpdateType, ExperimentTypeCreationToUpdateType,
+               DatasetTypeCreationToUpdateType, SpaceCreationToUpdateType,
+               ProjectCreationToUpdateType, ExperimentCreationToUpdateType,
+               SampleCreationToUpdateType, ScriptCreationToUpdateType]
