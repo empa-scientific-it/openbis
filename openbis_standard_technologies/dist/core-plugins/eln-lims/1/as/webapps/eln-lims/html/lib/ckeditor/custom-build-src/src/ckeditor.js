@@ -42,6 +42,8 @@ import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
 import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
@@ -79,6 +81,8 @@ const plugins = [Essentials,
                  	PasteFromOffice,
                  	Table,
                  	TableToolbar,
+                 	TableProperties,
+                 	TableCellProperties,
                  	RemoveFormat,
                  	SpecialCharacters,
                  	SpecialCharactersEssentials];
@@ -183,7 +187,9 @@ const config = {
                		contentToolbar: [
                			'tableColumn',
                			'tableRow',
-               			'mergeTableCells'
+               			'mergeTableCells',
+               			'tableProperties',
+               			'tableCellProperties'
                		]
                	},
                	// This value must be kept in sync with the language defined in webpack.config.js.
