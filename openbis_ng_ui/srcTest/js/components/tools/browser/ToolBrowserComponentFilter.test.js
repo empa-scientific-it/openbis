@@ -64,10 +64,10 @@ async function testFilter() {
       { level: 0, text: 'Queries' },
       { level: 1, text: testQuery.name },
       { level: 0, text: 'History' },
-      { level: 1, text: openbis.EventType.DELETION },
-      { level: 1, text: openbis.EventType.FREEZING },
+      { level: 1, text: 'Deletion' },
+      { level: 1, text: 'Freezing' },
       { level: 0, text: 'Import' },
-      { level: 1, text: ImportType.ALL }
+      { level: 1, text: 'All' }
     ]
   })
 }

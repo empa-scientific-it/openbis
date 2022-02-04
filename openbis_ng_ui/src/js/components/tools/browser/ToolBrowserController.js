@@ -75,7 +75,7 @@ export default class ToolBrowserController extends BrowserController {
       const historyNodes = [
         {
           id: `history/deletion`,
-          text: openbis.EventType.DELETION,
+          text: messages.get(messages.DELETION),
           object: {
             type: objectType.HISTORY,
             id: openbis.EventType.DELETION
@@ -85,7 +85,7 @@ export default class ToolBrowserController extends BrowserController {
         },
         {
           id: `history/freeze`,
-          text: openbis.EventType.FREEZING,
+          text: messages.get(messages.FREEZING),
           object: {
             type: objectType.HISTORY,
             id: openbis.EventType.FREEZING
@@ -98,7 +98,7 @@ export default class ToolBrowserController extends BrowserController {
       const importNodes = [
         {
           id: `import/all`,
-          text: ImportType.ALL,
+          text: messages.get(messages.ALL),
           object: {
             type: objectType.IMPORT,
             id: ImportType.ALL
