@@ -225,7 +225,23 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 					propertyColumnsToSort.push(getDateColumn(propertyType));
-				} else {			
+				} else {
+					var renderValue = null
+
+					if(propertyType.dataType === "XML"){
+						renderValue = (function(propertyType){
+							return function(params){
+								return FormUtil.renderXmlGridValue(params, propertyType)
+							}
+						})(propertyType)
+					}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+						renderValue = (function(propertyType){
+							return function(params){
+								return FormUtil.renderMultilineVarcharGridValue(params, propertyType)
+							}
+						})(propertyType)
+					}
+
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyType.code,
@@ -235,6 +251,7 @@ var SampleDataGridUtil = new function() {
 						metadata: {
 							dataType: propertyType.dataType
 						},
+						render: renderValue
 					});
 				}
 			}

@@ -1084,6 +1084,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					}
 
                     var propertyType = profile.getPropertyType(propertyCode)
+                    var renderValue = null
                     var renderFilter = null
 
                     if(propertyType.dataType === "BOOLEAN"){
@@ -1102,12 +1103,25 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                                 return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
                             }
                         })(propertyType)
+                    } else if (propertyType.dataType === "XML"){
+                        renderValue = (function(propertyType){
+                            return function(params){
+                                return FormUtil.renderXmlGridValue(params, propertyType)
+                            }
+                        })(propertyType)
+                    } else if (propertyType.dataType === "MULTILINE_VARCHAR"){
+                        renderValue = (function(propertyType){
+                            return function(params){
+                                return FormUtil.renderMultilineVarcharGridValue(params, propertyType)
+                            }
+                        })(propertyType)
                     }
 
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
 						filterable : !isGlobalSearch,
+						render: renderValue,
 						renderFilter: renderFilter,
 						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
 						metadata: {

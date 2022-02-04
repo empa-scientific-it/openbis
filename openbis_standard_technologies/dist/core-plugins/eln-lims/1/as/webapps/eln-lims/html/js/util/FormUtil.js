@@ -2268,6 +2268,28 @@ var FormUtil = new function() {
 		return id;
 	}
 
+    this.renderMultilineVarcharGridValue = function(params, propertyType){
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
+
+        if(customWidget === 'Word Processor' && !forceDisableRTF) {
+            return "Word Processor"
+        }else{
+            return "Multiline Varchar"
+        }
+    }
+
+    this.renderXmlGridValue = function(params, propertyType){
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
+
+        if(customWidget === "Spreadsheet" && !forceDisableRTF) {
+            return "Spreadsheet"
+        }else{
+            return "Xml"
+        }
+    }
+
     this.renderBooleanGridFilter = function(params){
         return React.createElement(window.NgUiGrid.default.SelectField, {
             label: 'Filter',

@@ -125,11 +125,28 @@ var ExperimentDataGridUtil = new function() {
 				}
 				propertyColumnsToSort.push(getDateColumn(propertyType, idx))
 			} else {
+				var renderValue = null
+
+				if(propertyType.dataType === "XML"){
+					renderValue = (function(propertyType){
+						return function(params){
+							return FormUtil.renderXmlGridValue(params, propertyType)
+						}
+					})(propertyType)
+				}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+					renderValue = (function(propertyType){
+						return function(params){
+							return FormUtil.renderMultilineVarcharGridValue(params, propertyType)
+						}
+					})(propertyType)
+				}
+				
 				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
 					property : propertyCodes[idx],
 					isExportable: true,
-					sortable : true
+					sortable : true,
+					render: renderValue
 				});
 			}
 		}
