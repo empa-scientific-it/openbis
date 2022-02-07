@@ -151,13 +151,7 @@ public class UserManagerReport implements IChangedHandler
 
     void assignHomeSpace(String userId, ISpaceId spaceIdOrNull)
     {
-        if (spaceIdOrNull == null)
-        {
-            log("REMOVE-HOME-SPACE-FROM-USER", userId);
-        } else
-        {
-            log("ASSIGN-HOME-SPACE-FOR-USER", "user: " + userId + ", home space: " + spaceIdOrNull);
-        }
+        log("ASSIGN-HOME-SPACE-FOR-USER", "user: " + userId + ", home space: " + spaceIdOrNull);
     }
 
     @Override

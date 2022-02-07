@@ -134,7 +134,8 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:16 [ADD-SPACE] G1_U2\n"
                 + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
                 + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n");
+                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2);
         builder.space("G1_ALPHA").admin(U1).user(U2);
@@ -143,7 +144,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G1_U1").admin(U1).non(U2);
         builder.space("G1_U2").admin(U1, U2);
         builder.homeSpace(U1, "G1_U1");
-        builder.homeSpace(U2, "TEST-SPACE");
+        builder.homeSpace(U2, "G1_U2");
         builder.assertExpectations();
     }
 
@@ -183,7 +184,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G1_U1").admin(U1).non(U2);
         builder.space("G1_U2").admin(U1).non(U2);
         builder.homeSpace(U1, "G1_U1");
-        builder.homeSpace(U2, "TEST-SPACE");
+        builder.homeSpace(U2, "G1_U2");
         builder.assertExpectations();
     }
 
@@ -232,7 +233,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("SHARED_GAMMA").admin(U1, U3).observer(U2, U4);
         builder.space("TEST-SPACE").admin(U2).non(U1, U3, U4);
         builder.homeSpace(U1, "G1_U1");
-        builder.homeSpace(U2, "TEST-SPACE");
+        builder.homeSpace(U2, "G1_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.homeSpace(U4, "G2_U4");
         builder.assertExpectations();
@@ -692,8 +693,7 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
                 + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:03 [REMOVE-HOME-SPACE-FROM-USER] u2\n");
+                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U3);
         builder.usersWithoutAuthentication(U2);
@@ -706,7 +706,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").admin(U1).non(U3);
         builder.space("G2_U3").admin(U1).admin(U3);
         builder.homeSpace(U1, "G2_U1");
-        builder.homeSpace(U2, null);
+        builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }
@@ -742,16 +742,13 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
                 + "1970-01-01 01:00:07 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
                 + "1970-01-01 01:00:08 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
-                + "1970-01-01 01:00:09 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:10 [REMOVE-HOME-SPACE-FROM-USER] u1\n"
-                + "1970-01-01 01:00:11 [REMOVE-HOME-SPACE-FROM-USER] u2\n"
-                + "1970-01-01 01:00:12 [REMOVE-HOME-SPACE-FROM-USER] u3\n");
+                + "1970-01-01 01:00:09 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").users();
         builder.usersWithoutAuthentication(U1, U2, U3);
-        builder.homeSpace(U1, null);
-        builder.homeSpace(U2, null);
-        builder.homeSpace(U3, null);
+        builder.homeSpace(U1, "G2_U1");
+        builder.homeSpace(U2, "G2_U2");
+        builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }
 
@@ -954,8 +951,7 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u1\n"
                 + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u1, role: SPACE_ADMIN for G2_U1\n"
-                + "1970-01-01 01:00:03 [REMOVE-HOME-SPACE-FROM-USER] u1\n");
+                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u1, role: SPACE_ADMIN for G2_U1\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U2, U3);
         builder.usersWithoutAuthentication(U1);
@@ -965,7 +961,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U1").non(U2, U3);
         builder.space("G2_U2").admin(U2).non(U3);
         builder.space("G2_U3").non(U2).admin(U3);
-        builder.homeSpace(U1, null);
+        builder.homeSpace(U1, "G2_U1");
         builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
@@ -1055,7 +1051,8 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:16 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
                 + "1970-01-01 01:00:17 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
                 + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
+                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1069,7 +1066,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").non(U1).admin(U2, U3);
         builder.space("G2_U3").non(U1).non(U2).admin(U3);
         builder.homeSpace(U1, "G1_U1");
-        builder.homeSpace(U2, "G1_U2");
+        builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }
@@ -1114,7 +1111,8 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:16 [ADD-USER] u3\n"
                 + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
                 + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1\n"
+                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1127,7 +1125,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_GAMMA").admin(U1).non(U2).observer(U3);
         builder.space("G2_U1").admin(U1).non(U2, U3);
         builder.space("G2_U3").admin(U1).non(U2).admin(U3);
-        builder.homeSpace(U1, "G1_U1");
+        builder.homeSpace(U1, "G2_U1");
         builder.homeSpace(U2, "G1_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
@@ -1173,7 +1171,8 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:16 [ADD-USER] u3\n"
                 + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
                 + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
+                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1187,7 +1186,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").non(U1).admin(U2).non(U3);
         builder.space("G2_U3").non(U1).admin(U2).admin(U3);
         builder.homeSpace(U1, "G1_U1");
-        builder.homeSpace(U2, "G1_U2");
+        builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }
@@ -1325,7 +1324,8 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
                 + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
                 + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u4\n"
-                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n");
+                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3).user(U4);
@@ -1342,7 +1342,7 @@ public class UserManagerTest extends AbstractTest
         builder.homeSpace(U1, "G1_U1");
         builder.homeSpace(U2, "G1_U2");
         builder.homeSpace(U3, "G2_U3");
-        builder.homeSpace(U4, "TEST-SPACE");
+        builder.homeSpace(U4, "G1_U4");
         builder.assertExpectations();
     }
 
@@ -1375,6 +1375,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").admin(U1).non(U3);
         builder.space("G2_U3").admin(U1).admin(U3);
         builder.homeSpace(U1, "G2_U1");
+        builder.homeSpace(U2, "G2_U2");
         builder.unknownUser(U2);
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
@@ -1394,14 +1395,13 @@ public class UserManagerTest extends AbstractTest
         userManager = new UserManagerBuilder(v3api, logger, report()).unknownUser(U2).commonSpaces(commonSpaces).noDeactivation().get();
         userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1), users(U1, U3));
 
-        // When
+        // When 
         UserManagerReport report = manage(userManager);
 
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:02 [REMOVE-HOME-SPACE-FROM-USER] u2\n");
+                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder().noDeactivation();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U3);
         builder.space("G2_ALPHA").admin(U1).user(U3);
@@ -1411,7 +1411,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").admin(U1).non(U3);
         builder.space("G2_U3").admin(U1).admin(U3);
         builder.homeSpace(U1, "G2_U1");
-        builder.unknownUser(U2);
+        builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }

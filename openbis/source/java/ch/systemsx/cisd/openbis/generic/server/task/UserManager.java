@@ -276,15 +276,8 @@ public class UserManager
         {
             String userId = entry.getKey();
             HomeSpaceRequest request = entry.getValue();
-            Person knownUser = currentState.getUser(userId);
             SpacePermId requestedHomeSpace = request.getHomeSpace();
-            if (knownUser == null || knownUser.getSpace() == null)
-            {
-                if (requestedHomeSpace != null)
-                {
-                    updates.add(createPersonUpdate(userId, requestedHomeSpace, report));
-                }
-            } else if (request.shouldCurrentBeRemoved())
+            if (requestedHomeSpace != null)
             {
                 updates.add(createPersonUpdate(userId, requestedHomeSpace, report));
             }
@@ -772,7 +765,6 @@ public class UserManager
                 removePersonFromAuthorizationGroup(context, globalGroup.getCode(), userId);
             }
             Person user = context.currentState.getUser(userId);
-            Space homeSpace = user.getSpace();
             for (RoleAssignment roleAssignment : user.getRoleAssignments())
             {
                 Space space = roleAssignment.getSpace();
@@ -781,10 +773,6 @@ public class UserManager
                 {
                     context.delete(roleAssignment.getId());
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
-                    if (homeSpace != null && homeSpace.getCode().equals(space.getCode()))
-                    {
-                        getHomeSpaceRequest(userId).removeCurrentHomeSpace();
-                    }
                 }
             }
         }
@@ -1089,18 +1077,6 @@ public class UserManager
 
     private static final class HomeSpaceRequest
     {
-        private boolean shouldCurrentBeRemoved;
-
-        public boolean shouldCurrentBeRemoved()
-        {
-            return shouldCurrentBeRemoved;
-        }
-
-        public void removeCurrentHomeSpace()
-        {
-            this.shouldCurrentBeRemoved = true;
-        }
-
         private SpacePermId homeSpace;
 
         public SpacePermId getHomeSpace()
