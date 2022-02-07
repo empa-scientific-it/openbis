@@ -2287,21 +2287,27 @@ var FormUtil = new function() {
 
         if(!forceDisableRTF) {
             var $value = null
-            var $tooltip = null
+            var renderTooltip = null
 
             if(customWidget === 'Word Processor'){
                 $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
-                $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
-                $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                renderTooltip = function(){
+                    $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
+                    $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                    return $tooltip
+                }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
-                $tooltip = $("<div>")
-                JExcelEditorManager.createField($tooltip, FormMode.VIEW, propertyType.code, { properties: row });
+                renderTooltip = function(){
+                    $tooltip = $("<div>")
+                    JExcelEditorManager.createField($tooltip, FormMode.VIEW, propertyType.code, { properties: row });
+                    return $tooltip
+                }
             }else{
                 $value = value
             }
 
-            if($tooltip){
+            if(renderTooltip){
                 $value.tooltipster({
                     trigger: 'click',
                     interactive: true,
@@ -2309,7 +2315,7 @@ var FormUtil = new function() {
                     trackerInterval: 100,
                     theme: 'tooltipster-shadow',
                     functionBefore: function(instance, helper){
-                        $(helper.origin).tooltipster('content', $tooltip)
+                        $(helper.origin).tooltipster('content', renderTooltip())
                         return true
                     }
                 })
