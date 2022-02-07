@@ -1376,6 +1376,8 @@ var FormUtil = new function() {
 						permIdOrIdentifier : permIdOrIdentifier,
 						paginationInfo : paginationInfo
 				}
+			} else if (view === "showExperimentPageFromIdentifier") {
+				arg = encodeURIComponent('["' + permIdOrIdentifier + '",false]');
 			} else {
 				arg = permIdOrIdentifier;
 			}

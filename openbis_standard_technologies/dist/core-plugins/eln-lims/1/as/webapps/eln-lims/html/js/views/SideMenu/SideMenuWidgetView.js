@@ -617,7 +617,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 loadSamples = true;
                             }
                             
-                            var experimentLink = _this.getLinkForNode(experimentDisplayName, experiment.getPermId().getPermId(), viewToUse, experiment.getIdentifier().getIdentifier(), experiment.getIdentifier().getIdentifier().split('/').join('_'));
+                            var experimentLink = _this.getLinkForNode(experimentDisplayName,
+                                experiment.getPermId().getPermId(), viewToUse,
+                                encodeURIComponent('["' + experiment.getIdentifier().getIdentifier() + '",false]'),
+                                experiment.getIdentifier().getIdentifier().split('/').join('_'));
                             var experimentResult = {
                                     displayName: experimentDisplayName,
                                     title : experimentLink,
@@ -626,7 +629,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     folder : true,
                                     lazy : loadSamples,
                                     view : viewToUse,
-                                    viewData: experiment.getIdentifier().getIdentifier(),
+                                    viewData: encodeURIComponent('["' + experiment.getIdentifier().getIdentifier() +
+                                            '",false]'),
                                     registrationDate: experiment.registrationDate,
                             };
                             if(experiment.type.code === "COLLECTION" || experiment.type.code === "MATERIALS" || experiment.type.code === "METHODS") {
