@@ -170,6 +170,7 @@ function DataGridController(
                     if (value !== finalValue) {
                         finalValue = $("<div>").html(finalValue)
                         finalValue.tooltipster({
+                            theme: 'tooltipster-shadow',
                             content: $("<span>").html(value),
                         })
                     }

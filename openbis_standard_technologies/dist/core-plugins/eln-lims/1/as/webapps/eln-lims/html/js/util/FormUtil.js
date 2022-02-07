@@ -2268,26 +2268,50 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderMultilineVarcharGridValue = function(params, propertyType){
-        var customWidget = this.profile.customWidgetSettings[propertyType.code];
-        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
-
-        if(customWidget === 'Word Processor' && !forceDisableRTF) {
-            return "Word Processor"
-        }else{
-            return "Multiline Varchar"
-        }
+    this.renderMultilineVarcharGridValue = function(row, propertyType){
+        return this.renderCustomWidgetGridValue(row, propertyType)
     }
 
-    this.renderXmlGridValue = function(params, propertyType){
+    this.renderXmlGridValue = function(row, propertyType){
+        return this.renderCustomWidgetGridValue(row, propertyType)
+    }
+
+    this.renderCustomWidgetGridValue = function(row, propertyType){
         var customWidget = this.profile.customWidgetSettings[propertyType.code];
         var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
+        var value = row[propertyType.code]
 
-        if(customWidget === "Spreadsheet" && !forceDisableRTF) {
-            return "Spreadsheet"
-        }else{
-            return "Xml"
+        if(value === null || value === undefined || value.trim().length === 0){
+            return
         }
+
+        if(!forceDisableRTF) {
+            var $content = null
+
+            if(customWidget === 'Word Processor'){
+                $content = FormUtil.getFieldForPropertyType(propertyType, value);
+                $content = FormUtil.activateRichTextProperties($content, undefined, propertyType, value, true);
+            }else if(customWidget === 'Spreadsheet'){
+                $content = $("<div>")
+                JExcelEditorManager.createField($content, FormMode.VIEW, propertyType.code, { properties: row });
+            }else{
+                $content = $("<div>").text(value)
+            }
+
+            return $("<div>").text(customWidget).tooltipster({
+                trigger: 'click',
+                interactive: true,
+                trackTooltip: true,
+                trackerInterval: 100,
+                theme: 'tooltipster-shadow',
+                functionBefore: function(instance, helper){
+                    $(helper.origin).tooltipster('content', $content)
+                    return true
+                }
+            })
+        }
+
+        return value
     }
 
     this.renderBooleanGridFilter = function(params){
