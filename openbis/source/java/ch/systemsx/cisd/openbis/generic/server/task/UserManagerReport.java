@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -133,6 +134,11 @@ public class UserManagerReport implements IChangedHandler
         log("UNASSIGN-ROLE-FORM-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);
     }
 
+    void unassignRoleFrom(IAuthorizationGroupId groupId, Role role, ISpaceId spaceId)
+    {
+        log("UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP", "group: " + groupId + ", role: SPACE_" + role + " for " + spaceId);
+    }
+    
     void addUserToGroup(String groupCode, String userId)
     {
         log("ADD-USER-TO-AUTHORIZATION-GROUP", "group: " + groupCode + ", user: " + userId);

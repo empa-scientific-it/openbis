@@ -84,6 +84,8 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -612,7 +614,6 @@ public class UserManager
         Set<String> usersToBeRemoved = new TreeSet<>(currentUsersOfGroup.keySet());
         AuthorizationGroup globalGroup = context.currentState.getGlobalGroup();
         String adminGroupCode = createAdminGroupCode(groupCode);
-        AuthorizationGroupPermId adminGroupId = new AuthorizationGroupPermId(adminGroupCode);
         boolean createUserSpace = group == null || group.isCreateUserSpace();
         boolean useEmailAsUserId = group != null && group.isUseEmailAsUserId();
 
@@ -623,42 +624,7 @@ public class UserManager
             PersonPermId personId = new PersonPermId(userId);
             if (currentUsersOfGroup.containsKey(userId) == false)
             {
-                SpacePermId userSpaceId = null;
-
-                if (createUserSpace)
-                {
-                    userSpaceId = createUserSpace(context, groupCode, userId);
-                }
-
-                Person knownUser = context.getCurrentState().getUser(userId);
-
-                if (context.getCurrentState().userExists(userId) == false)
-                {
-                    PersonCreation personCreation = new PersonCreation();
-                    personCreation.setUserId(userId);
-                    context.add(personCreation);
-                    context.getCurrentState().addNewUser(userId);
-                    context.getReport().addUser(userId);
-                } else if (knownUser != null && knownUser.isActive() == false)
-                {
-                    PersonUpdate personUpdate = new PersonUpdate();
-                    personUpdate.setUserId(personId);
-                    personUpdate.activate();
-                    context.add(personUpdate);
-
-                    context.getReport().reuseUser(userId);
-                }
-
-                if (createUserSpace)
-                {
-                    getHomeSpaceRequest(userId).setHomeSpace(userSpaceId);
-                    RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
-                    roleCreation.setUserId(personId);
-                    roleCreation.setRole(Role.ADMIN);
-                    roleCreation.setSpaceId(userSpaceId);
-                    context.add(roleCreation);
-                    createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
-                }
+                handleNewGroupUser(context, groupCode, createUserSpace, userId, personId);
             }
             addPersonToAuthorizationGroup(context, groupCode, userId);
             if (globalGroup != null)
@@ -674,6 +640,122 @@ public class UserManager
             }
         }
         removeUsersFromGroup(context, groupCode, usersToBeRemoved, useEmailAsUserId);
+        handleRoleAssignmentForUserSpaces(context, groupCode);
+    }
+
+    private void handleRoleAssignmentForUserSpaces(Context context, String groupCode)
+    {
+        UserGroup group = groupsByCode.get(groupCode);
+        Map<String, Person> currentUsersOfGroup = context.currentState.getCurrentUsersOfGroup(groupCode);
+        Set<String> allUserSpaces = getAllUserSpaces(context, groupCode, currentUsersOfGroup);
+        Role userSpaceRole = group.getUserSpaceRole();
+        AuthorizationGroup authorizationGroup = context.currentState.groupsByCode.get(groupCode);
+        AuthorizationGroupPermId groupId = new AuthorizationGroupPermId(groupCode);
+
+        for (String spaceCode : allUserSpaces)
+        {
+            List<RoleAssignment> roleAssignments = authorizationGroup.getRoleAssignments().stream()
+                    .filter(ra -> ra.getSpace() != null && ra.getSpace().getCode().equals(spaceCode))
+                    .collect(Collectors.toList());
+            for (RoleAssignment roleAssignment : roleAssignments)
+            {
+                Role role = roleAssignment.getRole();
+                SpacePermId permId = roleAssignment.getSpace().getPermId();
+                if (userSpaceRole != role)
+                {
+                    if (role != null)
+                    {
+                        context.delete(roleAssignment.getId());
+                        context.report.unassignRoleFrom(groupId, roleAssignment.getRole(), permId);
+                    }
+                    if (userSpaceRole != null)
+                    {
+                        createRoleAssignment(context, groupId, userSpaceRole, permId);
+                    }
+                }
+            }
+            if (roleAssignments.isEmpty() && userSpaceRole != null)
+            {
+                Space space = context.currentState.getSpace(spaceCode);
+                createRoleAssignment(context, groupId, userSpaceRole, space.getPermId());
+            }
+        }
+    }
+
+    private Set<String> getAllUserSpaces(Context context, String groupCode, Map<String, Person> currentUsersOfGroup)
+    {
+        String prefix = groupCode + "_";
+        Set<String> allGroupSpaces = context.getCurrentState().spacesByCode.keySet().stream()
+                .filter(space -> space.startsWith(prefix)).collect(Collectors.toSet());
+        Set<String> allUserSpaces = new TreeSet<>();
+        Set<String> users = currentUsersOfGroup.keySet().stream()
+                .map(u -> u.toUpperCase()).collect(Collectors.toSet());
+        for (String userId : users)
+        {
+            String space = prefix + userId;
+            if (allGroupSpaces.remove(space))
+            {
+                allUserSpaces.add(space);
+            }
+        }
+        // add also users spaces with code <group code>_<user id>_<number>
+        Pattern pattern = Pattern.compile(prefix + "(.*?)(_[0-9]+)?$");
+        for (String space : allGroupSpaces)
+        {
+            Matcher matcher = pattern.matcher(space);
+            if (matcher.matches() && users.contains(matcher.group(1)))
+            {
+                allUserSpaces.add(space);
+            }
+        }
+        return allUserSpaces;
+    }
+
+    private void handleNewGroupUser(Context context, String groupCode, boolean createUserSpace, String userId, PersonPermId personId)
+    {
+        SpacePermId userSpaceId = null;
+
+        if (createUserSpace)
+        {
+            userSpaceId = createUserSpace(context, groupCode, userId);
+        }
+
+        Person knownUser = context.getCurrentState().getUser(userId);
+
+        if (context.getCurrentState().userExists(userId) == false)
+        {
+            PersonCreation personCreation = new PersonCreation();
+            personCreation.setUserId(userId);
+            context.add(personCreation);
+            context.getCurrentState().addNewUser(userId);
+            context.getReport().addUser(userId);
+        } else if (knownUser != null && knownUser.isActive() == false)
+        {
+            PersonUpdate personUpdate = new PersonUpdate();
+            personUpdate.setUserId(personId);
+            personUpdate.activate();
+            context.add(personUpdate);
+
+            context.getReport().reuseUser(userId);
+        }
+
+        if (createUserSpace)
+        {
+            getHomeSpaceRequest(userId).setHomeSpace(userSpaceId);
+            RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+            roleCreation.setUserId(personId);
+            roleCreation.setRole(Role.ADMIN);
+            roleCreation.setSpaceId(userSpaceId);
+            context.add(roleCreation);
+            AuthorizationGroupPermId adminGroupId = new AuthorizationGroupPermId(createAdminGroupCode(groupCode));
+            createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
+            UserGroup group = groupsByCode.get(groupCode);
+            Role userSpaceRole = group == null ? null : group.getUserSpaceRole();
+            if (userSpaceRole != null)
+            {
+                createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), userSpaceRole, userSpaceId);
+            }
+        }
     }
 
     private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved,
