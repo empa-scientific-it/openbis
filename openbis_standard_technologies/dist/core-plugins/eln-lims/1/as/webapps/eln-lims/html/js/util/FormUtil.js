@@ -2286,29 +2286,39 @@ var FormUtil = new function() {
         }
 
         if(!forceDisableRTF) {
-            var $content = null
+            var $value = null
+            var $tooltip = null
 
             if(customWidget === 'Word Processor'){
-                $content = FormUtil.getFieldForPropertyType(propertyType, value);
-                $content = FormUtil.activateRichTextProperties($content, undefined, propertyType, value, true);
+                $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
+                $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
+                $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
             }else if(customWidget === 'Spreadsheet'){
-                $content = $("<div>")
-                JExcelEditorManager.createField($content, FormMode.VIEW, propertyType.code, { properties: row });
+                $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
+                $tooltip = $("<div>")
+                JExcelEditorManager.createField($tooltip, FormMode.VIEW, propertyType.code, { properties: row });
             }else{
-                $content = $("<div>").text(value)
+                $value = value
             }
 
-            return $("<div>").text(customWidget).tooltipster({
-                trigger: 'click',
-                interactive: true,
-                trackTooltip: true,
-                trackerInterval: 100,
-                theme: 'tooltipster-shadow',
-                functionBefore: function(instance, helper){
-                    $(helper.origin).tooltipster('content', $content)
-                    return true
-                }
-            })
+            if($tooltip){
+                $value.tooltipster({
+                    trigger: 'click',
+                    interactive: true,
+                    trackTooltip: true,
+                    trackerInterval: 100,
+                    theme: 'tooltipster-shadow',
+                    functionBefore: function(instance, helper){
+                        $(helper.origin).tooltipster('content', $tooltip)
+                        return true
+                    }
+                })
+                $valueContainer = $("<span>", { style: "cursor: pointer" })
+                $valueContainer.append($value)
+                return $valueContainer
+            }else{
+                return $value
+            }
         }
 
         return value
