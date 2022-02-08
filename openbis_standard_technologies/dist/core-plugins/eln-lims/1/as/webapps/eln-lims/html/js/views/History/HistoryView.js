@@ -17,7 +17,7 @@
 function HistoryView(controller, model) {
     this._model = model
     this._controller = controller
-    this._container = $("<div>", { class: "history-view" })
+    this._container = $("<div>", { class: "history-view" }).css("margin", "-10px");
     this._dataGrid
 
     this.repaint = function (views) {
