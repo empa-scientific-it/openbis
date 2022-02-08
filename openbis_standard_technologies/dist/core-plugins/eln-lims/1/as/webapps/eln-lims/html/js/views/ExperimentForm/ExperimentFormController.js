@@ -147,9 +147,11 @@ function ExperimentFormController(mainController, mode, experiment) {
 						
 						var isInventory = profile.isInventorySpace(experimentSpace);
 						if(isInventory) {
-							_this._mainController.changeView("showSamplesPage", experimentIdentifier);
+							_this._mainController.changeView("showSamplesPage", encodeURIComponent('["' +
+									experimentIdentifier + '",false]'));
 						} else {
-							_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
+							_this._mainController.changeView("showExperimentPageFromIdentifier",
+									encodeURIComponent('["' + experimentIdentifier + '",false]'));
 						}
 						Util.unblockUI();
 					}
