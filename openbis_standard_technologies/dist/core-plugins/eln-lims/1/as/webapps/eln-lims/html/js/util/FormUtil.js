@@ -2290,11 +2290,16 @@ var FormUtil = new function() {
             var renderTooltip = null
 
             if(customWidget === 'Word Processor'){
-                $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
-                renderTooltip = function(){
-                    $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
-                    $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
-                    return $tooltip
+                var valueLowerCase = value.toLowerCase()
+                if(valueLowerCase.includes("<img") || valueLowerCase.includes("<table")){
+                    $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
+                    renderTooltip = function(){
+                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
+                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                        return $tooltip
+                    }
+                }else{
+                    $value = value
                 }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
