@@ -3,13 +3,18 @@ from org.apache.poi.ss.usermodel import CellType
 from org.apache.poi.ss.usermodel import WorkbookFactory
 from org.apache.poi.ss.util import NumberToTextConverter
 from java.io import ByteArrayInputStream
+from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 
 class ExcelToPoiParser(object):
 
     @staticmethod
     def parse(excel_byte_array):
-        workbook = WorkbookFactory.create(ByteArrayInputStream(excel_byte_array))
+        try:
+            workbook = WorkbookFactory.create(ByteArrayInputStream(excel_byte_array))
+        except:
+            raise UserFailureException("Couldn't import file because it has probably a wrong format. " +
+                                       "Only spreadsheet (aka Excel) files of type .xls or .xlsx can be imported.")
 
         definitions = []
         for sheet in workbook.sheetIterator():
