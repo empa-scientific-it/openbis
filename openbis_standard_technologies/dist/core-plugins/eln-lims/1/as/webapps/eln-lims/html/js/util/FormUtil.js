@@ -2268,15 +2268,46 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderMultilineVarcharGridValue = function(row, propertyType){
-        return this.renderCustomWidgetGridValue(row, propertyType)
+    this.renderTruncatedGridValue = function(container, value){
+        if(container === null ||  container === undefined){
+            return value
+        }
+
+        var $value = $("<div>").css("visibility", "hidden").append(value).appendTo(container)
+
+        if($value.get(0).clientHeight > 150){
+            $value.remove()
+            $value.css("max-height", "100px")
+            $value.css("overflow", "hidden")
+            $value.css("visibility", "visible")
+
+            var $toggle = $("<a>").text("more")
+            $toggle.click(function(){
+                if($toggle.text() === "more"){
+                    $value.css("max-height", "")
+                    $toggle.text("less")
+                }else{
+                    $value.css("max-height", "100px")
+                    $toggle.text("more")
+                }
+            })
+
+            return $("<div>").append($value).append($toggle)
+        }else{
+            $value.remove()
+            return value
+        }
     }
 
-    this.renderXmlGridValue = function(row, propertyType){
-        return this.renderCustomWidgetGridValue(row, propertyType)
+    this.renderMultilineVarcharGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
     }
 
-    this.renderCustomWidgetGridValue = function(row, propertyType){
+    this.renderXmlGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
+    }
+
+    this.renderCustomWidgetGridValue = function(row, params, propertyType){
         var customWidget = this.profile.customWidgetSettings[propertyType.code];
         var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
         var value = row[propertyType.code]
@@ -2299,7 +2330,7 @@ var FormUtil = new function() {
                         return $tooltip
                     }
                 }else{
-                    $value = value
+                    return this.renderTruncatedGridValue(params.container, value)
                 }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
@@ -2309,30 +2340,27 @@ var FormUtil = new function() {
                     return $tooltip
                 }
             }else{
-                $value = value
+                return this.renderTruncatedGridValue(params.container, value)
             }
 
-            if(renderTooltip){
-                $value.tooltipster({
-                    trigger: 'click',
-                    interactive: true,
-                    trackTooltip: true,
-                    trackerInterval: 100,
-                    theme: 'tooltipster-shadow',
-                    functionBefore: function(instance, helper){
-                        $(helper.origin).tooltipster('content', renderTooltip())
-                        return true
-                    }
-                })
-                $valueContainer = $("<span>", { style: "cursor: pointer" })
-                $valueContainer.append($value)
-                return $valueContainer
-            }else{
-                return $value
-            }
+            $value.tooltipster({
+                trigger: 'click',
+                interactive: true,
+                trackTooltip: true,
+                trackerInterval: 100,
+                theme: 'tooltipster-shadow',
+                functionBefore: function(instance, helper){
+                    $(helper.origin).tooltipster('content', renderTooltip())
+                    return true
+                }
+            })
+
+            $valueContainer = $("<span>", { style: "cursor: pointer" })
+            $valueContainer.append($value)
+            return $valueContainer
+        }else{
+            return this.renderTruncatedGridValue(params.container, value)
         }
-
-        return value
     }
 
     this.renderBooleanGridFilter = function(params){

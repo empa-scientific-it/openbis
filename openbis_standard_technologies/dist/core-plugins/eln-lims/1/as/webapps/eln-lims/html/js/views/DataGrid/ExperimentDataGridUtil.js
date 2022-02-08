@@ -129,14 +129,14 @@ var ExperimentDataGridUtil = new function() {
 
 				if(propertyType.dataType === "XML"){
 					renderValue = (function(propertyType){
-						return function(params){
-							return FormUtil.renderXmlGridValue(params, propertyType)
+						return function(row, params){
+							return FormUtil.renderXmlGridValue(row, params, propertyType)
 						}
 					})(propertyType)
 				}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
 					renderValue = (function(propertyType){
-						return function(params){
-							return FormUtil.renderMultilineVarcharGridValue(params, propertyType)
+						return function(row, params){
+							return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
 						}
 					})(propertyType)
 				}
@@ -146,6 +146,7 @@ var ExperimentDataGridUtil = new function() {
 					property : propertyCodes[idx],
 					isExportable: true,
 					sortable : true,
+					truncate: propertyType.dataType === "VARCHAR",
 					render: renderValue
 				});
 			}

@@ -149,6 +149,7 @@ function DataGridController(
                         value = column.render(params.row, {
                             lastReceivedData: _this.lastReceivedData,
                             lastUsedOptions: _this.lastUsedOptions,
+                            container: params.container,
                         })
                     } else {
                         value = params.value
@@ -158,30 +159,10 @@ function DataGridController(
                         return
                     }else{
                         value = FormUtil.sanitizeRichHTMLText(value)
-                    }
-
-                    var $value = $("<div>").css("visibility", "hidden").append(value)
-                    var $container = $(params.container).empty().append($value)
-
-                    if($value.get(0).clientHeight > 150){
-                        $value.css("max-height", "100px")
-                        $value.css("overflow", "hidden")
-                        $value.css("visibility", "visible")
-                        
-                        var $toggle = $("<a>").text("more")
-                        $toggle.click(function(){
-                            if($toggle.text() === "more"){
-                                $value.css("max-height", "")
-                                $toggle.text("less")
-                            }else{
-                                $value.css("max-height", "100px")
-                                $toggle.text("more")
-                            }
-                        })
-
-                        $container.append($value).append($toggle)
-                    }else{
-                        $value.css("visibility", "visible")
+                        if(column.truncate){
+                            value = FormUtil.renderTruncatedGridValue(params.container, value)
+                        }
+                        $(params.container).empty().append(value)
                     }
                 },
                 renderFilter: column.renderFilter,

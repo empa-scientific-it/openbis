@@ -63,7 +63,7 @@ function HistoryView(controller, model) {
                     if (params.row._changes) {
                         return params.row._changes
                     } else {
-                        var $changes = _this._renderChanges(params.row)
+                        var $changes = _this._renderChanges(params.row, {})
                         params.row._changes = $changes ? $changes.text() : null
                         return params.row._changes
                     }
@@ -125,7 +125,7 @@ function HistoryView(controller, model) {
         this._dataGrid.init(this._container)
     }
 
-    this._renderChanges = function (row) {
+    this._renderChanges = function (row, params) {
         var $container = $("<div>", { class: "changes-list" })
 
         function abbreviate(array) {
@@ -221,11 +221,11 @@ function HistoryView(controller, model) {
                     $newValue = ""
 
                     if(property.propertyType.dataType === "MULTILINE_VARCHAR"){
-                        $oldValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.oldValue), property.propertyType)
-                        $newValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.newValue), property.propertyType)
+                        $oldValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.oldValue), params, property.propertyType)
+                        $newValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.newValue), params, property.propertyType)
                     }else if(property.propertyType.dataType === "XML"){
-                        $oldValue = FormUtil.renderXmlGridValue(object(property.code, property.oldValue), property.propertyType)
-                        $newValue = FormUtil.renderXmlGridValue(object(property.code, property.newValue), property.propertyType)
+                        $oldValue = FormUtil.renderXmlGridValue(object(property.code, property.oldValue), params, property.propertyType)
+                        $newValue = FormUtil.renderXmlGridValue(object(property.code, property.newValue), params, property.propertyType)
                     }else{
                         $oldValue = $("<div>").html(DOMPurify.sanitize(property.oldValue))
                         $newValue = $("<div>").html(DOMPurify.sanitize(property.newValue))

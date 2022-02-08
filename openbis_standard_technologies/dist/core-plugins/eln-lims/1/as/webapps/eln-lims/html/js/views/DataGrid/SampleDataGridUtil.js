@@ -230,14 +230,14 @@ var SampleDataGridUtil = new function() {
 
 					if(propertyType.dataType === "XML"){
 						renderValue = (function(propertyType){
-							return function(params){
-								return FormUtil.renderXmlGridValue(params, propertyType)
+							return function(row, params){
+								return FormUtil.renderXmlGridValue(row, params, propertyType)
 							}
 						})(propertyType)
 					}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
 						renderValue = (function(propertyType){
-							return function(params){
-								return FormUtil.renderMultilineVarcharGridValue(params, propertyType)
+							return function(row, params){
+								return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
 							}
 						})(propertyType)
 					}
@@ -248,6 +248,7 @@ var SampleDataGridUtil = new function() {
 						isExportable: true,
 						filterable : true,
 						sortable : propertyType.dataType !== "XML",
+						truncate: propertyType.dataType === "VARCHAR",
 						metadata: {
 							dataType: propertyType.dataType
 						},
