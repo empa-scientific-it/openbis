@@ -164,17 +164,17 @@ function DataGridController(
                     var $container = $(params.container).empty().append($value)
 
                     if($value.get(0).clientHeight > 150){
-                        $value.css("height", "100px")
+                        $value.css("max-height", "100px")
                         $value.css("overflow", "hidden")
                         $value.css("visibility", "visible")
                         
                         var $toggle = $("<a>").text("more")
                         $toggle.click(function(){
                             if($toggle.text() === "more"){
-                                $value.css("height", "")
+                                $value.css("max-height", "")
                                 $toggle.text("less")
                             }else{
-                                $value.css("height", "100px")
+                                $value.css("max-height", "100px")
                                 $toggle.text("more")
                             }
                         })
