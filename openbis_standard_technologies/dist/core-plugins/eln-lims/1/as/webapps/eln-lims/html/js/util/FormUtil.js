@@ -2268,6 +2268,109 @@ var FormUtil = new function() {
 		return id;
 	}
 
+    this.renderTruncatedGridValue = function(container, value){
+        var $value = $("<div>").append(value)
+
+        if(_.isString(value)){
+            $value.css("min-width", Math.min(value.length, 300))
+        }
+
+        if(container === null ||  container === undefined){
+            return $value
+        }
+
+        $value.css("visibility", "hidden").appendTo(container)
+
+        var valueHeight = $value.get(0).clientHeight
+
+        $value.remove()
+        $value.css("visibility", "")
+
+        if(valueHeight > 150){
+            $value.css("max-height", "100px")
+            $value.css("overflow", "hidden")
+
+            var $toggle = $("<a>").text("more")
+            $toggle.click(function(){
+                if($toggle.text() === "more"){
+                    $value.css("max-height", "")
+                    $toggle.text("less")
+                }else{
+                    $value.css("max-height", "100px")
+                    $toggle.text("more")
+                }
+            })
+
+            return $("<div>").append($value).append($toggle)
+        }else{
+            return $value
+        }
+    }
+
+    this.renderMultilineVarcharGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
+    }
+
+    this.renderXmlGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
+    }
+
+    this.renderCustomWidgetGridValue = function(row, params, propertyType){
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
+        var value = row[propertyType.code]
+
+        if(value === null || value === undefined || value.trim().length === 0){
+            return
+        }
+
+        if(!forceDisableRTF) {
+            var $value = null
+            var renderTooltip = null
+
+            if(customWidget === 'Word Processor'){
+                var valueLowerCase = value.toLowerCase()
+                if(valueLowerCase.includes("<img") || valueLowerCase.includes("<table")){
+                    $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
+                    renderTooltip = function(){
+                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
+                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                        return $tooltip
+                    }
+                }else{
+                    return this.renderTruncatedGridValue(params.container, value)
+                }
+            }else if(customWidget === 'Spreadsheet'){
+                $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
+                renderTooltip = function(){
+                    $tooltip = $("<div>")
+                    JExcelEditorManager.createField($tooltip, FormMode.VIEW, propertyType.code, { properties: row });
+                    return $tooltip
+                }
+            }else{
+                return this.renderTruncatedGridValue(params.container, value)
+            }
+
+            $value.tooltipster({
+                trigger: 'click',
+                interactive: true,
+                trackTooltip: true,
+                trackerInterval: 100,
+                theme: 'tooltipster-shadow',
+                functionBefore: function(instance, helper){
+                    $(helper.origin).tooltipster('content', renderTooltip())
+                    return true
+                }
+            })
+
+            $valueContainer = $("<span>", { style: "cursor: pointer" })
+            $valueContainer.append($value)
+            return $valueContainer
+        }else{
+            return this.renderTruncatedGridValue(params.container, value)
+        }
+    }
+
     this.renderBooleanGridFilter = function(params){
         return React.createElement(window.NgUiGrid.default.SelectField, {
             label: 'Filter',

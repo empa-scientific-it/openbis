@@ -17,7 +17,7 @@
 function HistoryView(controller, model) {
     this._model = model
     this._controller = controller
-    this._container = $("<div>", { class: "history-view" })
+    this._container = $("<div>", { class: "history-view" }).css("margin", "-10px");
     this._dataGrid
 
     this.repaint = function (views) {
@@ -63,7 +63,7 @@ function HistoryView(controller, model) {
                     if (params.row._changes) {
                         return params.row._changes
                     } else {
-                        var $changes = _this._renderChanges(params.row)
+                        var $changes = _this._renderChanges(params.row, {})
                         params.row._changes = $changes ? $changes.text() : null
                         return params.row._changes
                     }
@@ -125,7 +125,7 @@ function HistoryView(controller, model) {
         this._dataGrid.init(this._container)
     }
 
-    this._renderChanges = function (row) {
+    this._renderChanges = function (row, params) {
         var $container = $("<div>", { class: "changes-list" })
 
         function abbreviate(array) {
@@ -144,6 +144,12 @@ function HistoryView(controller, model) {
             }
 
             return str
+        }
+
+        function object(propertyCode, propertyValue){
+            var result = {}
+            result[propertyCode] = propertyValue
+            return result
         }
 
         var relations = row.changes.relations
@@ -210,11 +216,26 @@ function HistoryView(controller, model) {
                     $property.append(" property changed: ")
 
                     $diff = $("<div>", { class: "property-diff" })
+
+                    $oldValue = ""
+                    $newValue = ""
+
+                    if(property.propertyType.dataType === "MULTILINE_VARCHAR"){
+                        $oldValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.oldValue), params, property.propertyType)
+                        $newValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.newValue), params, property.propertyType)
+                    }else if(property.propertyType.dataType === "XML"){
+                        $oldValue = FormUtil.renderXmlGridValue(object(property.code, property.oldValue), params, property.propertyType)
+                        $newValue = FormUtil.renderXmlGridValue(object(property.code, property.newValue), params, property.propertyType)
+                    }else{
+                        $oldValue = $("<div>").html(DOMPurify.sanitize(property.oldValue))
+                        $newValue = $("<div>").html(DOMPurify.sanitize(property.newValue))
+                    }
+
                     $diff.append(
-                        $("<div>", { class: "property-old-value" }).html(DOMPurify.sanitize(property.oldValue))
+                        $("<div>", { class: "property-old-value" }).append($oldValue)
                     )
                     $diff.append(
-                        $("<div>", { class: "property-new-value" }).html(DOMPurify.sanitize(property.newValue))
+                        $("<div>", { class: "property-new-value" }).append($newValue)
                     )
 
                     $property.append($diff)

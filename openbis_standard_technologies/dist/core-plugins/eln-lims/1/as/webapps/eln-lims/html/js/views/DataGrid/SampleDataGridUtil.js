@@ -225,16 +225,34 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 					propertyColumnsToSort.push(getDateColumn(propertyType));
-				} else {			
+				} else {
+					var renderValue = null
+
+					if(propertyType.dataType === "XML"){
+						renderValue = (function(propertyType){
+							return function(row, params){
+								return FormUtil.renderXmlGridValue(row, params, propertyType)
+							}
+						})(propertyType)
+					}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+						renderValue = (function(propertyType){
+							return function(row, params){
+								return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
+							}
+						})(propertyType)
+					}
+
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyType.code,
 						isExportable: true,
 						filterable : true,
 						sortable : propertyType.dataType !== "XML",
+						truncate: propertyType.dataType === "VARCHAR",
 						metadata: {
 							dataType: propertyType.dataType
 						},
+						render: renderValue
 					});
 				}
 			}
