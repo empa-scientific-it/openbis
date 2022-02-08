@@ -138,15 +138,17 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		
-        var title = "NEW Batch Register " + ELNDictionary.Samples;
-        var $xslBatchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : 'xsl-register-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append(title));
+        var label = "XLS Batch Register " + ELNDictionary.Samples;
+        var id = 'xsl-register-' + ELNDictionary.Sample.toLowerCase() + '-btn';
+        var $xslBatchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchRegisterOption.click(function() {
             _this._sampleTableController.registerSamples(_this._sampleTableModel.experimentIdentifier);
         });
         $list.append($xslBatchRegisterOption);
 
-        var title = "NEW Batch Update " + ELNDictionary.Samples;
-        var $xslBatchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : 'xsl-update-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append(title));
+        var label = "XLS Batch Update " + ELNDictionary.Samples;
+        var id = 'xsl-update-' + ELNDictionary.Sample.toLowerCase() + '-btn';
+        var $xslBatchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchUpdateOption.click(function() {
             _this._sampleTableController.updateSamples(_this._sampleTableModel.experimentIdentifier);
         });
