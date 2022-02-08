@@ -2269,17 +2269,26 @@ var FormUtil = new function() {
 	}
 
     this.renderTruncatedGridValue = function(container, value){
-        if(container === null ||  container === undefined){
-            return value
+        var $value = $("<div>").append(value)
+
+        if(_.isString(value)){
+            $value.css("min-width", Math.min(value.length, 300))
         }
 
-        var $value = $("<div>").css("visibility", "hidden").append(value).appendTo(container)
+        if(container === null ||  container === undefined){
+            return $value
+        }
 
-        if($value.get(0).clientHeight > 150){
-            $value.remove()
+        $value.css("visibility", "hidden").appendTo(container)
+
+        var valueHeight = $value.get(0).clientHeight
+
+        $value.remove()
+        $value.css("visibility", "")
+
+        if(valueHeight > 150){
             $value.css("max-height", "100px")
             $value.css("overflow", "hidden")
-            $value.css("visibility", "visible")
 
             var $toggle = $("<a>").text("more")
             $toggle.click(function(){
@@ -2294,8 +2303,7 @@ var FormUtil = new function() {
 
             return $("<div>").append($value).append($toggle)
         }else{
-            $value.remove()
-            return value
+            return $value
         }
     }
 
