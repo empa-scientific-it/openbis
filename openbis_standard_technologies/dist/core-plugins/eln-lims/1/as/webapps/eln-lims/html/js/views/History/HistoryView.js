@@ -146,6 +146,12 @@ function HistoryView(controller, model) {
             return str
         }
 
+        function object(propertyCode, propertyValue){
+            var result = {}
+            result[propertyCode] = propertyValue
+            return result
+        }
+
         var relations = row.changes.relations
         if (!_.isEmpty(relations)) {
             var $relations = $("<ul>")
@@ -210,11 +216,26 @@ function HistoryView(controller, model) {
                     $property.append(" property changed: ")
 
                     $diff = $("<div>", { class: "property-diff" })
+
+                    $oldValue = ""
+                    $newValue = ""
+
+                    if(property.propertyType.dataType === "MULTILINE_VARCHAR"){
+                        $oldValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.oldValue), property.propertyType)
+                        $newValue = FormUtil.renderMultilineVarcharGridValue(object(property.code, property.newValue), property.propertyType)
+                    }else if(property.propertyType.dataType === "XML"){
+                        $oldValue = FormUtil.renderXmlGridValue(object(property.code, property.oldValue), property.propertyType)
+                        $newValue = FormUtil.renderXmlGridValue(object(property.code, property.newValue), property.propertyType)
+                    }else{
+                        $oldValue = $("<div>").html(DOMPurify.sanitize(property.oldValue))
+                        $newValue = $("<div>").html(DOMPurify.sanitize(property.newValue))
+                    }
+
                     $diff.append(
-                        $("<div>", { class: "property-old-value" }).html(DOMPurify.sanitize(property.oldValue))
+                        $("<div>", { class: "property-old-value" }).append($oldValue)
                     )
                     $diff.append(
-                        $("<div>", { class: "property-new-value" }).html(DOMPurify.sanitize(property.newValue))
+                        $("<div>", { class: "property-new-value" }).append($newValue)
                     )
 
                     $property.append($diff)
