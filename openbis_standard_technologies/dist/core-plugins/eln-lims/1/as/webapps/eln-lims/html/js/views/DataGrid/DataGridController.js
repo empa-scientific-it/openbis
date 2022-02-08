@@ -143,7 +143,6 @@ function DataGridController(
                     }
                 },
                 renderDOMValue: function (params) {
-                    var maxLineLength = 200
                     var value = null
 
                     if (column.render) {
@@ -155,28 +154,35 @@ function DataGridController(
                         value = params.value
                     }
 
-                    //2. Sanitize
-                    var value = FormUtil.sanitizeRichHTMLText(value)
-
-                    //3. Shorten
-                    var finalValue = null
-                    if (value && value.length > maxLineLength) {
-                        finalValue = value.substring(0, maxLineLength) + "..."
-                    } else {
-                        finalValue = value
+                    if(value === null || value === undefined || value === ""){
+                        return
+                    }else{
+                        value = FormUtil.sanitizeRichHTMLText(value)
                     }
 
-                    //4. Tooltip
-                    if (value !== finalValue) {
-                        finalValue = $("<div>").html(finalValue)
-                        finalValue.tooltipster({
-                            theme: 'tooltipster-shadow',
-                            content: $("<span>").html(value),
+                    var $value = $("<div>").css("visibility", "hidden").append(value)
+                    var $container = $(params.container).empty().append($value)
+
+                    if($value.get(0).clientHeight > 150){
+                        $value.css("height", "100px")
+                        $value.css("overflow", "hidden")
+                        $value.css("visibility", "visible")
+                        
+                        var $toggle = $("<a>").text("more")
+                        $toggle.click(function(){
+                            if($toggle.text() === "more"){
+                                $value.css("height", "")
+                                $toggle.text("less")
+                            }else{
+                                $value.css("height", "100px")
+                                $toggle.text("more")
+                            }
                         })
-                    }
 
-                    $(params.container).empty()
-                    $(params.container).append(finalValue)
+                        $container.append($value).append($toggle)
+                    }else{
+                        $value.css("visibility", "visible")
+                    }
                 },
                 renderFilter: column.renderFilter,
                 matchesValue: function (params) {
