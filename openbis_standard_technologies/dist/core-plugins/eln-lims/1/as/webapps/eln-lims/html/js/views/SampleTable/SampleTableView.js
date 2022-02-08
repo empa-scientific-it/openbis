@@ -179,7 +179,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			var $detailsOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Edit Collection', 'id' : 'detail-btn'}).append('Edit Collection'));
             $detailsOption.click(function() {
                 mainController.changeView("showExperimentPageFromIdentifier", encodeURIComponent('["' +
-						_this._sampleTableModel.experimentIdentifier + '",false]'));
+						_this._sampleTableModel.experimentIdentifier + '",true]'));
             });
             $list.append($detailsOption);
 		}
