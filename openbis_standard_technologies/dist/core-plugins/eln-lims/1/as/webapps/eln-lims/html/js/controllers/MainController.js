@@ -610,7 +610,7 @@ function MainController(profile) {
 					break;
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
-					var argsArray = JSON.parse(decodeURIComponent(arg));
+					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
 					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
@@ -642,7 +642,7 @@ function MainController(profile) {
 					break;
 				case "showSamplesPage":
 					document.title = "" + ELNDictionary.Sample + " Browser";
-					var argsArray = JSON.parse(decodeURIComponent(arg));
+					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
                     this._showExperimentView(argsArray[0], argsArray[1], "LIST_VIEW");
 					//window.scrollTo(0,0);
 					break;
@@ -1129,42 +1129,39 @@ function MainController(profile) {
 	this._showExperimentView = function(experimentIdentifier, forced, forcedView) {
 		var views = this._getNewViewModel(true, true, false);
         var _this = this;
-        this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
-            var experiment = data.result[0];
-            var defaultCollectionView = experiment.properties["$DEFAULT_COLLECTION_VIEW"];
-            var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
+		if (experimentIdentifier) {
+			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function (data) {
+				var experiment = data.result[0];
+				var defaultCollectionView = experiment.properties["$DEFAULT_COLLECTION_VIEW"];
+				var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
 
-            switch (collectionView) {
-                case "FORM_VIEW": {
-					document.title = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+				switch (collectionView) {
+					case "FORM_VIEW": {
+						document.title = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
 							experimentIdentifier;
-                    _this._showExperimentPage(experiment, FormMode.VIEW);
-                    break;
-                }
-                case "LIST_VIEW": {
-                    var sampleTableController = null;
+						_this._showExperimentPage(experiment, FormMode.VIEW);
+						break;
+					}
+					case "LIST_VIEW": {
+						if (experimentIdentifier === "null") { //Fix for reloads when there is text on the url
+							experimentIdentifier = null;
+						}
 
-                    if (experimentIdentifier) {
-                        if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
-                            experimentIdentifier = null;
-                        }
-
-                        sampleTableController = new SampleTableController(_this,
-                                "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
-                                experimentIdentifier,
-                                experimentIdentifier, null, null, experiment);
-                        sampleTableController.init(views);
-                        _this.currentView = sampleTableController;
-                    } else {
-                        sampleTableController = new SampleTableController(_this, "" + ELNDictionary.Sample +
-                                " Browser", null, null);
-                        sampleTableController.init(views);
-                        _this.currentView = sampleTableController;
-                    }
-					break;
-                }
-            }
-        });
+						var sampleTableController = new SampleTableController(_this,
+							"" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+							experimentIdentifier, experimentIdentifier, null, null, experiment);
+						sampleTableController.init(views);
+						_this.currentView = sampleTableController;
+						break;
+					}
+				}
+			});
+		} else {
+			sampleTableController = new SampleTableController(_this, "" + ELNDictionary.Sample +
+				" Browser", null, null);
+			sampleTableController.init(views);
+			_this.currentView = sampleTableController;
+		}
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
