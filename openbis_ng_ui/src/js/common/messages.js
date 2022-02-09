@@ -86,6 +86,7 @@ const keys = {
   GROUPS: 'GROUPS',
   HIDE: 'HIDE',
   HIDE_ALL: 'HIDE_ALL',
+  HIDE_DETAILS: 'HIDE_DETAILS',
   HIDE_STACK_TRACE: 'HIDE_STACK_TRACE',
   HISTORY: 'HISTORY',
   HOME_SPACE: 'HOME_SPACE',
@@ -186,6 +187,7 @@ const keys = {
   SELECTED_ROWS_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING: 'SELECTED_ROWS_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING',
   SHOW: 'SHOW',
   SHOW_CONTAINER: 'SHOW_CONTAINER',
+  SHOW_DETAILS: 'SHOW_DETAILS',
   SHOW_PARENTS: 'SHOW_PARENTS',
   SHOW_STACK_TRACE: 'SHOW_STACK_TRACE',
   SHOW_ALL: 'SHOW_ALL',
@@ -219,7 +221,8 @@ const keys = {
   VOCABULARY_TYPE_IS_INTERNAL: 'VOCABULARY_TYPE_IS_INTERNAL',
   VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED: 'VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED',
   XML_SCHEMA: 'XML_SCHEMA',
-  XSL_FILE: 'XSL_FILE',
+  XLS_FILE: 'XLS_FILE',
+  XLS_FILE_DESCRIPTION: 'XLS_FILE_DESCRIPTION',
   XSLT_SCRIPT: 'XSLT_SCRIPT'
 }
 
@@ -311,6 +314,7 @@ const messages_en = {
   [keys.GROUP]: 'Group',
   [keys.HIDE]: 'hide',
   [keys.HIDE_ALL]: 'Hide All',
+  [keys.HIDE_DETAILS]: 'Hide details',
   [keys.HIDE_STACK_TRACE]: 'Hide stack trace',
   [keys.HISTORY]: 'History',
   [keys.HOME_SPACE]: 'Home Space',
@@ -411,6 +415,7 @@ const messages_en = {
   [keys.SELECTED_ROWS_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING]: 'Some selected rows are not visible due to the chosen filtering and paging.',
   [keys.SHOW]: 'show',
   [keys.SHOW_CONTAINER]: 'Show Container',
+  [keys.SHOW_DETAILS]: 'Show details',
   [keys.SHOW_PARENTS]: 'Show Parents',
   [keys.SHOW_STACK_TRACE]: 'Show stack trace',
   [keys.SHOW_ALL]: 'Show All',
@@ -444,7 +449,8 @@ const messages_en = {
   [keys.VOCABULARY_TYPE_IS_INTERNAL]: 'This is a system internal vocabulary.',
   [keys.VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED]: 'The vocabulary parameters cannot be changed. The vocabulary cannot be removed.',
   [keys.XML_SCHEMA]: 'XML Schema',
-  [keys.XSL_FILE]: 'XSL File',
+  [keys.XLS_FILE]: 'XLS File',
+  [keys.XLS_FILE_DESCRIPTION]: 'Excel file that contains the data to import. The import accepts both master data (i.e. entity types, property types and vocabulary types) as well as entities (i.e. spaces, projects, collections and objects).',
   [keys.XSLT_SCRIPT]: 'XSLT Script',
 }
 

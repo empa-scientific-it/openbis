@@ -23,14 +23,16 @@ export default class ImportAllFormControllerImport extends PageControllerSave {
         },
         result: {
           success: true,
-          output: output
+          output: output,
+          visible: false
         }
       })
     } catch (error) {
       this.context.setState({
         result: {
           success: false,
-          error: new ErrorObject(error).toString()
+          output: new ErrorObject(error).toString(),
+          visible: false
         }
       })
     } finally {

@@ -2,6 +2,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Button from '@src/js/components/common/form/Button.jsx'
+import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -82,38 +83,42 @@ class FileChooserField extends React.PureComponent {
     } = this.props
 
     return (
-      <div className={classes.container}>
-        <input
-          ref={this.inputReference}
-          type='file'
-          onChange={this.handleChange}
-          className={classes.input}
-        />
-        <div className={classes.fileName}>
-          <TextField
-            id={id}
-            label={label}
-            description={description}
-            value={
-              value !== null && value !== undefined
-                ? value.name
-                : messages.get(messages.NO_FILE_CHOSEN)
-            }
-            mandatory={mandatory}
-            onClick={this.handleClick}
-            disabled={true}
-            error={error}
-            styles={styles}
+      <FormFieldContainer
+        description={description}
+        error={error}
+        styles={styles}
+      >
+        <div className={classes.container}>
+          <input
+            ref={this.inputReference}
+            type='file'
+            onChange={this.handleChange}
+            className={classes.input}
           />
+          <div className={classes.fileName}>
+            <TextField
+              id={id}
+              label={label}
+              value={
+                value !== null && value !== undefined
+                  ? value.name
+                  : messages.get(messages.NO_FILE_CHOSEN)
+              }
+              mandatory={mandatory}
+              onClick={this.handleClick}
+              disabled={true}
+              styles={styles}
+            />
+          </div>
+          <div className={classes.button}>
+            <Button
+              reference={reference}
+              label={messages.get(messages.CHOOSE_FILE)}
+              onClick={this.handleClick}
+            />
+          </div>
         </div>
-        <div className={classes.button}>
-          <Button
-            reference={reference}
-            label={messages.get(messages.CHOOSE_FILE)}
-            onClick={this.handleClick}
-          />
-        </div>
-      </div>
+      </FormFieldContainer>
     )
   }
 }

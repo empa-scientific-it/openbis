@@ -11,6 +11,8 @@ import ImportAllFormParameters from '@src/js/components/tools/form/import/all/Im
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
+import Link from '@src/js/components/common/form/Link.jsx'
+import Collapse from '@material-ui/core/Collapse'
 import SourceCodeField from '@src/js/components/common/form/SourceCodeField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
@@ -21,7 +23,11 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'flex-end'
   },
-  console: {
+  result: {
+    fontSize: theme.typography.body2.fontSize,
+    marginTop: theme.spacing(1)
+  },
+  error: {
     marginTop: theme.spacing(1)
   }
 })
@@ -68,7 +74,6 @@ class ImportAllForm extends React.PureComponent {
   }
 
   renderMainPanel() {
-    const { classes } = this.props
     const { result } = this.state
 
     if (result === null) {
@@ -83,17 +88,41 @@ class ImportAllForm extends React.PureComponent {
             result.success ? messages.IMPORT_SUCCEEDED : messages.IMPORT_FAILED
           )}
         </Message>
-        <div className={classes.console}>
-          <SourceCodeField
-            language='log'
-            label={messages.get(
-              result.success ? messages.OUTPUT : messages.ERROR
-            )}
-            readOnly={true}
-            value={result.success ? result.output : result.error}
-          />
-        </div>
+        {this.renderResult()}
       </Container>
+    )
+  }
+
+  renderResult() {
+    const { classes } = this.props
+    const { result } = this.state
+
+    if (result.success) {
+      return null
+    }
+
+    return (
+      <div className={classes.result}>
+        <Link onClick={this.controller.handleToggleResult}>
+          {result.visible
+            ? messages.get(messages.HIDE_DETAILS)
+            : messages.get(messages.SHOW_DETAILS)}
+        </Link>
+        <div className={classes.error}>
+          <Collapse
+            in={result.visible}
+            mountOnEnter={true}
+            unmountOnExit={true}
+          >
+            <SourceCodeField
+              language='log'
+              label={messages.get(messages.ERROR)}
+              readOnly={true}
+              value={result.output}
+            />
+          </Collapse>
+        </div>
+      </div>
     )
   }
 

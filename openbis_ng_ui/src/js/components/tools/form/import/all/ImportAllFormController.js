@@ -27,6 +27,15 @@ export default class ImportAllFormController {
     return this.validate()
   }
 
+  handleToggleResult() {
+    return this.context.setState(state => ({
+      result: {
+        ...state.result,
+        visible: !state.result.visible
+      }
+    }))
+  }
+
   validate(autofocus) {
     return new ImportAllFormControllerValidate(this).execute(autofocus)
   }
