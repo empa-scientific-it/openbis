@@ -60,7 +60,8 @@ function MoveEntityController(entityType, entityPermId) {
 					
 					switch(entityType) {
 						case "EXPERIMENT":
-							mainController.changeView("showExperimentPageFromIdentifier", entity.getIdentifier().identifier);
+							mainController.changeView("showExperimentPageFromIdentifier",
+									encodeURIComponent('["' + entity.getIdentifier().identifier + '",false]'));
 							break;
 						case "SAMPLE":
 							mainController.changeView("showViewSamplePageFromPermId", entity.getPermId().permId);

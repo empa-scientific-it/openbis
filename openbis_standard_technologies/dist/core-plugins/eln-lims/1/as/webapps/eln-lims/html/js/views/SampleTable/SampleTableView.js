@@ -180,7 +180,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 
 			var $detailsOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Edit Collection', 'id' : 'detail-btn'}).append('Edit Collection'));
             $detailsOption.click(function() {
-                mainController.changeView("showExperimentPageFromIdentifier", _this._sampleTableModel.experimentIdentifier);
+                mainController.changeView("showExperimentPageFromIdentifier", encodeURIComponent('["' +
+						_this._sampleTableModel.experimentIdentifier + '",true]'));
             });
             $list.append($detailsOption);
 		}
@@ -238,7 +239,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 						} else if(data.result) {
 							Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 								Util.unblockUI();
-								mainController.changeView('showSamplesPage', experimentIdentifier);
+								mainController.changeView('showSamplesPage', encodeURIComponent('["' +
+										experimentIdentifier + '",false]'));
 							});
 						} else {
 							Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
@@ -288,7 +290,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				} else if(data.result) {
 					Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 						Util.unblockUI();
-						mainController.changeView('showSamplesPage', experimentIdentifier);
+						mainController.changeView('showSamplesPage', encodeURIComponent('["' + experimentIdentifier +
+								'",false]'));
 					});
 				} else {
 					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});

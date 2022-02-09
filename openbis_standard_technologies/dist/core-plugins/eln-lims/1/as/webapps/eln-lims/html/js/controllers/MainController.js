@@ -604,16 +604,14 @@ function MainController(profile) {
 					var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } };
 					var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 					this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
-						mainController.changeView('showExperimentPageFromIdentifier', data.objects[0].identifier.identifier);
+						mainController.changeView('showExperimentPageFromIdentifier', encodeURIComponent('["' +
+								data.objects[0].identifier.identifier + '",false]'));
 					});
 					break;
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
-					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
-						_this._showExperimentPage(data.result[0], FormMode.VIEW);
-						//window.scrollTo(0,0);
-					});
+					var argsArray = JSON.parse(decodeURIComponent(arg));
+					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
 					var _this = this;
@@ -644,7 +642,8 @@ function MainController(profile) {
 					break;
 				case "showSamplesPage":
 					document.title = "" + ELNDictionary.Sample + " Browser";
-					this._showSamplesPage(arg);
+					var argsArray = JSON.parse(decodeURIComponent(arg));
+                    this._showExperimentView(argsArray[0], argsArray[1], "LIST_VIEW");
 					//window.scrollTo(0,0);
 					break;
 				case "showSampleHierarchyPage":
@@ -1127,28 +1126,45 @@ function MainController(profile) {
 		this.currentView = unarchivingHelperController;
 	}
 	
-	this._showSamplesPage = function(experimentIdentifier) {
+	this._showExperimentView = function(experimentIdentifier, forced, forcedView) {
 		var views = this._getNewViewModel(true, true, false);
-		
-		var sampleTableController = null;
-		
-		if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
-			experimentIdentifier = null;
-		}
-		
-		if(experimentIdentifier) {
-			var _this = this;
-			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
-				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
-				sampleTableController.init(views);
-				_this.currentView = sampleTableController;
-			});
-		} else {
-			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null, null);
-			sampleTableController.init(views);
-			this.currentView = sampleTableController;
-		}
-		
+        var _this = this;
+        this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
+            var experiment = data.result[0];
+            var defaultCollectionView = experiment.properties["$DEFAULT_COLLECTION_VIEW"];
+            var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
+
+            switch (collectionView) {
+                case "FORM_VIEW": {
+					document.title = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+							experimentIdentifier;
+                    _this._showExperimentPage(experiment, FormMode.VIEW);
+                    break;
+                }
+                case "LIST_VIEW": {
+                    var sampleTableController = null;
+
+                    if (experimentIdentifier) {
+                        if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
+                            experimentIdentifier = null;
+                        }
+
+                        sampleTableController = new SampleTableController(_this,
+                                "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+                                experimentIdentifier,
+                                experimentIdentifier, null, null, experiment);
+                        sampleTableController.init(views);
+                        _this.currentView = sampleTableController;
+                    } else {
+                        sampleTableController = new SampleTableController(_this, "" + ELNDictionary.Sample +
+                                " Browser", null, null);
+                        sampleTableController.init(views);
+                        _this.currentView = sampleTableController;
+                    }
+					break;
+                }
+            }
+        });
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
