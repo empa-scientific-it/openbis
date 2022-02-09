@@ -2,6 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import TypesGrid from '@src/js/components/types/common/TypesGrid.jsx'
 import VocabulariesGrid from '@src/js/components/types/common/VocabulariesGrid.jsx'
@@ -253,7 +254,11 @@ class TypeSearch extends React.Component {
       vocabularyTypes.length === 0
     ) {
       return (
-        <Message type='info'>{messages.get(messages.NO_RESULTS_FOUND)}</Message>
+        <Container>
+          <Message type='info'>
+            {messages.get(messages.NO_RESULTS_FOUND)}
+          </Message>
+        </Container>
       )
     } else {
       return null

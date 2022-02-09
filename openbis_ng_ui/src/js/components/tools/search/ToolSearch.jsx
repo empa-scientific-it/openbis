@@ -2,6 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
@@ -218,7 +219,11 @@ class ToolSearch extends React.Component {
       queries.length === 0
     ) {
       return (
-        <Message type='info'>{messages.get(messages.NO_RESULTS_FOUND)}</Message>
+        <Container>
+          <Message type='info'>
+            {messages.get(messages.NO_RESULTS_FOUND)}
+          </Message>
+        </Container>
       )
     } else {
       return null
