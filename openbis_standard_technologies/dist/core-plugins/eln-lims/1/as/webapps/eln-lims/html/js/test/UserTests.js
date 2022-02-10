@@ -275,16 +275,34 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
             Promise.resolve().then(() => TestUtil.overloadSaveAs())
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              // export all columns with all rows
-                             .then(() => e.waitForId("export-btn-id"))
-                             .then(() => e.click("export-btn-id"))
-                             .then(() => e.waitForId("export-all-columns-and-rows"))
-                             .then(() => e.click("export-all-columns-and-rows"))
+                             .then(() => e.waitForId("sample-grid\\.exports-button-id"))
+                             .then(() => e.click("sample-grid\\.exports-button-id"))
+                             .then(() => e.sleep(1000))
+                             // choose "All Column"
+                             .then(() => r.mousedown("mui-component-select-columns"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "All Columns"))
+                             .then(() => e.sleep(1000))
+                             // choose "All Pages"
+                             .then(() => r.mousedown("mui-component-select-rows"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "All Pages"))
+                             .then(() => e.sleep(1000))
+                             // choose "Rich Text"
+                             .then(() => r.mousedown("mui-component-select-values"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "Rich Text"))
+                             .then(() => e.sleep(1000))
+                             // trigger export
+                             .then(() => e.waitForId("sample-grid\\.trigger-exports-button-id"))
+                             .then(() => e.click("sample-grid\\.trigger-exports-button-id"))
                              .then(() => e.sleep(3000)) // wait for download
-                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllRows.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
+                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllPages.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
                              .then(() => e.waitForId("bac1-name-id"))
                              .then(() => e.equalTo("bac1-name-id", "Aurantimonas", true, false))
                              .then(() => e.equalTo("bac2-name-id", "Burantimonas", true, false))

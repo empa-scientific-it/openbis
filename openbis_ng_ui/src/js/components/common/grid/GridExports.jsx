@@ -184,6 +184,7 @@ class GridExports extends React.PureComponent {
             </div>
             <div className={classes.button}>
               <Button
+                id={id + '.trigger-exports-button-id'}
                 label={messages.get(messages.EXPORT)}
                 type='neutral'
                 onClick={this.handleExport}

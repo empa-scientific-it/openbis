@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import FileSaver from 'file-saver'
 import CsvStringify from 'csv-stringify'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
@@ -1073,7 +1072,7 @@ export default class GridController {
           var blob = new Blob([utf16bytesArray], {
             type: 'text/tsv;charset=UTF-16LE;'
           })
-          FileSaver.saveAs(blob, 'exportedTable' + namePrefix + '.tsv')
+          saveAs(blob, 'exportedTable' + namePrefix + '.tsv')
         }
       )
     }
