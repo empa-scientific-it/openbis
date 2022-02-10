@@ -192,7 +192,7 @@ var UserTests = new function() {
                              // check parents comments
                              .then(() => e.waitForId("parent-annotations-bac3"))
                              .then(() => e.contains("parent-annotations-bac3", [motherFirst, fatherFirst], false))
-                             .then(() => e.sleep(1000))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(9))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(9, error, reject));
@@ -214,6 +214,7 @@ var UserTests = new function() {
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.waitForId("copy"))
                              .then(() => e.click("copy"))
+                             .then(() => e.sleep(1000))
                              // link parents
                              .then(() => e.waitForId("linkParentsOnCopy"))
                              .then(() => e.checked("linkParentsOnCopy", true))
@@ -221,17 +222,20 @@ var UserTests = new function() {
                              .then(() => e.checked("copyChildrenToParent", true))
                              .then(() => e.waitForId("copyAccept"))
                              .then(() => e.click("copyAccept"))
-                             .then(() => e.sleep(3500)) // wait when copy will finished
+                             .then(() => e.sleep(4000)) // wait when copy will finished
                              // go to bac1
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.waitForId("bac1-column-id"))
                              .then(() => e.click("bac1-column-id"))
+                             .then(() => e.sleep(1000))
                              // check new object in bac1 graph
                              .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.sleep(1000))
                              .then(() => e.waitForId("hierarchy-graph"))
                              .then(() => e.click("hierarchy-graph"))
+                             .then(() => e.sleep(1000))
                              // origin bacteria
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.waitForId("bac4"))
@@ -312,7 +316,7 @@ var UserTests = new function() {
                              .then(() => e.equalTo("bac5_bac4-name-id", "Durantimonas", true, false))
                              // Batch Update Objects
                              .then(() => UserTests.importBacteriasFromFile(baseURL + pathToUpdateResource, false))
-                             .then(() => e.sleep(5000)) // wait for import
+                             .then(() => e.sleep(6000)) // wait for import
                              // check names after update
                              .then(() => e.waitForId("bac1-name-id"))
                              .then(() => e.equalTo("bac1-name-id", "AA", true, false))
