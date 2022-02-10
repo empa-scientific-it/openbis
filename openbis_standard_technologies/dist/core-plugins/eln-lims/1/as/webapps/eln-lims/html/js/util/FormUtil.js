@@ -818,9 +818,12 @@ var FormUtil = new function() {
 		if(text) {
 			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		}
-		//text = html.sanitize(text);
-		text = DOMPurify.sanitize(text);
-		$component.html(hyperlink ? this.asHyperlink(text, hyperlinkLabel) : text);
+
+		if(hyperlink) {
+		    $component.html(this.asHyperlink(text, hyperlinkLabel));
+		} else {
+		    $component.text(text);
+		}
 		
 		if(id) {
 			$component.attr('id', this.prepareId(id));
