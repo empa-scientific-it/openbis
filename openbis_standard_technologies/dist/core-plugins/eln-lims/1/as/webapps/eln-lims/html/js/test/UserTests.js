@@ -228,14 +228,11 @@ var UserTests = new function() {
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.waitForId("bac1-column-id"))
                              .then(() => e.click("bac1-column-id"))
-                             .then(() => e.sleep(1000))
                              // check new object in bac1 graph
                              .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
-                             .then(() => e.sleep(1000))
                              .then(() => e.waitForId("hierarchy-graph"))
                              .then(() => e.click("hierarchy-graph"))
-                             .then(() => e.sleep(1000))
                              // origin bacteria
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.waitForId("bac4"))
@@ -361,11 +358,12 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
             Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
                              .then(() => e.sleep(5000)) // wait for saving
                              // check that bacterias was created
-                             .then(() => e.waitForId("next-page-id"))
-                             .then(() => e.click("next-page-id"))
+                             .then(() => e.waitForId("sample-grid\\.next-page-id"))
+                             .then(() => r.click("sample-grid\\.next-page-id"))
                              .then(() => e.waitForId("bac10-column-id"))
                              .then(() => e.waitForId("bac11-column-id"))
                              .then(() => e.waitForId("bac12-column-id"))

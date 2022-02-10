@@ -22,10 +22,23 @@ var ReactTestUtils = new function() {
     this.mousedown = function(elementId) {
         return new Promise(function executor(resolve, reject) {
             try {
-                var element = document.getElementById(elementId);
-
+                var element = $( "#" + elementId );
                 let event = new MouseEvent("mousedown", { view: window, bubbles: true, cancelable: true, buttons: 1});
-                element.dispatchEvent(event);
+                element[0].dispatchEvent(event);
+
+                resolve();
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
+    this.click = function(elementId) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = $( "#" + elementId );
+                let event = new MouseEvent("click", { view: window, bubbles: true, cancelable: true, buttons: 1});
+                element[0].dispatchEvent(event);
 
                 resolve();
             } catch(error) {
