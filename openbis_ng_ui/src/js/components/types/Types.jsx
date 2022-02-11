@@ -6,6 +6,7 @@ import TypeBrowser from '@src/js/components/types/browser/TypeBrowser.jsx'
 import TypeSearch from '@src/js/components/types/search/TypeSearch.jsx'
 import EntityTypeForm from '@src/js/components/types/form/entitytype/EntityTypeForm.jsx'
 import VocabularyTypeForm from '@src/js/components/types/form/vocabularytype/VocabularyTypeForm.jsx'
+import PropertyTypeForm from '@src/js/components/types/form/propertytype/PropertyTypeForm.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
@@ -47,6 +48,11 @@ class Types extends React.Component {
       object.type === objectType.NEW_VOCABULARY_TYPE
     ) {
       return <VocabularyTypeForm object={object} />
+    } else if (
+      object.type === objectType.PROPERTY_TYPE ||
+      object.type === objectType.NEW_PROPERTY_TYPE
+    ) {
+      return <PropertyTypeForm object={object} />
     } else {
       return <EntityTypeForm object={object} />
     }
@@ -63,7 +69,8 @@ class Types extends React.Component {
         [objectType.COLLECTION_TYPE]: messages.get(messages.COLLECTION_TYPES),
         [objectType.DATA_SET_TYPE]: messages.get(messages.DATA_SET_TYPES),
         [objectType.MATERIAL_TYPE]: messages.get(messages.MATERIAL_TYPES),
-        [objectType.VOCABULARY_TYPE]: messages.get(messages.VOCABULARY_TYPES)
+        [objectType.VOCABULARY_TYPE]: messages.get(messages.VOCABULARY_TYPES),
+        [objectType.PROPERTY_TYPE]: messages.get(messages.PROPERTY_TYPES)
       }
       label = labels[object.id]
     } else {
@@ -78,6 +85,8 @@ class Types extends React.Component {
           messages.get(messages.NEW_MATERIAL_TYPE) + ' ',
         [objectType.NEW_VOCABULARY_TYPE]:
           messages.get(messages.NEW_VOCABULARY_TYPE) + ' ',
+        [objectType.NEW_PROPERTY_TYPE]:
+          messages.get(messages.NEW_PROPERTY_TYPE) + ' ',
         [objectType.OBJECT_TYPE]: messages.get(messages.OBJECT_TYPE) + ': ',
         [objectType.COLLECTION_TYPE]:
           messages.get(messages.COLLECTION_TYPE) + ': ',
@@ -85,6 +94,7 @@ class Types extends React.Component {
         [objectType.MATERIAL_TYPE]: messages.get(messages.MATERIAL_TYPE) + ': ',
         [objectType.VOCABULARY_TYPE]:
           messages.get(messages.VOCABULARY_TYPE) + ': ',
+        [objectType.PROPERTY_TYPE]: messages.get(messages.PROPERTY_TYPE) + ': ',
         [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
       }
       label = prefixes[object.type] + object.id
