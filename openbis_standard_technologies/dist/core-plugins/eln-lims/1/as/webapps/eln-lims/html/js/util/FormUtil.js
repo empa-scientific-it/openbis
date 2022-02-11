@@ -2274,11 +2274,15 @@ var FormUtil = new function() {
 	}
 
     this.renderTruncatedGridValue = function(container, value){
-        var $value = $("<div>").append(value)
+        var $value = $("<div>")
 
         if(_.isString(value)){
-            $value.css("min-width", Math.min(value.length, 300))
+            $value.text(value)
+        }else{
+            $value.append(value)
         }
+
+        $value.css("min-width", Math.min($value.text().length / 5, 15) + "em")
 
         if(container === null ||  container === undefined){
             return $value
@@ -2321,13 +2325,14 @@ var FormUtil = new function() {
     }
 
     this.renderCustomWidgetGridValue = function(row, params, propertyType){
-        var customWidget = this.profile.customWidgetSettings[propertyType.code];
-        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
         var value = row[propertyType.code]
 
         if(value === null || value === undefined || value.trim().length === 0){
             return
         }
+
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
 
         if(!forceDisableRTF) {
             var $value = null
@@ -2338,12 +2343,14 @@ var FormUtil = new function() {
                 if(valueLowerCase.includes("<img") || valueLowerCase.includes("<table")){
                     $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
                     renderTooltip = function(){
-                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
-                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                        var valueSanitized = FormUtil.sanitizeRichHTMLText(value)
+                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, valueSanitized);
+                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, valueSanitized, true);
                         return $tooltip
                     }
                 }else{
-                    return this.renderTruncatedGridValue(params.container, value)
+                    $value  = $("<div>").html(FormUtil.sanitizeRichHTMLText(value))
+                    return this.renderTruncatedGridValue(params.container, $value)
                 }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
@@ -2353,7 +2360,11 @@ var FormUtil = new function() {
                     return $tooltip
                 }
             }else{
-                return this.renderTruncatedGridValue(params.container, value)
+                $value = $("<div>")
+                value.split('\n').forEach(function(line){
+                    $("<div>").text(line).appendTo($value)
+                })
+                return this.renderTruncatedGridValue(params.container, $value)
             }
 
             $value.tooltipster({
@@ -2372,7 +2383,11 @@ var FormUtil = new function() {
             $valueContainer.append($value)
             return $valueContainer
         }else{
-            return this.renderTruncatedGridValue(params.container, value)
+            $value = $("<div>")
+            value.split('\n').forEach(function(line){
+                $("<div>").text(line).appendTo($value)
+            })
+            return this.renderTruncatedGridValue(params.container, $value)
         }
     }
 
