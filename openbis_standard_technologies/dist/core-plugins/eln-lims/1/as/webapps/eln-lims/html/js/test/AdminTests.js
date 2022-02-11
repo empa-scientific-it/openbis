@@ -173,7 +173,7 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("search-btn-requests"))
                      .then(() => e.click("search-btn-requests"))
                      .then(() => e.searchForObjectInSelect2("EN", "add-object-request"))
-                     .then(() => e.waitForId("req16-column-id"))
+                     .then(() => e.waitForId("req17-column-id"))
                      // choose oder status
                      .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                      .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "ORDERED"))
@@ -181,7 +181,7 @@ var AdminTests = new function() {
                      .then(() => e.click("save-btn"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data
-                     .then(() => e.waitForId("req16-column-id"))
+                     .then(() => e.waitForId("req17-column-id"))
                      .then(() => e.waitForId("catalogNum-0"))
                      // print
                      .then(() => e.waitForId("print-order-id"))
@@ -210,9 +210,9 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      // delete request
-                     .then(() => e.waitForId("req16-column-id"))
-                     .then(() => e.click("req16-column-id"))
-                     .then(() => e.waitForId("pro14-column-id"))
+                     .then(() => e.waitForId("req17-column-id"))
+                     .then(() => e.click("req17-column-id"))
+                     .then(() => e.waitForId("pro15-column-id"))
                      .then(() => e.waitForId("options-menu-btn-sample-view-request"))
                      .then(() => e.click("options-menu-btn-sample-view-request"))
                      .then(() => e.waitForId("delete"))

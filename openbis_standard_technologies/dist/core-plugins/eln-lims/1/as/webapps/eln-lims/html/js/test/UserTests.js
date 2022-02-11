@@ -766,11 +766,6 @@ var UserTests = new function() {
                              .then(() => e.keypress("search", 13, false))
                              .then(() => e.waitForId("save-btn"))
                              // check searching results
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("code-cln"))
-                             .then(() => e.click("code-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.waitForId("bac5_bac4-id"))
                              // save query
@@ -780,7 +775,7 @@ var UserTests = new function() {
                              .then(() => e.write("Name", "Search for BAC5", false))
                              .then(() => e.waitForId("search-query-save-btn"))
                              .then(() => e.click("search-query-save-btn"))
-                             .then(() => e.sleep(3000)) // wait for saving
+                             .then(() => e.sleep(6000)) // wait for saving
                              // Click on BAC5
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.click("bac5-id"))
@@ -862,9 +857,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("PRODUCTS"))
                              .then(() => e.click("PRODUCTS"))
                              //create English product form
-                             .then(() => UserTests.createProductForm("EN", "EUR", "SUP12"))
+                             .then(() => UserTests.createProductForm("EN", "EUR", "SUP13"))
                              //create German product form
-                             .then(() => UserTests.createProductForm("DE", "EUR", "SUP13"))
+                             .then(() => UserTests.createProductForm("DE", "EUR", "SUP14"))
                              .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(28))
                              .then(() => resolve())
@@ -928,10 +923,10 @@ var UserTests = new function() {
                               // add Products from Catalog
                               .then(() => e.waitForId("search-btn-products"))
                               .then(() => e.click("search-btn-products"))
-                              .then(() => e.searchForObjectInSelect2("PRO14", "add-object-product"))
-                              .then(() => e.waitForId("pro14-column-id"))
-                              .then(() => e.waitForId("quantity-of-items-pro14"))
-                              .then(() => e.change("quantity-of-items-pro14", "18"))
+                              .then(() => e.searchForObjectInSelect2("PRO15", "add-object-product"))
+                              .then(() => e.waitForId("pro15-column-id"))
+                              .then(() => e.waitForId("quantity-of-items-pro15"))
+                              .then(() => e.change("quantity-of-items-pro15", "18"))
                               .then(() => e.waitForId("save-btn"))
                               .then(() => e.click("save-btn"))
                               .then(() => e.waitForId("edit-btn")) // wait for saving
