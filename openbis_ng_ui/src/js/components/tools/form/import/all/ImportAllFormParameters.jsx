@@ -103,15 +103,15 @@ class ImportAllFormParameters extends React.PureComponent {
 
     const options = [
       {
-        label: ImportAllUpdateMode.IGNORE_EXISTING,
+        label: messages.get(messages.IGNORE_EXISTING),
         value: ImportAllUpdateMode.IGNORE_EXISTING
       },
       {
-        label: ImportAllUpdateMode.UPDATE_IF_EXISTS,
+        label: messages.get(messages.UPDATE_IF_EXISTS),
         value: ImportAllUpdateMode.UPDATE_IF_EXISTS
       },
       {
-        label: ImportAllUpdateMode.FAIL_IF_EXISTS,
+        label: messages.get(messages.FAIL_IF_EXISTS),
         value: ImportAllUpdateMode.FAIL_IF_EXISTS
       }
     ]
