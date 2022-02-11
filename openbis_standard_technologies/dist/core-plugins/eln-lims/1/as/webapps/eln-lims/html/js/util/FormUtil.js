@@ -822,7 +822,18 @@ var FormUtil = new function() {
 		if(hyperlink) {
 		    $component.html(this.asHyperlink(text, hyperlinkLabel));
 		} else {
-		    $component.text(text);
+		    if(text.includes('\n')) {
+		        var lines = text.split('\n');
+		        for(var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+		            if(lineIndex != 0) {
+		                $component.append($("<br>"));
+		            }
+		            var textNode = document.createTextNode(lines[lineIndex]);
+                    $component.append(textNode);
+		        }
+		    } else {
+		        $component.text(text);
+		    }
 		}
 		
 		if(id) {
