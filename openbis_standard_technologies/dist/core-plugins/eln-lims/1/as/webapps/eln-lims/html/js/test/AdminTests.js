@@ -270,12 +270,14 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("accept-btn"))
                      .then(() => e.click("accept-btn"))
                      .then(() => e.waitForId("create-btn")) // wait for page reload
+                     .then(() => e.sleep(1000)) // wait for delete
                      // go to TRASHCAN
                      .then(() => e.waitForId("TRASHCAN"))
                      .then(() => e.click("TRASHCAN"))
+                     .then(() => e.waitForId("empty-trash-btn"))
                      // The Objects BAC1 and the deleted request should be there.
                      .then(() => e.waitForId("deleted--materials-bacteria-bac1-id"))
-                     .then(() => e.waitForId("deleted--stock_catalog-requests-req16-id"))
+                     .then(() => e.waitForId("deleted--stock_catalog-requests-req17-id"))
                      // clear Trash
                      .then(() => e.waitForId("empty-trash-btn"))
                      .then(() => e.click("empty-trash-btn"))
@@ -284,7 +286,7 @@ var AdminTests = new function() {
                      .then(() => e.sleep(2000)) // wait for delete
                      // check that trash is empty
                      .then(() => e.verifyExistence("deleted--materials-bacteria-bac1-id", false))
-                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req16-id", false))
+                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req17-id", false))
                      .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(33))
                      .then(() => resolve())
