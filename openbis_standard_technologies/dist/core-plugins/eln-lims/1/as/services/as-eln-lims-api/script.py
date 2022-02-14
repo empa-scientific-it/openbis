@@ -487,23 +487,12 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
     currentSession = daoFactory.getSessionFactory().getCurrentSession();
 
-    # TO-DO Replace generating SQL manually by variable substitution
-
     spaceCodes = parameters.get("spaceCodes");
     if spaceCodes is None or len(spaceCodes) == 0:
         return []
 
-    spaceCodesList = "("
-    isFirst = True
-    for spaceCode in spaceCodes:
-        if not isFirst:
-            spaceCodesList = spaceCodesList + ","
-        else:
-            isFirst = False
-        spaceCodesList = spaceCodesList + "'" + spaceCode + "'"
-    spaceCodesList = spaceCodesList + ")"
-
-    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN " + spaceCodesList + ") AND p.is_active = FALSE)");
+    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN (:codes)) AND p.is_active = FALSE)");
+    disabled_spaces.setParameterList("codes", spaceCodes)
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
 
