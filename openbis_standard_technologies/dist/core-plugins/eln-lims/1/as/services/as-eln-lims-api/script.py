@@ -97,9 +97,9 @@ def getSamplesImportTemplate(context, parameters):
         cell_index = _create_cell(row, cell_index, header_style, "Code")
         if importMode == "UPDATE":
             cell_index = _create_cell(row, cell_index, header_style, "Identifier")
-            cell_index = _create_cell(row, cell_index, header_style, "Experiment")
-            cell_index = _create_cell(row, cell_index, header_style, "Project")
-            cell_index = _create_cell(row, cell_index, header_style, "Space")
+        cell_index = _create_cell(row, cell_index, header_style, "Experiment")
+        cell_index = _create_cell(row, cell_index, header_style, "Project")
+        cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
@@ -147,11 +147,11 @@ def importSamples(context, parameters):
     for file in uploadedFiles.iterable():
         file_name = file.getOriginalFilename()
         bytes = IOUtils.toByteArray(file.getInputStream())
-        validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo)
+        validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, spacesByType, mode, barcodeValidationInfo)
         results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
     return results
 
-def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, barcodeValidationInfo):
+def validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, spacesByType, mode, barcodeValidationInfo):
     definitions = importData(context, bytes, file_name, None, None, mode, True)
     for definition in definitions:
         row_number = definition.row_number
@@ -164,25 +164,41 @@ def validateSampleImport(context, bytes, file_name, allowedSampleTypes, mode, ba
         sampleType = definition.attributes[key]
         if sampleType not in allowedSampleTypes:
             raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
-        row_number += 3
+        experiment = None
+        if experimentsByType is not None and sampleType in experimentsByType:
+            experiment = experimentsByType[sampleType]
+        space = None
+        if spacesByType is not None and sampleType in spacesByType:
+            space = spacesByType[sampleType]
+        row_number += 4
         for properties in definition.properties:
             if properties.get("$") == "$":
                 raise UserFailureException("Empty row expected before row %s" % (row_number - 2))
-            barcode = properties.get("custom barcode")
-            if barcode is None:
-                barcode = properties.get("$BARCODE")
-            if barcode is not None:
-                minBarcodeLength = barcodeValidationInfo['minBarcodeLength']
-                if len(barcode) < minBarcodeLength:
-                    raise UserFailureException("Error in row %s: custom barcode %s is too short. "
-                                               "Minimum barcode length has to be %s."
-                                               % (row_number, barcode, minBarcodeLength))
-                regex = barcodeValidationInfo['barcodePattern']
-                pattern = re.compile(regex)
-                if pattern.match(barcode) is None:
-                    raise UserFailureException("Error in row %s: custom barcode %s does not match "
-                                               "the regular expression '%s'." % (row_number, barcode, pattern.pattern))
+            validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space)
+            validateBarcode(row_number, properties, barcodeValidationInfo)
             row_number += 1
+
+def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space):
+    if experiment is None and space is None and not mode.startswith("UPDATE"):
+        exp = properties.get("experiment")
+        if exp is None:
+            raise UserFailureException("Error in row %s: Empty column 'Experiment'" % row_number);
+
+def validateBarcode(row_number, properties, barcodeValidationInfo):
+    barcode = properties.get("custom barcode")
+    if barcode is None:
+        barcode = properties.get("$BARCODE")
+    if barcode is not None:
+        minBarcodeLength = barcodeValidationInfo['minBarcodeLength']
+        if len(barcode) < minBarcodeLength:
+            raise UserFailureException("Error in row %s: custom barcode %s is too short. "
+                                       "Minimum barcode length has to be %s."
+                                       % (row_number, barcode, minBarcodeLength))
+        regex = barcodeValidationInfo['barcodePattern']
+        pattern = re.compile(regex)
+        if pattern.match(barcode) is None:
+            raise UserFailureException("Error in row %s: custom barcode %s does not match "
+                                       "the regular expression '%s'." % (row_number, barcode, pattern.pattern))
 
 def importData(context, bytes, file_name, experimentsByType, spacesByType, mode, definitionsOnly):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
@@ -471,23 +487,12 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
     currentSession = daoFactory.getSessionFactory().getCurrentSession();
 
-    # TO-DO Replace generating SQL manually by variable substitution
-
     spaceCodes = parameters.get("spaceCodes");
     if spaceCodes is None or len(spaceCodes) == 0:
         return []
 
-    spaceCodesList = "("
-    isFirst = True
-    for spaceCode in spaceCodes:
-        if not isFirst:
-            spaceCodesList = spaceCodesList + ","
-        else:
-            isFirst = False
-        spaceCodesList = spaceCodesList + "'" + spaceCode + "'"
-    spaceCodesList = spaceCodesList + ")"
-
-    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN " + spaceCodesList + ") AND p.is_active = FALSE)");
+    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN (:codes)) AND p.is_active = FALSE)");
+    disabled_spaces.setParameterList("codes", spaceCodes)
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
 

@@ -29,6 +29,34 @@ var EventUtil = new function() {
         });
     };
 
+    this.searchSelect2 = function(elementId, value, ignoreError) {
+         return new Promise(function executor(resolve, reject) {
+             try {
+                 var $el = EventUtil.getElementThatStartWith(elementId, ignoreError, resolve);
+                 $el.select2('open');
+                 var $search = $el.data('select2').dropdown.$search || $el.data('select2').selection.$search;
+                 $search.val(value);
+                 $search.trigger('input');
+                 resolve();
+             } catch(error) {
+                 reject(error);
+             }
+         });
+     };
+
+
+	this.mouseUp = function(className, ignoreError) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = EventUtil.getClass(className, ignoreError, resolve);
+                element.trigger("mouseup");
+                resolve();
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
     this.changeSelect2 = function(elementId, value, ignoreError) {
         return new Promise(function executor(resolve, reject) {
             try {
@@ -65,6 +93,21 @@ var EventUtil = new function() {
                 element.focus();
                 element.prop('checked', value);
                 resolve();
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
+    this.contains = function(elementId, values, ignoreError) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = EventUtil.getElement(elementId, ignoreError, resolve);
+                if (values.indexOf(element.html()) >= 0 || values.indexOf(element.val()) >= 0) {
+                    resolve();
+                } else {
+                    throw "Element #" + elementId + " should be in " + values;
+                }
             } catch(error) {
                 reject(error);
             }
@@ -117,7 +160,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-	}
+	};
 
 	this.verifyExistence = function(elementId, isExist, ignoreError) {
 	    return new Promise(function executor(resolve, reject) {
@@ -132,7 +175,7 @@ var EventUtil = new function() {
                 }
 	        }
 	    });
-	}
+	};
 
     this.waitForId = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
@@ -181,7 +224,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-    }
+    };
 
     this.waitForFill = function(elementId, ignoreError, timeout) {
         return new Promise(function executor(resolve, reject) {
@@ -215,7 +258,7 @@ var EventUtil = new function() {
                 reject(error);
             }
         });
-    }
+    };
 
     this.checkTimeout = function(elementId, timeout, ignoreError, resolve) {
         if (!timeout) {
@@ -231,11 +274,11 @@ var EventUtil = new function() {
             }
         }
         return timeout;
-    }
+    };
 
     this.sleep = function(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    };
 
     this.dragAndDrop = function(dragId, dropId, ignoreError) {
         return new Promise(function executor(resolve, reject) {
@@ -294,5 +337,59 @@ var EventUtil = new function() {
             }
         }
         return element;
+    };
+
+    this.getElementThatStartWith = function(elementId, ignoreError, resolve) {
+        var element = $('[id^="' + elementId +'"]')
+        if(!element) {
+            if(ignoreError) {
+                resolve();
+            } else {
+                throw "Element not found: id start with" + elementId;
+            }
+        }
+        return element;
+    };
+
+    this.getClass = function(className, ignoreError, resolve) {
+        var element = $( "." + className );
+        if(!element) {
+            if(ignoreError) {
+                resolve();
+            } else {
+                throw "Element not found: class: " + elementId;
+            }
+        }
+        return element;
+    };
+
+    this.searchForObjectInSelect2 = function(id, addBtnId) {
+    return new Promise(function executor(resolve, reject) {
+        var e = EventUtil;
+            Promise.resolve().then(() => e.waitForId(addBtnId))
+                             .then(() => e.searchSelect2("advanced-entity-search-dropdown-id", id))
+                             .then(() => e.sleep(2000)) // wait when object will be found
+                             .then(() => e.mouseUp("select2-results__option"))
+                             .then(() => e.sleep(1000)) // wait when object will be selected
+                             .then(() => e.click(addBtnId))
+                             .then(() => resolve())
+                             .catch(error => reject(error));
+        });
     }
+
+
+	this.checkGridRange = function(gridId, range, ignoreError) {
+	    return new Promise(function executor(resolve, reject) {
+	        try {
+                var element = EventUtil.getElement(gridId, ignoreError, resolve);
+                if (element.find('span').html() == range) {
+                    resolve();
+                } else {
+                    throw "Grid range #" + elementId + " should be equal " + value;
+                }
+            } catch(error) {
+                reject(error);
+            }
+	    });
+	};
 }

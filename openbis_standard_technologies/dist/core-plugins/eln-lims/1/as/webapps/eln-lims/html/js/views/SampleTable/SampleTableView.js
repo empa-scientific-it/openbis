@@ -16,7 +16,7 @@
 function SampleTableView(sampleTableController, sampleTableModel) {
 	this._sampleTableController = sampleTableController;
 	this._sampleTableModel = sampleTableModel;
-	this._tableContainer = $("<div>").css("margin-top", "-10px");
+	this._tableContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
 	this.sampleTypeSelector = null;
 	
 	this.repaint = function(views) {
@@ -138,15 +138,17 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		
-        var title = "NEW Batch Register " + ELNDictionary.Samples;
-        var $xslBatchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : 'xsl-register-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append(title));
+        var label = "XLS Batch Register " + ELNDictionary.Samples;
+        var id = 'xsl-register-' + ELNDictionary.Sample.toLowerCase() + '-btn';
+        var $xslBatchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchRegisterOption.click(function() {
             _this._sampleTableController.registerSamples(_this._sampleTableModel.experimentIdentifier);
         });
         $list.append($xslBatchRegisterOption);
 
-        var title = "NEW Batch Update " + ELNDictionary.Samples;
-        var $xslBatchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : 'xsl-update-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append(title));
+        var label = "XLS Batch Update " + ELNDictionary.Samples;
+        var id = 'xsl-update-' + ELNDictionary.Sample.toLowerCase() + '-btn';
+        var $xslBatchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchUpdateOption.click(function() {
             _this._sampleTableController.updateSamples(_this._sampleTableModel.experimentIdentifier);
         });
@@ -178,7 +180,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 
 			var $detailsOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Edit Collection', 'id' : 'detail-btn'}).append('Edit Collection'));
             $detailsOption.click(function() {
-                mainController.changeView("showExperimentPageFromIdentifier", _this._sampleTableModel.experimentIdentifier);
+                mainController.changeView("showExperimentPageFromIdentifier", encodeURIComponent('["' +
+						_this._sampleTableModel.experimentIdentifier + '",true]'));
             });
             $list.append($detailsOption);
 		}
@@ -236,7 +239,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 						} else if(data.result) {
 							Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 								Util.unblockUI();
-								mainController.changeView('showSamplesPage', experimentIdentifier);
+								mainController.changeView('showSamplesPage', encodeURIComponent('["' +
+										experimentIdentifier + '",false]'));
 							});
 						} else {
 							Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
@@ -286,7 +290,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				} else if(data.result) {
 					Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 						Util.unblockUI();
-						mainController.changeView('showSamplesPage', experimentIdentifier);
+						mainController.changeView('showSamplesPage', encodeURIComponent('["' + experimentIdentifier +
+								'",false]'));
 					});
 				} else {
 					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});

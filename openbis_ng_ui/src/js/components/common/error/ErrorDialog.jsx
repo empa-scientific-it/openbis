@@ -1,5 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import ErrorObject from '@src/js/components/common/error/ErrorObject.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
@@ -61,13 +62,13 @@ class ErrorDialog extends React.Component {
   renderContent() {
     const { classes } = this.props
 
-    const message = this.getErrorMessage()
+    const errorObject = new ErrorObject(this.props.error)
 
     return (
       <div className={classes.content}>
         <Message type='error'>
           <div>
-            {message && <div>{message}</div>}
+            {errorObject.getMessage() && <div>{errorObject.getMessage()}</div>}
             {this.renderStack()}
           </div>
         </Message>
@@ -76,9 +77,9 @@ class ErrorDialog extends React.Component {
   }
 
   renderStack() {
-    const stack = this.getErrorStack()
+    const errorObject = new ErrorObject(this.props.error)
 
-    if (!stack) {
+    if (!errorObject.getStackTrace()) {
       return null
     }
 
@@ -96,7 +97,9 @@ class ErrorDialog extends React.Component {
             : messages.get(messages.SHOW_STACK_TRACE)}
         </Link>
         <Collapse in={stackVisible} mountOnEnter={true} unmountOnExit={true}>
-          <pre className={classes.stackContent}>{stack}</pre>
+          <pre className={classes.stackContent}>
+            {errorObject.getStackTrace()}
+          </pre>
         </Collapse>
       </div>
     )
@@ -113,30 +116,6 @@ class ErrorDialog extends React.Component {
         />
       </div>
     )
-  }
-
-  getErrorMessage() {
-    const { error } = this.props
-
-    if (error) {
-      if (error.message) {
-        return error.message
-      } else {
-        return error
-      }
-    } else {
-      return null
-    }
-  }
-
-  getErrorStack() {
-    const { error } = this.props
-
-    if (error && error.data && error.data.stackTrace) {
-      return error.data.stackTrace
-    } else {
-      return null
-    }
   }
 }
 

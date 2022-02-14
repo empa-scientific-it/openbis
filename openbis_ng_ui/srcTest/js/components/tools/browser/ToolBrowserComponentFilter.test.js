@@ -1,5 +1,6 @@
 import ToolBrowserComponentTest from '@srcTest/js/components/tools/browser/ToolBrowserComponentTest.js'
 import ToolBrowserTestData from '@srcTest/js/components/tools/browser/ToolBrowserTestData.js'
+import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import openbis from '@srcTest/js/services/openbis.js'
 
 let common = null
@@ -63,8 +64,10 @@ async function testFilter() {
       { level: 0, text: 'Queries' },
       { level: 1, text: testQuery.name },
       { level: 0, text: 'History' },
-      { level: 1, text: openbis.EventType.DELETION },
-      { level: 1, text: openbis.EventType.FREEZING }
+      { level: 1, text: 'Deletion' },
+      { level: 1, text: 'Freezing' },
+      { level: 0, text: 'Import' },
+      { level: 1, text: 'All' }
     ]
   })
 }

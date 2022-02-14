@@ -10,6 +10,9 @@ import ToolSearch from '@src/js/components/tools/search/ToolSearch.jsx'
 import PluginForm from '@src/js/components/tools/form/plugin/PluginForm.jsx'
 import QueryForm from '@src/js/components/tools/form/query/QueryForm.jsx'
 import HistoryForm from '@src/js/components/tools/form/history/HistoryForm.jsx'
+import ImportForm from '@src/js/components/tools/form/import/ImportForm.jsx'
+import ImportType from '@src/js/components/tools/form/import/ImportType.js'
+import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 
 const styles = () => ({
@@ -53,6 +56,8 @@ class Tools extends React.Component {
       return <QueryForm object={object} />
     } else if (object.type === objectType.HISTORY) {
       return <HistoryForm object={object} />
+    } else if (object.type === objectType.IMPORT) {
+      return <ImportForm object={object} />
     } else if (object.type === objectType.SEARCH) {
       return <ToolSearch searchText={object.id} />
     } else if (object.type === objectType.OVERVIEW) {
@@ -90,9 +95,25 @@ class Tools extends React.Component {
           messages.get(messages.ENTITY_VALIDATION_PLUGIN) + ': ',
         [objectType.QUERY]: messages.get(messages.QUERY) + ': ',
         [objectType.HISTORY]: messages.get(messages.HISTORY) + ': ',
+        [objectType.IMPORT]: messages.get(messages.IMPORT) + ': ',
         [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
       }
-      label = prefixes[object.type] + object.id
+
+      let suffix = object.id
+
+      if (object.type === objectType.HISTORY) {
+        if (object.id === openbis.EventType.DELETION) {
+          suffix = messages.get(messages.DELETION)
+        } else if (object.id === openbis.EventType.FREEZING) {
+          suffix = messages.get(messages.FREEZING)
+        }
+      } else if (object.type === objectType.IMPORT) {
+        if (object.id === ImportType.ALL) {
+          suffix = messages.get(messages.ALL)
+        }
+      }
+
+      label = prefixes[object.type] + suffix
     }
 
     return <ContentTab label={label} changed={changed} />

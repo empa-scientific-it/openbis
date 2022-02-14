@@ -9,16 +9,28 @@ class DefinitionParserFactory(object):
     def get_parser(definition):
         general_definitions = ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT',
                                'SAMPLE']
+        general_definitions_with_type = ['SAMPLE:']
         properties_only_definitions = ['PROPERTY_TYPE', 'SPACE', 'PROJECT']
         definition_type = definition[0]
         if definition_type in general_definitions:
             return GeneralDefinitionParser
-        elif definition_type in properties_only_definitions:
+        if DefinitionParserFactory.start_with(definition_type, general_definitions_with_type):
+            # expect to see all attributes after symbol ':'
             return PropertiesOnlyDefinitionParser
-        else:
-            raise UnsupportedOperationException("Error in row %s: Cannot create %s. Only the following types are allowed: %s" 
-                                                % (definition['row number'], definition_type,
-                                                   general_definitions + properties_only_definitions))
+        if definition_type in properties_only_definitions:
+            return PropertiesOnlyDefinitionParser
+
+        raise UnsupportedOperationException("Error in row %s: Cannot create %s. Only the following types are allowed: %s"
+                                            % (definition['row number'], definition_type,
+                                               general_definitions + properties_only_definitions))
+
+    @staticmethod
+    def start_with(type, definition_type_prefixes):
+        start_with = False
+        for prefix in definition_type_prefixes:
+            if type.startswith(prefix):
+                start_with = True
+        return start_with
 
 
 class PropertiesOnlyDefinitionParser(object):
@@ -43,7 +55,7 @@ class PropertiesOnlyDefinitionParser(object):
         definition = Definition()
         definition.type = poi_definition[DEFINITION_TYPE_ROW][DEFINITION_TYPE_CELL]
 
-        if PropertiesOnlyDefinitionParser.hasProperties(poi_definition):
+        if PropertiesOnlyDefinitionParser.has_properties(poi_definition):
             properties_headers = poi_definition[PROPERTIES_HEADER_ROW]
 
             for property_definitions in poi_definition[PROPERTIES_VALUES_ROW_START:]:
@@ -55,7 +67,7 @@ class PropertiesOnlyDefinitionParser(object):
         return definition
 
     @staticmethod
-    def hasProperties(poi_definition):
+    def has_properties(poi_definition):
         PROPERTIES_HEADER_ROW = 1
         return len(poi_definition) > PROPERTIES_HEADER_ROW
 
@@ -88,7 +100,7 @@ class GeneralDefinitionParser(object):
             cell_value = poi_definition[ATTRIBUTES_VALUES_ROW][col]
             definition.attributes[header] = cell_value
 
-        if GeneralDefinitionParser.hasProperties(poi_definition):
+        if GeneralDefinitionParser.has_properties(poi_definition):
             properties_headers = poi_definition[PROPERTIES_HEADER_ROW]
 
             for property_definitions in poi_definition[PROPERTIES_VALUES_ROW_START:]:
@@ -100,6 +112,6 @@ class GeneralDefinitionParser(object):
         return definition
 
     @staticmethod
-    def hasProperties(poi_definition):
+    def has_properties(poi_definition):
         PROPERTIES_HEADER_ROW = 3
         return len(poi_definition) > PROPERTIES_HEADER_ROW

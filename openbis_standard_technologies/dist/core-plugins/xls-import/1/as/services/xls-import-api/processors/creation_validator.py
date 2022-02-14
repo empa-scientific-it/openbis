@@ -12,6 +12,7 @@ def validate_creations(creations):
     '''
     if PropertyTypeDefinitionToCreationType not in creations:
         return
+
     property_type_creations = creations[PropertyTypeDefinitionToCreationType]
     different_duplicates = {}
     for property_type in property_type_creations:

@@ -3,29 +3,34 @@ from org.apache.poi.ss.usermodel import CellType
 from org.apache.poi.ss.usermodel import WorkbookFactory
 from org.apache.poi.ss.util import NumberToTextConverter
 from java.io import ByteArrayInputStream
+from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 
 class ExcelToPoiParser(object):
 
     @staticmethod
     def parse(excel_byte_array):
-        workbook = WorkbookFactory.create(ByteArrayInputStream(excel_byte_array))
+        try:
+            workbook = WorkbookFactory.create(ByteArrayInputStream(excel_byte_array))
+        except:
+            raise UserFailureException("Couldn't import file because it has probably a wrong format. " +
+                                       "Only spreadsheet (aka Excel) files of type .xls or .xlsx can be imported.")
 
         definitions = []
         for sheet in workbook.sheetIterator():
             i = 0
-            rowCount = sheet.getLastRowNum() + 1
+            row_count = sheet.getLastRowNum() + 1
 
-            while i < rowCount:
+            while i < row_count:
                 definition_rows = []
 
-                while i < rowCount and not ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
+                while i < row_count and not ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
                     row = sheet.getRow(i)
                     definition_rows.append(row)
                     i += 1
 
                 # skip all empty rows
-                while i < rowCount and ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
+                while i < row_count and ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
                     i += 1
 
                 definitions.append(definition_rows)
@@ -52,18 +57,18 @@ class ExcelToPoiParser(object):
         cell_type = cell.getCellTypeEnum()
         if cell_type == CellType.BLANK:
             return ""
-        elif cell_type == CellType.BOOLEAN:
+        if cell_type == CellType.BOOLEAN:
             return str(cell.getBooleanCellValue())
-        elif cell_type == CellType.NUMERIC:
+        if cell_type == CellType.NUMERIC:
             return NumberToTextConverter.toText(cell.getNumericCellValue())
-        elif cell_type == CellType.STRING:
+        if cell_type == CellType.STRING:
             return cell.getStringCellValue()
-        elif cell_type == CellType.FORMULA:
+        if cell_type == CellType.FORMULA:
             raise SyntaxError("Excel formulas are not supported but one was found in cell %s" % cell.getAddress())
-        elif cell_type == CellType.ERROR:
+        if cell_type == CellType.ERROR:
             raise SyntaxError("There is an error in cell %s" % cell.getAddress())
-        else:
-            raise SyntaxError("Unknown data type of cell %s" % cell.getAddress())
+
+        raise SyntaxError("Unknown data type of cell %s" % cell.getAddress())
 
     @staticmethod
     def is_row_empty(row):

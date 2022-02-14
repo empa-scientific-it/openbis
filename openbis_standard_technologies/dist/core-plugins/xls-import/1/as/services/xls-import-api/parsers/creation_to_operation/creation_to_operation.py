@@ -92,5 +92,4 @@ class CreationOrUpdateToOperationParser(object):
         if SampleCreationToUpdateType in creations:
             entity_update_operations.append(UpdateSamplesOperation(creations[SampleCreationToUpdateType]))
 
-
         return entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations

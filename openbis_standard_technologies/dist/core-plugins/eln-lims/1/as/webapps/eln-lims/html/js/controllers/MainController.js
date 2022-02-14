@@ -183,71 +183,75 @@ function MainController(profile) {
 		$("#login-form-div").hide();
 		$("#main").show();
 		
-		//Get Metadata from all sample types before showing the main menu
-		this.loadV3(function() {
-			_this.serverFacade.listSampleTypes (
-					function(result) {
-						//Load Sample Types
-						localReference.profile.allSampleTypes = result.result;
-						
-						//Load datastores for automatic DSS configuration, the first one will be used
-						localReference.serverFacade.listDataStores(function(dataStores) {
-								localReference.profile.allDataStores = dataStores.result;
-								
-								var nextInit = function() {
-									//Load display settings
-									localReference.serverFacade.getUserDisplaySettings( function(response) {
-										if(response.result) {
-											localReference.profile.displaySettings = response.result;
-										}
-										
-										//Load Experiment Types
-										localReference.serverFacade.listExperimentTypes(function(experiments) {
-											localReference.profile.allExperimentTypes = experiments.result;
-											
-											
-											//Init profile
-											var startAppFunc = function() {
-												//Start App
-												localReference.sideMenu = new SideMenuWidgetController(localReference);
-												localReference.views.menu = $("<div>");
-												localReference.sideMenu.init(localReference.views.menu, function() {
-													//Page reload using the URL info
-													var queryString = Util.queryString();
-													var menuUniqueId = queryString.menuUniqueId;
-													var viewName = queryString.viewName;
-													var viewData = queryString.viewData;
-													var hideMenu = queryString.hideMenu;
-													
-													LayoutManager.reloadView(localReference.views);
-													if(viewName && viewData) {
-														localReference.sideMenu.moveToNodeId(menuUniqueId);
-														localReference.changeView(viewName, viewData);
-													} else {
-														localReference.changeView(profile.defaultStartView.page, profile.defaultStartView.args);
-													}
-													
-													Util.unblockUI();
-													LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
+        //Get Metadata from all sample types before showing the main menu
+        this.loadV3(function() {
+            _this.serverFacade.listSampleTypes (
+                    function(result) {
+                        //Load Sample Types
+                        localReference.profile.allSampleTypes = result.result;
+                        
+                        //Load datastores for automatic DSS configuration, the first one will be used
+                        localReference.serverFacade.listDataStores(function(dataStores) {
+                                localReference.profile.allDataStores = dataStores.result;
+                                
+                                var nextInit = function() {
+                                    //Load display settings
+                                    localReference.serverFacade.getUserDisplaySettings( function(response) {
+                                        if(response.result) {
+                                            localReference.profile.displaySettings = response.result;
+                                        }
+                                        
+                                        //Load Experiment Types
+                                        localReference.serverFacade.listExperimentTypes(function(experiments) {
+                                            localReference.profile.allExperimentTypes = experiments.result;
+                                            
+                                            //Load DataSet Types
+                                            localReference.serverFacade.listDataSetTypes(function(dataSetTypes) {
+                                                localReference.profile.allDataSetTypes = dataSetTypes.result;
 
-													// Keep Alive
-													localReference.serverFacade.scheduleKeepAlive();
+                                                //Init profile
+                                                var startAppFunc = function() {
+                                                    //Start App
+                                                    localReference.sideMenu = new SideMenuWidgetController(localReference);
+                                                    localReference.views.menu = $("<div>");
+                                                    localReference.sideMenu.init(localReference.views.menu, function() {
+                                                        //Page reload using the URL info
+                                                        var queryString = Util.queryString();
+                                                        var menuUniqueId = queryString.menuUniqueId;
+                                                        var viewName = queryString.viewName;
+                                                        var viewData = queryString.viewData;
+                                                        var hideMenu = queryString.hideMenu;
+                                                        
+                                                        LayoutManager.reloadView(localReference.views);
+                                                        if(viewName && viewData) {
+                                                            localReference.sideMenu.moveToNodeId(menuUniqueId);
+                                                            localReference.changeView(viewName, viewData);
+                                                        } else {
+                                                            localReference.changeView(profile.defaultStartView.page, profile.defaultStartView.args);
+                                                        }
+                                                        
+                                                        Util.unblockUI();
+                                                        LayoutManager.resize(mainController.views, true); // Maybe fixes white screen on startup?
 
-													// Barcode reading
-													BarcodeUtil.enableAutomaticBarcodeReading();
-												});
-											};
-											
-											localReference.profile.init(startAppFunc);
-										});
-									});
-								}
-								
-								nextInit();
-						});
-					}
-				);
-		});
+                                                        // Keep Alive
+                                                        localReference.serverFacade.scheduleKeepAlive();
+
+                                                        // Barcode reading
+                                                        BarcodeUtil.enableAutomaticBarcodeReading();
+                                                    });
+                                                };
+                                                
+                                                localReference.profile.init(startAppFunc);
+                                            });
+                                        });
+                                    });
+                                }
+                                
+                                nextInit();
+                        });
+                    }
+                );
+        });
 	}
 
 	this._enablePasswordResetLink = function() {
@@ -600,16 +604,14 @@ function MainController(profile) {
 					var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } };
 					var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 					this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(data) {
-						mainController.changeView('showExperimentPageFromIdentifier', data.objects[0].identifier.identifier);
+						mainController.changeView('showExperimentPageFromIdentifier', encodeURIComponent('["' +
+								data.objects[0].identifier.identifier + '",false]'));
 					});
 					break;
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
-					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
-						_this._showExperimentPage(data.result[0], FormMode.VIEW);
-						//window.scrollTo(0,0);
-					});
+					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
 					var _this = this;
@@ -640,7 +642,8 @@ function MainController(profile) {
 					break;
 				case "showSamplesPage":
 					document.title = "" + ELNDictionary.Sample + " Browser";
-					this._showSamplesPage(arg);
+					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+                    this._showExperimentView(argsArray[0], argsArray[1], "LIST_VIEW");
 					//window.scrollTo(0,0);
 					break;
 				case "showSampleHierarchyPage":
@@ -1123,28 +1126,42 @@ function MainController(profile) {
 		this.currentView = unarchivingHelperController;
 	}
 	
-	this._showSamplesPage = function(experimentIdentifier) {
+	this._showExperimentView = function(experimentIdentifier, forced, forcedView) {
 		var views = this._getNewViewModel(true, true, false);
-		
-		var sampleTableController = null;
-		
-		if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
-			experimentIdentifier = null;
-		}
-		
-		if(experimentIdentifier) {
-			var _this = this;
-			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
-				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
-				sampleTableController.init(views);
-				_this.currentView = sampleTableController;
+        var _this = this;
+		if (experimentIdentifier) {
+			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function (data) {
+				var experiment = data.result[0];
+				var defaultCollectionView = experiment.properties["$DEFAULT_COLLECTION_VIEW"];
+				var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
+
+				switch (collectionView) {
+					case "FORM_VIEW": {
+						document.title = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+							experimentIdentifier;
+						_this._showExperimentPage(experiment, FormMode.VIEW);
+						break;
+					}
+					case "LIST_VIEW": {
+						if (experimentIdentifier === "null") { //Fix for reloads when there is text on the url
+							experimentIdentifier = null;
+						}
+
+						var sampleTableController = new SampleTableController(_this,
+							"" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+							experimentIdentifier, experimentIdentifier, null, null, experiment);
+						sampleTableController.init(views);
+						_this.currentView = sampleTableController;
+						break;
+					}
+				}
 			});
 		} else {
-			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null, null);
+			sampleTableController = new SampleTableController(_this, "" + ELNDictionary.Sample +
+				" Browser", null, null);
 			sampleTableController.init(views);
-			this.currentView = sampleTableController;
+			_this.currentView = sampleTableController;
 		}
-		
 	}
 
 	this._showSampleHierarchyPage = function(permId) {

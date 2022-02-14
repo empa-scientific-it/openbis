@@ -3,6 +3,7 @@ import actions from '@src/js/store/actions/actions.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
+import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
 import messages from '@src/js/common/messages.js'
 
@@ -74,7 +75,7 @@ export default class ToolBrowserController extends BrowserController {
       const historyNodes = [
         {
           id: `history/deletion`,
-          text: openbis.EventType.DELETION,
+          text: messages.get(messages.DELETION),
           object: {
             type: objectType.HISTORY,
             id: openbis.EventType.DELETION
@@ -84,10 +85,23 @@ export default class ToolBrowserController extends BrowserController {
         },
         {
           id: `history/freeze`,
-          text: openbis.EventType.FREEZING,
+          text: messages.get(messages.FREEZING),
           object: {
             type: objectType.HISTORY,
             id: openbis.EventType.FREEZING
+          },
+          canMatchFilter: true,
+          canRemove: false
+        }
+      ]
+
+      const importNodes = [
+        {
+          id: `import/all`,
+          text: messages.get(messages.ALL),
+          object: {
+            type: objectType.IMPORT,
+            id: ImportType.ALL
           },
           canMatchFilter: true,
           canRemove: false
@@ -132,6 +146,12 @@ export default class ToolBrowserController extends BrowserController {
           id: 'history',
           text: messages.get(messages.HISTORY),
           children: historyNodes,
+          canAdd: false
+        },
+        {
+          id: 'import',
+          text: messages.get(messages.IMPORT),
+          children: importNodes,
           canAdd: false
         }
       ]

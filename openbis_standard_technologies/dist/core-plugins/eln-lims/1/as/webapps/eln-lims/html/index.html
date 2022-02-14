@@ -32,6 +32,7 @@
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-ui/js/jquery-ui.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-jnotify/css/jNotify.sis.jquery.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-tooltipster/css/tooltipster.bundle.min.css" />
+    <link type="text/css" rel="stylesheet" href="./lib/jquery-tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/fuelux/css/fuelux.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-select2/css/select2.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-select2/css/select2-bootstrap.min.css" />
@@ -321,6 +322,7 @@
 	<script type="text/javascript" src="./js/test/UserTests.js"></script>
 	<script type="text/javascript" src="./js/test/AdminTests.js"></script>
 	<script type="text/javascript" src="./js/test/TestProtocol.js"></script>
+	<script type="text/javascript" src="./js/test/ReactTestUtils.js"></script>
 
 	<script type="text/javascript">
 	
@@ -425,6 +427,14 @@
 				// Do nothing
 			}
 
+			var queryString = Util.queryString();
+			var test = queryString.test;
+			var testWithLogin = queryString.testWithLogin;
+
+			if (test == "true" || testWithLogin == "true" || $.cookie("suitename")) {
+				sessionStorage.setItem("forceNormalLogin", "true");
+			}
+
 			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
 			if (sessionStorage.getItem("forceNormalLogin") != "true") {
 				mainController.serverFacade.getOpenbisV3(function(openbisV3) {
@@ -452,7 +462,6 @@
 			});
 			
 			//Automatic login if special parameters are given
-			var queryString = Util.queryString();
 			var user = queryString.user;
 			var pass = queryString.pass;
 			if(user && pass) {
@@ -468,9 +477,6 @@
 			if (jenkins == "true") {
 				$.cookie("report-to-jenkins", "true");
 			}
-
-			var test = queryString.test;
-			var testWithLogin = queryString.testWithLogin;
 
 			if (testWithLogin == "true") {
 				TestProtocol.startAdminTests(true);

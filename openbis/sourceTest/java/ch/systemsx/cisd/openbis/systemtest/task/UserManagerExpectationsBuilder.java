@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -46,11 +45,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -390,7 +385,9 @@ class UserManagerExpectationsBuilder
         {
             String userId = person.getUserId();
             assertEquals(person.isActive(), Boolean.valueOf(deactivation == false), "Active flag of " + person);
-            assertEquals(person.getSpace(), null, "Home space of " + person);
+            String homeSpace = homeSpacesByUserId.get(userId);
+            String space = person.getSpace() != null ? person.getSpace().getCode() : null;
+            assertEquals(space, homeSpace, "Home space of " + person);
             assertEquals(person.getRoleAssignments().size(), 0, "Role assignments of " + person);
             for (Entry<String, Set<String>> entry : usersByGroupId.entrySet())
             {
@@ -422,6 +419,7 @@ class UserManagerExpectationsBuilder
 
     private void assertUsers(String sessionToken)
     {
+        Set<String> unknownUserIds = unknownUsers.stream().map(Principal::getUserId).collect(Collectors.toSet());
         List<PersonPermId> allUsers = homeSpacesByUserId.keySet().stream()
                 .map(userId -> new PersonPermId(userId)).collect(Collectors.toList());
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
@@ -435,7 +433,8 @@ class UserManagerExpectationsBuilder
         {
             Person person = persons.get(id);
             assertEquals(person.getUserId(), id.getPermId());
-            assertEquals(person.isActive(), Boolean.TRUE, "Active flag of " + person);
+            Boolean active = unknownUserIds.contains(id.getPermId()) == false;
+            assertEquals(person.isActive(), active, "Active flag of " + person);
             assertEquals(person.getEmail(), "franz-josef.elmer@systemsx.ch", "Wrong email of " + person);
             String homeSpaceCode = person.getSpace() == null ? null : person.getSpace().getCode();
             assertEquals(homeSpaceCode, homeSpacesByUserId.get(person.getUserId()), "Wrong home space of " + person);

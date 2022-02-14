@@ -818,9 +818,23 @@ var FormUtil = new function() {
 		if(text) {
 			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		}
-		//text = html.sanitize(text);
-		text = DOMPurify.sanitize(text);
-		$component.html(hyperlink ? this.asHyperlink(text, hyperlinkLabel) : text);
+
+		if(hyperlink) {
+		    $component.html(this.asHyperlink(text, hyperlinkLabel));
+		} else {
+		    if(text.includes('\n')) {
+		        var lines = text.split('\n');
+		        for(var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+		            if(lineIndex != 0) {
+		                $component.append($("<br>"));
+		            }
+		            var textNode = document.createTextNode(lines[lineIndex]);
+                    $component.append(textNode);
+		        }
+		    } else {
+		        $component.text(text);
+		    }
+		}
 		
 		if(id) {
 			$component.attr('id', this.prepareId(id));
@@ -1099,12 +1113,11 @@ var FormUtil = new function() {
             value.indexOf("<figure") === -1) {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
-
 	    var Builder = null;
 	    if(toolbarContainer) {
-            Builder = CKEDITOR.DecoupledEditor;
+            Builder = InlineEditor.DecoupledEditor;
 	    } else {
-	        Builder = CKEDITOR.InlineEditor;
+	        Builder = InlineEditor.InlineEditor;
 	    }
 
         Builder.create($component[0], {
@@ -1169,7 +1182,7 @@ var FormUtil = new function() {
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
 		var originalValue = entity.properties[propertyType.code];
-		if (propertyType.dataType !== "XML") {
+		if(propertyType.metaData["custom_widget"] && propertyType.metaData["custom_widget"] === "Word Processor" && originalValue) { // Only filter properties rendered as HTML
 			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
 		}
 	}
@@ -1377,6 +1390,8 @@ var FormUtil = new function() {
 						permIdOrIdentifier : permIdOrIdentifier,
 						paginationInfo : paginationInfo
 				}
+			} else if (view === "showExperimentPageFromIdentifier") {
+				arg = encodeURIComponent('["' + permIdOrIdentifier + '",false]');
 			} else {
 				arg = permIdOrIdentifier;
 			}
@@ -2269,6 +2284,124 @@ var FormUtil = new function() {
 		return id;
 	}
 
+    this.renderTruncatedGridValue = function(container, value){
+        var $value = $("<div>")
+
+        if(_.isString(value)){
+            $value.text(value)
+        }else{
+            $value.append(value)
+        }
+
+        $value.css("min-width", Math.min($value.text().length / 5, 15) + "em")
+
+        if(container === null ||  container === undefined){
+            return $value
+        }
+
+        $value.css("visibility", "hidden").appendTo(container)
+
+        var valueHeight = $value.get(0).clientHeight
+
+        $value.remove()
+        $value.css("visibility", "")
+
+        if(valueHeight > 150){
+            $value.css("max-height", "100px")
+            $value.css("overflow", "hidden")
+
+            var $toggle = $("<a>").text("more")
+            $toggle.click(function(){
+                if($toggle.text() === "more"){
+                    $value.css("max-height", "")
+                    $toggle.text("less")
+                }else{
+                    $value.css("max-height", "100px")
+                    $toggle.text("more")
+                }
+            })
+
+            return $("<div>").append($value).append($toggle)
+        }else{
+            return $value
+        }
+    }
+
+    this.renderMultilineVarcharGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
+    }
+
+    this.renderXmlGridValue = function(row, params, propertyType){
+        return this.renderCustomWidgetGridValue(row, params, propertyType)
+    }
+
+    this.renderCustomWidgetGridValue = function(row, params, propertyType){
+        var value = row[propertyType.code]
+
+        if(value === null || value === undefined || value.trim().length === 0){
+            return
+        }
+
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
+
+        if(!forceDisableRTF) {
+            var $value = null
+            var renderTooltip = null
+
+            if(customWidget === 'Word Processor'){
+                var valueLowerCase = value.toLowerCase()
+                if(valueLowerCase.includes("<img") || valueLowerCase.includes("<table")){
+                    $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
+                    renderTooltip = function(){
+                        var valueSanitized = FormUtil.sanitizeRichHTMLText(value)
+                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, valueSanitized);
+                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, valueSanitized, true);
+                        return $tooltip
+                    }
+                }else{
+                    $value  = $("<div>").html(FormUtil.sanitizeRichHTMLText(value))
+                    return this.renderTruncatedGridValue(params.container, $value)
+                }
+            }else if(customWidget === 'Spreadsheet'){
+                $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
+                renderTooltip = function(){
+                    $tooltip = $("<div>")
+                    JExcelEditorManager.createField($tooltip, FormMode.VIEW, propertyType.code, { properties: row });
+                    return $tooltip
+                }
+            }else{
+                $value = $("<div>")
+                value.split('\n').forEach(function(line){
+                    $("<div>").text(line).appendTo($value)
+                })
+                return this.renderTruncatedGridValue(params.container, $value)
+            }
+
+            $value.tooltipster({
+                trigger: 'click',
+                interactive: true,
+                trackTooltip: true,
+                trackerInterval: 100,
+                theme: 'tooltipster-shadow',
+                functionBefore: function(instance, helper){
+                    $(helper.origin).tooltipster('content', renderTooltip())
+                    return true
+                }
+            })
+
+            $valueContainer = $("<span>", { style: "cursor: pointer" })
+            $valueContainer.append($value)
+            return $valueContainer
+        }else{
+            $value = $("<div>")
+            value.split('\n').forEach(function(line){
+                $("<div>").text(line).appendTo($value)
+            })
+            return this.renderTruncatedGridValue(params.container, $value)
+        }
+    }
+
     this.renderBooleanGridFilter = function(params){
         return React.createElement(window.NgUiGrid.default.SelectField, {
             label: 'Filter',
@@ -2321,6 +2454,79 @@ var FormUtil = new function() {
         }
 
         return matches
+    }
+
+    this.sortPropertyColumns = function(propertyColumns, entities){
+        var isSortingByOrdinalPossible = entities.every(function(entity){
+            var entityKind = _.isString(entity.entityKind) ? entity.entityKind : null
+
+            if(entityKind === null || false === ["SAMPLE", "EXPERIMENT", "DATASET"].includes(entityKind.toUpperCase())){
+                return false
+            }
+
+            var entityType = _.isString(entity.entityType) ? entity.entityType : null
+
+            if(entityType === null){
+                return false
+            }
+
+            return true
+        })
+
+        if(false === isSortingByOrdinalPossible){
+            return propertyColumns.sort(function(p1, p2){
+                var label1 = _.isString(p1.label) ? p1.label : ""
+                var label2 = _.isString(p2.label) ? p2.label : ""
+                return label1.localeCompare(label2)
+            })
+        }
+
+        var propertyColumnsMap = {}
+        var entityTypePropertiesMap = {}
+        var sortedPropertyColumnsMap = {}
+        var sortedPropertyColumns = []
+
+        propertyColumns.forEach(function(propertyColumn){
+            propertyColumnsMap[propertyColumn.property] = propertyColumn
+        })
+
+        entities.forEach(function(entity){
+            var entityKind = entity.entityKind.toUpperCase()
+            var entityType = entity.entityType.toUpperCase()
+            
+            var entityTypePropertiesKey = entityKind + "-" + entityType
+            var entityTypeProperties = entityTypePropertiesMap[entityTypePropertiesKey]
+
+            if(!entityTypeProperties){
+                if(entityKind === "SAMPLE"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForTypeCode(entityType)
+                }else if(entityKind === "EXPERIMENT"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForExperimentTypeCode(entityType)
+                }else if(entityKind === "DATASET"){
+                    entityTypeProperties = this.profile.getAllPropertiCodesForDataSetTypeCode(entityType)
+                }else{
+                    throw new Error("Unsupported entity kind: " + entityKind)
+                }
+                entityTypePropertiesMap[entityTypePropertiesKey] = entityTypeProperties
+            }
+
+            if(entityTypeProperties){
+                entityTypeProperties.forEach(function(entityTypeProperty){
+                    if(!sortedPropertyColumnsMap[entityTypeProperty]){
+                        var propertyColumn = propertyColumnsMap[entityTypeProperty]
+                        if(propertyColumn){
+                            sortedPropertyColumnsMap[entityTypeProperty] = true
+                            sortedPropertyColumns.push(propertyColumn)
+                        }
+                    }
+                })
+            }
+        })
+
+        propertyColumns.splice(0, propertyColumns.length)
+        sortedPropertyColumns.forEach(function(sortedPropertyColumn){
+            propertyColumns.push(sortedPropertyColumn)
+        })
     }
 
 }

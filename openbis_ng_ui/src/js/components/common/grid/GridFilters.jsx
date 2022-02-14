@@ -3,50 +3,73 @@ import { withStyles } from '@material-ui/core/styles'
 import GridGlobalFilter from '@src/js/components/common/grid/GridGlobalFilter.jsx'
 import GridFilter from '@src/js/components/common/grid/GridFilter.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
+import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
+  row: {
+    backgroundColor: theme.palette.background.paper
+  },
+  multiselectable: {},
   multiselectCell: {
-    padding: 0
+    backgroundColor: 'inherit',
+    padding: 0,
+    position: 'sticky',
+    left: 0,
+    zIndex: 100
   },
   columnFilterCell: {
+    backgroundColor: 'inherit',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    paddingRight: 0,
-    '&:last-child': {
-      paddingRight: theme.spacing(2)
+    paddingLeft: 0,
+    paddingRight: theme.spacing(2),
+    '&$firstCell': {
+      paddingLeft: theme.spacing(2),
+      position: 'sticky',
+      left: 0,
+      zIndex: 100
+    },
+    '$multiselectable &$firstCell': {
+      left: '48px'
     }
   },
-  globalFilterCell: {
+  globalFilterContent: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2)
-  }
+  },
+  firstCell: {}
 })
 
 class GridFilters extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridFilters.render')
 
-    const { columns, filterModes, filterMode } = this.props
+    const { multiselectable, columns, filterModes, filterMode, classes } =
+      this.props
 
     if (columns.length === 0) {
       return null
     }
 
+    let rowClasses = [classes.row]
+    if (multiselectable) {
+      rowClasses.push(classes.multiselectable)
+    }
+
     if (filterModes && !filterModes.includes(filterMode)) {
       return null
     } else if (filterMode === GridFilterOptions.GLOBAL_FILTER) {
-      return <TableRow>{this.renderGlobalFilterCell()}</TableRow>
+      return this.renderGlobalFilterRow()
     } else if (filterMode === GridFilterOptions.COLUMN_FILTERS) {
       const someFilterable = columns.some(column => column.filterable)
       if (someFilterable) {
         return (
-          <TableRow>
+          <TableRow classes={{ root: rowClasses.join(' ') }}>
             {this.renderMultiselectCell()}
             {this.renderColumnFiltersCells()}
           </TableRow>
@@ -59,7 +82,7 @@ class GridFilters extends React.PureComponent {
     }
   }
 
-  renderGlobalFilterCell() {
+  renderGlobalFilterRow() {
     const {
       columns,
       multiselectable,
@@ -69,36 +92,47 @@ class GridFilters extends React.PureComponent {
     } = this.props
 
     return (
-      <TableCell
-        colSpan={columns.length + (multiselectable ? 1 : 0)}
-        classes={{ root: classes.globalFilterCell }}
+      <GridRowFullWidth
+        multiselectable={multiselectable}
+        columns={columns}
+        styles={{
+          content: classes.globalFilterContent
+        }}
       >
         <GridGlobalFilter
           globalFilter={globalFilter}
           onGlobalFilterChange={onGlobalFilterChange}
         />
-      </TableCell>
+      </GridRowFullWidth>
     )
   }
 
   renderColumnFiltersCells() {
     const { columns, filters, onFilterChange, classes } = this.props
 
-    return columns.map(column => (
-      <TableCell key={column.name} classes={{ root: classes.columnFilterCell }}>
-        <GridFilter
-          column={column}
-          filter={filters[column.name]}
-          onFilterChange={onFilterChange}
-        />
-      </TableCell>
-    ))
+    return columns.map((column, columnIndex) => {
+      const cellClasses = [classes.columnFilterCell]
+
+      if (columnIndex === 0) {
+        cellClasses.push(classes.firstCell)
+      }
+
+      return (
+        <TableCell key={column.name} classes={{ root: cellClasses.join(' ') }}>
+          <GridFilter
+            column={column}
+            filter={filters[column.name]}
+            onFilterChange={onFilterChange}
+          />
+        </TableCell>
+      )
+    })
   }
 
   renderMultiselectCell() {
-    const { columns, multiselectable, classes } = this.props
+    const { multiselectable, classes } = this.props
 
-    if (columns.length > 0 && multiselectable) {
+    if (multiselectable) {
       return <TableCell classes={{ root: classes.multiselectCell }}></TableCell>
     } else {
       return null

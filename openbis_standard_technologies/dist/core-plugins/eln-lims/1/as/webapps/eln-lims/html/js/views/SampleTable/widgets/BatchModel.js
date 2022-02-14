@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function BatchModel(title, linkType, allowedSampleTypes, actionFunction) {
+function BatchModel(title, linkType, allowedSampleTypes, allowSampleTypeSelection, actionFunction) {
     this.title = title;
     this.linkType = linkType;
     this.actionFunction = actionFunction;
     this.allowedSampleTypes = allowedSampleTypes;
+    this.allowSampleTypeSelection = allowSampleTypeSelection;
 }

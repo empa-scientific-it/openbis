@@ -5,6 +5,7 @@ import { highlight, languages } from 'prismjs/components/prism-core.js'
 import 'prismjs/components/prism-clike.js'
 import 'prismjs/components/prism-python.js'
 import 'prismjs/components/prism-sql.js'
+import 'prismjs/components/prism-log.js'
 import 'prismjs/themes/prism.css'
 import Editor from 'react-simple-code-editor'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -158,6 +159,7 @@ class SourceCodeField extends React.PureComponent {
       description,
       mandatory,
       disabled,
+      readOnly,
       error,
       variant,
       onClick,
@@ -203,6 +205,7 @@ class SourceCodeField extends React.PureComponent {
             value={value || ''}
             highlight={code => highlight(code, this.getLanguageDefinition())}
             disabled={disabled}
+            readOnly={readOnly}
             tabSize={4}
             onValueChange={this.handleValueChange}
             onFocus={this.handleFocus}
@@ -219,6 +222,8 @@ class SourceCodeField extends React.PureComponent {
       return languages.python
     } else if (language === 'sql') {
       return languages.sql
+    } else if (language === 'log') {
+      return languages.log
     } else {
       throw new Error('Unsupported language: ' + language)
     }

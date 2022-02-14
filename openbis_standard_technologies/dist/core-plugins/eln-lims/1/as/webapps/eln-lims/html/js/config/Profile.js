@@ -607,6 +607,7 @@ $.extend(DefaultProfile.prototype, {
 		this.allSpaces = [];
 		this.allSampleTypes = [];
 		this.allExperimentTypes = [];
+		this.allDataSetTypes = [];
 		this.allVocabularies = [];
 		this.allDataStores = [];
 		this.allPropertyTypes = [];
@@ -887,6 +888,20 @@ $.extend(DefaultProfile.prototype, {
 		    }
 		}
 
+        this.getPropertyTypeFromSampleTypeV3 = function(sampleType, propertyTypeCode) {
+            if(!sampleType.propertyAssignments) {
+                return null;
+            }
+
+            for(var i = 0; i < sampleType.propertyAssignments.length; i++) {
+                var propertyType = sampleType.propertyAssignments[i].propertyType;
+                if(propertyType.code === propertyTypeCode) {
+                    return propertyType;
+                }
+            }
+            return null;
+        }
+
 		this.getPropertyTypeFromSampleType = function(sampleType, propertyTypeCode) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
@@ -950,6 +965,15 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 
+		this.getDataSetTypeForDataSetTypeCode = function(typeCode) {
+			for(var i = 0; i < this.allDataSetTypes.length; i++) {
+				if(this.allDataSetTypes[i].code === typeCode) {
+					return this.allDataSetTypes[i];
+				}
+			}
+			return null;
+		}
+
 		this.getSampleTypeForSampleTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allSampleTypes.length; i++) {
 				if(this.allSampleTypes[i].code === typeCode) {
@@ -962,6 +986,19 @@ $.extend(DefaultProfile.prototype, {
 		this.getAllPropertiCodesForExperimentTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
 			var type = this.getExperimentTypeForExperimentTypeCode(typeCode);
+			for(var i = 0; i < type.propertyTypeGroups.length; i++) {
+				var propertyGroup = type.propertyTypeGroups[i].propertyTypes;
+				for(var j = 0; j < propertyGroup.length; j++) {
+					var propertyType = propertyGroup[j];
+					allPropertiCodes.push(propertyType.code);
+				}
+			}
+			return allPropertiCodes;
+		}
+
+		this.getAllPropertiCodesForDataSetTypeCode = function(typeCode) {
+			var allPropertiCodes = new Array();
+			var type = this.getDataSetTypeForDataSetTypeCode(typeCode);
 			for(var i = 0; i < type.propertyTypeGroups.length; i++) {
 				var propertyGroup = type.propertyTypeGroups[i].propertyTypes;
 				for(var j = 0; j < propertyGroup.length; j++) {

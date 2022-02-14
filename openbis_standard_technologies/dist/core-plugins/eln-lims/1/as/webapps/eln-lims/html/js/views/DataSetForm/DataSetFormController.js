@@ -21,7 +21,9 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	
 	this.init = function(views) {
 		var _this = this;
-		
+
+		mainController.serverFacade.getDatasetTypes(function(dataSetTypesV3) {
+        _this._dataSetFormModel.dataSetTypesV3 = dataSetTypesV3;
 		mainController.serverFacade.listDataSetTypes(function(data) {
 					_this._dataSetFormModel.dataSetTypes = [];
                     for (var i = 0; i < data.result.length; i++) {
@@ -54,6 +56,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 							_this._dataSetFormView.repaint(views);
 						}
 					});
+		});
 		});
 	}
 	
@@ -93,7 +96,8 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 //				setTimeout(function() { //Give some time to update the index
 					var space = null;
 					if(_this._dataSetFormModel.isExperiment()) {
-						mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+						mainController.changeView('showExperimentPageFromIdentifier', encodeURIComponent('["' +
+								_this._dataSetFormModel.entity.identifier.identifier + '",false]'));
 						experimentIdentifier = _this._dataSetFormModel.entity.identifier.identifier;
 						space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
 					} else {
@@ -221,7 +225,8 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 						Util.unblockUI();
 						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
 							if(_this._dataSetFormModel.isExperiment()) {
-								mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
+								mainController.changeView('showExperimentPageFromIdentifier', encodeURIComponent('["' +
+										_this._dataSetFormModel.entity.identifier.identifier + '",false]'));
 							} else {
 								mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
 							}

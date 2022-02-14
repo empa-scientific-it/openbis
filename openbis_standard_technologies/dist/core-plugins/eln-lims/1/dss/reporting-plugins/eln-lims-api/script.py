@@ -707,7 +707,6 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
 	sampleParentsNew = parameters.get("sampleParentsNew");
 
-	properties = getProperties(tr, parameters, sampleType, EntityKind.SAMPLE);
 	#Create/Get for update sample	
 	sampleIdentifier = createSampleIdentifier(sampleSpace, sampleProject, sampleCode, projectSamplesEnabled)
 	print "sampleIdentifier: " + sampleIdentifier
@@ -761,6 +760,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 			sampleParents = sampleParents + [parent.getSampleIdentifier()];
 	
 	#Assign sample properties
+	properties = getProperties(tr, parameters, sampleType, EntityKind.SAMPLE);
 	if sampleProperties != None:
 		for key in sampleProperties.keySet():
 			propertyValue = getPropertyValue(properties, sampleProperties, key);
@@ -793,6 +793,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 			if ("children" in newSampleChild) and (newSampleChild["children"] != None):
 				for childChildrenData in newSampleChild["children"]:
 					childChildren = tr.createNewSample(childChildrenData["identifier"], childChildrenData["sampleTypeCode"]); #Create Sample given his id
+					properties = getProperties(tr, parameters, childChildrenData["sampleTypeCode"], EntityKind.SAMPLE);
 					childChildren.setParentSampleIdentifiers([newSampleChild["identifier"]]);
 					childChildrenExperimentIdentifier = None
 					childChildrenExperiment = None
@@ -827,6 +828,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	if changesToDo is not None:
 		for change in changesToDo:
 			sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
+			properties = getProperties(tr, parameters, sampleWithChanges.getSampleType(), EntityKind.SAMPLE);
 			for key in change["properties"].keySet():
 					propertyValue = getPropertyValue(properties, change["properties"], key);
 					sampleWithChanges.setPropertyValue(key,propertyValue);

@@ -23,17 +23,41 @@ function BatchView(controller, model) {
         var _this = this;
         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
         $window.submit(function() {
-            Util.unblockUI();
-            _this._model.actionFunction(_this._model.file);
+            var allowedSampleTypes = getAllowedSampleTypes();
+            if (allowedSampleTypes.length == 0) {
+                alert("Select at least one " + ELNDictionary.Sample + " type.");
+            } else {
+                Util.unblockUI();
+                _this._model.actionFunction(_this._model.file, allowedSampleTypes);
+            }
         });
         $window.append($('<legend>').append(this._model.title));
+        if (this._model.allowSampleTypeSelection) {
+            var $sampleTypeField = $('<div>');
+            $window.append($sampleTypeField);
+            var $sampleTypeDropDownLabel = $('<label>', { class : 'control-label', 'style' : 'margin-right: 5px' }).html(ELNDictionary.Sample + ' Type(s) to be imported (*): ');
+            $sampleTypeField.append($sampleTypeDropDownLabel);
+            var $sampleTypeDropDown = $('<select>', { 'id' : 'sampleTypesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
+            this._model.allowedSampleTypes.forEach(function(type) {
+                $sampleTypeDropDown.append($('<option>', { 'value' : type}).html(Util.getDisplayNameFromCode(type)));
+            });
+            $sampleTypeField.append($sampleTypeDropDown);
+            $sampleTypeDropDown.multiselect();
+        } else {
+            $window.append("Allowed " + ELNDictionary.sample + " types: " + this._model.allowedSampleTypes.join(", "));
+        }
+        getAllowedSampleTypes = function() {
+            if (_this._model.allowSampleTypeSelection) {
+                var selected = $sampleTypeDropDown.val();
+                return selected ? selected : [];
+            }
+            return _this._model.allowedSampleTypes;
+        }
 
-        $window.append("Allowed " + ELNDictionary.sample + " types: " + this._model.allowedSampleTypes.join(", "));
-        
         var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
         var $templateLink = $("<a>").text("Download");
         $templateLink.on("click", function() {
-            var allowedSampleTypes = _this._model.allowedSampleTypes;
+            var allowedSampleTypes = getAllowedSampleTypes();
             var importMode = _this._model.linkType;
             mainController.serverFacade.getSamplesImportTemplate(allowedSampleTypes, importMode, function(result) {
                 var link = document.createElement('a');

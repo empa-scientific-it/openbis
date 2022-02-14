@@ -8,6 +8,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
@@ -18,6 +19,8 @@ import org.hibernate.query.NativeQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
 public class ELNFixes {
 
@@ -90,5 +93,27 @@ public class ELNFixes {
         DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
         List<CorePluginPE> elnLims = daoFactory.getCorePluginDAO().listCorePluginsByName("eln-lims");
         return (elnLims != null && elnLims.size() > 0);
+    }
+
+    /*
+     * This is a heuristic to determine if an openBIS instance is multi group.
+     *
+     * Can have false positives if:
+     *  - MULTI_GROUP_CONFIG_KEY is left on the service.properties by mistake but plugin not actually configured.
+     *  - MULTI_GROUP_SPACES returns spaces with that particular pattern.
+     *
+     * If positive some spaces will NOT be created by the ELN-LIMS.
+     */
+    private static final String MULTI_GROUP_CONFIG_KEY = "user-management-config-file-path";
+    private static final String MULTI_GROUP_SPACES = "SELECT COUNT(*) > 0 FROM spaces WHERE code LIKE '%_ELN_SETTINGS'";
+    public static boolean isMultiGroup() {
+        List<Object> isMultiGroupSpaces = ELNCollectionTypeMigration.executeNativeQuery(MULTI_GROUP_SPACES);
+        String isMultiGroupProperty = getProperty(MULTI_GROUP_CONFIG_KEY);
+        return (Boolean) isMultiGroupSpaces.get(0) || isMultiGroupProperty != null;
+    }
+
+    static String getProperty(String key) {
+        ExposablePropertyPlaceholderConfigurer configurer = ((ExposablePropertyPlaceholderConfigurer) CommonServiceProvider.tryToGetBean(PROPERTY_CONFIGURER_BEAN_NAME));
+        return configurer.getResolvedProps().getProperty(key);
     }
 }

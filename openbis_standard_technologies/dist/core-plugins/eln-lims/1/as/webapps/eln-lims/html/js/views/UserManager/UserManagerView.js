@@ -47,7 +47,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 		//
 		// Data Grid
 		//
-		var dataGridContainer = $("<div>").css("margin-top", "-10px");
+		var dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
 		
 		var _this = this;
 		
@@ -125,6 +125,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
+		dataGrid.setId("user-grid")
 		dataGrid.init(dataGridContainer);
 		
 		//

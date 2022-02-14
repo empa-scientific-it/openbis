@@ -69,8 +69,12 @@ var BarcodeUtil = new function() {
         return profile.minBarcodeLength ? profile.minBarcodeLength : 15;
     }
 
+    this.getBarcodePattern = function() {
+        return barcodePattern;
+    }
+
     this.isValidBarcode = function(barcode) {
-        return barcode.length >= this.getMinBarcodeLength() && barcodePattern.test(barcode)
+        return barcode.length >= this.getMinBarcodeLength() && this.getBarcodePattern().test(barcode)
     }
 
     this.preGenerateBarcodes = function(views, selectedBarcodes) {

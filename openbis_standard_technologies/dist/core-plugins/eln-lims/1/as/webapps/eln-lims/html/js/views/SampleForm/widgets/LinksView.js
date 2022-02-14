@@ -441,12 +441,13 @@ function LinksView(linksController, linksModel) {
         var $searchDropdownContainer = $("<div>");
         $gridContainer.append($searchDropdownContainer);
 
-        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() { }, "Add");
+        var typeId = sampleTypeCode.toLowerCase()
+        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() { }, "Add", null, "add-object-" + typeId);
         $addObjectsBtn.css({"margin-top" : "5px"});
         $gridContainer.append($addObjectsBtn);
 
         // Search Dropdown
-		var searchDropdown = new AdvancedEntitySearchDropdown(true, true, "Code or Name of the Object", false, true, false, false, false, '50%');
+		var searchDropdown = new AdvancedEntitySearchDropdown(true, true, "Code or Name of the Object", false, true, false, false, false);
 		$addObjectsBtn.click(function() {
 		    var selected = searchDropdown.getSelected();
 		    for(var sIdx = 0; sIdx < selected.length; sIdx++) {

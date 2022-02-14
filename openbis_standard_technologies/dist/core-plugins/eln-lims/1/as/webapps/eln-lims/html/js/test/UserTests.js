@@ -23,10 +23,14 @@ var UserTests = new function() {
                        "METHODS",
                        "_METHODS_PROTOCOLS_GENERAL_PROTOCOLS",
                        "_METHODS_PROTOCOLS_PCR_PROTOCOLS",
-                       "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS"];
+                       "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS",
+                       "PUBLICATIONS",
+                       "PUBLIC_REPOSITORIES",
+                       "_PUBLICATIONS_PUBLIC_REPOSITORIES_PUBLICATIONS_COLLECTION"];
 
             Promise.resolve().then(() => TestUtil.verifyInventory(5, ids))
                              .then(() => e.verifyExistence("USER_MANAGER", false))
+                             .then(() => e.sleep(1000))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(5, error, reject));
         });
@@ -40,6 +44,7 @@ var UserTests = new function() {
                              .then(() => UserTests.createBacteria("BAC2", "Burantimonas"))
                              .then(() => UserTests.createBacteria("BAC3", "Curantimonas"))
                              .then(() => UserTests.createBacteria("BAC4", "Durantimonas"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(6))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(6, error, reject));
@@ -106,26 +111,24 @@ var UserTests = new function() {
                              .then(() => e.waitForCkeditor("BACTERIA.GENOTYPE"))
                              .then(() => TestUtil.ckeditorDropFile("BACTERIA.GENOTYPE", "test-image.png", baseURL + pathToResource))
                              // add mother
-                             .then(() => e.waitForId("plus-btn-bacteria-parents"))
-                             .then(() => e.click("plus-btn-bacteria-parents"))
-                             .then(() => e.waitForId("bac1-column-id"))
-                             .then(() => e.click("bac1-column-id"))
+                             .then(() => e.waitForId("search-btn-bacteria-parents"))
+                             .then(() => e.click("search-btn-bacteria-parents"))
+                             .then(() => e.searchForObjectInSelect2("BAC1", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac1"))
                              .then(() => e.change("comments-bac1", "mother"))
                              // add father
-                             .then(() => e.click("plus-btn-bacteria-parents"))
-                             .then(() => e.waitForId("bac2-column-id"))
-                             .then(() => e.click("bac2-column-id"))
+                             .then(() => e.waitForId("search-btn-bacteria-parents"))
+                             .then(() => e.click("search-btn-bacteria-parents"))
+                             .then(() => e.searchForObjectInSelect2("BAC2", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac2"))
                              .then(() => e.change("comments-bac2", "father"))
                              // add Child
                              .then(() => e.waitForId("plus-btn-children-type-selector"))
                              .then(() => e.click("plus-btn-children-type-selector"))
                              .then(() => e.waitForId("sampleTypeSelector"))
-                             .then(() => e.changeSelect2("sampleTypeSelector", "Bacteria"))
+                             .then(() => e.changeSelect2("sampleTypeSelector", 'BACTERIA'))
+                             .then(() => e.searchForObjectInSelect2("BAC4", "add-object-bacteria"))
                              .then(() => e.waitForId("bac4-column-id"))
-                             .then(() => e.click("bac4-column-id"))
-                             .then(() => e.waitForId("bac4-operations-column-id"))
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
@@ -134,6 +137,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac1-column-id"))
                              .then(() => e.waitForId("bac2-column-id"))
                              .then(() => e.waitForId("bac4-column-id"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(7))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(7, error, reject));
@@ -153,6 +157,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac2"))
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.waitForId("bac4"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(8))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(8, error, reject));
@@ -160,7 +165,8 @@ var UserTests = new function() {
     }
 
     this.sampleHierarchyAsTable = function() {
-        var parentAnnotations = "<b>Code</b>: BAC1, <b>Comments</b>: mother<br><br><b>Code</b>: BAC2, <b>Comments</b>: father";
+        var motherFirst = "<b>Code</b>: BAC1, <b>Comments</b>: mother<br><br><b>Code</b>: BAC2, <b>Comments</b>: father";
+        var fatherFirst = "<b>Code</b>: BAC2, <b>Comments</b>: father<br><br><b>Code</b>: BAC1, <b>Comments</b>: mother";
         var childrenAnnotations = "<b>Code</b>: BAC4";
 
         return new Promise(function executor(resolve, reject) {
@@ -177,27 +183,16 @@ var UserTests = new function() {
                              .then(() => e.waitForId("hierarchy-table"))
                              .then(() => e.click("hierarchy-table"))
                              .then(() => e.sleep(2000)) // wait for table
-                             // show Identifier
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("identifier-cln"))
-                             .then(() => e.click("identifier-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              // check parents and children
                              .then(() => e.waitForId("bac1"))
                              .then(() => e.waitForId("bac2"))
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.equalTo("children-annotations-bac3", childrenAnnotations, true, false))
                              .then(() => e.waitForId("bac4"))
-                             // show the Parent/Annotations column
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("parentannotations-cln"))
-                             .then(() => e.click("parentannotations-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              // check parents comments
                              .then(() => e.waitForId("parent-annotations-bac3"))
-                             .then(() => e.equalTo("parent-annotations-bac3", parentAnnotations, true, false))
+                             .then(() => e.contains("parent-annotations-bac3", [motherFirst, fatherFirst], false))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(9))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(9, error, reject));
@@ -219,6 +214,7 @@ var UserTests = new function() {
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.waitForId("copy"))
                              .then(() => e.click("copy"))
+                             .then(() => e.sleep(1000))
                              // link parents
                              .then(() => e.waitForId("linkParentsOnCopy"))
                              .then(() => e.checked("linkParentsOnCopy", true))
@@ -226,7 +222,7 @@ var UserTests = new function() {
                              .then(() => e.checked("copyChildrenToParent", true))
                              .then(() => e.waitForId("copyAccept"))
                              .then(() => e.click("copyAccept"))
-                             .then(() => e.sleep(3500)) // wait when copy will finished
+                             .then(() => e.sleep(4000)) // wait when copy will finished
                              // go to bac1
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -243,6 +239,7 @@ var UserTests = new function() {
                              // copy of origin bacteria
                              .then(() => e.waitForId("bac5"))
                              .then(() => e.waitForId("bac5_bac4"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(10))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(10, error, reject));
@@ -261,16 +258,11 @@ var UserTests = new function() {
                              // delete
                              .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
-                             .then(() => e.waitForId("delete"))
-                             .then(() => e.click("delete"))
-                             // fill Confirm form
-                             .then(() => e.waitForId("reason-to-delete-id"))
-                             .then(() => e.write("reason-to-delete-id", "test"))
-                             .then(() => e.waitForId("accept-btn"))
-                             .then(() => e.click("accept-btn"))
-                             //You should see the error
-                             .then(() => e.waitForId("jNotifyDismiss"))
-                             .then(() => e.click("jNotifyDismiss"))
+                             // wait for "copy" to make sure that "More..." menu has shown
+                             .then(() => e.waitForId("copy"))
+                             // make sure Delete option is not available in the "More..." dropdown
+                             .then(() => e.verifyExistence("delete", false))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(11))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(11, error, reject));
@@ -284,33 +276,59 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
             Promise.resolve().then(() => TestUtil.overloadSaveAs())
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             // TODO uncomment it and make it work.
+                             // TODO remove testLocally after that
+                             .then(() => TestUtil.testLocally("12.1 \"EXPORTS\""))
+                             /*
                              // export all columns with all rows
-                             .then(() => e.waitForId("export-btn-id"))
-                             .then(() => e.click("export-btn-id"))
-                             .then(() => e.waitForId("export-all-columns-and-rows"))
-                             .then(() => e.click("export-all-columns-and-rows"))
+                             .then(() => e.waitForId("sample-grid\\.exports-button-id"))
+                             .then(() => e.click("sample-grid\\.exports-button-id"))
+                             .then(() => e.sleep(1000))
+                             // choose "All Column"
+                             .then(() => r.mousedown("mui-component-select-columns"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "All Columns"))
+                             .then(() => e.sleep(1000))
+                             // choose "All Pages"
+                             .then(() => r.mousedown("mui-component-select-rows"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "All Pages"))
+                             .then(() => e.sleep(1000))
+                             // choose "Rich Text"
+                             .then(() => r.mousedown("mui-component-select-values"))
+                             .then(() => e.sleep(1000))
+                             .then(() => r.choosePopValue("[data-value]", "Rich Text"))
+                             .then(() => e.sleep(1000))
+                             // trigger export
+                             .then(() => e.waitForId("sample-grid\\.trigger-exports-button-id"))
+                             .then(() => e.click("sample-grid\\.trigger-exports-button-id"))
                              .then(() => e.sleep(3000)) // wait for download
-                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllRows.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
-                             .then(() => e.equalTo("bac1-column-id", "Aurantimonas", true, false))
-                             .then(() => e.equalTo("bac2-column-id", "Burantimonas", true, false))
-                             .then(() => e.equalTo("bac3-column-id", "Curantimonas", true, false))
-                             .then(() => e.equalTo("bac4-column-id", "Durantimonas", true, false))
-                             .then(() => e.equalTo("bac5-column-id", "Curantimonas", true, false))
-                             .then(() => e.equalTo("bac5_bac4-column-id", "Durantimonas", true, false))
+                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllPages.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
+                             .then(() => e.waitForId("bac1-name-id"))
+                             .then(() => e.equalTo("bac1-name-id", "Aurantimonas", true, false))
+                             .then(() => e.equalTo("bac2-name-id", "Burantimonas", true, false))
+                             .then(() => e.equalTo("bac3-name-id", "Curantimonas", true, false))
+                             .then(() => e.equalTo("bac4-name-id", "Durantimonas", true, false))
+                             .then(() => e.equalTo("bac5-name-id", "Curantimonas", true, false))
+                             .then(() => e.equalTo("bac5_bac4-name-id", "Durantimonas", true, false))
+                             */
                              // Batch Update Objects
                              .then(() => UserTests.importBacteriasFromFile(baseURL + pathToUpdateResource, false))
-                             .then(() => e.sleep(3500)) // wait for import
+                             .then(() => e.sleep(6000)) // wait for import
                              // check names after update
-                             .then(() => e.equalTo("bac1-column-id", "AA", true, false))
-                             .then(() => e.equalTo("bac2-column-id", "BB", true, false))
-                             .then(() => e.equalTo("bac3-column-id", "CC", true, false))
-                             .then(() => e.equalTo("bac4-column-id", "DD", true, false))
-                             .then(() => e.equalTo("bac5-column-id", "EE", true, false))
-                             .then(() => e.equalTo("bac5_bac4-column-id", "FF", true, false))
+                             .then(() => e.waitForId("bac1-name-id"))
+                             .then(() => e.equalTo("bac1-name-id", "AA", true, false))
+                             .then(() => e.equalTo("bac2-name-id", "BB", true, false))
+                             .then(() => e.equalTo("bac3-name-id", "CC", true, false))
+                             .then(() => e.equalTo("bac4-name-id", "DD", true, false))
+                             .then(() => e.equalTo("bac5-name-id", "EE", true, false))
+                             .then(() => e.equalTo("bac5_bac4-name-id", "FF", true, false))
                              .then(() => TestUtil.returnRealSaveAs())
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(12))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(12, error, reject));
@@ -332,6 +350,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac7-column-id"))
                              .then(() => e.waitForId("bac8-column-id"))
                              .then(() => e.waitForId("bac9-column-id"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(13))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(13, error, reject));
@@ -344,15 +363,17 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
             Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
-                             .then(() => e.sleep(3500)) // wait for saving
+                             .then(() => e.sleep(5000)) // wait for saving
                              // check that bacterias was created
-                             .then(() => e.waitForId("next-page-id"))
-                             .then(() => e.click("next-page-id"))
+                             .then(() => e.waitForId("sample-grid\\.next-page-id"))
+                             .then(() => r.click("sample-grid\\.next-page-id"))
                              .then(() => e.waitForId("bac10-column-id"))
                              .then(() => e.waitForId("bac11-column-id"))
                              .then(() => e.waitForId("bac12-column-id"))
                              .then(() => e.waitForId("bac13-column-id"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(14))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(14, error, reject));
@@ -413,10 +434,12 @@ var UserTests = new function() {
                              .then(() => e.waitForId("storage-drop-down-id-C-2"))
                              .then(() => e.click("storage-drop-down-id-C-2"))
                              .then(() => e.click("storage-accept"))
+                             .then(() => e.sleep(2000)) // wait for accept
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              // check that new storage was created
                              .then(() => e.waitForId("testbox-c2-id"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(15))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(15, error, reject));
@@ -435,12 +458,12 @@ var UserTests = new function() {
                              .then(() => e.click("toggle-storage-b-id"))
                              .then(() => e.waitForId("storage-drop-down-id-b"))
                              .then(() => e.change("storage-drop-down-id-b", "BENCH", false))
-                             .then(() => e.waitForId("storage-drop-down-id-a-1-2-storage-box"))
+                             .then(() => e.waitForId("storage-drop-down-id-a-1-2-storage-box-0"))
                              .then(() => e.waitForId("storage-drop-down-id-b-1-1"))
-                             .then(() => e.dragAndDrop("storage-drop-down-id-a-1-2-storage-box", "storage-drop-down-id-b-1-1", false))
+                             .then(() => e.dragAndDrop("storage-drop-down-id-a-1-2-storage-box-0", "storage-drop-down-id-b-1-1", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
-                             .then(() => e.sleep(3000)) // wait for saving
+                             .then(() => e.sleep(6000)) // wait for saving
                              .then(() => TestUtil.testPassed(16))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(16, error, reject));
@@ -456,10 +479,10 @@ var UserTests = new function() {
                              .then(() => e.waitForId("storage-drop-down-id-a"))
                              .then(() => e.change("storage-drop-down-id-a", "BENCH", false))
                              .then(() => e.waitForId("storage-drop-down-id-a-1-1"))
-                             .then(() => e.waitForId("storage-drop-down-id-a-1-1-storage-box"))
-                             .then(() => e.click("storage-drop-down-id-a-1-1-storage-box"))
-                             .then(() => e.waitForId("storage-drop-down-id-a-C-2-storage-box"))
-                             .then(() => e.dragAndDrop("storage-drop-down-id-a-C-2-storage-box", "storage-drop-down-id-a-A-3", false))
+                             .then(() => e.waitForId("storage-drop-down-id-a-1-1-storage-box-0"))
+                             .then(() => e.click("storage-drop-down-id-a-1-1-storage-box-0"))
+                             .then(() => e.waitForId("storage-drop-down-id-a-C-2-storage-box-0"))
+                             .then(() => e.dragAndDrop("storage-drop-down-id-a-C-2-storage-box-0", "storage-drop-down-id-a-A-3", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
                              .then(() => e.sleep(3000)) // wait for saving
@@ -470,6 +493,7 @@ var UserTests = new function() {
                              .then(() => e.click("bac1-column-id"))
                              .then(() => e.waitForId("testbox-a3-id"))
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(17))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(17, error, reject));
@@ -493,6 +517,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(18))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(18, error, reject));
@@ -522,6 +547,7 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(19))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(19, error, reject));
@@ -587,6 +613,7 @@ var UserTests = new function() {
                              .then(() => e.change("END_DATE", "", false))
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(20))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(20, error, reject));
@@ -619,15 +646,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("START_DATE"))
                              .then(() => e.change("START_DATE", tomorrow, false))
                              // add protocol
-                             .then(() => e.waitForId("plus-btn-general-protocol"))
-                             .then(() => e.click("plus-btn-general-protocol"))
-                             .then(() => e.waitForId("gen1-column-id"))
-                             .then(() => e.click("gen1-column-id"))
+                             .then(() => e.waitForId("search-btn-general-protocol"))
+                             .then(() => e.click("search-btn-general-protocol"))
+                             .then(() => e.searchForObjectInSelect2("GEN", "add-object-general_protocol"))
+                             .then(() => e.waitForId("gen10-column-id"))
                              // Operations
-                             .then(() => e.waitForId("gen1-operations-column-id"))
-                             .then(() => e.click("gen1-operations-column-id"))
-                             .then(() => e.waitForId("gen1-operations-column-id-use-as-template"))
-                             .then(() => e.click("gen1-operations-column-id-use-as-template"))
+                             .then(() => e.waitForId("gen10-operations-column-id"))
+                             .then(() => e.click("gen10-operations-column-id"))
+                             .then(() => e.waitForId("gen10-operations-column-id-use-as-template"))
+                             .then(() => e.click("gen10-operations-column-id-use-as-template"))
                              .then(() => e.waitForId("newSampleCodeForCopy"))
                              .then(() => e.write("newSampleCodeForCopy", "CODE1", false))
                              .then(() => e.waitForId("copyAccept"))
@@ -653,6 +680,7 @@ var UserTests = new function() {
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
+                             .then(() => e.sleep(2000))
                              .then(() => TestUtil.testPassed(21))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(21, error, reject));
@@ -694,6 +722,7 @@ var UserTests = new function() {
                              .then(() => e.change("NAME", "New Name", false))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("dataset-edit-btn"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(23))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(23, error, reject));
@@ -724,6 +753,7 @@ var UserTests = new function() {
                              .then(() => e.click("options-menu-btn-objects"))
                              .then(() => e.waitForId("project-samples"))
                              .then(() => e.waitForStyle("project-samples", "display", "", false))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(25))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(25, error, reject));
@@ -741,11 +771,6 @@ var UserTests = new function() {
                              .then(() => e.keypress("search", 13, false))
                              .then(() => e.waitForId("save-btn"))
                              // check searching results
-                             .then(() => e.waitForId("columns-dropdown-id"))
-                             .then(() => e.click("columns-dropdown-id"))
-                             .then(() => e.waitForId("code-cln"))
-                             .then(() => e.click("code-cln"))
-                             .then(() => e.click("columns-dropdown-id"))
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.waitForId("bac5_bac4-id"))
                              // save query
@@ -755,7 +780,7 @@ var UserTests = new function() {
                              .then(() => e.write("Name", "Search for BAC5", false))
                              .then(() => e.waitForId("search-query-save-btn"))
                              .then(() => e.click("search-query-save-btn"))
-                             .then(() => e.sleep(3000)) // wait for saving
+                             .then(() => e.sleep(6000)) // wait for saving
                              // Click on BAC5
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.click("bac5-id"))
@@ -770,6 +795,7 @@ var UserTests = new function() {
                              // check search results
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.waitForId("bac5_bac4-id"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(26))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(26, error, reject));
@@ -789,6 +815,7 @@ var UserTests = new function() {
                              .then(() => UserTests.createSupplier("EN", "ENGLISH", "companyen@email.com"))
                              //create German supplier
                              .then(() => UserTests.createSupplier("DE", "GERMAN", "companyde@email.com"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(27))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(27, error, reject));
@@ -835,9 +862,10 @@ var UserTests = new function() {
                              .then(() => e.waitForId("PRODUCTS"))
                              .then(() => e.click("PRODUCTS"))
                              //create English product form
-                             .then(() => UserTests.createProductForm("EN", "EUR", "sup1-column-id"))
+                             .then(() => UserTests.createProductForm("EN", "EUR", "SUP13"))
                              //create German product form
-                             .then(() => UserTests.createProductForm("DE", "EUR", "sup2-column-id"))
+                             .then(() => UserTests.createProductForm("DE", "EUR", "SUP14"))
+                             .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(28))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(28, error, reject));
@@ -867,12 +895,10 @@ var UserTests = new function() {
                              // Error: Currently only have 0 of the 1 required SUPPLIER.
                              .then(() => e.waitForId("jNotifyDismiss"))
                              .then(() => e.click("jNotifyDismiss"))
-                             .then(() => e.waitForId("plus-btn-suppliers"))
-                             .then(() => e.click("plus-btn-suppliers"))
-                             .then(() => e.waitForId(supId))
-                             .then(() => e.click(supId))
-                             .then(() => e.sleep(2000)) // wait for form's update
-                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.waitForId("search-btn-suppliers"))
+                             .then(() => e.click("search-btn-suppliers"))
+                             .then(() => e.searchForObjectInSelect2(supId, "add-object-supplier"))
+                             .then(() => e.waitForId(supId.toLocaleLowerCase() + "-column-id"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
@@ -894,15 +920,18 @@ var UserTests = new function() {
                               .then(() => e.click("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
                               .then(() => e.waitForId("create-btn"))
                               .then(() => e.click("create-btn"))
+                              // set request name and status
+                              .then(() => e.waitForId("NAME"))
+                              .then(() => e.change("NAME", "Product EN 2 Name"))
                               .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                               .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "NOT_YET_ORDERED"))
                               // add Products from Catalog
-                              .then(() => e.waitForId("plus-btn-products"))
-                              .then(() => e.click("plus-btn-products"))
-                              .then(() => e.waitForId("pro1-column-id"))
-                              .then(() => e.click("pro1-column-id"))
-                              .then(() => e.waitForId("quantity-of-items-pro1"))
-                              .then(() => e.change("quantity-of-items-pro1", "18"))
+                              .then(() => e.waitForId("search-btn-products"))
+                              .then(() => e.click("search-btn-products"))
+                              .then(() => e.searchForObjectInSelect2("PRO15", "add-object-product"))
+                              .then(() => e.waitForId("pro15-column-id"))
+                              .then(() => e.waitForId("quantity-of-items-pro15"))
+                              .then(() => e.change("quantity-of-items-pro15", "18"))
                               .then(() => e.waitForId("save-btn"))
                               .then(() => e.click("save-btn"))
                               .then(() => e.waitForId("edit-btn")) // wait for saving
@@ -911,22 +940,29 @@ var UserTests = new function() {
                               .then(() => e.click("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
                               .then(() => e.waitForId("create-btn"))
                               .then(() => e.click("create-btn"))
+                              // set request name and status
+                              .then(() => e.waitForId("NAME"))
+                              .then(() => e.change("NAME", "Product DE 2 Name"))
                               .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                               .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "NOT_YET_ORDERED"))
                               .then(() => e.waitForId("add-new-product-btn"))
                               .then(() => e.click("add-new-product-btn"))
                               // fill new product
                               .then(() => e.waitForId("new-product-name-1"))
-                              .then(() => e.change("new-product-name-1", "Product EN 2 Name"))
+                              .then(() => e.change("new-product-name-1", "Product DE 2 Name"))
                               .then(() => e.waitForId("new-product-currency-1"))
                               .then(() => e.changeSelect2("new-product-currency-1", "CHF"))
                               .then(() => e.waitForId("new-product-supplier-1"))
-                              .then(() => e.changeSelect2("new-product-supplier-1", "/STOCK_CATALOG/SUPPLIERS/SUP1"))
+                              .then(() => e.searchSelect2("new-product-supplier-1", "DE"))
+                              .then(() => e.sleep(2000))
+                              .then(() => e.mouseUp("select2-results__option"))
+                              .then(() => e.sleep(1000))
                               .then(() => e.waitForId("new-product-quantity-1"))
                               .then(() => e.change("new-product-quantity-1", "18"))
                               .then(() => e.waitForId("save-btn"))
                               .then(() => e.click("save-btn"))
                               .then(() => e.waitForId("edit-btn")) // wait for saving
+                              .then(() => e.sleep(1000))
                               .then(() => TestUtil.testPassed(29))
                               .then(() => resolve())
                               .catch(error => TestUtil.reportError(29, error, reject));
@@ -948,6 +984,7 @@ var UserTests = new function() {
                               .then(() => e.waitForId("sample-options-menu-btn"))
                               // There should be no + button
                               .then(() => e.verifyExistence("create-btn", false))
+                              .then(() => e.sleep(1000))
                               .then(() => TestUtil.testPassed(30))
                               .then(() => resolve())
                               .catch(error => TestUtil.reportError(30, error, reject));

@@ -50,7 +50,7 @@ class GridFiltersConfig extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridFiltersConfig.render')
 
-    const { filterModes, loading, classes } = this.props
+    const { id, filterModes, loading, classes } = this.props
     const { el } = this.state
 
     if (filterModes && filterModes.length <= 1) {
@@ -60,12 +60,14 @@ class GridFiltersConfig extends React.PureComponent {
     return (
       <div className={classes.container}>
         <Button
+          id={id + '.filters-button-id'}
           label={messages.get(messages.FILTERS)}
           color='default'
           variant='outlined'
           onClick={this.handleOpen}
         />
         <Popover
+          id={id + '.filters-popup-id'}
           open={Boolean(el)}
           anchorEl={el}
           onClose={this.handleClose}
