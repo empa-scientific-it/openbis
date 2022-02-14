@@ -64,6 +64,9 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		} , {
 			label : 'Entities',
 			property : 'entities',
+			render: function(data){
+				return $("<div>").html(data.entities)
+			},
 			sortable : true
 		} , {
 			label : 'Reason',
