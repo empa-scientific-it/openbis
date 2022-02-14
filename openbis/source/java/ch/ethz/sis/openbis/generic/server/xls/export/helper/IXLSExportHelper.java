@@ -8,6 +8,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 public interface IXLSExportHelper
 {
 
-    void add(final IApplicationServerApi api, final Workbook wb, final ExportablePermId exportablePermId);
+    int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb, final ExportablePermId exportablePermId,
+            final int rowNumber);
 
 }
