@@ -34,7 +34,8 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 				}
-				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo);
+				var codeId = data.code.toLowerCase() + "-column-id";
+				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo, codeId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -58,7 +59,8 @@ var SampleDataGridUtil = new function() {
                 if(data[profile.propertyReplacingCode]) {
                     nameToUse = data[profile.propertyReplacingCode];
                 }
-				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId);
+                var nameId = data.code.toLowerCase() + "-name-id";
+				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId, null, nameId);
 			}
 		});
 
