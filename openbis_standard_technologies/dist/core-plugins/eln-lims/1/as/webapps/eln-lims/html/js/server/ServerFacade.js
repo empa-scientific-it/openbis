@@ -133,10 +133,11 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.getSamplesImportTemplate = function(allowedSampleTypes, importMode, callback) {
+    this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
         this.customELNASAPI({
             "method" : "getSamplesImportTemplate",
             "allowedSampleTypes" : allowedSampleTypes,
+            "templateType" : templateType,
             "importMode" : importMode
         }, function(result) {
             callback(result)
