@@ -261,13 +261,14 @@ class Grid extends React.PureComponent {
   }
 
   renderFilters() {
-    const { filterModes, multiselectable } = this.props
+    const { id, filterModes, multiselectable } = this.props
     const { filterMode, filters, globalFilter } = this.state
 
     const visibleColumns = this.controller.getVisibleColumns()
 
     return (
       <GridFilters
+        id={id}
         columns={visibleColumns}
         filterModes={filterModes}
         filterMode={filterMode}

@@ -297,6 +297,7 @@ var AdminTests = new function() {
     this.vocabularyViewer = function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
 
             testChain = Promise.resolve();
 
@@ -305,18 +306,17 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("vocabulary-browser-title-id")) // wait for page reload
                      // check count
                      .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
-                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of 36", false))
+                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of 37", false))
                      // search for PLASMID
-                     .then(() => e.waitForId("search-input-id"))
-                     .then(() => e.write("search-input-id", "PLASMID"))
-                     .then(() => e.click("search-button-id"))
+                     .then(() => e.waitForId("vocabulary-grid\\.grid-global-filter"))
+                     .then(() => r.setValue("vocabulary-grid\\.grid-global-filter", "PLASMID"))
                      .then(() => e.sleep(2000)) // wait for page reload
                      // Click on the PLASMID_RELATIONSHIP row, it should show a list with five relationships.
                      .then(() => e.waitForId("annotationplasmid_relationship_id"))
                      .then(() => e.click("annotationplasmid_relationship_id"))
                      .then(() => e.sleep(2000)) // wait for page reload
-                     .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
-                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-5 of 5", false))
+                     .then(() => e.waitForId("vocabulary-terms-table\\.page-range-id"))
+                     .then(() => e.checkGridRange("vocabulary-terms-table\\.page-range-id", "1-5 of 5", false))
                      .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(34))
                      .then(() => resolve())

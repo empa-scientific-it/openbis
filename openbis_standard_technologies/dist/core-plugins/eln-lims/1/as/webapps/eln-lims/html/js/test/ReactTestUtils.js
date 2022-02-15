@@ -47,11 +47,10 @@ var ReactTestUtils = new function() {
         });
     };
 
-    // not used yet!
     this.setValue = function(elementId, value) {
         return new Promise(function executor(resolve, reject) {
             try {
-                var element = document.getElementById(elementId);
+                var element =  $( "#" + elementId )[0];
 
                 let lastValue = element.value;
                 element.value = value;
