@@ -6,6 +6,7 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import TypesGrid from '@src/js/components/types/common/TypesGrid.jsx'
 import VocabulariesGrid from '@src/js/components/types/common/VocabulariesGrid.jsx'
+import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import ids from '@src/js/common/consts/ids.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
@@ -45,7 +46,8 @@ class TypeSearch extends React.Component {
         this.loadCollectionTypes(),
         this.loadDataSetTypes(),
         this.loadMaterialTypes(),
-        this.loadVocabularyTypes()
+        this.loadVocabularyTypes(),
+        this.loadPropertyTypes()
       ])
       this.setState(() => ({
         loaded: true
@@ -193,6 +195,43 @@ class TypeSearch extends React.Component {
     })
   }
 
+  async loadPropertyTypes() {
+    if (!this.shouldLoad(objectTypes.PROPERTY_TYPE)) {
+      return
+    }
+
+    const fo = new openbis.PropertyTypeFetchOptions()
+    fo.withVocabulary()
+    fo.withMaterialType()
+    fo.withSampleType()
+
+    const result = await openbis.searchPropertyTypes(
+      new openbis.PropertyTypeSearchCriteria(),
+      fo
+    )
+
+    const types = util
+      .filter(result.objects, this.props.searchText, ['code', 'description'])
+      .map(object => ({
+        id: _.get(object, 'code'),
+        code: _.get(object, 'code'),
+        label: _.get(object, 'label'),
+        description: _.get(object, 'description'),
+        internal: _.get(object, 'managedInternally'),
+        dataType: _.get(object, 'dataType'),
+        vocabulary: _.get(object, 'vocabulary.code'),
+        materialType: _.get(object, 'materialType.code'),
+        sampleType: _.get(object, 'sampleType.code'),
+        schema: _.get(object, 'schema'),
+        transformation: _.get(object, 'transformation'),
+        metaData: _.get(object, 'metaData')
+      }))
+
+    this.setState({
+      propertyTypes: types
+    })
+  }
+
   shouldLoad(objectType) {
     return this.props.objectType === objectType || !this.props.objectType
   }
@@ -231,6 +270,7 @@ class TypeSearch extends React.Component {
         {this.renderDataSetTypes()}
         {this.renderMaterialTypes()}
         {this.renderVocabularyTypes()}
+        {this.renderPropertyTypes()}
       </GridContainer>
     )
   }
@@ -242,7 +282,8 @@ class TypeSearch extends React.Component {
       collectionTypes = [],
       dataSetTypes = [],
       materialTypes = [],
-      vocabularyTypes = []
+      vocabularyTypes = [],
+      propertyTypes = []
     } = this.state
 
     if (
@@ -251,7 +292,8 @@ class TypeSearch extends React.Component {
       collectionTypes.length === 0 &&
       dataSetTypes.length === 0 &&
       materialTypes.length === 0 &&
-      vocabularyTypes.length === 0
+      vocabularyTypes.length === 0 &&
+      propertyTypes.length === 0
     ) {
       return (
         <Container>
@@ -376,6 +418,30 @@ class TypeSearch extends React.Component {
             rows={this.state.vocabularyTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.VOCABULARY_TYPE
+            )}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderPropertyTypes() {
+    if (
+      this.shouldRender(objectTypes.PROPERTY_TYPE, this.state.propertyTypes)
+    ) {
+      const { classes } = this.props
+      return (
+        <div className={classes.grid}>
+          <PropertyTypesGrid
+            id={ids.PROPERTY_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.PROPERTY_TYPE] = controller)
+            }
+            rows={this.state.propertyTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.PROPERTY_TYPE
             )}
           />
         </div>
