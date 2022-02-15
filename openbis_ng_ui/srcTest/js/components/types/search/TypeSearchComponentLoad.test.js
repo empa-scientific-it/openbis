@@ -32,7 +32,9 @@ async function testLoadWithSearchText(resultsFound) {
     testMaterialType,
     anotherMaterialType,
     testVocabularyType,
-    anotherVocabularyType
+    anotherVocabularyType,
+    testPropertyType,
+    anotherPropertyType
   } = TypeSearchTestData
 
   openbis.mockSearchSampleTypes(
@@ -49,6 +51,9 @@ async function testLoadWithSearchText(resultsFound) {
   )
   openbis.mockSearchVocabularies(
     resultsFound ? [testVocabularyType, anotherVocabularyType] : []
+  )
+  openbis.mockSearchPropertyTypes(
+    resultsFound ? [testPropertyType, anotherPropertyType] : []
   )
 
   const form = await common.mount({ searchText: 'test' })
@@ -210,6 +215,63 @@ async function testLoadWithSearchText(resultsFound) {
             }
           }
         ]
+      },
+      propertyTypes: {
+        columns: [
+          {
+            name: 'code',
+            label: 'Code'
+          },
+          {
+            name: 'label',
+            label: 'Label'
+          },
+          {
+            name: 'description',
+            label: 'Description'
+          },
+          {
+            name: 'dataType',
+            label: 'Data Type'
+          },
+          {
+            name: 'vocabulary',
+            label: 'Vocabulary Type'
+          },
+          {
+            name: 'materialType',
+            label: 'Material Type'
+          },
+          {
+            name: 'sampleType',
+            label: 'Object Type'
+          },
+          {
+            name: 'schema',
+            label: 'XML Schema'
+          },
+          {
+            name: 'transformation',
+            label: 'XSLT Script'
+          },
+          {
+            name: 'metaData',
+            label: 'Meta Data'
+          },
+          {
+            name: 'internal',
+            label: 'Internal'
+          }
+        ],
+        rows: [
+          {
+            values: {
+              code: testPropertyType.getCode(),
+              description: testPropertyType.getDescription(),
+              label: testPropertyType.getLabel()
+            }
+          }
+        ]
       }
     })
   } else {
@@ -224,7 +286,8 @@ async function testLoadWithSearchText(resultsFound) {
       collectionTypes: null,
       dataSetTypes: null,
       materialTypes: null,
-      vocabularyTypes: null
+      vocabularyTypes: null,
+      propertyTypes: null
     })
   }
 }
@@ -297,6 +360,7 @@ async function testLoadWithObjectType(resultsFound) {
     collectionTypes: null,
     dataSetTypes: null,
     materialTypes: null,
-    vocabularyTypes: null
+    vocabularyTypes: null,
+    propertyTypes: null
   })
 }

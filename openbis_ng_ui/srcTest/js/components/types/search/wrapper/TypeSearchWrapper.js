@@ -54,6 +54,14 @@ export default class TypeSearchWrapper extends BaseWrapper {
     )
   }
 
+  getPropertyTypes() {
+    return new GridWrapper(
+      this.findComponent(Grid).filter({
+        id: ids.PROPERTY_TYPES_GRID_ID
+      })
+    )
+  }
+
   toJSON() {
     return {
       messages: this.getMessages().map(message => message.toJSON()),
@@ -61,7 +69,8 @@ export default class TypeSearchWrapper extends BaseWrapper {
       collectionTypes: this.getCollectionTypes().toJSON(),
       dataSetTypes: this.getDataSetTypes().toJSON(),
       materialTypes: this.getMaterialTypes().toJSON(),
-      vocabularyTypes: this.getVocabularyTypes().toJSON()
+      vocabularyTypes: this.getVocabularyTypes().toJSON(),
+      propertyTypes: this.getPropertyTypes().toJSON()
     }
   }
 }

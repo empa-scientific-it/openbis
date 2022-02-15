@@ -35,5 +35,10 @@ export default class TypeBrowserComponentTest extends ComponentTest {
       fixture.TEST_VOCABULARY_DTO,
       fixture.ANOTHER_VOCABULARY_DTO
     ])
+
+    openbis.mockSearchPropertyTypes([
+      fixture.TEST_PROPERTY_TYPE_1_DTO,
+      fixture.TEST_PROPERTY_TYPE_2_DTO
+    ])
   }
 }
