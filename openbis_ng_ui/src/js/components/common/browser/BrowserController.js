@@ -33,6 +33,7 @@ export default class BrowserController {
     context.initState({
       loaded: false,
       filter: '',
+      usedFilter: '',
       nodes: [],
       selectedId: null,
       selectedObject: null,
@@ -43,12 +44,8 @@ export default class BrowserController {
 
   load() {
     return this.doLoadNodes().then(loadedNodes => {
-      const {
-        filter,
-        nodes,
-        selectedId,
-        selectedObject
-      } = this.context.getState()
+      const { filter, nodes, selectedId, selectedObject } =
+        this.context.getState()
 
       let newNodes = this._createNodes(loadedNodes)
       newNodes = this._filterNodes(newNodes, filter)
@@ -64,6 +61,7 @@ export default class BrowserController {
 
       this.context.setState({
         loaded: true,
+        usedFilter: filter,
         nodes: newNodes
       })
     })
@@ -120,35 +118,42 @@ export default class BrowserController {
   }
 
   filterChange(newFilter) {
-    const {
-      filter,
-      nodes,
-      selectedId,
-      selectedObject
-    } = this.context.getState()
+    this.context.setState({
+      filter: newFilter
+    })
 
-    let initialNodes = null
-
-    if (newFilter.startsWith(filter)) {
-      initialNodes = nodes
-    } else {
-      initialNodes = this.loadedNodes
+    if (this.filterTimerId) {
+      clearTimeout(this.filterTimerId)
+      this.filterTimerId = null
     }
 
-    let newNodes = this._createNodes(initialNodes)
-    newNodes = this._filterNodes(newNodes, newFilter)
-    newNodes = this._setNodesExpanded(
-      newNodes,
-      this._getParentNodes(newNodes),
-      true
-    )
-    newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
-    this._sortNodes(newNodes)
+    this.filterTimerId = setTimeout(async () => {
+      const { filter, usedFilter, nodes, selectedId, selectedObject } =
+        this.context.getState()
 
-    this.context.setState({
-      filter: newFilter,
-      nodes: newNodes
-    })
+      let initialNodes = null
+
+      if (filter.startsWith(usedFilter)) {
+        initialNodes = nodes
+      } else {
+        initialNodes = this.loadedNodes
+      }
+
+      let newNodes = this._createNodes(initialNodes)
+      newNodes = this._filterNodes(newNodes, newFilter)
+      newNodes = this._setNodesExpanded(
+        newNodes,
+        this._getParentNodes(newNodes),
+        true
+      )
+      newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
+      this._sortNodes(newNodes)
+
+      this.context.setState({
+        usedFilter: filter,
+        nodes: newNodes
+      })
+    }, 200)
   }
 
   nodeExpand(nodeId) {
