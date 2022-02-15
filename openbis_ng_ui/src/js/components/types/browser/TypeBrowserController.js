@@ -34,10 +34,6 @@ export default class TypeBrowserController extends BrowserController {
       openbis.searchVocabularies(
         new openbis.VocabularySearchCriteria(),
         new openbis.VocabularyFetchOptions()
-      ),
-      openbis.searchPropertyTypes(
-        new openbis.PropertyTypeSearchCriteria(),
-        new openbis.PropertyTypeFetchOptions()
       )
     ]).then(
       ([
@@ -45,8 +41,7 @@ export default class TypeBrowserController extends BrowserController {
         collectionTypes,
         dataSetTypes,
         materialTypes,
-        vocabularyTypes,
-        propertyTypes
+        vocabularyTypes
       ]) => {
         const _createNodes = (types, typeName, callback) => {
           return _.map(types, type => {
@@ -83,13 +78,6 @@ export default class TypeBrowserController extends BrowserController {
         let vocabularyTypeNodes = _createNodes(
           vocabularyTypes.getObjects(),
           objectType.VOCABULARY_TYPE,
-          (type, node) => {
-            node.canRemove = !type.managedInternally || this.isSystemUser()
-          }
-        )
-        let propertyTypeNodes = _createNodes(
-          propertyTypes.getObjects(),
-          objectType.PROPERTY_TYPE,
           (type, node) => {
             node.canRemove = !type.managedInternally || this.isSystemUser()
           }
@@ -148,10 +136,7 @@ export default class TypeBrowserController extends BrowserController {
             object: {
               type: objectType.OVERVIEW,
               id: objectType.PROPERTY_TYPE
-            },
-            children: propertyTypeNodes,
-            childrenType: objectType.NEW_PROPERTY_TYPE,
-            canAdd: true
+            }
           }
         ]
 
@@ -174,14 +159,14 @@ export default class TypeBrowserController extends BrowserController {
     }
 
     const { type, id } = node.object
+    const reason = 'deleted via ng_ui'
 
-    var operation = this._prepareRemoveOperation(type, id, 'deleted via ng_ui')
-
-    const options = new openbis.SynchronousOperationExecutionOptions()
-    options.setExecuteInOrder(true)
-
-    return openbis
-      .executeOperations([operation], options)
+    return this._prepareRemoveOperations(type, id, reason)
+      .then(operations => {
+        const options = new openbis.SynchronousOperationExecutionOptions()
+        options.setExecuteInOrder(true)
+        return openbis.executeOperations(operations, options)
+      })
       .then(() => {
         this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
       })
@@ -190,50 +175,86 @@ export default class TypeBrowserController extends BrowserController {
       })
   }
 
-  _prepareRemoveOperation(type, id, reason) {
+  _prepareRemoveOperations(type, id, reason) {
+    if (
+      type === objectType.OBJECT_TYPE ||
+      type === objectType.COLLECTION_TYPE ||
+      type === objectType.DATA_SET_TYPE ||
+      type === objectType.MATERIAL_TYPE
+    ) {
+      return this._prepareRemoveEntityTypeOperations(type, id, reason)
+    } else if (type === objectType.VOCABULARY_TYPE) {
+      return this._prepareRemoveVocabularyTypeOperations(type, id, reason)
+    }
+  }
+
+  _prepareRemoveEntityTypeOperations(type, id, reason) {
+    const operations = []
+
     if (type === objectType.OBJECT_TYPE) {
       const options = new openbis.SampleTypeDeletionOptions()
       options.setReason(reason)
-      return new openbis.DeleteSampleTypesOperation(
-        [new openbis.EntityTypePermId(id)],
-        options
+      operations.push(
+        new openbis.DeleteSampleTypesOperation(
+          [new openbis.EntityTypePermId(id)],
+          options
+        )
       )
     } else if (type === objectType.COLLECTION_TYPE) {
       const options = new openbis.ExperimentTypeDeletionOptions()
       options.setReason(reason)
-      return new openbis.DeleteExperimentTypesOperation(
-        [new openbis.EntityTypePermId(id)],
-        options
+      operations.push(
+        new openbis.DeleteExperimentTypesOperation(
+          [new openbis.EntityTypePermId(id)],
+          options
+        )
       )
     } else if (type === objectType.DATA_SET_TYPE) {
       const options = new openbis.DataSetTypeDeletionOptions()
       options.setReason(reason)
-      return new openbis.DeleteDataSetTypesOperation(
-        [new openbis.EntityTypePermId(id)],
-        options
+      operations.push(
+        new openbis.DeleteDataSetTypesOperation(
+          [new openbis.EntityTypePermId(id)],
+          options
+        )
       )
     } else if (type === objectType.MATERIAL_TYPE) {
       const options = new openbis.MaterialTypeDeletionOptions()
       options.setReason(reason)
-      return new openbis.DeleteMaterialTypesOperation(
-        [new openbis.EntityTypePermId(id)],
-        options
+      operations.push(
+        new openbis.DeleteMaterialTypesOperation(
+          [new openbis.EntityTypePermId(id)],
+          options
+        )
       )
-    } else if (type === objectType.VOCABULARY_TYPE) {
-      const options = new openbis.VocabularyDeletionOptions()
-      options.setReason(reason)
-      return new openbis.DeleteVocabulariesOperation(
+    }
+
+    const criteria = new openbis.PropertyTypeSearchCriteria()
+    criteria.withCode().thatStartsWith(id + '.')
+    const fo = new openbis.PropertyTypeFetchOptions()
+
+    return openbis.searchPropertyTypes(criteria, fo).then(results => {
+      const ids = results
+        .getObjects()
+        .map(propertyType => propertyType.getPermId())
+      if (!_.isEmpty(ids)) {
+        const options = new openbis.PropertyTypeDeletionOptions()
+        options.setReason(reason)
+        operations.push(new openbis.DeletePropertyTypesOperation(ids, options))
+      }
+      return operations
+    })
+  }
+
+  _prepareRemoveVocabularyTypeOperations(type, id, reason) {
+    const options = new openbis.VocabularyDeletionOptions()
+    options.setReason(reason)
+    return Promise.resolve([
+      new openbis.DeleteVocabulariesOperation(
         [new openbis.VocabularyPermId(id)],
         options
       )
-    } else if (type === objectType.PROPERTY_TYPE) {
-      const options = new openbis.PropertyTypeDeletionOptions()
-      options.setReason(reason)
-      return new openbis.DeletePropertyTypesOperation(
-        [new openbis.PropertyTypePermId(id)],
-        options
-      )
-    }
+    ])
   }
 
   doGetObservedModifications() {
@@ -255,10 +276,6 @@ export default class TypeBrowserController extends BrowserController {
         objectOperation.DELETE
       ],
       [objectType.VOCABULARY_TYPE]: [
-        objectOperation.CREATE,
-        objectOperation.DELETE
-      ],
-      [objectType.PROPERTY_TYPE]: [
         objectOperation.CREATE,
         objectOperation.DELETE
       ]

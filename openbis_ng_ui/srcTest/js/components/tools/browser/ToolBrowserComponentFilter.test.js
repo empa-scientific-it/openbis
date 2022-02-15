@@ -1,6 +1,5 @@
 import ToolBrowserComponentTest from '@srcTest/js/components/tools/browser/ToolBrowserComponentTest.js'
 import ToolBrowserTestData from '@srcTest/js/components/tools/browser/ToolBrowserTestData.js'
-import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import openbis from '@srcTest/js/services/openbis.js'
 
 let common = null

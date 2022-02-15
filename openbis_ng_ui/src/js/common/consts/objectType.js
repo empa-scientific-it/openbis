@@ -3,7 +3,6 @@ const NEW_COLLECTION_TYPE = 'newCollectionType'
 const NEW_DATA_SET_TYPE = 'newDataSetType'
 const NEW_MATERIAL_TYPE = 'newMaterialType'
 const NEW_VOCABULARY_TYPE = 'newVocabularyType'
-const NEW_PROPERTY_TYPE = 'newPropertyType'
 const NEW_USER = 'newUser'
 const NEW_USER_GROUP = 'newUserGroup'
 const NEW_DYNAMIC_PROPERTY_PLUGIN = 'newDynamicPropertyPlugin'
@@ -33,7 +32,6 @@ export default {
   NEW_DATA_SET_TYPE,
   NEW_MATERIAL_TYPE,
   NEW_VOCABULARY_TYPE,
-  NEW_PROPERTY_TYPE,
   NEW_USER,
   NEW_USER_GROUP,
   NEW_DYNAMIC_PROPERTY_PLUGIN,

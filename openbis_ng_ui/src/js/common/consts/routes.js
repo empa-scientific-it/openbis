@@ -124,14 +124,6 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.VOCABULARY_TYPE
   }),
-  NEW_PROPERTY_TYPE: new Route('/new-property-type/:id', {
-    page: pages.TYPES,
-    type: objectTypes.NEW_PROPERTY_TYPE
-  }),
-  PROPERTY_TYPE: new Route('/property-type/:id', {
-    page: pages.TYPES,
-    type: objectTypes.PROPERTY_TYPE
-  }),
   PROPERTY_TYPE_OVERVIEW: new Route('/property-type-overview', {
     page: pages.TYPES,
     type: objectTypes.OVERVIEW,
