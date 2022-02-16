@@ -134,6 +134,7 @@ async function testSaveDeleteProperty() {
   )
   common.facade.loadPropertyUsages.mockReturnValue(Promise.resolve({}))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
+  common.facade.loadAssignments.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
 
@@ -187,7 +188,8 @@ async function testSaveDeletePropertyLastAssignment() {
       SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
       TEST_PROPERTY_TYPE.getCode()
     ),
-    setPropertyAssignmentOperation(SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode())
+    setPropertyAssignmentOperation(SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode()),
+    deletePropertyTypeOperation(TEST_PROPERTY_TYPE.getCode())
   ])
 }
 
@@ -252,6 +254,15 @@ function deletePropertyAssignmentOperation(typeCode, propertyCode) {
   update.getPropertyAssignments().setForceRemovingAssignments(true)
 
   return new openbis.UpdateSampleTypesOperation([update])
+}
+
+function deletePropertyTypeOperation(propertyCode) {
+  const options = new openbis.PropertyTypeDeletionOptions()
+  options.setReason('deleted via ng_ui')
+  return new openbis.DeletePropertyTypesOperation(
+    [new openbis.PropertyTypePermId(propertyCode)],
+    options
+  )
 }
 
 function expectExecuteOperations(expectedOperations) {

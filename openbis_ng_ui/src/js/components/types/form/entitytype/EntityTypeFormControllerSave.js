@@ -48,6 +48,13 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
       operations.push(this._createTypeOperation(type, assignments))
     }
 
+    const deleteUnusedPropertyTypesOperation =
+      await this._deleteUnusedPropertyTypesOperation(type, properties)
+
+    if (deleteUnusedPropertyTypesOperation) {
+      operations.push(deleteUnusedPropertyTypesOperation)
+    }
+
     const options = new openbis.SynchronousOperationExecutionOptions()
     options.setExecuteInOrder(true)
     await this.facade.executeOperations(operations, options)
@@ -171,6 +178,47 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     update.setTransformation(property.transformation.value)
     update.convertToDataType(property.dataType.value)
     return new openbis.UpdatePropertyTypesOperation([update])
+  }
+
+  async _deleteUnusedPropertyTypesOperation(type, properties) {
+    const potentialPropertyTypesToDelete = []
+
+    if (type.original) {
+      type.original.properties.forEach(originalProperty => {
+        const property = _.find(properties, [
+          'code.value',
+          originalProperty.code.value
+        ])
+        if (!property && !originalProperty.internal.value) {
+          potentialPropertyTypesToDelete.push(originalProperty)
+        }
+      })
+    }
+
+    if (potentialPropertyTypesToDelete.length > 0) {
+      const propertyTypesToDelete = []
+
+      const assignments = await this.facade.loadAssignments()
+      potentialPropertyTypesToDelete.forEach(propertyType => {
+        const propertyTypeAssignments = assignments[propertyType.code.value]
+        if (propertyTypeAssignments === 1) {
+          propertyTypesToDelete.push(
+            new openbis.PropertyTypePermId(propertyType.code.value)
+          )
+        }
+      })
+
+      if (propertyTypesToDelete.length > 0) {
+        const options = new openbis.PropertyTypeDeletionOptions()
+        options.setReason('deleted via ng_ui')
+        return new openbis.DeletePropertyTypesOperation(
+          propertyTypesToDelete,
+          options
+        )
+      }
+    }
+
+    return null
   }
 
   _propertyAssignmentCreation(property, index) {
