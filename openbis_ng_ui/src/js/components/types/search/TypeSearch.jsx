@@ -244,61 +244,41 @@ class TypeSearch extends React.Component {
   }
 
   async loadPropertyTypesUsages() {
-    const sampleTypeFo = new openbis.SampleTypeFetchOptions()
-    sampleTypeFo.withPropertyAssignments().withPropertyType()
-
-    const experimentTypeFo = new openbis.ExperimentTypeFetchOptions()
-    experimentTypeFo.withPropertyAssignments().withPropertyType()
-
-    const dataSetTypeFo = new openbis.DataSetTypeFetchOptions()
-    dataSetTypeFo.withPropertyAssignments().withPropertyType()
-
-    const materialTypeFo = new openbis.MaterialTypeFetchOptions()
-    materialTypeFo.withPropertyAssignments().withPropertyType()
-
-    const [sampleTypes, experimentTypes, dataSetTypes, materialTypes] =
-      await Promise.all([
-        openbis.searchSampleTypes(
-          new openbis.SampleTypeSearchCriteria(),
-          sampleTypeFo
-        ),
-        openbis.searchExperimentTypes(
-          new openbis.ExperimentTypeSearchCriteria(),
-          experimentTypeFo
-        ),
-        openbis.searchDataSetTypes(
-          new openbis.DataSetTypeSearchCriteria(),
-          dataSetTypeFo
-        ),
-        openbis.searchMaterialTypes(
-          new openbis.MaterialTypeSearchCriteria(),
-          materialTypeFo
-        )
-      ])
-
-    function addUsages(usages, entityTypes, entityKind) {
-      entityTypes.objects.forEach(entityType => {
-        entityType.propertyAssignments.forEach(propertyAssignment => {
-          let propertyUsages = usages[propertyAssignment.propertyType.code]
-          if (!propertyUsages) {
-            propertyUsages = {
-              sampleTypes: [],
-              experimentTypes: [],
-              dataSetTypes: [],
-              materialTypes: []
-            }
-            usages[propertyAssignment.propertyType.code] = propertyUsages
-          }
-          propertyUsages[entityKind].push(entityType.code)
-        })
-      })
-    }
-
     const usages = {}
-    addUsages(usages, sampleTypes, 'sampleTypes')
-    addUsages(usages, experimentTypes, 'experimentTypes')
-    addUsages(usages, dataSetTypes, 'dataSetTypes')
-    addUsages(usages, materialTypes, 'materialTypes')
+
+    const fo = new openbis.PropertyAssignmentFetchOptions()
+    fo.withEntityType()
+    fo.withPropertyType()
+
+    const propertyAssignments = await openbis.searchPropertyAssignments(
+      new openbis.PropertyAssignmentSearchCriteria(),
+      fo
+    )
+
+    propertyAssignments.objects.forEach(propertyAssignment => {
+      let propertyUsages = usages[propertyAssignment.propertyType.code]
+      if (!propertyUsages) {
+        propertyUsages = {
+          sampleTypes: [],
+          experimentTypes: [],
+          dataSetTypes: [],
+          materialTypes: []
+        }
+        usages[propertyAssignment.propertyType.code] = propertyUsages
+      }
+
+      const entityType = propertyAssignment.entityType['@type']
+
+      if (entityType === 'as.dto.sample.SampleType') {
+        propertyUsages.sampleTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.experiment.ExperimentType') {
+        propertyUsages.experimentTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.dataset.DataSetType') {
+        propertyUsages.dataSetTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.material.MaterialType') {
+        propertyUsages.materialTypes.push(propertyAssignment.entityType.code)
+      }
+    })
 
     Object.keys(usages).forEach(propertyTypeCode => {
       const propertyUsages = usages[propertyTypeCode]
