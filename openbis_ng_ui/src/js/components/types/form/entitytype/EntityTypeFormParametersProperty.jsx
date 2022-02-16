@@ -497,7 +497,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
           name='schema'
           error={error}
           disabled={!enabled}
-          value={value}
+          value={mode === 'view' ? <pre>{value}</pre> : value}
           multiline={true}
           mode={mode}
           onChange={this.handleChange}
@@ -525,7 +525,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
           name='transformation'
           error={error}
           disabled={!enabled}
-          value={value}
+          value={mode === 'view' ? <pre>{value}</pre> : value}
           multiline={true}
           mode={mode}
           onChange={this.handleChange}
