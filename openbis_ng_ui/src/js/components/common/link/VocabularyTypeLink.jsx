@@ -4,9 +4,9 @@ import pages from '@src/js/common/consts/pages.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
 
-class VocabularyLink extends React.PureComponent {
+class VocabularyTypeLink extends React.PureComponent {
   render() {
-    logger.log(logger.DEBUG, 'VocabularyLink.render')
+    logger.log(logger.DEBUG, 'VocabularyTypeLink.render')
 
     const { vocabularyCode } = this.props
 
@@ -28,4 +28,4 @@ class VocabularyLink extends React.PureComponent {
   }
 }
 
-export default VocabularyLink
+export default VocabularyTypeLink

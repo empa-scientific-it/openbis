@@ -1,6 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
-import TypeLink from '@src/js/components/common/link/TypeLink.jsx'
+import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
@@ -51,7 +51,7 @@ class EntityTypesGrid extends React.PureComponent {
       label: messages.get(messages.CODE),
       getValue: ({ row }) => row.code,
       renderValue: ({ row }) => {
-        return <TypeLink typeCode={row.code} typeKind={kind} />
+        return <EntityTypeLink typeCode={row.code} typeKind={kind} />
       }
     })
 

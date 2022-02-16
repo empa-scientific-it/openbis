@@ -1,6 +1,9 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
+import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
+import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -40,17 +43,32 @@ class PropertyTypesGrid extends React.PureComponent {
           {
             name: 'vocabulary',
             label: messages.get(messages.VOCABULARY_TYPE),
-            getValue: ({ row }) => row.vocabulary
+            getValue: ({ row }) => row.vocabulary,
+            renderValue: ({ row }) => (
+              <VocabularyTypeLink vocabularyCode={row.vocabulary} />
+            )
           },
           {
             name: 'materialType',
             label: messages.get(messages.MATERIAL_TYPE),
-            getValue: ({ row }) => row.materialType
+            getValue: ({ row }) => row.materialType,
+            renderValue: ({ row }) => (
+              <EntityTypeLink
+                typeKind={openbis.EntityKind.MATERIAL}
+                typeCode={row.materialType}
+              />
+            )
           },
           {
             name: 'sampleType',
             label: messages.get(messages.OBJECT_TYPE),
-            getValue: ({ row }) => row.sampleType
+            getValue: ({ row }) => row.sampleType,
+            renderValue: ({ row }) => (
+              <EntityTypeLink
+                typeKind={openbis.EntityKind.SAMPLE}
+                typeCode={row.sampleType}
+              />
+            )
           },
           {
             name: 'schema',

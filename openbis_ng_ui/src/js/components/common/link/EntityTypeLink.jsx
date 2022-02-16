@@ -5,9 +5,9 @@ import objectTypes from '@src/js/common/consts/objectType.js'
 import openbis from '@src/js/services/openbis.js'
 import logger from '@src/js/common/logger.js'
 
-class TypeLink extends React.PureComponent {
+class EntityTypeLink extends React.PureComponent {
   render() {
-    logger.log(logger.DEBUG, 'TypeLink.render')
+    logger.log(logger.DEBUG, 'EntityTypeLink.render')
 
     const { typeCode, typeKind } = this.props
 
@@ -43,4 +43,4 @@ class TypeLink extends React.PureComponent {
   }
 }
 
-export default TypeLink
+export default EntityTypeLink

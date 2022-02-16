@@ -2,7 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Collapse from '@material-ui/core/Collapse'
 import Link from '@material-ui/core/Link'
-import TypeLink from '@src/js/components/common/link/TypeLink.jsx'
+import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -100,7 +100,7 @@ class PropertyTypesGridUsagesCell extends React.PureComponent {
         {usagesHeader}:
         {usagesList.map(usage => (
           <li key={usage} className={classes.usage}>
-            <TypeLink typeKind={usageKind} typeCode={usage} />
+            <EntityTypeLink typeKind={usageKind} typeCode={usage} />
           </li>
         ))}
       </ul>

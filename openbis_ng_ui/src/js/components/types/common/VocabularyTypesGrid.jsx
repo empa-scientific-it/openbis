@@ -1,6 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
-import VocabularyLink from '@src/js/components/common/link/VocabularyLink.jsx'
+import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -22,7 +22,7 @@ class VocabularyTypesGrid extends React.PureComponent {
             label: messages.get(messages.CODE),
             getValue: ({ row }) => row.code,
             renderValue: ({ row }) => {
-              return <VocabularyLink vocabularyCode={row.code} />
+              return <VocabularyTypeLink vocabularyCode={row.code} />
             }
           },
           {
