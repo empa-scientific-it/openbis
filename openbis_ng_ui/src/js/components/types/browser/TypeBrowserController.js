@@ -153,7 +153,7 @@ export default class TypeBrowserController extends BrowserController {
     }
   }
 
-  doNodeRemove(node) {
+  async doNodeRemove(node) {
     if (!node.object) {
       return Promise.resolve()
     }
@@ -161,34 +161,31 @@ export default class TypeBrowserController extends BrowserController {
     const { type, id } = node.object
     const reason = 'deleted via ng_ui'
 
-    return this._prepareRemoveOperations(type, id, reason)
-      .then(operations => {
-        const options = new openbis.SynchronousOperationExecutionOptions()
-        options.setExecuteInOrder(true)
-        return openbis.executeOperations(operations, options)
-      })
-      .then(() => {
-        this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
-      })
-      .catch(error => {
-        this.context.dispatch(actions.errorChange(error))
-      })
+    try {
+      const operations = await this._prepareRemoveOperations(type, id, reason)
+      const options = new openbis.SynchronousOperationExecutionOptions()
+      options.setExecuteInOrder(true)
+      await openbis.executeOperations(operations, options)
+      this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
+    } catch (error) {
+      this.context.dispatch(actions.errorChange(error))
+    }
   }
 
-  _prepareRemoveOperations(type, id, reason) {
+  async _prepareRemoveOperations(type, id, reason) {
     if (
       type === objectType.OBJECT_TYPE ||
       type === objectType.COLLECTION_TYPE ||
       type === objectType.DATA_SET_TYPE ||
       type === objectType.MATERIAL_TYPE
     ) {
-      return this._prepareRemoveEntityTypeOperations(type, id, reason)
+      return await this._prepareRemoveEntityTypeOperations(type, id, reason)
     } else if (type === objectType.VOCABULARY_TYPE) {
-      return this._prepareRemoveVocabularyTypeOperations(type, id, reason)
+      return await this._prepareRemoveVocabularyTypeOperations(type, id, reason)
     }
   }
 
-  _prepareRemoveEntityTypeOperations(type, id, reason) {
+  async _prepareRemoveEntityTypeOperations(type, id, reason) {
     const operations = []
 
     if (type === objectType.OBJECT_TYPE) {
@@ -229,32 +226,78 @@ export default class TypeBrowserController extends BrowserController {
       )
     }
 
-    const criteria = new openbis.PropertyTypeSearchCriteria()
-    criteria.withCode().thatStartsWith(id + '.')
-    const fo = new openbis.PropertyTypeFetchOptions()
+    const removeUnusuedPropertyTypesOperation =
+      await this._prepareRemoveUnusedPropertyTypesOperations(type, id)
 
-    return openbis.searchPropertyTypes(criteria, fo).then(results => {
-      const ids = results
-        .getObjects()
-        .map(propertyType => propertyType.getPermId())
-      if (!_.isEmpty(ids)) {
-        const options = new openbis.PropertyTypeDeletionOptions()
-        options.setReason(reason)
-        operations.push(new openbis.DeletePropertyTypesOperation(ids, options))
-      }
-      return operations
-    })
+    if (removeUnusuedPropertyTypesOperation) {
+      operations.push(removeUnusuedPropertyTypesOperation)
+    }
+
+    return operations
   }
 
-  _prepareRemoveVocabularyTypeOperations(type, id, reason) {
+  async _prepareRemoveUnusedPropertyTypesOperations(type, id) {
+    const entityKind = this.getEntityKind(type)
+
+    const propertyAssignmentFetchOptions =
+      new openbis.PropertyAssignmentFetchOptions()
+    propertyAssignmentFetchOptions.withPropertyType()
+    propertyAssignmentFetchOptions.withEntityType()
+
+    const propertyAssignments = await openbis.searchPropertyAssignments(
+      new openbis.PropertyAssignmentSearchCriteria(),
+      propertyAssignmentFetchOptions
+    )
+
+    const potentialPropertyTypesToDelete = []
+    const propertyTypeUsages = {}
+
+    propertyAssignments.objects.forEach(propertyAssignment => {
+      const propertyTypeCode = propertyAssignment.propertyType.code
+
+      propertyTypeUsages[propertyTypeCode] =
+        (propertyTypeUsages[propertyTypeCode] || 0) + 1
+
+      if (
+        propertyAssignment.entityType.permId.permId === id &&
+        propertyAssignment.entityType.permId.entityKind === entityKind &&
+        !propertyAssignment.propertyType.managedInternally
+      ) {
+        potentialPropertyTypesToDelete.push(propertyTypeCode)
+      }
+    })
+
+    if (potentialPropertyTypesToDelete.length > 0) {
+      const propertyTypesToDelete = []
+
+      potentialPropertyTypesToDelete.forEach(propertyTypeCode => {
+        if (propertyTypeUsages[propertyTypeCode] === 1) {
+          propertyTypesToDelete.push(
+            new openbis.PropertyTypePermId(propertyTypeCode)
+          )
+        }
+      })
+
+      if (propertyTypesToDelete.length > 0) {
+        const options = new openbis.PropertyTypeDeletionOptions()
+        options.setReason('deleted via ng_ui')
+        return new openbis.DeletePropertyTypesOperation(
+          propertyTypesToDelete,
+          options
+        )
+      }
+    }
+
+    return null
+  }
+
+  async _prepareRemoveVocabularyTypeOperations(type, id, reason) {
     const options = new openbis.VocabularyDeletionOptions()
     options.setReason(reason)
-    return Promise.resolve([
-      new openbis.DeleteVocabulariesOperation(
-        [new openbis.VocabularyPermId(id)],
-        options
-      )
-    ])
+    return new openbis.DeleteVocabulariesOperation(
+      [new openbis.VocabularyPermId(id)],
+      options
+    )
   }
 
   doGetObservedModifications() {
@@ -279,6 +322,18 @@ export default class TypeBrowserController extends BrowserController {
         objectOperation.CREATE,
         objectOperation.DELETE
       ]
+    }
+  }
+
+  getEntityKind(type) {
+    if (type === objectType.OBJECT_TYPE) {
+      return openbis.EntityKind.SAMPLE
+    } else if (type === objectType.COLLECTION_TYPE) {
+      return openbis.EntityKind.EXPERIMENT
+    } else if (type === objectType.DATA_SET_TYPE) {
+      return openbis.EntityKind.DATA_SET
+    } else if (type === objectType.MATERIAL_TYPE) {
+      return openbis.EntityKind.MATERIAL
     }
   }
 
