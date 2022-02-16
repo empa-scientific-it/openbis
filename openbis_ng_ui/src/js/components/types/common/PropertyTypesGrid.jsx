@@ -3,6 +3,7 @@ import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.js
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
+import PropertyTypesGridXMLCell from '@src/js/components/types/common/PropertyTypesGridXMLCell.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -73,12 +74,18 @@ class PropertyTypesGrid extends React.PureComponent {
           {
             name: 'schema',
             label: messages.get(messages.XML_SCHEMA),
-            getValue: ({ row }) => row.schema
+            getValue: ({ row }) => row.schema,
+            renderValue: ({ row }) => {
+              return <PropertyTypesGridXMLCell value={row.schema} />
+            }
           },
           {
             name: 'transformation',
             label: messages.get(messages.XSLT_SCRIPT),
-            getValue: ({ row }) => row.schema
+            getValue: ({ row }) => row.transformation,
+            renderValue: ({ row }) => {
+              return <PropertyTypesGridXMLCell value={row.transformation} />
+            }
           },
           {
             name: 'usages',
