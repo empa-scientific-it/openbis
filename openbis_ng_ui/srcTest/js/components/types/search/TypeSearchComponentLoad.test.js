@@ -55,6 +55,7 @@ async function testLoadWithSearchText(resultsFound) {
   openbis.mockSearchPropertyTypes(
     resultsFound ? [testPropertyType, anotherPropertyType] : []
   )
+  openbis.mockSearchPropertyAssignments([])
 
   const form = await common.mount({ searchText: 'test' })
 
@@ -255,12 +256,8 @@ async function testLoadWithSearchText(resultsFound) {
             label: 'XSLT Script'
           },
           {
-            name: 'metaData',
-            label: 'Meta Data'
-          },
-          {
-            name: 'internal',
-            label: 'Internal'
+            name: 'usages',
+            label: 'Usages'
           }
         ],
         rows: [
