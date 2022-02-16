@@ -1023,6 +1023,25 @@ function MainController(profile) {
             FormUtil.downloadMetadataTemplateDialog();
         }, "Download metadata.json template");
         $header.append(FormUtil.getToolbar([{ component : $downloadMetadataTemplateButton }]));
+        if (profile.extraToolActions) {
+            profile.extraToolActions.forEach(function(actionDefinition) {
+                var $actionButton = FormUtil.getButtonWithText(actionDefinition.label, actionDefinition.action);
+                $header.append(FormUtil.getToolbar([{ component : $actionButton }]));
+            });
+        }
+    }
+
+    this.createReport = function(reportDefinition) {
+        var parameters = reportDefinition.parameters ? reportDefinition.parameters : {};
+        mainController.serverFacade.customASService(parameters, function(result){
+            var link = document.createElement('a');
+            var mimeType = reportDefinition.mimeType ? reportDefinition.mimeType : "text/plain";
+            link.href = "data:" + mimeType + ";" + (reportDefinition.binary ? "base64," : ",") + result;
+            link.download = reportDefinition.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, reportDefinition.service);
     }
 
 	
