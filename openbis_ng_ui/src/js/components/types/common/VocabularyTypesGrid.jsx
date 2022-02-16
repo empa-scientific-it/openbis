@@ -4,9 +4,9 @@ import VocabularyLink from '@src/js/components/common/link/VocabularyLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-class VocabulariesGrid extends React.PureComponent {
+class VocabularyTypesGrid extends React.PureComponent {
   render() {
-    logger.log(logger.DEBUG, 'VocabulariesGrid.render')
+    logger.log(logger.DEBUG, 'VocabularyTypesGrid.render')
 
     const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
       this.props
@@ -46,4 +46,4 @@ class VocabulariesGrid extends React.PureComponent {
   }
 }
 
-export default VocabulariesGrid
+export default VocabularyTypesGrid

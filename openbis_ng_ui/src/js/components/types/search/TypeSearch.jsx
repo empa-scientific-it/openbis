@@ -4,8 +4,8 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
-import TypesGrid from '@src/js/components/types/common/TypesGrid.jsx'
-import VocabulariesGrid from '@src/js/components/types/common/VocabulariesGrid.jsx'
+import EntityTypesGrid from '@src/js/components/types/common/EntityTypesGrid.jsx'
+import VocabularyTypesGrid from '@src/js/components/types/common/VocabularyTypesGrid.jsx'
 import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import ids from '@src/js/common/consts/ids.js'
@@ -200,36 +200,120 @@ class TypeSearch extends React.Component {
       return
     }
 
-    const fo = new openbis.PropertyTypeFetchOptions()
-    fo.withVocabulary()
-    fo.withMaterialType()
-    fo.withSampleType()
-
-    const result = await openbis.searchPropertyTypes(
-      new openbis.PropertyTypeSearchCriteria(),
-      fo
-    )
+    const [propertyTypes, propertyTypeUsages] = await Promise.all([
+      this.loadPropertyTypesTypes(),
+      this.loadPropertyTypesUsages()
+    ])
 
     const types = util
-      .filter(result.objects, this.props.searchText, ['code', 'description'])
+      .filter(propertyTypes.objects, this.props.searchText, [
+        'code',
+        'description'
+      ])
       .map(object => ({
         id: _.get(object, 'code'),
         code: _.get(object, 'code'),
         label: _.get(object, 'label'),
         description: _.get(object, 'description'),
-        internal: _.get(object, 'managedInternally'),
         dataType: _.get(object, 'dataType'),
         vocabulary: _.get(object, 'vocabulary.code'),
         materialType: _.get(object, 'materialType.code'),
         sampleType: _.get(object, 'sampleType.code'),
         schema: _.get(object, 'schema'),
         transformation: _.get(object, 'transformation'),
-        metaData: _.get(object, 'metaData')
+        usages: _.get(propertyTypeUsages, object.code)
       }))
 
     this.setState({
       propertyTypes: types
     })
+  }
+
+  async loadPropertyTypesTypes() {
+    const fo = new openbis.PropertyTypeFetchOptions()
+    fo.withVocabulary()
+    fo.withMaterialType()
+    fo.withSampleType()
+
+    const propertyTypes = await openbis.searchPropertyTypes(
+      new openbis.PropertyTypeSearchCriteria(),
+      fo
+    )
+
+    return propertyTypes
+  }
+
+  async loadPropertyTypesUsages() {
+    const sampleTypeFo = new openbis.SampleTypeFetchOptions()
+    sampleTypeFo.withPropertyAssignments().withPropertyType()
+
+    const experimentTypeFo = new openbis.ExperimentTypeFetchOptions()
+    experimentTypeFo.withPropertyAssignments().withPropertyType()
+
+    const dataSetTypeFo = new openbis.DataSetTypeFetchOptions()
+    dataSetTypeFo.withPropertyAssignments().withPropertyType()
+
+    const materialTypeFo = new openbis.MaterialTypeFetchOptions()
+    materialTypeFo.withPropertyAssignments().withPropertyType()
+
+    const [sampleTypes, experimentTypes, dataSetTypes, materialTypes] =
+      await Promise.all([
+        openbis.searchSampleTypes(
+          new openbis.SampleTypeSearchCriteria(),
+          sampleTypeFo
+        ),
+        openbis.searchExperimentTypes(
+          new openbis.ExperimentTypeSearchCriteria(),
+          experimentTypeFo
+        ),
+        openbis.searchDataSetTypes(
+          new openbis.DataSetTypeSearchCriteria(),
+          dataSetTypeFo
+        ),
+        openbis.searchMaterialTypes(
+          new openbis.MaterialTypeSearchCriteria(),
+          materialTypeFo
+        )
+      ])
+
+    function addUsages(usages, entityTypes, entityKind) {
+      entityTypes.objects.forEach(entityType => {
+        entityType.propertyAssignments.forEach(propertyAssignment => {
+          let propertyUsages = usages[propertyAssignment.propertyType.code]
+          if (!propertyUsages) {
+            propertyUsages = {
+              sampleTypes: [],
+              experimentTypes: [],
+              dataSetTypes: [],
+              materialTypes: []
+            }
+            usages[propertyAssignment.propertyType.code] = propertyUsages
+          }
+          propertyUsages[entityKind].push(entityType.code)
+        })
+      })
+    }
+
+    const usages = {}
+    addUsages(usages, sampleTypes, 'sampleTypes')
+    addUsages(usages, experimentTypes, 'experimentTypes')
+    addUsages(usages, dataSetTypes, 'dataSetTypes')
+    addUsages(usages, materialTypes, 'materialTypes')
+
+    Object.keys(usages).forEach(propertyTypeCode => {
+      const propertyUsages = usages[propertyTypeCode]
+      propertyUsages.sampleTypes.sort()
+      propertyUsages.experimentTypes.sort()
+      propertyUsages.dataSetTypes.sort()
+      propertyUsages.materialTypes.sort()
+      propertyUsages.count =
+        propertyUsages.sampleTypes.length +
+        propertyUsages.experimentTypes.length +
+        propertyUsages.dataSetTypes.length +
+        propertyUsages.materialTypes.length
+    })
+
+    return usages
   }
 
   shouldLoad(objectType) {
@@ -312,7 +396,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.OBJECT_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.OBJECT_TYPE] = controller)
@@ -337,7 +421,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.COLLECTION_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.COLLECTION_TYPE] = controller)
@@ -360,7 +444,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.DATA_SET_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.DATA_SET_TYPE] = controller)
@@ -385,7 +469,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.MATERIAL_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.MATERIAL_TYPE] = controller)
@@ -410,7 +494,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <VocabulariesGrid
+          <VocabularyTypesGrid
             id={ids.VOCABULARY_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.VOCABULARY_TYPE] = controller)

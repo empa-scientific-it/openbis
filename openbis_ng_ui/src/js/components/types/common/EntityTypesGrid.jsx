@@ -6,9 +6,9 @@ import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-class TypesGrid extends React.PureComponent {
+class EntityTypesGrid extends React.PureComponent {
   render() {
-    logger.log(logger.DEBUG, 'TypesGrid.render')
+    logger.log(logger.DEBUG, 'EntityTypesGrid.render')
 
     const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
       this.props
@@ -119,4 +119,4 @@ class TypesGrid extends React.PureComponent {
   }
 }
 
-export default TypesGrid
+export default EntityTypesGrid

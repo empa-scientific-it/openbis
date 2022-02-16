@@ -1,7 +1,6 @@
-import _ from 'lodash'
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
-import PropertyTypeLink from '@src/js/components/common/link/PropertyTypeLink.jsx'
+import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -21,10 +20,7 @@ class PropertyTypesGrid extends React.PureComponent {
           {
             name: 'code',
             label: messages.get(messages.CODE),
-            getValue: ({ row }) => row.code,
-            renderValue: ({ row }) => {
-              return <PropertyTypeLink propertyTypeCode={row.code} />
-            }
+            getValue: ({ row }) => row.code
           },
           {
             name: 'label',
@@ -67,18 +63,18 @@ class PropertyTypesGrid extends React.PureComponent {
             getValue: ({ row }) => row.schema
           },
           {
-            name: 'metaData',
-            label: messages.get(messages.META_DATA),
+            name: 'usages',
+            label: messages.get(messages.USAGES),
             getValue: ({ row }) =>
-              _.isEmpty(row.metaData) ? null : JSON.stringify(row.metaData),
-            renderValue: ({ value }) => {
-              return <pre>{value}</pre>
+              row.usages ? JSON.stringify(row.usages) : null,
+            compareValue: ({ row1, row2, defaultCompare }) => {
+              const value1 = row1.usages ? row1.usages.count : 0
+              const value2 = row2.usages ? row2.usages.count : 0
+              return defaultCompare(value1, value2)
+            },
+            renderValue: ({ row }) => {
+              return <PropertyTypesGridUsagesCell value={row.usages} />
             }
-          },
-          {
-            name: 'internal',
-            label: messages.get(messages.INTERNAL),
-            getValue: ({ row }) => row.internal
           }
         ]}
         rows={rows}
