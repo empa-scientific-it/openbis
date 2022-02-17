@@ -37,6 +37,11 @@ export default class TypeBrowserControllerTest {
       fixture.TEST_PROPERTY_TYPE_1_DTO,
       fixture.TEST_PROPERTY_TYPE_2_DTO
     ])
+
+    openbis.mockSearchPropertyAssignments([
+      ...fixture.TEST_SAMPLE_TYPE_DTO.propertyAssignments,
+      ...fixture.ANOTHER_SAMPLE_TYPE_DTO.propertyAssignments
+    ])
   }
 
   expectNewTypeAction(type) {

@@ -42,11 +42,13 @@ async function testRemoveNode() {
     return new openbis.DeleteSampleTypesOperation([id], options)
   }
 
-  const createDeletePropertyTypeOperation = propertyTypeCode => {
-    const id = new openbis.PropertyTypePermId(propertyTypeCode)
+  const createDeletePropertyTypeOperation = propertyTypeCodes => {
+    const ids = propertyTypeCodes.map(propertyTypeCode => {
+      return new openbis.PropertyTypePermId(propertyTypeCode)
+    })
     const options = new openbis.PropertyTypeDeletionOptions()
     options.setReason('deleted via ng_ui')
-    return new openbis.DeletePropertyTypesOperation([id], options)
+    return new openbis.DeletePropertyTypesOperation(ids, options)
   }
 
   const options = new openbis.SynchronousOperationExecutionOptions()
@@ -55,7 +57,10 @@ async function testRemoveNode() {
   expect(openbis.executeOperations).toHaveBeenCalledWith(
     [
       createDeleteTypeOperation(fixture.TEST_SAMPLE_TYPE_DTO.code),
-      createDeletePropertyTypeOperation(fixture.TEST_PROPERTY_TYPE_1_DTO.code)
+      createDeletePropertyTypeOperation([
+        fixture.TEST_PROPERTY_TYPE_2_DTO.code,
+        fixture.TEST_PROPERTY_TYPE_3_DTO.code
+      ])
     ],
     options
   )
