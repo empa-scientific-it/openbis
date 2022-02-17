@@ -66,17 +66,19 @@ class PageWithTwoPanels extends React.PureComponent {
     const { classes, renderMainPanel, renderAdditionalPanel, renderButtons } =
       this.props
 
-    const mainPanel = renderMainPanel ? renderMainPanel() : null
-    const additionalPanel = renderAdditionalPanel
-      ? renderAdditionalPanel()
-      : null
-    const buttons = renderButtons ? renderButtons() : null
+    const mainPanel = renderMainPanel ? renderMainPanel() : <div></div>
+    const additionalPanel = renderAdditionalPanel ? (
+      renderAdditionalPanel()
+    ) : (
+      <div></div>
+    )
+    const buttons = renderButtons ? renderButtons() : <div></div>
 
     return (
       <div className={classes.container}>
         <div className={classes.content}>
-          {mainPanel && <div className={classes.mainPanel}>{mainPanel}</div>}
-          {additionalPanel && (
+          {<div className={classes.mainPanel}>{mainPanel}</div>}
+          {
             <Resizable
               defaultSize={{
                 width: 400,
@@ -95,9 +97,9 @@ class PageWithTwoPanels extends React.PureComponent {
             >
               <div className={classes.additionalPanel}>{additionalPanel}</div>
             </Resizable>
-          )}
+          }
         </div>
-        {buttons && <div className={classes.buttons}>{buttons}</div>}
+        {<div className={classes.buttons}>{buttons}</div>}
       </div>
     )
   }

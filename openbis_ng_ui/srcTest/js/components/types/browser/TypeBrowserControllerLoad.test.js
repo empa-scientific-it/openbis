@@ -39,6 +39,11 @@ async function testLoad() {
       text: 'Vocabulary Types',
       expanded: false,
       selected: false
+    },
+    {
+      text: 'Property Types',
+      expanded: false,
+      selected: false
     }
   ])
 

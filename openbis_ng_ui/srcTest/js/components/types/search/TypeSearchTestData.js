@@ -58,6 +58,15 @@ const anotherVocabularyType = new openbis.Vocabulary()
 anotherVocabularyType.setCode('ANOTHER_VOCABULARY_TYPE')
 anotherVocabularyType.setDescription('Another Description')
 
+const testPropertyType = new openbis.PropertyType()
+testPropertyType.setCode('TEST_PROPERTY_TYPE')
+testPropertyType.setDescription('Test Description')
+testPropertyType.setLabel('Test Label')
+
+const anotherPropertyType = new openbis.PropertyType()
+anotherPropertyType.setCode('ANOTHER_PROPERTY_TYPE')
+anotherPropertyType.setDescription('Another Description')
+
 export default {
   testObjectType,
   anotherObjectType,
@@ -68,5 +77,7 @@ export default {
   testMaterialType,
   anotherMaterialType,
   testVocabularyType,
-  anotherVocabularyType
+  anotherVocabularyType,
+  testPropertyType,
+  anotherPropertyType
 }

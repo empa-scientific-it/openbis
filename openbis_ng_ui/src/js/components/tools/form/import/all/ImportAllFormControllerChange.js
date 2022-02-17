@@ -10,7 +10,6 @@ export default class ImportAllFormControllerChange extends PageControllerChange 
         params.value
       )
       return {
-        ...oldState,
         fields: newObject
       }
     })

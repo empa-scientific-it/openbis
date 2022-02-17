@@ -14,7 +14,7 @@ describe(AppComponentTest.SUITE, () => {
 async function testLogin() {
   const app = await common.mount()
 
-  app.expectJSON({
+  await app.expectJSON({
     login: {
       user: {
         value: null,
@@ -35,7 +35,7 @@ async function testLogin() {
 
   await common.login(app)
 
-  app.expectJSON({
+  await app.expectJSON({
     login: null,
     menu: {
       tabs: [
@@ -63,7 +63,8 @@ async function testLogin() {
           { level: 0, text: 'Collection Types' },
           { level: 0, text: 'Data Set Types' },
           { level: 0, text: 'Material Types' },
-          { level: 0, text: 'Vocabulary Types' }
+          { level: 0, text: 'Vocabulary Types' },
+          { level: 0, text: 'Property Types' }
         ]
       },
       content: {

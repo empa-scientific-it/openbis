@@ -52,7 +52,8 @@ async function testFilter() {
       { level: 1, text: fixture.TEST_MATERIAL_TYPE_DTO.code },
       { level: 0, text: 'Vocabulary Types' },
       { level: 1, text: fixture.ANOTHER_VOCABULARY_DTO.code },
-      { level: 1, text: fixture.TEST_VOCABULARY_DTO.code }
+      { level: 1, text: fixture.TEST_VOCABULARY_DTO.code },
+      { level: 0, text: 'Property Types' }
     ]
   })
 }
