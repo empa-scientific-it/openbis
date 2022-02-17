@@ -177,9 +177,9 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			this._dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
 	}
 	
-	this.refreshHeight = function() {
+	this.refresh = function() {
 		if (this._dataGridController) {
-			this._dataGridController.refreshHeight();
+			this._dataGridController.refresh();
 		}
 	}
 

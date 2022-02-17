@@ -169,9 +169,9 @@ function LinksView(linksController, linksModel) {
 		dataGrids.push(dataGrid);
 	}
 	
-	this.refreshHeight = function() {
+	this.refresh = function() {
 		dataGrids.forEach(function(dataGrid) {
-			dataGrid.refreshHeight();
+			dataGrid.refresh();
 		});
 	}
 	

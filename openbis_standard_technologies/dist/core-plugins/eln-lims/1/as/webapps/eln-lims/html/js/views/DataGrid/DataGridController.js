@@ -276,8 +276,6 @@ function DataGridController(
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
 
-    this.refreshHeight = function () {}
-
     this.refresh = function () {
         if (_this.controller) {
             _this.controller.load()

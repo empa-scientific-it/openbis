@@ -1292,11 +1292,7 @@ var FormUtil = new function() {
 				}
 
 				var $section = $(option.section);
-				if(shown && option.beforeShowingAction) {
-					option.beforeShowingAction();
-				}
 				$section.toggle(shown);
-
 				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
 				var id = 'options-menu-btn-' + _this.prepareId(option.label).toLowerCase();
 				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", { 'id' : id }).append($label));
@@ -1306,9 +1302,6 @@ var FormUtil = new function() {
 					var $section = event.data.section;
 					$section.toggle(300, function() {
 						if ($section.css("display") === "none") {
-							if (option.afterHidingAction) {
-								option.afterHidingAction();
-							}
 							$label.text("Show " + option.label);
 							sectionsSettings[option.label] = "hidden";
 						} else {

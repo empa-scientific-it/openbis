@@ -1000,7 +1000,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                 section : "#sample-parents",
                 showByDefault : true,
                 beforeShowingAction : function() {
-                    _this._sampleFormModel.sampleLinksParents.refreshHeight();
+                    _this._sampleFormModel.sampleLinksParents.refresh();
                 }
             });
 		}
@@ -1067,7 +1067,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			section : "#sample-children",
 			showByDefault : true,
 			beforeShowingAction : function() {
-				_this._sampleFormModel.sampleLinksChildren.refreshHeight();
+				_this._sampleFormModel.sampleLinksChildren.refresh();
 			}
 		});
 
