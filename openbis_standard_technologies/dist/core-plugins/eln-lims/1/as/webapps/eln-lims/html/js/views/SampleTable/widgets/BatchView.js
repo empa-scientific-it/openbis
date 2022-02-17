@@ -59,11 +59,12 @@ function BatchView(controller, model) {
         $templateLink.on("click", function() {
             var allowedSampleTypes = getAllowedSampleTypes();
             var importMode = _this._model.linkType;
-            mainController.serverFacade.getSamplesImportTemplate(allowedSampleTypes, importMode, function(result) {
+            var templateType = _this._model.allowSampleTypeSelection ? "GENERAL" : "COLLECTION";
+            mainController.serverFacade.getSamplesImportTemplate(allowedSampleTypes, templateType, importMode, function(result) {
                 var link = document.createElement('a');
                 var mimeType = "application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 link.href = "data:" + mimeType + ";base64," + result;
-                link.download = "SAMPLE-" + importMode + "-" + allowedSampleTypes.join("-") + "-template.xlsx";
+                link.download = "SAMPLE-" + templateType + "-" + importMode + "-" + allowedSampleTypes.join("-") + "-template.xlsx";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);

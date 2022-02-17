@@ -70,6 +70,7 @@ def getSamplesImportTemplate(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 
     allowedSampleTypes = [EntityTypePermId(code) for code in parameters.get("allowedSampleTypes")]
+    templateType = parameters.get("templateType")
     importMode = parameters.get("importMode")
     sessionToken = context.getSessionToken()
     api = context.getApplicationService()
@@ -97,9 +98,10 @@ def getSamplesImportTemplate(context, parameters):
         cell_index = _create_cell(row, cell_index, header_style, "Code")
         if importMode == "UPDATE":
             cell_index = _create_cell(row, cell_index, header_style, "Identifier")
-        cell_index = _create_cell(row, cell_index, header_style, "Experiment")
-        cell_index = _create_cell(row, cell_index, header_style, "Project")
-        cell_index = _create_cell(row, cell_index, header_style, "Space")
+        if templateType == "GENERAL":
+            cell_index = _create_cell(row, cell_index, header_style, "Experiment")
+            cell_index = _create_cell(row, cell_index, header_style, "Project")
+            cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()

@@ -1,33 +1,53 @@
+## Changes with pybis-1.30.4
+
+- fixed and optimised (deprecated) download_attachments()
+
 ## Changes with pybis-1.30.3
+
 - Another code fix for create_data_frame() in pybis.py to make group ID and user ID separate
+
 ## Changes with pybis-1.30.2
-- Possible issue fixes with data frame in create_data_frame() in entity_type.py 
+
+- Possible issue fixes with data frame in create_data_frame() in entity_type.py
 - Code fix for create_data_frame() in pybis.py to make group ID and user ID separate
+
 ## Changes with pybis-1.30.1
+
 - fixed KeyError when creating an empty data frame
+
 ## Changes with pybis-1.30.0
+
 - session management reworked
+
 ## Changes with pybis-1.20.5
+
 - fixed same problems as 1.20.5
 - wrong version published
+
 ## Changes with pybis-1.20.4
+
 - fixed parents/children problem when get_samples(), get_datasets()
 - sorted imports
+
 ## Changes with pybis-1.20.3
+
 - deactivated debugging logs
 - creation of property type accets vocabulary object
+
 ## Changes with pybis-1.20.2
+
 - fixed omitted function parameter which could cause issues
 
 ## Changes with pybis-1.20.1
+
 - improved search performance
 - introduced lazy loading for Things.df and Things.objects, so all necessary, and potentially costly, computation takes place only when the user requests those properties
 
 ## Changes with pybis-1.20.0
 
 - metadata for property_types can now be changed to:
-    - {'custom_widget' : 'Word Processor'}
-    - {'custom_widget' : 'Spreadsheet'}
+  - {'custom_widget' : 'Word Processor'}
+  - {'custom_widget' : 'Spreadsheet'}
 - added documentation how to change the ELN settings
 - removed deprecated update_sample()
 - removed deprecated update_experiment()
@@ -35,6 +55,7 @@
 ## Changes with pybis-1.19.1
 
 - add set_token() method to set a token and also store it locally
+
 ## Changes with pybis-1.19.0
 
 - added caching for get_experiment
@@ -45,9 +66,11 @@
 ## Changes with pybis-1.18.12
 
 - fixed rel_file_links, prepended /
+
 ## Changes with pybis-1.18.11
 
 - added rel_file_links to datasets for embedding in ELN-LIMS
+
 ## Changes with pybis-1.18.10
 
 - added deprecation warnings for components/containers and attachments
@@ -156,14 +179,13 @@
 - bugfix: no longer any error in get_samples(), get_datasets() and get_experiments() when
   properties are provided but no data was found
 
-
 ## Changes with pybis-1.14.6
 
 - bugfix duplicate property-columns in get_samples() and get_datasets()
 
 ## Changes with pybis-1.14.5
 
-- no automagic detection of mountpoint, because of Windows incompatibilities 
+- no automagic detection of mountpoint, because of Windows incompatibilities
 
 ## Changes with pybis-1.14.4
 
@@ -184,7 +206,7 @@
 
 ## Changes with pybis-1.14.0
 
-- use props="*" to get all properties of all samples or datasets
+- use props="\*" to get all properties of all samples or datasets
 
 ## Changes with pybis-1.13.0
 
@@ -208,218 +230,195 @@
 
 ## Changes with pybis-1.11.1
 
-- added automatically accepting host key, otherwise mount() will hang the first time 
+- added automatically accepting host key, otherwise mount() will hang the first time
 
 ## Changes with pybis-1.11.0
 
-* implemented mount() and unmount() methods to mount openBIS dataStore server via SSHFS and FUSE
-* implemented is_mounted() and get_mountpoint() methods
-* added instructions how to install FUSE/SSHFS on Unix systems 
+- implemented mount() and unmount() methods to mount openBIS dataStore server via SSHFS and FUSE
+- implemented is_mounted() and get_mountpoint() methods
+- added instructions how to install FUSE/SSHFS on Unix systems
 
 ## Changes with pybis-1.10.8
 
-* dataSets of kind CONTAINER now also allow download of files
+- dataSets of kind CONTAINER now also allow download of files
 
 ## Changes with pybis-1.10.7
 
-* made download work, even downloadUrl attribute is missing in dataSets
+- made download work, even downloadUrl attribute is missing in dataSets
 
 ## Changes with pybis-1.10.6
 
-* added possibility to download files without /original/DEFAULT folders
+- added possibility to download files without /original/DEFAULT folders
 
 ## Changes with pybis-1.10.5
 
-* bugfix: creating projects
+- bugfix: creating projects
 
 ## Changes with pybis-1.10.4
 
-* better error messages when downloading files from datastore server
+- better error messages when downloading files from datastore server
 
 ## Changes with pybis-1.10.3
 
-* print warning message when downloaded file-size does not match with promised file-size. Do not die.
+- print warning message when downloaded file-size does not match with promised file-size. Do not die.
 
 ## Changes with pybis-1.10.2
 
-* typo bugfix
+- typo bugfix
 
 ## Changes with pybis-1.10.1
 
-* fixed a nasty threading bug: open threads are now closed when downloading or uploading datasets
-* this bugfix avoids this RuntimeError: cannot start new thread
+- fixed a nasty threading bug: open threads are now closed when downloading or uploading datasets
+- this bugfix avoids this RuntimeError: cannot start new thread
 
 ## Changes with pybis-1.10.0
 
-* dataSet upload now supports zipfiles
-* dataSet upload now supports files and folders
-* different behaviour when providing a folder: files are no longer flattened out, structure is kept intact
+- dataSet upload now supports zipfiles
+- dataSet upload now supports files and folders
+- different behaviour when providing a folder: files are no longer flattened out, structure is kept intact
 
 ## Changes with pybis-1.9.8
 
-* new: create and update Dateset Types
-* new: create and update Experiment Types
-* new: create and update Material Types
-* many bugfixes
-* extended documentation about creating these entity types
-
+- new: create and update Dateset Types
+- new: create and update Experiment Types
+- new: create and update Material Types
+- many bugfixes
+- extended documentation about creating these entity types
 
 ## Changes with pybis-1.9.7
 
-* bugfix for creating propertyTypes of type controlled vocabulary and material
-
+- bugfix for creating propertyTypes of type controlled vocabulary and material
 
 ## Changes with pybis-1.9.6
 
-* bugfix when vocabulary attribute was not identical to the code of the aassigned property type
-
+- bugfix when vocabulary attribute was not identical to the code of the aassigned property type
 
 ## Changes with pybis-1.9.5
 
-* bugfixes: get_property_assignments() method fixed for dataSet-, experiment- and materialTypes
-
+- bugfixes: get_property_assignments() method fixed for dataSet-, experiment- and materialTypes
 
 ## Changes with pybis-1.9.4
 
-* bugfix when searching for experiments or datasets of a given type
-
+- bugfix when searching for experiments or datasets of a given type
 
 ## Changes with pybis-1.9.3
 
-* fixed documentation: add_members (not add_persons)
-* bugfix role assignments of groups
-
+- fixed documentation: add_members (not add_persons)
+- bugfix role assignments of groups
 
 ## Changes with pybis-1.9.2
 
-* searches for datasets and samples are highly improved
-* search parameters can accept a code, an identifier or an openbis entity
-* searching for all datasets in a project now works
-* bugfixes
-
+- searches for datasets and samples are highly improved
+- search parameters can accept a code, an identifier or an openbis entity
+- searching for all datasets in a project now works
+- bugfixes
 
 ## Changes with pybis-1.9.1
 
-* bugfix: controlled vocabulary
-
+- bugfix: controlled vocabulary
 
 ## Changes with pybis-1.9.0
 
-* new: search, create, update and delete Property Types
-* new: search, create, update and delete Plugins
-* new: create and update Sample Types
-* freeze entities to prevent changes
-* added more tests
-
+- new: search, create, update and delete Property Types
+- new: search, create, update and delete Plugins
+- new: create and update Sample Types
+- freeze entities to prevent changes
+- added more tests
 
 ## Changes with pybis-1.8.5
 
-* changed to v3 API when fetching datastores
-* gen_permId to generate unique permIds used for dataSets
-* support ELN-LIMS style identifiers: /SPACE/PROJECT/COLLECTION/OBJECT_CODE
-* terms now can be moved either to the top or after another term
-
+- changed to v3 API when fetching datastores
+- gen_permId to generate unique permIds used for dataSets
+- support ELN-LIMS style identifiers: /SPACE/PROJECT/COLLECTION/OBJECT_CODE
+- terms now can be moved either to the top or after another term
 
 ## Changes with pybis-1.8.4
 
-* totalCount attribute added in every Things object
-* totalCount will return the total number of elements matching a search
-* bugfix in get_semantic_annotation method
-
+- totalCount attribute added in every Things object
+- totalCount will return the total number of elements matching a search
+- bugfix in get_semantic_annotation method
 
 ## Changes with pybis-1.8.3
 
-* new method for attributes: .attrs.all() will return a dict, much like .props.all()
-* attributes like registrator and modifier are now returned by default
-
+- new method for attributes: .attrs.all() will return a dict, much like .props.all()
+- attributes like registrator and modifier are now returned by default
 
 ## Changes with pybis-1.8.2
 
-* added key-lookup and setting for properties that contain either dots or dashes
-* sample.props['some-weird.property-name'] = "some value"
-* check for mandatory properties in samples (objects), datasets and experiments (collections)
-
+- added key-lookup and setting for properties that contain either dots or dashes
+- sample.props['some-weird.property-name'] = "some value"
+- check for mandatory properties in samples (objects), datasets and experiments (collections)
 
 ## Changes with pybis-1.8.1
 
-* revised documentation
-* improved DataSet creation
-* added missing delete function for DataSets
-* wrong entity attributes will now immediately throw an error
-* more DataSet creation tests
-* paging tests added
-* `collection` is now alias for `experiment`
-* `object` is alias for `sample`
-
+- revised documentation
+- improved DataSet creation
+- added missing delete function for DataSets
+- wrong entity attributes will now immediately throw an error
+- more DataSet creation tests
+- paging tests added
+- `collection` is now alias for `experiment`
+- `object` is alias for `sample`
 
 ## Changes with pybis-1.8.0
 
-* better support for fetching entity-types (dataSetTypes, sampleTypes)
-* separation of propertyAssignments from entity-types
-* added .get_propertyAssignments() method to all entity-types
-
+- better support for fetching entity-types (dataSetTypes, sampleTypes)
+- separation of propertyAssignments from entity-types
+- added .get_propertyAssignments() method to all entity-types
 
 ## Changes with pybis-1.7.6
 
-* bugfix dataset upload for relative files (e.g. ../../file or /User/username/file)
-* always only the filename is added to the dataset, not the folder containing it
-* corrected License file
-
+- bugfix dataset upload for relative files (e.g. ../../file or /User/username/file)
+- always only the filename is added to the dataset, not the folder containing it
+- corrected License file
 
 ## Changes with pybis-1.7.5
 
-* added paging support for all search functions by providing start_with and count arguments
-* make search more robust: allow get_sample('SPACE/CODE') instead of get_sample('/SPACE/CODE')
-* make search more robust: allow get_sample('   20160706001644827-208   ') 
-* make interface more robust (allow sample.permid instead of sample.permId)
-* make properties more robust: allow get_samples(props='name') instead of get_samples(props=['name'])
-* fixed bug when parent/children of more than one element was searched: o.get_experiments().get_samples().get_parents()
-
+- added paging support for all search functions by providing start_with and count arguments
+- make search more robust: allow get_sample('SPACE/CODE') instead of get_sample('/SPACE/CODE')
+- make search more robust: allow get_sample(' 20160706001644827-208 ')
+- make interface more robust (allow sample.permid instead of sample.permId)
+- make properties more robust: allow get_samples(props='name') instead of get_samples(props=['name'])
+- fixed bug when parent/children of more than one element was searched: o.get_experiments().get_samples().get_parents()
 
 ## Changes with pybis-1.7.4
 
-* pyBIS now allows to create dataset-containers that contain no data themselves
-* datasets now show a «kind» attribute, which can be either PHYSICAL, LINK or CONTAINER
-* PropertyAssignments and other internal data are now finally nicely presented in Jupyter
-* various bugfixes
-* README.md is now correctly displayed
-* setup.py is fixed, installation should no longer fail because of some utf-8 problems on certain machines
-
+- pyBIS now allows to create dataset-containers that contain no data themselves
+- datasets now show a «kind» attribute, which can be either PHYSICAL, LINK or CONTAINER
+- PropertyAssignments and other internal data are now finally nicely presented in Jupyter
+- various bugfixes
+- README.md is now correctly displayed
+- setup.py is fixed, installation should no longer fail because of some utf-8 problems on certain machines
 
 ## Changes with pybis-1.7.3
 
-* improved packaging information
-* LICENSE included (Apache License v.2)
-
+- improved packaging information
+- LICENSE included (Apache License v.2)
 
 ## Changes with pybis-1.7.2
 
-* added server_information to openBIS connection
-* bugfix: project samples are only fetched when instance supports them
-
+- added server_information to openBIS connection
+- bugfix: project samples are only fetched when instance supports them
 
 ## Changes with pybis-1.7.1
 
-* fixed bug in controlled vocabulary when property name did not match the vocabulary name
-* added `xxx_contained()` methods to Samples and DataSets
-* updated documentation
-
+- fixed bug in controlled vocabulary when property name did not match the vocabulary name
+- added `xxx_contained()` methods to Samples and DataSets
+- updated documentation
 
 ## Changes with pybis-1.7.0
 
-* added components and containers functionality to both datasets and samples
-* `set_attributes()` no longer automatically saves the object
-* tags now have to be created (and saved) before they can be assigned
-* `get_tag()` now can search for more than one tag at once and supports both code and permId
-* `get_tags()` now available for almost all objects, returns a dataframe
-* improved and enhanced documentation
-
+- added components and containers functionality to both datasets and samples
+- `set_attributes()` no longer automatically saves the object
+- tags now have to be created (and saved) before they can be assigned
+- `get_tag()` now can search for more than one tag at once and supports both code and permId
+- `get_tags()` now available for almost all objects, returns a dataframe
+- improved and enhanced documentation
 
 ## Changes with pybis-1.6.8
 
-* fixed bugs with parents and children of both samples and datasets
-* new samples can be defined with parents / children
-* `get_parents()` and `get_children()` methods now also work on new, not yet saved objects
-* `get_sample()` and `get_dataset()` now also accept arrays of permIds / identifiers
-* pybis now has a CHANGELOG!
-
+- fixed bugs with parents and children of both samples and datasets
+- new samples can be defined with parents / children
+- `get_parents()` and `get_children()` methods now also work on new, not yet saved objects
+- `get_sample()` and `get_dataset()` now also accept arrays of permIds / identifiers
+- pybis now has a CHANGELOG!

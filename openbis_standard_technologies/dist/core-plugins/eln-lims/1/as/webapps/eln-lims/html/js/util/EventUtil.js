@@ -385,7 +385,7 @@ var EventUtil = new function() {
                 if (element.find('span').html() == range) {
                     resolve();
                 } else {
-                    throw "Grid range #" + elementId + " should be equal " + value;
+                    throw "Grid range #" + gridId + " should be equal " + range;
                 }
             } catch(error) {
                 reject(error);
