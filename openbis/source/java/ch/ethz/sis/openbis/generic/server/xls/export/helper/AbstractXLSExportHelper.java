@@ -17,7 +17,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
 
     protected String mapToJSON(final Map<?, ?> map)
     {
-        if (map.isEmpty())
+        if (map == null || map.isEmpty())
         {
             return "";
         } else
