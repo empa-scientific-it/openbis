@@ -822,7 +822,7 @@ var FormUtil = new function() {
 		if(hyperlink) {
 		    $component.html(this.asHyperlink(text, hyperlinkLabel));
 		} else {
-		    if(text.includes('\n')) {
+		    if(text && text.includes('\n')) {
 		        var lines = text.split('\n');
 		        for(var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
 		            if(lineIndex != 0) {
