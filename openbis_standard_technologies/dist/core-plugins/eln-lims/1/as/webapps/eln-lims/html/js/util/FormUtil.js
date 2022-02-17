@@ -1290,8 +1290,13 @@ var FormUtil = new function() {
 						shown = ! profile.hideSectionsByDefault;
 					}
 				}
+
 				var $section = $(option.section);
+				if(shown && option.beforeShowingAction) {
+					option.beforeShowingAction();
+				}
 				$section.toggle(shown);
+
 				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
 				var id = 'options-menu-btn-' + _this.prepareId(option.label).toLowerCase();
 				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", { 'id' : id }).append($label));
@@ -1301,6 +1306,9 @@ var FormUtil = new function() {
 					var $section = event.data.section;
 					$section.toggle(300, function() {
 						if ($section.css("display") === "none") {
+							if (option.afterHidingAction) {
+								option.afterHidingAction();
+							}
 							$label.text("Show " + option.label);
 							sectionsSettings[option.label] = "hidden";
 						} else {
@@ -2286,6 +2294,8 @@ var FormUtil = new function() {
 
     this.renderTruncatedGridValue = function(container, value){
         var $value = $("<div>")
+        $value.css("max-height", "100px")
+        $value.css("overflow", "hidden")
 
         if(_.isString(value)){
             $value.text(value)
@@ -2300,16 +2310,11 @@ var FormUtil = new function() {
         }
 
         $value.css("visibility", "hidden").appendTo(container)
-
-        var valueHeight = $value.get(0).clientHeight
-
+        var valueHeight = $value.get(0).scrollHeight
         $value.remove()
         $value.css("visibility", "")
 
         if(valueHeight > 150){
-            $value.css("max-height", "100px")
-            $value.css("overflow", "hidden")
-
             var $toggle = $("<a>").text("more")
             $toggle.click(function(){
                 if($toggle.text() === "more"){
@@ -2320,7 +2325,6 @@ var FormUtil = new function() {
                     $toggle.text("more")
                 }
             })
-
             return $("<div>").append($value).append($toggle)
         }else{
             return $value

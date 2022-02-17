@@ -282,48 +282,55 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	}
 	
 	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
+		var _this = this
 		var entityKindName = ELNDictionary.getExperimentKindName(projectIdentifier, true);
 		var $experiments = $("<div>", { id : "project-experiments" });
-		var $experimentsContainer = $("<div>");
-		$experiments.append($("<legend>").append(entityKindName));
-		$experiments.append($experimentsContainer);
-		
-		var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
-		experimentTableController.init($experimentsContainer);
 		$experiments.hide();
 		hideShowOptionsModel.push({
 			label : entityKindName,
 			section : "#project-experiments",
 			beforeShowingAction : function() {
+				var $experimentsContainer = $("<div>");
+				$experiments.append($("<legend>").append(entityKindName));
+				$experiments.append($experimentsContainer);
+
+				var experimentTableController = new ExperimentTableController(_this._projectFormController, null, jQuery.extend(true, {}, _this._projectFormModel.project), true);
+				experimentTableController.init($experimentsContainer);
 				experimentTableController.refreshHeight();
+			},
+			afterHidingAction : function(){
+				$experiments.empty()
 			}
 		});
 		return $experiments;
 	}
 	
 	this._createSamplesSection = function(hideShowOptionsModel) {
+		var _this = this
 		var entityKindName = "" + ELNDictionary.Samples + "";
 		
 		var $samples = $("<div>", { id : "project-samples" });
-		var $experimentsContainer = $("<div>");
-		$samples.append($("<legend>").append(entityKindName));
-		var $samplesContainerHeader = $("<div>");
-		$samples.append($samplesContainerHeader);
-		var $samplesContainer = $("<div>");
-		$samples.append($samplesContainer);
-		
-		var views = {
-				header : $samplesContainerHeader,
-				content : $samplesContainer
-		}
-		var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true, null, 40);
-		sampleTableController.init(views);
 		$samples.hide();
+
 		hideShowOptionsModel.push({
 			label : entityKindName,
 			section : "#project-samples",
 			beforeShowingAction : function() {
+				$samples.append($("<legend>").append(entityKindName));
+				var $samplesContainerHeader = $("<div>");
+				$samples.append($samplesContainerHeader);
+				var $samplesContainer = $("<div>");
+				$samples.append($samplesContainer);
+				var views = {
+					header : $samplesContainerHeader,
+					content : $samplesContainer
+				}
+				var sampleTableController = new SampleTableController(_this._projectFormController, null, null, _this._projectFormModel.project.permId, true, null, 40);
+				sampleTableController.init(views);
 				sampleTableController.refreshHeight();
+			},
+			afterHidingAction : function(){
+				$samples.empty()
 			}
 		});
 		return $samples;
