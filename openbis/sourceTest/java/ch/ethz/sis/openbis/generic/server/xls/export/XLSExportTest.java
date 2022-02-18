@@ -28,6 +28,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
@@ -72,16 +74,22 @@ public class XLSExportTest
                                 new VocabularyPermId("ANTIBODY.DETECTION")))
                 },
                 {
-                    "export-sample.xlsx",
-                    SampleTypeExpectations.class,
-                    Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                            new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))
+                        "export-sample-type.xlsx",
+                        SampleTypeExpectations.class,
+                        Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))
                 },
                 {
-                    "export-experiment.xlsx",
-                    ExperimentTypeExpectations.class,
-                    Collections.singleton(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
-                            new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))
+                        "export-experiment-type.xlsx",
+                        ExperimentTypeExpectations.class,
+                        Collections.singleton(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
+                                new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))
+                },
+                {
+                        "export-data-set-type.xlsx",
+                        DataSetTypeExpectations.class,
+                        Collections.singleton(new ExportablePermId(ExportableKind.DATASET_TYPE,
+                                new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET)))
                 },
         };
     }
@@ -457,6 +465,97 @@ public class XLSExportTest
                     propertyAssignments[3].getPropertyType().setLabel("Comments List");
                     propertyAssignments[3].getPropertyType().setDataType(DataType.XML);
                     propertyAssignments[3].getPropertyType().setDescription("Comments log");
+
+                    return Arrays.asList(propertyAssignments);
+                }
+
+            });
+        }
+
+    }
+
+    private static class DataSetTypeExpectations extends Expectations
+    {
+
+        public DataSetTypeExpectations(final IApplicationServerApi api)
+        {
+            allowing(api).getDataSetTypes(with(SESSION_TOKEN), with(new CollectionMatcher<>(
+                            Collections.singletonList(
+                                    new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET)))),
+                    with(any(DataSetTypeFetchOptions.class)));
+
+            will(new CustomAction("getting data set types")
+            {
+
+                @Override
+                public Object invoke(final Invocation invocation) throws Throwable
+                {
+                    final DataSetTypeFetchOptions fetchOptions =
+                            (DataSetTypeFetchOptions) invocation.getParameter(2);
+
+                    final DataSetType dataSetType = new DataSetType();
+                    dataSetType.setFetchOptions(fetchOptions);
+                    dataSetType.setCode("ATTACHMENT");
+                    dataSetType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
+
+                    return Collections.singletonMap(new EntityTypePermId("ATTACHMENT"), dataSetType);
+                }
+
+                private List<PropertyAssignment> getPropertyAssignments(final DataSetTypeFetchOptions fetchOptions)
+                {
+                    final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions =
+                            fetchOptions.withPropertyAssignments();
+                    final PropertyTypeFetchOptions propertyTypeFetchOptions =
+                            propertyAssignmentFetchOptions.withPropertyType();
+                    propertyTypeFetchOptions.withVocabulary();
+
+                    final PluginFetchOptions pluginFetchOptions = propertyAssignmentFetchOptions.withPlugin();
+                    pluginFetchOptions.withScript();
+
+                    final PropertyAssignment[] propertyAssignments = new PropertyAssignment[3];
+
+                    propertyAssignments[0] = new PropertyAssignment();
+                    propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
+                    propertyAssignments[0].setPropertyType(new PropertyType());
+                    propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                    propertyAssignments[0].setPlugin(new Plugin());
+                    propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
+                    propertyAssignments[0].getPropertyType().setCode("$NAME");
+                    propertyAssignments[0].setMandatory(false);
+                    propertyAssignments[0].setShowInEditView(true);
+                    propertyAssignments[0].setSection("General info");
+                    propertyAssignments[0].getPropertyType().setLabel("Name");
+                    propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
+                    propertyAssignments[0].getPropertyType().setDescription("Name");
+
+                    propertyAssignments[1] = new PropertyAssignment();
+                    propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
+                    propertyAssignments[1].setPropertyType(new PropertyType());
+                    propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                    propertyAssignments[1].setPlugin(new Plugin());
+                    propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
+                    propertyAssignments[1].getPropertyType().setCode("NOTES");
+                    propertyAssignments[1].setMandatory(false);
+                    propertyAssignments[1].setShowInEditView(true);
+                    propertyAssignments[1].setSection("Comments");
+                    propertyAssignments[1].getPropertyType().setLabel("Notes");
+                    propertyAssignments[1].getPropertyType().setDataType(DataType.MULTILINE_VARCHAR);
+                    propertyAssignments[1].getPropertyType().setDescription("Notes");
+                    propertyAssignments[1].getPropertyType().setMetaData(
+                            Collections.singletonMap("custom_widget", "Word Processor"));
+
+                    propertyAssignments[2] = new PropertyAssignment();
+                    propertyAssignments[2].setFetchOptions(propertyAssignmentFetchOptions);
+                    propertyAssignments[2].setPropertyType(new PropertyType());
+                    propertyAssignments[2].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                    propertyAssignments[2].setPlugin(new Plugin());
+                    propertyAssignments[2].getPlugin().setFetchOptions(pluginFetchOptions);
+                    propertyAssignments[2].getPropertyType().setCode("$XMLCOMMENTS");
+                    propertyAssignments[2].setMandatory(false);
+                    propertyAssignments[2].setShowInEditView(false);
+                    propertyAssignments[2].getPropertyType().setLabel("Comments List");
+                    propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
+                    propertyAssignments[2].getPropertyType().setDescription("Comments log");
 
                     return Arrays.asList(propertyAssignments);
                 }

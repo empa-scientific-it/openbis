@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
@@ -29,11 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 public class XLSExport
 {
 
+    private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
+
     private final IXLSExportHelper sampleTypeExportHelper = new XLSSampleTypeExportHelper();
 
     private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();
 
-    private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
+    private final IXLSExportHelper dataSetTypeExportHelper = new XLSDataSetTypeExportHelper();
 
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
@@ -66,6 +69,8 @@ public class XLSExport
                             exportablePermId.getPermId().getPermId(), rowNumber);
                     break;
                 case DATASET_TYPE:
+                    rowNumber = dataSetTypeExportHelper.add(api, sessionToken, wb,
+                            exportablePermId.getPermId().getPermId(), rowNumber);
                     break;
                 case VOCABULARY:
                     rowNumber = vocabularyExportHelper.add(api, sessionToken, wb,
@@ -186,10 +191,18 @@ public class XLSExport
                         new EntityTypePermId(code, EXPERIMENT)))
                 .collect(Collectors.toList());
 
+        final Collection<ExportablePermId> dataSetTypes = Stream.of("UNKNOWN", "ATTACHMENT", "ANALYSIS_NOTEBOOK",
+                        "RAW_DATA", "PUBLICATION_DATA", "OTHER_DATA", "SOURCE_CODE", "PROCESSED_DATA", "ANALYZED_DATA",
+                        "ELN_PREVIEW", "SEQ_FILE")
+                .map(code -> new ExportablePermId(ExportableKind.DATASET_TYPE,
+                        new EntityTypePermId(code, DATA_SET)))
+                .collect(Collectors.toList());
+
         final Collection<ExportablePermId> exportablePermIds = new ArrayList<>();
         exportablePermIds.addAll(vocabularies);
         exportablePermIds.addAll(sampleTypes);
         exportablePermIds.addAll(experimentTypes);
+        exportablePermIds.addAll(dataSetTypes);
         final ByteArrayOutputStream os = xlsExport.export(applicationServerApi, sessionToken, exportablePermIds, false);
 
         try (final OutputStream fileOutputStream = new FileOutputStream("test.xlsx"))
