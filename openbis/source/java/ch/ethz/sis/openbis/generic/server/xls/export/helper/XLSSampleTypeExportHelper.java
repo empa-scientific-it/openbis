@@ -52,22 +52,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                     script != null ? script : "",
                     sampleType.getGeneratedCodePrefix());
 
-            addRow(wb, rowNumber++, true, "Version", "Code", "Mandatory", "Show in edit views", "Section",
-                    "Property label", "Data type", "Vocabulary Code", "Description", "Metadata", "Dynamic script");
-
-            for (final PropertyAssignment propertyAssignment : sampleType.getPropertyAssignments())
-            {
-                final PropertyType propertyType = propertyAssignment.getPropertyType();
-                final Plugin plugin = propertyAssignment.getPlugin();
-                final Vocabulary vocabulary = propertyType.getVocabulary();
-                addRow(wb, rowNumber++, false, "1", propertyType.getCode(),
-                        String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
-                        String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(), propertyAssignment.getSection(),
-                        propertyType.getLabel(), String.valueOf(propertyType.getDataType()),
-                        String.valueOf(vocabulary != null ? vocabulary.getCode() : ""), propertyType.getDescription(),
-                        mapToJSON(propertyType.getMetaData()),
-                        plugin != null ? (plugin.getScript() != null ? plugin.getScript() : "") : "");
-            }
+            rowNumber = addEntityTypePropertyAssignments(wb, rowNumber, sampleType.getPropertyAssignments());
 
             return rowNumber + 1;
         } else
