@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,8 +13,17 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+
 abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
+
+    protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
+            "Show in edit views", "Section", "Property label", "Data type", "Vocabulary Code", "Description",
+            "Metadata", "Dynamic script"};
 
     protected String mapToJSON(final Map<?, ?> map)
     {
@@ -47,6 +57,27 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
             cell.setCellStyle(cellStyle);
             cell.setCellValue(values[i]);
         }
+    }
+
+    protected int addEntityTypePropertyAssignments(final Workbook wb, int rowNumber,
+            final Collection<PropertyAssignment> propertyAssignments)
+    {
+        addRow(wb, rowNumber++, true, ENTITY_ASSIGNMENT_COLUMNS);
+        for (final PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            final PropertyType propertyType = propertyAssignment.getPropertyType();
+            final Plugin plugin = propertyAssignment.getPlugin();
+            final Vocabulary vocabulary = propertyType.getVocabulary();
+            addRow(wb, rowNumber++, false, "1", propertyType.getCode(),
+                    String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
+                    String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
+                    propertyAssignment.getSection(),
+                    propertyType.getLabel(), String.valueOf(propertyType.getDataType()),
+                    String.valueOf(vocabulary != null ? vocabulary.getCode() : ""), propertyType.getDescription(),
+                    mapToJSON(propertyType.getMetaData()),
+                    plugin != null ? (plugin.getScript() != null ? plugin.getScript() : "") : "");
+        }
+        return rowNumber;
     }
 
 }
