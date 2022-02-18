@@ -2382,7 +2382,8 @@ var FormUtil = new function() {
                 trackerInterval: 100,
                 theme: 'tooltipster-shadow',
                 functionBefore: function(instance, helper){
-                    $(helper.origin).tooltipster('content', renderTooltip())
+                    var $content = $("<div>").css({ "max-width" : "50vw", "max-height" : "50vh"}).append(renderTooltip())
+                    $(helper.origin).tooltipster('content', $content)
                     return true
                 }
             })
