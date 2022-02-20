@@ -49,8 +49,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         font.setBold(bold);
         cellStyle.setFont(font);
 
-        final Sheet sheet = wb.getSheetAt(0);
-        final Row row = sheet.createRow(rowNumber);
+        final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
         {
             final Cell cell = row.createCell(i);

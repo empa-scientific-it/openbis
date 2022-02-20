@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +19,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
@@ -48,7 +53,7 @@ public class XLSExport
 
         if (exportReferred)
         {
-            exportablePermIds = expandReference(api, exportablePermIds);
+            exportablePermIds = expandReference(api, sessionToken, exportablePermIds);
         }
 
         exportablePermIds = sort(exportablePermIds);
@@ -58,26 +63,10 @@ public class XLSExport
         int rowNumber = 0;
         for (final ExportablePermId exportablePermId : exportablePermIds)
         {
-            switch (exportablePermId.getExportableKind())
+            final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
+            if (helper != null)
             {
-                case SAMPLE_TYPE:
-                    rowNumber = sampleTypeExportHelper.add(api, sessionToken, wb,
-                            exportablePermId.getPermId().getPermId(), rowNumber);
-                    break;
-                case EXPERIMENT_TYPE:
-                    rowNumber = experimentTypeExportHelper.add(api, sessionToken, wb,
-                            exportablePermId.getPermId().getPermId(), rowNumber);
-                    break;
-                case DATASET_TYPE:
-                    rowNumber = dataSetTypeExportHelper.add(api, sessionToken, wb,
-                            exportablePermId.getPermId().getPermId(), rowNumber);
-                    break;
-                case VOCABULARY:
-                    rowNumber = vocabularyExportHelper.add(api, sessionToken, wb,
-                            exportablePermId.getPermId().getPermId(), rowNumber);
-                    break;
-                case PROPERTY_TYPE:
-                    break;
+                rowNumber = helper.add(api, sessionToken, wb, exportablePermId.getPermId().getPermId(), rowNumber);
             }
         }
 
@@ -96,10 +85,70 @@ public class XLSExport
     }
 
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
-            final Collection<ExportablePermId> exportablePermIds)
+            final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
-        // TODO: implement.
-        return exportablePermIds;
+        // TODO: implement,
+        //  add references to sample/materianl properties.
+        final Collection<ExportablePermId> result = exportablePermIds.stream().flatMap(exportablePermId ->
+        {
+            final Set<ExportablePermId> expandedExportablePermIds = new LinkedHashSet<>();
+
+            final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
+            if (helper != null)
+            {
+                final IPropertyAssignmentsHolder propertyAssignmentsHolder = helper
+                        .getPropertyAssignmentsHolder(api, sessionToken, exportablePermId.getPermId().getPermId());
+
+                if (propertyAssignmentsHolder != null)
+                {
+                    expandedExportablePermIds.addAll(
+                            propertyAssignmentsHolder.getPropertyAssignments().stream().flatMap(propertyAssignment ->
+                            {
+                                final PropertyType propertyType = propertyAssignment.getPropertyType();
+                                if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
+                                {
+                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY,
+                                            propertyType.getVocabulary().getPermId()));
+                                } else
+                                {
+                                    return Stream.empty();
+                                }
+                            }).collect(Collectors.toSet()));
+                }
+            }
+
+            expandedExportablePermIds.add(exportablePermId);
+            return expandedExportablePermIds.stream();
+        }).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return result;
+    }
+
+    private IXLSExportHelper getHelper(final ExportableKind exportableKind)
+    {
+        switch (exportableKind)
+        {
+            case SAMPLE_TYPE:
+            {
+                return sampleTypeExportHelper;
+            }
+            case EXPERIMENT_TYPE:
+            {
+                return experimentTypeExportHelper;
+            }
+            case DATASET_TYPE:
+            {
+                return dataSetTypeExportHelper;
+            }
+            case VOCABULARY:
+            {
+                return vocabularyExportHelper;
+            }
+            default:
+            {
+                return null;
+            }
+        }
     }
 
     private Collection<ExportablePermId> sort(final Collection<ExportablePermId> exportablePermIds)
