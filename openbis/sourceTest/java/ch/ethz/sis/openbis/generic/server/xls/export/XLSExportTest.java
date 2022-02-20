@@ -81,6 +81,16 @@ public class XLSExportTest
                                         new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
                         true
                 },
+                {
+                        "export-sample-type-with-omitted-dependent-vocabulary.xlsx",
+                        SampleTypeWithDependentVocabularyExpectations.class,
+                        Arrays.asList(
+                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                        new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
+                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                        new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
+                        false
+                },
         };
     }
 
