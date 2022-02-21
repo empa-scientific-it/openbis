@@ -248,7 +248,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
     this._handleResult = function(result, verb, experimentIdentifier) {
         Util.showSuccess(result[0].length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
             Util.unblockUI();
-            var expIdOrNull = experimentIdentifier ? '"' + experimentIdentifier + "'" : null;
+            var expIdOrNull = experimentIdentifier ? '"' + experimentIdentifier + '"' : null;
             mainController.changeView('showSamplesPage', encodeURIComponent('[' + expIdOrNull + ',false]'));
         });
     }
