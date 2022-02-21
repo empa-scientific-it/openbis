@@ -2442,16 +2442,34 @@ var FormUtil = new function() {
     }
 
     this.filterDateRangeGridColumn = function(value, filter){
-        var matches = true
-
-        if(filter.from && filter.from.value){
-            matches = matches && value >= filter.from.valueString
+        if(_.isString(filter)){
+            if(filter.trim().length === 0){
+                return true
+            }else{
+                if(value === null || value === undefined){
+                    return false
+                }else{
+                    return String(value).trim().includes(filter.trim())
+                }
+            }
+        }else if(_.isObject(filter)){
+            var filterFrom = filter.from ? filter.from.value : null
+            var filterTo = filter.to ? filter.to.value : null
+            if(filterFrom === null && filterTo === null){
+                return true
+            }else{
+                var matches = true
+                if(filterFrom){
+                    matches = matches && value >= filter.from.valueString
+                }
+                if(filterTo){
+                    matches = matches && value <= filter.to.valueString
+                }
+                return matches
+            }
+        }else{
+            return true
         }
-        if(filter.to && filter.to.value){
-            matches = matches && value <= filter.to.valueString
-        }
-
-        return matches
     }
 
     this.sortPropertyColumns = function(propertyColumns, entities){
