@@ -252,6 +252,7 @@ class ZenodoCallable(object):
             .withParameter('method', 'insertPublication') \
             .withParameter('publicationURL', publicationLinksJson.get('doi')) \
             .withParameter('openBISRelatedIdentifiers', self.permIdsStr) \
+            .withParameter('publicationOrganization', 'Zenodo') \
             .withParameter('name', publicationMetadataJson.get('title')) \
             .withParameter('publicationDescription', publicationMetadataJson.get('description')) \
             .withParameter('publicationType', publicationMetadataJson.get('upload_type')) \

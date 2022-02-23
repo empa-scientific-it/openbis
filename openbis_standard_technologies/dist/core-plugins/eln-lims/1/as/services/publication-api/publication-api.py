@@ -89,7 +89,7 @@ def getDefaultDataStoreCode(v3, sessionToken):
 def createPublicationSample(parameters, sessionToken, v3):
     publicationOrganization = parameters.get('publicationOrganization')
     if publicationOrganization is None:
-        publicationOrganization = ''
+        raise ValueError('publicationOrganization parameter is None.')
 
     name = parameters.get('name')
     if name is None:
