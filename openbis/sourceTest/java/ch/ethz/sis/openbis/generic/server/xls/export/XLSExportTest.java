@@ -46,28 +46,28 @@ public class XLSExportTest
                 {
                         "export-vocabulary.xlsx",
                         VocabularyExpectations.class,
-                        Collections.singleton(new ExportablePermId(ExportableKind.VOCABULARY,
+                        Collections.singletonList(new ExportablePermId(ExportableKind.VOCABULARY,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
                         true
                 },
                 {
                         "export-sample-type.xlsx",
                         SampleTypeExpectations.class,
-                        Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                        Collections.singletonList(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
                         true
                 },
                 {
                         "export-experiment-type.xlsx",
                         ExperimentTypeExpectations.class,
-                        Collections.singleton(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
+                        Collections.singletonList(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                         true
                 },
                 {
                         "export-data-set-type.xlsx",
                         DataSetTypeExpectations.class,
-                        Collections.singleton(new ExportablePermId(ExportableKind.DATASET_TYPE,
+                        Collections.singletonList(new ExportablePermId(ExportableKind.DATASET_TYPE,
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
                         true
                 },
@@ -89,6 +89,22 @@ public class XLSExportTest
                                         new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
+                        false
+                },
+                {
+                        "export-sample-type-with-dependent-sample.xlsx",
+                        SampleTypeWithDependentSampleExpectations.class,
+                        Collections.singletonList(
+                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                        new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        true
+                },
+                {
+                        "export-sample-type-with-omitted-dependent-sample.xlsx",
+                        SampleTypeWithDependentSampleExpectations.class,
+                        Collections.singletonList(
+                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                        new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         false
                 },
         };
@@ -157,10 +173,37 @@ public class XLSExportTest
                 assertCellsEqual(actual.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK),
                         expected.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
             }
+        } else if (expected == null)
+        {
+            if (rowContainsValues(actual))
+            {
+                fail(String.format("Actual row number %d (1 based) is not empty.", actual.getRowNum() + 1));
+            }
         } else
         {
-            assertEquals(actual, expected, "One null and one not null row found.");
+            if (rowContainsValues(expected))
+            {
+                fail(String.format("Actual row number %d (1 based) is empty.", expected.getRowNum() + 1));
+            }
         }
+    }
+
+    private static boolean rowContainsValues(final Row row)
+    {
+        if (row != null)
+        {
+            final int firstCellNum = row.getFirstCellNum();
+            final int lastCellNum = row.getLastCellNum();
+            for (int i = firstCellNum; i < lastCellNum; i++)
+            {
+                final Cell cell = row.getCell(i);
+                if (cell != null && cell.getStringCellValue().length() > 0)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static void assertCellsEqual(final Cell actual, final Cell expected)
@@ -174,7 +217,9 @@ public class XLSExportTest
         {
             case NUMERIC:
             {
-                return String.valueOf(cell.getNumericCellValue());
+                final double numericCellValue = cell.getNumericCellValue();
+                return numericCellValue % 1 == 0 ? String.valueOf((long) numericCellValue)
+                        : String.valueOf(numericCellValue);
             }
             case BLANK:
             {
