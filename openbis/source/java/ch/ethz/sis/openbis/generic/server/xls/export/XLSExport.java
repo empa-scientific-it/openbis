@@ -88,7 +88,7 @@ public class XLSExport
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
         // TODO: implement,
-        //  add references to sample/materianl properties.
+        //  add references to sample/material properties.
         final Collection<ExportablePermId> result = exportablePermIds.stream().flatMap(exportablePermId ->
         {
             final Set<ExportablePermId> expandedExportablePermIds = new LinkedHashSet<>();
