@@ -30,7 +30,8 @@ dependencies {
                        project(path: ':datastore_server', configuration: 'tests'),
                        'fjelmer:classycle:1.4.2',
                        'testng:testng:6.8-CISD',
-                       'springframework:spring-test:5.0.17.RELEASE'
+                       'springframework:spring-test:5.0.17.RELEASE',
+                       'startnet:apgdiff:2.3'
     testImplementation (project(path: ':openbis', configuration: 'tests')) {
         exclude group: 'google', module: 'gwt-user'
     }
