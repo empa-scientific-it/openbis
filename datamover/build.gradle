@@ -13,7 +13,10 @@ dependencies {
         'javax.activation:activation:1.1.1',
         'javax:mail:1.4.3'
         
-    testImplementation project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
 }
 
 jar {
