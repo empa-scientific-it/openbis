@@ -1,7 +1,7 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'apache:commons-io:2.6',
+    api 'apache:commons-io:2.6',
             'apache:commons-lang3:3.11',
             'apache:commons-text:1.6',
 			'apache:log4j:1.2.15',
@@ -15,24 +15,22 @@ dependencies {
 			'org.glassfish.jaxb:txw2:2.3.0',
 			'org.glassfish.jaxb:jaxb-core:2.3.0',
 			'org.glassfish.jaxb:jaxb-runtime:2.3.0',
-			'org.glassfish.main.javaee-api:javax.jws:3.1.2.2'
-
-	testCompile 'fjelmer:classycle:1.4.2',
-				'hamcrest:hamcrest-integration:1.3',
-				'hamcrest:hamcrest-library:1.3',
-				'testng:testng:6.8-CISD'
+			'org.glassfish.main.javaee-api:javax.jws:3.1.2.2',
+            'hamcrest:hamcrest-integration:1.3',
+            'hamcrest:hamcrest-library:1.3'
 
 	// our jmock version uses hamcrest 1.1 but we use 1.3
-	testCompile ('jmock:jmock:2.5.1') {
+	api ('jmock:jmock:2.5.1') {
 		exclude group: 'hamcrest', module: 'hamcrest-core'
         exclude group: 'hamcrest', module: 'hamcrest-library'
+
+	testImplementation 'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
 	}
 } 
 
-sourceCompatibility='1.6'
-targetCompatibility='1.6'
-
 jar {
+    duplicatesStrategy 'include'
     from('targets/dist') {
         include 'BUILD*INFO'
     }    

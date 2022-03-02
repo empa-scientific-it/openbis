@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'application'
 
 repositories {
@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    compile project(':microservice_server_template')
-    compile 'openbis:openbis-v3-api-batteries-included:20.10.0',
+    api project(':microservice_server_template')
+    api 'openbis:openbis-v3-api-batteries-included:20.10.0',
             'apache:log4j:1.2.15',
             'maxmind:geoip2:2.15.0',
             // Geo IP dependencies

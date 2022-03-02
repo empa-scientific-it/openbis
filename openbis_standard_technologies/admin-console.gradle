@@ -23,6 +23,7 @@ dependencies {
 }
 
 task adminConsole(type: Jar) {
+    duplicatesStrategy 'include'
 	archiveName 'openbis-admin-console.jar'
 	includeEmptyDirs false
 	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(

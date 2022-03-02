@@ -12,9 +12,9 @@ evaluationDependsOn(':openbis_standard_technologies')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile project(':screening')
+    api project(':screening')
 
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':common', configuration: 'tests')
 }
 
 jar {

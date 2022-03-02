@@ -14,11 +14,11 @@ configurations.create('datastoreExecRuntime')
 
 dependencies {
 
-	compile (project(':openbis')) {
+	api (project(':openbis')) {
 		exclude group: 'google', module: 'gwt-user'
 	}
 
-	compile project(':common'),
+	api project(':common'),
 			project(':openbis-common'),
 			// authentication and dbmigration are required as they contain later versions of 
 			// some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
@@ -39,7 +39,7 @@ dependencies {
 			'jsoup:jsoup:1.14.2',
 			'dspace:xoai-data-provider:4.2.0'
 
-	runtime 'bioformats:bioformats:6.5.1'
+	runtimeOnly 'bioformats:bioformats:6.5.1'
 
 	// eln-lims Jython APIs dependencies
 	datastoreExecRuntime files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar"),
@@ -55,19 +55,25 @@ dependencies {
 			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/zenodo-exports-api/lib/job-scheduler.jar"),
 			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar")
 
-	testCompile (project(path: ':openbis', configuration: 'tests')) {
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
+
+	testImplementation (project(path: ':openbis', configuration: 'tests')) {
 		exclude group: 'google', module: 'gwt-user'
 	}
-
-	testCompile project(path: ':common', configuration: 'tests'),
-			project(path: ':openbis-common', configuration: 'tests')
 
 	testRuntimeFirst 'javax:servlet-api:3.1.0'
 	testRuntimeSecond 'google:gwt-user:2.4'
 }
 
 configurations {
-	testRuntime.exclude group: 'google', module: 'gwt-servlet'
+	testRuntimeOnly.exclude group: 'google', module: 'gwt-servlet'
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
@@ -98,6 +104,7 @@ sourceSets {
 }
 
 jar {
+    duplicatesStrategy 'include'
 	from('targets/dist') {
 		include 'BUILD*INFO'
 	}

@@ -31,11 +31,14 @@ buildscript {
 }
 
 dependencies {
-    compile project(':common')
+    api project(':common')
     
-    compile 'izpack:izpack:5.0-beta9-SNAPSHOT'
+    api 'izpack:izpack:5.0-beta9-SNAPSHOT'
     
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
     
     archives 'apache:commons-io:2.6',
             'apache:log4j:1.2.15',
@@ -52,6 +55,7 @@ println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
 task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_technologies:zip', ':openbis_standard_technologies:zipDss', 'openbis_standard_technologies:zipBdlServer']) {
+    duplicatesStrategy 'include'
     from "${project.projectDir}/resource/installer"
     from "${project.projectDir}/../openbis_standard_technologies/dist/tarball/installer"
     from zipTree(project(':openbis_standard_technologies').zipDss.archivePath)
@@ -158,6 +162,7 @@ task(compileInstaller) {
 compileInstaller.dependsOn copyResources
 
 task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
+    duplicatesStrategy 'include'
     archiveName 'openBIS-installer.jar'
     from zipTree(new File(izPackJar))
     from zipTree(jar.archivePath)

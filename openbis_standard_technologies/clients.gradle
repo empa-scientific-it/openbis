@@ -130,27 +130,7 @@ task copyJarsForWebStart(type: Copy, dependsOn: [createOpenbisJar, createDssClie
     rename 'marathon-spring-util.*jar', 'stream-supporting-httpinvoker.jar'
 }
 
-task signWebStartJars(type: Copy, dependsOn: [copyJarsForWebStart]) {
-    from jarsToBeSignedFolder
-    into signedJarsFolder
-    def keystoreFile = '../screening/etc/dev.keystore'
-    inputs.file keystoreFile
-    doLast {
-        file(signedJarsFolder).listFiles().each { file ->
-            if (file.name == dssCliClientJarName) {
-                ant.jar(destfile: file, update: true) {
-                    delegate.manifest {
-                        attribute(name: 'Main-Class', value: 'ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient')
-                    }
-                }
-            }
-            ant.signjar(jar: file, keystore: keystoreFile,
-                        alias: 'openbis', storepass: 'openbistest')
-        }
-    }
-}
-
-task dssClientZip(type: Zip, dependsOn: signWebStartJars) {
+task dssClientZip(type: Zip, dependsOn: copyJarsForWebStart) {
     baseName 'dss_client'
 
     from (signedJarsFolder) {
@@ -206,7 +186,7 @@ task dssUploadGuiStandalone {
         }
     }
 }
-dssUploadGuiStandalone.dependsOn signWebStartJars
+dssUploadGuiStandalone.dependsOn copyJarsForWebStart
 
 
 task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {

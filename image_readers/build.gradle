@@ -4,14 +4,14 @@ evaluationDependsOn(':common')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile project(':common'),
+    api project(':common'),
         'imagej:ij:1.43u',
         'bioformats:bioformats:6.5.1',
         'slf4j:slf4j:1.6.2',
         'slf4j:slf4j-log4j12:1.6.2'
         
         
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':common', configuration: 'tests')
 }
 
 def jarConfiguration(parameters){

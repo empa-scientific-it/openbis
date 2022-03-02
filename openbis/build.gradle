@@ -11,7 +11,7 @@ configurations.create('testRuntimeFirst')
 configurations.create('devRuntime')
 
 dependencies {
-	compile project(':common'),
+	api project(':common'),
 			project(':openbis_api'),
 			project(':openbis-common'),
 			project(':authentication'),
@@ -35,20 +35,21 @@ dependencies {
 			'jline:jline:0.9.94'
 
 
-	runtime 'slf4j:slf4j-log4j12:1.6.2',
+	runtimeOnly 'slf4j:slf4j-log4j12:1.6.2',
 			'apache:commons-fileupload:1.3.3'
 
 	devRuntime 'eclipse:jetty-runner:9.4.44.v20210927'
 
-	testCompile project(path: ':common', configuration: 'tests'),
-			project(path: ':dbmigration', configuration: 'tests'),
-			project(path: ':openbis_api', configuration: 'tests'),
-			'springframework:spring-test:5.0.17.RELEASE'
-
-	testRuntime project(path: ':common', configuration: 'tests'),
-			project(path: ':dbmigration', configuration: 'tests'),
-			project(path: ':openbis_api', configuration: 'tests'),
-			'apache:commons-fileupload:1.3.3'
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD',
+                       'springframework:spring-test:5.0.17.RELEASE',
+                       'apache:commons-fileupload:1.3.3'
 
 	testRuntimeFirst 'javax:servlet-api:3.1.0'
 

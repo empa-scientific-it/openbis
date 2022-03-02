@@ -31,7 +31,7 @@ task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
     from 'resource/server'
     into 'targets/www/WEB-INF'
     
-    from (project.configurations.runtime.files) {
+    from (project.configurations.runtimeOnly.files) {
         into '../lib'
         exclude 'cisd-cifex*'
         exclude 'common-*'
