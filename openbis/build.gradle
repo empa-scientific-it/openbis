@@ -49,7 +49,8 @@ dependencies {
                        'fjelmer:classycle:1.4.2',
                        'testng:testng:6.8-CISD',
                        'springframework:spring-test:5.0.17.RELEASE',
-                       'apache:commons-fileupload:1.3.3'
+                       'apache:commons-fileupload:1.3.3',
+                       'startnet:apgdiff:2.3'
 
 	testRuntimeFirst 'javax:servlet-api:3.1.0'
 

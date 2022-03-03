@@ -200,6 +200,7 @@ task publishApiV3(type: Sync) {
 }
 
 task apiV3JarBatteriesIncluded(type: Jar, dependsOn: [apiV3Jar]) {
+  duplicatesStrategy 'include'
   baseName 'openBIS-API-V3-batteries-included'
   includeEmptyDirs false
   from (zipTree(apiV3Jar.archivePath)) {
