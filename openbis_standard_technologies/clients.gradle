@@ -210,6 +210,7 @@ dssUploadGuiStandalone.dependsOn signWebStartJars
 
 
 task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
+    duplicatesStrategy 'include'
     baseName 'dss_upload_gui_standalone'
     from ({ fileTree("${signedJarsFolder}").matching {
             include "aopalliance.jar"
