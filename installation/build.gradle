@@ -26,15 +26,15 @@ buildscript {
     dependencies {
         classpath 'izpack:izpack:5.0-beta9-SNAPSHOT', 
             'apache:commons-io:2.6',
-            'apache:commons-lang:2.4',
-            'gradle:core:7.4'
+            'apache:commons-lang:2.4'
     }
 }
 
 dependencies {
     api project(':common')
     
-    api 'izpack:izpack:5.0-beta9-SNAPSHOT'
+    api 'izpack:izpack:5.0-beta9-SNAPSHOT',
+            'gradle:core:7.4'
     
     testImplementation project(path: ':commonbase', configuration: 'tests'),
                        project(path: ':common', configuration: 'tests'),
