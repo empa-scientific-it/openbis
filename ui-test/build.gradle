@@ -31,8 +31,19 @@ configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
 
 dependencies {
-	testImplementation project(':datastore_server'),
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       project(path: ':datastore_server', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD',
                         'selenium:selenium-java:3.141.59'
+    testImplementation (project(path: ':openbis', configuration: 'tests')) {
+        exclude group: 'google', module: 'gwt-user'
+    }
 			
 	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 
