@@ -359,9 +359,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                         entityKind : "SAMPLE",
                     	logicalOperator : "AND",
                         rules : {
-                            "1" : { type : "Experiment",  name : "ATTR.CODE", value : "TEMPLATES_COLLECTION" },
-                    	    "2" : { type : "Project",     name : "ATTR.CODE", value : "TEMPLATES" },
-                    	    "2" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
+                            "1" : { type : "Experiment",  name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES_COLLECTION" },
+                            "2" : { type : "Project",     name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES" },
+                            "3" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
                         }
                     }
 
