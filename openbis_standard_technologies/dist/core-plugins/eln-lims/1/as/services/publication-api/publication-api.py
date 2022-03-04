@@ -15,6 +15,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
 from java.util import ArrayList
+from java.util import HashMap
 from org.apache.log4j import Logger
 
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + '.publication-api.py')
@@ -31,10 +32,10 @@ def process(context, parameters):
     except Exception as e:
         operationLog.error('Exception at: ' + traceback.format_exc())
         operationLog.error('Exception: ' + str(e))
-        result = {
-            'status': 'FAILED',
-            'error': str(e)
-        }
+        result = HashMap()
+        result.put('status','FAILED')
+        result.put('error',str(e))
+        return result
     return result
 
 
@@ -47,9 +48,9 @@ def insertPublication(context, parameters):
     sampleId = createPublicationSample(parameters, sessionToken, v3).get(0)
     createDataSet(parameters, sessionToken, v3, sampleId)
 
-    return {
-        'status': 'OK',
-    }
+    result = HashMap()
+    result.put('status','OK')
+    return result
 
 
 def createDataSet(parameters, sessionToken, v3, sampleId):
