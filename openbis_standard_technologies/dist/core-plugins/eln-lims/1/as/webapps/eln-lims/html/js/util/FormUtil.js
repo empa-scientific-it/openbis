@@ -2286,8 +2286,10 @@ var FormUtil = new function() {
 	}
 
     this.renderTruncatedGridValue = function(container, value){
+        var MAX_HEIGHT = 100
+
         var $value = $("<div>")
-        $value.css("max-height", "100px")
+        $value.css("max-height", MAX_HEIGHT + "px")
         $value.css("overflow", "hidden")
 
         if(_.isString(value)){
@@ -2307,14 +2309,14 @@ var FormUtil = new function() {
         $value.remove()
         $value.css("visibility", "")
 
-        if(valueHeight > 150){
+        if(valueHeight > MAX_HEIGHT){
             var $toggle = $("<a>").text("more")
             $toggle.click(function(){
                 if($toggle.text() === "more"){
                     $value.css("max-height", "")
                     $toggle.text("less")
                 }else{
-                    $value.css("max-height", "100px")
+                    $value.css("max-height", MAX_HEIGHT + "px")
                     $toggle.text("more")
                 }
             })
