@@ -832,7 +832,7 @@ var FormUtil = new function() {
                     $component.append(textNode);
 		        }
 		    } else {
-		        $component.html(text);
+		        $component.text(text);
 		    }
 		}
 		

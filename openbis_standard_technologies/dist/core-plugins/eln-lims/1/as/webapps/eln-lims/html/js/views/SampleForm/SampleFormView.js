@@ -150,10 +150,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                             + " children " + ELNDictionary.sample + "s, these relationships will be broken "
                             + " but the children will remain:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(childSamples[cIdx]);
+                        warningText += "\n" + Util.getDisplayNameForEntity(childSamples[cIdx]);
                     }
                     if (maxNumToShow < childSamples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -168,10 +168,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                             + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the "
                             + ELNDictionary.sample + ":";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
+                        warningText += "\n" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
                     }
                     if (maxNumToShow < childSamples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
