@@ -886,7 +886,7 @@ class Openbis:
         verify_certificates=True,
         token=None,
         use_cache=True,
-        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False,
     ):
         """Initialize a new connection to an openBIS server.
 
@@ -938,7 +938,9 @@ class Openbis:
         self.cache = {}
         self.server_information = None
         self.token = None
-        if token is not None: # We try to set the token, during initialisation instead of errors, a message is printed
+        if (
+            token is not None
+        ):  # We try to set the token, during initialisation instead of errors, a message is printed
             try:
                 self.set_token(token)
             except:
@@ -1088,13 +1090,15 @@ class Openbis:
     def projects(self):
         return self.get_projects()
 
-    def gen_token_path(self, os_home = None):
+    def gen_token_path(self, os_home=None):
         """generates a path to the token file.
         The token is usually saved in a file called
         ~/.pybis/hostname.token
         """
         if self.hostname is None:
-            raise ValueError("hostname needs to be set before retrieving the token path.")
+            raise ValueError(
+                "hostname needs to be set before retrieving the token path."
+            )
 
         if os_home is None:
             home = os.path.expanduser("~")
@@ -1110,6 +1114,7 @@ class Openbis:
         # Set the correct user, only the owner of the token should be able to access it, used by jupyterhub authenticator
         token_user_name = self.token.split("-")[0]
         from pwd import getpwnam
+
         token_user_name_uid = getpwnam(token_user_name).pw_uid
         token_user_name_gid = getpwnam(token_user_name).pw_gid
 
@@ -1118,11 +1123,12 @@ class Openbis:
 
         # Parent directory
         from pathlib import Path
+
         path = Path(token_path)
         token_parent_path = path.parent.absolute()
         os.chown(token_parent_path, token_user_name_uid, token_user_name_gid)
 
-    def _save_token_to_disk(self, os_home = None):
+    def _save_token_to_disk(self, os_home=None):
         """saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default."""
         token_path = self.gen_token_path(os_home)
         # create the necessary directories, if they don't exist yet
@@ -1134,8 +1140,7 @@ class Openbis:
         return token_path
 
     def _get_saved_token(self):
-        """Read the token from the .pybis, on the default user location
-        """
+        """Read the token from the .pybis, on the default user location"""
         token_path = self.gen_token_path()
         if not os.path.exists(token_path):
             return None
@@ -1177,7 +1182,7 @@ class Openbis:
             resp = resp.json()
             if "error" in resp:
                 # print(full_url)
-                # print(json.dumps(request))
+                print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
@@ -1209,6 +1214,7 @@ class Openbis:
 
         if password is None:
             import getpass
+
             password = getpass.getpass()
 
         login_request = {
@@ -4070,10 +4076,9 @@ class Openbis:
             "params": [token],
         }
         try:
-            resp = self._post_request(self.as_v1, request)
+            resp = self._post_request(self.as_v3, request)
         except Exception:
             return False
-
         return resp
 
     def set_token(self, token, save_token=False):
