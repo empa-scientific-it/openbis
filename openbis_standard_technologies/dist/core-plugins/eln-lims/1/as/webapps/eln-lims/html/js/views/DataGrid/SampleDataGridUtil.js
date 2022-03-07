@@ -34,7 +34,8 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 				}
-				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo);
+				var codeId = data.code.toLowerCase() + "-column-id";
+				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo, codeId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -58,7 +59,8 @@ var SampleDataGridUtil = new function() {
                 if(data[profile.propertyReplacingCode]) {
                     nameToUse = data[profile.propertyReplacingCode];
                 }
-				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId);
+                var nameId = data.code.toLowerCase() + "-name-id";
+				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId, null, nameId);
 			}
 		});
 
@@ -225,23 +227,45 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 					propertyColumnsToSort.push(getDateColumn(propertyType));
-				} else {			
+				} else {
+					var renderValue = null
+
+					if(propertyType.dataType === "XML"){
+						renderValue = (function(propertyType){
+							return function(row, params){
+								return FormUtil.renderXmlGridValue(row, params, propertyType)
+							}
+						})(propertyType)
+					}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+						renderValue = (function(propertyType){
+							return function(row, params){
+								return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
+							}
+						})(propertyType)
+					}
+
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyType.code,
 						isExportable: true,
 						filterable : true,
 						sortable : propertyType.dataType !== "XML",
+						truncate: propertyType.dataType === "VARCHAR",
 						metadata: {
 							dataType: propertyType.dataType
 						},
+						render: renderValue
 					});
 				}
 			}
 
-			propertyColumnsToSort.sort(function(propertyA, propertyB) {
-				return propertyA.label.localeCompare(propertyB.label);
-			});
+			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
+				return {
+					entityKind: "SAMPLE",
+					entityType: sample.sampleTypeCode
+				}
+			}))
+
 			return propertyColumnsToSort;
 		}
 
@@ -440,6 +464,7 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		dataGridController.setId("sample-grid")
 		return dataGridController;
 	}
 

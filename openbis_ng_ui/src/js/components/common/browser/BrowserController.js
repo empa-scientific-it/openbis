@@ -43,12 +43,8 @@ export default class BrowserController {
 
   load() {
     return this.doLoadNodes().then(loadedNodes => {
-      const {
-        filter,
-        nodes,
-        selectedId,
-        selectedObject
-      } = this.context.getState()
+      const { filter, nodes, selectedId, selectedObject } =
+        this.context.getState()
 
       let newNodes = this._createNodes(loadedNodes)
       newNodes = this._filterNodes(newNodes, filter)
@@ -120,12 +116,8 @@ export default class BrowserController {
   }
 
   filterChange(newFilter) {
-    const {
-      filter,
-      nodes,
-      selectedId,
-      selectedObject
-    } = this.context.getState()
+    const { filter, nodes, selectedId, selectedObject } =
+      this.context.getState()
 
     let initialNodes = null
 

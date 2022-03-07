@@ -182,8 +182,15 @@ public class ELNCollectionTypeMigration {
         }
     }
 
-    private static List executeQuery(String SQL, String key, Object value) {
-        //operationLog.info("SQL: " + SQL + " Key: " + key + " Value: " + value);
+    static List executeNativeQuery(String SQL) {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
+        NativeQuery nativeQuery = currentSession.createNativeQuery(SQL);
+        List<Object> result = nativeQuery.getResultList();
+        return result;
+    }
+
+    static List executeNativeQuery(String SQL, String key, Object value) {
         DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
         Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
         NativeQuery nativeQuery = currentSession.createNativeQuery(SQL);
@@ -192,7 +199,7 @@ public class ELNCollectionTypeMigration {
         return result;
     }
 
-    private static void executeUpdate(String SQL, String ukey, Object uValue, String ckey, Object cValue) {
+    static void executeNativeUpdate(String SQL, String ukey, Object uValue, String ckey, Object cValue) {
         DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
         Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
         NativeQuery nativeQuery = currentSession.createNativeQuery(SQL);
@@ -205,7 +212,7 @@ public class ELNCollectionTypeMigration {
         nativeQuery.executeUpdate();
     }
 
-    private static void executeNativeUpdate(String SQL) {
+    static void executeNativeUpdate(String SQL) {
         try {
             DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
             Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
@@ -257,14 +264,14 @@ public class ELNCollectionTypeMigration {
 
                     // Current type id
                     final String COLLECTION_TYPE_ID = "SELECT id FROM experiment_types WHERE code = :code";
-                    BigInteger collectionTypeTechId = (BigInteger) executeQuery(COLLECTION_TYPE_ID, "code", COLLECTION).get(0);
+                    BigInteger collectionTypeTechId = (BigInteger) executeNativeQuery(COLLECTION_TYPE_ID, "code", COLLECTION).get(0);
                     final String EXPERIMENT_TYPE_ID = "SELECT exty_id FROM experiments_all WHERE code = :code";
-                    BigInteger experimentTypeTechId = (BigInteger) executeQuery(EXPERIMENT_TYPE_ID, "code", experimentCode).get(0);
+                    BigInteger experimentTypeTechId = (BigInteger) executeNativeQuery(EXPERIMENT_TYPE_ID, "code", experimentCode).get(0);
 
                     // Current type properties
                     final String EXPERIMENT_PROPERTY_TYPE_IDS = "SELECT etpt.prty_id, etpt.id FROM experiment_type_property_types etpt WHERE etpt.exty_id = :exty_id";
-                    Map<BigInteger, BigInteger> collection_prty_id_2_etpt_id = getMap(executeQuery(EXPERIMENT_PROPERTY_TYPE_IDS, "exty_id", collectionTypeTechId));
-                    Map<BigInteger, BigInteger> experiment_prty_id_2_etpt_id = getMap(executeQuery(EXPERIMENT_PROPERTY_TYPE_IDS, "exty_id", experimentTypeTechId));
+                    Map<BigInteger, BigInteger> collection_prty_id_2_etpt_id = getMap(executeNativeQuery(EXPERIMENT_PROPERTY_TYPE_IDS, "exty_id", collectionTypeTechId));
+                    Map<BigInteger, BigInteger> experiment_prty_id_2_etpt_id = getMap(executeNativeQuery(EXPERIMENT_PROPERTY_TYPE_IDS, "exty_id", experimentTypeTechId));
 
                     // Update properties
                     for (BigInteger propertyTechId:experiment_prty_id_2_etpt_id.keySet()) {
@@ -272,12 +279,12 @@ public class ELNCollectionTypeMigration {
                         BigInteger newAssignment = collection_prty_id_2_etpt_id.get(propertyTechId);
                         final String UPDATE_PROPERTY_ASSIGNMENT = "UPDATE experiment_properties SET etpt_id = :new_etpt_id WHERE etpt_id = :old_etpt_id";
                         operationLog.info("ELNCollectionTypeMigration - Swap for property tech id : " + propertyTechId + " : " + oldAssignment + " <> " + newAssignment);
-                        executeUpdate(UPDATE_PROPERTY_ASSIGNMENT, "old_etpt_id", oldAssignment, "new_etpt_id", newAssignment);
+                        executeNativeUpdate(UPDATE_PROPERTY_ASSIGNMENT, "old_etpt_id", oldAssignment, "new_etpt_id", newAssignment);
                     }
 
                     // Update type
                     final String UPDATE_TYPE = "UPDATE experiments_all SET exty_id = :exty_id WHERE code = :code";
-                    executeUpdate(UPDATE_TYPE, "exty_id", collectionTypeTechId, "code", experimentCode);
+                    executeNativeUpdate(UPDATE_TYPE, "exty_id", collectionTypeTechId, "code", experimentCode);
                     operationLog.info("ELNCollectionTypeMigration -  Update for : " + experimentCode + " : exty_id : " + collectionTypeTechId);
 
                 }
@@ -292,7 +299,7 @@ public class ELNCollectionTypeMigration {
                                          "(select count(*) from core_plugins where name = 'eln-lims') > 0;",
                                          entry.getValue(), entry.getKey(), entry.getValue());
 
-            executeUpdate(query, null, null, null, null);
+            executeNativeUpdate(query, null, null, null, null);
             operationLog.info("PROPERTY_UPDATE DONE");
         }
         operationLog.info("ELNCollectionTypeMigration beforeUpgrade END");

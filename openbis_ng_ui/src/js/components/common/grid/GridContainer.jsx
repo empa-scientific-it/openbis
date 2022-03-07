@@ -1,11 +1,9 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const styles = () => ({
   container: {
-    padding: theme.spacing(2),
-    paddingTop: 0,
-    paddingBottom: 0,
+    padding: 0,
     height: '100%',
     boxSizing: 'border-box'
   }

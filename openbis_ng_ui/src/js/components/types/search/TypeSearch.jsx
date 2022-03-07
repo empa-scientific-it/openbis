@@ -2,9 +2,11 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
-import TypesGrid from '@src/js/components/types/common/TypesGrid.jsx'
-import VocabulariesGrid from '@src/js/components/types/common/VocabulariesGrid.jsx'
+import EntityTypesGrid from '@src/js/components/types/common/EntityTypesGrid.jsx'
+import VocabularyTypesGrid from '@src/js/components/types/common/VocabularyTypesGrid.jsx'
+import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import ids from '@src/js/common/consts/ids.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
@@ -44,7 +46,8 @@ class TypeSearch extends React.Component {
         this.loadCollectionTypes(),
         this.loadDataSetTypes(),
         this.loadMaterialTypes(),
-        this.loadVocabularyTypes()
+        this.loadVocabularyTypes(),
+        this.loadPropertyTypes()
       ])
       this.setState(() => ({
         loaded: true
@@ -192,6 +195,107 @@ class TypeSearch extends React.Component {
     })
   }
 
+  async loadPropertyTypes() {
+    if (!this.shouldLoad(objectTypes.PROPERTY_TYPE)) {
+      return
+    }
+
+    const [propertyTypes, propertyTypeUsages] = await Promise.all([
+      this.loadPropertyTypesTypes(),
+      this.loadPropertyTypesUsages()
+    ])
+
+    const types = util
+      .filter(propertyTypes.objects, this.props.searchText, [
+        'code',
+        'description'
+      ])
+      .map(object => ({
+        id: _.get(object, 'code'),
+        code: _.get(object, 'code'),
+        label: _.get(object, 'label'),
+        description: _.get(object, 'description'),
+        dataType: _.get(object, 'dataType'),
+        vocabulary: _.get(object, 'vocabulary.code'),
+        materialType: _.get(object, 'materialType.code'),
+        sampleType: _.get(object, 'sampleType.code'),
+        schema: _.get(object, 'schema'),
+        transformation: _.get(object, 'transformation'),
+        usages: _.get(propertyTypeUsages, object.code)
+      }))
+
+    this.setState({
+      propertyTypes: types
+    })
+  }
+
+  async loadPropertyTypesTypes() {
+    const fo = new openbis.PropertyTypeFetchOptions()
+    fo.withVocabulary()
+    fo.withMaterialType()
+    fo.withSampleType()
+
+    const propertyTypes = await openbis.searchPropertyTypes(
+      new openbis.PropertyTypeSearchCriteria(),
+      fo
+    )
+
+    return propertyTypes
+  }
+
+  async loadPropertyTypesUsages() {
+    const usages = {}
+
+    const fo = new openbis.PropertyAssignmentFetchOptions()
+    fo.withEntityType()
+    fo.withPropertyType()
+
+    const propertyAssignments = await openbis.searchPropertyAssignments(
+      new openbis.PropertyAssignmentSearchCriteria(),
+      fo
+    )
+
+    propertyAssignments.objects.forEach(propertyAssignment => {
+      let propertyUsages = usages[propertyAssignment.propertyType.code]
+      if (!propertyUsages) {
+        propertyUsages = {
+          sampleTypes: [],
+          experimentTypes: [],
+          dataSetTypes: [],
+          materialTypes: []
+        }
+        usages[propertyAssignment.propertyType.code] = propertyUsages
+      }
+
+      const entityType = propertyAssignment.entityType['@type']
+
+      if (entityType === 'as.dto.sample.SampleType') {
+        propertyUsages.sampleTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.experiment.ExperimentType') {
+        propertyUsages.experimentTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.dataset.DataSetType') {
+        propertyUsages.dataSetTypes.push(propertyAssignment.entityType.code)
+      } else if (entityType === 'as.dto.material.MaterialType') {
+        propertyUsages.materialTypes.push(propertyAssignment.entityType.code)
+      }
+    })
+
+    Object.keys(usages).forEach(propertyTypeCode => {
+      const propertyUsages = usages[propertyTypeCode]
+      propertyUsages.sampleTypes.sort()
+      propertyUsages.experimentTypes.sort()
+      propertyUsages.dataSetTypes.sort()
+      propertyUsages.materialTypes.sort()
+      propertyUsages.count =
+        propertyUsages.sampleTypes.length +
+        propertyUsages.experimentTypes.length +
+        propertyUsages.dataSetTypes.length +
+        propertyUsages.materialTypes.length
+    })
+
+    return usages
+  }
+
   shouldLoad(objectType) {
     return this.props.objectType === objectType || !this.props.objectType
   }
@@ -230,6 +334,7 @@ class TypeSearch extends React.Component {
         {this.renderDataSetTypes()}
         {this.renderMaterialTypes()}
         {this.renderVocabularyTypes()}
+        {this.renderPropertyTypes()}
       </GridContainer>
     )
   }
@@ -241,7 +346,8 @@ class TypeSearch extends React.Component {
       collectionTypes = [],
       dataSetTypes = [],
       materialTypes = [],
-      vocabularyTypes = []
+      vocabularyTypes = [],
+      propertyTypes = []
     } = this.state
 
     if (
@@ -250,10 +356,15 @@ class TypeSearch extends React.Component {
       collectionTypes.length === 0 &&
       dataSetTypes.length === 0 &&
       materialTypes.length === 0 &&
-      vocabularyTypes.length === 0
+      vocabularyTypes.length === 0 &&
+      propertyTypes.length === 0
     ) {
       return (
-        <Message type='info'>{messages.get(messages.NO_RESULTS_FOUND)}</Message>
+        <Container>
+          <Message type='info'>
+            {messages.get(messages.NO_RESULTS_FOUND)}
+          </Message>
+        </Container>
       )
     } else {
       return null
@@ -265,7 +376,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.OBJECT_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.OBJECT_TYPE] = controller)
@@ -290,7 +401,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.COLLECTION_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.COLLECTION_TYPE] = controller)
@@ -313,7 +424,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.DATA_SET_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.DATA_SET_TYPE] = controller)
@@ -338,7 +449,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <TypesGrid
+          <EntityTypesGrid
             id={ids.MATERIAL_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.MATERIAL_TYPE] = controller)
@@ -363,7 +474,7 @@ class TypeSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <VocabulariesGrid
+          <VocabularyTypesGrid
             id={ids.VOCABULARY_TYPES_GRID_ID}
             controllerRef={controller =>
               (this.gridControllers[objectTypes.VOCABULARY_TYPE] = controller)
@@ -371,6 +482,30 @@ class TypeSearch extends React.Component {
             rows={this.state.vocabularyTypes}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.VOCABULARY_TYPE
+            )}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderPropertyTypes() {
+    if (
+      this.shouldRender(objectTypes.PROPERTY_TYPE, this.state.propertyTypes)
+    ) {
+      const { classes } = this.props
+      return (
+        <div className={classes.grid}>
+          <PropertyTypesGrid
+            id={ids.PROPERTY_TYPES_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.PROPERTY_TYPE] = controller)
+            }
+            rows={this.state.propertyTypes}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.PROPERTY_TYPE
             )}
           />
         </div>

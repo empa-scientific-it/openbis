@@ -64,8 +64,8 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		}
 	}
 	
-	this.refreshHeight = function() {
-		linksView.refreshHeight();
+	this.refresh = function() {
+		linksView.refresh();
 	}
 	
 	//

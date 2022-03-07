@@ -1,11 +1,11 @@
+from utils.dotdict import dotdict
+from utils.openbis_utils import upper_case_code, get_normalized_code
+from ch.systemsx.cisd.common.exceptions import UserFailureException
+from java.lang import UnsupportedOperationException
 from ..definition_to_creation import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
-    VocabularyTermDefinitionToCreationType, PropertyAssignmentDefinitionToCreationType, \
     SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType, DatasetTypeDefinitionToCreationType, \
     SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, ExperimentDefinitionToCreationType, \
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
-from utils.openbis_utils import get_metadata_name_for, upper_case_code, get_normalized_code
-from ch.systemsx.cisd.common.exceptions import UserFailureException
-from utils.dotdict import dotdict
 
 
 def get_version(value):
@@ -24,29 +24,28 @@ class DefinitionToCreationMetadataParserFactory(object):
     def get_parsers(definition):
         if definition.type == u'VOCABULARY_TYPE':
             return [VocabularyDefinitionToCreationMetadataParser()]
-        elif definition.type == u'SAMPLE_TYPE':
+        if definition.type == u'SAMPLE_TYPE':
             return [SampleTypeDefinitionToCreationMetadataParser(), PropertyTypeDefinitionToCreationMetadataParser(),
                     ScriptDefinitionToCreationMetadataParser()]
-        elif definition.type == u'EXPERIMENT_TYPE':
+        if definition.type == u'EXPERIMENT_TYPE':
             return [ExperimentTypeDefinitionToCreationMetadataParser(),
                     PropertyTypeDefinitionToCreationMetadataParser(),
                     ScriptDefinitionToCreationMetadataParser()]
-        elif definition.type == u'DATASET_TYPE':
+        if definition.type == u'DATASET_TYPE':
             return [DatasetTypeDefinitionToCreationMetadataParser(), PropertyTypeDefinitionToCreationMetadataParser(),
                     ScriptDefinitionToCreationMetadataParser()]
-        elif definition.type == u'SPACE':
+        if definition.type == u'SPACE':
             return [SpaceDefinitionToCreationMetadataParser()]
-        elif definition.type == u'PROJECT':
+        if definition.type == u'PROJECT':
             return [ProjectDefinitionToCreationMetadataParser()]
-        elif definition.type == u'EXPERIMENT':
+        if definition.type == u'EXPERIMENT':
             return [ExperimentDefinitionToCreationMetadataParser()]
-        elif definition.type == u'SAMPLE':
+        if definition.type == u'SAMPLE' or definition.type.startswith(u'SAMPLE:'):
             return [SampleDefinitionToCreationMetadataParser()]
-        elif definition.type == u'PROPERTY_TYPE':
+        if definition.type == u'PROPERTY_TYPE':
             return [PropertyTypeDefinitionToCreationMetadataParser()]
-        else:
-            raise UnsupportedOperationException(
-                "Definition of " + str(definition.type) + " is not supported.")
+        raise UnsupportedOperationException(
+            "Definition of " + str(definition.type) + " is not supported.")
 
 
 class PropertyTypeDefinitionToCreationMetadataParser(object):
@@ -137,15 +136,6 @@ class DatasetTypeDefinitionToCreationMetadataParser(object):
 
     def get_type(self):
         return DatasetTypeDefinitionToCreationType
-
-
-class PropertyAssignmentDefinitionToCreationMetadataParser(object):
-
-    def parse(self, prop):
-        return dotdict()
-
-    def get_type(self):
-        return PropertyAssignmentDefinitionToCreationType
 
 
 class SpaceDefinitionToCreationMetadataParser(object):

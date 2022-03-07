@@ -6,14 +6,15 @@ buildscript {
     dependencies {
         classpath 'apache:commons-codec:1.10',
                   'owasp:dependency-check-gradle:6.2.2',
-				  'paleozogt:symzip-plugin:0.10.1',
-				  'com.moowork.gradle:gradle-node-plugin:1.2.0'
+				  'paleozogt:symzip-plugin:0.10.1'
     }
 }
 
+plugins {
+  id "com.github.node-gradle.node" version "3.2.1"
+}
 apply plugin: org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 apply plugin: "org.paleozogt.symzip"
-apply plugin: "com.moowork.node"
 
 dependencyCheck {
   failBuildOnCVSS = 7 // 0 - 4 = low, 4 - 7 = medium, 7 - 9 = high, 9-10 = critical
@@ -63,7 +64,7 @@ def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
 
 dependencies {
-	compile project(':screening')
+	api project(':screening')
 
 	providedCompile 'google:gwt-user:2.4'
 
@@ -105,8 +106,18 @@ dependencies {
 
 	javadoc_compilation	project(path:':screening')
 
-    testCompile (project(path: ':openbis', configuration: 'tests')) {
-         exclude group: 'google', module: 'gwt-user'
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       project(path: ':datastore_server', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD',
+                       'springframework:spring-test:5.0.17.RELEASE'
+    testImplementation (project(path: ':openbis', configuration: 'tests')) {
+        exclude group: 'google', module: 'gwt-user'
     }
 
 }
@@ -262,7 +273,7 @@ task checkFilesExist {
 war.dependsOn untarGwt
 war.dependsOn copyOpenbisStaticResources
 war.dependsOn checkFilesExist
-war.dependsOn signWebStartJars
+war.dependsOn copyJarsForWebStart
 war {
     rootSpec.eachFile { file ->
         if (file.name.startsWith('cisd-cifex')
@@ -326,6 +337,7 @@ def downloadCorePlugin(url, pluginname) {
 import org.paleozogt.gradle.zip.SymZip;
 
 task zipCorePlugins(type: SymZip) {
+  duplicatesStrategy 'include'
   includeEmptyDirs = false
   archiveName 'core-plugins.zip'
 
@@ -404,7 +416,7 @@ zip.dependsOn zipCorePlugins
 zip.dependsOn zipAdminConsole
 zip.dependsOn checksums
 
-task zipDss(type: Zip, dependsOn: signWebStartJars) {
+task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
 	baseName 'datastore_server-standard-technologies'
 	includeEmptyDirs true
 
@@ -487,7 +499,7 @@ task deleteOpenbisNgUi(type: Delete) {
   delete 'dist/core-plugins/openbis-ng-ui'
 }
 
-task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':openbis_ng_ui:build']) {
+task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':openbis_ng_ui:copyWebApp']) {
     from project(':openbis_ng_ui').file('build/core-plugins')
     into file('dist/core-plugins')
 }

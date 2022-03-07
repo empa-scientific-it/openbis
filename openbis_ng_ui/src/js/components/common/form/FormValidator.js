@@ -25,7 +25,7 @@ class FormValidator {
     if (
       field.value === null ||
       field.value === undefined ||
-      field.value.trim() === ''
+      (_.isString(field.value) && field.value.trim() === '')
     ) {
       this.addError(
         object,

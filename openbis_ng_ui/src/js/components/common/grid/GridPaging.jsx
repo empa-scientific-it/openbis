@@ -23,7 +23,8 @@ const styles = theme => ({
     marginLeft: -theme.spacing(2)
   },
   pageSizeLabelPlacement: {
-    marginRight: 0
+    marginRight: 0,
+    marginBottom: 0
   },
   pageSizeLabel: {
     fontSize: theme.typography.body2.fontSize,
@@ -82,12 +83,13 @@ class GridPaging extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridPaging.render')
 
-    const { classes, count, page, pageSize } = this.props
+    const { id, classes, count, page, pageSize } = this.props
 
     return (
       <div className={classes.container}>
         <div className={classes.pagePrevButtons}>
           <IconButton
+            id={id + '.first-page-id'}
             onClick={this.handleFirstPageButtonClick}
             disabled={page === 0}
             aria-label={messages.get(messages.FIRST_PAGE)}
@@ -96,6 +98,7 @@ class GridPaging extends React.PureComponent {
             <FirstPageIcon fontSize='small' />
           </IconButton>
           <IconButton
+            id={id + '.prev-page-id'}
             onClick={this.handleBackButtonClick}
             disabled={page === 0}
             aria-label={messages.get(messages.PREVIOUS_PAGE)}
@@ -104,13 +107,14 @@ class GridPaging extends React.PureComponent {
             <KeyboardArrowLeft fontSize='small' />
           </IconButton>
         </div>
-        <div className={classes.pageRange}>
+        <div id={id + '.page-range-id'} className={classes.pageRange}>
           <Typography variant='body2' data-part='range'>
             {this.renderRange()}
           </Typography>
         </div>
         <div className={classes.pageNextButtons}>
           <IconButton
+            id={id + '.next-page-id'}
             onClick={this.handleNextButtonClick}
             disabled={page >= Math.ceil(count / pageSize) - 1}
             aria-label={messages.get(messages.NEXT_PAGE)}
@@ -119,6 +123,7 @@ class GridPaging extends React.PureComponent {
             <KeyboardArrowRight fontSize='small' />
           </IconButton>
           <IconButton
+            id={id + '.last-page-id'}
             onClick={this.handleLastPageButtonClick}
             disabled={page >= Math.ceil(count / pageSize) - 1}
             aria-label={messages.get(messages.LAST_PAGE)}
@@ -128,7 +133,7 @@ class GridPaging extends React.PureComponent {
           </IconButton>
         </div>
         <div className={classes.separator}></div>
-        <div className={classes.pageSize}>
+        <div id={id + '.page-size-id'} className={classes.pageSize}>
           <FormControlLabel
             control={
               <SelectField

@@ -107,12 +107,13 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, sessionKey, callback) {
+    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",
             "allowedSampleTypes" : allowedSampleTypes,
             "experimentsByType" : experimentsByType,
             "spacesByType" : spacesByType,
+            "barcodeValidationInfo" : barcodeValidationInfo,
             "mode" : "FAIL_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
@@ -120,10 +121,11 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.updateSamples = function(allowedSampleTypes, sessionKey, callback) {
+    this.updateSamples = function(allowedSampleTypes, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",
             "allowedSampleTypes" : allowedSampleTypes,
+            "barcodeValidationInfo" : barcodeValidationInfo,
             "mode" : "UPDATE_IF_EXISTS",
             "sessionKey" : sessionKey
         }, function(result) {
@@ -131,10 +133,11 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.getSamplesImportTemplate = function(allowedSampleTypes, importMode, callback) {
+    this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
         this.customELNASAPI({
             "method" : "getSamplesImportTemplate",
             "allowedSampleTypes" : allowedSampleTypes,
+            "templateType" : templateType,
             "importMode" : importMode
         }, function(result) {
             callback(result)
@@ -603,6 +606,51 @@ function ServerFacade(openbisServer) {
 	//
 	// Metadata Related Functions
 	//
+	this.getSampleType = function(sampleType, callback) {
+		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/sample/fetchoptions/SampleTypeFetchOptions", "as/dto/entitytype/EntityKind" ],
+			function(EntityTypePermId, SampleTypeFetchOptions, EntityKind) {
+				var entityTypePermId = new EntityTypePermId(sampleType, EntityKind.SAMPLE);
+				var sampleTypeFetchOptions = new SampleTypeFetchOptions();
+                sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
+				mainController.openbisV3.getSampleTypes(entityTypePermId, sampleTypeFetchOptions).done(function(sampleTypesByIds) {
+					callback(sampleTypesByIds[entityTypePermId]);
+				}).fail(function(error) {
+					Util.showFailedServerCallError(error);
+					Util.unblockUI();
+				});
+		});
+	}
+
+	this.getExperimentType = function(experimentType, callback) {
+    		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/experiment/fetchoptions/ExperimentTypeFetchOptions", "as/dto/entitytype/EntityKind" ],
+    			function(EntityTypePermId, ExperimentTypeFetchOptions, EntityKind) {
+    				var entityTypePermId = new EntityTypePermId(experimentType, EntityKind.EXPERIMENT);
+    				var experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+                    experimentTypeFetchOptions.withPropertyAssignments().withPropertyType();
+    				mainController.openbisV3.getExperimentTypes(entityTypePermId, experimentTypeFetchOptions).done(function(experimentTypesByIds) {
+    					callback(experimentTypesByIds[entityTypePermId]);
+    				}).fail(function(error) {
+    					Util.showFailedServerCallError(error);
+    					Util.unblockUI();
+    				});
+    		});
+    }
+
+    	this.getDatasetTypes = function(callback) {
+        		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
+        			function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
+        				var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        				var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+                        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+        				mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
+        					callback(searchResults.objects);
+        				}).fail(function(error) {
+        					Util.showFailedServerCallError(error);
+        					Util.unblockUI();
+        				});
+        		});
+        }
+
 	this.listSampleTypes = function(callbackFunction) {
 		this.openbisServer.listSampleTypes(callbackFunction);
 	}
@@ -1684,6 +1732,9 @@ function ServerFacade(openbisServer) {
                                         case "thatContains":
                                                 criteria.withCode().thatContains(attributeValue);
                                                 break;
+                                        case "thatEndsWith":
+                                                criteria.withCode().thatEndsWith(attributeValue);
+                                                break;
                                     }
                                     break;
                                 case "IDENTIFIER":
@@ -1920,6 +1971,19 @@ function ServerFacade(openbisServer) {
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
                                         break;
+                                }
+                                break;
+                            case "Project":
+                                switch(fieldNameType) {
+                                case "PROP":
+                                    setPropertyCriteria(setOperator(searchCriteria.withProject(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                    break;
+                                case "ATTR":
+                                    setAttributeCriteria(setOperator(searchCriteria.withProject(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                    break;
+                                case "NULL":
+                                    searchCriteria.withoutProject();
+                                    break;
                                 }
                                 break;
                             case "Parent":

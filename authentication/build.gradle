@@ -4,7 +4,10 @@ evaluationDependsOn(':common')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile project(':common')
-      
-	testCompile project(path: ':common', configuration: 'tests')
+    api project(':common')
+
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
 } 

@@ -14,12 +14,14 @@ const COLLECTION_TYPE = 'collectionType'
 const DATA_SET_TYPE = 'dataSetType'
 const MATERIAL_TYPE = 'materialType'
 const VOCABULARY_TYPE = 'vocabularyType'
+const PROPERTY_TYPE = 'propertyType'
 const USER = 'user'
 const USER_GROUP = 'userGroup'
 const DYNAMIC_PROPERTY_PLUGIN = 'dynamicPropertyPlugin'
 const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
 const QUERY = 'query'
 const HISTORY = 'history'
+const IMPORT = 'import'
 
 const SEARCH = 'search'
 const OVERVIEW = 'overview'
@@ -40,12 +42,14 @@ export default {
   DATA_SET_TYPE,
   MATERIAL_TYPE,
   VOCABULARY_TYPE,
+  PROPERTY_TYPE,
   USER,
   USER_GROUP,
   DYNAMIC_PROPERTY_PLUGIN,
   ENTITY_VALIDATION_PLUGIN,
   QUERY,
   HISTORY,
+  IMPORT,
   SEARCH,
   OVERVIEW
 }

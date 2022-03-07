@@ -17,6 +17,7 @@
 function ExperimentFormModel(mode, experiment) {
 	this.mode = mode;
 	this.isFormDirty = false;
+	this.experimentType = null;
 	//Initialize properties if not present for the creation mode
 	if(!experiment.properties) {
 		experiment.properties = {};

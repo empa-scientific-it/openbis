@@ -24,7 +24,9 @@ function SampleFormModel(mode, sample, paginationInfo) {
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
 	this.isELNSample = !profile.isInventorySpace(sample.spaceCode);
-	
+
+	this.sampleType = null;
+
 	//
 	// TO-DO: Legacy code to be refactored
 	//

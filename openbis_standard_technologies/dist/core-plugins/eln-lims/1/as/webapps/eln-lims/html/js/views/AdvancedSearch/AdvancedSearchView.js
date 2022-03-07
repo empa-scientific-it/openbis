@@ -70,7 +70,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$mainPanel.append(this._$searchCriteriaPanelContainer);
 
 		//Search Results Panel
-		this._$dataGridContainer = $("<div>");
+		this._$dataGridContainer = $("<div>").css("margin-left", "-10px");;
 		$mainPanel.append(this._$dataGridContainer);
 		//
 
@@ -1084,6 +1084,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					}
 
                     var propertyType = profile.getPropertyType(propertyCode)
+                    var renderValue = null
                     var renderFilter = null
 
                     if(propertyType.dataType === "BOOLEAN"){
@@ -1102,24 +1103,40 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                                 return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
                             }
                         })(propertyType)
+                    } else if (propertyType.dataType === "XML"){
+                        renderValue = (function(propertyType){
+                            return function(row, params){
+                                return FormUtil.renderXmlGridValue(row, params, propertyType)
+                            }
+                        })(propertyType)
+                    } else if (propertyType.dataType === "MULTILINE_VARCHAR"){
+                        renderValue = (function(propertyType){
+                            return function(row, params){
+                                return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
+                            }
+                        })(propertyType)
                     }
 
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
 						filterable : !isGlobalSearch,
+						render: renderValue,
 						renderFilter: renderFilter,
 						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
+						truncate: propertyType.dataType === "VARCHAR",
 						metadata: {
 							dataType: propertyType.dataType
 						}
 					});
 				}
 
-				//3. Sort column properties by label
-				propertyColumnsToSort.sort(function(propertyA, propertyB) {
-					return propertyA.label.localeCompare(propertyB.label);
-				});
+				FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
+					return {
+						entityKind: entity.entityKind,
+						entityType: entity.entityType
+					}
+				}))
 
 				return propertyColumnsToSort;
 			}

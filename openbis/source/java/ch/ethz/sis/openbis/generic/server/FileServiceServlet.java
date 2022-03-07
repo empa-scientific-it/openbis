@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -174,6 +175,9 @@ public class FileServiceServlet extends AbstractServlet
         String name = fileNamesIterator.next();
         MultipartFile multipartFile = multipartRequest.getFile(name);
         String originalFilename = multipartFile.getOriginalFilename();
+        // The original filename is obtained incorrectly encoded, and even swapping its encoding can lead to other issues
+        // String originalFilenameCorrectEncoding = new String((originalFilename).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+
         int maxSizeInMB = PropertyUtils.getInt(configurer.getResolvedProps(), MAX_SIZE_KEY, DEFAULT_MAX_SIZE);
         long maxSize = maxSizeInMB * FileUtils.ONE_MB;
         if (multipartFile.getSize() > maxSize)
@@ -183,8 +187,9 @@ public class FileServiceServlet extends AbstractServlet
             return;
         }
         String uuid = UUID.randomUUID().toString();
+        String nameUUID = UUID.randomUUID() + "." + FilenameUtils.getExtension(originalFilename);
         String filePath = pathInfo.getSection() + "/" + uuid.substring(0, 2) + "/" + uuid.substring(2, 4)
-                + "/" + uuid.substring(4, 6) + "/" + uuid + "/" + originalFilename;
+                + "/" + uuid.substring(4, 6) + "/" + uuid + "/" + nameUUID;
         File file = new File(filesRepository, filePath);
         file.getParentFile().mkdirs();
         multipartFile.transferTo(file);

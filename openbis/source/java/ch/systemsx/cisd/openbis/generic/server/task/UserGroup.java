@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+
 public class UserGroup
 {
     private String name;
@@ -27,8 +30,10 @@ public class UserGroup
     private boolean enabled = true;
 
     private boolean createUserSpace = true;
-    
+
     private boolean useEmailAsUserId;
+
+    private Role userSpaceRole;
 
     private List<String> ldapGroupKeys;
 
@@ -76,6 +81,22 @@ public class UserGroup
     public void setUseEmailAsUserId(boolean useEmailAsUserId)
     {
         this.useEmailAsUserId = useEmailAsUserId;
+    }
+
+    public Role getUserSpaceRole()
+    {
+        return userSpaceRole;
+    }
+
+    public void setUserSpaceRole(String userSpaceRole)
+    {
+        try
+        {
+            this.userSpaceRole = Role.valueOf(userSpaceRole);
+        } catch (IllegalArgumentException e)
+        {
+            throw new ConfigurationFailureException("Unknown user space role: " + userSpaceRole);
+        }
     }
 
     public void setCreateUserSpace(boolean createUserSpace)

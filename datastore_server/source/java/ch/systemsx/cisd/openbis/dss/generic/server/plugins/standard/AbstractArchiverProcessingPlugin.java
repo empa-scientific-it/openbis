@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -824,7 +825,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 }
             } else
             {
-                throw ConfigurationFailureException.fromTemplate(
+                throw EnvironmentFailureException.fromTemplate(
                         "Unarchiving of data set '%s' has failed, because no appropriate "
                                 + "destination share was found. Most probably there is not enough "
                                 + "free space in the data store.",

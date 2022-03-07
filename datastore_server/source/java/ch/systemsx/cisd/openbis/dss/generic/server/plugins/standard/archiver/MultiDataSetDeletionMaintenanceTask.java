@@ -16,6 +16,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
@@ -48,11 +51,44 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
+import static org.apache.commons.io.FileUtils.ONE_KB;
+import static org.apache.commons.io.FileUtils.ONE_MB;
+
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
 {
+    private static class FirstSuitableShareFinder implements IShareFinder
+    {
+        @Override
+        public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
+        {
+            long dataSetSize = dataSet.getDataSetSize();
+            // 10% but not more than 1 MB are added to the data set size to take into account that
+            // creating directories consume disk space.
+            dataSetSize += Math.max(ONE_KB, Math.min(ONE_MB, dataSet.getDataSetSize() / 10));
+
+            for (Share share : shares)
+            {
+                // Do not unarchive into unarchiving scratch share because data sets in this share 
+                // can be deleted at any time.
+                if (share.isUnarchivingScratchShare())
+                {
+                    continue;
+                }
+                // take the first share which has enough free space
+                long freeSpace = share.calculateFreeSpace();
+                if (freeSpace > dataSetSize)
+                {
+                    return share;
+                }
+            }
+            return null;
+        }
+    }
 
     private static final String ARCHIVER_PREFIX = "archiver.";
+
+    private static final String FINAL_DESTINATION_KEY = ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 
     static final String LAST_SEEN_EVENT_ID_FILE = "last-seen-event-id-file";
 
@@ -64,7 +100,7 @@ public class MultiDataSetDeletionMaintenanceTask
 
     private IApplicationServerApi v3;
 
-    private SimpleFreeSpaceProvider simpleFreeSpaceProvider;
+    private IFreeSpaceProvider freeSpaceProvider;
 
     private MultiDataSetFileOperationsManager multiDataSetFileOperationsManager;
 
@@ -98,8 +134,13 @@ public class MultiDataSetDeletionMaintenanceTask
         String eventIdFileName = PropertyUtils.getMandatoryProperty(properties, LAST_SEEN_EVENT_ID_FILE);
         lastSeenEventIdFile = new File(eventIdFileName);
 
-        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY,
-                properties.getProperty(ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY));
+        String finalDestination = properties.getProperty(FINAL_DESTINATION_KEY);
+        if (finalDestination == null)
+        {
+            throw new ConfigurationFailureException("Missing property " + FINAL_DESTINATION_KEY + ". Most likely reason: No "
+                    + MultiDataSetArchiver.class.getSimpleName() + " configured.");
+        }
+        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, finalDestination);
         String replicatedDestination = properties.getProperty(
                 ARCHIVER_PREFIX + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY);
         if (replicatedDestination != null)
@@ -108,8 +149,13 @@ public class MultiDataSetDeletionMaintenanceTask
             properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicatedDestination);
         }
 
-        shareFinder = new MappingBasedShareFinder(properties);
-        simpleFreeSpaceProvider = new SimpleFreeSpaceProvider();
+        if (properties.containsKey(MappingBasedShareFinder.MAPPING_FILE_KEY))
+        {
+            shareFinder = new MappingBasedShareFinder(properties);
+        } else
+        {
+            shareFinder = new FirstSuitableShareFinder();
+        }
         shares = getShares();
     }
 
@@ -122,7 +168,7 @@ public class MultiDataSetDeletionMaintenanceTask
 
         return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
                 SegmentedStoreUtils.FilterOptions.AVAILABLE_FOR_SHUFFLING,
-                idsOfIncomingShares, simpleFreeSpaceProvider, getOpenBISService(), getOperationLogAsSimpleLogger());
+                idsOfIncomingShares, getFreeSpaceProvider(), getOpenBISService(), getOperationLogAsSimpleLogger());
     }
 
     protected IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
@@ -190,10 +236,18 @@ public class MultiDataSetDeletionMaintenanceTask
         {
             multiDataSetFileOperationsManager = new MultiDataSetFileOperationsManager(
                     properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                    simpleFreeSpaceProvider, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-            ;
+                    getFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         }
         return multiDataSetFileOperationsManager;
+    }
+
+    protected IFreeSpaceProvider getFreeSpaceProvider()
+    {
+        if (freeSpaceProvider == null)
+        {
+            freeSpaceProvider = new SimpleFreeSpaceProvider();
+        }
+        return freeSpaceProvider;
     }
 
     @Override
@@ -221,6 +275,12 @@ public class MultiDataSetDeletionMaintenanceTask
                         getShareIdManager().setShareId(dataSet.getCode(), share.getShareId());
                         getOpenBISService().updateShareIdAndSize(dataSet.getCode(), share.getShareId(), dataSet.getSizeInBytes());
                         notDeletedDataSets.add(simpleDataSet);
+                    } else
+                    {
+                        throw EnvironmentFailureException.fromTemplate(
+                                "Unarchiving of data set '%s' has failed, because no appropriate "
+                                        + "destination share was found. Most probably there is not enough "
+                                        + "free space in the data store.", dataSet.getCode());
                     }
                 }
             }
@@ -240,7 +300,8 @@ public class MultiDataSetDeletionMaintenanceTask
             }
             deleteContainer(container);
             getMultiDataSetFileOperationsManager().deleteContainerFromFinalDestination(cleaner, container.getPath());
-            if (hasReplication) {
+            if (hasReplication)
+            {
                 getMultiDataSetFileOperationsManager().deleteContainerFromFinalReplicatedDestination(cleaner, container.getPath());
             }
             if (notDeletedDataSets.isEmpty() == false)
@@ -337,7 +398,8 @@ public class MultiDataSetDeletionMaintenanceTask
         }
         transaction.close();
         getOperationLogAsSimpleLogger().log(LogLevel.INFO,
-                String.format("Container %s was successfully deleted.", container.getPath()));
+                String.format("Container %s was "
+                        + "successfully deleted from the database.", container.getPath()));
     }
 
     private List<MultiDataSetArchiverContainerDTO> findArchivesWithDeletedDataSets(List<DeletedDataSet> datasetCodes)

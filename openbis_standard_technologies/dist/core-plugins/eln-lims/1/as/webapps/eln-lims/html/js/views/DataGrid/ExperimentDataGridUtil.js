@@ -125,11 +125,29 @@ var ExperimentDataGridUtil = new function() {
 				}
 				propertyColumnsToSort.push(getDateColumn(propertyType, idx))
 			} else {
+				var renderValue = null
+
+				if(propertyType.dataType === "XML"){
+					renderValue = (function(propertyType){
+						return function(row, params){
+							return FormUtil.renderXmlGridValue(row, params, propertyType)
+						}
+					})(propertyType)
+				}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+					renderValue = (function(propertyType){
+						return function(row, params){
+							return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
+						}
+					})(propertyType)
+				}
+				
 				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
 					property : propertyCodes[idx],
 					isExportable: true,
-					sortable : true
+					sortable : true,
+					truncate: propertyType.dataType === "VARCHAR",
+					render: renderValue
 				});
 			}
 		}
@@ -140,9 +158,14 @@ var ExperimentDataGridUtil = new function() {
 			isExportable: false,
 			sortable : false
 		});
-		propertyColumnsToSort.sort(function(propertyA, propertyB) {
-			return propertyA.label.localeCompare(propertyB.label);
-		});
+
+		FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
+            return {
+                entityKind: "EXPERIMENT",
+                entityType: typeCode
+            }
+        }))
+
 		columns = columns.concat(propertyColumnsToSort);
 		columns.push({
 			label : '---------------',
@@ -239,6 +262,7 @@ var ExperimentDataGridUtil = new function() {
 		//Create and return a data grid controller
 		var configKey = "ENTITY_TABLE_"+ typeCode;
 		var dataGridController = new DataGridController(null, columns, [], null, getDataList, rowClick, false, configKey, null, heightPercentage);
+		dataGridController.setId("experiment-grid")
 		return dataGridController;
 	}
 

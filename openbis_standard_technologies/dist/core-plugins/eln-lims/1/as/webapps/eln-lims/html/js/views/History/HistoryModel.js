@@ -312,6 +312,7 @@ function HistoryModel(entity) {
             propertyChanges = {
                 code: propertyType.code,
                 label: propertyType.label,
+                propertyType: propertyType,
                 oldValue: undefined,
                 newValue: undefined,
             }

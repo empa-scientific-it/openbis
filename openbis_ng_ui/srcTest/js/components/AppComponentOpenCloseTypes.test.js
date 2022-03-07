@@ -48,7 +48,8 @@ async function testOpenCloseTypes() {
           { level: 0, text: 'Collection Types', selected: false },
           { level: 0, text: 'Data Set Types', selected: false },
           { level: 0, text: 'Material Types', selected: false },
-          { level: 0, text: 'Vocabulary Types', selected: false }
+          { level: 0, text: 'Vocabulary Types', selected: false },
+          { level: 0, text: 'Property Types', selected: false }
         ]
       },
       content: {
@@ -87,7 +88,8 @@ async function testOpenCloseTypes() {
           { level: 0, text: 'Collection Types', selected: false },
           { level: 0, text: 'Data Set Types', selected: false },
           { level: 0, text: 'Material Types', selected: false },
-          { level: 0, text: 'Vocabulary Types', selected: false }
+          { level: 0, text: 'Vocabulary Types', selected: false },
+          { level: 0, text: 'Property Types', selected: false }
         ]
       },
       content: {

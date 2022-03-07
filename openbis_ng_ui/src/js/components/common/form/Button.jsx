@@ -22,6 +22,8 @@ class FormButton extends React.Component {
 
   render() {
     const {
+      reference,
+      id,
       name,
       label,
       color,
@@ -55,6 +57,8 @@ class FormButton extends React.Component {
 
     return (
       <Button
+        ref={reference}
+        id={id}
         name={name}
         classes={theClasses}
         variant={variant}

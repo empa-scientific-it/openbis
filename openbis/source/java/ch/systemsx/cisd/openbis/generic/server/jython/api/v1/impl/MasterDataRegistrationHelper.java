@@ -19,11 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -71,6 +67,17 @@ public class MasterDataRegistrationHelper {
             }
         }
         return result;
+    }
+
+    public List<byte[]> getByteArray(String findName) {
+        for (File file : masterDataFolder.listFiles()) {
+            String name = file.getName();
+            if (name.equals(findName)) {
+                operationLog.info("load master data " + file.getName());
+                return Arrays.asList(FileUtilities.loadToByteArray(file));
+            }
+        }
+        return null;
     }
 
     public List<byte[]> listCsvByteArrays() throws IOException {

@@ -19,13 +19,13 @@ import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
 import Font from '@ckeditor/ckeditor5-font/src/font';
 import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
 import SimpleUploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/simpleuploadadapter';
-import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import Image from '@ckeditor/ckeditor5-image/src/image';
@@ -41,9 +41,12 @@ import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
 import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
+import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 
 class InlineEditor extends InlineEditorBase {}
 class DecoupledEditor extends DecoupledEditorBase {}
@@ -53,13 +56,14 @@ const plugins = [Essentials,
                  	Font,
                  	Highlight,
                  	SimpleUploadAdapter,
-                 	Autoformat,
                  	Bold,
                  	Italic,
                  	Strikethrough,
                  	Underline,
                  	BlockQuote,
                  	CKFinder,
+                 	UploadAdapter,
+                 	CloudServices,
                  	EasyImage,
                  	Heading,
                  	Image,
@@ -75,6 +79,8 @@ const plugins = [Essentials,
                  	PasteFromOffice,
                  	Table,
                  	TableToolbar,
+                 	TableProperties,
+                 	TableCellProperties,
                  	RemoveFormat,
                  	SpecialCharacters,
                  	SpecialCharactersEssentials];
@@ -179,7 +185,9 @@ const config = {
                		contentToolbar: [
                			'tableColumn',
                			'tableRow',
-               			'mergeTableCells'
+               			'mergeTableCells',
+               			'tableProperties',
+               			'tableCellProperties'
                		]
                	},
                	// This value must be kept in sync with the language defined in webpack.config.js.

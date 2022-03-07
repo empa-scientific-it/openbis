@@ -64,6 +64,9 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		} , {
 			label : 'Entities',
 			property : 'entities',
+			render: function(data){
+				return $("<div>").html(data.entities)
+			},
 			sortable : true
 		} , {
 			label : 'Reason',
@@ -205,7 +208,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			callback(dataList);
 		}
 		
-		var dataGridContainer = $("<div>").css("margin-top", "-10px");
+		var dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, 90);
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);

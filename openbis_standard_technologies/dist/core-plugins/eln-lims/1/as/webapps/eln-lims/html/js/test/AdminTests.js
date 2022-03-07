@@ -39,6 +39,7 @@ var AdminTests = new function() {
                        "_METHODS_PROTOCOLS_PCR_PROTOCOLS",
                        "_METHODS_PROTOCOLS_WESTERN_BLOTTING_PROTOCOLS",
                        "PUBLICATIONS",
+                       "PUBLIC_REPOSITORIES",
                        "_PUBLICATIONS_PUBLIC_REPOSITORIES_PUBLICATIONS_COLLECTION",
                        "STOCK",
                        "USER_PROFILE",
@@ -77,6 +78,7 @@ var AdminTests = new function() {
                      .then(() => e.click("save-btn"))
                      // wait until the save
                      .then(() => e.waitForId("edit-btn"))
+                     .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(3))
                      .then(() => resolve())
                      .catch(error => TestUtil.reportError(3, error, reject));
@@ -160,12 +162,18 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("create-btn"))
                      .then(() => e.click("create-btn"))
                      .then(() => e.waitForId("save-btn"))
+                     // add code
+                     .then(() => e.waitForId("options-menu-btn-sample-view-order"))
+                     .then(() => e.click("options-menu-btn-sample-view-order"))
+                     .then(() => e.waitForId("options-menu-btn-identification-info"))
+                     .then(() => e.click("options-menu-btn-identification-info"))
+                     .then(() => e.waitForId("codeId"))
+                     .then(() => e.write("codeId", "ORDER1", false))
                      // add request
-                     .then(() => e.waitForId("plus-btn-requests"))
-                     .then(() => e.click("plus-btn-requests"))
-                     .then(() => e.waitForId("req1-column-id"))
-                     .then(() => e.click("req1-column-id"))
-                     .then(() => e.waitForId("req1-operations-column-id"))
+                     .then(() => e.waitForId("search-btn-requests"))
+                     .then(() => e.click("search-btn-requests"))
+                     .then(() => e.searchForObjectInSelect2("EN", "add-object-request"))
+                     .then(() => e.waitForId("req17-column-id"))
                      // choose oder status
                      .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                      .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "ORDERED"))
@@ -173,14 +181,15 @@ var AdminTests = new function() {
                      .then(() => e.click("save-btn"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data
-                     .then(() => e.waitForId("req1-column-id"))
+                     .then(() => e.waitForId("req17-column-id"))
                      .then(() => e.waitForId("catalogNum-0"))
                      // print
                      .then(() => e.waitForId("print-order-id"))
                      .then(() => e.click("print-order-id"))
                      .then(() => e.sleep(3000)) // wait for download
-                     .then(() => TestUtil.checkFileEquality("order_ORD1_p0.txt", baseURL + pathToResource, TestUtil.dateReplacer))
+                     .then(() => TestUtil.checkFileEquality("order_ORDER1_p0.txt", baseURL + pathToResource, TestUtil.dateReplacer))
                      .then(() => TestUtil.returnRealSaveAs())
+                     .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(31))
                      .then(() => resolve())
                      .catch(error => TestUtil.reportError(31, error, reject));
@@ -201,9 +210,9 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      // delete request
-                     .then(() => e.waitForId("req1-column-id"))
-                     .then(() => e.click("req1-column-id"))
-                     .then(() => e.waitForId("pro1-column-id"))
+                     .then(() => e.waitForId("req17-column-id"))
+                     .then(() => e.click("req17-column-id"))
+                     .then(() => e.waitForId("pro15-column-id"))
                      .then(() => e.waitForId("options-menu-btn-sample-view-request"))
                      .then(() => e.click("options-menu-btn-sample-view-request"))
                      .then(() => e.waitForId("delete"))
@@ -212,12 +221,18 @@ var AdminTests = new function() {
                      .then(() => e.write("reason-to-delete-id", "test"))
                      .then(() => e.waitForId("accept-btn"))
                      .then(() => e.click("accept-btn"))
-                     .then(() => e.waitForId("create-btn"))
+                     .then(() => e.sleep(2000))
                      // go to the Order 1
+                     .then(() => e.waitForId("STOCK_ORDERS"))
+                     .then(() => e.click("STOCK_ORDERS"))
+                     .then(() => e.sleep(2000))
+                     .then(() => e.waitForId("ORDERS"))
+                     .then(() => e.click("ORDERS"))
+                     .then(() => e.sleep(2000))
                      .then(() => e.waitForId("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
                      .then(() => e.click("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
-                     .then(() => e.waitForId("ord1-column-id"))
-                     .then(() => e.click("ord1-column-id"))
+                     .then(() => e.waitForId("order1-column-id"))
+                     .then(() => e.click("order1-column-id"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data after delete (should be the same)
                      .then(() => e.waitForId("catalogNum-0"))
@@ -226,6 +241,7 @@ var AdminTests = new function() {
                      .then(() => e.equalTo("supplier-0", "Company EN Name", true, false))
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
+                     .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(32))
                      .then(() => resolve())
                      .catch(error => TestUtil.reportError(32, error, reject));
@@ -254,12 +270,14 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("accept-btn"))
                      .then(() => e.click("accept-btn"))
                      .then(() => e.waitForId("create-btn")) // wait for page reload
+                     .then(() => e.sleep(1000)) // wait for delete
                      // go to TRASHCAN
                      .then(() => e.waitForId("TRASHCAN"))
                      .then(() => e.click("TRASHCAN"))
+                     .then(() => e.waitForId("empty-trash-btn"))
                      // The Objects BAC1 and the deleted request should be there.
                      .then(() => e.waitForId("deleted--materials-bacteria-bac1-id"))
-                     .then(() => e.waitForId("deleted--stock_catalog-requests-req1-id"))
+                     .then(() => e.waitForId("deleted--stock_catalog-requests-req17-id"))
                      // clear Trash
                      .then(() => e.waitForId("empty-trash-btn"))
                      .then(() => e.click("empty-trash-btn"))
@@ -268,7 +286,8 @@ var AdminTests = new function() {
                      .then(() => e.sleep(2000)) // wait for delete
                      // check that trash is empty
                      .then(() => e.verifyExistence("deleted--materials-bacteria-bac1-id", false))
-                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req1-id", false))
+                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req17-id", false))
+                     .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(33))
                      .then(() => resolve())
                      .catch(error => TestUtil.reportError(33, error, reject));
@@ -278,6 +297,7 @@ var AdminTests = new function() {
     this.vocabularyViewer = function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
+            var r = ReactTestUtils;
 
             testChain = Promise.resolve();
 
@@ -285,19 +305,19 @@ var AdminTests = new function() {
                      .then(() => e.click("VOCABULARY_BROWSER"))
                      .then(() => e.waitForId("vocabulary-browser-title-id")) // wait for page reload
                      // check count
-                     .then(() => e.waitForId("total-count-id"))
-                     .then(() => e.equalTo("total-count-id", "36", true, false))
+                     .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
+                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of 37", false))
                      // search for PLASMID
-                     .then(() => e.waitForId("search-input-id"))
-                     .then(() => e.write("search-input-id", "PLASMID"))
-                     .then(() => e.click("search-button-id"))
+                     .then(() => e.waitForId("vocabulary-grid\\.grid-global-filter"))
+                     .then(() => r.setValue("vocabulary-grid\\.grid-global-filter", "PLASMID"))
                      .then(() => e.sleep(2000)) // wait for page reload
                      // Click on the PLASMID_RELATIONSHIP row, it should show a list with five relationships.
                      .then(() => e.waitForId("annotationplasmid_relationship_id"))
                      .then(() => e.click("annotationplasmid_relationship_id"))
                      .then(() => e.sleep(2000)) // wait for page reload
-                     .then(() => e.waitForId("total-count-id"))
-                     .then(() => e.equalTo("total-count-id", "5", true, false))
+                     .then(() => e.waitForId("vocabulary-terms-table\\.page-range-id"))
+                     .then(() => e.checkGridRange("vocabulary-terms-table\\.page-range-id", "1-5 of 5", false))
+                     .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(34))
                      .then(() => resolve())
                      .catch(error => TestUtil.reportError(34, error, reject));

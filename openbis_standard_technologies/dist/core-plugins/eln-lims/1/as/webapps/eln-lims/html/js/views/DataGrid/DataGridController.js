@@ -50,6 +50,10 @@ function DataGridController(
         $container.empty().append($element)
     }
 
+    this.setId = function(id){
+        this.id = id
+    }
+
     this._init = function ($container, extraOptions) {
         var GridElement = React.createElement(
             window.NgUiGrid.default.ThemeProvider,
@@ -61,6 +65,7 @@ function DataGridController(
                     controllerRef: function (controller) {
                         _this.controller = controller
                     },
+                    id: _this.id,
                     header: title,
                     filterModes: filterModes,
                     loadSettings: _this._loadSettings,
@@ -126,7 +131,7 @@ function DataGridController(
             return {
                 label: React.createElement("span", {
                     dangerouslySetInnerHTML: {
-                        __html: column.label,
+                        __html: DOMPurify.sanitize(column.label),
                     },
                 }),
                 name: column.property,
@@ -138,39 +143,30 @@ function DataGridController(
                     }
                 },
                 renderDOMValue: function (params) {
-                    var maxLineLength = 200
                     var value = null
 
                     if (column.render) {
                         value = column.render(params.row, {
                             lastReceivedData: _this.lastReceivedData,
                             lastUsedOptions: _this.lastUsedOptions,
+                            container: params.container,
                         })
                     } else {
                         value = params.value
                     }
 
-                    //2. Sanitize
-                    var value = FormUtil.sanitizeRichHTMLText(value)
-
-                    //3. Shorten
-                    var finalValue = null
-                    if (value && value.length > maxLineLength) {
-                        finalValue = value.substring(0, maxLineLength) + "..."
-                    } else {
-                        finalValue = value
+                    if(value === null || value === undefined || value === ""){
+                        return
+                    }else{
+                        if(column.truncate){
+                            value = FormUtil.renderTruncatedGridValue(params.container, value)
+                        }
+                        if(_.isString(value)){
+                            $(params.container).empty().text(value)
+                        }else{
+                            $(params.container).empty().append(value)
+                        }
                     }
-
-                    //4. Tooltip
-                    if (value !== finalValue) {
-                        finalValue = $("<div>").html(finalValue)
-                        finalValue.tooltipster({
-                            content: $("<span>").html(value),
-                        })
-                    }
-
-                    $(params.container).empty()
-                    $(params.container).append(finalValue)
                 },
                 renderFilter: column.renderFilter,
                 matchesValue: function (params) {
@@ -279,8 +275,6 @@ function DataGridController(
         let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj)
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
-
-    this.refreshHeight = function () {}
 
     this.refresh = function () {
         if (_this.controller) {

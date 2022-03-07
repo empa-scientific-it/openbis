@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class MappingBasedShareFinder implements IShareFinder
 {
-    static final String MAPPING_FILE_KEY = "mapping-file";
+    public static final String MAPPING_FILE_KEY = "mapping-file";
 
     private IdentifierAttributeMappingManager mapping;
 

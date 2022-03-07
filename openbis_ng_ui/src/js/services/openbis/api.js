@@ -1,5 +1,4 @@
 import autoBind from 'auto-bind'
-import dto from '@src/js/services/openbis/dto.js'
 
 class Facade {
   constructor() {
@@ -203,9 +202,7 @@ class Facade {
     return this.promise(this.v3.evaluatePlugin(options))
   }
 
-  executeService() {
-    let id = new dto.CustomASServiceCode('openbis-ng-ui-service')
-    let options = new dto.CustomASServiceExecutionOptions()
+  executeService(id, options) {
     return this.promise(this.v3.executeCustomASService(id, options))
   }
 

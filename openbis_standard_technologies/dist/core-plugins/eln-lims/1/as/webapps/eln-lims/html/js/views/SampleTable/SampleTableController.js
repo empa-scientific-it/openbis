@@ -177,9 +177,9 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			this._dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
 	}
 	
-	this.refreshHeight = function() {
+	this.refresh = function() {
 		if (this._dataGridController) {
-			this._dataGridController.refreshHeight();
+			this._dataGridController.refresh();
 		}
 	}
 
@@ -197,10 +197,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             allowedSampleTypes.forEach(t => experimentsByType[t] = experimentIdentifier);
         }
         var title = 'Register ' + ELNDictionary.Samples;
-        var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, function(file) {
+        var allowSampleTypeSelection = experimentIdentifier == null;
+        var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.registerSamples(allowedSampleTypes, experimentsByType, spacesByType,
+                mainController.serverFacade.registerSamples(selectedSampleTypes, experimentsByType, spacesByType,
                         _this.getBarcodeValidationInfo(), "sample-file-upload", 
                 function(result) {
                     _this._handleResult(result, "created", experimentIdentifier);
@@ -219,10 +220,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
         }
         var title = 'Update ' + ELNDictionary.Samples;
-        var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, function(file) {
+        var allowSampleTypeSelection = experimentIdentifier == null;
+        var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.updateSamples(allowedSampleTypes,
+                mainController.serverFacade.updateSamples(selectedSampleTypes,
                         _this.getBarcodeValidationInfo(), "sample-file-upload", 
                         function(result) {
                     _this._handleResult(result, "updated", experimentIdentifier);
@@ -246,7 +248,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
     this._handleResult = function(result, verb, experimentIdentifier) {
         Util.showSuccess(result[0].length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
             Util.unblockUI();
-            mainController.changeView('showSamplesPage', experimentIdentifier);
+            var expIdOrNull = experimentIdentifier ? '"' + experimentIdentifier + '"' : null;
+            mainController.changeView('showSamplesPage', encodeURIComponent('[' + expIdOrNull + ',false]'));
         });
     }
     

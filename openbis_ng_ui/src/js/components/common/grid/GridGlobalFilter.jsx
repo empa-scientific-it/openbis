@@ -16,7 +16,7 @@ const styles = theme => ({
     marginRight: theme.spacing(1)
   },
   text: {
-    flex: '1 1 auto'
+    width: '100%'
   }
 })
 
@@ -38,7 +38,7 @@ class GridGlobalFilter extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridGlobalFilter.render')
 
-    const { globalFilter, classes } = this.props
+    const { id, globalFilter, classes } = this.props
 
     return (
       <div className={classes.container}>
@@ -64,6 +64,7 @@ class GridGlobalFilter extends React.PureComponent {
         <div className={classes.text}>
           <TextField
             name='text'
+            id={id + '.grid-global-filter'}
             label={messages.get(messages.FILTER)}
             value={globalFilter.text}
             onChange={this.handleGlobalFilterChange}

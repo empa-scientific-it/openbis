@@ -56,13 +56,8 @@ class PluginForm extends React.PureComponent {
 
   renderMainPanel() {
     const { controller } = this
-    const {
-      plugin,
-      evaluateParameters,
-      evaluateResults,
-      selection,
-      mode
-    } = this.state
+    const { plugin, evaluateParameters, evaluateResults, selection, mode } =
+      this.state
 
     if (plugin.pluginKind === openbis.PluginKind.JYTHON) {
       return (

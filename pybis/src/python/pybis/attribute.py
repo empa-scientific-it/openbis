@@ -21,6 +21,7 @@ from .attachment import Attachment
 import copy
 import base64
 import os
+import pathlib
 
 
 class AttrHolder:
@@ -923,32 +924,35 @@ class AttrHolder:
             self.__dict__["_new_attachments"] = []
         self._new_attachments.append(att)
 
-    def download_attachments(self):
-        method = "get" + self.entity + "s"
-        entity = self.entity.lower()
+    def download_attachments(self, destination_folder=None):
+        method = "get" + self.entity.lower().capitalize() + "s"
         request = {
             "method": method,
             "params": [
                 self._openbis.token,
                 [self._permId],
-                dict(
-                    attachments=fetch_option["attachmentsWithContent"],
-                    **fetch_option[entity]
-                ),
+                {
+                    **fetch_option[self.entity.lower()],
+                    "attachments": fetch_option["attachmentsWithContent"],
+                },
             ],
         }
         resp = self._openbis._post_request(self._openbis.as_v3, request)
         attachments = resp[self.permId]["attachments"]
         file_list = []
+
+        if destination_folder is None:
+            destination_folder = os.getcwd()
         for attachment in attachments:
-            filename = os.path.join(
-                self._openbis.hostname, self.permId, attachment["fileName"]
+            filename = (
+                pathlib.Path(destination_folder)
+                / pathlib.Path(attachment["fileName"]).name
             )
             os.makedirs(os.path.dirname(filename), exist_ok=True)
             with open(filename, "wb") as att:
                 content = base64.b64decode(attachment["content"])
                 att.write(content)
-            file_list.append(filename)
+            file_list.append(str(filename))
         return file_list
 
     def all(self):

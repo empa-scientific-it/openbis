@@ -27,27 +27,27 @@ class CreationToUpdateParserFactory(object):
             return [VocabularyCreationToUpdateParser()]
         if creation_type == VocabularyTermDefinitionToCreationType:
             return [VocabularyTermCreationToUpdateParser()]
-        elif creation_type == PropertyTypeDefinitionToCreationType:
+        if creation_type == PropertyTypeDefinitionToCreationType:
             return [PropertyTypeCreationToUpdateParser()]
-        elif creation_type == SampleTypeDefinitionToCreationType:
+        if creation_type == SampleTypeDefinitionToCreationType:
             return [SampleTypeCreationToUpdateParser()]
-        elif creation_type == ExperimentTypeDefinitionToCreationType:
+        if creation_type == ExperimentTypeDefinitionToCreationType:
             return [ExperimentTypeCreationToUpdateParser()]
-        elif creation_type == DatasetTypeDefinitionToCreationType:
+        if creation_type == DatasetTypeDefinitionToCreationType:
             return [DatasetTypeCreationToUpdateParser()]
-        elif creation_type == SpaceDefinitionToCreationType:
+        if creation_type == SpaceDefinitionToCreationType:
             return [SpaceCreationToUpdateParser()]
-        elif creation_type == ProjectDefinitionToCreationType:
+        if creation_type == ProjectDefinitionToCreationType:
             return [ProjectCreationToUpdateParser()]
-        elif creation_type == ExperimentDefinitionToCreationType:
+        if creation_type == ExperimentDefinitionToCreationType:
             return [ExperimentCreationToUpdateParser()]
-        elif creation_type == SampleDefinitionToCreationType:
+        if creation_type == SampleDefinitionToCreationType:
             return [SampleCreationToUpdateParser()]
-        elif creation_type == ScriptDefinitionToCreationType:
+        if creation_type == ScriptDefinitionToCreationType:
             return [ScriptCreationToUpdateParser()]
-        else:
-            raise UnsupportedOperationException(
-                "Creation type of " + creation_type + " is not supported.")
+
+        raise UnsupportedOperationException(
+            "Creation type of " + creation_type + " is not supported.")
 
 
 class VocabularyCreationToUpdateParser(object):
@@ -83,10 +83,6 @@ class PropertyTypeCreationToUpdateParser(object):
         property_type_update.setLabel(creation.label)
         property_type_update.setDescription(creation.description)
         metadata_update = property_type_update.getMetaData()
-        # if existing_property_type.metaData:
-        # for metaDataEntry in existing_property_type.metaData:
-        #     if creation.metaData and metaDataEntry not in creation.metaData:
-        #         metadata_update.remove(metaDataEntry)
         if creation.metaData:
             metadata_update.add(creation.metaData)
         return property_type_update
@@ -97,18 +93,12 @@ class PropertyTypeCreationToUpdateParser(object):
 
 class EntityTypeCreationToUpdateParser(object):
 
-    def parseAssignments(self, creation, existing_entity_type):
+    def parse_assignments(self, creation, existing_entity_type):
         assignments_update = ListUpdateValue()
-        # creationPropertyAssignmentCodes = [str(property_assignment.propertyTypeId) for property_assignment in
-        #                                    creation.propertyAssignments]
-        existingPropertyAssignmentCodes = [str(property_assignment.propertyType.code) for property_assignment in
-                                           existing_entity_type.propertyAssignments]
-        # for property_assignment in existing_entity_type.propertyAssignments:
-        #     if str(property_assignment.propertyType.code) in creationPropertyAssignmentCodes:
-        #         continue
-        #     assignments_update.remove(property_assignment.permId)
+        existing_property_assignment_codes = [str(property_assignment.propertyType.code) for property_assignment in
+                                              existing_entity_type.propertyAssignments]
         for property_assignment in creation.propertyAssignments:
-            if str(property_assignment.propertyTypeId) in existingPropertyAssignmentCodes:
+            if str(property_assignment.propertyTypeId) in existing_property_assignment_codes:
                 continue
             assignments_update.add(property_assignment)
 
@@ -120,10 +110,9 @@ class TypedEntityCreationToUpdateParser(object):
     def parse(self, creation, existing_entity):
         if creation.typeId.getPermId() != existing_entity.type.permId.getPermId():
             raise UserFailureException(
-                "Entity Types mismatched. Change of entity type of existing entity not supported.\n" + "Tried to update " + str(
-                    existing_entity.identifier) + " of type: " + str(
-                    existing_entity.type) + "\nThe import file contains entity with same identifier, but with different type(" + str(
-                    creation.typeId) + ")\n")
+                "Entity Types mismatched. Change of entity type of existing entity not supported.\n" +
+                "Tried to update " + str(existing_entity.identifier) + " of type: " + str(existing_entity.type) +
+                "\nThe import file contains entity with same identifier, but with different type(" + str(creation.typeId) + ")\n")
 
 
 class SampleTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
@@ -135,7 +124,7 @@ class SampleTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         sample_type_update.setGeneratedCodePrefix(creation.generatedCodePrefix)
         sample_type_update.setDescription(creation.description)
         sample_type_update.setValidationPluginId(creation.validationPluginId)
-        sample_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_sample_type))
+        sample_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_sample_type))
 
         return sample_type_update
 
@@ -150,7 +139,7 @@ class ExperimentTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         experiment_type_update.typeId = existing_experiment_type.permId
         experiment_type_update.setDescription(creation.description)
         experiment_type_update.setValidationPluginId(creation.validationPluginId)
-        experiment_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_experiment_type))
+        experiment_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_experiment_type))
         return experiment_type_update
 
     def get_type(self):
@@ -163,8 +152,7 @@ class DatasetTypeCreationToUpdateParser(EntityTypeCreationToUpdateParser):
         dataset_type_update = DataSetTypeUpdate()
         dataset_type_update.typeId = existing_dataset_type.permId
         dataset_type_update.setValidationPluginId(creation.validationPluginId)
-        assignments_update = ListUpdateValue()
-        dataset_type_update.setPropertyAssignmentActions(self.parseAssignments(creation, existing_dataset_type))
+        dataset_type_update.setPropertyAssignmentActions(self.parse_assignments(creation, existing_dataset_type))
         return dataset_type_update
 
     def get_type(self):
@@ -236,15 +224,6 @@ class SampleCreationToUpdateParser(TypedEntityCreationToUpdateParser):
             existing_parent_identifiers.extend([str(parent.permId), str(parent.identifier)])
         for child in existing_sample.children:
             existing_children_identifiers.extend([str(child.permId), str(child.identifier)])
-
-        # parentsToRemove = [parent.permId for parent in existing_sample.parents if
-        #                    parent.permId not in creation.parentIds and parent.identifier not in creation.parentIds]
-        # parentsToAdd = [parent for parent in creation.parentIds if str(parent) not in existing_parent_identifiers]
-        # childrenToRemove = [child.permId for child in existing_sample.children if
-        #                     child.permId not in creation.childIds and child.identifier not in creation.parentIds]
-        # childrenToAdd = [child for child in creation.childIds if str(child) not in existing_children_identifiers]
-        # sample_update.childIds.remove([parent.permId for parent in existing_sample.children])
-        # sample_update.parentIds.remove([child.permId for child in existing_sample.parents])
         sample_update.childIds.add(creation.childIds)
         sample_update.parentIds.add(creation.parentIds)
 

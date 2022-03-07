@@ -45,7 +45,8 @@ async function testOpenClose() {
       { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 0, text: 'Queries' },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 
@@ -63,7 +64,8 @@ async function testOpenClose() {
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 
@@ -82,7 +84,8 @@ async function testOpenClose() {
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
       { level: 1, text: testQuery.name },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 
@@ -100,7 +103,8 @@ async function testOpenClose() {
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 
@@ -116,7 +120,8 @@ async function testOpenClose() {
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 
@@ -131,7 +136,8 @@ async function testOpenClose() {
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 0, text: 'Queries' },
-      { level: 0, text: 'History' }
+      { level: 0, text: 'History' },
+      { level: 0, text: 'Import' }
     ]
   })
 }

@@ -12,9 +12,20 @@ evaluationDependsOn(':openbis_standard_technologies')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile project(':screening')
+    api project(':screening')
 
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       project(path: ':datastore_server', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
+    testImplementation (project(path: ':openbis', configuration: 'tests')) {
+        exclude group: 'google', module: 'gwt-user'
+    }
 }
 
 jar {

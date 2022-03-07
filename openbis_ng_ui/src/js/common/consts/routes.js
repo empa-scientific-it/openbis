@@ -124,6 +124,11 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.VOCABULARY_TYPE
   }),
+  PROPERTY_TYPE_OVERVIEW: new Route('/property-type-overview', {
+    page: pages.TYPES,
+    type: objectTypes.OVERVIEW,
+    id: objectTypes.PROPERTY_TYPE
+  }),
   USERS: new Route('/users', {
     page: pages.USERS
   }),
@@ -213,10 +218,9 @@ const routes = {
     page: pages.TOOLS,
     type: objectTypes.HISTORY
   }),
-  HISTORY_OVERVIEW: new Route('/history-overview', {
+  IMPORT: new Route('/import/:id', {
     page: pages.TOOLS,
-    type: objectTypes.OVERVIEW,
-    id: objectTypes.HISTORY
+    type: objectTypes.IMPORT
   }),
   DEFAULT: new DefaultRoute()
 }

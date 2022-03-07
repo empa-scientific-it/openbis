@@ -35,6 +35,8 @@ function DataSetFormModel(mode, entity, dataSet, isMini, dataSetV3) {
 	this.linkedData = null;
 	
 	this.dataSetTypes = null;
+	this.dataSetTypesV3 = null;
+
 	this.files = [];
 	
 	this.datasetParentsComponent = null; 

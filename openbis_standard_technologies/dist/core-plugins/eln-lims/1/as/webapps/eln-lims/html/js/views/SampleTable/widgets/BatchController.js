@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function BatchController(title, linkType, allowedSampleTypes, actionFunction) {
-    this._model = new BatchModel(title, linkType, allowedSampleTypes, actionFunction);
+function BatchController(title, linkType, allowedSampleTypes, allowSampleTypeSelection, actionFunction) {
+    this._model = new BatchModel(title, linkType, allowedSampleTypes, allowSampleTypeSelection, actionFunction);
     this._view = new BatchView(this, this._model);
 
     this.init = function() {

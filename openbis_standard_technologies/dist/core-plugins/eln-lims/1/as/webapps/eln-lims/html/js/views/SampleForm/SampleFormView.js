@@ -150,10 +150,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                             + " children " + ELNDictionary.sample + "s, these relationships will be broken "
                             + " but the children will remain:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(childSamples[cIdx]);
+                        warningText += "\n" + Util.getDisplayNameForEntity(childSamples[cIdx]);
                     }
                     if (maxNumToShow < childSamples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -168,10 +168,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                             + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the "
                             + ELNDictionary.sample + ":";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
+                        warningText += "\n" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
                     }
                     if (maxNumToShow < childSamples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -359,9 +359,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                         entityKind : "SAMPLE",
                     	logicalOperator : "AND",
                         rules : {
-                            "1" : { type : "Experiment",  name : "ATTR.CODE", value : "TEMPLATES_COLLECTION" },
-                    	    "2" : { type : "Project",     name : "ATTR.CODE", value : "TEMPLATES" },
-                    	    "2" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
+                            "1" : { type : "Experiment",  name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES_COLLECTION" },
+                            "2" : { type : "Project",     name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES" },
+                            "3" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
                         }
                     }
 
@@ -494,7 +494,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeCode === "ENTRY") {
 		    var isReadOnly = this._sampleFormModel.mode === FormMode.VIEW;
 		    var documentPropertyType = profile.getPropertyType("$DOCUMENT");
-		    FormUtil.fixStringPropertiesForForm(documentPropertyType, this._sampleFormModel.sample);
+		    var documentPropertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, "$DOCUMENT");
+		    FormUtil.fixStringPropertiesForForm(documentPropertyTypeV3, this._sampleFormModel.sample);
             var documentChangeEvent = function(jsEvent, newValue) {
                 var newCleanValue = Util.getEmptyIfNull(newValue);
                 _this._sampleFormModel.isFormDirty = true;
@@ -716,8 +717,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-			var propertyType = propertyTypeGroup.propertyTypes[j];
-			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
+		    var propertyType = propertyTypeGroup.propertyTypes[j];
+			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
+			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
@@ -998,7 +1000,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                 section : "#sample-parents",
                 showByDefault : true,
                 beforeShowingAction : function() {
-                    _this._sampleFormModel.sampleLinksParents.refreshHeight();
+                    _this._sampleFormModel.sampleLinksParents.refresh();
                 }
             });
 		}
@@ -1065,7 +1067,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			section : "#sample-children",
 			showByDefault : true,
 			beforeShowingAction : function() {
-				_this._sampleFormModel.sampleLinksChildren.refreshHeight();
+				_this._sampleFormModel.sampleLinksChildren.refresh();
 			}
 		});
 

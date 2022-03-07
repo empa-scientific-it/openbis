@@ -101,6 +101,12 @@ const mockSearchPropertyTypes = propertyTypes => {
   searchPropertyTypes.mockReturnValue(Promise.resolve(searchResult))
 }
 
+const mockSearchPropertyAssignments = propertyAssignments => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(propertyAssignments)
+  searchPropertyAssignments.mockReturnValue(Promise.resolve(searchResult))
+}
+
 const mockSearchVocabularies = vocabularies => {
   const searchResult = new dto.SearchResult()
   searchResult.setObjects(vocabularies)
@@ -177,6 +183,7 @@ export default {
   mockSearchPersons,
   mockSearchSampleTypes,
   mockSearchPropertyTypes,
+  mockSearchPropertyAssignments,
   mockSearchVocabularies,
   mockSearchPlugins,
   mockSearchQueries,

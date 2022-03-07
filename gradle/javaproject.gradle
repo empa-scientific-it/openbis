@@ -1,12 +1,19 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'project-report'
 
 evaluationDependsOnChildren()
 
 configurations {
-    tests  { 
-         extendsFrom testRuntime 
-     }
+    implementation {
+        canBeResolved = true
+    }
+    testImplementation {
+        canBeResolved = true
+    }
+    runtimeOnly {
+        canBeResolved = true
+    }
+    tests.extendsFrom testRuntimeOnly 
 }
 
 configurations {
@@ -200,7 +207,8 @@ group='cisd'
 
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
-        def cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+/*
+        def cp = configurations.testImplementation.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
         def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDirs.first()]
         if (sourceSets.test.output.classesDirs.first().exists()) {
             cmd.add(sourceSets.test.output.classesDirs.first())
@@ -210,8 +218,10 @@ task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
         if (sourceSets.test.output.classesDirs.first().exists()) {
             cmd.add(sourceSets.test.output.classesDirs.first())
         }
-        cmd.add(configurations.testCompile.asPath)
+        cmd.add(configurations.testImplementation.asPath)
         commandLine cmd
+*/
+        commandLine = ['pwd']
     }
 }
 
@@ -324,6 +334,7 @@ task testJar(type: Jar, dependsOn: testClasses) {
 }
 
 task sourcesJar(type: Jar) {
+    duplicatesStrategy 'include'
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -340,22 +351,22 @@ artifacts {
 
 task compileDependencies(type: Copy) {
     into "$buildDir/output/compile-dependencies"
-    from configurations.compile
+    from configurations.implementation
 }
 
 task runtimeDependencies(type: Copy) {
     into "$buildDir/output/runtime-dependencies"
-    from configurations.runtime
+    from configurations.runtimeOnly
 }
 
 task testCompileDependencies(type: Copy) {
     into "$buildDir/output/testCompile-dependencies"
-    from configurations.testCompile
+    from configurations.testImplementation
 }
 
 task testRuntimeDependencies(type: Copy) {
     into "$buildDir/output/testRuntime-dependencies"
-    from configurations.testRuntime
+    from configurations.testRuntimeOnly
 }
 
 task checkDependencies(dependsOn: classes) {
