@@ -207,7 +207,6 @@ group='cisd'
 
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
-/*
         def cp = configurations.testImplementation.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
         def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDirs.first()]
         if (sourceSets.test.output.classesDirs.first().exists()) {
@@ -220,8 +219,6 @@ task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
         }
         cmd.add(configurations.testImplementation.asPath)
         commandLine cmd
-*/
-        commandLine = ['pwd']
     }
 }
 
