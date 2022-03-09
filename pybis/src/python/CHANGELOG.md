@@ -1,3 +1,7 @@
+## Changes with pybis-1.31.1
+
+- fixed a file download problem when filename contained special characters (e.g. #)
+
 ## Changes with pybis-1.31.0
 
 - new entity-type methods: get_next_code() and get_next_sequence()
