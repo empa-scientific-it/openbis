@@ -516,7 +516,7 @@ class DataSet(
                 file_info = self.get_file_list(start_folder=filename)
                 file_size = file_info[0]["fileSize"]
                 download_url = base_url + filename + "?sessionID=" + self.openbis.token
-                # print(download_url)
+                download_url = quote(download_url, safe=":/?=")
                 filename_dest = ""
                 if create_default_folders:
                     # create original/ or original/DEFAULT subfolders
