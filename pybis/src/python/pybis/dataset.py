@@ -6,8 +6,18 @@ from queue import Queue
 from typing import Set, Optional, List
 from tabulate import tabulate
 from .openbis_object import OpenBisObject
-from .definitions import openbis_definitions, get_type_for_entity, get_fetchoption_for_entity
-from .utils import VERBOSE, parse_jackson, extract_permid, extract_code, extract_downloadUrl
+from .definitions import (
+    openbis_definitions,
+    get_type_for_entity,
+    get_fetchoption_for_entity,
+)
+from .utils import (
+    VERBOSE,
+    parse_jackson,
+    extract_permid,
+    extract_code,
+    extract_downloadUrl,
+)
 from .things import Things
 import requests
 from requests import Request, Session
@@ -21,33 +31,44 @@ import time
 
 # needed for Data upload
 PYBIS_PLUGIN = "dataset-uploader-api"
-dataset_definitions = openbis_definitions('dataSet')
-dss_endpoint = '/datastore_server/rmi-data-store-server-v3.json'
+dataset_definitions = openbis_definitions("dataSet")
+dss_endpoint = "/datastore_server/rmi-data-store-server-v3.json"
 
 
 class DataSet(
     OpenBisObject,
-    entity='dataSet',
-    single_item_method_name='get_dataset',
+    entity="dataSet",
+    single_item_method_name="get_dataset",
 ):
-    """ DataSet are openBIS objects that contain the actual files.
-    """
+    """DataSet are openBIS objects that contain the actual files."""
 
-    def __init__(self, openbis_obj, type, data=None, files=None, zipfile=None, folder=None, kind=None, props=None, **kwargs):
+    def __init__(
+        self,
+        openbis_obj,
+        type,
+        data=None,
+        files=None,
+        zipfile=None,
+        folder=None,
+        kind=None,
+        props=None,
+        **kwargs,
+    ):
 
-        if kind == 'PHYSICAL_DATA':
+        if kind == "PHYSICAL_DATA":
             if files is None and zipfile is None:
-                raise ValueError('please provide at least one file')
+                raise ValueError("please provide at least one file")
 
             if files and zipfile:
-                raise ValueError('please provide either a list of files or a single zipfile')
+                raise ValueError(
+                    "please provide either a list of files or a single zipfile"
+                )
 
             if zipfile:
                 files = [zipfile]
-                self.__dict__['isZipDirectoryUpload'] = True
+                self.__dict__["isZipDirectoryUpload"] = True
             else:
-                self.__dict__['isZipDirectoryUpload'] = False
-
+                self.__dict__["isZipDirectoryUpload"] = False
 
             if files:
                 if isinstance(files, str):
@@ -55,85 +76,118 @@ class DataSet(
 
                 for file in files:
                     if not os.path.exists(file):
-                        raise ValueError('File {} does not exist'.format(file))
+                        raise ValueError("File {} does not exist".format(file))
 
-                self.__dict__['files'] = files
+                self.__dict__["files"] = files
 
         # initialize the OpenBisObject
         super().__init__(openbis_obj, type=type, data=data, props=props, **kwargs)
 
-        self.__dict__['files_in_wsp'] = []
+        self.__dict__["files_in_wsp"] = []
 
         # existing DataSet
         if data is not None:
-            if data['physicalData'] is None:
-                self.__dict__['shareId'] = None
-                self.__dict__['location'] = None
+            if data["physicalData"] is None:
+                self.__dict__["shareId"] = None
+                self.__dict__["location"] = None
             else:
-                self.__dict__['shareId'] = data['physicalData']['shareId']
-                self.__dict__['location'] = data['physicalData']['location']
+                self.__dict__["shareId"] = data["physicalData"]["shareId"]
+                self.__dict__["location"] = data["physicalData"]["location"]
 
         if kind is not None:
             kind = kind.upper()
-            allowed_kinds = ['PHYSICAL_DATA', 'CONTAINER', 'LINK']
+            allowed_kinds = ["PHYSICAL_DATA", "CONTAINER", "LINK"]
             if kind not in allowed_kinds:
                 raise ValueError(
                     "only these values are allowed for kind: {}".format(allowed_kinds)
                 )
-            self.a.__dict__['_kind'] = kind
+            self.a.__dict__["_kind"] = kind
 
-        self.__dict__['folder'] = folder
+        self.__dict__["folder"] = folder
 
-        if getattr(self, 'parents') is None:
-            self.a.__dict__['_parents'] = []
+        if getattr(self, "parents") is None:
+            self.a.__dict__["_parents"] = []
         else:
             if not self.is_new:
-                self.a.__dict__['_parents_orig'] = self.a.__dict__['_parents']
+                self.a.__dict__["_parents_orig"] = self.a.__dict__["_parents"]
 
-        if getattr(self, 'children') is None:
-            self.a.__dict__['_children'] = []
+        if getattr(self, "children") is None:
+            self.a.__dict__["_children"] = []
         else:
             if not self.is_new:
-                self.a.__dict__['_children_orig'] = self.a.__dict__['_children']
+                self.a.__dict__["_children_orig"] = self.a.__dict__["_children"]
 
-        if getattr(self, 'container') is None:
-            self.a.__dict__['_container'] = []
+        if getattr(self, "container") is None:
+            self.a.__dict__["_container"] = []
         else:
             if not self.is_new:
-                self.a.__dict__['_container_orig'] = self.a.__dict__['_container']
+                self.a.__dict__["_container_orig"] = self.a.__dict__["_container"]
 
-        if getattr(self, 'component') is None:
-            self.a.__dict__['_component'] = []
+        if getattr(self, "component") is None:
+            self.a.__dict__["_component"] = []
         else:
             if not self.is_new:
-                self.a.__dict__['_component_orig'] = self.a.__dict__['_component']
-
+                self.a.__dict__["_component_orig"] = self.a.__dict__["_component"]
 
     def __str__(self):
-        return self.data['code']
+        return self.data["code"]
 
     def __dir__(self):
         return [
-            'get_parents()', 'get_children()', 'get_components()', 'get_contained()', 'get_containers()',
-            'add_parents()', 'add_children()', 'add_components()', 'add_contained()', 'add_containers()',
-            'del_parents()', 'del_children()', 'del_components()', 'del_contained()', 'del_containers()',
-            'set_parents()', 'set_children()', 'set_components()', 'set_contained()', 'set_containers()',
-            'set_tags()', 'add_tags()', 'del_tags()',
-            'add_attachment()', 'get_attachments()', 'download_attachments()',
-            "get_files()", 'file_list', 'file_links', 'rel_file_links', 'physicalData',
-            'download()','download_path', 'is_physical()', 'symlink()', 'is_symlink()',
-            'archive()', 'unarchive()',
-            'save()', 'delete()', 'mark_to_be_deleted()', 'unmark_to_be_deleted()', 'is_marked_to_be_deleted()',
-            'attrs','props',
+            "get_parents()",
+            "get_children()",
+            "get_components()",
+            "get_contained()",
+            "get_containers()",
+            "add_parents()",
+            "add_children()",
+            "add_components()",
+            "add_contained()",
+            "add_containers()",
+            "del_parents()",
+            "del_children()",
+            "del_components()",
+            "del_contained()",
+            "del_containers()",
+            "set_parents()",
+            "set_children()",
+            "set_components()",
+            "set_contained()",
+            "set_containers()",
+            "set_tags()",
+            "add_tags()",
+            "del_tags()",
+            "add_attachment()",
+            "get_attachments()",
+            "download_attachments()",
+            "get_files()",
+            "file_list",
+            "file_links",
+            "rel_file_links",
+            "physicalData",
+            "download()",
+            "download_path",
+            "is_physical()",
+            "symlink()",
+            "is_symlink()",
+            "archive()",
+            "unarchive()",
+            "save()",
+            "delete()",
+            "mark_to_be_deleted()",
+            "unmark_to_be_deleted()",
+            "is_marked_to_be_deleted()",
+            "attrs",
+            "props",
         ] + super().__dir__()
 
     def __setattr__(self, name, value):
-        if name in ['folder']:
+        if name in ["folder"]:
             self.__dict__[name] = value
-        elif name in ['p', 'props']:
+        elif name in ["p", "props"]:
             if isinstance(value, dict):
                 for p in value:
-                    setattr(self.__dict__['p'], p, value[p])
+                    setattr(self.__dict__["p"], p, value[p])
             else:
                 raise ValueError("please provide a dictionary for setting properties")
         else:
@@ -141,43 +195,41 @@ class DataSet(
 
     @property
     def props(self):
-        return self.__dict__['p']
+        return self.__dict__["p"]
 
     @property
     def type(self):
-        return self.__dict__['type']
+        return self.__dict__["type"]
 
     @type.setter
     def type(self, type_name):
         dataset_type = self.openbis.get_dataset_type(type_name.upper())
-        self.p.__dict__['_type'] = dataset_type
-        self.a.__dict__['_type'] = dataset_type
+        self.p.__dict__["_type"] = dataset_type
+        self.a.__dict__["_type"] = dataset_type
 
     @property
     def physicalData(self):
-        if 'physicalData' in self.data:
-            return PhysicalData(data=self.data['physicalData'])
+        if "physicalData" in self.data:
+            return PhysicalData(data=self.data["physicalData"])
 
     @property
     def linkedData(self):
-        if 'linkedData' in self.data:
-            return LinkedData(data=self.data['linkedData'])
-
+        if "linkedData" in self.data:
+            return LinkedData(data=self.data["linkedData"])
 
     @property
     def status(self):
         ds = self.openbis.get_dataset(self.permId)
-        self.data['physicalData'] = ds.data['physicalData']
+        self.data["physicalData"] = ds.data["physicalData"]
         try:
-            return self.data['physicalData']['status']
+            return self.data["physicalData"]["status"]
         except Exception:
             return None
 
     @property
     def download_path(self):
-        """after ther physical datasets have been downloaded, this returns the relative path.
-        """
-        return self.__dict__.get('download_path', '')
+        """after ther physical datasets have been downloaded, this returns the relative path."""
+        return self.__dict__.get("download_path", "")
 
     @property
     def _sftp_source_dir(self):
@@ -188,7 +240,6 @@ class DataSet(
         """
 
         return os.path.join(self.experiment.identifier[1:], self.permId)
-
 
     def symlink(self, target_dir: str = None, replace_if_symlink_exists: bool = True):
         """replace_if_symlink_exists will replace the the target_dir
@@ -212,8 +263,10 @@ class DataSet(
             try:
                 mountpoint_path = self.openbis.mount()
             except ValueError as err:
-                if 'password' in str(err):
-                    raise ValueError('openBIS instance cannot be mounted, no symlink possible')
+                if "password" in str(err):
+                    raise ValueError(
+                        "openBIS instance cannot be mounted, no symlink possible"
+                    )
 
         # construct the absolute path of our sftp source
         sftp_source_path = os.path.join(mountpoint_path, self._sftp_source_dir)
@@ -222,12 +275,14 @@ class DataSet(
         # create symlink
         if os.path.exists(sftp_source_path):
             target_dir_path.symlink_to(sftp_source_path, target_is_directory=True)
-            if VERBOSE: print(f"Symlink created: {target_dir} --> {sftp_source_path}")
+            if VERBOSE:
+                print(f"Symlink created: {target_dir} --> {sftp_source_path}")
 
             return str(target_dir_path.absolute())
         else:
-            raise ValueError(f"Source path {sftp_source_path} does not exist, cannot create symlink")
-
+            raise ValueError(
+                f"Source path {sftp_source_path} does not exist, cannot create symlink"
+            )
 
     @staticmethod
     def _file_set(target_dir: str) -> Set[str]:
@@ -238,9 +293,11 @@ class DataSet(
             if el.is_file()
         )
 
-
     def _is_symlink_or_physical(
-        self, what: str, target_dir: str = None, expected_file_list: Optional[List[str]] = None,
+        self,
+        what: str,
+        target_dir: str = None,
+        expected_file_list: Optional[List[str]] = None,
     ):
         if target_dir is None:
             target_dir = os.path.join(self.openbis.download_prefix, self.permId)
@@ -263,7 +320,6 @@ class DataSet(
         else:
             raise ValueError("Unexpected error")
 
-
     is_symlink = partialmethod(
         _is_symlink_or_physical, what="symlink", expected_file_list=None
     )
@@ -272,17 +328,17 @@ class DataSet(
     def archive(self, remove_from_data_store=True):
         fetchopts = {
             "removeFromDataStore": remove_from_data_store,
-            "@type": "as.dto.dataset.archive.DataSetArchiveOptions"
+            "@type": "as.dto.dataset.archive.DataSetArchiveOptions",
         }
-        self.archive_unarchive('archiveDataSets', fetchopts)
-        if VERBOSE: print("DataSet {} archived".format(self.permId))
+        self.archive_unarchive("archiveDataSets", fetchopts)
+        if VERBOSE:
+            print("DataSet {} archived".format(self.permId))
 
     def unarchive(self):
-        fetchopts = {
-            "@type": "as.dto.dataset.unarchive.DataSetUnarchiveOptions"
-        }
-        self.archive_unarchive('unarchiveDataSets', fetchopts)
-        if VERBOSE: print("DataSet {} unarchived".format(self.permId))
+        fetchopts = {"@type": "as.dto.dataset.unarchive.DataSetUnarchiveOptions"}
+        self.archive_unarchive("unarchiveDataSets", fetchopts)
+        if VERBOSE:
+            print("DataSet {} unarchived".format(self.permId))
 
     def archive_unarchive(self, method, fetchopts):
         payload = {}
@@ -291,11 +347,8 @@ class DataSet(
             "method": method,
             "params": [
                 self.openbis.token,
-                [{
-                    "permId": self.permId,
-                    "@type": "as.dto.dataset.id.DataSetPermId"
-                }],
-                dict(fetchopts)
+                [{"permId": self.permId, "@type": "as.dto.dataset.id.DataSetPermId"}],
+                dict(fetchopts),
             ],
         }
         resp = self.openbis._post_request(self._openbis.as_v3, request)
@@ -310,31 +363,29 @@ class DataSet(
 
     set_props = set_properties
 
-
     def get_dataset_files(self, start_with=None, count=None, **properties):
 
-        search_criteria = get_type_for_entity('dataSetFile', 'search')
+        search_criteria = get_type_for_entity("dataSetFile", "search")
         search_criteria["operator"] = "AND"
         search_criteria["criteria"] = [
             {
-              "criteria": [
-                {
-                  "fieldName": "code",
-                  "fieldType": "ATTRIBUTE",
-                  "fieldValue": {
-                    "value": self.permId,
-                    "@type": "as.dto.common.search.StringEqualToValue"
-                  },
-                  "@type": "as.dto.common.search.CodeSearchCriteria"
-                }
-              ],
-              "operator": "OR",
-              "@type": "as.dto.dataset.search.DataSetSearchCriteria"
+                "criteria": [
+                    {
+                        "fieldName": "code",
+                        "fieldType": "ATTRIBUTE",
+                        "fieldValue": {
+                            "value": self.permId,
+                            "@type": "as.dto.common.search.StringEqualToValue",
+                        },
+                        "@type": "as.dto.common.search.CodeSearchCriteria",
+                    }
+                ],
+                "operator": "OR",
+                "@type": "as.dto.dataset.search.DataSetSearchCriteria",
             }
         ]
 
-
-        fetchopts = get_fetchoption_for_entity('dataSetFile')
+        fetchopts = get_fetchoption_for_entity("dataSetFile")
 
         request = {
             "method": "searchFiles",
@@ -348,14 +399,19 @@ class DataSet(
         resp = self.openbis._post_request_full_url(full_url, request)
 
         def create_data_frame(attrs, props, response):
-            objects = response['objects']
+            objects = response["objects"]
             parse_jackson(objects)
 
             attrs = [
-                'dataSetPermId', 'dataStore', 'downloadUrl',
-                'path', 'directory',
-                'fileLength',
-                'checksumCRC32', 'checksum', 'checksumType'
+                "dataSetPermId",
+                "dataStore",
+                "downloadUrl",
+                "path",
+                "directory",
+                "fileLength",
+                "checksumCRC32",
+                "checksum",
+                "checksumType",
             ]
 
             dataSetFiles = None
@@ -363,25 +419,37 @@ class DataSet(
                 dataSetFiles = DataFrame(columns=attrs)
             else:
                 dataSetFiles = DataFrame(objects)
-                dataSetFiles['downloadUrl'] = dataSetFiles['dataStore'].map(extract_downloadUrl)
-                dataSetFiles['dataStore'] = dataSetFiles['dataStore'].map(extract_code)
-                dataSetFiles['dataSetPermId'] = dataSetFiles['dataSetPermId'].map(extract_permid)
+                dataSetFiles["downloadUrl"] = dataSetFiles["dataStore"].map(
+                    extract_downloadUrl
+                )
+                dataSetFiles["dataStore"] = dataSetFiles["dataStore"].map(extract_code)
+                dataSetFiles["dataSetPermId"] = dataSetFiles["dataSetPermId"].map(
+                    extract_permid
+                )
             return dataSetFiles[attrs]
 
         return Things(
-            openbis_obj = self.openbis,
-            entity = 'dataSetFile',
-            identifier_name = 'dataSetPermId',
+            openbis_obj=self.openbis,
+            entity="dataSetFile",
+            identifier_name="dataSetPermId",
             start_with=start_with,
             count=count,
-            totalCount = resp.get('totalCount'),
+            totalCount=resp.get("totalCount"),
             response=resp,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
-    def download(self, files=None, destination=None, create_default_folders=True, wait_until_finished=True, workers=10,
-        linked_dataset_fileservice_url=None, content_copy_index=0):
-        """ download the files of the dataSet.
+    def download(
+        self,
+        files=None,
+        destination=None,
+        create_default_folders=True,
+        wait_until_finished=True,
+        workers=10,
+        linked_dataset_fileservice_url=None,
+        content_copy_index=0,
+    ):
+        """download the files of the dataSet.
 
         files -- a single file or a list of files. If no files are specified, all files of a given dataset are downloaded.
         destination -- if destination is specified, files are downloaded in __current_dir__/destination/permId/ If no destination is specified, the hostname is chosen instead of destination
@@ -397,27 +465,40 @@ class DataSet(
 
         if destination is None:
             destination = self.openbis.download_prefix
-            #destination = self.openbis.hostname
+            # destination = self.openbis.hostname
 
-        kind = None;
-        if 'kind' in self.data: # openBIS 18.6.x DTO
-            kind = self.data['kind']
-        elif ('type' in self.data) and ('kind' in self.data['type']): # openBIS 16.5.x DTO
-            kind =self.data['type']['kind']
+        kind = None
+        if "kind" in self.data:  # openBIS 18.6.x DTO
+            kind = self.data["kind"]
+        elif ("type" in self.data) and (
+            "kind" in self.data["type"]
+        ):  # openBIS 16.5.x DTO
+            kind = self.data["type"]["kind"]
 
-        if kind in ['PHYSICAL', 'CONTAINER']:
-            return self._download_physical(files, destination, create_default_folders, wait_until_finished, workers)
-        elif kind == 'LINK':
+        if kind in ["PHYSICAL", "CONTAINER"]:
+            return self._download_physical(
+                files, destination, create_default_folders, wait_until_finished, workers
+            )
+        elif kind == "LINK":
             if linked_dataset_fileservice_url is None:
-                raise ValueError("Can't download a LINK data set without the linked_dataset_fileservice_url parameters.")
-            return self._download_link(files, destination, wait_until_finished, workers, linked_dataset_fileservice_url, content_copy_index)
+                raise ValueError(
+                    "Can't download a LINK data set without the linked_dataset_fileservice_url parameters."
+                )
+            return self._download_link(
+                files,
+                destination,
+                wait_until_finished,
+                workers,
+                linked_dataset_fileservice_url,
+                content_copy_index,
+            )
         else:
             raise ValueError("Can't download data set of kind {}.".format(kind))
 
-
-    def _download_physical(self, files, destination, create_default_folders, wait_until_finished, workers):
-        """ Download for data sets of kind PHYSICAL.
-        """
+    def _download_physical(
+        self, files, destination, create_default_folders, wait_until_finished, workers
+    ):
+        """Download for data sets of kind PHYSICAL."""
 
         final_destination = ""
         if create_default_folders:
@@ -425,45 +506,64 @@ class DataSet(
         else:
             final_destination = destination
 
-        self.__dict__['download_path'] = final_destination
+        self.__dict__["download_path"] = final_destination
 
         download_url = self._get_download_url()
-        base_url = download_url + '/datastore_server/' + self.permId + '/'
+        base_url = download_url + "/datastore_server/" + self.permId + "/"
         with DataSetDownloadQueue(workers=workers) as queue:
             # get file list and start download
             for filename in files:
                 file_info = self.get_file_list(start_folder=filename)
-                file_size = file_info[0]['fileSize']
-                download_url = base_url + filename + '?sessionID=' + self.openbis.token
-                #print(download_url)
+                file_size = file_info[0]["fileSize"]
+                download_url = base_url + filename + "?sessionID=" + self.openbis.token
+                # print(download_url)
                 filename_dest = ""
                 if create_default_folders:
                     # create original/ or original/DEFAULT subfolders
                     filename_dest = os.path.join(final_destination, filename)
                 else:
                     # ignore original/ and original/DEFAULT folders that come from openBIS
-                    if filename.startswith('original/'):
-                        filename = filename.replace('original/', '', 1)
-                    if filename.startswith('DEFAULT/'):
-                        filename = filename.replace('DEFAULT/', '', 1)
+                    if filename.startswith("original/"):
+                        filename = filename.replace("original/", "", 1)
+                    if filename.startswith("DEFAULT/"):
+                        filename = filename.replace("DEFAULT/", "", 1)
                     filename_dest = os.path.join(final_destination, filename)
 
-                queue.put([download_url, filename, filename_dest, file_size, self.openbis.verify_certificates, 'wb'])
+                queue.put(
+                    [
+                        download_url,
+                        filename,
+                        filename_dest,
+                        file_size,
+                        self.openbis.verify_certificates,
+                        "wb",
+                    ]
+                )
 
             # wait until all files have downloaded
             if wait_until_finished:
                 queue.join()
 
-            if VERBOSE: print("Files downloaded to: {}".format(os.path.join(final_destination)))
+            if VERBOSE:
+                print("Files downloaded to: {}".format(os.path.join(final_destination)))
             return final_destination
 
-
-    def _download_link(self, files, destination, wait_until_finished, workers, linked_dataset_fileservice_url, content_copy_index):
-        """ Download for data sets of kind LINK.
+    def _download_link(
+        self,
+        files,
+        destination,
+        wait_until_finished,
+        workers,
+        linked_dataset_fileservice_url,
+        content_copy_index,
+    ):
+        """Download for data sets of kind LINK.
         Requires the microservice server to be running at the given linked_dataset_fileservice_url.
         """
 
-        with DataSetDownloadQueue(workers=workers, collect_files_with_wrong_length=True) as queue:
+        with DataSetDownloadQueue(
+            workers=workers, collect_files_with_wrong_length=True
+        ) as queue:
 
             if content_copy_index >= len(self.data["linkedData"]["contentCopies"]):
                 raise ValueError("Content Copy index out of range.")
@@ -471,39 +571,54 @@ class DataSet(
 
             for filename in files:
                 file_info = self.get_file_list(start_folder=filename)
-                file_size = file_info[0]['fileSize']
+                file_size = file_info[0]["fileSize"]
 
                 download_url = linked_dataset_fileservice_url
                 download_url += "?sessionToken=" + self.openbis.token
                 download_url += "&datasetPermId=" + self.data["permId"]["permId"]
-                download_url += "&externalDMSCode=" + content_copy["externalDms"]["code"]
-                download_url += "&contentCopyPath=" + content_copy["path"].replace("/", "%2F")
+                download_url += (
+                    "&externalDMSCode=" + content_copy["externalDms"]["code"]
+                )
+                download_url += "&contentCopyPath=" + content_copy["path"].replace(
+                    "/", "%2F"
+                )
                 download_url += "&datasetPathToFile=" + urllib.parse.quote(filename)
 
                 filename_dest = os.path.join(destination, self.permId, filename)
 
                 # continue download if file is not complete - do nothing if it is
-                write_mode = 'wb'
+                write_mode = "wb"
                 if os.path.exists(filename_dest):
                     actual_size = os.path.getsize(filename_dest)
                     if actual_size == int(file_size):
                         continue
                     elif actual_size < int(file_size):
-                        write_mode = 'ab'
+                        write_mode = "ab"
                         download_url += "&offset=" + str(actual_size)
 
-                queue.put([download_url, filename, filename_dest, file_size, self.openbis.verify_certificates, write_mode])
+                queue.put(
+                    [
+                        download_url,
+                        filename,
+                        filename_dest,
+                        file_size,
+                        self.openbis.verify_certificates,
+                        write_mode,
+                    ]
+                )
 
             if wait_until_finished:
                 queue.join()
 
-            if VERBOSE: print("Files downloaded to: %s" % os.path.join(destination, self.permId))
+            if VERBOSE:
+                print(
+                    "Files downloaded to: %s" % os.path.join(destination, self.permId)
+                )
             return destination, queue.files_with_wrong_length
-
 
     @property
     def folder(self):
-        return self.__dict__['folder']
+        return self.__dict__["folder"]
 
     @property
     def file_list(self):
@@ -516,10 +631,10 @@ class DataSet(
         else:
             files = []
             for file in self.get_file_list(recursive=True):
-                if file['isDirectory']:
+                if file["isDirectory"]:
                     pass
                 else:
-                    files.append(file['pathInDataSet'])
+                    files.append(file["pathInDataSet"])
             return files
 
     @property
@@ -529,16 +644,19 @@ class DataSet(
         a security risk. When the token is no longer valid, the link will no longer work either.
         """
         if self.is_new:
-            return ''
+            return ""
         url = self.openbis.url
-        location_part = self.physicalData.location.split('/')[-1]
+        location_part = self.physicalData.location.split("/")[-1]
         token = self.openbis.token
-
 
         file_links = {}
         for filepath in self.file_list:
-            quoted_filepath = urllib.parse.quote(filepath, safe='')
-            file_links[filepath] = '/'.join([url, 'datastore_server', location_part, quoted_filepath]) + '?sessionID=' + token
+            quoted_filepath = urllib.parse.quote(filepath, safe="")
+            file_links[filepath] = (
+                "/".join([url, "datastore_server", location_part, quoted_filepath])
+                + "?sessionID="
+                + token
+            )
 
         return file_links
 
@@ -548,24 +666,25 @@ class DataSet(
         element within a XML property. If the dataSet file happens to be a picture, in ELN-LIMS, the picture will be displayed inline.
         """
         if self.is_new:
-            return ''
+            return ""
         url = self.openbis.url
-        location_part = self.physicalData.location.split('/')[-1]
+        location_part = self.physicalData.location.split("/")[-1]
 
         rel_file_links = {}
         for filepath in self.file_list:
-            quoted_filepath = urllib.parse.quote(filepath, safe='')
-            rel_file_links[filepath] = '/'.join(['/datastore_server', location_part, quoted_filepath])
+            quoted_filepath = urllib.parse.quote(filepath, safe="")
+            rel_file_links[filepath] = "/".join(
+                ["/datastore_server", location_part, quoted_filepath]
+            )
 
         return rel_file_links
 
-    def get_files(self, start_folder='/'):
-        """Returns a DataFrame of all files in this dataset
-        """
+    def get_files(self, start_folder="/"):
+        """Returns a DataFrame of all files in this dataset"""
 
         def createRelativePath(pathInDataSet):
             if self.shareId is None:
-                return ''
+                return ""
             else:
                 return os.path.join(self.shareId, self.location, pathInDataSet)
 
@@ -575,14 +694,16 @@ class DataSet(
             We display the hex number to match with the classic UI
             """
             if sig_int < 0:
-                sig_int += 2 ** 32
+                sig_int += 2**32
             return "%x" % (sig_int & 0xFFFFFFFF)
 
         files = self.get_file_list(start_folder=start_folder)
         df = DataFrame(files)
-        df['relativePath'] = df['pathInDataSet'].map(createRelativePath)
-        df['crc32Checksum'] = df['crc32Checksum'].fillna(0.0).astype(int).map(signed_to_unsigned)
-        return df[['isDirectory', 'pathInDataSet', 'fileSize', 'crc32Checksum']]
+        df["relativePath"] = df["pathInDataSet"].map(createRelativePath)
+        df["crc32Checksum"] = (
+            df["crc32Checksum"].fillna(0.0).astype(int).map(signed_to_unsigned)
+        )
+        return df[["isDirectory", "pathInDataSet", "fileSize", "crc32Checksum"]]
 
     def _get_download_url(self):
         download_url = ""
@@ -591,9 +712,8 @@ class DataSet(
         else:
             # fallback, if there is no dataStore defined
             datastores = self.openbis.get_datastores()
-            download_url = datastores['downloadUrl'][0]
+            download_url = datastores["downloadUrl"][0]
         return download_url
-
 
     def get_file_list(self, recursive=True, start_folder="/"):
         """Lists all files of a given dataset. You can specifiy a start_folder other than "/".
@@ -608,26 +728,27 @@ class DataSet(
                 start_folder,
                 recursive,
             ],
-            "id": "1"
+            "id": "1",
         }
         download_url = self._get_download_url()
         resp = requests.post(
-            download_url+ '/datastore_server/rmi-dss-api-v1.json',
+            download_url + "/datastore_server/rmi-dss-api-v1.json",
             json.dumps(request),
-            verify=self.openbis.verify_certificates
+            verify=self.openbis.verify_certificates,
         )
 
         if resp.ok:
             data = resp.json()
-            if 'error' in data:
-                raise ValueError('Error from openBIS: ' + data['error']['message'])
-            elif 'result' in data:
-                return data['result']
+            if "error" in data:
+                raise ValueError("Error from openBIS: " + data["error"]["message"])
+            elif "result" in data:
+                return data["result"]
             else:
-                raise ValueError('request to openBIS did not return either result nor error')
+                raise ValueError(
+                    "request to openBIS did not return either result nor error"
+                )
         else:
-            raise ValueError('internal error while performing post request')
-
+            raise ValueError("internal error while performing post request")
 
     def _generate_plugin_request(self, dss, permId=None):
         """generates a request to activate the dataset-uploader ingestion plugin to
@@ -656,74 +777,92 @@ class DataSet(
                 dss,
                 PYBIS_PLUGIN,
                 {
-                    "permId" : permId,
-                    "method" : "insertDataSet",
-                    "sampleIdentifier" : sample_identifier,
-                    "experimentIdentifier" : experiment_identifier,
-                    "dataSetType" : dataset_type,
-                    "folderName" : self.folder,
-                    "fileNames" : self.files_in_wsp,
-                    "isZipDirectoryUpload" : self.isZipDirectoryUpload,
-                    "properties" : properties,
-                    "parentIdentifiers": parentIds
-                }
+                    "permId": permId,
+                    "method": "insertDataSet",
+                    "sampleIdentifier": sample_identifier,
+                    "experimentIdentifier": experiment_identifier,
+                    "dataSetType": dataset_type,
+                    "folderName": self.folder,
+                    "fileNames": self.files_in_wsp,
+                    "isZipDirectoryUpload": self.isZipDirectoryUpload,
+                    "properties": properties,
+                    "parentIdentifiers": parentIds,
+                },
             ],
         }
         return request
 
-
     def save(self, permId=None):
         for prop_name, prop in self.props._property_names.items():
-            if prop['mandatory']:
-                if getattr(self.props, prop_name) is None or getattr(self.props, prop_name) == "":
-                    raise ValueError("Property '{}' is mandatory and must not be None".format(prop_name))
+            if prop["mandatory"]:
+                if (
+                    getattr(self.props, prop_name) is None
+                    or getattr(self.props, prop_name) == ""
+                ):
+                    raise ValueError(
+                        "Property '{}' is mandatory and must not be None".format(
+                            prop_name
+                        )
+                    )
 
         if self.is_new:
             datastores = self.openbis.get_datastores()
 
             if self.sample is None and self.experiment is None:
-                raise ValueError('A DataSet must be either connected to a Sample or an Experiment')
+                raise ValueError(
+                    "A DataSet must be either connected to a Sample or an Experiment"
+                )
 
-            if self.kind == 'PHYSICAL_DATA':
+            if self.kind == "PHYSICAL_DATA":
                 if self.files is None or len(self.files) == 0:
                     raise ValueError(
-                        'Cannot register a dataset without a file. Please provide at least one file'
+                        "Cannot register a dataset without a file. Please provide at least one file"
                     )
 
                 # for uploading phyiscal data, we first upload it to the session workspace
                 self.upload_files(
-                    datastore_url= datastores['downloadUrl'][0],
+                    datastore_url=datastores["downloadUrl"][0],
                     files=self.files,
-                    folder='',
-                    wait_until_finished=True
+                    folder="",
+                    wait_until_finished=True,
                 )
 
                 # activate the ingestion plugin, as soon as the data is uploaded
                 # this will actually register the dataset in the datastore and the AS
                 request = self._generate_plugin_request(
-                    dss    = datastores['code'][0],
-                    permId = permId,
+                    dss=datastores["code"][0],
+                    permId=permId,
                 )
                 resp = self.openbis._post_request(self.openbis.reg_v1, request)
-                if resp['rows'][0][0]['value'] == 'OK':
-                    permId = resp['rows'][0][2]['value']
-                    if permId is None or permId == '':
-                        self.__dict__['is_new'] = False
-                        if VERBOSE: print("DataSet successfully created. Because you connected to an openBIS version older than 16.05.04, you cannot update the object.")
+                if resp["rows"][0][0]["value"] == "OK":
+                    permId = resp["rows"][0][2]["value"]
+                    if permId is None or permId == "":
+                        self.__dict__["is_new"] = False
+                        if VERBOSE:
+                            print(
+                                "DataSet successfully created. Because you connected to an openBIS version older than 16.05.04, you cannot update the object."
+                            )
                     else:
-                        new_dataset_data = self.openbis.get_dataset(permId, only_data=True)
+                        new_dataset_data = self.openbis.get_dataset(
+                            permId, only_data=True
+                        )
                         self._set_data(new_dataset_data)
-                        if VERBOSE: print("DataSet successfully created.")
+                        if VERBOSE:
+                            print("DataSet successfully created.")
                         return self
                 else:
                     import json
+
                     print(json.dumps(request))
-                    raise ValueError('Error while creating the DataSet: ' + resp['rows'][0][1]['value'])
+                    raise ValueError(
+                        "Error while creating the DataSet: "
+                        + resp["rows"][0][1]["value"]
+                    )
             # CONTAINER
             else:
                 if self.files is not None and len(self.files) > 0:
                     raise ValueError(
-                        'DataSets of kind CONTAINER or LINK cannot contain data'
+                        "DataSets of kind CONTAINER or LINK cannot contain data"
                     )
 
                 request = self._new_attrs()
@@ -731,24 +870,26 @@ class DataSet(
                 # if no code for the container was provided, let openBIS
                 # generate the code automatically
                 if self.code is None or self.code == "":
-                    request['params'][1][0]['autoGeneratedCode'] = True
+                    request["params"][1][0]["autoGeneratedCode"] = True
                 else:
-                    request['params'][1][0]['autoGeneratedCode'] = False
+                    request["params"][1][0]["autoGeneratedCode"] = False
 
                 props = self.p._all_props()
-                DSpermId = datastores['code'][0]
+                DSpermId = datastores["code"][0]
                 request["params"][1][0]["properties"] = props
                 request["params"][1][0]["dataStoreId"] = {
                     "permId": DSpermId,
-                    "@type": "as.dto.datastore.id.DataStorePermId"
+                    "@type": "as.dto.datastore.id.DataStorePermId",
                 }
                 resp = self.openbis._post_request(self.openbis.as_v3, request)
 
-                if VERBOSE: print("DataSet successfully created.")
-                new_dataset_data = self.openbis.get_dataset(resp[0]['permId'], only_data=True)
+                if VERBOSE:
+                    print("DataSet successfully created.")
+                new_dataset_data = self.openbis.get_dataset(
+                    resp[0]["permId"], only_data=True
+                )
                 self._set_data(new_dataset_data)
                 return self
-
 
         # updating the DataSEt
         else:
@@ -757,7 +898,8 @@ class DataSet(
             request["params"][1][0]["properties"] = props
 
             self.openbis._post_request(self.openbis.as_v3, request)
-            if VERBOSE: print("DataSet successfully updated.")
+            if VERBOSE:
+                print("DataSet successfully updated.")
 
     def zipit(self, file_or_folder, zipf):
         """Takes a directory or a file, and a zipfile instance. For every file that is encountered,
@@ -769,10 +911,7 @@ class DataSet(
             # if a file is provided, we want to always store it in the root of the zip file
             # ../../somedir/file.txt       -->   file.txt
             (realpath, filename) = os.path.split(os.path.realpath(file_or_folder))
-            zipf.write(
-                file_or_folder,
-                filename
-            )
+            zipf.write(file_or_folder, filename)
         elif os.path.isdir(file_or_folder):
             # if a directory is provided, we want to store it (and its content) also in the root of the zip file
             # ../../somedir/               -->   somedir/
@@ -784,13 +923,14 @@ class DataSet(
                     zipf.write(
                         os.path.relpath(
                             os.path.join(dirpath, filename),
-                            os.path.join(filename, '..')
+                            os.path.join(filename, ".."),
                         ),
-                        os.path.join(realpath[len(head)+1:], filename)
+                        os.path.join(realpath[len(head) + 1 :], filename),
                     )
 
-
-    def upload_files(self, datastore_url=None, files=None, folder=None, wait_until_finished=False):
+    def upload_files(
+        self, datastore_url=None, files=None, folder=None, wait_until_finished=False
+    ):
 
         if datastore_url is None:
             datastore_url = self.openbis._get_dss_url()
@@ -800,7 +940,7 @@ class DataSet(
 
         if folder is None:
             # create a unique foldername
-            folder = time.strftime('%Y-%m-%d_%H-%M-%S')
+            folder = time.strftime("%Y-%m-%d_%H-%M-%S")
 
         if isinstance(files, str):
             files = [files]
@@ -813,17 +953,23 @@ class DataSet(
         if contains_dir:
             # if the file list contains at least one directory, we need to zip the
             # whole thing in order to get it safely to openBIS.
-            file_ending = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(6))
-            filename = time.strftime('%Y-%m-%d_%H-%M-%S') + file_ending + '.zip'
-            buf = ZipBuffer(openbis_obj=self.openbis, host=datastore_url, filename=filename)
-            zipf = zipfile.ZipFile(file=buf, mode='w', compression=zipfile.ZIP_DEFLATED)
+            file_ending = "".join(
+                random.choice(
+                    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                )
+                for i in range(6)
+            )
+            filename = time.strftime("%Y-%m-%d_%H-%M-%S") + file_ending + ".zip"
+            buf = ZipBuffer(
+                openbis_obj=self.openbis, host=datastore_url, filename=filename
+            )
+            zipf = zipfile.ZipFile(file=buf, mode="w", compression=zipfile.ZIP_DEFLATED)
             for file_or_folder in files:
                 self.zipit(file_or_folder, zipf)
-            #self.__dict__['folder'] = '/'
-            self.__dict__['files_in_wsp'] = [filename]
-            self.__dict__['isZipDirectoryUpload'] = True
+            # self.__dict__['folder'] = '/'
+            self.__dict__["files_in_wsp"] = [filename]
+            self.__dict__["isZipDirectoryUpload"] = True
             return self.files_in_wsp
-
 
         # define a queue to handle the upload threads
         with DataSetUploadQueue() as queue:
@@ -832,22 +978,32 @@ class DataSet(
             for filename in files:
                 if os.path.isdir(filename):
                     real_files.extend(
-                        [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(filename)) for f in fn])
+                        [
+                            os.path.join(dp, f)
+                            for dp, dn, fn in os.walk(os.path.expanduser(filename))
+                            for f in fn
+                        ]
+                    )
                 else:
                     real_files.append(os.path.join(filename))
 
             # compose the upload-URL and put URL and filename in the upload queue
             for filename in real_files:
                 file_in_wsp = os.path.join(folder, os.path.basename(filename))
-                url_filename = os.path.join(folder, urllib.parse.quote(os.path.basename(filename)))
+                url_filename = os.path.join(
+                    folder, urllib.parse.quote(os.path.basename(filename))
+                )
                 self.files_in_wsp.append(file_in_wsp)
 
                 upload_url = (
-                    datastore_url + '/datastore_server/session_workspace_file_upload'
-                    + '?filename=' + url_filename
-                    + '&id=1'
-                    + '&startByte=0&endByte=0'
-                    + '&sessionID=' + self.openbis.token
+                    datastore_url
+                    + "/datastore_server/session_workspace_file_upload"
+                    + "?filename="
+                    + url_filename
+                    + "&id=1"
+                    + "&startByte=0&endByte=0"
+                    + "&sessionID="
+                    + self.openbis.token
                 )
                 queue.put([upload_url, filename, self.openbis.verify_certificates])
 
@@ -859,7 +1015,7 @@ class DataSet(
             return self.files_in_wsp
 
 
-class DataSetUploadQueue():
+class DataSetUploadQueue:
     def __init__(self, workers=20):
         # maximum files to be uploaded at once
         self.upload_queue = Queue()
@@ -874,20 +1030,17 @@ class DataSetUploadQueue():
         return self
 
     def __exit__(self, *args, **kwargs):
-        """This method is called at the end of a with statement.
-        """
+        """This method is called at the end of a with statement."""
         # stop the workers
         for i in range(self.workers):
             self.upload_queue.put(None)
 
     def put(self, things):
-        """ expects a list [url, filename] which is put into the upload queue
-        """
+        """expects a list [url, filename] which is put into the upload queue"""
         self.upload_queue.put(things)
 
     def join(self):
-        """ needs to be called if you want to wait for all uploads to be finished
-        """
+        """needs to be called if you want to wait for all uploads to be finished"""
         # block until all tasks are done
         self.upload_queue.join()
 
@@ -903,18 +1056,18 @@ class DataSetUploadQueue():
             filesize = os.path.getsize(filename)
 
             # upload the file to our DSS session workspace
-            with open(filename, 'rb') as f:
+            with open(filename, "rb") as f:
                 resp = requests.post(upload_url, data=f, verify=verify_certificates)
                 resp.raise_for_status()
                 data = resp.json()
-                assert filesize == int(data['size'])
+                assert filesize == int(data["size"])
 
             # Tell the queue that we are done
             self.upload_queue.task_done()
 
 
 class ZipBuffer(object):
-    """ A file-like object for zipfile.ZipFile to write into.
+    """A file-like object for zipfile.ZipFile to write into.
     zipfile invokes the write method to store its zipped content.
     We will send this content directly to the session_workspace as a POST request.
     """
@@ -924,12 +1077,14 @@ class ZipBuffer(object):
         self.startByte = 0
         self.endByte = 0
         self.filename = filename
-        self.upload_url = host + '/datastore_server/session_workspace_file_upload?' \
-             'filename={}' \
-             '&id=1' \
-             '&startByte={}' \
-             '&endByte={}' \
-             '&sessionID={}'
+        self.upload_url = (
+            host + "/datastore_server/session_workspace_file_upload?"
+            "filename={}"
+            "&id=1"
+            "&startByte={}"
+            "&endByte={}"
+            "&sessionID={}"
+        )
         self.session = Session()
 
     def write(self, data):
@@ -941,14 +1096,11 @@ class ZipBuffer(object):
         while True:
             attempts += 1
             resp = self.session.post(
-                url = self.upload_url.format(
-                    self.filename,
-                    self.startByte,
-                    self.endByte,
-                    self.openbis.token
+                url=self.upload_url.format(
+                    self.filename, self.startByte, self.endByte, self.openbis.token
                 ),
-                data = data,
-                verify = self.openbis.verify_certificates
+                data=data,
+                verify=self.openbis.verify_certificates,
             )
             if resp.status_code == 200:
                 break
@@ -956,18 +1108,16 @@ class ZipBuffer(object):
                 raise Exception("Upload failed after more than 10 attempts")
 
     def tell(self):
-        """ Return the current stream position.
-        """
+        """Return the current stream position."""
         return self.endByte
 
     def flush(self):
-        """Flush the write buffers of the stream if applicable.
-        """
+        """Flush the write buffers of the stream if applicable."""
         self.session.close()
         pass
 
 
-class DataSetDownloadQueue():
+class DataSetDownloadQueue:
     def __init__(self, workers=20, collect_files_with_wrong_length=False):
         self.collect_files_with_wrong_length = collect_files_with_wrong_length
         # maximum files to be downloaded at once
@@ -984,20 +1134,17 @@ class DataSetDownloadQueue():
         return self
 
     def __exit__(self, *args, **kwargs):
-        """This method is called at the end of a with statement.
-        """
+        """This method is called at the end of a with statement."""
         # stop all workers
         for i in range(self.workers):
             self.download_queue.put(None)
 
     def put(self, things):
-        """ expects a list [url, filename] which is put into the download queue
-        """
+        """expects a list [url, filename] which is put into the download queue"""
         self.download_queue.put(things)
 
     def join(self):
-        """ needs to be called if you want to wait for all downloads to be finished
-        """
+        """needs to be called if you want to wait for all downloads to be finished"""
         self.download_queue.join()
 
     def download_file(self):
@@ -1007,39 +1154,51 @@ class DataSetDownloadQueue():
                 if queue_item is None:
                     # when we call the .join() method of the DataSetDownloadQueue and empty the queue
                     break
-                url, filename, filename_dest, file_size, verify_certificates, write_mode = queue_item
+                (
+                    url,
+                    filename,
+                    filename_dest,
+                    file_size,
+                    verify_certificates,
+                    write_mode,
+                ) = queue_item
                 # create the necessary directory structure if they don't exist yet
                 os.makedirs(os.path.dirname(filename_dest), exist_ok=True)
 
                 # request the file in streaming mode
                 r = requests.get(url, stream=True, verify=verify_certificates)
                 if r.ok == False:
-                    raise ValueError("Could not download from {}: HTTP {}. Reason: {}".format(url, r.status_code, r.reason))
+                    raise ValueError(
+                        "Could not download from {}: HTTP {}. Reason: {}".format(
+                            url, r.status_code, r.reason
+                        )
+                    )
 
                 with open(filename_dest, write_mode) as fh:
-                    for chunk in r.iter_content(chunk_size=1024*1024):
-                        #size += len(chunk)
-                        #print("WRITE     ", datetime.now(), len(chunk))
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        # size += len(chunk)
+                        # print("WRITE     ", datetime.now(), len(chunk))
                         if chunk:  # filter out keep-alive new chunks
                             fh.write(chunk)
-                        #print("DONE WRITE", datetime.now())
+                        # print("DONE WRITE", datetime.now())
 
-                #print("DONE", datetime.now())
+                # print("DONE", datetime.now())
 
                 r.raise_for_status()
-                #print("{} bytes written".format(size))
+                # print("{} bytes written".format(size))
                 actual_file_size = os.path.getsize(filename_dest)
                 if actual_file_size != int(file_size):
                     if self.collect_files_with_wrong_length:
                         self.files_with_wrong_length.append(filename)
                     else:
-                        print (
+                        print(
                             "WARNING! File {} has the wrong length: Expected: {} Actual size: {}".format(
-                                filename_dest, int(file_size), actual_file_size)
+                                filename_dest, int(file_size), actual_file_size
+                            )
                         )
-                        print (
+                        print(
                             "REASON: The connection has been silently dropped upstreams.",
-                            "Please check the http timeout settings of the openBIS datastore server"
+                            "Please check the http timeout settings of the openBIS datastore server",
                         )
             except Exception as err:
                 print("ERROR while writing file {}: {}".format(filename_dest, err))
@@ -1048,14 +1207,24 @@ class DataSetDownloadQueue():
                 self.download_queue.task_done()
 
 
-class PhysicalData():
+class PhysicalData:
     def __init__(self, data=None):
         if data is None:
             data = {}
         self.data = data
-        self.attrs = ['speedHint', 'complete', 'shareId', 'size',
-                      'fileFormatType', 'storageFormat', 'location', 'presentInArchive',
-                      'storageConfirmation', 'locatorType', 'status']
+        self.attrs = [
+            "speedHint",
+            "complete",
+            "shareId",
+            "size",
+            "fileFormatType",
+            "storageFormat",
+            "location",
+            "presentInArchive",
+            "storageConfirmation",
+            "locatorType",
+            "status",
+        ]
 
     def __dir__(self):
         return self.attrs
@@ -1084,7 +1253,7 @@ class PhysicalData():
 
         for attr in self.attrs:
             html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, '')
+                attr, getattr(self, attr, "")
             )
 
         html += """
@@ -1094,20 +1263,17 @@ class PhysicalData():
         return html
 
     def __repr__(self):
-        headers = ['attribute', 'value']
+        headers = ["attribute", "value"]
         lines = []
         for attr in self.attrs:
-            lines.append([
-                attr,
-                getattr(self, attr, '')
-            ])
+            lines.append([attr, getattr(self, attr, "")])
         return tabulate(lines, headers=headers)
 
 
-class LinkedData():
+class LinkedData:
     def __init__(self, data=None):
         self.data = data if data is not None else []
-        self.attrs = ['externalCode', 'contentCopies']
+        self.attrs = ["externalCode", "contentCopies"]
 
     def __dir__(self):
         return self.attrs
@@ -1117,5 +1283,4 @@ class LinkedData():
             if name in self.data:
                 return self.data[name]
         else:
-            return ''
-
+            return ""
