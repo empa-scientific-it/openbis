@@ -17,6 +17,9 @@ import Users from '@src/js/components/users/Users.jsx'
 import Types from '@src/js/components/types/Types.jsx'
 import Tools from '@src/js/components/tools/Tools.jsx'
 
+import AppController from '@src/js/components/AppController.js'
+import ComponentContext from '@src/js/components/common/ComponentContext.js'
+
 const styles = {
   container: {
     height: '100%',
@@ -64,6 +67,20 @@ function mapDispatchToProps(dispatch) {
 }
 
 class App extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {}
+
+    if (this.props.controller) {
+      this.controller = this.props.controller
+    } else {
+      this.controller = AppController
+    }
+
+    this.controller.init(new ComponentContext(this))
+  }
+
   componentDidMount() {
     this.props.init()
   }
@@ -72,11 +89,15 @@ class App extends React.Component {
     logger.log(logger.DEBUG, 'App.render')
 
     return (
-      <Loading loading={this.props.loading}>
-        <Error error={this.props.error} errorClosed={this.props.errorClosed}>
-          {this.props.initialized && this.renderPage()}
-        </Error>
-      </Loading>
+      <AppController.LastObjectModificationsContext.Provider
+        value={AppController.getLastObjectModifications()}
+      >
+        <Loading loading={this.props.loading}>
+          <Error error={this.props.error} errorClosed={this.props.errorClosed}>
+            {this.props.initialized && this.renderPage()}
+          </Error>
+        </Loading>
+      </AppController.LastObjectModificationsContext.Provider>
     )
   }
 

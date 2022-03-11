@@ -19,6 +19,8 @@ import GridFiltersConfig from '@src/js/components/common/grid/GridFiltersConfig.
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import logger from '@src/js/common/logger.js'
 
+import AppController from '@src/js/components/AppController.js'
+
 const styles = theme => ({
   container: {
     minWidth: '800px',
@@ -176,6 +178,13 @@ class Grid extends React.PureComponent {
         {this.renderPaging()}
         {this.renderConfigs()}
         {this.renderExports()}
+        <button
+          onClick={() => {
+            AppController.setLastObjectModifications(Math.random())
+          }}
+        >
+          Test
+        </button>
       </GridRowFullWidth>
     )
   }
