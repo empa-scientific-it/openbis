@@ -9,7 +9,7 @@ class AppController {
     this.context = context
 
     const initialState = {
-      lastObjectModifications: 'abc'
+      lastObjectModifications: {}
     }
 
     context.initState(initialState)
@@ -19,10 +19,21 @@ class AppController {
     return this.context.getState().lastObjectModifications
   }
 
-  setLastObjectModifications(lastObjectModifications) {
-    this.context.setState({
-      lastObjectModifications: lastObjectModifications
-    })
+  setLastObjectModification(type, operation, timestamp) {
+    const { lastObjectModifications } = this.context.getState()
+
+    if (
+      !lastObjectModifications[type] ||
+      !lastObjectModifications[type][operation] ||
+      lastObjectModifications[type][operation] < timestamp
+    ) {
+      this.context.setState({
+        lastObjectModifications: {
+          ...lastObjectModifications,
+          [type]: { ...lastObjectModifications[type], [operation]: timestamp }
+        }
+      })
+    }
   }
 
   withLastObjectModifications() {

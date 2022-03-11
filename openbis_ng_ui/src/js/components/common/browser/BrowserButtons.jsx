@@ -1,12 +1,9 @@
-import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-
-import AppController from '@src/js/components/AppController.js'
 
 const styles = theme => ({
   container: {
@@ -25,13 +22,7 @@ class BrowserButtons extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'BrowserButtons.render')
 
-    const {
-      controller,
-      classes,
-      addEnabled,
-      removeEnabled,
-      lastObjectModifications
-    } = this.props
+    const { controller, classes, addEnabled, removeEnabled } = this.props
 
     return (
       <Container className={classes.container}>
@@ -49,13 +40,9 @@ class BrowserButtons extends React.Component {
           onClick={controller.nodeRemove}
           disabled={!removeEnabled}
         />
-        {lastObjectModifications}
       </Container>
     )
   }
 }
 
-export default _.flow(
-  withStyles(styles),
-  AppController.withLastObjectModifications()
-)(BrowserButtons)
+export default withStyles(styles)(BrowserButtons)

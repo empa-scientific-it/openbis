@@ -8,6 +8,7 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import BrowserNodes from '@src/js/components/common/browser/BrowserNodes.jsx'
 import BrowserButtons from '@src/js/components/common/browser/BrowserButtons.jsx'
 import BrowserDialogRemoveNode from '@src/js/components/common/browser/BrowserDialogRemoveNode.jsx'
+import AppController from '@src/js/components/AppController.js'
 import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
 
@@ -35,8 +36,7 @@ function mapStateToProps() {
       selectedObject: selectors.getSelectedObject(
         state,
         ownProps.controller.getPage()
-      ),
-      lastObjectModifications: selectors.getLastObjectModifications(state)
+      )
     }
   }
 }
@@ -124,4 +124,8 @@ class Browser extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(mapStateToProps), withStyles(styles))(Browser)
+export default _.flow(
+  connect(mapStateToProps),
+  withStyles(styles),
+  AppController.withLastObjectModifications()
+)(Browser)

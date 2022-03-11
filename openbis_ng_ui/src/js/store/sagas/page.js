@@ -5,6 +5,8 @@ import actions from '@src/js/store/actions/actions.js'
 import routes from '@src/js/common/consts/routes.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 
+import AppController from '@src/js/components/AppController.js'
+
 export default function* pageSaga() {
   yield takeEvery(actions.OBJECT_NEW, objectNew)
   yield takeEvery(actions.OBJECT_CREATE, objectCreate)
@@ -46,12 +48,10 @@ function* objectCreate(action) {
     }
     yield put(actions.replaceOpenTab(page, oldTab.id, newTab))
 
-    yield put(
-      actions.setLastObjectModification(
-        newType,
-        objectOperation.CREATE,
-        Date.now()
-      )
+    yield AppController.setLastObjectModification(
+      newType,
+      objectOperation.CREATE,
+      Date.now()
     )
 
     const route = routes.format({ page, type: newType, id: newId })
@@ -67,16 +67,20 @@ function* objectOpen(action) {
 
 function* objectUpdate(action) {
   const { type } = action.payload
-  yield put(
-    actions.setLastObjectModification(type, objectOperation.UPDATE, Date.now())
+  yield AppController.setLastObjectModification(
+    type,
+    objectOperation.UPDATE,
+    Date.now()
   )
 }
 
 function* objectDelete(action) {
   const { page, type, id } = action.payload
   yield put(actions.objectClose(page, type, id))
-  yield put(
-    actions.setLastObjectModification(type, objectOperation.DELETE, Date.now())
+  yield AppController.setLastObjectModification(
+    type,
+    objectOperation.DELETE,
+    Date.now()
   )
 }
 
