@@ -1,3 +1,7 @@
+## Changes with pybis-1.31.3
+
+- fix exception in sample.save
+
 ## Changes with pybis-1.31.1
 
 - fixed a file download problem when filename contained special characters (e.g. #)
