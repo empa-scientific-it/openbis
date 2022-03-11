@@ -214,6 +214,9 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                                 )
                             )
 
+            sampleProject = self.project.code if self.project else None
+            sampleExperiment = self.experiment.code if self.experiment else None
+
             request = {
                 "method": "createReportFromAggregationService",
                 "params": [
@@ -223,8 +226,8 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                     {
                         "method": "insertSample",
                         "sampleSpace": self.space.code,
-                        "sampleProject": self.project.code,
-                        "sampleExperiment": self.experiment.code,
+                        "sampleProject": sampleProject,
+                        "sampleExperiment": sampleExperiment,
                         "sampleCode": self.code,
                         "sampleType": self.type.code,
                         "sampleProperties": self.props(),
@@ -239,16 +242,22 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                 ],
             }
             resp = self.openbis._post_request(self.openbis.reg_v1, request)
-            if VERBOSE:
-                print("{} successfully created.".format(self.entity))
-
             try:
-                permid = resp["rows"][0][2]["value"]
-            except KeyError:
-                print(resp)
-            new_entity_data = self.openbis.get_sample(permid, only_data=True)
-            self._set_data(new_entity_data)
-            return self
+                assert resp["rows"][0][0]["value"] == "OK"
+                if VERBOSE:
+                    print("{} successfully created.".format(self.entity))
+                permId = permid = resp["rows"][0][2]["value"]
+                new_entity_data = self.openbis.get_sample(permId, only_data=True)
+                self._set_data(new_entity_data)
+                return self
+            except Exception as e:
+                errmsg = f"Could not create {self.entity}"
+                try:
+                    errmsg = resp["rows"][0][1]["value"]
+                    errmsg = errmsg.split("\n")[0].split("UserFailureException: ")[1]
+                except KeyError:
+                    pass
+                raise ValueError(errmsg)
 
         else:
             super().save()
