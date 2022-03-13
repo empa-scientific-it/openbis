@@ -231,8 +231,8 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                         "sampleCode": self.code,
                         "sampleType": self.type.code,
                         "sampleProperties": self.props(),
-                        "sampleParents": None,
-                        "sampleParentsNew": self.parents,
+                        "sampleParents": self.parents,
+                        "sampleParentsNew": None,
                         "sampleChildrenNew": self.children,
                         "sampleChildrenAdded": [],
                         "sampleChildrenRemoved": [],
@@ -255,7 +255,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                 try:
                     errmsg = resp["rows"][0][1]["value"]
                     errmsg = errmsg.split("\n")[0].split("UserFailureException: ")[1]
-                except KeyError:
+                except IndexError:
                     pass
                 raise ValueError(errmsg)
 
