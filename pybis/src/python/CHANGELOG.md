@@ -1,3 +1,7 @@
+## Changes with pybis-1.31.4
+
+- fix another exception when saving a sample with custom code
+
 ## Changes with pybis-1.31.3
 
 - fix exception in sample.save
