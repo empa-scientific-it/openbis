@@ -1,3 +1,7 @@
+## Changes with pybis-1.31.5
+
+- optimised error generation without assert
+
 ## Changes with pybis-1.31.4
 
 - fix another exception when saving a sample with custom code
