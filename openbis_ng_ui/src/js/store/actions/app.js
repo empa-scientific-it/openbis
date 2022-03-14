@@ -14,7 +14,6 @@ const SET_SEARCH = 'SET_SEARCH'
 const SET_SESSION = 'SET_SESSION'
 const SET_ERROR = 'SET_ERROR'
 const SET_ROUTE = 'SET_ROUTE'
-const SET_LAST_OBJECT_MODIFICATION = 'SET_LAST_OBJECT_MODIFICATION'
 
 const init = () => ({
   type: INIT
@@ -123,15 +122,6 @@ const setRoute = route => ({
   }
 })
 
-const setLastObjectModification = (type, operation, timestamp) => ({
-  type: SET_LAST_OBJECT_MODIFICATION,
-  payload: {
-    type,
-    operation,
-    timestamp
-  }
-})
-
 export default {
   INIT,
   CLEAR,
@@ -149,7 +139,6 @@ export default {
   SET_SESSION,
   SET_ERROR,
   SET_ROUTE,
-  SET_LAST_OBJECT_MODIFICATION,
   init,
   clear,
   login,
@@ -165,6 +154,5 @@ export default {
   setSearch,
   setSession,
   setError,
-  setRoute,
-  setLastObjectModification
+  setRoute
 }

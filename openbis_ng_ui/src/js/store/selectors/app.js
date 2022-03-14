@@ -29,10 +29,6 @@ const getSession = state => {
   return state.session
 }
 
-const getLastObjectModifications = state => {
-  return state.db.lastObjectModifications
-}
-
 export default {
   getInitialized,
   getLoading,
@@ -40,6 +36,5 @@ export default {
   getRoute,
   getCurrentPage,
   getError,
-  getSession,
-  getLastObjectModifications
+  getSession
 }

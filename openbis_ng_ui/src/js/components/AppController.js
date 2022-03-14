@@ -1,6 +1,6 @@
 import React from 'react'
 
-class AppController {
+export class AppController {
   constructor() {
     this.LastObjectModificationsContext = React.createContext()
   }
@@ -61,4 +61,14 @@ class AppController {
   }
 }
 
-export default new AppController()
+let INSTANCE = new AppController()
+
+export function setInstance(instance) {
+  INSTANCE = instance
+}
+
+export function getInstance() {
+  return INSTANCE
+}
+
+export default INSTANCE

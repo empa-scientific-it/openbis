@@ -2,6 +2,8 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import { mount } from 'enzyme'
 import { createStore } from '@src/js/store/store.js'
+import AppController from '@src/js/components/AppController.js'
+import ComponentContext from '@srcTest/js/components/common/ComponentContext.js'
 import ThemeProvider from '@srcTest/js/components/common/theme/ThemeProvider.jsx'
 import openbis from '@srcTest/js/services/openbis.js'
 import actions from '@src/js/store/actions/actions.js'
@@ -22,6 +24,8 @@ export default class ComponentTest {
 
   async mount() {
     document.body.innerHTML = '<div></div>'
+
+    AppController.init(new ComponentContext())
 
     const reactWrapper = mount(
       <Provider store={this.getStore()}>
