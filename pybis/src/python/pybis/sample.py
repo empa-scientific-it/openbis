@@ -243,21 +243,22 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
             }
             resp = self.openbis._post_request(self.openbis.reg_v1, request)
             try:
-                assert resp["rows"][0][0]["value"] == "OK"
+                if resp["rows"][0][0]["value"] != "OK":
+                    raise ValueError("Status is not OK")
                 if VERBOSE:
                     print("{} successfully created.".format(self.entity))
                 permId = permid = resp["rows"][0][2]["value"]
                 new_entity_data = self.openbis.get_sample(permId, only_data=True)
                 self._set_data(new_entity_data)
                 return self
-            except Exception as e:
+            except Exception as exc:
                 errmsg = f"Could not create {self.entity}"
                 try:
                     errmsg = resp["rows"][0][1]["value"]
                     errmsg = errmsg.split("\n")[0].split("UserFailureException: ")[1]
                 except IndexError:
                     pass
-                raise ValueError(errmsg)
+                raise ValueError(errmsg) from exc
 
         else:
             super().save()
