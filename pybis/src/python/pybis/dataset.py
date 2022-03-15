@@ -1060,7 +1060,10 @@ class DataSetUploadQueue:
                 resp = requests.post(upload_url, data=f, verify=verify_certificates)
                 resp.raise_for_status()
                 data = resp.json()
-                assert filesize == int(data["size"])
+                if filesize != int(data["size"]):
+                    raise ValueError(
+                        f'size of file uploaded: {filesize} != data received: {int(data["size"])}'
+                    )
 
             # Tell the queue that we are done
             self.upload_queue.task_done()

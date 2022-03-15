@@ -1,3 +1,7 @@
+## Changes with pybis-1.31.6
+
+- automatically setting the project if only experiment was set
+
 ## Changes with pybis-1.31.5
 
 - optimised error generation without assert
