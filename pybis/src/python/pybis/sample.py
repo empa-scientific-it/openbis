@@ -21,15 +21,6 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
         if data is not None:
             self._set_data(data)
 
-        # TODO: Why are we using getattr() and setattr() here? They are considerably slower.
-        if project is not None:
-            self.project = project
-
-        if props is not None:
-            for key in props:
-                # self.p[key] = props[key]
-                setattr(self.p, key, props[key])
-
         if kwargs is not None:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -42,6 +33,17 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                         self.a.space = project.space
                 except Exception:
                     pass
+
+        if project is None:
+            if self.experiment:
+                self.project = self.experiment.project
+        else:
+            self.project = project
+
+        if props is not None:
+            for key in props:
+                # self.p[key] = props[key]
+                setattr(self.p, key, props[key])
 
         if getattr(self, "parents") is None:
             self.a.__dict__["_parents"] = []
