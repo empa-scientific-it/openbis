@@ -94,6 +94,11 @@ public class ArchivingByRequestTask extends AbstractMaintenanceTask
     public void execute()
     {
         IApplicationServerInternalApi service = getService();
+        if (MaintenanceTaskUtils.areAllDataStoreServersRunning(service) == false)
+        {
+            operationLog.info("Not executed because DSS isn't running (yet).");
+            return;
+        }
         String sessionToken = service.loginAsSystem();
         List<DataSet> dataSets = getDataSetsToBeArchived(service, sessionToken);
         operationLog.info(dataSets.size() + " data sets to be archived.");
