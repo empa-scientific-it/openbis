@@ -86,7 +86,7 @@ export class AppController {
 
       const { route } = this.context.getState()
       const routeObject = routes.parse(route)
-      await this.context.setState({ route: routeObject.path })
+      await this.routeChange(routeObject.path)
     } catch (e) {
       await this.context.setState({ error: 'Incorrect user or password' })
     } finally {
@@ -103,7 +103,7 @@ export class AppController {
         loaded: state.loaded
       }))
       cookie.erase(cookie.OPENBIS_COOKIE)
-      await this.context.setState({ route: '/' })
+      await this.routeChange('/')
     } catch (e) {
       await this.context.setState({ error: e })
     } finally {
@@ -125,10 +125,10 @@ export class AppController {
   async pageChange(page) {
     const pageRoute = this.getCurrentRoute(page)
     if (pageRoute) {
-      await this.context.setState({ route: pageRoute })
+      await this.routeChange(pageRoute)
     } else {
       const route = routes.format({ page })
-      await this.context.setState({ route: route })
+      await this.routeChange(route)
     }
   }
 
@@ -180,7 +180,7 @@ export class AppController {
     })
 
     const route = routes.format({ page, type, id })
-    await this.context.setState({ route: route })
+    await this.routeChange(route)
   }
 
   async objectCreate(page, oldType, oldId, newType, newId) {

@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import ErrorBoundary from '@src/js/components/common/error/ErrorBoundary.jsx'
 import ContentTabs from '@src/js/components/common/content/ContentTabs.jsx'
@@ -30,6 +31,11 @@ const styles = {
 }
 
 class Content extends React.Component {
+  constructor(props) {
+    super(props)
+    autoBind(this)
+  }
+
   handleTabSelect(tab) {
     AppController.objectOpen(this.props.page, tab.object.type, tab.object.id)
   }
