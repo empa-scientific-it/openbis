@@ -9,8 +9,8 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
 import DataType from '@src/js/components/common/dto/DataType.js'
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
@@ -161,7 +161,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
         }))
       })
       .catch(error => {
-        controller.getContext().dispatch(actions.errorChange(error))
+        AppController.errorChange(error)
       })
   }
 
@@ -177,7 +177,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
         }))
       })
       .catch(error => {
-        controller.getContext().dispatch(actions.errorChange(error))
+        AppController.errorChange(error)
       })
   }
 
@@ -194,7 +194,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
           }))
         })
         .catch(error => {
-          controller.getContext().dispatch(actions.errorChange(error))
+          AppController.errorChange(error)
         })
     } else {
       this.setState(() => ({

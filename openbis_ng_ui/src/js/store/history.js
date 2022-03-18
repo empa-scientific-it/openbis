@@ -1,5 +1,5 @@
 import { createBrowserHistory } from 'history'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 import routes from '@src/js/common/consts/routes.js'
 import url from '@src/js/common/url.js'
 
@@ -12,7 +12,7 @@ history.configure = store => {
     let route = routes.parse(location.pathname)
 
     if (route.path !== store.getState().route) {
-      store.dispatch(actions.routeChange(route.path, location.state))
+      AppController.routeChange(route.path, location.state)
     }
   })
 

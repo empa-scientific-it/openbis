@@ -1,11 +1,9 @@
 import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ErrorBoundary from '@src/js/components/common/error/ErrorBoundary.jsx'
 import ContentTabs from '@src/js/components/common/content/ContentTabs.jsx'
-import selectors from '@src/js/store/selectors/selectors.js'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 
@@ -31,31 +29,15 @@ const styles = {
   }
 }
 
-function mapStateToProps() {
-  return (state, ownProps) => {
-    return {
-      openTabs: selectors.getOpenTabs(state, ownProps.page),
-      selectedTab: selectors.getSelectedTab(state, ownProps.page)
-    }
-  }
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    tabSelect: tab => {
-      dispatch(
-        actions.objectOpen(ownProps.page, tab.object.type, tab.object.id)
-      )
-    },
-    tabClose: tab => {
-      dispatch(
-        actions.objectClose(ownProps.page, tab.object.type, tab.object.id)
-      )
-    }
-  }
-}
-
 class Content extends React.Component {
+  handleTabSelect(tab) {
+    AppController.objectOpen(this.props.page, tab.object.type, tab.object.id)
+  }
+
+  handleTabClose(tab) {
+    AppController.objectClose(this.props.page, tab.object.type, tab.object.id)
+  }
+
   render() {
     logger.log(logger.DEBUG, 'Content.render')
 
@@ -66,8 +48,8 @@ class Content extends React.Component {
         <ContentTabs
           tabs={this.props.openTabs}
           selectedTab={this.props.selectedTab}
-          tabSelect={this.props.tabSelect}
-          tabClose={this.props.tabClose}
+          tabSelect={this.handleTabSelect}
+          tabClose={this.handleTabClose}
           renderTab={this.props.renderTab}
         />
         {this.props.openTabs.map(openTab => {
@@ -93,6 +75,9 @@ class Content extends React.Component {
 }
 
 export default _.flow(
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
+  withStyles(styles),
+  AppController.withState(ownProps => ({
+    openTabs: AppController.getOpenTabs(ownProps.page),
+    selectedTab: AppController.getSelectedTab(ownProps.page)
+  }))
 )(Content)

@@ -1,12 +1,10 @@
 import React from 'react'
 import _ from 'lodash'
-import { connect } from 'react-redux'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 import pages from '@src/js/common/consts/pages.js'
-import actions from '@src/js/store/actions/actions.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Error from '@src/js/components/common/error/Error.jsx'
@@ -45,30 +43,10 @@ const pageToComponent = {
   [pages.TOOLS]: Tools
 }
 
-function mapStateToProps(state) {
-  return {
-    initialized: selectors.getInitialized(state),
-    loading: selectors.getLoading(state),
-    session: selectors.getSession(state),
-    currentPage: selectors.getCurrentPage(state),
-    error: selectors.getError(state)
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    init: () => {
-      dispatch(actions.init())
-    },
-    errorClosed: () => {
-      dispatch(actions.errorChange(null))
-    }
-  }
-}
-
 class App extends React.Component {
   constructor(props) {
     super(props)
+    autoBind(this)
 
     this.state = {}
 
@@ -82,34 +60,39 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.props.init()
+    this.controller.load()
+  }
+
+  handleErrorClosed() {
+    AppController.errorChange(null)
   }
 
   render() {
     logger.log(logger.DEBUG, 'App.render')
 
     return (
-      <AppController.LastObjectModificationsContext.Provider
-        value={AppController.getLastObjectModifications()}
-      >
-        <Loading loading={this.props.loading}>
-          <Error error={this.props.error} errorClosed={this.props.errorClosed}>
-            {this.props.initialized && this.renderPage()}
+      <AppController.AppContext.Provider value={this.state}>
+        <Loading loading={AppController.getLoading()}>
+          <Error
+            error={AppController.getError()}
+            errorClosed={this.handleErrorClosed}
+          >
+            {AppController.getLoaded() && this.renderPage()}
           </Error>
         </Loading>
-      </AppController.LastObjectModificationsContext.Provider>
+      </AppController.AppContext.Provider>
     )
   }
 
   renderPage() {
     const classes = this.props.classes
 
-    if (this.props.session) {
+    if (AppController.getSession()) {
       return (
         <div className={classes.container}>
-          <Menu page={this.props.currentPage} />
+          <Menu />
           {_.map(pageToComponent, (PageComponent, page) => {
-            let visible = this.props.currentPage === page
+            let visible = AppController.getCurrentPage() === page
             return (
               <div
                 key={page}
@@ -125,12 +108,9 @@ class App extends React.Component {
         </div>
       )
     } else {
-      return <Login disabled={this.props.loading} />
+      return <Login disabled={AppController.getLoading()} />
     }
   }
 }
 
-export default _.flow(
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
-)(App)
+export default _.flow(withStyles(styles), AppController.withState())(App)

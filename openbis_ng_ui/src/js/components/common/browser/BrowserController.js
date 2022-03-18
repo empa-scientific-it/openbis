@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class BrowserController {
   doGetPage() {
@@ -175,9 +175,7 @@ export default class BrowserController {
     })
 
     if (nodeObject) {
-      this.context.dispatch(
-        actions.objectOpen(this.getPage(), nodeObject.type, nodeObject.id)
-      )
+      AppController.objectOpen(this.getPage(), nodeObject.type, nodeObject.id)
     }
 
     const newNodes = this._setNodesSelected(nodes, nodeId, nodeObject)

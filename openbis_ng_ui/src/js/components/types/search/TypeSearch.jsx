@@ -3,6 +3,7 @@ import autoBind from 'auto-bind'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
+import AppController from '@src/js/components/AppController.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import EntityTypesGrid from '@src/js/components/types/common/EntityTypesGrid.jsx'
 import VocabularyTypesGrid from '@src/js/components/types/common/VocabularyTypesGrid.jsx'
@@ -10,8 +11,6 @@ import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid
 import Message from '@src/js/components/common/form/Message.jsx'
 import ids from '@src/js/common/consts/ids.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
-import store from '@src/js/store/store.js'
-import actions from '@src/js/store/actions/actions.js'
 import openbis from '@src/js/services/openbis.js'
 import util from '@src/js/common/util.js'
 import messages from '@src/js/common/messages.js'
@@ -53,7 +52,7 @@ class TypeSearch extends React.Component {
         loaded: true
       }))
     } catch (error) {
-      store.dispatch(actions.errorChange(error))
+      AppController.errorChange(error)
     }
   }
 
