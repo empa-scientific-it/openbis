@@ -1,7 +1,4 @@
-import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
-import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import EntityTypeFormController from '@src/js/components/types/form/entitytype/EntityTypeFormController.js'
@@ -11,16 +8,7 @@ import EntityTypeFormParameters from '@src/js/components/types/form/entitytype/E
 import EntityTypeFormPreview from '@src/js/components/types/form/entitytype/EntityTypeFormPreview.jsx'
 import EntityTypeFormDialogRemoveSection from '@src/js/components/types/form/entitytype/EntityTypeFormDialogRemoveSection.jsx'
 import EntityTypeFormDialogRemoveProperty from '@src/js/components/types/form/entitytype/EntityTypeFormDialogRemoveProperty.jsx'
-import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
-
-const styles = () => ({})
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class EntityTypeForm extends React.PureComponent {
   constructor(props) {
@@ -147,7 +135,4 @@ class EntityTypeForm extends React.PureComponent {
   }
 }
 
-export default _.flow(
-  connect(mapStateToProps),
-  withStyles(styles)
-)(EntityTypeForm)
+export default EntityTypeForm

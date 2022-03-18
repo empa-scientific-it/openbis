@@ -2,7 +2,6 @@ import _ from 'lodash'
 import PageControllerSave from '@src/js/components/common/page/PageControllerSave.js'
 import EntityTypeFormControllerStrategies from '@src/js/components/types/form/entitytype/EntityTypeFormControllerStrategies.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
-import users from '@src/js/common/consts/users.js'
 import openbis from '@src/js/services/openbis.js'
 
 export default class EntityTypeFormControllerSave extends PageControllerSave {
@@ -275,13 +274,6 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     update.getPropertyAssignments().set(assignments.reverse())
     strategy.setTypeAttributes(update, type)
     return strategy.createTypeUpdateOperation([update])
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 
   _getStrategy() {

@@ -1,20 +1,12 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import AppController from '@src/js/components/AppController.js'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import PageButtons from '@src/js/components/common/page/PageButtons.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import EntityTypeFormControllerStrategies from '@src/js/components/types/form/entitytype/EntityTypeFormControllerStrategies.js'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
-import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class EntityTypeFormButtons extends React.PureComponent {
   constructor(props) {
@@ -70,7 +62,7 @@ class EntityTypeFormButtons extends React.PureComponent {
               !(
                 this.isNonSystemInternalSectionSelected() ||
                 this.isNonSystemInternalPropertySelected() ||
-                this.isSystemUser()
+                AppController.isSystemUser()
               )
             }
             onClick={onRemove}
@@ -119,10 +111,6 @@ class EntityTypeFormButtons extends React.PureComponent {
       return false
     }
   }
-
-  isSystemUser() {
-    return this.props.session && this.props.session.userName === users.SYSTEM
-  }
 }
 
-export default connect(mapStateToProps)(EntityTypeFormButtons)
+export default EntityTypeFormButtons

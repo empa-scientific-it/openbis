@@ -1,3 +1,4 @@
+import AppController from '@src/js/components/AppController.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 
@@ -20,7 +21,7 @@ export default class VocabularyTypeFormControllerAdd {
         value: true
       }),
       registrator: FormUtil.createField({
-        value: this.getCurrentUser(),
+        value: AppController.getUser(),
         visible: false,
         enabled: false
       }),
@@ -50,11 +51,5 @@ export default class VocabularyTypeFormControllerAdd {
     }
 
     await this.controller.changed(true)
-  }
-
-  getCurrentUser() {
-    return this.context.getProps().session
-      ? this.context.getProps().session.userName
-      : null
   }
 }

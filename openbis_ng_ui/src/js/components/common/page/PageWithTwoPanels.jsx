@@ -1,6 +1,4 @@
-import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import { Resizable } from 're-resizable'
 import Container from '@src/js/components/common/form/Container.jsx'
@@ -115,4 +113,4 @@ class PageWithTwoPanels extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(PageWithTwoPanels)
+export default withStyles(styles)(PageWithTwoPanels)

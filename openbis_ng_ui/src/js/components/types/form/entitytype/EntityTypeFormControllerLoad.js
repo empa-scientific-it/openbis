@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import openbis from '@src/js/services/openbis.js'
+import AppController from '@src/js/components/AppController.js'
 import PageControllerLoad from '@src/js/components/common/page/PageControllerLoad.js'
 import EntityTypeFormControllerStrategies from '@src/js/components/types/form/entitytype/EntityTypeFormControllerStrategies.js'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
@@ -175,7 +176,7 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
       }),
       internal: FormUtil.createField({
         value: propertyTypeInternal,
-        visible: this.isSystemUser(),
+        visible: AppController.isSystemUser(),
         enabled: false
       }),
       assignmentInternal: FormUtil.createField({
@@ -185,25 +186,25 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
       }),
       label: FormUtil.createField({
         value: _.get(propertyType, 'label', null),
-        enabled: !propertyTypeInternal || this.isSystemUser()
+        enabled: !propertyTypeInternal || AppController.isSystemUser()
       }),
       description: FormUtil.createField({
         value: _.get(propertyType, 'description', null),
-        enabled: !propertyTypeInternal || this.isSystemUser()
+        enabled: !propertyTypeInternal || AppController.isSystemUser()
       }),
       dataType: FormUtil.createField({
         value: dataType,
-        enabled: !propertyTypeInternal || this.isSystemUser()
+        enabled: !propertyTypeInternal || AppController.isSystemUser()
       }),
       schema: FormUtil.createField({
         value: _.get(propertyType, 'schema', null),
         visible: dataType === openbis.DataType.XML,
-        enabled: !propertyTypeInternal || this.isSystemUser()
+        enabled: !propertyTypeInternal || AppController.isSystemUser()
       }),
       transformation: FormUtil.createField({
         value: _.get(propertyType, 'transformation', null),
         visible: dataType === openbis.DataType.XML,
-        enabled: !propertyTypeInternal || this.isSystemUser()
+        enabled: !propertyTypeInternal || AppController.isSystemUser()
       }),
       vocabulary: FormUtil.createField({
         value: _.get(propertyType, 'vocabulary.code', null),
@@ -222,23 +223,23 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
       }),
       plugin: FormUtil.createField({
         value: plugin,
-        enabled: plugin && (!assignmentInternal || this.isSystemUser())
+        enabled: plugin && (!assignmentInternal || AppController.isSystemUser())
       }),
       mandatory: FormUtil.createField({
         value: _.get(loadedAssignment, 'mandatory', false),
-        enabled: !assignmentInternal || this.isSystemUser()
+        enabled: !assignmentInternal || AppController.isSystemUser()
       }),
       showInEditView: FormUtil.createField({
         value: _.get(loadedAssignment, 'showInEditView', true),
-        enabled: !assignmentInternal || this.isSystemUser()
+        enabled: !assignmentInternal || AppController.isSystemUser()
       }),
       showRawValueInForms: FormUtil.createField({
         value: _.get(loadedAssignment, 'showRawValueInForms', false),
-        enabled: !assignmentInternal || this.isSystemUser()
+        enabled: !assignmentInternal || AppController.isSystemUser()
       }),
       initialValueForExistingEntities: FormUtil.createField({
         visible: false,
-        enabled: !assignmentInternal || this.isSystemUser()
+        enabled: !assignmentInternal || AppController.isSystemUser()
       }),
       assignments,
       errors: 0
@@ -302,13 +303,6 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
     } else {
       return null
     }
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 
   _getStrategy() {

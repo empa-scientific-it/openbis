@@ -5,7 +5,6 @@ import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
 import AppController from '@src/js/components/AppController.js'
-import users from '@src/js/common/consts/users'
 import messages from '@src/js/common/messages.js'
 
 export default class TypeBrowserController extends BrowserController {
@@ -79,7 +78,8 @@ export default class TypeBrowserController extends BrowserController {
           vocabularyTypes.getObjects(),
           objectType.VOCABULARY_TYPE,
           (type, node) => {
-            node.canRemove = !type.managedInternally || this.isSystemUser()
+            node.canRemove =
+              !type.managedInternally || AppController.isSystemUser()
           }
         )
 
@@ -333,12 +333,5 @@ export default class TypeBrowserController extends BrowserController {
     } else if (type === objectType.MATERIAL_TYPE) {
       return openbis.EntityKind.MATERIAL
     }
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 }

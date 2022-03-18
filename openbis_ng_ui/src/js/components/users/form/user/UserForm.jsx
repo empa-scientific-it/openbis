@@ -1,7 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
@@ -194,4 +192,4 @@ class UserForm extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(UserForm)
+export default withStyles(styles)(UserForm)

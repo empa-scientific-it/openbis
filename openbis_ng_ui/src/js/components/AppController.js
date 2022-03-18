@@ -5,6 +5,7 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import routes from '@src/js/common/consts/routes.js'
+import users from '@src/js/common/consts/users.js'
 import cookie from '@src/js/common/cookie.js'
 import url from '@src/js/common/url.js'
 
@@ -301,6 +302,15 @@ export class AppController {
 
   getSession() {
     return this.context.getState().session
+  }
+
+  getUser() {
+    const session = this.getSession()
+    return session ? session.userName : null
+  }
+
+  isSystemUser() {
+    return this.getUser() === users.SYSTEM
   }
 
   getRoute() {

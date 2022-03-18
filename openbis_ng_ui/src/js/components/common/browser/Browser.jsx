@@ -113,7 +113,6 @@ class Browser extends React.PureComponent {
 export default _.flow(
   withStyles(styles),
   AppController.withState(ownProps => ({
-    session: AppController.getSession(),
     selectedObject: AppController.getSelectedObject(
       ownProps.controller.getPage()
     ),

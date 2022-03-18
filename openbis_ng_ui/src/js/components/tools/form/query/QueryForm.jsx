@@ -1,8 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
-import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import QueryFormController from '@src/js/components/tools/form/query/QueryFormController.js'
@@ -13,8 +10,6 @@ import QueryFormExecuteParameters from '@src/js/components/tools/form/query/Quer
 import QueryFormExecuteResults from '@src/js/components/tools/form/query/QueryFormExecuteResults.jsx'
 import QueryFormButtons from '@src/js/components/tools/form/query/QueryFormButtons.jsx'
 import logger from '@src/js/common/logger.js'
-
-const styles = () => ({})
 
 class QueryForm extends React.PureComponent {
   constructor(props) {
@@ -122,4 +117,4 @@ class QueryForm extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(QueryForm)
+export default QueryForm

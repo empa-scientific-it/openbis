@@ -1,14 +1,12 @@
-import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import AppController from '@src/js/components/AppController.js'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -18,12 +16,6 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1)
   }
 })
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class VocabularyTypeFormParametersTerm extends React.PureComponent {
   constructor(props) {
@@ -125,10 +117,10 @@ class VocabularyTypeFormParametersTerm extends React.PureComponent {
   }
 
   renderMessageInternal(term) {
-    const { classes, vocabulary, session } = this.props
+    const { classes, vocabulary } = this.props
 
     if (vocabulary.internal.value && term.registrator.value === users.SYSTEM) {
-      if (session && session.userName === users.SYSTEM) {
+      if (AppController.isSystemUser()) {
         return (
           <div className={classes.field}>
             <Message type='lock'>
@@ -269,7 +261,4 @@ class VocabularyTypeFormParametersTerm extends React.PureComponent {
   }
 }
 
-export default _.flow(
-  connect(mapStateToProps),
-  withStyles(styles)
-)(VocabularyTypeFormParametersTerm)
+export default withStyles(styles)(VocabularyTypeFormParametersTerm)

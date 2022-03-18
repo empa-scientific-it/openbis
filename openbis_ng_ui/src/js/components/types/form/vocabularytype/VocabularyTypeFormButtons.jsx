@@ -1,19 +1,12 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import AppController from '@src/js/components/AppController.js'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import PageButtons from '@src/js/components/common/page/PageButtons.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import users from '@src/js/common/consts/users.js'
 import messages from '@src/js/common/messages.js'
-import selectors from '@src/js/store/selectors/selectors.js'
 import logger from '@src/js/common/logger.js'
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class VocabularyTypeFormButtons extends React.PureComponent {
   constructor(props) {
@@ -54,7 +47,10 @@ class VocabularyTypeFormButtons extends React.PureComponent {
             label={messages.get(messages.REMOVE_TERM)}
             styles={{ root: classes.button }}
             disabled={
-              !(this.isNonSystemInternalTermSelected() || this.isSystemUser())
+              !(
+                this.isNonSystemInternalTermSelected() ||
+                AppController.isSystemUser()
+              )
             }
             onClick={onRemove}
           />
@@ -77,10 +73,6 @@ class VocabularyTypeFormButtons extends React.PureComponent {
       return false
     }
   }
-
-  isSystemUser() {
-    return this.props.session && this.props.session.userName === users.SYSTEM
-  }
 }
 
-export default connect(mapStateToProps)(VocabularyTypeFormButtons)
+export default VocabularyTypeFormButtons

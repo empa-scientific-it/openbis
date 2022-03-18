@@ -1,8 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
-import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
@@ -12,12 +9,9 @@ import VocabularyTypeFormController from '@src/js/components/types/form/vocabula
 import VocabularyTypeFormFacade from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormFacade.js'
 import VocabularyTypeFormParameters from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormParameters.jsx'
 import VocabularyTypeFormButtons from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormButtons.jsx'
-import selectors from '@src/js/store/selectors/selectors.js'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-
-const styles = () => ({})
 
 const columns = [
   {
@@ -41,12 +35,6 @@ const columns = [
     getValue: ({ row }) => row.official.value
   }
 ]
-
-function mapStateToProps(state) {
-  return {
-    session: selectors.getSession(state)
-  }
-}
 
 class VocabularyTypeForm extends React.PureComponent {
   constructor(props) {
@@ -171,7 +159,4 @@ class VocabularyTypeForm extends React.PureComponent {
   }
 }
 
-export default _.flow(
-  connect(mapStateToProps),
-  withStyles(styles)
-)(VocabularyTypeForm)
+export default VocabularyTypeForm
