@@ -1,15 +1,29 @@
 import _ from 'lodash'
 import React from 'react'
+import { createBrowserHistory } from 'history'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import routes from '@src/js/common/consts/routes.js'
 import cookie from '@src/js/common/cookie.js'
-import history from '@src/js/store/history.js'
+import url from '@src/js/common/url.js'
 
 export class AppController {
   constructor() {
     this.AppContext = React.createContext()
+
+    const history = createBrowserHistory({
+      basename: url.getApplicationPath() + '#'
+    })
+
+    history.listen(location => {
+      let route = routes.parse(location.pathname)
+      if (route.path !== this.getRoute()) {
+        this.routeChange(route.path, location.state)
+      }
+    })
+
+    this.history = history
   }
 
   init(context) {
@@ -137,11 +151,11 @@ export class AppController {
   }
 
   async routeChange(path) {
-    const route = routes.parse(path)
+    const newRoute = routes.parse(path)
 
-    if (route.type && route.id) {
-      const object = { type: route.type, id: route.id }
-      const openTabs = this.getOpenTabs(route.page)
+    if (newRoute.type && newRoute.id) {
+      const object = { type: newRoute.type, id: newRoute.id }
+      const openTabs = this.getOpenTabs(newRoute.page)
 
       if (openTabs) {
         let found = false
@@ -157,17 +171,21 @@ export class AppController {
         })
 
         if (!found) {
-          await this.addOpenTab(route.page, id, { id, object })
+          await this.addOpenTab(newRoute.page, id, { id, object })
         }
       }
     }
 
-    await this.context.setState({ route: path })
-    await this.setCurrentRoute(route.page, path)
+    await this.context.setState({ route: newRoute.path })
+    await this.setCurrentRoute(newRoute.page, newRoute.path)
+
+    if (newRoute.path !== this.history.location.pathname) {
+      this.history.push(newRoute.path)
+    }
   }
 
   async routeReplace(route, state) {
-    history.replace(route, state)
+    this.history.replace(route, state)
   }
 
   async objectNew(page, type) {
