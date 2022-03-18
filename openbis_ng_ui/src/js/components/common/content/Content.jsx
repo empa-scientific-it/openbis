@@ -30,7 +30,7 @@ const styles = {
   }
 }
 
-class Content extends React.Component {
+class Content extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)

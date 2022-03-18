@@ -57,7 +57,7 @@ const styles = theme => ({
   }
 })
 
-class Menu extends React.Component {
+class Menu extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)

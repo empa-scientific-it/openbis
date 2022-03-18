@@ -18,7 +18,7 @@ const styles = () => ({
   }
 })
 
-class Users extends React.Component {
+class Users extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Users.render')
 
