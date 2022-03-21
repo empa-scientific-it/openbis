@@ -279,7 +279,7 @@ compileJava {
         } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
             // Use modern openJDK 11 or 17 Compiler
         } else {
-            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK117");
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
         }
     }
 }
