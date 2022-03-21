@@ -79,7 +79,7 @@ task cleanDbSuite(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 
@@ -91,7 +91,7 @@ task cleanDbSuiteProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 	systemProperty "project-samples-enabled", 'true'
@@ -104,7 +104,7 @@ task testProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 	systemProperty "project-samples-enabled", 'true'
@@ -127,7 +127,7 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
 	jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
 			 '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
-			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-XX:MaxPermSize=512m', '-ea'])
+			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
 	args(['--classes', '../commonbase/targets/gradle/classes/java/main',
 		  '--classes', '../common/targets/gradle/classes/java/main',
 		  '--classes', '../authentication/targets/gradle/classes/java/main',
