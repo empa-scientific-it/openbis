@@ -294,10 +294,10 @@ compileTestJava {
                 executable = 'java'
                 jvmArgs = createEclipseJDK8Args()
             }
-        } else if(System.getProperty("java.version").startsWith("11.")) {
-            // Use modern openJDK 11 Compiler
+        } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
+            // Use modern openJDK 11 or 17 Compiler
         } else {
-            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8 or JDK11");
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
         }
     }
 }
