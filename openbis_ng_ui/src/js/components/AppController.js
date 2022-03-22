@@ -9,27 +9,23 @@ import users from '@src/js/common/consts/users.js'
 import cookie from '@src/js/common/cookie.js'
 import url from '@src/js/common/url.js'
 
+const AppContext = React.createContext()
+
 export class AppController {
-  constructor() {
-    this.AppContext = React.createContext()
+  init(context) {
+    context.initState(this.initialState())
 
     const history = createBrowserHistory({
       basename: url.getApplicationPath() + '#'
     })
 
     history.listen(location => {
-      let route = routes.parse(location.pathname)
-      if (route.path !== this.getRoute()) {
-        this.routeChange(route.path, location.state)
-      }
+      const route = routes.parse(location.pathname)
+      this.routeChanged(route.path)
     })
 
-    this.history = history
-  }
-
-  init(context) {
     this.context = context
-    context.initState(this.initialState())
+    this.history = history
   }
 
   initialState() {
@@ -37,7 +33,6 @@ export class AppController {
       loaded: false,
       loading: false,
       session: null,
-      route: null,
       search: null,
       pages: [],
       error: null,
@@ -68,6 +63,8 @@ export class AppController {
                   userName: sessionInformation.userName
                 }
               })
+              const routeObject = routes.parse(this.getRoute())
+              await this.routeChanged(routeObject.path)
             } else {
               openbis.useSession(null)
             }
@@ -91,17 +88,20 @@ export class AppController {
 
       const sessionToken = await openbis.login(username, password)
 
-      this.context.setState({
-        session: {
-          sessionToken: sessionToken,
-          userName: username
-        }
-      })
-      cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
+      if (sessionToken !== null) {
+        this.context.setState({
+          session: {
+            sessionToken: sessionToken,
+            userName: username
+          }
+        })
+        cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
 
-      const { route } = this.context.getState()
-      const routeObject = routes.parse(route)
-      await this.routeChange(routeObject.path)
+        const routeObject = routes.parse(this.getRoute())
+        await this.routeChange(routeObject.path)
+      } else {
+        throw Error('Session token null')
+      }
     } catch (e) {
       await this.context.setState({ error: 'Incorrect user or password' })
     } finally {
@@ -151,9 +151,8 @@ export class AppController {
     await this.context.setState({ error: error })
   }
 
-  async routeChange(path) {
+  async routeChanged(path) {
     const newRoute = routes.parse(path)
-
     if (newRoute.type && newRoute.id) {
       const object = { type: newRoute.type, id: newRoute.id }
       const openTabs = this.getOpenTabs(newRoute.page)
@@ -176,17 +175,17 @@ export class AppController {
         }
       }
     }
-
-    await this.context.setState({ route: newRoute.path })
     await this.setCurrentRoute(newRoute.page, newRoute.path)
+  }
 
-    if (newRoute.path !== this.history.location.pathname) {
-      this.history.push(newRoute.path)
+  async routeChange(path) {
+    if (path !== this.history.location.pathname) {
+      this.history.push(path)
     }
   }
 
-  async routeReplace(route, state) {
-    this.history.replace(route, state)
+  async routeReplace(route) {
+    this.history.replace(route)
   }
 
   async objectNew(page, type) {
@@ -314,7 +313,7 @@ export class AppController {
   }
 
   getRoute() {
-    return this.context.getState().route
+    return routes.parse(this.history.location.pathname).path
   }
 
   getSearch() {
@@ -326,7 +325,7 @@ export class AppController {
   }
 
   getCurrentPage() {
-    const { route } = this.context.getState()
+    const route = this.getRoute()
     return routes.parse(route).page
   }
 
@@ -446,7 +445,7 @@ export class AppController {
   withState(additionalPropertiesFn) {
     const WithContext = Component => {
       const WithConsumer = props => {
-        return React.createElement(this.AppContext.Consumer, {}, () => {
+        return React.createElement(AppContext.Consumer, {}, () => {
           const additionalProperties = additionalPropertiesFn
             ? additionalPropertiesFn(props)
             : {}
@@ -466,12 +465,13 @@ export class AppController {
 
 let INSTANCE = new AppController()
 
-export function setInstance(instance) {
-  INSTANCE = instance
+export default {
+  AppContext,
+  AppController,
+  getInstance() {
+    return INSTANCE
+  },
+  setInstance(instance) {
+    INSTANCE = instance
+  }
 }
-
-export function getInstance() {
-  return INSTANCE
-}
-
-export default INSTANCE

@@ -45,7 +45,7 @@ export default class PageControllerSave {
         await this.controller.load()
 
         if (oldObject.type === this.controller.getNewObjectType()) {
-          AppController.objectCreate(
+          AppController.getInstance().objectCreate(
             this.controller.getPage(),
             oldObject.type,
             oldObject.id,
@@ -53,7 +53,7 @@ export default class PageControllerSave {
             newObject.id
           )
         } else if (oldObject.type === this.controller.getExistingObjectType()) {
-          AppController.objectUpdate(
+          AppController.getInstance().objectUpdate(
             this.controller.getPage(),
             oldObject.type,
             oldObject.id
@@ -61,7 +61,7 @@ export default class PageControllerSave {
         }
       }
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     } finally {
       this.context.setState({
         loading: false

@@ -18,7 +18,7 @@ class LinkToObject extends React.Component {
 
   handleClick() {
     const { page, object } = this.props
-    AppController.objectOpen(page, object.type, object.id)
+    AppController.getInstance().objectOpen(page, object.type, object.id)
   }
 
   render() {

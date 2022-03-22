@@ -31,7 +31,7 @@ export default class PluginFormControllerEvaluate {
         }
       }))
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     } finally {
       this.context.setState(state => ({
         ...state,

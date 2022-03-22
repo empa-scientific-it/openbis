@@ -33,7 +33,6 @@ async function testExpandAndCollapseNode() {
     }
   ])
 
-  common.context.expectNoActions()
   common.controller.nodeCollapse('groups')
 
   expect(common.controller.getNodes()).toMatchObject([
@@ -48,6 +47,4 @@ async function testExpandAndCollapseNode() {
       selected: false
     }
   ])
-
-  common.context.expectNoActions()
 }

@@ -112,10 +112,11 @@ class Browser extends React.PureComponent {
 
 export default _.flow(
   withStyles(styles),
-  AppController.withState(ownProps => ({
-    selectedObject: AppController.getSelectedObject(
+  AppController.getInstance().withState(ownProps => ({
+    selectedObject: AppController.getInstance().getSelectedObject(
       ownProps.controller.getPage()
     ),
-    lastObjectModifications: AppController.getLastObjectModifications()
+    lastObjectModifications:
+      AppController.getInstance().getLastObjectModifications()
   }))
 )(Browser)

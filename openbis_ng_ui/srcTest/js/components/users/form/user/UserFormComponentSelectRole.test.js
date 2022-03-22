@@ -11,17 +11,17 @@ beforeEach(() => {
 
 describe(UserFormComponentTest.SUITE, () => {
   test('select role', testSelectRole)
-  test('select instance role', () => {
-    testSelectInstanceRole(true)
-    testSelectInstanceRole(false)
+  test('select instance role', async () => {
+    await testSelectInstanceRole(true)
+    await testSelectInstanceRole(false)
   })
-  test('select space role', () => {
-    testSelectSpaceRole(true)
-    testSelectSpaceRole(false)
+  test('select space role', async () => {
+    await testSelectSpaceRole(true)
+    await testSelectSpaceRole(false)
   })
-  test('select project role', () => {
-    testSelectProjectRole(true)
-    testSelectProjectRole(false)
+  test('select project role', async () => {
+    await testSelectProjectRole(true)
+    await testSelectProjectRole(false)
   })
 })
 
@@ -245,8 +245,12 @@ async function testSelectInstanceRole(inherited) {
 }
 
 async function testSelectSpaceRole(inherited) {
-  const { testSpacePowerUserGroupAssignment, mySpaceAdminAssignment } =
-    UserFormTestData
+  const {
+    testSpace,
+    mySpace,
+    testSpacePowerUserGroupAssignment,
+    mySpaceAdminAssignment
+  } = UserFormTestData
 
   const userAssignment = inherited
     ? testSpacePowerUserGroupAssignment
@@ -256,6 +260,9 @@ async function testSelectSpaceRole(inherited) {
   user.setUserId('test-user')
   user.setRoleAssignments([userAssignment])
 
+  common.facade.loadSpaces.mockReturnValue(
+    Promise.resolve([testSpace, mySpace])
+  )
   common.facade.loadUserGroups.mockReturnValue(Promise.resolve([]))
 
   const form = await common.mountExisting(user)
@@ -316,8 +323,14 @@ async function testSelectSpaceRole(inherited) {
 }
 
 async function testSelectProjectRole(inherited) {
-  const { testProjectAdminGroupAssignment, myProjectAdminAssignment } =
-    UserFormTestData
+  const {
+    testSpace,
+    mySpace,
+    testProject,
+    myProject,
+    testProjectAdminGroupAssignment,
+    myProjectAdminAssignment
+  } = UserFormTestData
 
   const userAssignment = inherited
     ? testProjectAdminGroupAssignment
@@ -327,6 +340,12 @@ async function testSelectProjectRole(inherited) {
   user.setUserId('test-user')
   user.setRoleAssignments([userAssignment])
 
+  common.facade.loadSpaces.mockReturnValue(
+    Promise.resolve([testSpace, mySpace])
+  )
+  common.facade.loadProjects.mockReturnValue(
+    Promise.resolve([testProject, myProject])
+  )
   common.facade.loadUserGroups.mockReturnValue(Promise.resolve([]))
 
   const form = await common.mountExisting(user)

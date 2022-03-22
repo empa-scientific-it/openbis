@@ -165,7 +165,10 @@ class WithLogin extends React.Component {
       },
       () => {
         if (this.validate(true)) {
-          AppController.login(this.state.user.value, this.state.password.value)
+          AppController.getInstance().login(
+            this.state.user.value,
+            this.state.password.value
+          )
         }
       }
     )

@@ -39,20 +39,4 @@ export default class ComponentContext {
 
     return Promise.resolve()
   }
-
-  dispatch(action) {
-    this.dispatchFn(action)
-  }
-
-  getDispatch() {
-    return this.dispatchFn
-  }
-
-  expectAction(action) {
-    expect(this.getDispatch()).toHaveBeenCalledWith(action)
-  }
-
-  expectNoActions() {
-    expect(this.getDispatch()).toHaveBeenCalledTimes(0)
-  }
 }

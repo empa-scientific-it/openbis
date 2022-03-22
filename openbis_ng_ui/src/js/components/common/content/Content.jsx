@@ -37,11 +37,19 @@ class Content extends React.PureComponent {
   }
 
   handleTabSelect(tab) {
-    AppController.objectOpen(this.props.page, tab.object.type, tab.object.id)
+    AppController.getInstance().objectOpen(
+      this.props.page,
+      tab.object.type,
+      tab.object.id
+    )
   }
 
   handleTabClose(tab) {
-    AppController.objectClose(this.props.page, tab.object.type, tab.object.id)
+    AppController.getInstance().objectClose(
+      this.props.page,
+      tab.object.type,
+      tab.object.id
+    )
   }
 
   render() {
@@ -82,8 +90,8 @@ class Content extends React.PureComponent {
 
 export default _.flow(
   withStyles(styles),
-  AppController.withState(ownProps => ({
-    openTabs: AppController.getOpenTabs(ownProps.page),
-    selectedTab: AppController.getSelectedTab(ownProps.page)
+  AppController.getInstance().withState(ownProps => ({
+    openTabs: AppController.getInstance().getOpenTabs(ownProps.page),
+    selectedTab: AppController.getInstance().getSelectedTab(ownProps.page)
   }))
 )(Content)

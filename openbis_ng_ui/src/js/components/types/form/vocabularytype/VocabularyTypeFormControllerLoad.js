@@ -53,16 +53,18 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       }),
       description: FormUtil.createField({
         value: _.get(loadedVocabulary, 'description', null),
-        enabled: !internal || AppController.isSystemUser()
+        enabled: !internal || AppController.getInstance().isSystemUser()
       }),
       urlTemplate: FormUtil.createField({
         value: _.get(loadedVocabulary, 'urlTemplate', null),
-        enabled: !internal || AppController.isSystemUser()
+        enabled: !internal || AppController.getInstance().isSystemUser()
       }),
       internal: FormUtil.createField({
         value: internal,
-        visible: AppController.isSystemUser(),
-        enabled: loadedVocabulary === null && AppController.isSystemUser()
+        visible: AppController.getInstance().isSystemUser(),
+        enabled:
+          loadedVocabulary === null &&
+          AppController.getInstance().isSystemUser()
       }),
       registrator: FormUtil.createField({
         value: registrator,
@@ -94,15 +96,17 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       }),
       label: FormUtil.createField({
         value: _.get(loadedTerm, 'label', null),
-        enabled: !internalTerm || AppController.isSystemUser()
+        enabled: !internalTerm || AppController.getInstance().isSystemUser()
       }),
       description: FormUtil.createField({
         value: _.get(loadedTerm, 'description', null),
-        enabled: !internalTerm || AppController.isSystemUser()
+        enabled: !internalTerm || AppController.getInstance().isSystemUser()
       }),
       official: FormUtil.createField({
         value: official,
-        enabled: !official && (!internalTerm || AppController.isSystemUser())
+        enabled:
+          !official &&
+          (!internalTerm || AppController.getInstance().isSystemUser())
       }),
       registrator: FormUtil.createField({
         value: registrator,

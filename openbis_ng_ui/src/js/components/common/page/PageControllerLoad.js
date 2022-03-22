@@ -44,7 +44,7 @@ export default class PageControllerLoad {
 
       await this.load(this.object, isNew)
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     } finally {
       if (_.isFunction(this.controller.changed)) {
         this.controller.changed(false)

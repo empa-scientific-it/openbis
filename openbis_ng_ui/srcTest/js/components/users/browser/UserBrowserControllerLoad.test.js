@@ -35,6 +35,4 @@ async function testLoad() {
       selected: false
     }
   ])
-
-  common.context.expectNoActions()
 }

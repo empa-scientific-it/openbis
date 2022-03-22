@@ -162,7 +162,7 @@ export default class ToolBrowserController extends BrowserController {
 
   doNodeAdd(node) {
     if (node && node.childrenType) {
-      AppController.objectNew(this.getPage(), node.childrenType)
+      AppController.getInstance().objectNew(this.getPage(), node.childrenType)
     }
   }
 
@@ -181,10 +181,10 @@ export default class ToolBrowserController extends BrowserController {
         return openbis.executeOperations(operations, options)
       })
       .then(() => {
-        AppController.objectDelete(this.getPage(), type, id)
+        AppController.getInstance().objectDelete(this.getPage(), type, id)
       })
       .catch(error => {
-        AppController.errorChange(error)
+        AppController.getInstance().errorChange(error)
       })
   }
 

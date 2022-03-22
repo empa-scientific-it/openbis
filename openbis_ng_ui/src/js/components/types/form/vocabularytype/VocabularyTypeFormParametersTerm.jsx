@@ -120,7 +120,7 @@ class VocabularyTypeFormParametersTerm extends React.PureComponent {
     const { classes, vocabulary } = this.props
 
     if (vocabulary.internal.value && term.registrator.value === users.SYSTEM) {
-      if (AppController.isSystemUser()) {
+      if (AppController.getInstance().isSystemUser()) {
         return (
           <div className={classes.field}>
             <Message type='lock'>

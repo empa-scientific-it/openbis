@@ -105,7 +105,7 @@ class VocabularyTypeFormParametersVocabulary extends React.PureComponent {
     const { classes } = this.props
 
     if (vocabulary.internal.value) {
-      if (AppController.isSystemUser()) {
+      if (AppController.getInstance().isSystemUser()) {
         return (
           <div className={classes.field}>
             <Message type='lock'>

@@ -79,7 +79,8 @@ export default class TypeBrowserController extends BrowserController {
           objectType.VOCABULARY_TYPE,
           (type, node) => {
             node.canRemove =
-              !type.managedInternally || AppController.isSystemUser()
+              !type.managedInternally ||
+              AppController.getInstance().isSystemUser()
           }
         )
 
@@ -147,7 +148,7 @@ export default class TypeBrowserController extends BrowserController {
 
   doNodeAdd(node) {
     if (node && node.childrenType) {
-      AppController.objectNew(this.getPage(), node.childrenType)
+      AppController.getInstance().objectNew(this.getPage(), node.childrenType)
     }
   }
 
@@ -164,9 +165,9 @@ export default class TypeBrowserController extends BrowserController {
       const options = new openbis.SynchronousOperationExecutionOptions()
       options.setExecuteInOrder(true)
       await openbis.executeOperations(operations, options)
-      AppController.objectDelete(this.getPage(), type, id)
+      AppController.getInstance().objectDelete(this.getPage(), type, id)
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     }
   }
 

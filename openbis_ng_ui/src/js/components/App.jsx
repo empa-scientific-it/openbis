@@ -53,7 +53,7 @@ class App extends React.Component {
     if (this.props.controller) {
       this.controller = this.props.controller
     } else {
-      this.controller = AppController
+      this.controller = AppController.getInstance()
     }
 
     this.controller.init(new ComponentContext(this))
@@ -64,7 +64,7 @@ class App extends React.Component {
   }
 
   handleErrorClosed() {
-    AppController.errorChange(null)
+    AppController.getInstance().errorChange(null)
   }
 
   render() {
@@ -72,12 +72,12 @@ class App extends React.Component {
 
     return (
       <AppController.AppContext.Provider value={this.state}>
-        <Loading loading={AppController.getLoading()}>
+        <Loading loading={AppController.getInstance().getLoading()}>
           <Error
-            error={AppController.getError()}
+            error={AppController.getInstance().getError()}
             errorClosed={this.handleErrorClosed}
           >
-            {AppController.getLoaded() && this.renderPage()}
+            {AppController.getInstance().getLoaded() && this.renderPage()}
           </Error>
         </Loading>
       </AppController.AppContext.Provider>
@@ -87,12 +87,12 @@ class App extends React.Component {
   renderPage() {
     const classes = this.props.classes
 
-    if (AppController.getSession()) {
+    if (AppController.getInstance().getSession()) {
       return (
         <div className={classes.container}>
           <Menu />
           {_.map(pageToComponent, (PageComponent, page) => {
-            let visible = AppController.getCurrentPage() === page
+            let visible = AppController.getInstance().getCurrentPage() === page
             return (
               <div
                 key={page}
@@ -108,9 +108,12 @@ class App extends React.Component {
         </div>
       )
     } else {
-      return <Login disabled={AppController.getLoading()} />
+      return <Login disabled={AppController.getInstance().getLoading()} />
     }
   }
 }
 
-export default _.flow(withStyles(styles), AppController.withState())(App)
+export default _.flow(
+  withStyles(styles),
+  AppController.getInstance().withState()
+)(App)

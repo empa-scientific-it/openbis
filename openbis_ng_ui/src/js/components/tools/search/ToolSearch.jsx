@@ -49,7 +49,7 @@ class ToolSearch extends React.Component {
         loaded: true
       }))
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     }
   }
 

@@ -146,7 +146,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
     if (property.internal.value || property.assignmentInternal.value) {
       const { classes } = this.props
 
-      if (AppController.isSystemUser()) {
+      if (AppController.getInstance().isSystemUser()) {
         return (
           <div className={classes.field}>
             <Message type='lock'>

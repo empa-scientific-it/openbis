@@ -16,7 +16,7 @@ export default class PageControllerChanged {
 
       const { id, type } = this.controller.getObject()
 
-      AppController.objectChange(
+      AppController.getInstance().objectChange(
         this.controller.getPage(),
         type,
         id,

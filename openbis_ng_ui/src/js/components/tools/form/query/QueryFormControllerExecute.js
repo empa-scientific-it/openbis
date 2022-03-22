@@ -41,7 +41,7 @@ export default class QueryFormControllerExecute {
         }
       }))
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     } finally {
       this.context.setState(state => ({
         ...state,

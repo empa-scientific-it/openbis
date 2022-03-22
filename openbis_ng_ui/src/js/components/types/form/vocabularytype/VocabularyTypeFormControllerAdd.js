@@ -21,7 +21,7 @@ export default class VocabularyTypeFormControllerAdd {
         value: true
       }),
       registrator: FormUtil.createField({
-        value: AppController.getUser(),
+        value: AppController.getInstance().getUser(),
         visible: false,
         enabled: false
       }),

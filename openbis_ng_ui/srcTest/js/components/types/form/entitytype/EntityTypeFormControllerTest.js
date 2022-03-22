@@ -1,3 +1,5 @@
+import AppController from '@src/js/components/AppController.js'
+import TestAppController from '@srcTest/js/components/AppController.js'
 import ComponentContext from '@srcTest/js/components/common/ComponentContext.js'
 import EntityTypeFormControler from '@src/js/components/types/form/entitytype/EntityTypeFormController.js'
 import EntityTypeFormFacade from '@src/js/components/types/form/entitytype/EntityTypeFormFacade'
@@ -9,6 +11,10 @@ export default class EntityTypeFormControllerTest {
 
   beforeEach() {
     jest.resetAllMocks()
+
+    const appController = new TestAppController()
+    appController.isSystemUser.mockReturnValue(false)
+    AppController.setInstance(appController)
   }
 
   init(object) {

@@ -67,7 +67,7 @@ export default class UserBrowserController extends BrowserController {
 
   doNodeAdd(node) {
     if (node && node.childrenType) {
-      AppController.objectNew(this.getPage(), node.childrenType)
+      AppController.getInstance().objectNew(this.getPage(), node.childrenType)
     }
   }
 
@@ -86,7 +86,7 @@ export default class UserBrowserController extends BrowserController {
         return openbis.executeOperations(operations, options)
       })
       .then(() => {
-        AppController.objectDelete(this.getPage(), type, id)
+        AppController.getInstance().objectDelete(this.getPage(), type, id)
       })
       .catch(error => {
         if (
@@ -94,13 +94,13 @@ export default class UserBrowserController extends BrowserController {
           error.message &&
           error.message.startsWith('Could not commit Hibernate transaction')
         ) {
-          AppController.errorChange(
+          AppController.getInstance().errorChange(
             messages.get(
               messages.USERS_WHO_REGISTERED_SOME_DATA_CANNOT_BE_REMOVED
             )
           )
         } else {
-          AppController.errorChange(error)
+          AppController.getInstance().errorChange(error)
         }
       })
   }

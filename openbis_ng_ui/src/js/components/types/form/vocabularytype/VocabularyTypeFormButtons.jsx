@@ -49,7 +49,7 @@ class VocabularyTypeFormButtons extends React.PureComponent {
             disabled={
               !(
                 this.isNonSystemInternalTermSelected() ||
-                AppController.isSystemUser()
+                AppController.getInstance().isSystemUser()
               )
             }
             onClick={onRemove}

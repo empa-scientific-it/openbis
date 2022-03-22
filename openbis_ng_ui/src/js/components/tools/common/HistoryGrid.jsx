@@ -26,7 +26,7 @@ class HistoryGrid extends React.PureComponent {
     try {
       return await this.loadHistory(this.props.eventType, params)
     } catch (error) {
-      AppController.errorChange(error)
+      AppController.getInstance().errorChange(error)
     }
   }
 

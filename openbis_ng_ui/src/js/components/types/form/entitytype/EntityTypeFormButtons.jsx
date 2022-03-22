@@ -62,7 +62,7 @@ class EntityTypeFormButtons extends React.PureComponent {
               !(
                 this.isNonSystemInternalSectionSelected() ||
                 this.isNonSystemInternalPropertySelected() ||
-                AppController.isSystemUser()
+                AppController.getInstance().isSystemUser()
               )
             }
             onClick={onRemove}

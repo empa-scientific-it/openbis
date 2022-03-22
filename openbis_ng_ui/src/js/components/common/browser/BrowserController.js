@@ -175,7 +175,11 @@ export default class BrowserController {
     })
 
     if (nodeObject) {
-      AppController.objectOpen(this.getPage(), nodeObject.type, nodeObject.id)
+      AppController.getInstance().objectOpen(
+        this.getPage(),
+        nodeObject.type,
+        nodeObject.id
+      )
     }
 
     const newNodes = this._setNodesSelected(nodes, nodeId, nodeObject)

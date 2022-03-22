@@ -161,7 +161,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
         }))
       })
       .catch(error => {
-        AppController.errorChange(error)
+        AppController.getInstance().errorChange(error)
       })
   }
 
@@ -177,7 +177,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
         }))
       })
       .catch(error => {
-        AppController.errorChange(error)
+        AppController.getInstance().errorChange(error)
       })
   }
 
@@ -194,7 +194,7 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
           }))
         })
         .catch(error => {
-          AppController.errorChange(error)
+          AppController.getInstance().errorChange(error)
         })
     } else {
       this.setState(() => ({

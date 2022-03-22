@@ -140,28 +140,38 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       _.assign(newProperty, {
         internal: {
           ...newProperty.internal,
-          visible: AppController.isSystemUser(),
-          enabled: AppController.isSystemUser() && !newExisting
+          visible: AppController.getInstance().isSystemUser(),
+          enabled: AppController.getInstance().isSystemUser() && !newExisting
         },
         label: {
           ...newProperty.label,
-          enabled: !newProperty.internal.value || AppController.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         description: {
           ...newProperty.description,
-          enabled: !newProperty.internal.value || AppController.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         dataType: {
           ...newProperty.dataType,
-          enabled: !newProperty.internal.value || AppController.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         schema: {
           ...newProperty.schema,
-          enabled: !newProperty.internal.value || AppController.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         transformation: {
           ...newProperty.transformation,
-          enabled: !newProperty.internal.value || AppController.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         vocabulary: {
           ...newProperty.vocabulary,

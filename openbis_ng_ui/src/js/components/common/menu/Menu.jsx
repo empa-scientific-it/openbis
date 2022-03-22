@@ -65,27 +65,30 @@ class Menu extends React.PureComponent {
   }
 
   handlePageChange(event, value) {
-    AppController.pageChange(value)
+    AppController.getInstance().pageChange(value)
   }
 
   handleSearchChange(event) {
-    AppController.searchChange(event.target.value)
+    AppController.getInstance().searchChange(event.target.value)
   }
 
   handleSearchKeyPress(event) {
     if (event.key === 'Enter') {
-      AppController.search(this.props.currentPage, this.props.searchText)
+      AppController.getInstance().search(
+        this.props.currentPage,
+        this.props.searchText
+      )
     }
   }
 
   handleSearchClear(event) {
     event.preventDefault()
-    AppController.searchChange('')
+    AppController.getInstance().searchChange('')
     this.searchRef.current.focus()
   }
 
   handleLogout() {
-    AppController.logout()
+    AppController.getInstance().logout()
   }
 
   render() {
@@ -159,8 +162,8 @@ class Menu extends React.PureComponent {
 
 export default _.flow(
   withStyles(styles),
-  AppController.withState(() => ({
-    currentPage: AppController.getCurrentPage(),
-    searchText: AppController.getSearch()
+  AppController.getInstance().withState(() => ({
+    currentPage: AppController.getInstance().getCurrentPage(),
+    searchText: AppController.getInstance().getSearch()
   }))
 )(Menu)
