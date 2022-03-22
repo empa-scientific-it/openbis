@@ -33,7 +33,7 @@ public class GridRowModel<T> implements IsSerializable, Serializable
 
     private T originalObject;
 
-    /** <column id, value> */
+    /* <column id, value> */
     private Map<String, PrimitiveValue> calculatedColumnValues;
 
     public static <T> GridRowModel<T> createWithoutCustomColumns(T originalObject)
