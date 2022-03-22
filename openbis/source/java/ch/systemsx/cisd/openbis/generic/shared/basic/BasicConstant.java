@@ -106,7 +106,7 @@ public class BasicConstant
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 
     /**
-     * Date format which does not include seconds & time zone.
+     * Date format which does not include seconds &amp; time zone.
      */
     public static final String DATE_HOURS_MINUTES_PATTERN = "yyyy-MM-dd HH:mm";
 

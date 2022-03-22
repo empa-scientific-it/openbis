@@ -21,15 +21,6 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
         if data is not None:
             self._set_data(data)
 
-        # TODO: Why are we using getattr() and setattr() here? They are considerably slower.
-        if project is not None:
-            self.project = project
-
-        if props is not None:
-            for key in props:
-                # self.p[key] = props[key]
-                setattr(self.p, key, props[key])
-
         if kwargs is not None:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -42,6 +33,17 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                         self.a.space = project.space
                 except Exception:
                     pass
+
+        if project is None:
+            if self.experiment:
+                self.project = self.experiment.project
+        else:
+            self.project = project
+
+        if props is not None:
+            for key in props:
+                # self.p[key] = props[key]
+                setattr(self.p, key, props[key])
 
         if getattr(self, "parents") is None:
             self.a.__dict__["_parents"] = []
@@ -214,6 +216,9 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                                 )
                             )
 
+            sampleProject = self.project.code if self.project else None
+            sampleExperiment = self.experiment.code if self.experiment else None
+
             request = {
                 "method": "createReportFromAggregationService",
                 "params": [
@@ -223,13 +228,13 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                     {
                         "method": "insertSample",
                         "sampleSpace": self.space.code,
-                        "sampleProject": self.project.code,
-                        "sampleExperiment": self.experiment.code,
+                        "sampleProject": sampleProject,
+                        "sampleExperiment": sampleExperiment,
                         "sampleCode": self.code,
                         "sampleType": self.type.code,
                         "sampleProperties": self.props(),
-                        "sampleParents": None,
-                        "sampleParentsNew": self.parents,
+                        "sampleParents": self.parents,
+                        "sampleParentsNew": None,
                         "sampleChildrenNew": self.children,
                         "sampleChildrenAdded": [],
                         "sampleChildrenRemoved": [],
@@ -239,16 +244,23 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                 ],
             }
             resp = self.openbis._post_request(self.openbis.reg_v1, request)
-            if VERBOSE:
-                print("{} successfully created.".format(self.entity))
-
             try:
-                permid = resp["rows"][0][2]["value"]
-            except KeyError:
-                print(resp)
-            new_entity_data = self.openbis.get_sample(permid, only_data=True)
-            self._set_data(new_entity_data)
-            return self
+                if resp["rows"][0][0]["value"] != "OK":
+                    raise ValueError("Status is not OK")
+                if VERBOSE:
+                    print("{} successfully created.".format(self.entity))
+                permId = permid = resp["rows"][0][2]["value"]
+                new_entity_data = self.openbis.get_sample(permId, only_data=True)
+                self._set_data(new_entity_data)
+                return self
+            except Exception as exc:
+                errmsg = f"Could not create {self.entity}"
+                try:
+                    errmsg = resp["rows"][0][1]["value"]
+                    errmsg = errmsg.split("\n")[0].split("UserFailureException: ")[1]
+                except IndexError:
+                    pass
+                raise ValueError(errmsg) from exc
 
         else:
             super().save()

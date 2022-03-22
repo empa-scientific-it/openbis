@@ -1,3 +1,19 @@
+## Changes with pybis-1.31.6
+
+- automatically setting the project if only experiment was set
+
+## Changes with pybis-1.31.5
+
+- optimised error generation without assert
+
+## Changes with pybis-1.31.4
+
+- fix another exception when saving a sample with custom code
+
+## Changes with pybis-1.31.3
+
+- fix exception in sample.save
+
 ## Changes with pybis-1.31.1
 
 - fixed a file download problem when filename contained special characters (e.g. #)

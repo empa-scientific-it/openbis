@@ -25,13 +25,13 @@ import java.util.Map;
  * A filter for <code>String</code> values. It supports:
  * <ul>
  * <li>Alternatives (by ' ')</li>
- * <li>Conjunction (by ' & ')</li>
+ * <li>Conjunction (by ' &amp; ')</li>
  * <li>Negation (by '!')</li>
  * <li>Binding to start of value (by '^')</li>
  * <li>Binding to end of value (by '$')</li>
  * <li>Quoting by single ("'") and double ('"') quotes</li>
  * <li>Escaping of special characters (by '\')</li>
- * <li>Numerical comparisons (by '<', '>', '<=', '>=', '=')</li>
+ * <li>Numerical comparisons (by '&lt;', '&gt;', '&lt;=', '&gt;=', '=')</li>
  * </ul>
  * <p>
  * Can be used from GWT code.
