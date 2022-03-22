@@ -24,7 +24,7 @@ buildscript {
     repositories repositoryConfig
     
     dependencies {
-        classpath 'izpack:izpack:5.0-beta9-SNAPSHOT', 
+        classpath 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22', 
             'apache:commons-io:2.6',
             'apache:commons-lang:2.4'
     }
@@ -33,7 +33,7 @@ buildscript {
 dependencies {
     api project(':common')
     
-    api 'izpack:izpack:5.0-beta9-SNAPSHOT'
+    api 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22'
     
     testImplementation project(path: ':commonbase', configuration: 'tests'),
                        project(path: ':common', configuration: 'tests'),
