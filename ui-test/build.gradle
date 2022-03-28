@@ -64,7 +64,7 @@ test {
     useTestNG()
     options.suites('source/java/tests.xml')    
 
-    jvmArgs '-Xmx2048m', '-Duser.timezone=Europe/Zurich'
+    jvmArgs '-Xmx2048m', '-Duser.timezone=Europe/Zurich', '--add-opens=java.base/java.util=ALL-UNNAMED'
     
     testLogging.showStandardStreams = true
     ignoreFailures = true

@@ -76,7 +76,9 @@ test {
     useTestNG()
     options.suites('source/java/tests.xml')
 
-    jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich', '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n'
+    jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich',
+        '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n', 
+        '--add-opens=java.base/java.util=ALL-UNNAMED'
     
     testLogging.showStandardStreams = true
     ignoreFailures = false
