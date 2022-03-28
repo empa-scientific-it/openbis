@@ -120,6 +120,10 @@ public class StandardShareFinder implements IShareFinder
         {
             freeSpace -= incomingShareMinFreeSpace;
         }
+        if (dataSet.getDataSetSize() == null)
+        {
+            throw new NullPointerException();
+        }
         boolean hasEnoughSpace = freeSpace > dataSet.getDataSetSize();
         return hasEnoughSpace;
     }
