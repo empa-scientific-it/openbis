@@ -57,7 +57,7 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
             System.exit(-1);
         }
 
-        return "java -ea -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
+        return "java -ea  --add-opens=java.base/java.util=ALL-UNNAMED -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
                 + getDebugPort()
                 + " -Dfile.encoding=UTF-8 -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog -classpath " + classpath
                 + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
