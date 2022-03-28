@@ -99,7 +99,7 @@ task executeScreeningDataStoreDev(type: JavaExec) {
 task systemTestSuite(type: Test) {
     useTestNG()
     options.suites('sourceTest/java/tests_system.xml')
-    jvmArgs '-Xmx2048m', '--add-opens java.sql/java.sql=ALL-UNNAMED'
+    jvmArgs '-Xmx2048m', '-D--add-opens=java.sql/java.sql=ALL-UNNAMED'
     reports.html.destination = file("${project.buildDir}/reports/tests-system")
 }
 
