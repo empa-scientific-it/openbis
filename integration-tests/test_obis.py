@@ -491,11 +491,9 @@ class TestCase(systemtest.testcase.TestCase):
                 cmd('obis data_set set properties={"a":"0","b":"1","c":"2"}')
                 cmd("obis data_set -p set c=3")
                 settings = get_settings()
-                assert settings["data_set"]["properties"] == {
-                    "A": "0",
-                    "B": "1",
-                    "C": "3",
-                }
+                assert settings["data_set"]["properties"]["A"] == "0"
+                assert settings["data_set"]["properties"]["B"] == "1"
+                assert settings["data_set"]["properties"]["C"] == "3"
                 result = cmd('obis data_set set properties={"a":"0","A":"1"}')
                 assert "Duplicate key after capitalizing JSON config: A" in result
 
