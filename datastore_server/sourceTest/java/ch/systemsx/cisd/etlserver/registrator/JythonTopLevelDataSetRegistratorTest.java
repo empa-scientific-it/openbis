@@ -2021,8 +2021,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 {
                     oneOf(dynamicTransactionQuery)
-                            .select("SELECT * from data_set_files WHERE parent_id is NULL",
-                                    (Object[]) null);
+                            .select(with("SELECT * from data_set_files WHERE parent_id is NULL"),
+                                    with(any((new Object[0]).getClass())));
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
 
                     one(openBisService).drawANewUniqueID();
