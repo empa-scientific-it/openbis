@@ -79,7 +79,7 @@ task cleanDbSuite(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich', '-D--add-opens=java.sql/java.sql=ALL-UNNAMED'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 
@@ -91,7 +91,7 @@ task cleanDbSuiteProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich', '-D--add-opens=java.sql/java.sql=ALL-UNNAMED'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 	systemProperty "project-samples-enabled", 'true'
@@ -104,7 +104,7 @@ task testProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
 	maxHeapSize = "4096m"
-	jvmArgs '-Duser.timezone=Europe/Zurich'
+	jvmArgs '-Duser.timezone=Europe/Zurich', '-D--add-opens=java.sql/java.sql=ALL-UNNAMED'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
 	systemProperty "project-samples-enabled", 'true'
