@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -302,7 +303,9 @@ public class UpdateSpaceTest extends AbstractTest
     {
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        SpacePermId spaceId = new SpacePermId("CISD");
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode("SPACE-" + System.currentTimeMillis());
+        SpacePermId spaceId = v3api.createSpaces(sessionToken, Arrays.asList(spaceCreation)).get(0);
         SpaceUpdate spaceUpdate = new SpaceUpdate();
         spaceUpdate.setSpaceId(spaceId);
         spaceUpdate.freezeForSamples();
@@ -314,8 +317,7 @@ public class UpdateSpaceTest extends AbstractTest
 
         // When
         assertUserFailureException(Void -> v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)),
-                // Then
-                "ERROR: Operation SET SPACE is not allowed because space CISD is frozen for sample UST-S1.");
+                "ERROR: Operation SET SPACE is not allowed because space " + spaceId + " is frozen for sample UST-S1.");
     }
 
     @Test
@@ -323,7 +325,9 @@ public class UpdateSpaceTest extends AbstractTest
     {
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        SpacePermId spaceId = new SpacePermId("CISD");
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode("SPACE-" + System.currentTimeMillis());
+        SpacePermId spaceId = v3api.createSpaces(sessionToken, Arrays.asList(spaceCreation)).get(0);
         SampleCreation sampleCreation = new SampleCreation();
         sampleCreation.setSpaceId(spaceId);
         sampleCreation.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
@@ -338,8 +342,7 @@ public class UpdateSpaceTest extends AbstractTest
 
         // When
         assertUserFailureException(Void -> v3api.deleteSamples(sessionToken, Arrays.asList(samplePermId), deletionOptions),
-                // Then
-                "ERROR: Operation DELETE SAMPLE is not allowed because space CISD is frozen.");
+                "ERROR: Operation DELETE SAMPLE is not allowed because space " + spaceId + " is frozen.");
     }
 
     @Test(dataProvider = "freezeMethods")
