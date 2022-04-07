@@ -18,8 +18,10 @@ package ch.ethz.sis.openbis.systemtest.freezing;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -27,13 +29,26 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * @author Franz-Josef Elmer
@@ -83,7 +98,6 @@ public class SampleFreezingTest extends FreezingTest
         tagCreation.setCode("blue");
         tagCreation.setSampleIds(Arrays.asList(sampleComp));
         blueTag = v3api.createTags(systemSessionToken, Arrays.asList(tagCreation)).get(0);
-        System.err.println("examples created");
     }
 
     @Test
@@ -810,4 +824,114 @@ public class SampleFreezingTest extends FreezingTest
         assertEquals(getSample(sampleParentCont).isFrozen(), true);
     }
 
+    @Test
+    public void testAssertSampleHasNoDeletedChildren()
+    {
+        // Given
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteSamples(systemSessionToken, Arrays.asList(sampleChild), deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleParentCont);
+        update.freezeForChildren();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(systemSessionToken, Arrays.asList(update)),
+                // Then
+                "Can not freeze object " + sampleParentCont + " because it has 1 children in the trashcan (1 deletion sets):\n"
+                        + "1 children (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before object "
+                        + sampleParentCont + " can be frozen.\n");
+    }
+
+    @Test
+    public void testAssertSampleHasNoDeletedParents()
+    {
+        // Given
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteSamples(systemSessionToken, Arrays.asList(sampleParentCont), deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleChild);
+        update.freezeForParents();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(systemSessionToken, Arrays.asList(update)),
+                // Then
+                "Can not freeze object " + sampleChild + " because it has 1 parents in the trashcan (1 deletion sets):\n"
+                        + "1 parents (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before object "
+                        + sampleChild + " can be frozen.\n");
+    }
+
+    @Test
+    public void testAssertSampleHasNoDeletedComponents()
+    {
+        // Given
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteSamples(systemSessionToken, Arrays.asList(sampleComp), deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleParentCont);
+        update.freezeForComponents();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(systemSessionToken, Arrays.asList(update)),
+                // Then
+                "Can not freeze object " + sampleParentCont + " because it has 1 components in the trashcan (1 deletion sets):\n"
+                        + "1 components (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before object "
+                        + sampleParentCont + " can be frozen.\n");
+    }
+
+    @Test
+    public void testAssertSampleHasNoDeletedDataSets()
+    {
+        // Given
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setCode("DS-" + System.currentTimeMillis());
+        dataSetCreation.setSampleId(sample1);
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
+        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(systemSessionToken, Arrays.asList(dataSetCreation));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteDataSets(systemSessionToken, dataSetIds, deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sample1);
+        update.freezeForDataSets();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(systemSessionToken, Arrays.asList(update)),
+                // Then
+                "Can not freeze object " + sample1 + " because it has 1 data sets in the trashcan (1 deletion sets):\n"
+                        + "1 data sets (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before object "
+                        + sample1 + " can be frozen.\n");
+    }
 }

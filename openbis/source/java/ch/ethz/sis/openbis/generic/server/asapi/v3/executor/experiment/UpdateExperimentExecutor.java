@@ -135,12 +135,14 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
             if (update.shouldBeFrozenForDataSets())
             {
                 authorizationExecutor.canFreeze(context, experiment);
+                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedDataSets(update.getExperimentId());
                 experiment.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
             if (update.shouldBeFrozenForSamples())
             {
                 authorizationExecutor.canFreeze(context, experiment);
+                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedSamples(update.getExperimentId());
                 experiment.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

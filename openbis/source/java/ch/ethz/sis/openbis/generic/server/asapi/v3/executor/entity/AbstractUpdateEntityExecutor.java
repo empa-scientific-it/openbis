@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.update.IAssertionOfNoDeletedEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
@@ -60,6 +61,9 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    protected IAssertionOfNoDeletedEntityExecutor assertionOfNoDeletedEntityExecutor;
 
     @Override
     public List<PERM_ID> update(IOperationContext context, List<UPDATE> updates)

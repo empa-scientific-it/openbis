@@ -145,24 +145,28 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             if (update.shouldBeFrozenForComponents())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedComponents(update.getSampleId());
                 entity.setFrozenForComponent(true);
                 freezingFlags.freezeForComponents();
             }
             if (update.shouldBeFrozenForChildren())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedChildren(update.getSampleId());
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedParents(update.getSampleId());
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForDataSets())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedDataSets(update.getSampleId());
                 entity.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
