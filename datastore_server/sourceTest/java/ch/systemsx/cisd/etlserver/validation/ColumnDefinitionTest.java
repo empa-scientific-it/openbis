@@ -108,7 +108,7 @@ public class ColumnDefinitionTest extends AssertJUnit
 
         assertEquals("col", definition.getName());
         assertEquals(false, definition.isMandatory());
-        assertEquals(new Integer(1), definition.getOrderOrNull());
+        assertEquals(Integer.valueOf(1), definition.getOrderOrNull());
     }
 
     @Test

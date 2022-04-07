@@ -329,13 +329,13 @@ public final class Evaluator27 implements IJythonEvaluator
     {
         if (obj instanceof PyInteger)
         {
-            return new Long(((PyInteger) obj).getValue());
+            return Long.valueOf(((PyInteger) obj).getValue());
         } else if (obj instanceof PyLong)
         {
-            return new Long(((PyLong) obj).getValue().longValue());
+            return Long.valueOf(((PyLong) obj).getValue().longValue());
         } else if (obj instanceof PyFloat)
         {
-            return new Double(((PyFloat) obj).getValue());
+            return Double.valueOf(((PyFloat) obj).getValue());
         } else if (obj instanceof PyNone)
         {
             return null;

@@ -44,58 +44,58 @@ public class EntityResolverQueryTest extends AbstractDAOTest
     @Test
     public void testResolveSpace()
     {
-        assertEquals(new Long(1), query.tryResolveSpaceIdByCode("CISD"));
+        assertEquals(Long.valueOf(1), query.tryResolveSpaceIdByCode("CISD"));
     }
 
     @Test
     public void testResolveProjectByCode()
     {
-        assertEquals(new Long(5), query.tryResolveProjectIdByCode("TEST-SPACE", "TEST-PROJECT"));
+        assertEquals(Long.valueOf(5), query.tryResolveProjectIdByCode("TEST-SPACE", "TEST-PROJECT"));
     }
 
     @Test
     public void testResolveProjectByPermId()
     {
-        assertEquals(new Long(4), query.tryResolveProjectIdByPermId("20120814110011738-104"));
+        assertEquals(Long.valueOf(4), query.tryResolveProjectIdByPermId("20120814110011738-104"));
     }
 
     @Test
     public void testResolveExperimentByCode()
     {
-        assertEquals(new Long(23),
+        assertEquals(Long.valueOf(23),
                 query.tryResolveExperimentIdByCode("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST"));
     }
 
     @Test
     public void testResolveExperimentByPermId()
     {
-        assertEquals(new Long(8), query.tryResolveExperimentIdByPermId("200811050940555-1032"));
+        assertEquals(Long.valueOf(8), query.tryResolveExperimentIdByPermId("200811050940555-1032"));
     }
 
     @Test
     public void testResolveSampleByCode()
     {
-        assertEquals(new Long(1054),
+        assertEquals(Long.valueOf(1054),
                 query.tryResolveSampleIdByCode("TEST-SPACE", "FV-TEST"));
     }
 
     @Test
     public void testResolveSampleByPermId()
     {
-        assertEquals(new Long(1019), query.tryResolveSampleIdByPermId("200811050929035-1014"));
+        assertEquals(Long.valueOf(1019), query.tryResolveSampleIdByPermId("200811050929035-1014"));
     }
 
     @Test
     public void testResolveMaterialByCode()
     {
-        assertEquals(new Long(36),
+        assertEquals(Long.valueOf(36),
                 query.tryResolveMaterialIdByCode("GENE", "MYGENE1"));
     }
 
     @Test
     public void testResolveDatasetByCode()
     {
-        assertEquals(new Long(13),
+        assertEquals(Long.valueOf(13),
                 query.tryResolveDatasetIdByCode("20110509092359990-10"));
     }
 

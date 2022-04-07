@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  */
 public class RowTest extends AssertJUnit
 {
-    private static final List<Comparable<?>> EXAMPLE_ROW = Arrays.<Comparable<?>> asList("hello", new Double(42.5));
+    private static final List<Comparable<?>> EXAMPLE_ROW = Arrays.<Comparable<?>> asList("hello", Double.valueOf(42.5));
 
     private static final String COL1 = "col1";
 

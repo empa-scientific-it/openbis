@@ -139,7 +139,7 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
         assertEquals("HELLO", vocabularyTerm.getCode());
         assertEquals("Hello", vocabularyTerm.getLabel());
         assertEquals("greeting", vocabularyTerm.getDescription());
-        assertEquals(new Long(1234L), vocabularyTerm.getOrdinal());
+        assertEquals(Long.valueOf(1234L), vocabularyTerm.getOrdinal());
         assertEquals("http://my.url.org/?q=HELLO", vocabularyTerm.getUrl());
         context.assertIsSatisfied();
     }

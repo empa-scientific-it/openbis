@@ -538,7 +538,7 @@ public class EntityOperationTest extends SystemTestCase
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
 
-        assertEquals(new Long(646), updatedSample.getId());
+        assertEquals(Long.valueOf(646), updatedSample.getId());
         assertEquals("/MP", updatedSample.getIdentifier());
         assertEquals("MASTER_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
@@ -563,7 +563,7 @@ public class EntityOperationTest extends SystemTestCase
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
 
-        assertEquals(new Long(646), updatedSample.getId());
+        assertEquals(Long.valueOf(646), updatedSample.getId());
         assertEquals("/MP", updatedSample.getIdentifier());
         assertEquals("MASTER_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
@@ -602,7 +602,7 @@ public class EntityOperationTest extends SystemTestCase
         Sample updatedSample =
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
-        assertEquals(new Long(986), updatedSample.getId());
+        assertEquals(Long.valueOf(986), updatedSample.getId());
         assertEquals("/CISD/NEMO/3VCP5", updatedSample.getIdentifier());
         assertEquals("CELL_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[COMMENT: hello]", updatedSample.getProperties().toString());
@@ -626,7 +626,7 @@ public class EntityOperationTest extends SystemTestCase
         Sample updatedSample =
                 etlService.tryGetSampleWithExperiment(sessionToken,
                         SampleIdentifierFactory.parse(sample.getIdentifier()));
-        assertEquals(new Long(986), updatedSample.getId());
+        assertEquals(Long.valueOf(986), updatedSample.getId());
         assertEquals("/CISD/NEMO/3VCP5", updatedSample.getIdentifier());
         assertEquals("CELL_PLATE", updatedSample.getSampleType().getCode());
         assertEquals("[COMMENT: hello]", updatedSample.getProperties().toString());
@@ -809,7 +809,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(1, result.getDataSetsUpdatedCount());
 
         AbstractExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
-        assertEquals(new Long(4), updatedDataSet.getId());
+        assertEquals(Long.valueOf(4), updatedDataSet.getId());
         assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
     }
 
@@ -827,7 +827,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(1, result.getDataSetsUpdatedCount());
 
         AbstractExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
-        assertEquals(new Long(4), updatedDataSet.getId());
+        assertEquals(Long.valueOf(4), updatedDataSet.getId());
         assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
     }
 

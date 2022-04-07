@@ -70,7 +70,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     private static final List<IColumnDefinition<DataHolder>> COL_DEFS =
             createExampleColumnDefinitions();
 
-    private static final Long KEY = new Long(42);
+    private static final Long KEY = Long.valueOf(42);
 
     private static final String GRID_DISPLAY_ID = "example-grid";
 

@@ -479,7 +479,7 @@ public class MasterDataSynchronizer
                         .append("section", existingAssignment.getSection(), incomingAssignment.getSection())
                         // ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO.createAssignment() increases
                         // the provided ordinal by one. Thus, we have to subtract 1 in order to get the same ordinal.
-                        .append("ordinal", new Long(existingAssignment.getOrdinal() - 1), incomingAssignment.getOrdinal())
+                        .append("ordinal", Long.valueOf(existingAssignment.getOrdinal() - 1), incomingAssignment.getOrdinal())
                         .append("showInEdit", existingAssignment.isShownInEditView(),
                                 incomingAssignment.isDynamic() ? false : incomingAssignment.isShownInEditView())
                         .append("plugin", getPluginName(existingAssignment.getScript()), incomingAssignment.getScriptName());

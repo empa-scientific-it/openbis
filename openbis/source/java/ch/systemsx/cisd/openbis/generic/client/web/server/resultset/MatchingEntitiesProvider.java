@@ -211,7 +211,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
                 @Override
                 public int compare(Span s1, Span s2)
                 {
-                    return new Integer(s1.getStart()).compareTo(new Integer(s2.getStart()));
+                    return Integer.valueOf(s1.getStart()).compareTo(Integer.valueOf(s2.getStart()));
                 }
             });
 

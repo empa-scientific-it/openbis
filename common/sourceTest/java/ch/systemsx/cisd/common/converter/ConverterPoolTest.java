@@ -102,8 +102,8 @@ public final class ConverterPoolTest
         assertNull(pool.convert(null, String.class));
         assertEquals("", pool.convert("", String.class));
         // Integer
-        assertEquals(new Integer(1), pool.convert("1", Integer.class));
-        assertEquals(new Integer(1), pool.convert("1", Integer.TYPE));
+        assertEquals(Integer.valueOf(1), pool.convert("1", Integer.class));
+        assertEquals(Integer.valueOf(1), pool.convert("1", Integer.TYPE));
         try
         {
             pool.convert("notParsable", Integer.class);
@@ -132,11 +132,11 @@ public final class ConverterPoolTest
         assertEquals(new Character(NULL), pool.convert("", Character.class));
         // Customized Integer converter
         pool.registerConverter(Integer.class, new IntegerConverter());
-        assertEquals(new Integer(13), pool.convert("1", Integer.class));
-        assertEquals(new Integer(12), pool.convert("", Integer.class));
+        assertEquals(Integer.valueOf(13), pool.convert("1", Integer.class));
+        assertEquals(Integer.valueOf(12), pool.convert("", Integer.class));
         try
         {
-            assertEquals(new Integer(12), pool.convert("", Integer.TYPE));
+            assertEquals(Integer.valueOf(12), pool.convert("", Integer.TYPE));
             fail("Converter only registered for 'Integer.class' and not for 'Integer.TYPE'");
         } catch (NumberFormatException ex)
         {
@@ -161,7 +161,7 @@ public final class ConverterPoolTest
             try
             {
                 Integer.parseInt(value);
-                return new Integer(13);
+                return Integer.valueOf(13);
             } catch (NumberFormatException ex)
             {
                 return null;
@@ -171,7 +171,7 @@ public final class ConverterPoolTest
         @Override
         public final Integer getDefaultValue()
         {
-            return new Integer(12);
+            return Integer.valueOf(12);
         }
     }
 }

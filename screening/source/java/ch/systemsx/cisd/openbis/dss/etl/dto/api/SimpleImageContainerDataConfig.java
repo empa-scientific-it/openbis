@@ -46,8 +46,8 @@ public class SimpleImageContainerDataConfig extends SimpleImageDataConfig
             ImageMetadata imageMetadata = new ImageMetadata();
             imageMetadata.setImageIdentifier(imageIdentifier);
             imageMetadata.setSeriesNumber(imageIdentifier.getSeriesIndex() + 1);
-            imageMetadata.setTimepoint(new Float(imageIdentifier.getTimeSeriesIndex()));
-            imageMetadata.setDepth(new Float(imageIdentifier.getFocalPlaneIndex()));
+            imageMetadata.setTimepoint(Float.valueOf(imageIdentifier.getTimeSeriesIndex()));
+            imageMetadata.setDepth(Float.valueOf(imageIdentifier.getFocalPlaneIndex()));
             imageMetadata.setChannelCode("CHANNEL-" + (imageIdentifier.getColorChannelIndex() + 1));
             imageMetadata.setWell(tryToExtractWell(imageIdentifier));
             imageMetadata.setTileNumber(1);

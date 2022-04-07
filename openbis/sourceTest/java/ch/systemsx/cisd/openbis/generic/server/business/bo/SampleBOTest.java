@@ -156,7 +156,7 @@ public final class SampleBOTest extends AbstractBOTest
 
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
-        sampleType.setId(new Long(21L));
+        sampleType.setId(Long.valueOf(21L));
         final IEntityProperty sampleProperty = createSampleProperty();
         newSample.setProperties(new IEntityProperty[]
         { sampleProperty });

@@ -82,7 +82,7 @@ public abstract class AbstractDataSetPackager
                 checksumCalculator.update(0xff & b);
             }
             Long checksum = checksumCalculator.getValue();
-            addEntry(rootPath + META_DATA_FILE_NAME, System.currentTimeMillis(), new Long(bytes.length), checksum,
+            addEntry(rootPath + META_DATA_FILE_NAME, System.currentTimeMillis(), Long.valueOf(bytes.length), checksum,
                     new ByteArrayInputStream(bytes));
         } catch (Exception ex)
         {

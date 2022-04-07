@@ -74,7 +74,7 @@ public class VocabularyDropboxApiSystemTest extends SystemTestCase
 
         VocabularyTerm term = assertSampleForVocabularyTermExists(openBISService, "NEW_TERM");
 
-        assertEquals(new Long(3), term.getOrdinal());
+        assertEquals(Long.valueOf(3), term.getOrdinal());
         assertEquals("new description", term.getDescription());
         assertEquals("new label", term.getLabel());
 

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
  */
 public class SampleTest extends AssertJUnit
 {
-    private static final Long SAMPLE_ID = new Long(1);
+    private static final Long SAMPLE_ID = Long.valueOf(1);
 
     private static final String SAMPLE_PERM_ID = "perm-id";
 
@@ -38,7 +38,7 @@ public class SampleTest extends AssertJUnit
 
     private static final String SAMPLE_IDENTIFIER = "/space/sample-code";
 
-    private static final Long SAMPLE_TYPE_ID = new Long(1);
+    private static final Long SAMPLE_TYPE_ID = Long.valueOf(1);
 
     private static final String SAMPLE_TYPE_CODE = "sample-type";
 
@@ -96,7 +96,7 @@ public class SampleTest extends AssertJUnit
         initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode("different-code");
         initializer.setIdentifier("/a/different-identifier");
-        initializer.setSampleTypeId(new Long(2));
+        initializer.setSampleTypeId(Long.valueOf(2));
         initializer.setSampleTypeCode("new-code");
         initializer.setRegistrationDetails(registrationDetails);
         mySample = new Sample(initializer);
@@ -104,7 +104,7 @@ public class SampleTest extends AssertJUnit
         assertEquals(sample.hashCode(), mySample.hashCode());
 
         initializer = new SampleInitializer();
-        initializer.setId(new Long(2));
+        initializer.setId(Long.valueOf(2));
         initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);

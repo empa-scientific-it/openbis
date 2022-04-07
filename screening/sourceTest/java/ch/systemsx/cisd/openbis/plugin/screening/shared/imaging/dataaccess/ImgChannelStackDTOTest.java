@@ -49,7 +49,7 @@ public class ImgChannelStackDTOTest
 
     private ImgChannelStackDTO createStackChannel()
     {
-        return createStackChannel(new Long(1));
+        return createStackChannel(Long.valueOf(1));
     }
 
     private ImgChannelStackDTO createStackChannel(Long spotId)

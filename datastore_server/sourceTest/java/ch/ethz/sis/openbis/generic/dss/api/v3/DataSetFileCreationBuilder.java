@@ -28,7 +28,7 @@ public class DataSetFileCreationBuilder
         } else
         {
             this.isDirectory = false;
-            this.fileLength = new Long(rnd.nextInt(1024 * 1024 * 1024));
+            this.fileLength = Long.valueOf(rnd.nextInt(1024 * 1024 * 1024));
             this.checksumCRC32 = rnd.nextInt();
         }
         this.path = randomPath();

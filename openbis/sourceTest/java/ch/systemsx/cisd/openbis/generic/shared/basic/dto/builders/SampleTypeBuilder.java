@@ -120,7 +120,7 @@ public class SampleTypeBuilder extends AbstractEntityTypeBuilder<SampleType>
     {
         SampleTypePropertyType entityTypePropertyType = new SampleTypePropertyType();
         List<SampleTypePropertyType> types = sampleType.getAssignedPropertyTypes();
-        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        entityTypePropertyType.setOrdinal(Long.valueOf(types.size()));
         fillEntityTypePropertyType(sampleType, entityTypePropertyType, propertyType);
         types.add(entityTypePropertyType);
         return new EntityTypePropertyTypeBuilder(entityTypePropertyType);

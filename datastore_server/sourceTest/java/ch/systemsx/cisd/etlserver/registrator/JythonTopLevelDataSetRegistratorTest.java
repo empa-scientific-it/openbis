@@ -88,7 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
  */
 public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetHandlerTest
 {
-    private static final Long SEARCH_RETURNED_SAMPLE_DB_ID = new Long(100);
+    private static final Long SEARCH_RETURNED_SAMPLE_DB_ID = Long.valueOf(100);
 
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
@@ -750,7 +750,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 protected void registerDataSets()
                 {
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
@@ -774,7 +774,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         if (testCase.shouldRegisterTwoDataSets)
                         {
                             one(openBisService).drawANewUniqueID();
-                            will(returnValue(new Long(2)));
+                            will(returnValue(Long.valueOf(2)));
                             one(openBisService).performEntityOperations(
                                     with(atomicatOperationDetails));
                             will(doAll(checkPrecommitDirIsNotEmpty(), returnValue(new AtomicEntityOperationResult())));
@@ -1145,7 +1145,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
         {
             e.one(openBisService).drawANewUniqueID();
-            e.will(Expectations.returnValue(new Long(1)));
+            e.will(Expectations.returnValue(Long.valueOf(1)));
 
             e.one(storageRecoveryManager).checkpointPrecommittedState(
                     e.with(Expectations.any(TechId.class)),
@@ -1201,7 +1201,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                     "sub_data_set_2"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(operations));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -1285,7 +1285,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -1348,7 +1348,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -1435,7 +1435,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(Arrays.asList(sampleBuilder.getSample())));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
                 }
@@ -1485,7 +1485,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -1554,7 +1554,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "data_set"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -1707,7 +1707,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 {
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
@@ -1751,7 +1751,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                     with(any(DataSetStorageAlgorithmRunner.class)));
 
                     oneOf(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
 
                     oneOf(openBisService)
                             .performEntityOperations(
@@ -1828,7 +1828,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                     with(any(DataSetStorageAlgorithmRunner.class)));
 
                     oneOf(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
 
                     oneOf(openBisService)
                             .performEntityOperations(
@@ -2026,7 +2026,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));

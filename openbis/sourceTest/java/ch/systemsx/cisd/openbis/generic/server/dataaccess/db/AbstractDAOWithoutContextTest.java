@@ -82,7 +82,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         TestInitializer.init();
     }
 
-    static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);
+    static final Long ANOTHER_DATABASE_INSTANCE_ID = Long.valueOf(2);
 
     static final String EXCEED_CODE_LENGTH_CHARACTERS = StringUtils.repeat("A",
             Code.CODE_LENGTH_MAX + 1);

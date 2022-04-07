@@ -125,7 +125,7 @@ public class JythonEvaluatorPoolTest
 
             Set<Integer> set = new HashSet<Integer>(results);
             assertThat(set.size(), is(1));
-            assertThat(set.contains(new Integer(0)), is(true));
+            assertThat(set.contains(Integer.valueOf(0)), is(true));
         }
     }
 

@@ -124,10 +124,10 @@ public class DatasetListerFastTest extends AssertJUnit
                 new ArrayList<IDatasetLocationNode>(location.getComponents());
         Collections.sort(components, DATA_SET_LOCATION_NODE_COMPARATOR);
         assertEquals("ds-c1", components.get(0).getLocation().getDataSetCode());
-        assertEquals(new Integer(0), components.get(0).getLocation().getOrderInContainer("ds-1"));
+        assertEquals(Integer.valueOf(0), components.get(0).getLocation().getOrderInContainer("ds-1"));
         assertEquals("a/b/c/1", components.get(0).getLocation().getDataSetLocation());
         assertEquals("ds-c2", components.get(1).getLocation().getDataSetCode());
-        assertEquals(new Integer(1), components.get(1).getLocation().getOrderInContainer("ds-1"));
+        assertEquals(Integer.valueOf(1), components.get(1).getLocation().getOrderInContainer("ds-1"));
         assertEquals("a/b/c/2", components.get(1).getLocation().getDataSetLocation());
     }
 
@@ -160,23 +160,23 @@ public class DatasetListerFastTest extends AssertJUnit
                 new ArrayList<IDatasetLocationNode>(location.getComponents());
         Collections.sort(components, DATA_SET_LOCATION_NODE_COMPARATOR);
         assertEquals("-2303", components.get(0).getLocation().getDataSetCode());
-        assertEquals(new Integer(1), components.get(0).getLocation().getOrderInContainer("-2306"));
+        assertEquals(Integer.valueOf(1), components.get(0).getLocation().getOrderInContainer("-2306"));
         assertEquals("a/b/c/2303", components.get(0).getLocation().getDataSetLocation());
         assertEquals("[]", components.get(0).getComponents().toString());
         assertEquals("-2304", components.get(1).getLocation().getDataSetCode());
-        assertEquals(new Integer(0), components.get(1).getLocation().getOrderInContainer("-2306"));
+        assertEquals(Integer.valueOf(0), components.get(1).getLocation().getOrderInContainer("-2306"));
         assertEquals(null, components.get(1).getLocation().getDataSetLocation());
         List<IDatasetLocationNode> subComponents =
                 new ArrayList<IDatasetLocationNode>(components.get(1).getComponents());
         Collections.sort(subComponents, DATA_SET_LOCATION_NODE_COMPARATOR);
         assertEquals("-2302", subComponents.get(0).getLocation().getDataSetCode());
-        assertEquals(new Integer(1), subComponents.get(0).getLocation().getOrderInContainer("-2304"));
+        assertEquals(Integer.valueOf(1), subComponents.get(0).getLocation().getOrderInContainer("-2304"));
         assertEquals("a/b/c/2302", subComponents.get(0).getLocation().getDataSetLocation());
         assertEquals("-2303", subComponents.get(1).getLocation().getDataSetCode());
-        assertEquals(new Integer(2), subComponents.get(1).getLocation().getOrderInContainer("-2304"));
+        assertEquals(Integer.valueOf(2), subComponents.get(1).getLocation().getOrderInContainer("-2304"));
         assertEquals("a/b/c/2303", subComponents.get(1).getLocation().getDataSetLocation());
         assertEquals("-2305", components.get(2).getLocation().getDataSetCode());
-        assertEquals(new Integer(2), components.get(2).getLocation().getOrderInContainer("-2306"));
+        assertEquals(Integer.valueOf(2), components.get(2).getLocation().getOrderInContainer("-2306"));
         assertEquals("a/b/c/2305", components.get(2).getLocation().getDataSetLocation());
         assertEquals("[]", components.get(2).getComponents().toString());
 

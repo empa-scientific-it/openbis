@@ -428,7 +428,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 //        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
 //        DetailedSearchAssociationCriteria association =
 //                new DetailedSearchAssociationCriteria(AssociatedEntityKind.EXPERIMENT,
-//                        Collections.singleton(new Long(2L)));
+//                        Collections.singleton(Long.valueOf(2L)));
 //        // compared to testSearchForDataSetsSimpleField() DSLoc.A_2 should be filtered
 //        // because of different experiment
 //        assertCorrectDatasetsFound(criteria, association, DSLoc.ANALYSIS_RESULT);

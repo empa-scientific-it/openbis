@@ -422,7 +422,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 {
                     one(commonServer).listSampleTypes(SESSION_TOKEN);
                     SampleType returnSampleType = new SampleType();
-                    returnSampleType.setId(new Long(1));
+                    returnSampleType.setId(Long.valueOf(1));
                     returnSampleType.setCode("sample-type");
                     will(returnValue(Collections.singletonList(returnSampleType)));
 
@@ -442,11 +442,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             });
 
         SampleInitializer initializer = new SampleInitializer();
-        initializer.setId(new Long(1));
+        initializer.setId(Long.valueOf(1));
         initializer.setPermId("permId");
         initializer.setCode("code");
         initializer.setIdentifier("/space/code");
-        initializer.setSampleTypeId(new Long(1));
+        initializer.setSampleTypeId(Long.valueOf(1));
         initializer.setSampleTypeCode("sample-type");
         EntityRegistrationDetails registrationDetails =
                 new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
@@ -507,11 +507,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             });
 
         SampleInitializer initializer = new SampleInitializer();
-        initializer.setId(new Long(1));
+        initializer.setId(Long.valueOf(1));
         initializer.setPermId("permId");
         initializer.setCode("code");
         initializer.setIdentifier("/space/code");
-        initializer.setSampleTypeId(new Long(1));
+        initializer.setSampleTypeId(Long.valueOf(1));
         initializer.setSampleTypeCode("sample-type");
         EntityRegistrationDetails registrationDetails =
                 new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());

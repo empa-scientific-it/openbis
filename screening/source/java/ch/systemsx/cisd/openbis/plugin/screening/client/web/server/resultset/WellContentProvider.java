@@ -237,7 +237,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
             FeatureValue featureValue = values[i];
             if (featureValue.isFloat())
             {
-                column.addDouble(new Double(featureValue.asFloat()));
+                column.addDouble(Double.valueOf(featureValue.asFloat()));
             } else
             {
                 column.addString(featureValue.tryAsVocabularyTerm());

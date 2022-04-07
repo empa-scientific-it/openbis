@@ -38,19 +38,19 @@ public class IlluminaSummaryXMLLoaderTest extends AbstractFileSystemTestCase
 
         ChipResultsSummary chipResultsSummary = summary.getChipResultsSummary();
         LaneResultsSummary laneResultsSummary = summary.getLaneResultsSummary();
-        assertEquals(new Long(98792458L), chipResultsSummary.getClusterCountPF());
-        assertEquals(new Long(158466917L), chipResultsSummary.getClusterCountRaw());
-        assertEquals(new Long(3556528488L), chipResultsSummary.getYield());
+        assertEquals(Long.valueOf(98792458L), chipResultsSummary.getClusterCountPF());
+        assertEquals(Long.valueOf(158466917L), chipResultsSummary.getClusterCountRaw());
+        assertEquals(Long.valueOf(3556528488L), chipResultsSummary.getYield());
         // if not there yhen take the init value
-        assertEquals(new Double(0.0), chipResultsSummary.getDensityRatio());
+        assertEquals(Double.valueOf(0.0), chipResultsSummary.getDensityRatio());
 
-        assertEquals(new Long(381287L), laneResultsSummary.getRead().getLanes().get(0)
+        assertEquals(Long.valueOf(381287L), laneResultsSummary.getRead().getLanes().get(0)
                 .getClusterCountRaw().getMean());
-        assertEquals(new Long(277736L), laneResultsSummary.getRead().getLanes().get(0)
+        assertEquals(Long.valueOf(277736L), laneResultsSummary.getRead().getLanes().get(0)
                 .getClusterCountPF().getMean());
-        assertEquals(new Long(1199819L), laneResultsSummary.getRead().getLanes().get(0)
+        assertEquals(Long.valueOf(1199819L), laneResultsSummary.getRead().getLanes().get(0)
                 .getLaneYield());
-        assertEquals(new Double(79.37), laneResultsSummary.getRead().getLanes().get(0)
+        assertEquals(Double.valueOf(79.37), laneResultsSummary.getRead().getLanes().get(0)
                 .getPercentUniquelyAlignedPF().getMean());
 
         if (summary.getSoftware() == "")

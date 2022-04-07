@@ -174,7 +174,7 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
         DatasetDescription result = new DatasetDescription();
         result.setDataSetCode("code" + nr);
         result.setDataSetLocation("dataSetLocation" + nr);
-        result.setDataSetSize(new Long(nr));
+        result.setDataSetSize(Long.valueOf(nr));
         result.setDatasetTypeCode("datasetTypeCode" + nr);
         result.setExperimentCode("experimentCode" + nr);
         result.setExperimentIdentifier("experimentIdentifier" + nr);
@@ -196,7 +196,7 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
         assertSame(expectedContent, dataSet.getContent());
         assertEquals("code" + expectedNr, dataSet.getDataSetCode());
         assertEquals("dataSetLocation" + expectedNr, dataSet.getDataSetLocation());
-        assertEquals(new Long(expectedNr), dataSet.getDataSetSize());
+        assertEquals(Long.valueOf(expectedNr), dataSet.getDataSetSize());
         assertEquals("datasetTypeCode" + expectedNr, dataSet.getDataSetTypeCode());
         assertEquals("experimentCode" + expectedNr, dataSet.getExperimentCode());
         assertEquals("experimentIdentifier" + expectedNr, dataSet.getExperimentIdentifier());

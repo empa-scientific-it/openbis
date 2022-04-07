@@ -380,7 +380,7 @@ public class FeatureVectorLoader
                 CodeAndLabel codeAndLabel = asCodeAndLabel(featureDefinition);
                 if (featureCodeLabelToIndexMap.containsKey(codeAndLabel) == false)
                 {
-                    featureCodeLabelToIndexMap.put(codeAndLabel, new Integer(
+                    featureCodeLabelToIndexMap.put(codeAndLabel, Integer.valueOf(
                             featureCodeLabelToIndexMap.size()));
                 }
             }

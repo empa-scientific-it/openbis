@@ -197,7 +197,7 @@ public final class AuthorizationTestUtil
         person.setFirstName("John");
         person.setLastName("Doe");
         person.setEmail("John.Doe@group.org");
-        person.setId(new Long(42));
+        person.setId(Long.valueOf(42));
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignments)));
         return new IAuthSession()
             {

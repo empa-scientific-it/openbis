@@ -466,7 +466,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
                 assertEquals("thumbs", zoomLevel.getRootPath());
                 assertEquals(200, zoomLevel.getWidth().intValue());
                 assertEquals(150, zoomLevel.getHeight().intValue());
-                assertEquals(new Integer(8), zoomLevel.getColorDepth());
+                assertEquals(Integer.valueOf(8), zoomLevel.getColorDepth());
                 assertEquals("png", zoomLevel.getFileType());
             }
         }

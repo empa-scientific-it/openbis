@@ -83,7 +83,7 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
     {
         DataSetTypePropertyType entityTypePropertyType = new DataSetTypePropertyType();
         List<DataSetTypePropertyType> types = dataSetType.getAssignedPropertyTypes();
-        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        entityTypePropertyType.setOrdinal(Long.valueOf(types.size()));
         fillEntityTypePropertyType(dataSetType, entityTypePropertyType, code, label, dataType);
         types.add(entityTypePropertyType);
         return this;
@@ -93,7 +93,7 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
     {
         DataSetTypePropertyType entityTypePropertyType = new DataSetTypePropertyType();
         List<DataSetTypePropertyType> types = dataSetType.getAssignedPropertyTypes();
-        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        entityTypePropertyType.setOrdinal(Long.valueOf(types.size()));
         fillEntityTypePropertyType(dataSetType, entityTypePropertyType, propertyType);
         types.add(entityTypePropertyType);
         return new EntityTypePropertyTypeBuilder(entityTypePropertyType);

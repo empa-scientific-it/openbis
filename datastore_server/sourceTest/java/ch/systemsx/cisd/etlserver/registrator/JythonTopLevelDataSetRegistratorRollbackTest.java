@@ -82,7 +82,7 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
 
                     one(openBisService)
                             .performEntityOperations(
