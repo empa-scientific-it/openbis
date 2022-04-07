@@ -17,9 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.update;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 
 /**
  * @author Franz-Josef Elmer
@@ -30,13 +27,13 @@ public interface IAssertionOfNoDeletedEntityExecutor
 
     void assertSpaceHasNoDeletedSamples(String spaceCode);
 
-    void assertProjectHasNoDeletedExperiments(IProjectId projectId);
+    void assertProjectHasNoDeletedExperiments(String projectPermId);
 
-    void assertProjectHasNoDeletedSamples(IProjectId projectId);
+    void assertProjectHasNoDeletedSamples(String projectPermId);
 
-    void assertExperimentHasNoDeletedSamples(IExperimentId experimentId);
+    void assertExperimentHasNoDeletedSamples(String experimentPermId);
 
-    void assertExperimentHasNoDeletedDataSets(IExperimentId experimentId);
+    void assertExperimentHasNoDeletedDataSets(String experimentPermId);
 
     void assertDataSetHasNoDeletedChildren(IDataSetId dataSetId);
 
@@ -44,13 +41,13 @@ public interface IAssertionOfNoDeletedEntityExecutor
 
     void assertDataSetHasNoDeletedComponents(IDataSetId dataSetId);
 
-    void assertSampleHasNoDeletedChildren(ISampleId sampleId);
+    void assertSampleHasNoDeletedChildren(String samplePermId);
 
-    void assertSampleHasNoDeletedParents(ISampleId sampleId);
+    void assertSampleHasNoDeletedParents(String samplePermId);
 
-    void assertSampleHasNoDeletedComponents(ISampleId sampleId);
+    void assertSampleHasNoDeletedComponents(String samplePermId);
 
-    void assertSampleHasNoDeletedDataSets(ISampleId sampleId);
+    void assertSampleHasNoDeletedDataSets(String samplePermId);
 
 
 

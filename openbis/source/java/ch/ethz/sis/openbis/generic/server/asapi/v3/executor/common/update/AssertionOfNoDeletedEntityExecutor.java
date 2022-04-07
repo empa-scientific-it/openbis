@@ -28,12 +28,6 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import net.lemnik.eodsql.QueryTool;
@@ -60,35 +54,31 @@ public class AssertionOfNoDeletedEntityExecutor implements IAssertionOfNoDeleted
     }
 
     @Override
-    public void assertProjectHasNoDeletedExperiments(IProjectId projectId)
+    public void assertProjectHasNoDeletedExperiments(String projectPermId)
     {
-        String permId = ((ProjectPermId) projectId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedExperimentsOfProject(permId);
-        assertEntityHasNoDeletedRelatedEntities("project", permId, "experiments", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedExperimentsOfProject(projectPermId);
+        assertEntityHasNoDeletedRelatedEntities("project", projectPermId, "experiments", entities);
     }
 
     @Override
-    public void assertProjectHasNoDeletedSamples(IProjectId projectId)
+    public void assertProjectHasNoDeletedSamples(String projectPermId)
     {
-        String permId = ((ProjectPermId) projectId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedSamplesOfProject(permId);
-        assertEntityHasNoDeletedRelatedEntities("project", permId, "objects", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedSamplesOfProject(projectPermId);
+        assertEntityHasNoDeletedRelatedEntities("project", projectPermId, "objects", entities);
     }
 
     @Override
-    public void assertExperimentHasNoDeletedSamples(IExperimentId experimentId)
+    public void assertExperimentHasNoDeletedSamples(String experimentPermId)
     {
-        String permId = ((ExperimentPermId) experimentId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedSamplesOfExperiment(permId);
-        assertEntityHasNoDeletedRelatedEntities("experiment", permId, "objects", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedSamplesOfExperiment(experimentPermId);
+        assertEntityHasNoDeletedRelatedEntities("experiment", experimentPermId, "objects", entities);
     }
 
     @Override
-    public void assertExperimentHasNoDeletedDataSets(IExperimentId experimentId)
+    public void assertExperimentHasNoDeletedDataSets(String experimentPermId)
     {
-        String permId = ((ExperimentPermId) experimentId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedDataSetsOfExperiment(permId);
-        assertEntityHasNoDeletedRelatedEntities("experiment", permId, "data sets", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedDataSetsOfExperiment(experimentPermId);
+        assertEntityHasNoDeletedRelatedEntities("experiment", experimentPermId, "data sets", entities);
     }
 
     @Override
@@ -116,35 +106,31 @@ public class AssertionOfNoDeletedEntityExecutor implements IAssertionOfNoDeleted
     }
 
     @Override
-    public void assertSampleHasNoDeletedChildren(ISampleId sampleId)
+    public void assertSampleHasNoDeletedChildren(String samplePermId)
     {
-        String permId = ((SamplePermId) sampleId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedChildrenOfSample(permId);
-        assertEntityHasNoDeletedRelatedEntities("object", permId, "children", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedChildrenOfSample(samplePermId);
+        assertEntityHasNoDeletedRelatedEntities("object", samplePermId, "children", entities);
     }
 
     @Override
-    public void assertSampleHasNoDeletedParents(ISampleId sampleId)
+    public void assertSampleHasNoDeletedParents(String samplePermId)
     {
-        String permId = ((SamplePermId) sampleId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedParentsOfSample(permId);
-        assertEntityHasNoDeletedRelatedEntities("object", permId, "parents", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedParentsOfSample(samplePermId);
+        assertEntityHasNoDeletedRelatedEntities("object", samplePermId, "parents", entities);
     }
 
     @Override
-    public void assertSampleHasNoDeletedComponents(ISampleId sampleId)
+    public void assertSampleHasNoDeletedComponents(String samplePermId)
     {
-        String permId = ((SamplePermId) sampleId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedComponentsOfSample(permId);
-        assertEntityHasNoDeletedRelatedEntities("object", permId, "components", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedComponentsOfSample(samplePermId);
+        assertEntityHasNoDeletedRelatedEntities("object", samplePermId, "components", entities);
     }
 
     @Override
-    public void assertSampleHasNoDeletedDataSets(ISampleId sampleId)
+    public void assertSampleHasNoDeletedDataSets(String samplePermId)
     {
-        String permId = ((SamplePermId) sampleId).getPermId();
-        List<DeletedEntityRecord> entities = query.listDeletedDataSetsOfSample(permId);
-        assertEntityHasNoDeletedRelatedEntities("object", permId, "data sets", entities);
+        List<DeletedEntityRecord> entities = query.listDeletedDataSetsOfSample(samplePermId);
+        assertEntityHasNoDeletedRelatedEntities("object", samplePermId, "data sets", entities);
     }
 
     private void assertEntityHasNoDeletedRelatedEntities(String entityKind, String identifier,

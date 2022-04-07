@@ -129,14 +129,14 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
             if (update.shouldBeFrozenForExperiments())
             {
                 authorizationExecutor.canFreeze(context, project);
-                assertionOfNoDeletedEntityExecutor.assertProjectHasNoDeletedExperiments(update.getProjectId());
+                assertionOfNoDeletedEntityExecutor.assertProjectHasNoDeletedExperiments(project.getPermId());
                 project.setFrozenForExperiment(true);
                 freezingFlags.freezeForExperiments();
             }
             if (update.shouldBeFrozenForSamples())
             {
                 authorizationExecutor.canFreeze(context, project);
-                assertionOfNoDeletedEntityExecutor.assertProjectHasNoDeletedSamples(update.getProjectId());
+                assertionOfNoDeletedEntityExecutor.assertProjectHasNoDeletedSamples(project.getPermId());
                 project.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

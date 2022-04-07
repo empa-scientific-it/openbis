@@ -145,28 +145,28 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             if (update.shouldBeFrozenForComponents())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedComponents(update.getSampleId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedComponents(entity.getPermId());
                 entity.setFrozenForComponent(true);
                 freezingFlags.freezeForComponents();
             }
             if (update.shouldBeFrozenForChildren())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedChildren(update.getSampleId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedChildren(entity.getPermId());
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedParents(update.getSampleId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedParents(entity.getPermId());
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForDataSets())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedDataSets(update.getSampleId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedDataSets(entity.getPermId());
                 entity.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
