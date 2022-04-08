@@ -60,7 +60,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    return new Long(value);
+                    return Long.valueOf(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not an integer number: " + value);
@@ -80,7 +80,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    return new Double(value);
+                    return Double.valueOf(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not a floating point number: " + value);

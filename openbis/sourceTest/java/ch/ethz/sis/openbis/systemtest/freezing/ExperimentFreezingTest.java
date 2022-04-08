@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.freezing;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,13 +26,26 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.AttachmentFileName;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * @author Franz-Josef Elmer
@@ -312,5 +326,70 @@ public class ExperimentFreezingTest extends FreezingTest
 
         // Then
         assertEquals(getExperiment(experiment1).getAttachments().size(), 0);
+    }
+
+    @Test
+    public void testAssertExperimentHasNoDeletedSamples()
+    {
+        // Given
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("SAMPLE-" + System.currentTimeMillis());
+        sampleCreation.setSpaceId(DEFAULT_SPACE_ID);
+        sampleCreation.setExperimentId(experiment1);
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(sampleCreation));
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteSamples(systemSessionToken, sampleIds, deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experiment1);
+        experimentUpdate.freezeForSamples();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateExperiments(systemSessionToken, Arrays.asList(experimentUpdate)),
+                // Then
+                "Can not freeze experiment " + experiment1 + " because it has 1 objects in the trashcan (1 deletion sets):\n"
+                        + "1 objects (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before experiment "
+                        + experiment1 + " can be frozen.\n");
+    }
+
+    @Test
+    public void testAssertExperimentHasNoDeletedDataSets()
+    {
+        // Given
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setCode("DS-" + System.currentTimeMillis());
+        dataSetCreation.setExperimentId(experiment1);
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
+        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(systemSessionToken, Arrays.asList(dataSetCreation));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteDataSets(systemSessionToken, dataSetIds, deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experiment1);
+        experimentUpdate.freezeForDataSets();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateExperiments(systemSessionToken, Arrays.asList(experimentUpdate)),
+                // Then
+                "Can not freeze experiment " + experiment1 + " because it has 1 data sets in the trashcan (1 deletion sets):\n"
+                        + "1 data sets (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before experiment "
+                        + experiment1 + " can be frozen.\n");
     }
 }

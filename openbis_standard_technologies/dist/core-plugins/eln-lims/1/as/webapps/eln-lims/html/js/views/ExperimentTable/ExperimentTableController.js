@@ -86,10 +86,10 @@ function ExperimentTableController(parentController, title, project, showInProje
 		}
 	}
 	
-	this.refreshHeight = function()
+	this.refresh = function()
 	{
 		if (this._dataGridController) {
-			this._dataGridController.refreshHeight();
+			this._dataGridController.refresh();
 		}
 	}
 }

@@ -1,24 +1,14 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import AppController from '@src/js/components/AppController.js'
 import Link from '@material-ui/core/Link'
-import actions from '@src/js/store/actions/actions.js'
 
 const styles = () => ({
   link: {
     fontSize: 'inherit'
   }
 })
-
-function mapDispatchToProps(dispatch) {
-  return {
-    objectOpen: (page, objectType, objectId) => {
-      dispatch(actions.objectOpen(page, objectType, objectId))
-    }
-  }
-}
 
 class LinkToObject extends React.Component {
   constructor(props) {
@@ -28,7 +18,7 @@ class LinkToObject extends React.Component {
 
   handleClick() {
     const { page, object } = this.props
-    this.props.objectOpen(page, object.type, object.id)
+    AppController.getInstance().objectOpen(page, object.type, object.id)
   }
 
   render() {
@@ -45,7 +35,4 @@ class LinkToObject extends React.Component {
   }
 }
 
-export default _.flow(
-  connect(null, mapDispatchToProps),
-  withStyles(styles)
-)(LinkToObject)
+export default withStyles(styles)(LinkToObject)

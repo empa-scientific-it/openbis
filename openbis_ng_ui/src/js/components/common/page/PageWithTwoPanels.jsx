@@ -1,6 +1,4 @@
-import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import { Resizable } from 're-resizable'
 import Container from '@src/js/components/common/form/Container.jsx'
@@ -66,17 +64,19 @@ class PageWithTwoPanels extends React.PureComponent {
     const { classes, renderMainPanel, renderAdditionalPanel, renderButtons } =
       this.props
 
-    const mainPanel = renderMainPanel ? renderMainPanel() : null
-    const additionalPanel = renderAdditionalPanel
-      ? renderAdditionalPanel()
-      : null
-    const buttons = renderButtons ? renderButtons() : null
+    const mainPanel = renderMainPanel ? renderMainPanel() : <div></div>
+    const additionalPanel = renderAdditionalPanel ? (
+      renderAdditionalPanel()
+    ) : (
+      <div></div>
+    )
+    const buttons = renderButtons ? renderButtons() : <div></div>
 
     return (
       <div className={classes.container}>
         <div className={classes.content}>
-          {mainPanel && <div className={classes.mainPanel}>{mainPanel}</div>}
-          {additionalPanel && (
+          {<div className={classes.mainPanel}>{mainPanel}</div>}
+          {
             <Resizable
               defaultSize={{
                 width: 400,
@@ -95,9 +95,9 @@ class PageWithTwoPanels extends React.PureComponent {
             >
               <div className={classes.additionalPanel}>{additionalPanel}</div>
             </Resizable>
-          )}
+          }
         </div>
-        {buttons && <div className={classes.buttons}>{buttons}</div>}
+        {<div className={classes.buttons}>{buttons}</div>}
       </div>
     )
   }
@@ -113,4 +113,4 @@ class PageWithTwoPanels extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(PageWithTwoPanels)
+export default withStyles(styles)(PageWithTwoPanels)

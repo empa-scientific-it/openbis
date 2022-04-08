@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
@@ -8,7 +7,7 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import BrowserNodes from '@src/js/components/common/browser/BrowserNodes.jsx'
 import BrowserButtons from '@src/js/components/common/browser/BrowserButtons.jsx'
 import BrowserDialogRemoveNode from '@src/js/components/common/browser/BrowserDialogRemoveNode.jsx'
-import selectors from '@src/js/store/selectors/selectors.js'
+import AppController from '@src/js/components/AppController.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -27,19 +26,6 @@ const styles = theme => ({
     overflow: 'auto'
   }
 })
-
-function mapStateToProps() {
-  return (state, ownProps) => {
-    return {
-      session: selectors.getSession(state),
-      selectedObject: selectors.getSelectedObject(
-        state,
-        ownProps.controller.getPage()
-      ),
-      lastObjectModifications: selectors.getLastObjectModifications(state)
-    }
-  }
-}
 
 class Browser extends React.PureComponent {
   constructor(props) {
@@ -124,4 +110,13 @@ class Browser extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(mapStateToProps), withStyles(styles))(Browser)
+export default _.flow(
+  withStyles(styles),
+  AppController.getInstance().withState(ownProps => ({
+    selectedObject: AppController.getInstance().getSelectedObject(
+      ownProps.controller.getPage()
+    ),
+    lastObjectModifications:
+      AppController.getInstance().getLastObjectModifications()
+  }))
+)(Browser)

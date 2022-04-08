@@ -48,6 +48,9 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var columns = [ {
 			label : 'Code',
 			property : 'code',
+			render: function(data){
+				return $("<div>").html(data.code)
+			},
 			sortable : true
 		} , {
 			label : 'Description',

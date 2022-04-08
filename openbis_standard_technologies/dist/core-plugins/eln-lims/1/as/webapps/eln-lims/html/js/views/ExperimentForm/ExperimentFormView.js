@@ -478,7 +478,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			label : ELNDictionary.Samples,
 			section : "#experiment-samples",
 			beforeShowingAction : function() {
-				sampleList.refreshHeight();
+				sampleList.refresh();
 			}
 		});
 		return $samples;

@@ -4,8 +4,8 @@ import Content from '@src/js/components/common/content/Content.jsx'
 import ContentTab from '@src/js/components/common/content/ContentTab.jsx'
 import TypeBrowser from '@src/js/components/types/browser/TypeBrowser.jsx'
 import TypeSearch from '@src/js/components/types/search/TypeSearch.jsx'
-import TypeForm from '@src/js/components/types/form/TypeForm.jsx'
-import VocabularyForm from '@src/js/components/types/form/VocabularyForm.jsx'
+import EntityTypeForm from '@src/js/components/types/form/entitytype/EntityTypeForm.jsx'
+import VocabularyTypeForm from '@src/js/components/types/form/vocabularytype/VocabularyTypeForm.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
@@ -18,7 +18,7 @@ const styles = () => ({
   }
 })
 
-class Types extends React.Component {
+class Types extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Types.render')
 
@@ -46,9 +46,9 @@ class Types extends React.Component {
       object.type === objectType.VOCABULARY_TYPE ||
       object.type === objectType.NEW_VOCABULARY_TYPE
     ) {
-      return <VocabularyForm object={object} />
+      return <VocabularyTypeForm object={object} />
     } else {
-      return <TypeForm object={object} />
+      return <EntityTypeForm object={object} />
     }
   }
 
@@ -63,7 +63,8 @@ class Types extends React.Component {
         [objectType.COLLECTION_TYPE]: messages.get(messages.COLLECTION_TYPES),
         [objectType.DATA_SET_TYPE]: messages.get(messages.DATA_SET_TYPES),
         [objectType.MATERIAL_TYPE]: messages.get(messages.MATERIAL_TYPES),
-        [objectType.VOCABULARY_TYPE]: messages.get(messages.VOCABULARY_TYPES)
+        [objectType.VOCABULARY_TYPE]: messages.get(messages.VOCABULARY_TYPES),
+        [objectType.PROPERTY_TYPE]: messages.get(messages.PROPERTY_TYPES)
       }
       label = labels[object.id]
     } else {

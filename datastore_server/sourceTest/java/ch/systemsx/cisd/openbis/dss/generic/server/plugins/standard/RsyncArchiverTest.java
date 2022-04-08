@@ -193,7 +193,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         assertEquals("space", ShareFinder.recordedDataSet.getSpaceCode());
         assertEquals("p1", ShareFinder.recordedDataSet.getProjectCode());
         assertEquals("s1", ShareFinder.recordedDataSet.getSampleCode());
-        assertEquals(new Long(11L), ShareFinder.recordedDataSet.getDataSetSize());
+        assertEquals(Long.valueOf(11L), ShareFinder.recordedDataSet.getDataSetSize());
         assertEquals(share1, ShareFinder.recordedShares.get(0).getShare());
         assertEquals(share2, ShareFinder.recordedShares.get(1).getShare());
         assertEquals(2, ShareFinder.recordedShares.size());

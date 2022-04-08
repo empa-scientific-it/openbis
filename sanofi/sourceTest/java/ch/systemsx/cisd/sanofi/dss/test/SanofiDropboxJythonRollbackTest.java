@@ -185,7 +185,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     CustomAction makeFileSystemUnavailable = new CustomAction("foo")
                         {

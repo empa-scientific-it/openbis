@@ -55,6 +55,4 @@ async function testFilter() {
       ]
     }
   ])
-
-  common.context.expectNoActions()
 }

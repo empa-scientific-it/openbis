@@ -79,7 +79,7 @@ class NumericValidatorFactory extends AbstractValidatorFactory
             }
             try
             {
-                minimum = new Double(rangeDescription.substring(1, indexOfComma));
+                minimum = Double.valueOf(rangeDescription.substring(1, indexOfComma));
             } catch (NumberFormatException ex)
             {
                 throw new ConfigurationFailureException("Invalid minimum in range definition: "
@@ -88,7 +88,7 @@ class NumericValidatorFactory extends AbstractValidatorFactory
             try
             {
                 maximum =
-                        new Double(rangeDescription.substring(indexOfComma + 1, rangeDescription
+                        Double.valueOf(rangeDescription.substring(indexOfComma + 1, rangeDescription
                                 .length() - 1));
             } catch (NumberFormatException ex)
             {

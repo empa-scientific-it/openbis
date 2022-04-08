@@ -70,6 +70,7 @@ def getSamplesImportTemplate(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 
     allowedSampleTypes = [EntityTypePermId(code) for code in parameters.get("allowedSampleTypes")]
+    templateType = parameters.get("templateType")
     importMode = parameters.get("importMode")
     sessionToken = context.getSessionToken()
     api = context.getApplicationService()
@@ -97,9 +98,10 @@ def getSamplesImportTemplate(context, parameters):
         cell_index = _create_cell(row, cell_index, header_style, "Code")
         if importMode == "UPDATE":
             cell_index = _create_cell(row, cell_index, header_style, "Identifier")
-        cell_index = _create_cell(row, cell_index, header_style, "Experiment")
-        cell_index = _create_cell(row, cell_index, header_style, "Project")
-        cell_index = _create_cell(row, cell_index, header_style, "Space")
+        if templateType == "GENERAL":
+            cell_index = _create_cell(row, cell_index, header_style, "Experiment")
+            cell_index = _create_cell(row, cell_index, header_style, "Project")
+            cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
@@ -487,23 +489,12 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
     currentSession = daoFactory.getSessionFactory().getCurrentSession();
 
-    # TO-DO Replace generating SQL manually by variable substitution
-
     spaceCodes = parameters.get("spaceCodes");
     if spaceCodes is None or len(spaceCodes) == 0:
         return []
 
-    spaceCodesList = "("
-    isFirst = True
-    for spaceCode in spaceCodes:
-        if not isFirst:
-            spaceCodesList = spaceCodesList + ","
-        else:
-            isFirst = False
-        spaceCodesList = spaceCodesList + "'" + spaceCode + "'"
-    spaceCodesList = spaceCodesList + ")"
-
-    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN " + spaceCodesList + ") AND p.is_active = FALSE)");
+    disabled_spaces = currentSession.createSQLQuery("SELECT sp.code FROM spaces sp WHERE sp.id IN(SELECT p.space_id FROM persons p WHERE p.space_id IN (SELECT s.id FROM spaces s WHERE s.code IN (:codes)) AND p.is_active = FALSE)");
+    disabled_spaces.setParameterList("codes", spaceCodes)
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
 

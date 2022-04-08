@@ -640,7 +640,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(dao).tryGetChannelForExperimentPermId(EXPERIMENT_PERM_ID, channel);
                     ImgChannelDTO channelDTO =
-                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi", 0, 0,
+                            new ImgChannelDTO("dapi", null, null, Long.valueOf(42), null, "dapi", 0, 0,
                                     255);
                     long channelId = 444;
                     channelDTO.setId(channelId);

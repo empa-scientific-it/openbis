@@ -260,23 +260,23 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         @Override
         public int compareTo(FullLocation o)
         {
-            int wellRowCompare = new Integer(wellRow).compareTo(new Integer(o.wellRow));
+            int wellRowCompare = Integer.valueOf(wellRow).compareTo(Integer.valueOf(o.wellRow));
             if (wellRowCompare != 0)
             {
                 return wellRowCompare;
             }
-            int wellColCompare = new Integer(wellCol).compareTo(new Integer(o.wellCol));
+            int wellColCompare = Integer.valueOf(wellCol).compareTo(Integer.valueOf(o.wellCol));
             if (wellColCompare != 0)
             {
                 return wellColCompare;
             }
 
-            int tileRowCompare = new Integer(tileRow).compareTo(new Integer(o.tileRow));
+            int tileRowCompare = Integer.valueOf(tileRow).compareTo(Integer.valueOf(o.tileRow));
             if (tileRowCompare != 0)
             {
                 return tileRowCompare;
             }
-            return new Integer(tileCol).compareTo(new Integer(o.tileCol));
+            return Integer.valueOf(tileCol).compareTo(Integer.valueOf(o.tileCol));
         }
     }
 

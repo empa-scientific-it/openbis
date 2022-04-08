@@ -13,7 +13,6 @@ export default class ComponentContext {
       return component.state
     }
     this.setStateFn = component.setState.bind(component)
-    this.dispatchFn = component.props.dispatch
   }
 
   initState(initialState) {
@@ -34,10 +33,6 @@ export default class ComponentContext {
         resolve()
       })
     })
-  }
-
-  dispatch(action) {
-    this.dispatchFn(action)
   }
 
   getFacade() {

@@ -466,7 +466,7 @@ class Entities
         @Override
         public void add(String name, int value)
         {
-            mapNameToValue.put(name, new Integer(value));
+            mapNameToValue.put(name, Integer.valueOf(value));
             mapValueToName.put(value, name);
         }
 
@@ -506,8 +506,8 @@ class Entities
         @Override
         public void add(String name, int value)
         {
-            mapNameToValue.put(name, new Integer(value));
-            mapValueToName.put(new Integer(value), name);
+            mapNameToValue.put(name, Integer.valueOf(value));
+            mapValueToName.put(Integer.valueOf(value), name);
         }
 
         /**
@@ -516,7 +516,7 @@ class Entities
         @Override
         public String name(int value)
         {
-            return mapValueToName.get(new Integer(value));
+            return mapValueToName.get(Integer.valueOf(value));
         }
 
         /**

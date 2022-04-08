@@ -1304,7 +1304,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected void drawUniqueId()
         {
             one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
+            will(returnValue(Long.valueOf(1)));
         }
 
         protected void registerDataSetsAndMakeFileSystemUnavailable()

@@ -112,7 +112,7 @@ public class PrimitiveValue implements IsSerializable, Serializable, Comparable<
             return doubleValueOrNull;
         } else if (longValueOrNull != null)
         {
-            return new Double(longValueOrNull);
+            return Double.valueOf(longValueOrNull);
         } else
         {
             return stringValueOrNull != null ? stringValueOrNull : "";

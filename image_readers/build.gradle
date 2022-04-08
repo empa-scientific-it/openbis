@@ -4,19 +4,21 @@ evaluationDependsOn(':common')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile project(':common'),
+    api project(':common'),
         'imagej:ij:1.43u',
         'bioformats:bioformats:6.5.1',
         'slf4j:slf4j:1.6.2',
         'slf4j:slf4j-log4j12:1.6.2'
         
-        
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
 }
 
 def jarConfiguration(parameters){
     return {
-        destinationDir = project.distsDir
+        destinationDir = project.distsDirectory.getAsFile().get()
         baseName = parameters.get('baseName')
         def libraryName = parameters.get('libraryName')
         
@@ -61,11 +63,11 @@ task jarImageJ(type: Jar) {
 }
 
 jar {
-    destinationDir = project.distsDir
+    destinationDir = project.distsDirectory.getAsFile().get()
 }
 jar.dependsOn([ jarImageIO, jarBioformats, jarImageJ ])
 
 sourcesJar {
-    destinationDir = project.distsDir
+    destinationDir = project.distsDirectory.getAsFile().get()
 }
 

@@ -303,7 +303,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
         protected void registerDataSetsAndThrow(boolean canRecoverFromError)
         {
             one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
+            will(returnValue(Long.valueOf(1)));
 
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 

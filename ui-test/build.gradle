@@ -31,8 +31,11 @@ configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
 
 dependencies {
-	testCompile project(':datastore_server'),
-                        'selenium:selenium-java:3.141.59'
+    api project(path: ':datastore_server'),
+        project(path: ':screening'),
+        project(path: ':openbis_standard_technologies'),
+        'testng:testng:6.8-CISD',
+        'selenium:selenium-java:3.141.59'
 			
 	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 
@@ -61,7 +64,7 @@ test {
     useTestNG()
     options.suites('source/java/tests.xml')    
 
-    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
+    jvmArgs '-Xmx2048m', '-Duser.timezone=Europe/Zurich', '--add-opens=java.base/java.util=ALL-UNNAMED'
     
     testLogging.showStandardStreams = true
     ignoreFailures = true

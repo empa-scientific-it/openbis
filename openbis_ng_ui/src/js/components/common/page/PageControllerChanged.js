@@ -1,4 +1,4 @@
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class PageControllerChanged {
   constructor(controller) {
@@ -16,8 +16,11 @@ export default class PageControllerChanged {
 
       const { id, type } = this.controller.getObject()
 
-      this.context.dispatch(
-        actions.objectChange(this.controller.getPage(), type, id, newChanged)
+      AppController.getInstance().objectChange(
+        this.controller.getPage(),
+        type,
+        id,
+        newChanged
       )
     }
   }

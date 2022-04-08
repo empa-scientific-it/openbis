@@ -31,7 +31,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
 
     public static final String ITEM_INTEGER = "itemInteger";
 
-    public static final Integer ITEM_INTEGER_VALUE = new Integer(123);
+    public static final Integer ITEM_INTEGER_VALUE = Integer.valueOf(123);
 
     public static final String ITEM_STRING = "itemString";
 

@@ -133,10 +133,11 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.getSamplesImportTemplate = function(allowedSampleTypes, importMode, callback) {
+    this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
         this.customELNASAPI({
             "method" : "getSamplesImportTemplate",
             "allowedSampleTypes" : allowedSampleTypes,
+            "templateType" : templateType,
             "importMode" : importMode
         }, function(result) {
             callback(result)
@@ -1731,6 +1732,9 @@ function ServerFacade(openbisServer) {
                                         case "thatContains":
                                                 criteria.withCode().thatContains(attributeValue);
                                                 break;
+                                        case "thatEndsWith":
+                                                criteria.withCode().thatEndsWith(attributeValue);
+                                                break;
                                     }
                                     break;
                                 case "IDENTIFIER":
@@ -1967,6 +1971,19 @@ function ServerFacade(openbisServer) {
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
                                         break;
+                                }
+                                break;
+                            case "Project":
+                                switch(fieldNameType) {
+                                case "PROP":
+                                    setPropertyCriteria(setOperator(searchCriteria.withProject(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                    break;
+                                case "ATTR":
+                                    setAttributeCriteria(setOperator(searchCriteria.withProject(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                    break;
+                                case "NULL":
+                                    searchCriteria.withoutProject();
+                                    break;
                                 }
                                 break;
                             case "Parent":

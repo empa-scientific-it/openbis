@@ -5,7 +5,7 @@ evaluationDependsOn(':dbmigration')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile project(':common'),
+	api project(':common'),
 		project(':dbmigration'),
 		'googlecode:jsonrpc4j:1.5.3',
         'fasterxml:jackson-databind:2.9.10.8',
@@ -16,6 +16,10 @@ dependencies {
 		'apache:commons-collections4:4.1',
 		'truezip:truezip:6.8.1'
 
-	testCompile project(path: ':common', configuration: 'tests'),
-				'eclipse:jetty-servlet:9.4.44.v20210927'
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD',
+                       'eclipse:jetty-servlet:9.4.44.v20210927'
 }

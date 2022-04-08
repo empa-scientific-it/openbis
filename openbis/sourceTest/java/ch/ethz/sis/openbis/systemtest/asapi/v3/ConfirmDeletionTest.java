@@ -418,7 +418,7 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
             String[] splitted = ex.getMessage().split("Deletion Set ");
             for (int i = 1; i < splitted.length; i++)
             {
-                actualDeletionIds.add(new DeletionTechId(new Long(splitted[i].split(":")[0])));
+                actualDeletionIds.add(new DeletionTechId(Long.valueOf(splitted[i].split(":")[0])));
             }
             List<IDeletionId> expectedDeletionIds = Arrays.asList(sampleDataSetDeletionId, experimentDataSetDeletionId,
                     componentSampleDeletionSetId, experimentSampleDeletionSetId);

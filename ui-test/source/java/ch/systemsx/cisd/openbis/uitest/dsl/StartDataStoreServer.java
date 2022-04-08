@@ -52,7 +52,8 @@ public class StartDataStoreServer
             classpath = System.getProperty("java.class.path");
         }
 
-        command = "java -ea -Dfile.encoding=UTF-8 -classpath " + classpath + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
+        command = "java -ea -Dfile.encoding=UTF-8 --add-opens=java.base/java.util=ALL-UNNAMED -classpath "
+                + classpath + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
 
         System.out.println("Starting External DSS with command " + command);
 

@@ -1,12 +1,19 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'project-report'
 
 evaluationDependsOnChildren()
 
 configurations {
-    tests  { 
-         extendsFrom testRuntime 
-     }
+    implementation {
+        canBeResolved = true
+    }
+    testImplementation {
+        canBeResolved = true
+    }
+    runtimeOnly {
+        canBeResolved = true
+    }
+    tests.extendsFrom testRuntimeOnly 
 }
 
 configurations {
@@ -200,7 +207,8 @@ group='cisd'
 
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
-        def cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+/*
+        def cp = configurations.testImplementation.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
         def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDirs.first()]
         if (sourceSets.test.output.classesDirs.first().exists()) {
             cmd.add(sourceSets.test.output.classesDirs.first())
@@ -210,8 +218,10 @@ task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
         if (sourceSets.test.output.classesDirs.first().exists()) {
             cmd.add(sourceSets.test.output.classesDirs.first())
         }
-        cmd.add(configurations.testCompile.asPath)
+        cmd.add(configurations.testImplementation.asPath)
         commandLine cmd
+*/
+        commandLine = ['pwd']
     }
 }
 
@@ -244,7 +254,11 @@ test {
     systemProperty "ant.project.name", project.name
 
     maxHeapSize = "8192m"
-    jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog'
+    jvmArgs '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
+        '--add-opens=java.base/java.lang=ALL-UNNAMED',
+        '--add-opens=java.base/java.util=ALL-UNNAMED',
+        '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
+        '--add-opens=java.sql/java.sql=ALL-UNNAMED'
     
     testLogging.showStandardStreams = true
     ignoreFailures = true
@@ -266,10 +280,10 @@ compileJava {
                 executable = 'java'
                 jvmArgs = createEclipseJDK8Args()
             }
-        } else if(System.getProperty("java.version").startsWith("11.")) {
-            // Use modern openJDK 11 Compiler
+        } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
+            // Use modern openJDK 11 or 17 Compiler
         } else {
-            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8 or JDK11");
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
         }
     }
 }
@@ -284,10 +298,10 @@ compileTestJava {
                 executable = 'java'
                 jvmArgs = createEclipseJDK8Args()
             }
-        } else if(System.getProperty("java.version").startsWith("11.")) {
-            // Use modern openJDK 11 Compiler
+        } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
+            // Use modern openJDK 11 or 17 Compiler
         } else {
-            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8 or JDK11");
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
         }
     }
 }
@@ -324,6 +338,7 @@ task testJar(type: Jar, dependsOn: testClasses) {
 }
 
 task sourcesJar(type: Jar) {
+    duplicatesStrategy 'include'
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -340,22 +355,22 @@ artifacts {
 
 task compileDependencies(type: Copy) {
     into "$buildDir/output/compile-dependencies"
-    from configurations.compile
+    from configurations.implementation
 }
 
 task runtimeDependencies(type: Copy) {
     into "$buildDir/output/runtime-dependencies"
-    from configurations.runtime
+    from configurations.runtimeOnly
 }
 
 task testCompileDependencies(type: Copy) {
     into "$buildDir/output/testCompile-dependencies"
-    from configurations.testCompile
+    from configurations.testImplementation
 }
 
 task testRuntimeDependencies(type: Copy) {
     into "$buildDir/output/testRuntime-dependencies"
-    from configurations.testRuntime
+    from configurations.testRuntimeOnly
 }
 
 task checkDependencies(dependsOn: classes) {

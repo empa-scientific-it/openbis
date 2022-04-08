@@ -32,7 +32,7 @@ dependencies {
                  'marathon:marathon-spring-util:1.2.5',
                  'aopalliance:aopalliance:1.0'
                  
-	appbundler 'oracle:appbundler:1.0-CISD'
+    appbundler 'oracle:appbundler:1.0-CISD'
 }
 
 ext.jarsToBeSignedFolder = "${buildDir}/jars_to_be_signed"
@@ -210,28 +210,29 @@ dssUploadGuiStandalone.dependsOn signWebStartJars
 
 
 task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
-	baseName 'dss_upload_gui_standalone'
-	from ({ fileTree("${signedJarsFolder}").matching {
+    duplicatesStrategy 'include'
+    baseName 'dss_upload_gui_standalone'
+    from ({ fileTree("${signedJarsFolder}").matching {
             include "aopalliance.jar"
-        	include "cglib-nodep.jar"
-        	include "cisd-args4j.jar"
-        	include "sis-base.jar"
-        	include "commons-codec.jar"
-        	include "httpclient.jar"
+            include "cglib-nodep.jar"
+            include "cisd-args4j.jar"
+            include "sis-base.jar"
+            include "commons-codec.jar"
+            include "httpclient.jar"
             include "httpcore.jar"
-        	include "commons-io.jar"
-        	include "commons-lang.jar"
-        	include "commons-lang3.jar"
-        	include "commons-text.jar"
-        	include "commons-logging.jar"
-        	include "dom4j-1.6.1.jar"
-        	include "dss_upload_gui.jar"
-        	include "geronimo-stax-api_1.0_spec-1.0.jar"
-        	include "jython.jar"
-        	include "log4j.jar"
-        	include "poi-ooxml-schemas.jar"
-        	include "poi-ooxml.jar"
-        	include "poi.jar"
+            include "commons-io.jar"
+            include "commons-lang.jar"
+            include "commons-lang3.jar"
+            include "commons-text.jar"
+            include "commons-logging.jar"
+            include "dom4j-1.6.1.jar"
+            include "dss_upload_gui.jar"
+            include "geronimo-stax-api_1.0_spec-1.0.jar"
+            include "jython.jar"
+            include "log4j.jar"
+            include "poi-ooxml-schemas.jar"
+            include "poi-ooxml.jar"
+            include "poi.jar"
             include "spring-aop.jar"
             include "spring-beans.jar"
             include "spring-context.jar"
@@ -239,14 +240,14 @@ task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
             include "spring-web.jar"
             include "spring-webmvc.jar"
             include "spring-expression.jar"
-        	include "stream-supporting-httpinvoker.jar"
-	}.collect { zipTree(it).matching {exclude "META-INF/**", "ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class"}}})
+            include "stream-supporting-httpinvoker.jar"
+    }.collect { zipTree(it).matching {exclude "META-INF/**", "ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class"}}})
 
     manifest {
         attributes(
             "Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient", 
             "Permissions": "all-permissions")
-    }	
+    }   
 }
 
 task dssUploadGuiStandaloneZip(type: Zip, dependsOn: dssUploadGuiStandalone) {

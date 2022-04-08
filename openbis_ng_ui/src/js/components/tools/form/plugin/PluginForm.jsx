@@ -1,8 +1,5 @@
-import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { connect } from 'react-redux'
-import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import PluginFormController from '@src/js/components/tools/form/plugin/PluginFormController.js'
@@ -14,8 +11,6 @@ import PluginFormParameters from '@src/js/components/tools/form/plugin/PluginFor
 import PluginFormButtons from '@src/js/components/tools/form/plugin/PluginFormButtons.jsx'
 import openbis from '@src/js/services/openbis.js'
 import logger from '@src/js/common/logger.js'
-
-const styles = () => ({})
 
 class PluginForm extends React.PureComponent {
   constructor(props) {
@@ -120,4 +115,4 @@ class PluginForm extends React.PureComponent {
   }
 }
 
-export default _.flow(connect(), withStyles(styles))(PluginForm)
+export default PluginForm

@@ -1,9 +1,9 @@
 import openbis from '@src/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
+import AppController from '@src/js/components/AppController.js'
 import messages from '@src/js/common/messages.js'
 
 export default class UserBrowserController extends BrowserController {
@@ -67,9 +67,7 @@ export default class UserBrowserController extends BrowserController {
 
   doNodeAdd(node) {
     if (node && node.childrenType) {
-      this.context.dispatch(
-        actions.objectNew(this.getPage(), node.childrenType)
-      )
+      AppController.getInstance().objectNew(this.getPage(), node.childrenType)
     }
   }
 
@@ -88,7 +86,7 @@ export default class UserBrowserController extends BrowserController {
         return openbis.executeOperations(operations, options)
       })
       .then(() => {
-        this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
+        AppController.getInstance().objectDelete(this.getPage(), type, id)
       })
       .catch(error => {
         if (
@@ -96,15 +94,13 @@ export default class UserBrowserController extends BrowserController {
           error.message &&
           error.message.startsWith('Could not commit Hibernate transaction')
         ) {
-          this.context.dispatch(
-            actions.errorChange(
-              messages.get(
-                messages.USERS_WHO_REGISTERED_SOME_DATA_CANNOT_BE_REMOVED
-              )
+          AppController.getInstance().errorChange(
+            messages.get(
+              messages.USERS_WHO_REGISTERED_SOME_DATA_CANNOT_BE_REMOVED
             )
           )
         } else {
-          this.context.dispatch(actions.errorChange(error))
+          AppController.getInstance().errorChange(error)
         }
       })
   }

@@ -506,7 +506,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                                 .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         final int updatedRows =
                 hibernateTemplate.bulkUpdate(query,
-                        toArray(new Long(increment), entityType, fromOrdinal));
+                        toArray(Long.valueOf(increment), entityType, fromOrdinal));
         hibernateTemplate.flush();
 
         if (operationLog.isInfoEnabled())

@@ -84,6 +84,7 @@ class GridFilters extends React.PureComponent {
 
   renderGlobalFilterRow() {
     const {
+      id,
       columns,
       multiselectable,
       globalFilter,
@@ -100,6 +101,7 @@ class GridFilters extends React.PureComponent {
         }}
       >
         <GridGlobalFilter
+          id={id}
           globalFilter={globalFilter}
           onGlobalFilterChange={onGlobalFilterChange}
         />

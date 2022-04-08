@@ -42,14 +42,14 @@ public final class EntityOperationsLogDAOTest extends AbstractDAOTest
     public void testCreateLogEntry()
     {
         final IEntityOperationsLogDAO eaolDao = daoFactory.getEntityOperationsLogDAO();
-        eaolDao.addLogEntry(new Long(1));
+        eaolDao.addLogEntry(Long.valueOf(1));
     }
 
     @Test(dependsOnMethods = "testCreateLogEntry")
     public void testFindLogEntry()
     {
         final IEntityOperationsLogDAO eaolDao = daoFactory.getEntityOperationsLogDAO();
-        EntityOperationsLogEntryPE logEntry = eaolDao.tryFindLogEntry(new Long(1));
+        EntityOperationsLogEntryPE logEntry = eaolDao.tryFindLogEntry(Long.valueOf(1));
         assertNotNull("Could not find the log entry we created in testCreateLogEntry", logEntry);
     }
 
@@ -57,7 +57,7 @@ public final class EntityOperationsLogDAOTest extends AbstractDAOTest
     public void testFindNonExistentLogEntry()
     {
         final IEntityOperationsLogDAO eaolDao = daoFactory.getEntityOperationsLogDAO();
-        EntityOperationsLogEntryPE logEntry = eaolDao.tryFindLogEntry(new Long(2));
+        EntityOperationsLogEntryPE logEntry = eaolDao.tryFindLogEntry(Long.valueOf(2));
         assertNull("Should not have found a non-existent log entry", logEntry);
 
     }
@@ -68,7 +68,7 @@ public final class EntityOperationsLogDAOTest extends AbstractDAOTest
         final IEntityOperationsLogDAO eaolDao = daoFactory.getEntityOperationsLogDAO();
         try
         {
-            eaolDao.addLogEntry(new Long(1));
+            eaolDao.addLogEntry(Long.valueOf(1));
             fail("Inserting a duplicate entry should have thrown a data integrity violation.");
         } catch (DataIntegrityViolationException e)
         {

@@ -60,7 +60,7 @@ public class ExperimentTypeBuilder extends AbstractEntityTypeBuilder<ExperimentT
     {
         ExperimentTypePropertyType entityTypePropertyType = new ExperimentTypePropertyType();
         List<ExperimentTypePropertyType> types = experimentType.getAssignedPropertyTypes();
-        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        entityTypePropertyType.setOrdinal(Long.valueOf(types.size()));
         fillEntityTypePropertyType(experimentType, entityTypePropertyType, propertyType);
         types.add(entityTypePropertyType);
         return new EntityTypePropertyTypeBuilder(entityTypePropertyType);

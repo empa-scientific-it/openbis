@@ -22,7 +22,7 @@ const styles = () => ({
   }
 })
 
-class Tools extends React.Component {
+class Tools extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Tools.render')
 

@@ -822,7 +822,18 @@ var FormUtil = new function() {
 		if(hyperlink) {
 		    $component.html(this.asHyperlink(text, hyperlinkLabel));
 		} else {
-		    $component.text(text);
+		    if(text && text.includes('\n')) {
+		        var lines = text.split('\n');
+		        for(var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+		            if(lineIndex != 0) {
+		                $component.append($("<br>"));
+		            }
+		            var textNode = document.createTextNode(lines[lineIndex]);
+                    $component.append(textNode);
+		        }
+		    } else {
+		        $component.text(text);
+		    }
 		}
 		
 		if(id) {
@@ -1279,6 +1290,7 @@ var FormUtil = new function() {
 						shown = ! profile.hideSectionsByDefault;
 					}
 				}
+
 				var $section = $(option.section);
 				$section.toggle(shown);
 				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
@@ -2274,38 +2286,40 @@ var FormUtil = new function() {
 	}
 
     this.renderTruncatedGridValue = function(container, value){
-        var $value = $("<div>").append(value)
+        var MAX_HEIGHT = 100
+
+        var $value = $("<div>")
+        $value.css("max-height", MAX_HEIGHT + "px")
+        $value.css("overflow", "hidden")
 
         if(_.isString(value)){
-            $value.css("min-width", Math.min(value.length, 300))
+            $value.text(value)
+        }else{
+            $value.append(value)
         }
+
+        $value.css("min-width", Math.min($value.text().length / 5, 15) + "em")
 
         if(container === null ||  container === undefined){
             return $value
         }
 
         $value.css("visibility", "hidden").appendTo(container)
-
-        var valueHeight = $value.get(0).clientHeight
-
+        var valueHeight = $value.get(0).scrollHeight
         $value.remove()
         $value.css("visibility", "")
 
-        if(valueHeight > 150){
-            $value.css("max-height", "100px")
-            $value.css("overflow", "hidden")
-
+        if(valueHeight > MAX_HEIGHT){
             var $toggle = $("<a>").text("more")
             $toggle.click(function(){
                 if($toggle.text() === "more"){
                     $value.css("max-height", "")
                     $toggle.text("less")
                 }else{
-                    $value.css("max-height", "100px")
+                    $value.css("max-height", MAX_HEIGHT + "px")
                     $toggle.text("more")
                 }
             })
-
             return $("<div>").append($value).append($toggle)
         }else{
             return $value
@@ -2321,13 +2335,14 @@ var FormUtil = new function() {
     }
 
     this.renderCustomWidgetGridValue = function(row, params, propertyType){
-        var customWidget = this.profile.customWidgetSettings[propertyType.code];
-        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
         var value = row[propertyType.code]
 
         if(value === null || value === undefined || value.trim().length === 0){
             return
         }
+
+        var customWidget = this.profile.customWidgetSettings[propertyType.code];
+        var forceDisableRTF = this.profile.isForcedDisableRTF(propertyType);
 
         if(!forceDisableRTF) {
             var $value = null
@@ -2338,12 +2353,14 @@ var FormUtil = new function() {
                 if(valueLowerCase.includes("<img") || valueLowerCase.includes("<table")){
                     $value = $("<img>", { src : "./img/file-richtext.svg", "width": "24px", "height": "24px"})
                     renderTooltip = function(){
-                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, value);
-                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, value, true);
+                        var valueSanitized = FormUtil.sanitizeRichHTMLText(value)
+                        $tooltip = FormUtil.getFieldForPropertyType(propertyType, valueSanitized);
+                        $tooltip = FormUtil.activateRichTextProperties($tooltip, undefined, propertyType, valueSanitized, true);
                         return $tooltip
                     }
                 }else{
-                    return this.renderTruncatedGridValue(params.container, value)
+                    $value  = $("<div>").html(FormUtil.sanitizeRichHTMLText(value))
+                    return this.renderTruncatedGridValue(params.container, $value)
                 }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
@@ -2353,7 +2370,11 @@ var FormUtil = new function() {
                     return $tooltip
                 }
             }else{
-                return this.renderTruncatedGridValue(params.container, value)
+                $value = $("<div>")
+                value.split('\n').forEach(function(line){
+                    $("<div>").text(line).appendTo($value)
+                })
+                return this.renderTruncatedGridValue(params.container, $value)
             }
 
             $value.tooltipster({
@@ -2363,7 +2384,8 @@ var FormUtil = new function() {
                 trackerInterval: 100,
                 theme: 'tooltipster-shadow',
                 functionBefore: function(instance, helper){
-                    $(helper.origin).tooltipster('content', renderTooltip())
+                    var $content = $("<div>").css({ "max-width" : "50vw", "max-height" : "50vh"}).append(renderTooltip())
+                    $(helper.origin).tooltipster('content', $content)
                     return true
                 }
             })
@@ -2372,7 +2394,11 @@ var FormUtil = new function() {
             $valueContainer.append($value)
             return $valueContainer
         }else{
-            return this.renderTruncatedGridValue(params.container, value)
+            $value = $("<div>")
+            value.split('\n').forEach(function(line){
+                $("<div>").text(line).appendTo($value)
+            })
+            return this.renderTruncatedGridValue(params.container, $value)
         }
     }
 
@@ -2418,16 +2444,34 @@ var FormUtil = new function() {
     }
 
     this.filterDateRangeGridColumn = function(value, filter){
-        var matches = true
-
-        if(filter.from && filter.from.value){
-            matches = matches && value >= filter.from.valueString
+        if(_.isString(filter)){
+            if(filter.trim().length === 0){
+                return true
+            }else{
+                if(value === null || value === undefined){
+                    return false
+                }else{
+                    return String(value).trim().includes(filter.trim())
+                }
+            }
+        }else if(_.isObject(filter)){
+            var filterFrom = filter.from ? filter.from.value : null
+            var filterTo = filter.to ? filter.to.value : null
+            if(filterFrom === null && filterTo === null){
+                return true
+            }else{
+                var matches = true
+                if(filterFrom){
+                    matches = matches && value >= filter.from.valueString
+                }
+                if(filterTo){
+                    matches = matches && value <= filter.to.valueString
+                }
+                return matches
+            }
+        }else{
+            return true
         }
-        if(filter.to && filter.to.value){
-            matches = matches && value <= filter.to.valueString
-        }
-
-        return matches
     }
 
     this.sortPropertyColumns = function(propertyColumns, entities){

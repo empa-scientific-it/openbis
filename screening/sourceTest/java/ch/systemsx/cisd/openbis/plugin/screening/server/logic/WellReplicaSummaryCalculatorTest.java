@@ -191,14 +191,14 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
         Map<Long, SummaryFeatureVector> map = new HashMap<Long, SummaryFeatureVector>();
         for (int i = 0; i < oneFeatureSummaryValues.length; i++)
         {
-            map.put(new Long(i), new SummaryFeatureVector(new float[]
+            map.put(Long.valueOf(i), new SummaryFeatureVector(new float[]
             { oneFeatureSummaryValues[i] }, null));
         }
         Map<Long, int[]> ranksMap = WellReplicaSummaryCalculator.calculateRanks(map, 1);
         int ranks[] = new int[oneFeatureSummaryValues.length];
         for (int i = 0; i < oneFeatureSummaryValues.length; i++)
         {
-            ranks[i] = ranksMap.get(new Long(i))[0];
+            ranks[i] = ranksMap.get(Long.valueOf(i))[0];
         }
         return ranks;
     }

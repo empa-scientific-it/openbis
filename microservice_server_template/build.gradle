@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'application'
 
 repositories {
@@ -9,16 +9,16 @@ repositories {
 }
 
 dependencies {
-    compile 'eclipse:jetty-all:9.4.44.v20210927',
-            'lombok:lombok:1.18.12',
-            'log4j:log4j-api:2.16.0',
-            'log4j:log4j-core:2.16.0',
+    api 'eclipse:jetty-all:9.4.44.v20210927',
+            'lombok:lombok:1.18.22',
+            'log4j:log4j-api:2.17.1',
+            'log4j:log4j-core:2.17.1',
             'fasterxml:jackson-annotations:2.9.10',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-databind:2.9.10.8',
             'slf4j:slf4j-log4j12:1.7.30'
 
-    annotationProcessor 'lombok:lombok:1.18.12'
+    annotationProcessor 'lombok:lombok:1.18.22'
 }
 
 mainClassName = "ch.ethz.sis.microservices.download.server.startup.Main"

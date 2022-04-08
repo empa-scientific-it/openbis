@@ -1384,7 +1384,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         @Override
         protected void injectQuery(Operator operator, String operand)
         {
-            Number number = new Double(operand);
+            Number number = Double.valueOf(operand);
             NumberFieldSearchCriteria criteria = propertyTypeId != null
                     ? searchCriteria.withNumberProperty(propertyTypeId.getPermId())
                     : searchCriteria.withAnyNumberProperty();

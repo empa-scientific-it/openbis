@@ -12,7 +12,7 @@ apply from: '../gradle/javaproject.gradle'
 configurations.create('devRuntime')
 
 dependencies {
-    compile project(':common'),
+    api project(':common'),
             project(':datastore_server'),
             'openhms:jackcess:1.2.2',
             'reveregroup:gwt-image-loader:1.1.4',
@@ -20,7 +20,21 @@ dependencies {
             'bioformats:bioformats:6.5.1'
 
     devRuntime project(path: ':openbis', configuration: 'devRuntime')
-    testCompile project(path: ':datastore_server', configuration: 'tests')
+    
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       project(path: ':datastore_server', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD',
+                       'springframework:spring-test:5.0.17.RELEASE',
+                       'startnet:apgdiff:2.3'
+    testImplementation (project(path: ':openbis', configuration: 'tests')) {
+        exclude group: 'google', module: 'gwt-user'
+    }
 }
 
 sourceSets {
@@ -37,6 +51,7 @@ sourceSets {
 }
 
 jar {
+    duplicatesStrategy 'include'
     from('../screening/source/sql'){ 
         into('/sql') 
         include '**/*.sql' 
@@ -60,7 +75,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
     jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../openbis/etc/log.xml',
              '-Djavax.net.ssl.trustStore=../openbis/dist/server/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
-             '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-XX:MaxPermSize=512m', '-ea'])
+             '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
     args(['--classes', '../commonbase/targets/gradle/classes/main',
           '--classes', '../common/targets/gradle/classes/main',
           '--classes', '../authentication/targets/gradle/classes/main',
@@ -78,13 +93,13 @@ task executeScreeningDataStoreDev(type: JavaExec) {
     jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../datastore_server/etc/log.xml',
              '-Djavax.net.ssl.trustStore=../datastore_server/dist/etc/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
-             '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-XX:MaxPermSize=512m', '-ea'])
+             '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
 }
 
 task systemTestSuite(type: Test) {
     useTestNG()
     options.suites('sourceTest/java/tests_system.xml')
-    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'    
+    jvmArgs '-Xmx2048m', '-D--add-opens=java.sql/java.sql=ALL-UNNAMED'
     reports.html.destination = file("${project.buildDir}/reports/tests-system")
 }
 

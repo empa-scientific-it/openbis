@@ -238,7 +238,7 @@ public class UserManager
 
     private void updateMappingFile()
     {
-        if (shareIdsMappingFileOrNull != null && mappingAttributesList.isEmpty() == false)
+        if (shareIdsMappingFileOrNull != null)
         {
             File parentFile = shareIdsMappingFileOrNull.getParentFile();
             parentFile.mkdirs();

@@ -98,7 +98,7 @@ public class ExternalDataPEBuilder
         PropertyTypePE propertyType =
                 CommonTestUtils.createPropertyType(code, dataType, null, null);
         DataSetTypePropertyTypePE dtpt = new DataSetTypePropertyTypePE();
-        dtpt.setOrdinal(new Long(dataSet.getProperties().size()));
+        dtpt.setOrdinal(Long.valueOf(dataSet.getProperties().size()));
         dtpt.setPropertyType(propertyType);
         DataSetTypePE dataSetType = dataSet.getDataSetType();
         if (dataSetType == null)

@@ -51,7 +51,7 @@ public final class StandardFunctions
 {
     static final Double DOUBLE_DEFAULT_VALUE = Double.NaN;
 
-    static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
+    static final Integer INTEGER_DEFAULT_VALUE = Integer.valueOf(Integer.MIN_VALUE);
 
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();
 
@@ -104,7 +104,7 @@ public final class StandardFunctions
             Number number = (Number) value;
             return number.intValue();
         }
-        return isBlank(value) ? defaultValue : new Integer(value.toString());
+        return isBlank(value) ? defaultValue : Integer.valueOf(value.toString());
     }
 
     /**
@@ -131,7 +131,7 @@ public final class StandardFunctions
             Number number = (Number) value;
             return number.doubleValue();
         }
-        return isBlank(value) ? defaultValue : new Double(value.toString());
+        return isBlank(value) ? defaultValue : Double.valueOf(value.toString());
     }
 
     /**
@@ -363,7 +363,7 @@ public final class StandardFunctions
                 String stringValue = value.toString();
                 if (StringUtils.isBlank(stringValue) == false)
                 {
-                    list.add(new Double(stringValue));
+                    list.add(Double.valueOf(stringValue));
                 }
             }
         }

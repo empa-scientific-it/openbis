@@ -28,14 +28,14 @@ let logComponent = (level, message, component) => {
     group(level, message + ': state')
     const prevState = states.get(component)
     const newState = component.state
-    diff(prevState, newState, 'root')
+    diff(level, prevState, newState, 'root')
     states.set(component, newState)
     groupEnd(level)
 
     group(level, message + ': props')
     const prevProps = props.get(component)
     const newProps = component.props
-    diff(prevProps, newProps, 'root')
+    diff(level, prevProps, newProps, 'root')
     props.set(component, newProps)
     groupEnd(level)
 

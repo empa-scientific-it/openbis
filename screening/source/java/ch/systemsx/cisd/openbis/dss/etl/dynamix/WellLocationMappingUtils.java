@@ -45,7 +45,7 @@ class WellLocationMappingUtils
 
     public static DynamixWellPosition parseWellPosition(String sideToken, String posToken)
     {
-        return new DynamixWellPosition(new Integer(posToken), isRight(sideToken));
+        return new DynamixWellPosition(Integer.valueOf(posToken), isRight(sideToken));
     }
 
     private static Map<DynamixWellPosition, WellLocation> createMapping(
@@ -57,8 +57,8 @@ class WellLocationMappingUtils
         {
             DynamixWellPosition wellPos = parseWellPosition(entry.getSide(), entry.getPosition());
 
-            int row = new Integer(entry.getRow());
-            int col = new Integer(entry.getColumn());
+            int row = Integer.valueOf(entry.getRow());
+            int col = Integer.valueOf(entry.getColumn());
             WellLocation wellLoc = new WellLocation(row, col);
 
             mapping.put(wellPos, wellLoc);

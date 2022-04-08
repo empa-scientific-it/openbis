@@ -590,7 +590,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         will(returnValue(experiment));
 
                         exactly(1).of(openBisService).drawANewUniqueID();
-                        will(returnValue(new Long(1)));
+                        will(returnValue(Long.valueOf(1)));
 
                         exactly(1).of(openBisService).performEntityOperations(
                                 with(any(AtomicEntityOperationDetails.class)));

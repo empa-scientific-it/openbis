@@ -63,7 +63,7 @@ public final class HighwaterMarkWatcherTest
     public void setUp()
     {
         context = new Mockery();
-        logRecorder = new BufferedAppender("%m", Level.INFO);
+        logRecorder = new BufferedAppender("%m", Level.INFO, ".*NotificationLogChangeListener");
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         highwaterMarkWatcher = createHighwaterMarkWatcher(DEFAULT_WATERMARK);
     }

@@ -45,7 +45,7 @@ public class VersionUtils
             String[] versions = versionAsString.split("\\.");
             for (int i = 0; i < versions.length; i++)
             {
-                version[i] = new Integer(versions[i]);
+                version[i] = Integer.valueOf(versions[i]);
             }
         }
 

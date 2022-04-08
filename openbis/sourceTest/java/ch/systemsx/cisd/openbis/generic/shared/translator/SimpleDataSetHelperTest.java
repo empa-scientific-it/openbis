@@ -117,7 +117,7 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         assertEquals("MY-PROJECT", dataSet.getProjectCode());
         assertEquals("MY-SPACE", dataSet.getSpaceCode());
         assertEquals("MY-SAMPLE", dataSet.getSampleCode());
-        assertEquals(new Long(137), dataSet.getDataSetSize());
+        assertEquals(Long.valueOf(137), dataSet.getDataSetSize());
         assertEquals(42, dataSet.getSpeedHint());
     }
 }

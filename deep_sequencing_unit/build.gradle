@@ -14,7 +14,7 @@ archivesBaseName = 'datastore_server_plugin-dsu'
 configurations.create('trackingClient')
 configurations.create('trackingClientPartial')
 dependencies {
-	compile project(':common'),
+    api project(':common'),
             project(':openbis-common'),
             project(':openbis_api'),
             project(':openbis'),
@@ -22,8 +22,17 @@ dependencies {
             'apache:commons-cli:1.2'
             
 
-    testCompile project(path: ':datastore_server', configuration: 'tests')
-    
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       project(path: ':dbmigration', configuration: 'tests'),
+                       project(path: ':authentication', configuration: 'tests'),
+                       project(path: ':openbis_api', configuration: 'tests'),
+                       project(path: ':openbis-common', configuration: 'tests'),
+                       project(path: ':openbis', configuration: 'tests'),
+                       project(path: ':datastore_server', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
+
     trackingClient 'sis:sis-base:18.09.0',
                     'javax:mail:1.4.3',
                     'apache:log4j:1.2.15',

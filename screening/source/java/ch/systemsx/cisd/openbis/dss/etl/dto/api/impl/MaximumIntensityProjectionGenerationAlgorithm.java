@@ -338,7 +338,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         double r = getRed(rgb);
         double g = getGreen(rgb);
         double b = getBlue(rgb);
-        return new Double(Math.sqrt(r * r + g * g + b * b)).intValue();
+        return Double.valueOf(Math.sqrt(r * r + g * g + b * b)).intValue();
     }
 
     private int getBlue(int rgb)

@@ -74,6 +74,8 @@ class EntityType:
             "get_validationPlugin()",
             "save()",
             "delete()",
+            "get_next_sequence()",
+            "get_next_code()",
         ]
         if self.is_new:
             return attrs + defs["attrs_new"]
@@ -132,7 +134,7 @@ class EntityType:
             count=len(pas),
             totalCount=len(pas),
             response=pas,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
         )
 
     def assign_property(
@@ -276,6 +278,39 @@ class EntityType:
         for pa in self.data["propertyAssignments"]:
             codes.append(pa["propertyType"]["code"].lower())
         return codes
+
+    def get_next_sequence(self):
+        request = {
+            "method": "executeCustomASService",
+            "params": [
+                self.openbis.token,
+                {
+                    "permId": "as-eln-lims-api",
+                    "@type": "as.dto.service.id.CustomASServiceCode",
+                },
+                {
+                    "parameters": {
+                        "method": "getNextSequenceForType",
+                        "sampleTypeCode": self.code,
+                    },
+                    "@type": "as.dto.service.CustomASServiceExecutionOptions",
+                },
+            ],
+        }
+
+        try:
+            resp = self.openbis._post_request(self.openbis.as_v3, request)
+        except Exception:
+            return None
+        return resp
+
+    def get_next_code(self):
+        """Returns the next possible code for a new instance for this entity type."""
+        seq = self.get_next_sequence()
+        if seq:
+            return self.generatedCodePrefix + str(seq)
+        else:
+            raise ValueError("Could not generate next code.")
 
 
 class SampleType(

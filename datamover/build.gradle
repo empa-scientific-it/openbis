@@ -5,7 +5,7 @@ apply from: '../gradle/javaproject.gradle'
 
 configurations.create('libJars')
 dependencies {
-    compile project(':common')
+    api project(':common')
     
     libJars 'sis:sis-base:18.09.0',
         'cisd:cisd-args4j:9.11.2',
@@ -13,7 +13,10 @@ dependencies {
         'javax.activation:activation:1.1.1',
         'javax:mail:1.4.3'
         
-    testCompile project(path: ':common', configuration: 'tests')
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+                       project(path: ':common', configuration: 'tests'),
+                       'fjelmer:classycle:1.4.2',
+                       'testng:testng:6.8-CISD'
 }
 
 jar {

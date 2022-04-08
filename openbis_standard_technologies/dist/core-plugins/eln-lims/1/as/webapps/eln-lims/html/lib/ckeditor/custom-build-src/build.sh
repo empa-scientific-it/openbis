@@ -12,7 +12,6 @@
 # Build commands
 
 npm install --save "@ckeditor/ckeditor5-adapter-ckfinder@^32.0.0" \
-                       "@ckeditor/ckeditor5-autoformat@^32.0.0" \
                        "@ckeditor/ckeditor5-basic-styles@^32.0.0" \
                        "@ckeditor/ckeditor5-block-quote@^32.0.0" \
                        "@ckeditor/ckeditor5-ckfinder@^32.0.0" \

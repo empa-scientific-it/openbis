@@ -295,7 +295,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			label : entityKindName,
 			section : "#project-experiments",
 			beforeShowingAction : function() {
-				experimentTableController.refreshHeight();
+				experimentTableController.refresh();
 			}
 		});
 		return $experiments;
@@ -323,7 +323,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			label : entityKindName,
 			section : "#project-samples",
 			beforeShowingAction : function() {
-				sampleTableController.refreshHeight();
+				sampleTableController.refresh();
 			}
 		});
 		return $samples;

@@ -240,12 +240,12 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
         @Override
         public int compareTo(FullLocation o)
         {
-            int tileRowCompare = new Integer(tileRow).compareTo(new Integer(o.tileRow));
+            int tileRowCompare = Integer.valueOf(tileRow).compareTo(Integer.valueOf(o.tileRow));
             if (tileRowCompare != 0)
             {
                 return tileRowCompare;
             }
-            return new Integer(tileCol).compareTo(new Integer(o.tileCol));
+            return Integer.valueOf(tileCol).compareTo(Integer.valueOf(o.tileCol));
         }
     }
 

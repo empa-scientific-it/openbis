@@ -1,10 +1,10 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'sis:sis-base:18.09.0',
+    api 'sis:sis-base:18.09.0',
             'rinn:restrictions:1.0.2'
     
-    testCompile 'testng:testng:6.8-CISD'
+    testImplementation 'testng:testng:6.8-CISD'
 } 
 
 task javadocZip(type: Zip, dependsOn: javadoc) {

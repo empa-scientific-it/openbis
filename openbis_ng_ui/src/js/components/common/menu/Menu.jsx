@@ -1,3 +1,5 @@
+import _ from 'lodash'
+import autoBind from 'auto-bind'
 import React from 'react'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -9,10 +11,8 @@ import SearchIcon from '@material-ui/icons/Search'
 import CloseIcon from '@material-ui/icons/Close'
 import LogoutIcon from '@material-ui/icons/PowerSettingsNew'
 import { alpha } from '@material-ui/core/styles/colorManipulator'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
-import actions from '@src/js/store/actions/actions.js'
-import selectors from '@src/js/store/selectors/selectors.js'
+import AppController from '@src/js/components/AppController.js'
 import Button from '@src/js/components/common/form/Button.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import messages from '@src/js/common/messages.js'
@@ -57,46 +57,38 @@ const styles = theme => ({
   }
 })
 
-function mapStateToProps(state) {
-  return {
-    currentPage: selectors.getCurrentPage(state),
-    searchText: selectors.getSearch(state)
-  }
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    currentPageChange: (event, value) =>
-      dispatch(actions.currentPageChange(value)),
-    searchChange: value => dispatch(actions.searchChange(value)),
-    search: value => dispatch(actions.search(ownProps.page, value)),
-    logout: () => dispatch(actions.logout())
-  }
-}
-
-class Menu extends React.Component {
+class Menu extends React.PureComponent {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.searchRef = React.createRef()
-    this.handleSearchChange = this.handleSearchChange.bind(this)
-    this.handleSearchKeyPress = this.handleSearchKeyPress.bind(this)
-    this.handleSearchClear = this.handleSearchClear.bind(this)
+  }
+
+  handlePageChange(event, value) {
+    AppController.getInstance().pageChange(value)
   }
 
   handleSearchChange(event) {
-    this.props.searchChange(event.target.value)
+    AppController.getInstance().searchChange(event.target.value)
   }
 
   handleSearchKeyPress(event) {
     if (event.key === 'Enter') {
-      this.props.search(this.props.searchText)
+      AppController.getInstance().search(
+        this.props.currentPage,
+        this.props.searchText
+      )
     }
   }
 
   handleSearchClear(event) {
     event.preventDefault()
-    this.props.searchChange('')
+    AppController.getInstance().searchChange('')
     this.searchRef.current.focus()
+  }
+
+  handleLogout() {
+    AppController.getInstance().logout()
   }
 
   render() {
@@ -109,7 +101,7 @@ class Menu extends React.Component {
         <Toolbar variant='dense' classes={{ root: classes.toolBar }}>
           <Tabs
             value={this.props.currentPage}
-            onChange={this.props.currentPageChange}
+            onChange={this.handlePageChange}
             classes={{ root: classes.tabs }}
           >
             <Tab value={pages.TYPES} label={messages.get(messages.TYPES)} />
@@ -118,7 +110,7 @@ class Menu extends React.Component {
           </Tabs>
           <TextField
             placeholder={messages.get(messages.SEARCH)}
-            value={searchText}
+            value={searchText || ''}
             onChange={this.handleSearchChange}
             onKeyPress={this.handleSearchKeyPress}
             InputProps={{
@@ -134,7 +126,7 @@ class Menu extends React.Component {
           <Button
             label={<LogoutIcon fontSize='small' />}
             type='final'
-            onClick={this.props.logout}
+            onClick={this.handleLogout}
           />
         </Toolbar>
       </AppBar>
@@ -168,7 +160,10 @@ class Menu extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Menu))
+export default _.flow(
+  withStyles(styles),
+  AppController.getInstance().withState(() => ({
+    currentPage: AppController.getInstance().getCurrentPage(),
+    searchText: AppController.getInstance().getSearch()
+  }))
+)(Menu)

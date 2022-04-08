@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import { connect } from 'react-redux'
 import flow from 'lodash/flow'
 
 import Card from '@material-ui/core/Card'
@@ -14,8 +13,8 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -41,16 +40,6 @@ const styles = theme => ({
     overflow: 'auto'
   }
 })
-
-function mapStateToProps() {
-  return {}
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    login: (user, password) => dispatch(actions.login(user, password))
-  }
-}
 
 const AUTHENTICATION_SERVICE_OPENBIS = 'openBIS'
 const AUTHENTICATION_SERVICE_SWITCH_AAI = 'SWITCHaai'
@@ -176,7 +165,10 @@ class WithLogin extends React.Component {
       },
       () => {
         if (this.validate(true)) {
-          this.props.login(this.state.user.value, this.state.password.value)
+          AppController.getInstance().login(
+            this.state.user.value,
+            this.state.password.value
+          )
         }
       }
     )
@@ -353,7 +345,4 @@ class WithLogin extends React.Component {
   }
 }
 
-export default flow(
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
-)(WithLogin)
+export default flow(withStyles(styles))(WithLogin)

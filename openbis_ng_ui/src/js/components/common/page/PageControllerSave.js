@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import FormValidator from '@src/js/components/common/form/FormValidator.js'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class PageControllerSave {
   constructor(controller) {
@@ -45,27 +45,23 @@ export default class PageControllerSave {
         await this.controller.load()
 
         if (oldObject.type === this.controller.getNewObjectType()) {
-          this.context.dispatch(
-            actions.objectCreate(
-              this.controller.getPage(),
-              oldObject.type,
-              oldObject.id,
-              newObject.type,
-              newObject.id
-            )
+          AppController.getInstance().objectCreate(
+            this.controller.getPage(),
+            oldObject.type,
+            oldObject.id,
+            newObject.type,
+            newObject.id
           )
         } else if (oldObject.type === this.controller.getExistingObjectType()) {
-          this.context.dispatch(
-            actions.objectUpdate(
-              this.controller.getPage(),
-              oldObject.type,
-              oldObject.id
-            )
+          AppController.getInstance().objectUpdate(
+            this.controller.getPage(),
+            oldObject.type,
+            oldObject.id
           )
         }
       }
     } catch (error) {
-      this.context.dispatch(actions.errorChange(error))
+      AppController.getInstance().errorChange(error)
     } finally {
       this.context.setState({
         loading: false

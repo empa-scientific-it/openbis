@@ -107,7 +107,7 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
             builder.column(getFeatureValueColumnId(description)).addDouble((double) features[i]);
             if (criteria.isComputeRanks())
             {
-                builder.column(getFeatureRankColumnId(description)).addInteger(new Long(ranks[i]));
+                builder.column(getFeatureRankColumnId(description)).addInteger(Long.valueOf(ranks[i]));
             }
         }
     }

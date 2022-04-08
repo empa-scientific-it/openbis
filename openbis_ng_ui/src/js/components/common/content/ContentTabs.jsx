@@ -28,7 +28,7 @@ const styles = theme => ({
   }
 })
 
-class ContentTabs extends React.Component {
+class ContentTabs extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {

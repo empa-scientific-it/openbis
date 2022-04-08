@@ -68,8 +68,8 @@ public class QueryTableModelTranslatorTest extends AssertJUnit
 
         List<Serializable[]> rows = translatedModel.getRows();
         assertEquals("Hello", rows.get(0)[0]);
-        assertEquals(new Long(42), rows.get(0)[1]);
-        assertEquals(new Double(42.25), rows.get(0)[2]);
+        assertEquals(Long.valueOf(42), rows.get(0)[1]);
+        assertEquals(Double.valueOf(42.25), rows.get(0)[2]);
         assertEquals("1970-01-01 01:00:07 +0100", rows.get(0)[3]);
         assertEquals(1, rows.size());
     }

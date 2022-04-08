@@ -291,11 +291,11 @@ public final class VocabularyBOTest extends AbstractBOTest
         assertEquals(2, terms.size());
         VocabularyTermPE term1 = terms.get(0);
         assertEquals("A", term1.getCode());
-        assertEquals(new Long(previousTermPosition + 1), term1.getOrdinal());
+        assertEquals(Long.valueOf(previousTermPosition + 1), term1.getOrdinal());
         assertSame(EXAMPLE_SESSION.tryGetPerson(), term1.getRegistrator());
         VocabularyTermPE term2 = terms.get(1);
         assertEquals("B", term2.getCode());
-        assertEquals(new Long(previousTermPosition + 2), term2.getOrdinal());
+        assertEquals(Long.valueOf(previousTermPosition + 2), term2.getOrdinal());
         assertSame(EXAMPLE_SESSION.tryGetPerson(), term2.getRegistrator());
         context.assertIsSatisfied();
     }

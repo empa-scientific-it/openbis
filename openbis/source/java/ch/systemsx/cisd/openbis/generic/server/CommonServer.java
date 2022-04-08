@@ -993,7 +993,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             @Override
                             public int compare(MatchingEntity o1, MatchingEntity o2)
                             {
-                                return new Double(o2.getScore()).compareTo(o1.getScore());
+                                return Double.valueOf(o2.getScore()).compareTo(o1.getScore());
                             }
                         });
                         return list;

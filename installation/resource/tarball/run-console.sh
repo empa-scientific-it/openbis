@@ -11,10 +11,10 @@ fi
 
 if [[ "$_java" ]]; then
     version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}'| cut -c1-3)
-    if [[ "$version" == "1.8" || "$version" == "11." ]]; then
+    if [[ "$version" == "1.8" || "$version" == "11." || "$version" == "17." ]]; then
         echo Java version $version found.
     else
-        echo Java version $version found is neither 1.8 or 11.
+        echo Java version $version found is neither 1.8, 11 or 17.
         exit -1
     fi
 fi

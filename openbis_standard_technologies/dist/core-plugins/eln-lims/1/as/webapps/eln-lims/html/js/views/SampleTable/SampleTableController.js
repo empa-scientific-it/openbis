@@ -177,9 +177,9 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			this._dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
 	}
 	
-	this.refreshHeight = function() {
+	this.refresh = function() {
 		if (this._dataGridController) {
-			this._dataGridController.refreshHeight();
+			this._dataGridController.refresh();
 		}
 	}
 
@@ -248,7 +248,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
     this._handleResult = function(result, verb, experimentIdentifier) {
         Util.showSuccess(result[0].length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
             Util.unblockUI();
-            mainController.changeView('showSamplesPage', encodeURIComponent('["' + experimentIdentifier + '",false]'));
+            var expIdOrNull = experimentIdentifier ? '"' + experimentIdentifier + '"' : null;
+            mainController.changeView('showSamplesPage', encodeURIComponent('[' + expIdOrNull + ',false]'));
         });
     }
     

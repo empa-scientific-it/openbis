@@ -454,7 +454,11 @@ public class GetProjectTest extends AbstractTest
         projectCreation.setCode("PROJECT_WITH_EXPERIMENT_HISTORY");
         projectCreation.setSpaceId(new SpacePermId("CISD"));
 
-        List<ProjectPermId> projectPermIds = v3api.createProjects(sessionToken, Arrays.asList(projectCreation));
+        ProjectCreation projectCreation2 = new ProjectCreation();
+        projectCreation2.setCode("PROJECT_WITH_EXPERIMENT_HISTORY_2");
+        projectCreation2.setSpaceId(new SpacePermId("CISD"));
+
+        List<ProjectPermId> projectPermIds = v3api.createProjects(sessionToken, Arrays.asList(projectCreation, projectCreation2));
 
         ExperimentCreation experimentCreation = new ExperimentCreation();
         experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
@@ -466,7 +470,7 @@ public class GetProjectTest extends AbstractTest
 
         ExperimentUpdate experimentUpdate = new ExperimentUpdate();
         experimentUpdate.setExperimentId(experimentPermIds.get(0));
-        experimentUpdate.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        experimentUpdate.setProjectId(new ProjectIdentifier("/CISD/PROJECT_WITH_EXPERIMENT_HISTORY_2"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
 
@@ -474,7 +478,7 @@ public class GetProjectTest extends AbstractTest
         fetchOptions.withHistory();
 
         Map<IProjectId, Project> map = v3api.getProjects(sessionToken, projectPermIds, fetchOptions);
-        assertEquals(map.size(), 1);
+        assertEquals(map.size(), 2);
 
         Project project = map.get(projectPermIds.get(0));
 

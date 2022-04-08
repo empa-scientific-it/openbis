@@ -1,10 +1,9 @@
 import React from 'react'
-import { Provider } from 'react-redux'
 import { mount } from 'enzyme'
-import { createStore } from '@src/js/store/store.js'
+import AppController from '@src/js/components/AppController.js'
+import ComponentContext from '@srcTest/js/components/common/ComponentContext.js'
 import ThemeProvider from '@srcTest/js/components/common/theme/ThemeProvider.jsx'
 import openbis from '@srcTest/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 
 export default class ComponentTest {
   constructor(createComponentFn, createComponentWrapperFn) {
@@ -16,19 +15,20 @@ export default class ComponentTest {
   beforeEach() {
     jest.resetAllMocks()
     openbis.mockGetMe()
-    this.store = createStore()
-    this.store.dispatch(actions.init())
   }
 
   async mount() {
     document.body.innerHTML = '<div></div>'
 
+    const appController = new AppController.AppController()
+    appController.init(new ComponentContext())
+    await appController.load()
+    AppController.setInstance(appController)
+
     const reactWrapper = mount(
-      <Provider store={this.getStore()}>
-        <ThemeProvider>
-          {this.createComponentFn.apply(null, arguments)}
-        </ThemeProvider>
-      </Provider>,
+      <ThemeProvider>
+        {this.createComponentFn.apply(null, arguments)}
+      </ThemeProvider>,
       {
         attachTo: document.getElementsByTagName('div')[0]
       }

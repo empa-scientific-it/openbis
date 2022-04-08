@@ -1,6 +1,6 @@
 import PageMode from '@src/js/components/common/page/PageMode.js'
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 
 export default class PluginFormControllerEvaluate {
   constructor(controller) {
@@ -31,7 +31,7 @@ export default class PluginFormControllerEvaluate {
         }
       }))
     } catch (error) {
-      this.context.dispatch(actions.errorChange(error))
+      AppController.getInstance().errorChange(error)
     } finally {
       this.context.setState(state => ({
         ...state,

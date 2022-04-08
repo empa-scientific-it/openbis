@@ -340,7 +340,7 @@ public class FileTransferServerServlet extends HttpServlet
         }
         try
         {
-            return new Integer(parameters[0]);
+            return Integer.valueOf(parameters[0]);
         } catch (NumberFormatException e)
         {
             throw new ServletException("Parameter '" + parameterName + "' is not an integer: " + parameters[0]);

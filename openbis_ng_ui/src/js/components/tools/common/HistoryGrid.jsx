@@ -9,12 +9,11 @@ import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import EntityType from '@src/js/components/common/dto/EntityType.js'
 import HistoryGridContentCell from '@src/js/components/tools/common/HistoryGridContentCell.jsx'
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
 import ids from '@src/js/common/consts/ids.js'
-import store from '@src/js/store/store.js'
-import actions from '@src/js/store/actions/actions.js'
 import logger from '@src/js/common/logger.js'
 
 class HistoryGrid extends React.PureComponent {
@@ -27,7 +26,7 @@ class HistoryGrid extends React.PureComponent {
     try {
       return await this.loadHistory(this.props.eventType, params)
     } catch (error) {
-      store.dispatch(actions.errorChange(error))
+      AppController.getInstance().errorChange(error)
     }
   }
 

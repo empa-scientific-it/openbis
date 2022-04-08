@@ -102,6 +102,7 @@ dependencies {
 }
 
 task springExt(type: Jar) {
+    duplicatesStrategy 'include'
 	archiveName 'spring-ext.jar'
 	for (File f : configurations.batteries.files) {
 		from zipTree(f).matching {

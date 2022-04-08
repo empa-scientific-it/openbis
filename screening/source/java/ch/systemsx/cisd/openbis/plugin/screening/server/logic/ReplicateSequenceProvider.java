@@ -184,11 +184,11 @@ class ReplicateSequenceProvider
         Material subgroupMaterial = subgroupProperty.getMaterial();
         if (subgroupMaterial != null)
         {
-            return new Double(subgroupMaterial.getId());
+            return Double.valueOf(subgroupMaterial.getId());
         }
         try
         {
-            return new Double(subgroupProperty.tryGetAsString());
+            return Double.valueOf(subgroupProperty.tryGetAsString());
         } catch (NumberFormatException ex)
         {
             return null;

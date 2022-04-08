@@ -131,7 +131,7 @@ function DataGridController(
             return {
                 label: React.createElement("span", {
                     dangerouslySetInnerHTML: {
-                        __html: column.label,
+                        __html: DOMPurify.sanitize(column.label),
                     },
                 }),
                 name: column.property,
@@ -158,11 +158,14 @@ function DataGridController(
                     if(value === null || value === undefined || value === ""){
                         return
                     }else{
-                        value = FormUtil.sanitizeRichHTMLText(value)
                         if(column.truncate){
                             value = FormUtil.renderTruncatedGridValue(params.container, value)
                         }
-                        $(params.container).empty().append(value)
+                        if(_.isString(value)){
+                            $(params.container).empty().text(value)
+                        }else{
+                            $(params.container).empty().append(value)
+                        }
                     }
                 },
                 renderFilter: column.renderFilter,
@@ -272,8 +275,6 @@ function DataGridController(
         let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj)
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
-
-    this.refreshHeight = function () {}
 
     this.refresh = function () {
         if (_this.controller) {

@@ -18,16 +18,26 @@ package ch.ethz.sis.openbis.systemtest.freezing;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,6 +47,7 @@ public class SpaceFreezingTest extends FreezingTest
     private static final String PREFIX = "SFT-";
 
     private static final String SPACE_1 = PREFIX + "1";
+
     private static final String SPACE_2 = PREFIX + "2";
 
     private SpacePermId space1;
@@ -115,13 +126,13 @@ public class SpaceFreezingTest extends FreezingTest
         SpaceUpdate spaceUpdate2 = new SpaceUpdate();
         spaceUpdate2.setSpaceId(space1);
         spaceUpdate2.setDescription("hello2");
-        
+
         // When
         assertUserFailureException(Void -> v3api.updateSpaces(systemSessionToken, Arrays.asList(spaceUpdate2)),
                 // Then
                 "ERROR: Operation UPDATE is not allowed because space " + SPACE_1 + " is frozen.");
     }
-    
+
     @Test
     public void testChangeDescriptionForMoltenSpace()
     {
@@ -140,4 +151,34 @@ public class SpaceFreezingTest extends FreezingTest
         assertEquals(getSpace(space1).getDescription(), "hello");
     }
 
+    @Test
+    public void testAssertSpaceHasNoDeletedSamples()
+    {
+        // Given
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("SAMPLE-" + System.currentTimeMillis());
+        sampleCreation.setSpaceId(space1);
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE));
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(sampleCreation));
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        IDeletionId deletionsId = v3api.deleteSamples(systemSessionToken, sampleIds, deletionOptions);
+        DeletionSearchCriteria searchCriteria = new DeletionSearchCriteria();
+        searchCriteria.withId().thatEquals(deletionsId);
+        DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
+        String deletionTimestamp = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(
+                v3api.searchDeletions(systemSessionToken, searchCriteria, fetchOptions)
+                        .getObjects().get(0).getDeletionDate());
+        SpaceUpdate spaceUpdate = new SpaceUpdate();
+        spaceUpdate.setSpaceId(space1);
+        spaceUpdate.freezeForSamples();
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSpaces(systemSessionToken, Arrays.asList(spaceUpdate)),
+                // Then
+                "Can not freeze space " + space1 + " because it has 1 objects in the trashcan (1 deletion sets):\n"
+                        + "1 objects (Deletion timestamp: " + deletionTimestamp + ", reason: test)\n"
+                        + "These deletion sets must first be permanently deleted before space " 
+                        + space1 + " can be frozen.\n");
+    }
 }

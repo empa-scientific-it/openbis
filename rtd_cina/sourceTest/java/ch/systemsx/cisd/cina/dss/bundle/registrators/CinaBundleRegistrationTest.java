@@ -540,7 +540,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                             {
                             }
                         }), with(TEST_USER_NAME));
-                    will(returnValue(new Long(1)));
+                    will(returnValue(Long.valueOf(1)));
 
                     // The Replica does not yet exist
                     one(openbisService).tryGetSampleWithExperiment(
@@ -569,7 +569,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                 return false;
                             }
                         }), with(TEST_USER_NAME));
-                    will(returnValue(new Long(2)));
+                    will(returnValue(Long.valueOf(2)));
 
                     Sample sample = new Sample();
                     Experiment exp = new Experiment();

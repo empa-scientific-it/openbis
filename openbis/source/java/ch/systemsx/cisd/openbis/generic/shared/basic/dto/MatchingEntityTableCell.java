@@ -42,7 +42,7 @@ public class MatchingEntityTableCell implements ISerializableComparable
         if (o instanceof MatchingEntityTableCell)
         {
             MatchingEntityTableCell met = (MatchingEntityTableCell) o;
-            return new Double(entity.getScore()).compareTo(met.entity.getScore());
+            return Double.valueOf(entity.getScore()).compareTo(met.entity.getScore());
         } else
         {
             return entity.toString().compareTo(o.toString());

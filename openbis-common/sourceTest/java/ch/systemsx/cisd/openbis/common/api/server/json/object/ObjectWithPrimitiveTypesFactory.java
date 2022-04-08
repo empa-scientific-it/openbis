@@ -39,15 +39,15 @@ public class ObjectWithPrimitiveTypesFactory extends ObjectFactory<ObjectWithPri
 
     public static final String INTEGER_OBJECT_FIELD = "integerObjectField";
 
-    public static final Integer INTEGER_OBJECT_FIELD_VALUE = new Integer(1);
+    public static final Integer INTEGER_OBJECT_FIELD_VALUE = Integer.valueOf(1);
 
     public static final String FLOAT_OBJECT_FIELD = "floatObjectField";
 
-    public static final Float FLOAT_OBJECT_FIELD_VALUE = new Float(2.5f);
+    public static final Float FLOAT_OBJECT_FIELD_VALUE = Float.valueOf(2.5f);
 
     public static final String DOUBLE_OBJECT_FIELD = "doubleObjectField";
 
-    public static final Double DOUBLE_OBJECT_FIELD_VALUE = new Double(3.5d);
+    public static final Double DOUBLE_OBJECT_FIELD_VALUE = Double.valueOf(3.5d);
 
     public static final String INTEGER_FIELD = "integerField";
 

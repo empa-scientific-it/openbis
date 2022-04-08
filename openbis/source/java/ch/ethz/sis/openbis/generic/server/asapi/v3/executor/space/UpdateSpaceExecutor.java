@@ -115,6 +115,7 @@ public class UpdateSpaceExecutor extends AbstractUpdateEntityExecutor<SpaceUpdat
             if (update.shouldBeFrozenForSamples())
             {
                 authorizationExecutor.canFreeze(context, space);
+                assertionOfNoDeletedEntityExecutor.assertSpaceHasNoDeletedSamples(space.getCode());
                 space.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

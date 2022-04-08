@@ -4,9 +4,9 @@ evaluationDependsOn(':common')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile project(':common')
+	api project(':common')
 	
-	testCompile project(path: ':common', configuration: 'tests')
+	testImplementation project(path: ':common', configuration: 'tests')
 } 
 
 jar {

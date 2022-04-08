@@ -108,7 +108,7 @@ public class ColumnDefinitionTest extends AssertJUnit
 
         assertEquals("col", definition.getName());
         assertEquals(false, definition.isMandatory());
-        assertEquals(new Integer(1), definition.getOrderOrNull());
+        assertEquals(Integer.valueOf(1), definition.getOrderOrNull());
     }
 
     @Test
@@ -198,14 +198,14 @@ public class ColumnDefinitionTest extends AssertJUnit
     public void testInvalidRegexHeaderPattern()
     {
         Properties props = new Properties();
-        props.setProperty(ColumnDefinition.HEADER_PATTERN_KEY, "ID{ab");
+        props.setProperty(ColumnDefinition.HEADER_PATTERN_KEY, "*ab");
         try
         {
             ColumnDefinition.create("col", props);
-            fail("The header pattern 'ID{ab' is not valid regex -- should raise PatternSyntaxException");
+            fail("The header pattern '*ab' is not valid regex -- should raise PatternSyntaxException");
         } catch (PatternSyntaxException ex)
         {
-            assertEquals("Illegal repetition near index 1\n" + "ID{ab\n" + " ^", ex.getMessage());
+            assertEquals("Dangling meta character '*' near index 0\n*ab\n^", ex.getMessage());
         }
     }
 

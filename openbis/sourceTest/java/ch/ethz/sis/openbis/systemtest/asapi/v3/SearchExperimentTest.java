@@ -84,7 +84,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getFetchOptions().hasAttachments(), true);
         List<Attachment> attachments = experiment.getAttachments();
         Attachment attachment = attachments.get(0);
-        assertEquals(attachment.getVersion(), new Integer(4));
+        assertEquals(attachment.getVersion(), Integer.valueOf(4));
         assertEquals(attachment.getFileName(), "exampleExperiments.txt");
         assertEquals(attachment.getTitle(), "Latest version");
         assertEquals(attachment.getDescription(), null);
@@ -92,7 +92,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         assertEquals(attachment.getFetchOptions().hasRegistrator(), false);
         assertEquals(attachment.getFetchOptions().hasPreviousVersion(), true);
         Attachment previousVersion = attachment.getPreviousVersion();
-        assertEquals(previousVersion.getVersion(), new Integer(3));
+        assertEquals(previousVersion.getVersion(), Integer.valueOf(3));
         assertEquals(previousVersion.getFileName(), "exampleExperiments.txt");
         assertEquals(previousVersion.getTitle(), null);
         assertEquals(previousVersion.getDescription(), "Second latest version");

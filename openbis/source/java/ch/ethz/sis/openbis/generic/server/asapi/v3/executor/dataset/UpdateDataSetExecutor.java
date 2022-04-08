@@ -146,18 +146,21 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
             if (update.shouldBeFrozenForChildren())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertDataSetHasNoDeletedChildren(update.getDataSetId());
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertDataSetHasNoDeletedParents(update.getDataSetId());
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForComponents())
             {
                 authorizationExecutor.canFreeze(context, entity);
+                assertionOfNoDeletedEntityExecutor.assertDataSetHasNoDeletedComponents(update.getDataSetId());
                 entity.setFrozenForComponents(true);
                 freezingFlags.freezeForComponents();
             }

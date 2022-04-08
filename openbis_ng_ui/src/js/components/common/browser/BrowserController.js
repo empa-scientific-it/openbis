@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class BrowserController {
   doGetPage() {
@@ -43,12 +43,8 @@ export default class BrowserController {
 
   load() {
     return this.doLoadNodes().then(loadedNodes => {
-      const {
-        filter,
-        nodes,
-        selectedId,
-        selectedObject
-      } = this.context.getState()
+      const { filter, nodes, selectedId, selectedObject } =
+        this.context.getState()
 
       let newNodes = this._createNodes(loadedNodes)
       newNodes = this._filterNodes(newNodes, filter)
@@ -120,12 +116,8 @@ export default class BrowserController {
   }
 
   filterChange(newFilter) {
-    const {
-      filter,
-      nodes,
-      selectedId,
-      selectedObject
-    } = this.context.getState()
+    const { filter, nodes, selectedId, selectedObject } =
+      this.context.getState()
 
     let initialNodes = null
 
@@ -183,8 +175,10 @@ export default class BrowserController {
     })
 
     if (nodeObject) {
-      this.context.dispatch(
-        actions.objectOpen(this.getPage(), nodeObject.type, nodeObject.id)
+      AppController.getInstance().objectOpen(
+        this.getPage(),
+        nodeObject.type,
+        nodeObject.id
       )
     }
 

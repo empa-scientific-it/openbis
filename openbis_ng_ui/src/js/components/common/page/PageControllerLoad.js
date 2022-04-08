@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import FormValidator from '@src/js/components/common/form/FormValidator.js'
-import actions from '@src/js/store/actions/actions.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class PageControllerLoad {
   constructor(controller) {
@@ -44,7 +44,7 @@ export default class PageControllerLoad {
 
       await this.load(this.object, isNew)
     } catch (error) {
-      this.context.dispatch(actions.errorChange(error))
+      AppController.getInstance().errorChange(error)
     } finally {
       if (_.isFunction(this.controller.changed)) {
         this.controller.changed(false)

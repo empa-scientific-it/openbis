@@ -1,7 +1,7 @@
 import React from 'react'
 import logger from '@src/js/common/logger.js'
 
-class ContentTab extends React.Component {
+class ContentTab extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'ContentTab.render')
 

@@ -180,7 +180,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             {
                 try
                 {
-                    result.add(new Integer(day.trim()));
+                    result.add(Integer.valueOf(day.trim()));
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Property '" + key

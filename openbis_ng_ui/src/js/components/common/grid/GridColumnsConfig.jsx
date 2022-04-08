@@ -23,6 +23,8 @@ const styles = theme => ({
     padding: 0
   },
   buttons: {
+    display: 'flex',
+    whiteSpace: 'nowrap',
     marginBottom: theme.spacing(1),
     '& button': {
       marginRight: theme.spacing(1)

@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Pack200;
 
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.Pack;
@@ -223,21 +222,22 @@ public class Extractor
             outputStream = new FileOutputStream(target);
             if (packFile.isPack200Jar())
             {
-                int key = objectInputStream.readInt();
-                Pack200.Unpacker unpacker = Pack200.newUnpacker();
-                InputStream pack200Input = resourceManager.getInputStream("/packs/pack200-" + key);
-                java.util.jar.JarOutputStream jarOutputStream = null;
-                try
-                {
-                    jarOutputStream = new java.util.jar.JarOutputStream(outputStream);
-                    unpacker.unpack(pack200Input, jarOutputStream);
-                } finally
-                {
-                    if (jarOutputStream != null)
-                    {
-                        jarOutputStream.close();
-                    }
-                }
+                throw new RuntimeException("Pack200 no longer supported");
+//                int key = objectInputStream.readInt();
+//                Pack200.Unpacker unpacker = Pack200.newUnpacker();
+//                InputStream pack200Input = resourceManager.getInputStream("/packs/pack200-" + key);
+//                java.util.jar.JarOutputStream jarOutputStream = null;
+//                try
+//                {
+//                    jarOutputStream = new java.util.jar.JarOutputStream(outputStream);
+//                    unpacker.unpack(pack200Input, jarOutputStream);
+//                } finally
+//                {
+//                    if (jarOutputStream != null)
+//                    {
+//                        jarOutputStream.close();
+//                    }
+//                }
             } else
             {
                 byte[] buffer = new byte[5120];

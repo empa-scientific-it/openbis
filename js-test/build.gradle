@@ -34,14 +34,16 @@ configurations.create('externalDss')
 
 dependencies {
 
-    compile 'reflections:reflections:0.9.10',
-    'testng:testng:6.8-CISD',
-	'fasterxml:jackson-core:2.9.10',
-	'fasterxml:jackson-annotations:2.9.10',
-	'fasterxml:jackson-databind:2.9.10.8'
+    api project(path: ':screening'),
+        project(path: ':openbis_standard_technologies'),
+        project(path: ':ui-test', configuration: 'tests'),
+        'reflections:reflections:0.9.10',
+        'fasterxml:jackson-core:2.9.10',
+        'fasterxml:jackson-annotations:2.9.10',
+        'fasterxml:jackson-databind:2.9.10.8',
+        'testng:testng:6.8-CISD',
+        'selenium:selenium-java:3.141.59'
 
-	testCompile project(path: ':ui-test', configuration: 'tests')
-	
 	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 	
 	testRuntimeSecond 'google:gwt-user:2.4'
@@ -74,7 +76,9 @@ test {
     useTestNG()
     options.suites('source/java/tests.xml')
 
-    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich', '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n'
+    jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich',
+        '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n', 
+        '--add-opens=java.base/java.util=ALL-UNNAMED'
     
     testLogging.showStandardStreams = true
     ignoreFailures = false

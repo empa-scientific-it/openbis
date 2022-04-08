@@ -63,14 +63,13 @@ class ConfigParam(object):
         return value_dict
 
     def json_upper(self, obj):
+        result = {}
         for key in obj.keys():
             new_key = key.upper()
-            if new_key != key:
-                if new_key in obj:
-                    raise ValueError("Duplicate key after capitalizing JSON config: " + new_key)
-                obj[new_key] = obj[key]
-                del obj[key]
-        return obj
+            if new_key in result:
+                raise ValueError("Duplicate key after capitalizing JSON config: " + new_key)
+            result[new_key] = obj[key]
+        return result
 
 
 class ConfigEnv(object):
