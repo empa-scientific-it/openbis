@@ -21,9 +21,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
@@ -87,8 +87,7 @@ public class XLSExport
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
-        // TODO: implement,
-        //  add references to sample/material properties.
+        // TODO: add references to material properties.
         final Collection<ExportablePermId> result = exportablePermIds.stream().flatMap(exportablePermId ->
         {
             final Set<ExportablePermId> expandedExportablePermIds = new LinkedHashSet<>();
@@ -105,13 +104,22 @@ public class XLSExport
                             propertyAssignmentsHolder.getPropertyAssignments().stream().flatMap(propertyAssignment ->
                             {
                                 final PropertyType propertyType = propertyAssignment.getPropertyType();
-                                if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
+                                switch (propertyType.getDataType())
                                 {
-                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY,
-                                            propertyType.getVocabulary().getPermId()));
-                                } else
-                                {
-                                    return Stream.empty();
+                                    case CONTROLLEDVOCABULARY:
+                                    {
+                                        return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY,
+                                                propertyType.getVocabulary().getPermId()));
+                                    }
+                                    case SAMPLE:
+                                    {
+                                        return Stream.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                                new SamplePermId(propertyType.getSampleType().getCode())));
+                                    }
+                                    default:
+                                    {
+                                        return Stream.empty();
+                                    }
                                 }
                             }).collect(Collectors.toSet()));
                 }
