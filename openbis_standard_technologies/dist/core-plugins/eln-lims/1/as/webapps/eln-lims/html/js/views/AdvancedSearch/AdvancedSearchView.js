@@ -1124,7 +1124,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						render: renderValue,
 						renderFilter: renderFilter,
 						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
-						truncate: propertyType.dataType === "VARCHAR",
+						truncate: true,
 						metadata: {
 							dataType: propertyType.dataType
 						}

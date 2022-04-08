@@ -365,10 +365,11 @@ export default class GridController {
       sortable: column.sortable === undefined ? true : column.sortable,
       filterable: column.filterable === undefined ? true : column.filterable,
       visible: column.visible === undefined ? true : column.visible,
-      wrappable: column.wrappable === undefined ? true : column.wrappable,
       configurable:
         column.configurable === undefined ? true : column.configurable,
       exportable: column.exportable === undefined ? true : column.exportable,
+      nowrap: column.nowrap === undefined ? false : column.nowrap,
+      truncate: column.truncate === undefined ? false : column.truncate,
       metadata: column.metadata === undefined ? {} : column.metadata
     }
   }

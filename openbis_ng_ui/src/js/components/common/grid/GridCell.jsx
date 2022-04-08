@@ -2,7 +2,11 @@ import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
+import Link from '@material-ui/core/Link'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+
+const TRUNCATE_HEIGHT = 50
 
 const styles = theme => ({
   cell: {
@@ -15,50 +19,63 @@ const styles = theme => ({
       content: '"\\a0"'
     }
   },
-  wrap: {
-    whiteSpace: 'normal'
-  },
   nowrap: {
     whiteSpace: 'nowrap'
+  },
+  truncate: {
+    maxHeight: TRUNCATE_HEIGHT + 'px',
+    overflow: 'hidden'
   }
 })
 
 class GridCell extends React.PureComponent {
   constructor(props) {
     super(props)
+
+    this.state = {
+      renderMore: false,
+      moreOpen: false
+    }
     this.ref = React.createRef()
+    this.handleMoreClick = this.handleMoreClick.bind(this)
   }
 
   componentDidMount() {
     this.renderDOMValue()
+    this.maybeScheduleRenderMore()
   }
 
-  componentDidUpdate() {
-    this.renderDOMValue()
+  handleMoreClick() {
+    this.setState(state => ({
+      moreOpen: !state.moreOpen
+    }))
   }
 
   render() {
     logger.log(logger.DEBUG, 'GridCell.render')
 
     const { column, className, classes } = this.props
+    const { moreOpen } = this.state
 
     const cellClasses = [classes.cell]
-    if (column.wrappable) {
-      cellClasses.push(classes.wrap)
-    } else {
-      cellClasses.push(classes.nowrap)
-    }
     if (className) {
       cellClasses.push(className)
     }
 
+    const divClasses = []
+    if (column.nowrap) {
+      divClasses.push(classes.nowrap)
+    }
+    if (column.truncate && !moreOpen) {
+      divClasses.push(classes.truncate)
+    }
+
     return (
-      <TableCell
-        ref={this.ref}
-        key={column.name}
-        classes={{ root: cellClasses.join(' ') }}
-      >
-        {column.renderDOMValue ? null : this.renderValue()}
+      <TableCell key={column.name} classes={{ root: cellClasses.join(' ') }}>
+        <div ref={this.ref} className={divClasses.join(' ')}>
+          {column.renderDOMValue ? null : this.renderValue()}
+        </div>
+        {this.renderMore()}
       </TableCell>
     )
   }
@@ -95,6 +112,35 @@ class GridCell extends React.PureComponent {
         row,
         column
       })
+    }
+  }
+
+  renderMore() {
+    const { renderMore, moreOpen } = this.state
+
+    if (!renderMore) {
+      return null
+    }
+
+    return (
+      <div>
+        <Link onClick={this.handleMoreClick}>
+          {moreOpen ? messages.get(messages.LESS) : messages.get(messages.MORE)}
+        </Link>
+      </div>
+    )
+  }
+
+  maybeScheduleRenderMore() {
+    const { column } = this.props
+    if (
+      column.truncate &&
+      this.ref.current &&
+      this.ref.current.scrollHeight > TRUNCATE_HEIGHT
+    ) {
+      setTimeout(() => {
+        this.setState({ renderMore: true })
+      }, 1)
     }
   }
 }
