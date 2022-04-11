@@ -1,9 +1,9 @@
 <suite name="All" verbose="2" >
   <test name="Main" annotations="JDK">
     <groups>
-        <run>
-            <include name="js-test" />
-        </run>
+      <run>
+        <exclude name="eln-test" />
+      </run>
     </groups>
     <classes>
        <class name="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestCommonSelenium" />
