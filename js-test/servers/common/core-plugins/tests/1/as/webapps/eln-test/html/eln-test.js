@@ -168,14 +168,6 @@ QUnit.asyncTest("21. Experiment Step Form - Create/Update", function(assert) {
     });
 });
 
-QUnit.asyncTest("22. is now disabled", function(assert) {
-    QUnit.expect(1);
-    $(document).on('test22event', function(e) {
-        QUnit.start();
-        assert.equal(e.msg, "Test 22 is not exist", e.msg);
-    });
-});
-
 QUnit.asyncTest("23. Experiment Step Form - Dataset Uploader and Viewer", function(assert) {
     QUnit.expect(1);
     $(document).on('test23event', function(e) {

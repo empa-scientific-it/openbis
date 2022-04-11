@@ -50,6 +50,9 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
             {
                 throw new RuntimeException("Classpath Missing: " + extraGradle3ClassPath + " or " + extraGradle3ClassPath);
             }
+            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/htmlcleaner-2.23.jar";
+            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/plasmapper.jar";
+            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar";
         } catch (Exception e)
         {
             e.printStackTrace();

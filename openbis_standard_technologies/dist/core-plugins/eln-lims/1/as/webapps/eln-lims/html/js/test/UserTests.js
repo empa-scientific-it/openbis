@@ -177,7 +177,7 @@ var UserTests = new function() {
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.waitForId("bac3-column-id"))
                              .then(() => e.click("bac3-column-id"))
-                             // show Hierarchy Graph
+                             // show Hierarchy Table
                              .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.waitForId("hierarchy-table"))
@@ -222,7 +222,7 @@ var UserTests = new function() {
                              .then(() => e.checked("copyChildrenToParent", true))
                              .then(() => e.waitForId("copyAccept"))
                              .then(() => e.click("copyAccept"))
-                             .then(() => e.sleep(4000)) // wait when copy will finished
+                             .then(() => e.sleep(5000)) // wait when copy will finished
                              // go to bac1
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -493,7 +493,7 @@ var UserTests = new function() {
                              .then(() => e.click("bac1-column-id"))
                              .then(() => e.waitForId("testbox-a3-id"))
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
-                             .then(() => e.sleep(2000))
+                             .then(() => e.sleep(3000))
                              .then(() => TestUtil.testPassed(17))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(17, error, reject));
