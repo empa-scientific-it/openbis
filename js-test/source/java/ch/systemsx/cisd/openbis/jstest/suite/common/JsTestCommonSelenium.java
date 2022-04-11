@@ -111,25 +111,23 @@ public class JsTestCommonSelenium extends SeleniumTest
         logout();
     }
 
-    @Test
+    @Test(groups = {"js-test"})
     public void runOpenbisJsTests()
     {
         runTests("runOpenbisJsTests", new OpenbisJsWebappLocation());
     }
 
-    @Test
+    @Test(groups = {"js-test"})
     public void runOpenbisV3JsTests()
     {
         runTests("runOpenbisV3JsTests", new OpenbisV3JsWebappLocation());
     }
 
-    /*
-    @Test
+    @Test(groups = {"eln-test"})
     public void runELNTests()
     {
         runTests("runELNTests", new ELNJsWebappLocation());
     }
-     */
 
     protected void runTests(String method, Location<OpenbisJsCommonWebapp> location)
     {

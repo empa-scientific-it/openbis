@@ -74,7 +74,7 @@ import org.gradle.internal.os.OperatingSystem
 
 test {
     useTestNG()
-    options.suites('source/java/tests.xml')
+    options.suites(System.getProperty("test-config") == null ? 'source/java/tests.xml' : System.getProperty("test-config"))
 
     jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich',
         '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n', 

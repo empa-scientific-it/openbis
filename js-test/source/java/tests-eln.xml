@@ -2,7 +2,7 @@
   <test name="Main" annotations="JDK">
     <groups>
         <run>
-            <include name="js-test" />
+            <include name="eln-test" />
         </run>
     </groups>
     <classes>
