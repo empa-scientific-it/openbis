@@ -6,7 +6,7 @@ import Link from '@material-ui/core/Link'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-const TRUNCATE_HEIGHT = 50
+const TRUNCATE_HEIGHT = 100
 
 const styles = theme => ({
   cell: {
@@ -40,31 +40,16 @@ class GridCell extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.renderDOMValue()
-
-    setTimeout(() => {
-      if (this.ref.current) {
-        const { column, row, onMeasured } = this.props
-        const height = this.ref.current.scrollHeight
-        if (column.truncate && height > TRUNCATE_HEIGHT) {
-          onMeasured(column, row, height)
-        }
-      }
-    }, 1)
+    this.componentDidUpdate()
   }
 
   componentDidUpdate() {
     this.renderDOMValue()
 
-    setTimeout(() => {
-      if (this.ref.current) {
-        const { column, row, onMeasured } = this.props
-        const height = this.ref.current.scrollHeight
-        if (column.truncate && height > TRUNCATE_HEIGHT) {
-          onMeasured(column, row, height)
-        }
-      }
-    }, 1)
+    if (this.ref.current) {
+      const { column, row, onMeasured } = this.props
+      onMeasured(this.ref, column, row)
+    }
   }
 
   handleMoreClick() {

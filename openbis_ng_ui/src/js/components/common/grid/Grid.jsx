@@ -312,7 +312,7 @@ class Grid extends React.PureComponent {
         key={row.id}
         columns={visibleColumns}
         row={row}
-        heights={heights[row.id] || {}}
+        heights={heights[row.id]}
         clickable={onRowClick ? true : false}
         selectable={selectable}
         selected={selectedRow ? selectedRow.id === row.id : false}

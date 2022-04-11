@@ -97,6 +97,7 @@ export default class GridController {
     const state = this.context.getState()
     const newState = {
       ...state,
+      heights: {},
       loading: false,
       loaded: true
     }
@@ -206,6 +207,8 @@ export default class GridController {
       newState.columnsVisibility = newColumnsVisibility
       newState.columnsSorting = newColumnsSorting
     }
+
+    this.cellRefs = null
 
     // do not update filters (this would override filter changes that a user could do while grid was loading)
     delete newState.filters
@@ -1137,24 +1140,41 @@ export default class GridController {
     await this._saveSettings()
   }
 
-  async handleMeasured(column, row, height) {
-    if (!this.heights) {
-      this.heights = {}
+  async handleMeasured(cellRef, column, row) {
+    if (!this.cellRefs) {
+      this.cellRefs = {}
     }
 
-    const rowHeights = this.heights[row.id] || {}
-    rowHeights[column.name] = height
-    this.heights[row.id] = rowHeights
+    const rowCellRefs = this.cellRefs[row.id] || {}
+    rowCellRefs[column.name] = cellRef
+    this.cellRefs[row.id] = rowCellRefs
 
-    if (this.heightsTimeout) {
-      clearTimeout(this.heightsTimeout)
+    if (this.heightsTimeoutId) {
+      clearTimeout(this.heightsTimeoutId)
     }
 
-    setTimeout(() => {
-      this.context.setState({
-        heights: this.heights
+    this.heightsTimeoutId = setTimeout(() => {
+      this.context.setState(state => {
+        const heights = {}
+
+        Object.keys(this.cellRefs).forEach(rowId => {
+          const rowCellRefs = this.cellRefs[rowId]
+          heights[rowId] = {}
+          Object.keys(rowCellRefs).forEach(columnName => {
+            const cellRef = rowCellRefs[columnName]
+            if (cellRef.current) {
+              heights[rowId][columnName] = cellRef.current.scrollHeight
+            }
+          })
+        })
+
+        const mergedHeights = _.merge({}, state.heights, heights)
+
+        return {
+          heights: mergedHeights
+        }
       })
-    }, 500)
+    }, 100)
   }
 
   getAllColumns() {

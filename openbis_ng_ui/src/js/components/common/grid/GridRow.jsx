@@ -128,7 +128,7 @@ class GridRow extends React.PureComponent {
       <GridCell
         key={column.name}
         row={row}
-        height={heights[column.name]}
+        height={heights ? heights[column.name] : undefined}
         column={column}
         className={cellClasses.join(' ')}
         onMeasured={this.props.onMeasured}
