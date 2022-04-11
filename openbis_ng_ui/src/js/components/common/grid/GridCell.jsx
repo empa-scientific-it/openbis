@@ -33,8 +33,7 @@ class GridCell extends React.PureComponent {
     super(props)
 
     this.state = {
-      renderMore: false,
-      moreOpen: false
+      more: false
     }
     this.ref = React.createRef()
     this.handleMoreClick = this.handleMoreClick.bind(this)
@@ -42,12 +41,35 @@ class GridCell extends React.PureComponent {
 
   componentDidMount() {
     this.renderDOMValue()
-    this.maybeScheduleRenderMore()
+
+    setTimeout(() => {
+      if (this.ref.current) {
+        const { column, row, onMeasured } = this.props
+        const height = this.ref.current.scrollHeight
+        if (column.truncate && height > TRUNCATE_HEIGHT) {
+          onMeasured(column, row, height)
+        }
+      }
+    }, 1)
+  }
+
+  componentDidUpdate() {
+    this.renderDOMValue()
+
+    setTimeout(() => {
+      if (this.ref.current) {
+        const { column, row, onMeasured } = this.props
+        const height = this.ref.current.scrollHeight
+        if (column.truncate && height > TRUNCATE_HEIGHT) {
+          onMeasured(column, row, height)
+        }
+      }
+    }, 1)
   }
 
   handleMoreClick() {
     this.setState(state => ({
-      moreOpen: !state.moreOpen
+      more: !state.more
     }))
   }
 
@@ -55,7 +77,7 @@ class GridCell extends React.PureComponent {
     logger.log(logger.DEBUG, 'GridCell.render')
 
     const { column, className, classes } = this.props
-    const { moreOpen } = this.state
+    const { more } = this.state
 
     const cellClasses = [classes.cell]
     if (className) {
@@ -66,7 +88,7 @@ class GridCell extends React.PureComponent {
     if (column.nowrap) {
       divClasses.push(classes.nowrap)
     }
-    if (column.truncate && !moreOpen) {
+    if (column.truncate && !more) {
       divClasses.push(classes.truncate)
     }
 
@@ -116,31 +138,23 @@ class GridCell extends React.PureComponent {
   }
 
   renderMore() {
-    const { renderMore, moreOpen } = this.state
+    const { column, height } = this.props
+    const { more } = this.state
 
-    if (!renderMore) {
-      return null
+    if (!column.truncate) {
+      return
     }
 
-    return (
-      <div>
-        <Link onClick={this.handleMoreClick}>
-          {moreOpen ? messages.get(messages.LESS) : messages.get(messages.MORE)}
-        </Link>
-      </div>
-    )
-  }
-
-  maybeScheduleRenderMore() {
-    const { column } = this.props
-    if (
-      column.truncate &&
-      this.ref.current &&
-      this.ref.current.scrollHeight > TRUNCATE_HEIGHT
-    ) {
-      setTimeout(() => {
-        this.setState({ renderMore: true })
-      }, 1)
+    if (height && height > TRUNCATE_HEIGHT) {
+      return (
+        <div>
+          <Link onClick={this.handleMoreClick}>
+            {more ? messages.get(messages.LESS) : messages.get(messages.MORE)}
+          </Link>
+        </div>
+      )
+    } else {
+      return null
     }
   }
 }

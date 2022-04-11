@@ -60,6 +60,7 @@ export default class GridController {
       allRows: [],
       selectedRow: null,
       multiselectedRows: {},
+      heights: {},
       sortings: sortings,
       totalCount: 0,
       exportOptions: {
@@ -1134,6 +1135,26 @@ export default class GridController {
       exportOptions
     }))
     await this._saveSettings()
+  }
+
+  async handleMeasured(column, row, height) {
+    if (!this.heights) {
+      this.heights = {}
+    }
+
+    const rowHeights = this.heights[row.id] || {}
+    rowHeights[column.name] = height
+    this.heights[row.id] = rowHeights
+
+    if (this.heightsTimeout) {
+      clearTimeout(this.heightsTimeout)
+    }
+
+    setTimeout(() => {
+      this.context.setState({
+        heights: this.heights
+      })
+    }, 500)
   }
 
   getAllColumns() {
