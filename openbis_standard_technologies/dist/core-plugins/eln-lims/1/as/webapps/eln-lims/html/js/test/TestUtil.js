@@ -4,7 +4,7 @@ var TestUtil = new function() {
 
 	this.login = function(username, password) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor();
             testChain = Promise.resolve();
             testChain.then(() => e.waitForId("login-service-selector"))
                      .then(() => e.changeSelect2("login-service-selector", "Default Login Service"))
@@ -26,37 +26,43 @@ var TestUtil = new function() {
         }
     }
 
-    this.sendEventToJenkins = function(i, id, msg) {
+    this.sendEventToJenkins = function(e, i, msg) {
+        var id = e.testId;
         var event = jQuery.Event("test" + i + "event");
         if (i == id) {
             event.msg = msg;
         } else {
-            event.msg = "Test " + id + " failed.";
+            event.msg = "Test " + id + " failed:";
+            e.events.forEach(function(ev) {
+                event.msg += "\n  |" + ev;
+            });
+            console.log(event.msg);
         }
         console.log("Test " + i + " failed.");
         window.parent.$("#eln-frame").trigger(event);
     }
 
-    this.reportErrorToJenkins = function(id, msg) {
+    this.reportErrorToJenkins = function(e, msg) {
         if ($.cookie("report-to-jenkins") == "true") {
             // If one test is broken, then all tests must be failed.
             // If you need to add a new test, make sure that it will fail.
 
             chain = Promise.resolve();
             for(let i = id; i < TestProtocol.getTestCount(); i++) {
-                chain = chain.then(() => TestUtil.sendEventToJenkins(i, id, error))
+                chain = chain.then(() => TestUtil.sendEventToJenkins(e, i, error))
                              .then(() => EventUtil.sleep(1000));
             }
             chain.catch(error => { console.log(error) });
         }
     }
 
-    this.reportError = function(id, error, reject) {
-        TestUtil.reportErrorToJenkins(id, error);
+    this.reportError = function(e, error, reject) {
+        TestUtil.reportErrorToJenkins(e, error);
         reject(error);
     }
 
-    this.testPassed = function(id) {
+    this.testPassed = function(e) {
+        var id = e.testId;
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id +" passed";
             TestUtil.reportToJenkins(id, msg);
@@ -106,15 +112,13 @@ var TestUtil = new function() {
         });
     }
 
-    this.verifyInventory  = function(testId, ids) {
+    this.verifyInventory  = function(e, ids) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             chain = Promise.resolve();
             for (let i = 0; i < ids.length; i++) {
                 chain = chain.then(() => e.waitForId(ids[i]));
             }
-            chain.then(() => resolve()).catch(error => TestUtil.reportError(testId, error, reject));
+            chain.then(() => resolve()).catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 

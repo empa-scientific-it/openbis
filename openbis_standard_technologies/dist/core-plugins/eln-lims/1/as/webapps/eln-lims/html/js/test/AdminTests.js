@@ -2,20 +2,20 @@ var AdminTests = new function() {
 
     this.login = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(1);
 
             testChain = Promise.resolve();
 
             testChain.then(() => TestUtil.login("admin", "admin"))
-                     .then(() => TestUtil.testPassed(1))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(1, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
 	this.inventorySpace = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(2);
 
             var ids = ["tree",
                        "LAB_NOTEBOOK",
@@ -51,16 +51,16 @@ var AdminTests = new function() {
                        "TRASHCAN",
                        "SETTINGS"];
 
-            Promise.resolve().then(() => TestUtil.verifyInventory(2, ids))
-                             .then(() => TestUtil.testPassed(2))
+            Promise.resolve().then(() => TestUtil.verifyInventory(e, ids))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(2, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.enableBacteriaToShowInDropDowns = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(3);
 
             testChain = Promise.resolve();
             testChain.then(() => e.waitForId("SETTINGS"))
@@ -79,15 +79,15 @@ var AdminTests = new function() {
                      // wait until the save
                      .then(() => e.waitForId("edit-btn"))
                      .then(() => e.sleep(1000))
-                     .then(() => TestUtil.testPassed(3))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(3, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.userManager = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(5);
 
             testChain = Promise.resolve();
             testChain.then(() => e.waitForId("USER_MANAGER"))
@@ -97,20 +97,20 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("userId"))
                      .then(() => e.change("userId", "testId"))
                      .then(() => e.click("createUserBtn"))
-                     .then(() => AdminTests.createPassword())
-                     .then(() => AdminTests.userExist())
+                     .then(() => AdminTests.createPassword(e))
+                     .then(() => AdminTests.userExist(e))
                      .then(() => TestUtil.setCookies("suitename", "testId"))
                      .then(() => e.click("logoutBtn"))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(e, error, reject));
+//                     .catch((error) => reject(error));
         });
     }
 
     // Sometimes it ask for password. Try to fill it.
-    this.createPassword = function() {
+    this.createPassword = function(e) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             testChain = Promise.resolve();
 
             testChain.then(() => e.waitForId("passwordId", true, 2000))
@@ -118,16 +118,15 @@ var AdminTests = new function() {
                      .then(() => e.change("passwordRepeatId", "pass", true))
                      .then(() => e.click("createUserBtn", true))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(e, error, reject));
+//                     .catch((error) => reject(error));
         });
     }
 
     // If the user already exists, we will see an error.
     // This is not a problem for the script, and we can continue.
-    this.userExist = function() {
+    this.userExist = function(e) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             testChain = Promise.resolve();
 
             testChain.then(() => e.waitForId("jError", true, 2000))
@@ -135,7 +134,8 @@ var AdminTests = new function() {
                      .then(() => e.click("jNotifyDismiss", true))
                      .then(() => e.click("cancelBtn", true))
                      .then(() => resolve())
-                     .catch((error) => reject(error));
+                     .catch(error => TestUtil.reportError(e, error, reject));
+//                     .catch((error) => reject(error));
         });
     }
 
@@ -144,7 +144,7 @@ var AdminTests = new function() {
         var pathToResource = "js/test/resources/order_ORD1_p0.txt";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(31);
 
             testChain = Promise.resolve();
 
@@ -172,7 +172,7 @@ var AdminTests = new function() {
                      // add request
                      .then(() => e.waitForId("search-btn-requests"))
                      .then(() => e.click("search-btn-requests"))
-                     .then(() => e.searchForObjectInSelect2("EN", "add-object-request"))
+                     .then(() => e.searchForObjectInSelect2(e, "EN", "add-object-request"))
                      .then(() => e.waitForId("req17-column-id"))
                      // choose oder status
                      .then(() => e.waitForId("ORDERINGORDER_STATUS"))
@@ -190,15 +190,15 @@ var AdminTests = new function() {
                      .then(() => TestUtil.checkFileEquality("order_ORDER1_p0.txt", baseURL + pathToResource, TestUtil.dateReplacer))
                      .then(() => TestUtil.returnRealSaveAs())
                      .then(() => e.sleep(1000))
-                     .then(() => TestUtil.testPassed(31))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(31, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.deletedRequests = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(32);
 
             testChain = Promise.resolve();
 
@@ -242,15 +242,15 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      .then(() => e.sleep(1000))
-                     .then(() => TestUtil.testPassed(32))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(32, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.trashManager = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(33);
 
             testChain = Promise.resolve();
 
@@ -288,15 +288,15 @@ var AdminTests = new function() {
                      .then(() => e.verifyExistence("deleted--materials-bacteria-bac1-id", false))
                      .then(() => e.verifyExistence("deleted--stock_catalog-requests-req17-id", false))
                      .then(() => e.sleep(1000))
-                     .then(() => TestUtil.testPassed(33))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(33, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.vocabularyViewer = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(34);
             var r = ReactTestUtils;
 
             testChain = Promise.resolve();
@@ -318,9 +318,9 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("vocabulary-terms-table\\.page-range-id"))
                      .then(() => e.checkGridRange("vocabulary-terms-table\\.page-range-id", "1-5 of 5", false))
                      .then(() => e.sleep(1000))
-                     .then(() => TestUtil.testPassed(34))
+                     .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(34, error, reject));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 }

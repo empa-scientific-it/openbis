@@ -2,7 +2,7 @@ var UserTests = new function() {
 
     this.inventorySpaceForTestUser = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(5);
 
             var ids = ["LAB_NOTEBOOK",
                        "TESTID",
@@ -28,32 +28,31 @@ var UserTests = new function() {
                        "PUBLIC_REPOSITORIES",
                        "_PUBLICATIONS_PUBLIC_REPOSITORIES_PUBLICATIONS_COLLECTION"];
 
-            Promise.resolve().then(() => TestUtil.verifyInventory(5, ids))
+            Promise.resolve().then(() => TestUtil.verifyInventory(e, ids))
                              .then(() => e.verifyExistence("USER_MANAGER", false))
                              .then(() => e.sleep(1000))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(5, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.creationSampleForm = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(6);
 
-            Promise.resolve().then(() => UserTests.createBacteria("BAC1", "Aurantimonas"))
-                             .then(() => UserTests.createBacteria("BAC2", "Burantimonas"))
-                             .then(() => UserTests.createBacteria("BAC3", "Curantimonas"))
-                             .then(() => UserTests.createBacteria("BAC4", "Durantimonas"))
+            Promise.resolve().then(() => UserTests.createBacteria(e, "BAC1", "Aurantimonas"))
+                             .then(() => UserTests.createBacteria(e, "BAC2", "Burantimonas"))
+                             .then(() => UserTests.createBacteria(e, "BAC3", "Curantimonas"))
+                             .then(() => UserTests.createBacteria(e, "BAC4", "Durantimonas"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(6))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(6, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
-    this.createBacteria = function(code, name) {
+    this.createBacteria = function(e, code, name) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
             var testChain = Promise.resolve();
 
             var richText = '<p><span style="color:#000080;"><strong>F-&nbsp;tonA21 thi-1 thr-1 leuB6 lacY1</strong></span><strong>&nbsp;</strong><span style="color:#008000;"><i><strong>glnV44 rfbC1 fhuA1 ?? mcrB e14-(mcrA-)</strong></i></span><i><strong>&nbsp;</strong></i><span style="color:#cc99ff;"><strong><u>hsdR(rK&nbsp;-mK&nbsp;+) λ-</u></strong></span></p>';
@@ -89,7 +88,7 @@ var UserTests = new function() {
                      .then(() => e.equalTo("NAME", name, true, false))
                      .then(() => TestUtil.ckeditorTestData("BACTERIA.GENOTYPE", richText))
                      .then(() => resolve())
-                     .catch(error => reject(error));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -98,7 +97,7 @@ var UserTests = new function() {
         var pathToResource = "js/test/resources/test-image.png";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(7);
 
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -113,13 +112,13 @@ var UserTests = new function() {
                              // add mother
                              .then(() => e.waitForId("search-btn-bacteria-parents"))
                              .then(() => e.click("search-btn-bacteria-parents"))
-                             .then(() => e.searchForObjectInSelect2("BAC1", "add-object-bacteria"))
+                             .then(() => e.searchForObjectInSelect2(e, "BAC1", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac1"))
                              .then(() => e.change("comments-bac1", "mother"))
                              // add father
                              .then(() => e.waitForId("search-btn-bacteria-parents"))
                              .then(() => e.click("search-btn-bacteria-parents"))
-                             .then(() => e.searchForObjectInSelect2("BAC2", "add-object-bacteria"))
+                             .then(() => e.searchForObjectInSelect2(e, "BAC2", "add-object-bacteria"))
                              .then(() => e.waitForId("comments-bac2"))
                              .then(() => e.change("comments-bac2", "father"))
                              // add Child
@@ -127,7 +126,7 @@ var UserTests = new function() {
                              .then(() => e.click("plus-btn-children-type-selector"))
                              .then(() => e.waitForId("sampleTypeSelector"))
                              .then(() => e.changeSelect2("sampleTypeSelector", 'BACTERIA'))
-                             .then(() => e.searchForObjectInSelect2("BAC4", "add-object-bacteria"))
+                             .then(() => e.searchForObjectInSelect2(e, "BAC4", "add-object-bacteria"))
                              .then(() => e.waitForId("bac4-column-id"))
                              // save
                              .then(() => e.waitForId("save-btn"))
@@ -138,15 +137,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac2-column-id"))
                              .then(() => e.waitForId("bac4-column-id"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(7))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(7, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.sampleHierarchyAsGraph = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(8);
             Promise.resolve().then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
                              .then(() => e.click("options-menu-btn-sample-view-bacteria"))
                              // show Hierarchy Graph
@@ -158,9 +157,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac3"))
                              .then(() => e.waitForId("bac4"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(8))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(8, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -170,7 +169,7 @@ var UserTests = new function() {
         var childrenAnnotations = "<b>Code</b>: BAC4";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(9);
 
             // return to bacteria 3
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -193,15 +192,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("parent-annotations-bac3"))
                              .then(() => e.contains("parent-annotations-bac3", [motherFirst, fatherFirst], false))
                              .then(() => e.sleep(2000))
-                             .then(() => TestUtil.testPassed(9))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(9, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.copySampleForm = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(10);
 
             // return to bacteria 3
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -240,16 +239,16 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac5"))
                              .then(() => e.waitForId("bac5_bac4"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(10))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(10, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.deleteSampleForm = function() {
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(11);
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              // navigation to BAC5
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -263,9 +262,9 @@ var UserTests = new function() {
                              // make sure Delete option is not available in the "More..." dropdown
                              .then(() => e.verifyExistence("delete", false))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(11))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(11, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -275,7 +274,7 @@ var UserTests = new function() {
         var pathToUpdateResource = "js/test/resources/updateAllColumnsAllRows.tsv";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(12);
             var r = ReactTestUtils;
             Promise.resolve().then(() => TestUtil.overloadSaveAs())
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -317,7 +316,7 @@ var UserTests = new function() {
                              .then(() => e.equalTo("bac5_bac4-name-id", "Durantimonas", true, false))
                              */
                              // Batch Update Objects
-                             .then(() => UserTests.importBacteriasFromFile(baseURL + pathToUpdateResource, false))
+                             .then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToUpdateResource, false))
                              .then(() => e.sleep(6000)) // wait for import
                              // check names after update
                              .then(() => e.waitForId("bac1-name-id"))
@@ -329,9 +328,9 @@ var UserTests = new function() {
                              .then(() => e.equalTo("bac5_bac4-name-id", "FF", true, false))
                              .then(() => TestUtil.returnRealSaveAs())
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(12))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(12, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -340,10 +339,10 @@ var UserTests = new function() {
         var pathToResource = "js/test/resources/bacteria_for_test_without_identifier.tsv";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(13);
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
-                             .then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
+                             .then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToResource, true))
                              .then(() => e.sleep(3500)) // wait for saving
                              // check that bacterias was created
                              .then(() => e.waitForId("bac6-column-id"))
@@ -351,9 +350,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac8-column-id"))
                              .then(() => e.waitForId("bac9-column-id"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(13))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(13, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -362,9 +361,9 @@ var UserTests = new function() {
         var pathToResource = "js/test/resources/bacteria_for_test_with_identifier.tsv";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(14);
             var r = ReactTestUtils;
-            Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
+            Promise.resolve().then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToResource, true))
                              .then(() => e.sleep(5000)) // wait for saving
                              // check that bacterias was created
                              .then(() => e.waitForId("sample-grid\\.next-page-id"))
@@ -374,16 +373,14 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac12-column-id"))
                              .then(() => e.waitForId("bac13-column-id"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(14))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(14, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
-    this.importBacteriasFromFile = function(file, isNew) {
+    this.importBacteriasFromFile = function(e, file, isNew) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             var testChain = Promise.resolve();
 
             testChain.then(() => e.waitForId("sample-options-menu-btn"))
@@ -403,13 +400,13 @@ var UserTests = new function() {
                      .then(() => e.waitForId("accept-type-file"))
                      .then(() => e.click("accept-type-file"))
                      .then(() => resolve())
-                     .catch(error => reject(error));
+                     .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.storageTest = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(15);
 
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -440,15 +437,15 @@ var UserTests = new function() {
                              // check that new storage was created
                              .then(() => e.waitForId("testbox-c2-id"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(15))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(15, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.movingBoxTest = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(16);
 
             Promise.resolve().then(() => e.waitForId("STORAGE_MANAGER"))
                              .then(() => e.click("STORAGE_MANAGER"))
@@ -464,15 +461,15 @@ var UserTests = new function() {
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
                              .then(() => e.sleep(6000)) // wait for saving
-                             .then(() => TestUtil.testPassed(16))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(16, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.movingSampleTest = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(17);
 
             Promise.resolve().then(() => e.waitForId("STORAGE_MANAGER"))
                              .then(() => e.click("STORAGE_MANAGER"))
@@ -494,15 +491,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("testbox-a3-id"))
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
                              .then(() => e.sleep(3000))
-                             .then(() => TestUtil.testPassed(17))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(17, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.createProtocol = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(18);
 
             Promise.resolve().then(() => e.waitForId("_METHODS_PROTOCOLS_GENERAL_PROTOCOLS"))
                              .then(() => e.click("_METHODS_PROTOCOLS_GENERAL_PROTOCOLS"))
@@ -518,15 +515,15 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(18))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(18, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.createProject = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(19);
 
             Promise.resolve().then(() => e.waitForId("TESTID"))
                              .then(() => e.click("TESTID"))
@@ -548,15 +545,15 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(19))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(19, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.createExperiment = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(20);
 
             var yesterday = Util.getFormatedDate(new Date(new Date().setDate(new Date().getDate() - 1)));
             var tomorrow = Util.getFormatedDate(new Date(new Date().setDate(new Date().getDate() + 1)));
@@ -614,15 +611,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(20))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(20, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.createExperimentStep = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(21);
 
             var tomorrow = Util.getFormatedDate(new Date(new Date().setDate(new Date().getDate() + 1)));
 
@@ -648,7 +645,7 @@ var UserTests = new function() {
                              // add protocol
                              .then(() => e.waitForId("search-btn-general-protocol"))
                              .then(() => e.click("search-btn-general-protocol"))
-                             .then(() => e.searchForObjectInSelect2("GEN", "add-object-general_protocol"))
+                             .then(() => e.searchForObjectInSelect2(e, "GEN", "add-object-general_protocol"))
                              .then(() => e.waitForId("gen10-column-id"))
                              // Operations
                              .then(() => e.waitForId("gen10-operations-column-id"))
@@ -681,9 +678,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.sleep(2000))
-                             .then(() => TestUtil.testPassed(21))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(21, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
@@ -692,7 +689,7 @@ var UserTests = new function() {
         var pathToResource = "js/test/resources/test-image.png";
 
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(23);
 
             Promise.resolve().then(() => e.waitForId("upload-btn"))
                              .then(() => e.click("upload-btn"))
@@ -723,15 +720,15 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("dataset-edit-btn"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(23))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(23, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.showInProjectOverview = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(25);
 
             Promise.resolve().then(() => e.waitForId("PATH_TESTID_PROJECT_101"))
                              .then(() => e.click("PATH_TESTID_PROJECT_101"))
@@ -754,15 +751,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("project-samples"))
                              .then(() => e.waitForStyle("project-samples", "display", "", false))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(25))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(25, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.search = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(26);
 
             Promise.resolve().then(() => e.waitForId("search"))
                              // start global search
@@ -796,15 +793,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.waitForId("bac5_bac4-id"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(26))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(26, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.supplierForm = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(27);
 
             Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
                              // path to Supplier Collection
@@ -812,20 +809,18 @@ var UserTests = new function() {
                              .then(() => e.waitForId("SUPPLIERS"))
                              .then(() => e.click("SUPPLIERS"))
                              //create English supplier
-                             .then(() => UserTests.createSupplier("EN", "ENGLISH", "companyen@email.com"))
+                             .then(() => UserTests.createSupplier(e, "EN", "ENGLISH", "companyen@email.com"))
                              //create German supplier
-                             .then(() => UserTests.createSupplier("DE", "GERMAN", "companyde@email.com"))
+                             .then(() => UserTests.createSupplier(e, "DE", "GERMAN", "companyde@email.com"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(27))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(27, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
-    this.createSupplier = function(langCode, language, email) {
+    this.createSupplier = function(e, langCode, language, email) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             Promise.resolve().then(() => e.waitForId("_STOCK_CATALOG_SUPPLIERS_SUPPLIER_COLLECTION"))
                              .then(() => e.click("_STOCK_CATALOG_SUPPLIERS_SUPPLIER_COLLECTION"))
                              .then(() => e.waitForId("create-btn"))
@@ -848,13 +843,13 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
-                             .catch(error => reject(error));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
     this.productForm = function() {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor(28);
 
             Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
                              // path to Product Collection
@@ -862,20 +857,18 @@ var UserTests = new function() {
                              .then(() => e.waitForId("PRODUCTS"))
                              .then(() => e.click("PRODUCTS"))
                              //create English product form
-                             .then(() => UserTests.createProductForm("EN", "EUR", "SUP13"))
+                             .then(() => UserTests.createProductForm(e, "EN", "EUR", "SUP13"))
                              //create German product form
-                             .then(() => UserTests.createProductForm("DE", "EUR", "SUP14"))
+                             .then(() => UserTests.createProductForm(e, "DE", "EUR", "SUP14"))
                              .then(() => e.sleep(1000))
-                             .then(() => TestUtil.testPassed(28))
+                             .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
-                             .catch(error => TestUtil.reportError(28, error, reject));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
-    this.createProductForm = function(langCode, currency, supId) {
+    this.createProductForm = function(e, langCode, currency, supId) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             Promise.resolve().then(() => e.waitForId("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
                              .then(() => e.click("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
                              .then(() => e.waitForId("create-btn"))
@@ -897,18 +890,18 @@ var UserTests = new function() {
                              .then(() => e.click("jNotifyDismiss"))
                              .then(() => e.waitForId("search-btn-suppliers"))
                              .then(() => e.click("search-btn-suppliers"))
-                             .then(() => e.searchForObjectInSelect2(supId, "add-object-supplier"))
+                             .then(() => e.searchForObjectInSelect2(e, supId, "add-object-supplier"))
                              .then(() => e.waitForId(supId.toLocaleLowerCase() + "-column-id"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
-                             .catch(error => reject(error));
+                             .catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 
      this.requestForm = function() {
          return new Promise(function executor(resolve, reject) {
-             var e = EventUtil;
+             var e = new EventExecutor(29);
 
              Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
                               // path to Request Collection
@@ -928,7 +921,7 @@ var UserTests = new function() {
                               // add Products from Catalog
                               .then(() => e.waitForId("search-btn-products"))
                               .then(() => e.click("search-btn-products"))
-                              .then(() => e.searchForObjectInSelect2("PRO15", "add-object-product"))
+                              .then(() => e.searchForObjectInSelect2(e, "PRO15", "add-object-product"))
                               .then(() => e.waitForId("pro15-column-id"))
                               .then(() => e.waitForId("quantity-of-items-pro15"))
                               .then(() => e.change("quantity-of-items-pro15", "18"))
@@ -963,15 +956,15 @@ var UserTests = new function() {
                               .then(() => e.click("save-btn"))
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               .then(() => e.sleep(1000))
-                              .then(() => TestUtil.testPassed(29))
+                              .then(() => TestUtil.testPassed(e))
                               .then(() => resolve())
-                              .catch(error => TestUtil.reportError(29, error, reject));
+                              .catch(error => TestUtil.reportError(e, error, reject));
          });
      }
 
      this.orderForm = function() {
          return new Promise(function executor(resolve, reject) {
-             var e = EventUtil;
+             var e = new EventExecutor(30);
 
              Promise.resolve().then(() => e.waitForId("STOCK_ORDERS"))
                               // path to Order Collection
@@ -985,15 +978,15 @@ var UserTests = new function() {
                               // There should be no + button
                               .then(() => e.verifyExistence("create-btn", false))
                               .then(() => e.sleep(1000))
-                              .then(() => TestUtil.testPassed(30))
+                              .then(() => TestUtil.testPassed(e))
                               .then(() => resolve())
-                              .catch(error => TestUtil.reportError(30, error, reject));
+                              .catch(error => TestUtil.reportError(e, error, reject));
          });
       }
 
      this.logout = function() {
          return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor();
 
             Promise.resolve().then(() => TestUtil.setCookies("suitename", "finishTest"))
                              .then(() => e.click("logoutBtn"))
