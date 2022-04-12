@@ -1155,26 +1155,48 @@ export default class GridController {
 
     this.heightsTimeoutId = setTimeout(() => {
       this.context.setState(state => {
-        const heights = {}
+        const heights = state.heights
+        let newHeights = heights
 
         Object.keys(this.cellRefs).forEach(rowId => {
           const rowCellRefs = this.cellRefs[rowId]
-          heights[rowId] = {}
+          const rowHeights = heights[rowId]
+          let newRowHeights = rowHeights
+
           Object.keys(rowCellRefs).forEach(columnName => {
             const cellRef = rowCellRefs[columnName]
+            const height = rowHeights ? rowHeights[columnName] : null
+
             if (cellRef.current) {
-              heights[rowId][columnName] = cellRef.current.scrollHeight
+              const newHeight = cellRef.current.scrollHeight
+
+              if (newHeight !== height) {
+                if (newHeights === heights) {
+                  newHeights = {
+                    ...heights
+                  }
+                }
+                if (newRowHeights === rowHeights) {
+                  newRowHeights = {
+                    ...rowHeights
+                  }
+                  newHeights[rowId] = newRowHeights
+                }
+                newRowHeights[columnName] = newHeight
+              }
             }
           })
         })
 
-        const mergedHeights = _.merge({}, state.heights, heights)
-
-        return {
-          heights: mergedHeights
+        if (newHeights) {
+          return {
+            heights: newHeights
+          }
+        } else {
+          return {}
         }
       })
-    }, 100)
+    }, 500)
   }
 
   getAllColumns() {
