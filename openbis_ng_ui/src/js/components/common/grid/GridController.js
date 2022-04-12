@@ -208,8 +208,6 @@ export default class GridController {
       newState.columnsSorting = newColumnsSorting
     }
 
-    this.cellRefs = null
-
     // do not update filters (this would override filter changes that a user could do while grid was loading)
     delete newState.filters
     delete newState.globalFilter
@@ -1141,61 +1139,56 @@ export default class GridController {
   }
 
   async handleMeasured(cellRef, column, row) {
-    if (!this.cellRefs) {
-      this.cellRefs = {}
+    if (!this.measureQueue) {
+      this.measureQueue = []
     }
 
-    const rowCellRefs = this.cellRefs[row.id] || {}
-    rowCellRefs[column.name] = cellRef
-    this.cellRefs[row.id] = rowCellRefs
+    this.measureQueue.push({
+      cellRef,
+      column,
+      row
+    })
 
-    if (this.heightsTimeoutId) {
-      clearTimeout(this.heightsTimeoutId)
+    if (this.measureTimeoutId) {
+      clearTimeout(this.measureTimeoutId)
     }
 
-    this.heightsTimeoutId = setTimeout(() => {
+    this.measureTimeoutId = setTimeout(() => {
       this.context.setState(state => {
         const heights = state.heights
         let newHeights = heights
 
-        Object.keys(this.cellRefs).forEach(rowId => {
-          const rowCellRefs = this.cellRefs[rowId]
-          const rowHeights = heights[rowId]
-          let newRowHeights = rowHeights
+        this.measureQueue.forEach(measureItem => {
+          const rowHeights = heights[measureItem.row.id]
+          let newRowHeights = newHeights[measureItem.row.id] || rowHeights
 
-          Object.keys(rowCellRefs).forEach(columnName => {
-            const cellRef = rowCellRefs[columnName]
-            const height = rowHeights ? rowHeights[columnName] : null
+          if (measureItem.cellRef.current) {
+            const height = rowHeights
+              ? rowHeights[measureItem.column.name]
+              : null
+            const newHeight = measureItem.cellRef.current.scrollHeight
 
-            if (cellRef.current) {
-              const newHeight = cellRef.current.scrollHeight
-
-              if (newHeight !== height) {
-                if (newHeights === heights) {
-                  newHeights = {
-                    ...heights
-                  }
+            if (newHeight !== height) {
+              if (newHeights === heights) {
+                newHeights = {
+                  ...heights
                 }
-                if (newRowHeights === rowHeights) {
-                  newRowHeights = {
-                    ...rowHeights
-                  }
-                  newHeights[rowId] = newRowHeights
-                }
-                newRowHeights[columnName] = newHeight
               }
+              if (newRowHeights === rowHeights) {
+                newRowHeights = {
+                  ...rowHeights
+                }
+                newHeights[measureItem.row.id] = newRowHeights
+              }
+              newRowHeights[measureItem.column.name] = newHeight
             }
-          })
-        })
-
-        if (newHeights) {
-          return {
-            heights: newHeights
           }
-        } else {
-          return {}
+        })
+        return {
+          heights: newHeights
         }
       })
+      this.measureQueue = []
     }, 500)
   }
 
