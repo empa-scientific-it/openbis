@@ -7,6 +7,7 @@ import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const TRUNCATE_HEIGHT = 100
+const MORE_HEIGHT = 20
 
 const styles = theme => ({
   cell: {
@@ -24,6 +25,10 @@ const styles = theme => ({
   },
   truncate: {
     maxHeight: TRUNCATE_HEIGHT + 'px',
+    overflow: 'hidden'
+  },
+  truncateWithMore: {
+    maxHeight: TRUNCATE_HEIGHT - MORE_HEIGHT + 'px',
     overflow: 'hidden'
   }
 })
@@ -61,7 +66,7 @@ class GridCell extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridCell.render')
 
-    const { column, className, classes } = this.props
+    const { column, height, className, classes } = this.props
     const { more } = this.state
 
     const cellClasses = [classes.cell]
@@ -74,7 +79,11 @@ class GridCell extends React.PureComponent {
       divClasses.push(classes.nowrap)
     }
     if (column.truncate && !more) {
-      divClasses.push(classes.truncate)
+      if (height && height > TRUNCATE_HEIGHT) {
+        divClasses.push(classes.truncateWithMore)
+      } else {
+        divClasses.push(classes.truncate)
+      }
     }
 
     return (
@@ -126,11 +135,7 @@ class GridCell extends React.PureComponent {
     const { column, height } = this.props
     const { more } = this.state
 
-    if (!column.truncate) {
-      return
-    }
-
-    if (height && height > TRUNCATE_HEIGHT) {
+    if (column.truncate && height && height > TRUNCATE_HEIGHT) {
       return (
         <div>
           <Link onClick={this.handleMoreClick}>
