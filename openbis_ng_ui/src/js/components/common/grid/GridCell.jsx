@@ -51,8 +51,8 @@ class GridCell extends React.PureComponent {
   componentDidUpdate() {
     this.renderDOMValue()
 
-    if (this.ref.current) {
-      const { column, row, onMeasured } = this.props
+    const { column, row, onMeasured } = this.props
+    if (column.truncate && this.ref.current) {
       onMeasured(this.ref, column, row)
     }
   }
