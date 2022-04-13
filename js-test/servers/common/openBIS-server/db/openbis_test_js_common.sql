@@ -4626,6 +4626,7 @@ COPY public.data_store_services (id, key, label, kind, data_store_id, reporting_
 
 COPY public.data_stores (id, code, download_url, remote_url, session_token, registration_timestamp, modification_timestamp, is_archiver_configured, data_source_definitions, uuid) FROM stdin;
 1	DSS1	http://localhost:20001	http://127.0.0.1:20001	210514110024645-7FEB24F48E95F60F3C096956492E3F6E	2013-04-12 10:06:09.172514+02	2021-05-14 11:00:24.816+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
+2	DSS2	http://localhost:20002	http://127.0.0.1:20002	210514110032611-C38EFD42B96F9F259BB21A65493F6E6A	2013-04-12 16:44:04.986246+02	2021-05-14 11:00:32.698+02	t	code=imaging-db\tdriverClassName=org.postgresql.Driver\thostPart=localhost\tsid=imaging_test_js_common2\tusername=pkupczyk\tpassword=\t\ncode=path-info-db\tdriverClassName=org.postgresql.Driver\tsid=pathinfo_test_js_common2\tusername=pkupczyk\tpassword=\t\n	1FD3FF61-1576-4908-AE3D-296E60B4CE06
 \.
 
 
