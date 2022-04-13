@@ -1014,7 +1014,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					property : 'matched',
 					isExportable: true,
 					filterable: false,
-					sortable : false
+					sortable : false,
+					truncate: true,
+					render : function(data, grid){
+						return $("<div>").html(DOMPurify.sanitize(data.matched))
+					}
 				});
 
 				columns.push({
@@ -1124,7 +1128,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						render: renderValue,
 						renderFilter: renderFilter,
 						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
-						truncate: propertyType.dataType === "VARCHAR",
+						truncate: true,
 						metadata: {
 							dataType: propertyType.dataType
 						}

@@ -146,7 +146,7 @@ var ExperimentDataGridUtil = new function() {
 					property : propertyCodes[idx],
 					isExportable: true,
 					sortable : true,
-					truncate: propertyType.dataType === "VARCHAR",
+					truncate: true,
 					render: renderValue
 				});
 			}

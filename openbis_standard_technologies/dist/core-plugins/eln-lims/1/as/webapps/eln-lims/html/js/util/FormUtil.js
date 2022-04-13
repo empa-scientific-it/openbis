@@ -2285,47 +2285,6 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderTruncatedGridValue = function(container, value){
-        var MAX_HEIGHT = 100
-
-        var $value = $("<div>")
-        $value.css("max-height", MAX_HEIGHT + "px")
-        $value.css("overflow", "hidden")
-
-        if(_.isString(value)){
-            $value.text(value)
-        }else{
-            $value.append(value)
-        }
-
-        $value.css("min-width", Math.min($value.text().length / 5, 15) + "em")
-
-        if(container === null ||  container === undefined){
-            return $value
-        }
-
-        $value.css("visibility", "hidden").appendTo(container)
-        var valueHeight = $value.get(0).scrollHeight
-        $value.remove()
-        $value.css("visibility", "")
-
-        if(valueHeight > MAX_HEIGHT){
-            var $toggle = $("<a>").text("more")
-            $toggle.click(function(){
-                if($toggle.text() === "more"){
-                    $value.css("max-height", "")
-                    $toggle.text("less")
-                }else{
-                    $value.css("max-height", MAX_HEIGHT + "px")
-                    $toggle.text("more")
-                }
-            })
-            return $("<div>").append($value).append($toggle)
-        }else{
-            return $value
-        }
-    }
-
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
         return this.renderCustomWidgetGridValue(row, params, propertyType)
     }
@@ -2359,8 +2318,7 @@ var FormUtil = new function() {
                         return $tooltip
                     }
                 }else{
-                    $value  = $("<div>").html(FormUtil.sanitizeRichHTMLText(value))
-                    return this.renderTruncatedGridValue(params.container, $value)
+                    return $("<div>").html(FormUtil.sanitizeRichHTMLText(value))
                 }
             }else if(customWidget === 'Spreadsheet'){
                 $value = $("<img>", { src : "./img/table.svg", "width": "16px", "height": "16px"})
@@ -2374,7 +2332,7 @@ var FormUtil = new function() {
                 value.split('\n').forEach(function(line){
                     $("<div>").text(line).appendTo($value)
                 })
-                return this.renderTruncatedGridValue(params.container, $value)
+                return $value
             }
 
             $value.tooltipster({
@@ -2398,7 +2356,7 @@ var FormUtil = new function() {
             value.split('\n').forEach(function(line){
                 $("<div>").text(line).appendTo($value)
             })
-            return this.renderTruncatedGridValue(params.container, $value)
+            return $value
         }
     }
 

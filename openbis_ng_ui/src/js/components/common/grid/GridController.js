@@ -60,6 +60,7 @@ export default class GridController {
       allRows: [],
       selectedRow: null,
       multiselectedRows: {},
+      heights: {},
       sortings: sortings,
       totalCount: 0,
       exportOptions: {
@@ -96,6 +97,7 @@ export default class GridController {
     const state = this.context.getState()
     const newState = {
       ...state,
+      heights: {},
       loading: false,
       loaded: true
     }
@@ -365,10 +367,11 @@ export default class GridController {
       sortable: column.sortable === undefined ? true : column.sortable,
       filterable: column.filterable === undefined ? true : column.filterable,
       visible: column.visible === undefined ? true : column.visible,
-      wrappable: column.wrappable === undefined ? true : column.wrappable,
       configurable:
         column.configurable === undefined ? true : column.configurable,
       exportable: column.exportable === undefined ? true : column.exportable,
+      nowrap: column.nowrap === undefined ? false : column.nowrap,
+      truncate: column.truncate === undefined ? false : column.truncate,
       metadata: column.metadata === undefined ? {} : column.metadata
     }
   }
@@ -1133,6 +1136,60 @@ export default class GridController {
       exportOptions
     }))
     await this._saveSettings()
+  }
+
+  async handleMeasured(cellRef, column, row) {
+    if (!this.measureQueue) {
+      this.measureQueue = []
+    }
+
+    this.measureQueue.push({
+      cellRef,
+      column,
+      row
+    })
+
+    if (this.measureTimeoutId) {
+      clearTimeout(this.measureTimeoutId)
+    }
+
+    this.measureTimeoutId = setTimeout(() => {
+      this.context.setState(state => {
+        const heights = state.heights
+        let newHeights = heights
+
+        this.measureQueue.forEach(measureItem => {
+          const rowHeights = heights[measureItem.row.id]
+          let newRowHeights = newHeights[measureItem.row.id] || rowHeights
+
+          if (measureItem.cellRef.current) {
+            const height = rowHeights
+              ? rowHeights[measureItem.column.name]
+              : null
+            const newHeight = measureItem.cellRef.current.scrollHeight
+
+            if (newHeight !== height) {
+              if (newHeights === heights) {
+                newHeights = {
+                  ...heights
+                }
+              }
+              if (newRowHeights === rowHeights) {
+                newRowHeights = {
+                  ...rowHeights
+                }
+                newHeights[measureItem.row.id] = newRowHeights
+              }
+              newRowHeights[measureItem.column.name] = newHeight
+            }
+          }
+        })
+        return {
+          heights: newHeights
+        }
+      })
+      this.measureQueue = []
+    }, 500)
   }
 
   getAllColumns() {

@@ -303,7 +303,7 @@ class Grid extends React.PureComponent {
 
   renderRow(row) {
     const { selectable, multiselectable, onRowClick } = this.props
-    const { selectedRow, multiselectedRows } = this.state
+    const { selectedRow, multiselectedRows, heights } = this.state
 
     const visibleColumns = this.controller.getVisibleColumns()
 
@@ -312,6 +312,7 @@ class Grid extends React.PureComponent {
         key={row.id}
         columns={visibleColumns}
         row={row}
+        heights={heights[row.id]}
         clickable={onRowClick ? true : false}
         selectable={selectable}
         selected={selectedRow ? selectedRow.id === row.id : false}
@@ -320,6 +321,7 @@ class Grid extends React.PureComponent {
         onClick={this.controller.handleRowClick}
         onSelect={this.controller.handleRowSelect}
         onMultiselect={this.controller.handleRowMultiselect}
+        onMeasured={this.controller.handleMeasured}
       />
     )
   }

@@ -158,9 +158,6 @@ function DataGridController(
                     if(value === null || value === undefined || value === ""){
                         return
                     }else{
-                        if(column.truncate){
-                            value = FormUtil.renderTruncatedGridValue(params.container, value)
-                        }
                         if(_.isString(value)){
                             $(params.container).empty().text(value)
                         }else{
@@ -194,6 +191,7 @@ function DataGridController(
                         index === columns.length - 1),
                 configurable: !column.hide && !column.canNotBeHidden,
                 exportable: column.isExportable,
+                truncate: column.truncate,
                 metadata: column.metadata,
             }
         })
