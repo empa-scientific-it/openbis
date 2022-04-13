@@ -482,7 +482,7 @@ var UserTests = new function() {
                              .then(() => e.dragAndDrop("storage-drop-down-id-a-C-2-storage-box-0", "storage-drop-down-id-a-A-3", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
-                             .then(() => e.sleep(3000)) // wait for saving
+                             .then(() => e.sleep(4000)) // wait for saving
                              // Open object BAC1 and verify storage.
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))

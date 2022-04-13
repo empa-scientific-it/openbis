@@ -91,6 +91,9 @@ test {
     
     workingDir = 'servers/common/openBIS-server'
 
+    if (System.getProperty("dss2") == "no") {
+        systemProperty 'ui-test.dss-url2', 'http://localhost:20002'
+    }
     if (OperatingSystem.current().isLinux()) {
         systemProperty 'webdriver.gecko.driver', 'gecko-driver/linux/geckodriver'
     } else if (OperatingSystem.current().isMacOsX()) {

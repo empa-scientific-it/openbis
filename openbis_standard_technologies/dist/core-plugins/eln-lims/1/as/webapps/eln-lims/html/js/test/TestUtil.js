@@ -34,7 +34,7 @@ var TestUtil = new function() {
         } else {
             event.msg = "Test " + id + " failed:";
             e.events.forEach(function(ev) {
-                event.msg += "\n  |" + ev;
+                event.msg += "\n{" + ev + "}, ";
             });
             console.log(event.msg);
         }
