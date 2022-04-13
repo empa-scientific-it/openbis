@@ -312,6 +312,7 @@ var SampleDataGridUtil = new function() {
                 isExportable: true,
                 filterable: false,
                 sortable : false,
+                truncate: true,
                 getValue : function(params) {
                     return _this.getRelatedSamples(params.row.parents, params);
                 },
@@ -326,6 +327,7 @@ var SampleDataGridUtil = new function() {
                 isExportable: false,
                 filterable: false,
                 sortable : false,
+                truncate: true,
                 getValue : function(params) {
                     return _this.getRelatedSamples(params.row.children, params);
                 },
