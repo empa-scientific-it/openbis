@@ -7,6 +7,7 @@ import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const TRUNCATE_HEIGHT = 100
+const TRUNCATE_WIDTH = 400
 const MORE_HEIGHT = 20
 
 const styles = theme => ({
@@ -25,10 +26,12 @@ const styles = theme => ({
   },
   truncate: {
     maxHeight: TRUNCATE_HEIGHT + 'px',
+    maxWidth: TRUNCATE_WIDTH,
     overflow: 'hidden'
   },
   truncateWithMore: {
     maxHeight: TRUNCATE_HEIGHT - MORE_HEIGHT + 'px',
+    maxWidth: TRUNCATE_WIDTH,
     overflow: 'hidden'
   }
 })

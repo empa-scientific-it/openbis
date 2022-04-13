@@ -1014,7 +1014,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					property : 'matched',
 					isExportable: true,
 					filterable: false,
-					sortable : false
+					sortable : false,
+					truncate: true,
+					render : function(data, grid){
+						return $("<div>").html(DOMPurify.sanitize(data.matched))
+					}
 				});
 
 				columns.push({
