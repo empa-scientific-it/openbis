@@ -25,10 +25,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
 
-class SampleTypeWithDependentVocabularyExpectations extends Expectations
+class SampleTypeWithVocabularyPropertyExpectations extends Expectations
 {
 
-    public SampleTypeWithDependentVocabularyExpectations(final IApplicationServerApi api, final boolean exportReferred)
+    public SampleTypeWithVocabularyPropertyExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
         allowing(api).getSampleTypes(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         Collections.singletonList(new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)))),

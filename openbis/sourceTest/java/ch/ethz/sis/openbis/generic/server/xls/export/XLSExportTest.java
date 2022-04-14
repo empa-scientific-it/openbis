@@ -73,8 +73,8 @@ public class XLSExportTest
                         true
                 },
                 {
-                        "export-sample-type-with-dependent-vocabulary.xlsx",
-                        SampleTypeWithDependentVocabularyExpectations.class,
+                        "export-sample-type-with-vocabulary-property.xlsx",
+                        SampleTypeWithVocabularyPropertyExpectations.class,
                         Arrays.asList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -83,8 +83,8 @@ public class XLSExportTest
                         true
                 },
                 {
-                        "export-sample-type-with-omitted-dependent-vocabulary.xlsx",
-                        SampleTypeWithDependentVocabularyExpectations.class,
+                        "export-sample-type-with-omitted-vocabulary-property.xlsx",
+                        SampleTypeWithVocabularyPropertyExpectations.class,
                         Arrays.asList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -93,24 +93,24 @@ public class XLSExportTest
                         false
                 },
                 {
-                        "export-sample-type-with-dependent-sample.xlsx",
-                        SampleTypeWithDependentSampleExpectations.class,
+                        "export-sample-type-with-sample-property.xlsx",
+                        SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true
                 },
                 {
-                        "export-sample-type-with-omitted-dependent-sample.xlsx",
-                        SampleTypeWithDependentSampleExpectations.class,
+                        "export-sample-type-with-omitted-sample-property.xlsx",
+                        SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         false
                 },
                 {
-                        "export-sample-type-with-chained-dependent-samples.xlsx",
-                        SampleTypeWithChainedDependentSamplesExpectations.class,
+                        "export-sample-type-with-chained-sample-properties.xlsx",
+                        SampleTypeWithChainedSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -118,7 +118,7 @@ public class XLSExportTest
                 },
                 {
                         null,
-                        SampleTypeWithCyclicDependentSamplesExpectations.class,
+                        SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
