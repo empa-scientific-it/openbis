@@ -338,6 +338,7 @@ public abstract class SeleniumTest
                 };
         }
 
+        System.out.println("SCREEN SHOTTER: " + shotter);
         pages.setScreenShotter(shotter);
     }
 
