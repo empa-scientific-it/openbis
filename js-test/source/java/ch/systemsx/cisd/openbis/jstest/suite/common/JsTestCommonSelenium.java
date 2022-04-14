@@ -48,7 +48,7 @@ public class JsTestCommonSelenium extends SeleniumTest
     private static final int CHECKS_COUNT = JUNIT_REPORT_TOTAL_DURATION / JUNIT_REPORT_SLEEP_DURATION;
 
 
-    private void createWebappLink()
+    protected void createWebappLink()
     {
         try
         {
@@ -121,12 +121,6 @@ public class JsTestCommonSelenium extends SeleniumTest
     public void runOpenbisV3JsTests()
     {
         runTests("runOpenbisV3JsTests", new OpenbisV3JsWebappLocation());
-    }
-
-    @Test(groups = {"eln-test"})
-    public void runELNTests()
-    {
-        runTests("runELNTests", new ELNJsWebappLocation());
     }
 
     protected void runTests(String method, Location<OpenbisJsCommonWebapp> location)

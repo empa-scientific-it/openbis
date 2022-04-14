@@ -74,7 +74,11 @@ import org.gradle.internal.os.OperatingSystem
 
 test {
     useTestNG()
-    options.suites(System.getProperty("test-config") == null ? 'source/java/tests.xml' : System.getProperty("test-config"))
+    def eln = System.getProperty("eln") == "yes" ? "-eln" : ""
+    def dev = System.getProperty("dev") == "yes" ? "-dev" : ""
+    def testSuitePath = 'source/java/tests' + eln + dev + '.xml'
+    println "TEST SUITE PATH: " + testSuitePath
+    options.suites(testSuitePath)
 
     jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich',
         '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n', 
@@ -91,9 +95,6 @@ test {
     
     workingDir = 'servers/common/openBIS-server'
 
-    if (System.getProperty("dss2") == "no") {
-        systemProperty 'ui-test.dss-url2', 'http://localhost:20002'
-    }
     if (OperatingSystem.current().isLinux()) {
         systemProperty 'webdriver.gecko.driver', 'gecko-driver/linux/geckodriver'
     } else if (OperatingSystem.current().isMacOsX()) {
