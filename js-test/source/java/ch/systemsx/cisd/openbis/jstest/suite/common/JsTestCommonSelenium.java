@@ -26,7 +26,6 @@ import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisV3JsWebappLocation;
-import ch.systemsx.cisd.openbis.jstest.layout.ELNJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.page.OpenbisJsCommonWebapp;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
@@ -42,7 +41,7 @@ public class JsTestCommonSelenium extends SeleniumTest
     private static final int JUNIT_REPORT_SLEEP_DURATION = 2000;
 
     /** Total duration in milliseconds for JUnit report. */
-    private static final int JUNIT_REPORT_TOTAL_DURATION = 5 * 60 * 1000;
+    private static final int JUNIT_REPORT_TOTAL_DURATION = 15 * 60 * 1000;
 
     /** How many checks for report should be performed. */
     private static final int CHECKS_COUNT = JUNIT_REPORT_TOTAL_DURATION / JUNIT_REPORT_SLEEP_DURATION;
