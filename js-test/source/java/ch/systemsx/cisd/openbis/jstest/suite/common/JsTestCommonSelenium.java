@@ -166,6 +166,10 @@ public class JsTestCommonSelenium extends SeleniumTest
                 System.out.println("JUnit report has arrived.");
                 return junitReport;
             }
+            if (x > 0 && x % 10 == 0)
+            {
+                takeScreenShot();
+            }
         }
         takeScreenShot();
         return "";
