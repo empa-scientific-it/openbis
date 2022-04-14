@@ -73,6 +73,4 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
         return getSampleType(api, sessionToken, permId);
     }
 
-
-
 }
