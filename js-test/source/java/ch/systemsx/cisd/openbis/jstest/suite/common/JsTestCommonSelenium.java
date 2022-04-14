@@ -42,7 +42,7 @@ public class JsTestCommonSelenium extends SeleniumTest
     private static final int JUNIT_REPORT_SLEEP_DURATION = 2000;
 
     /** Total duration in milliseconds for JUnit report. */
-    private static final int JUNIT_REPORT_TOTAL_DURATION = 1000000;
+    private static final int JUNIT_REPORT_TOTAL_DURATION = 5 * 60 * 1000;
 
     /** How many checks for report should be performed. */
     private static final int CHECKS_COUNT = JUNIT_REPORT_TOTAL_DURATION / JUNIT_REPORT_SLEEP_DURATION;
@@ -129,25 +129,7 @@ public class JsTestCommonSelenium extends SeleniumTest
         {
             OpenbisJsCommonWebapp webapp = browser().goTo(location);
 
-            String junitReport = "";
-            for (int x = 0; x < CHECKS_COUNT; x++)
-            {
-                junitReport = webapp.getJunitReport();
-                if (junitReport.length() == 0)
-                {
-                    try
-                    {
-                        System.out.println("JUnit report is not there yet. Waiting...");
-                        Thread.sleep(JUNIT_REPORT_SLEEP_DURATION);
-                    } catch (InterruptedException e)
-                    {
-                    }
-                } else
-                {
-                    System.out.println("JUnit report has arrived.");
-                    break;
-                }
-            }
+            String junitReport = waitForJUnitReport(webapp);
 
             Assert.assertTrue("JUnit test report is empty", junitReport.length() > 0);
 
@@ -164,5 +146,29 @@ public class JsTestCommonSelenium extends SeleniumTest
         {
             SeleniumTest.driver.switchTo().defaultContent();
         }
+    }
+
+    private String waitForJUnitReport(OpenbisJsCommonWebapp webapp)
+    {
+        for (int x = 0; x < CHECKS_COUNT; x++)
+        {
+            String junitReport = webapp.getJunitReport();
+            if (junitReport.length() == 0)
+            {
+                try
+                {
+                    System.out.println("JUnit report is not there yet. Waiting...");
+                    Thread.sleep(JUNIT_REPORT_SLEEP_DURATION);
+                } catch (InterruptedException e)
+                {
+                }
+            } else
+            {
+                System.out.println("JUnit report has arrived.");
+                return junitReport;
+            }
+        }
+        takeScreenShot();
+        return "";
     }
 }
