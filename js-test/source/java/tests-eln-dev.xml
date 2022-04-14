@@ -1,0 +1,7 @@
+<suite name="All" verbose="2" >
+  <test name="Main" annotations="JDK">
+    <classes>
+       <class name="ch.systemsx.cisd.openbis.jstest.suite.dev.JsTestElnDevSelenium" />
+    </classes>  
+  </test>
+</suite>

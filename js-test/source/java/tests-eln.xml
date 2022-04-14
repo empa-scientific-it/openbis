@@ -6,7 +6,7 @@
         </run>
     </groups>
     <classes>
-       <class name="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestCommonSelenium" />
+       <class name="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestElnSelenium" />
     </classes>  
   </test>
 </suite>
