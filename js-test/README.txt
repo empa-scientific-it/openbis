@@ -1,20 +1,16 @@
 For development and bug fixing the tests have to run in a Web browser. 
 
-For this an openBIS instance has to start up. To get such a test instance running with all core-plugins with 
-the test suits the build file 'build.gradle' has to be temporarily modified (do not check in this change!): 
-Replace line 
+Start up everything by executing inside the gradle/ directory:
 
-options.suites('source/java/tests.xml') 
-
-by
-
-options.suites('source/java/tests-dev.xml') 
-
-Then start up everything by executing inside the gradle/ directory:
-
-./gradlew js-test:clean js-test:test
+./gradlew -Ddev=yes js-test:clean js-test:test
 
 This will start up openBIS AS and two DSSs. 
+
+To run ELN tests with the following command:
+
+./gradlew -Deln=yes -Ddev=yes js-test:clean js-test:test
+
+This will start up openBIS AS and only one DSS. 
 
 When the console output is no longer busy Firefox should be started.
 Enter the following URL: http://localhost:20000/openbis/
@@ -26,6 +22,12 @@ If a test fails you can click on the test and only the failed test will be shown
 
 You can change the test code (e.g. in servers/common/core-plugins/tests/1/as/webapps/openbis-test/html/openbis-test.js).
 To see the changes you have to reload the frame (not the application) in the Web browser.
+
+Jenkins
+=======
+
+On Jenkins screenshots are taken every 20 seconds they are stored inside the workspace: 
+js-test/servers/common/openBIS-server/targets/dist/JsTestElnSelenium/runELNTests
 
 Geckodriver
 ==========
