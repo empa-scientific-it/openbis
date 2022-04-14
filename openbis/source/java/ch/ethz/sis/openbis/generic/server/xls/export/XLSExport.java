@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExport
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 
 public class XLSExport
@@ -91,13 +93,14 @@ public class XLSExport
         return exportablePermIds.stream().flatMap(exportablePermId ->
         {
             final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
-                    exportablePermId);
+                    exportablePermId, new HashSet<>());
             return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
-            final String sessionToken, final ExportablePermId exportablePermId)
+            final String sessionToken, final ExportablePermId exportablePermId,
+            final Set<ExportablePermId> processedIds)
     {
         final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
         if (helper != null)
@@ -122,10 +125,20 @@ public class XLSExport
                                     final ExportablePermId samplePropertyExportablePermId =
                                             new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                             new SamplePermId(propertyType.getSampleType().getCode()));
-                                    // TODO: add a check to prevent stack overflow exception.
+
+                                    if (processedIds.contains(samplePropertyExportablePermId))
+                                    {
+                                        throw new UserFailureException(
+                                                "A cycle has been found involving the following perm ID: " +
+                                                        samplePropertyExportablePermId);
+                                    }
+
+                                    processedIds.add(samplePropertyExportablePermId);
+
                                     final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
                                             getExpandedExportablePermIds(api, sessionToken,
-                                                    samplePropertyExportablePermId);
+                                                    samplePropertyExportablePermId, processedIds);
+
                                     return Stream.concat(samplePropertyExpandedExportablePermIds,
                                             Stream.of(samplePropertyExportablePermId));
                                 }

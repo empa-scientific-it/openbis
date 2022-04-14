@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class XLSExportTest
 {
@@ -115,6 +116,14 @@ public class XLSExportTest
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true
                 },
+                {
+                        null,
+                        SampleTypeWithCyclicDependentSamplesExpectations.class,
+                        Collections.singletonList(
+                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
+                                        new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        true
+                },
         };
     }
 
@@ -142,17 +151,27 @@ public class XLSExportTest
                 boolean.class).newInstance(api, exportReferred);
         mockery.checking(expectations);
 
-        final Workbook actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds, exportReferred);
-
-        final InputStream stream = getClass().getClassLoader().getResourceAsStream(
-                "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
-        if (stream == null)
+        try
         {
-            throw new IllegalArgumentException("File not found.");
-        }
-        final Workbook expectedResult = new XSSFWorkbook(stream);
+            final Workbook actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds, exportReferred);
 
-        assertWorkbooksEqual(actualResult, expectedResult);
+            final InputStream stream = getClass().getClassLoader().getResourceAsStream(
+                    "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
+            if (stream == null)
+            {
+                throw new IllegalArgumentException("File not found.");
+            }
+            final Workbook expectedResult = new XSSFWorkbook(stream);
+
+            assertWorkbooksEqual(actualResult, expectedResult);
+        } catch (final UserFailureException e)
+        {
+            // When the file name is not specified we expect a UserFailureException to be thrown.
+            if (expectedResultFileName != null)
+            {
+                throw e;
+            }
+        }
     }
 
     private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
