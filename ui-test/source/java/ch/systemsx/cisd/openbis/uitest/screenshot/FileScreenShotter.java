@@ -44,11 +44,12 @@ public class FileScreenShotter implements ScreenShotter
     @Override
     public void screenshot()
     {
-        File file = driver.getScreenshotAs(OutputType.FILE);
         try
         {
-            FileUtils.copyFile(file, new File(directory + "/screenshot_"
-                    + String.format("%4s", counter).replace(" ", "0") + ".png"));
+            File file = driver.getScreenshotAs(OutputType.FILE);
+            File target = new File(directory, "screenshot_" + String.format("%04d", counter) + ".png");
+            FileUtils.copyFile(file, target);
+            System.out.println("SCREENSHOT: " + file.getAbsolutePath() + " -> " + target.getAbsolutePath());
         } catch (IOException ex)
         {
             throw new RuntimeException(ex);
