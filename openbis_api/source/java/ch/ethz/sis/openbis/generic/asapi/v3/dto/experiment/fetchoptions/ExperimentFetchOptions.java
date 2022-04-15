@@ -56,6 +56,18 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     private HistoryEntryFetchOptions history;
 
     @JsonProperty
+    private HistoryEntryFetchOptions propertiesHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions projectHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions samplesHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions dataSetsHistory;
+
+    @JsonProperty
     private PropertyFetchOptions properties;
 
     @JsonProperty
@@ -190,6 +202,94 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistory()
+    {
+        if (propertiesHistory == null)
+        {
+            propertiesHistory = new HistoryEntryFetchOptions();
+        }
+        return propertiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return propertiesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasPropertiesHistory()
+    {
+        return propertiesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withProjectHistory()
+    {
+        if (projectHistory == null)
+        {
+            projectHistory = new HistoryEntryFetchOptions();
+        }
+        return projectHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withProjectHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return projectHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasProjectHistory()
+    {
+        return projectHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSamplesHistory()
+    {
+        if (samplesHistory == null)
+        {
+            samplesHistory = new HistoryEntryFetchOptions();
+        }
+        return samplesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSamplesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return samplesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSamplesHistory()
+    {
+        return samplesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withDataSetsHistory()
+    {
+        if (dataSetsHistory == null)
+        {
+            dataSetsHistory = new HistoryEntryFetchOptions();
+        }
+        return dataSetsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withDataSetsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return dataSetsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasDataSetsHistory()
+    {
+        return dataSetsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withProperties()
     {
         if (properties == null)
@@ -233,6 +333,7 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
         return materialProperties != null;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSampleProperties()
     {
         if (sampleProperties == null)
@@ -242,11 +343,13 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
         return sampleProperties;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamplePropertiesUsing(SampleFetchOptions fetchOptions)
     {
         return sampleProperties = fetchOptions;
     }
 
+    // Method automatically generated with DtoGenerator
     public boolean hasSampleProperties()
     {
         return sampleProperties != null;
@@ -366,6 +469,10 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
         f.addFetchOption("DataSets", dataSets);
         f.addFetchOption("Samples", samples);
         f.addFetchOption("History", history);
+        f.addFetchOption("PropertiesHistory", propertiesHistory);
+        f.addFetchOption("ProjectHistory", projectHistory);
+        f.addFetchOption("SamplesHistory", samplesHistory);
+        f.addFetchOption("DataSetsHistory", dataSetsHistory);
         f.addFetchOption("Properties", properties);
         f.addFetchOption("MaterialProperties", materialProperties);
         f.addFetchOption("SampleProperties", sampleProperties);

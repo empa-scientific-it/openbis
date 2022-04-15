@@ -46,6 +46,15 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     private HistoryEntryFetchOptions history;
 
     @JsonProperty
+    private HistoryEntryFetchOptions spaceHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions experimentsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions samplesHistory;
+
+    @JsonProperty
     private SpaceFetchOptions space;
 
     @JsonProperty
@@ -127,6 +136,72 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     public boolean hasHistory()
     {
         return history != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSpaceHistory()
+    {
+        if (spaceHistory == null)
+        {
+            spaceHistory = new HistoryEntryFetchOptions();
+        }
+        return spaceHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSpaceHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return spaceHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSpaceHistory()
+    {
+        return spaceHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentsHistory()
+    {
+        if (experimentsHistory == null)
+        {
+            experimentsHistory = new HistoryEntryFetchOptions();
+        }
+        return experimentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return experimentsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasExperimentsHistory()
+    {
+        return experimentsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSamplesHistory()
+    {
+        if (samplesHistory == null)
+        {
+            samplesHistory = new HistoryEntryFetchOptions();
+        }
+        return samplesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSamplesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return samplesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSamplesHistory()
+    {
+        return samplesHistory != null;
     }
 
     // Method automatically generated with DtoGenerator
@@ -263,6 +338,9 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
         f.addFetchOption("Experiments", experiments);
         f.addFetchOption("Samples", samples);
         f.addFetchOption("History", history);
+        f.addFetchOption("SpaceHistory", spaceHistory);
+        f.addFetchOption("ExperimentsHistory", experimentsHistory);
+        f.addFetchOption("SamplesHistory", samplesHistory);
         f.addFetchOption("Space", space);
         f.addFetchOption("Registrator", registrator);
         f.addFetchOption("Modifier", modifier);

@@ -15,16 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.Relationship;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
@@ -50,6 +40,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -58,14 +50,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IExperimentHolder,
-        IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder,
-        IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IExperimentHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -148,6 +146,33 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     private List<HistoryEntry> history;
 
     @JsonProperty
+    private List<HistoryEntry> propertiesHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> spaceHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> projectHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> experimentHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> parentsHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> childrenHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> containerHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> componentsHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> dataSetsHistory;
+
+    @JsonProperty
     private Set<Tag> tags;
 
     @JsonProperty
@@ -214,51 +239,66 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         this.code = code;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozen()
     {
         return frozen;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozen(boolean frozen)
     {
         this.frozen = frozen;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForComponents()
     {
         return frozenForComponents;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForComponents(boolean frozenForComponents)
     {
         this.frozenForComponents = frozenForComponents;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForChildren()
     {
         return frozenForChildren;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForChildren(boolean frozenForChildren)
     {
         this.frozenForChildren = frozenForChildren;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForParents()
     {
         return frozenForParents;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForParents(boolean frozenForParents)
     {
         this.frozenForParents = frozenForParents;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForDataSets()
     {
         return frozenForDataSets;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForDataSets(boolean frozenForDataSets)
     {
         this.frozenForDataSets = frozenForDataSets;
@@ -300,7 +340,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Sample type has not been fetched.");
         }
@@ -320,7 +361,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasProject())
         {
             return project;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Project has not been fetched.");
         }
@@ -340,7 +382,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Space has not been fetched.");
         }
@@ -360,7 +403,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Experiment has not been fetched.");
         }
@@ -380,7 +424,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Properties have not been fetched.");
         }
@@ -401,7 +446,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Material Properties have not been fetched.");
         }
@@ -414,18 +460,21 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         this.materialProperties = materialProperties;
     }
 
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Map<String, Sample> getSampleProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSampleProperties())
         {
             return sampleProperties;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Sample Properties have not been fetched.");
         }
     }
 
+    // Method automatically generated with DtoGenerator
     public void setSampleProperties(Map<String, Sample> sampleProperties)
     {
         this.sampleProperties = sampleProperties;
@@ -439,7 +488,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parents;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Parents have not been fetched.");
         }
@@ -451,25 +501,21 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         this.parents = parents;
     }
 
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Map<SamplePermId, Relationship> getParentsRelationships()
     {
         if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parentsRelationships;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Parents have not been fetched.");
         }
     }
 
-    @JsonIgnore
-    public Relationship getParentRelationship(ISampleId parentId)
-    {
-        Map<SamplePermId, Relationship> relationships = getParentsRelationships();
-        return relationships == null ? new Relationship() : relationships.get(parentId);
-    }
-
+    // Method automatically generated with DtoGenerator
     public void setParentsRelationships(Map<SamplePermId, Relationship> parentsRelationships)
     {
         this.parentsRelationships = parentsRelationships;
@@ -483,7 +529,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return children;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Children have not been fetched.");
         }
@@ -495,25 +542,21 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         this.children = children;
     }
 
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Map<SamplePermId, Relationship> getChildrenRelationships()
     {
         if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return childrenRelationships;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Children have not been fetched.");
         }
     }
 
-    @JsonIgnore
-    public Relationship getChildRelationship(ISampleId childId)
-    {
-        Map<SamplePermId, Relationship> relationships = getChildrenRelationships();
-        return relationships == null ? new Relationship() : relationships.get(childId);
-    }
-
+    // Method automatically generated with DtoGenerator
     public void setChildrenRelationships(Map<SamplePermId, Relationship> childrenRelationships)
     {
         this.childrenRelationships = childrenRelationships;
@@ -526,7 +569,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasContainer())
         {
             return container;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Container sample has not been fetched.");
         }
@@ -545,7 +589,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasComponents())
         {
             return components;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Component samples have not been fetched.");
         }
@@ -565,7 +610,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasDataSets())
         {
             return dataSets;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Data sets have not been fetched.");
         }
@@ -584,7 +630,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("History have not been fetched.");
         }
@@ -598,13 +645,194 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    public List<HistoryEntry> getPropertiesHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasPropertiesHistory())
+        {
+            return propertiesHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Properties history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPropertiesHistory(List<HistoryEntry> propertiesHistory)
+    {
+        this.propertiesHistory = propertiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getSpaceHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSpaceHistory())
+        {
+            return spaceHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Space history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSpaceHistory(List<HistoryEntry> spaceHistory)
+    {
+        this.spaceHistory = spaceHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getProjectHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasProjectHistory())
+        {
+            return projectHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Project history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setProjectHistory(List<HistoryEntry> projectHistory)
+    {
+        this.projectHistory = projectHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getExperimentHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasExperimentHistory())
+        {
+            return experimentHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Experiment history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setExperimentHistory(List<HistoryEntry> experimentHistory)
+    {
+        this.experimentHistory = experimentHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getParentsHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasParentsHistory())
+        {
+            return parentsHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Parents history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setParentsHistory(List<HistoryEntry> parentsHistory)
+    {
+        this.parentsHistory = parentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getChildrenHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasChildrenHistory())
+        {
+            return childrenHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Children history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setChildrenHistory(List<HistoryEntry> childrenHistory)
+    {
+        this.childrenHistory = childrenHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getContainerHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasContainerHistory())
+        {
+            return containerHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Container history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setContainerHistory(List<HistoryEntry> containerHistory)
+    {
+        this.containerHistory = containerHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getComponentsHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasComponentsHistory())
+        {
+            return componentsHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Components history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setComponentsHistory(List<HistoryEntry> componentsHistory)
+    {
+        this.componentsHistory = componentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getDataSetsHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasDataSetsHistory())
+        {
+            return dataSetsHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Data sets history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDataSetsHistory(List<HistoryEntry> dataSetsHistory)
+    {
+        this.dataSetsHistory = dataSetsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     @Override
     public Set<Tag> getTags()
     {
         if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Tags have not been fetched.");
         }
@@ -624,7 +852,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }
@@ -644,7 +873,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Modifier has not been fetched.");
         }
@@ -664,7 +894,8 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Attachments have not been fetched.");
         }
@@ -706,6 +937,20 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
             materialProperties = new HashMap<String, Material>();
         }
         materialProperties.put(propertyName, propertyValue);
+    }
+
+    @JsonIgnore
+    public Relationship getParentRelationship(ISampleId parentId)
+    {
+        Map<SamplePermId, Relationship> relationships = getParentsRelationships();
+        return relationships == null ? new Relationship() : relationships.get(parentId);
+    }
+
+    @JsonIgnore
+    public Relationship getChildRelationship(ISampleId childId)
+    {
+        Map<SamplePermId, Relationship> relationships = getChildrenRelationships();
+        return relationships == null ? new Relationship() : relationships.get(childId);
     }
 
     // Method automatically generated with DtoGenerator
