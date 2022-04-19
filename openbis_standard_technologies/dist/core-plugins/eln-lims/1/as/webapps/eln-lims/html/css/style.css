@@ -1006,3 +1006,8 @@ Preserve the relative scale, though. */
     white-space: pre-wrap; 
     min-width: 30vw;
 }
+
+ul.multiselect-container.dropdown-menu {
+  max-height: 120px;
+  overflow-y: auto;
+}

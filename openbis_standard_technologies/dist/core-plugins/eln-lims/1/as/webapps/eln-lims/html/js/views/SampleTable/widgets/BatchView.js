@@ -33,7 +33,7 @@ function BatchView(controller, model) {
         });
         $window.append($('<legend>').append(this._model.title));
         if (this._model.allowSampleTypeSelection) {
-            var $sampleTypeField = $('<div>');
+            var $sampleTypeField = $('<div>', { class : 'form-inline'});
             $window.append($sampleTypeField);
             var $sampleTypeDropDownLabel = $('<label>', { class : 'control-label', 'style' : 'margin-right: 5px' }).html(ELNDictionary.Sample + ' Type(s) to be imported (*): ');
             $sampleTypeField.append($sampleTypeDropDownLabel);
