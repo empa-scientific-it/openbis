@@ -1172,8 +1172,9 @@ var FormUtil = new function() {
 
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType, value, isReadOnly, toolbarContainer) {
 		// InlineEditor is not working with textarea that is why $component was changed on div
+	    var placeholder = propertyType ? propertyType.description : "";
 		var $component = this._getDiv($component.attr('id'), $component.attr('alt'), $component.attr('isRequired'));
-		FormUtil.createCkeditor($component, componentOnChange, value, propertyType.description, isReadOnly, toolbarContainer);
+		FormUtil.createCkeditor($component, componentOnChange, value, placeholder, isReadOnly, toolbarContainer);
 
 		if (propertyType && propertyType.mandatory) {
 			$component.attr('required', '');
