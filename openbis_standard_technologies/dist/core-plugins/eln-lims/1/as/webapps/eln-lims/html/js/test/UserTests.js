@@ -857,9 +857,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("PRODUCTS"))
                              .then(() => e.click("PRODUCTS"))
                              //create English product form
-                             .then(() => UserTests.createProductForm(e, "EN", "EUR", "SUP13"))
+                             .then(() => UserTests.createProductForm(e, "EN", "EUR"))
                              //create German product form
-                             .then(() => UserTests.createProductForm(e, "DE", "EUR", "SUP14"))
+                             .then(() => UserTests.createProductForm(e, "DE", "EUR"))
                              .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
@@ -867,7 +867,7 @@ var UserTests = new function() {
         });
     }
 
-    this.createProductForm = function(e, langCode, currency, supId) {
+    this.createProductForm = function(e, langCode, currency) {
         return new Promise(function executor(resolve, reject) {
             Promise.resolve().then(() => e.waitForId("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
                              .then(() => e.click("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
@@ -890,8 +890,8 @@ var UserTests = new function() {
                              .then(() => e.click("jNotifyDismiss"))
                              .then(() => e.waitForId("search-btn-suppliers"))
                              .then(() => e.click("search-btn-suppliers"))
-                             .then(() => e.searchForObjectInSelect2(e, supId, "add-object-supplier"))
-                             .then(() => e.waitForId(supId.toLocaleLowerCase() + "-column-id"))
+                             .then(() => e.searchForObjectInSelect2(e, langCode, "add-object-supplier"))
+                             .then(() => e.waitFor("a[id$=column-id]"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn")) // wait for saving
                              .then(() => resolve())
@@ -921,12 +921,12 @@ var UserTests = new function() {
                               // add Products from Catalog
                               .then(() => e.waitForId("search-btn-products"))
                               .then(() => e.click("search-btn-products"))
-                              .then(() => e.searchForObjectInSelect2(e, "PRO15", "add-object-product"))
-                              .then(() => e.waitForId("pro15-column-id"))
-                              .then(() => e.waitForId("quantity-of-items-pro15"))
-                              .then(() => e.change("quantity-of-items-pro15", "18"))
+                              .then(() => e.searchForObjectInSelect2(e, "Product EN", "add-object-product"))
+                              .then(() => e.waitFor("a[id$=column-id]"))
+                              .then(() => e.waitFor("input[id^=quantity-of-items-pro]"))
+                              .then(() => e.changeStartsWith("quantity-of-items-pro", "18"))
                               .then(() => e.waitForId("save-btn"))
-                              .then(() => e.click("save-btn"))
+                              .then(() => e.click("save-btn"))                    //
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               // create Request with new Product
                               .then(() => e.waitForId("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))

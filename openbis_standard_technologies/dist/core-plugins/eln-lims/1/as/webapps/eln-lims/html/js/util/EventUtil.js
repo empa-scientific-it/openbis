@@ -74,10 +74,10 @@ function EventExecutor(testId) {
             } catch(error) {
                 reject(error);
             }
-	    });
-	};
+        });
+    };
 
-	this.change = function(elementId, value, ignoreError) {
+    this.change = function(elementId, value, ignoreError) {
         this.events.push("change " + elementId + ": >" + value + "<");
         return new Promise(function executor(resolve, reject) {
             try {
@@ -91,6 +91,20 @@ function EventExecutor(testId) {
         });
     };
 
+    this.changeStartsWith = function(elementId, value, ignoreError) {
+        this.events.push("changeStartsWith " + elementId + ": >" + value + "<");
+        return new Promise(function executor(resolve, reject) {
+            try {
+                var element = EventUtil.getElementThatStartWith(elementId, ignoreError, resolve);
+                element.focus();
+                element.val(value).change();
+                resolve();
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+    
     this.searchSelect2 = function(elementId, value, ignoreError) {
         this.events.push("searchSelect2 " + elementId + ": >" + value + "<");
          return new Promise(function executor(resolve, reject) {
@@ -250,29 +264,27 @@ function EventExecutor(testId) {
     };
 
     this.waitForId = function(elementId, ignoreError, timeout) {
-        this.events.push("waitForId " + elementId + this.renderTimeout(timeout));
-        return new Promise(function executor(resolve, reject) {
-            try {
-                timeout = EventUtil.checkTimeout(elementId, timeout, ignoreError, resolve);
-
-                if($("#" + elementId).length <= 0) {
-                    setTimeout(executor.bind(null, resolve, reject), EventUtil.DEFAULT_TIMEOUT_STEP);
-                } else {
-                    resolve();
-                }
-            } catch(error) {
-                reject(error);
-            }
-        });
+        return this.waitFor("#" + elementId, ignoreError, timeout);
     };
 
     this.waitForClass = function(className, ignoreError, timeout) {
-        this.events.push("waitForClass " + className + this.renderTimeout(timeout));
+        return this.waitFor("." + elementId, ignoreError, timeout);
+    };
+
+    this.waitFor = function(jquerySelectorString, ignoreError, timeout) {
+        var method = "waitFor " + jquerySelectorString;
+        if (jquerySelectorString.startsWith("#")) {
+            method = "waitForId " + jquerySelectorString.substring(1);
+        }
+        if (jquerySelectorString.startsWith(".")) {
+            method = "waitForClass " + jquerySelectorString.substring(1);
+        }
+        this.events.push(method + this.renderTimeout(timeout));
         return new Promise(function executor(resolve, reject) {
             try {
-                timeout = EventUtil.checkTimeout(className, timeout, ignoreError, resolve);
-
-                if($("." + className).length <= 0) {
+                timeout = EventUtil.checkTimeout(jquerySelectorString, timeout, ignoreError, resolve);
+                
+                if($(jquerySelectorString).length <= 0) {
                     setTimeout(executor.bind(null, resolve, reject), EventUtil.DEFAULT_TIMEOUT_STEP);
                 } else {
                     resolve();
@@ -282,7 +294,7 @@ function EventExecutor(testId) {
             }
         });
     };
-
+    
     this.waitForStyle = function(elementId, styleName, styleValue, ignoreError, timeout) {
         this.events.push("waitForStyle " + elementId + ":" + styleName + "=" + styleValue + this.renderTimeout(timeout));
         return new Promise(function executor(resolve, reject) {

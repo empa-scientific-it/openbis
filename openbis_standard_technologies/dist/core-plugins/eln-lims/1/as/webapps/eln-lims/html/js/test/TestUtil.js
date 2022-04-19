@@ -48,7 +48,7 @@ var TestUtil = new function() {
             // If you need to add a new test, make sure that it will fail.
 
             chain = Promise.resolve();
-            for(let i = id; i < TestProtocol.getTestCount(); i++) {
+            for(let i = e.testId; i < TestProtocol.getTestCount(); i++) {
                 chain = chain.then(() => TestUtil.sendEventToJenkins(e, i, error))
                              .then(() => EventUtil.sleep(1000));
             }
