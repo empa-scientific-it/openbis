@@ -117,7 +117,7 @@ public class XLSExportTest
                         true
                 },
                 {
-                        null,
+                        "export-sample-type-with-cyclic-sample-properties.xlsx",
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(ExportableKind.SAMPLE_TYPE,
