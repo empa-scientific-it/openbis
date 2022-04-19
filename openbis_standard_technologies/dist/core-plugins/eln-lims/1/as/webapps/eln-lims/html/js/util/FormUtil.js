@@ -1106,7 +1106,7 @@ var FormUtil = new function() {
         return buffer;
     }
 
-    this.createCkeditor = function($component, componentOnChange, value, isReadOnly, toolbarContainer) {
+    this.createCkeditor = function($component, componentOnChange, value, placeholder, isReadOnly, toolbarContainer) {
         // CKEditor 4 to 5 Image style Migration
         if( value &&
             value.indexOf("<img")  !== -1 &&
@@ -1121,6 +1121,7 @@ var FormUtil = new function() {
 	    }
 
         Builder.create($component[0], {
+                         placeholder: placeholder,
                          simpleUpload: {
                              uploadUrl: "/openbis/openbis/file-service/eln-lims?type=Files&sessionID=" + mainController.serverFacade.getSession()
                          }
@@ -1172,7 +1173,7 @@ var FormUtil = new function() {
 	this.activateRichTextProperties = function($component, componentOnChange, propertyType, value, isReadOnly, toolbarContainer) {
 		// InlineEditor is not working with textarea that is why $component was changed on div
 		var $component = this._getDiv($component.attr('id'), $component.attr('alt'), $component.attr('isRequired'));
-		FormUtil.createCkeditor($component, componentOnChange, value, isReadOnly, toolbarContainer);
+		FormUtil.createCkeditor($component, componentOnChange, value, propertyType.description, isReadOnly, toolbarContainer);
 
 		if (propertyType && propertyType.mandatory) {
 			$component.attr('required', '');
