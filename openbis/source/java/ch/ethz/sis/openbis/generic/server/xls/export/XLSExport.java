@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -89,11 +90,10 @@ public class XLSExport
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
-        // TODO: add references to material properties.
         return exportablePermIds.stream().flatMap(exportablePermId ->
         {
             final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
-                    exportablePermId, new HashSet<>());
+                    exportablePermId, new HashSet<>(Collections.singletonList(exportablePermId)));
             return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -124,23 +124,22 @@ public class XLSExport
                                 {
                                     final ExportablePermId samplePropertyExportablePermId =
                                             new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                                            new SamplePermId(propertyType.getSampleType().getCode()));
+                                            new EntityTypePermId(propertyType.getSampleType().getCode(), SAMPLE));
 
                                     if (processedIds.contains(samplePropertyExportablePermId))
                                     {
-                                        throw new UserFailureException(
-                                                "A cycle has been found involving the following perm ID: " +
-                                                        samplePropertyExportablePermId);
+                                        return Stream.empty();
+                                    } else
+                                    {
+                                        processedIds.add(samplePropertyExportablePermId);
+
+                                        final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
+                                                getExpandedExportablePermIds(api, sessionToken,
+                                                        samplePropertyExportablePermId, processedIds);
+
+                                        return Stream.concat(samplePropertyExpandedExportablePermIds,
+                                                Stream.of(samplePropertyExportablePermId));
                                     }
-
-                                    processedIds.add(samplePropertyExportablePermId);
-
-                                    final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
-                                            getExpandedExportablePermIds(api, sessionToken,
-                                                    samplePropertyExportablePermId, processedIds);
-
-                                    return Stream.concat(samplePropertyExpandedExportablePermIds,
-                                            Stream.of(samplePropertyExportablePermId));
                                 }
                                 default:
                                 {
