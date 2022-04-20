@@ -155,6 +155,8 @@ public class JsTestCommonSelenium extends SeleniumTest
     private void saveConsoleLog(String method)
     {
         StringBuilder builder = new StringBuilder();
+        System.out.println("client logs:"+driver.manage().logs().get(LogType.CLIENT));
+        System.out.println("driver logs:"+driver.manage().logs().get(LogType.DRIVER));
         LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
         for (LogEntry logEntry : logEntries)
         {
