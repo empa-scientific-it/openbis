@@ -23,6 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+
 /**
  * @author anttil
  */
@@ -49,7 +51,9 @@ public class FileScreenShotter implements ScreenShotter
             File file = driver.getScreenshotAs(OutputType.FILE);
             File target = new File(directory, "screenshot_" + String.format("%04d", counter) + ".png");
             FileUtils.copyFile(file, target);
-            System.out.println("SCREENSHOT: " + file.getAbsolutePath() + " -> " + target.getAbsolutePath());
+            long fileSize = target.length();
+            System.out.println("SCREENSHOT: " + file.getAbsolutePath() + " -> " + target.getAbsolutePath()
+                    + " (" + fileSize + ")");
         } catch (IOException ex)
         {
             throw new RuntimeException(ex);

@@ -284,7 +284,7 @@ public abstract class SeleniumTest
 
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Dimension screenResolution =
-                    new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
+                    new Dimension((int) toolkit.getScreenSize().getWidth(), 2 * (int) toolkit
                             .getScreenSize().getHeight());
             driver.manage().window().setSize(screenResolution);
         }
