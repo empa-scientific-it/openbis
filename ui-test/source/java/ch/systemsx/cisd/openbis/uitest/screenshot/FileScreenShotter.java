@@ -23,8 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-
 /**
  * @author anttil
  */
@@ -35,6 +33,9 @@ public class FileScreenShotter implements ScreenShotter
     private TakesScreenshot driver;
 
     private int counter;
+    
+    private long previousFileSize;
+    private long previousTimestamp;
 
     public FileScreenShotter(TakesScreenshot driver, String directory)
     {
@@ -52,8 +53,15 @@ public class FileScreenShotter implements ScreenShotter
             File target = new File(directory, "screenshot_" + String.format("%04d", counter) + ".png");
             FileUtils.copyFile(file, target);
             long fileSize = target.length();
+            long timestamp = target.lastModified();
             System.out.println("SCREENSHOT: " + file.getAbsolutePath() + " -> " + target.getAbsolutePath()
                     + " (" + fileSize + ")");
+            if (fileSize == previousFileSize && timestamp > previousTimestamp + 5000)
+            {
+                throw new RuntimeException("Unchanged screenshot after 5 seconds");
+            }
+            previousFileSize = fileSize;
+            previousTimestamp = timestamp;
         } catch (IOException ex)
         {
             throw new RuntimeException(ex);
