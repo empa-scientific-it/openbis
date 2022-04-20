@@ -268,7 +268,7 @@ function EventExecutor(testId) {
     };
 
     this.waitForClass = function(className, ignoreError, timeout) {
-        return this.waitFor("." + elementId, ignoreError, timeout);
+        return this.waitFor("." + className, ignoreError, timeout);
     };
 
     this.waitFor = function(jquerySelectorString, ignoreError, timeout) {
