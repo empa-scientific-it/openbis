@@ -210,9 +210,9 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      // delete request
-                     .then(() => e.waitForId("req17-column-id"))
-                     .then(() => e.click("req17-column-id"))
-                     .then(() => e.waitForId("pro15-column-id"))
+                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
+                     .then(() => e.click($("a[id$=column-id").attr("id")))
+                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
                      .then(() => e.waitForId("options-menu-btn-sample-view-request"))
                      .then(() => e.click("options-menu-btn-sample-view-request"))
                      .then(() => e.waitForId("delete"))
@@ -231,8 +231,8 @@ var AdminTests = new function() {
                      .then(() => e.sleep(2000))
                      .then(() => e.waitForId("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
                      .then(() => e.click("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
-                     .then(() => e.waitForId("order1-column-id"))
-                     .then(() => e.click("order1-column-id"))
+                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
+                     .then(() => e.click($("a[id$=column-id").attr("id")))
                      .then(() => e.waitForId("edit-btn"))
                      // check data after delete (should be the same)
                      .then(() => e.waitForId("catalogNum-0"))
@@ -276,8 +276,8 @@ var AdminTests = new function() {
                      .then(() => e.click("TRASHCAN"))
                      .then(() => e.waitForId("empty-trash-btn"))
                      // The Objects BAC1 and the deleted request should be there.
-                     .then(() => e.waitForId("deleted--materials-bacteria-bac1-id"))
-                     .then(() => e.waitForId("deleted--stock_catalog-requests-req17-id"))
+                     .then(() => e.waitForId($("a[id^=deleted--materials-bacteria-bac").attr("id")))
+                     .then(() => e.waitForId($("a[id^=deleted--stock_catalog-requests-req").attr("id")))
                      // clear Trash
                      .then(() => e.waitForId("empty-trash-btn"))
                      .then(() => e.click("empty-trash-btn"))
@@ -285,8 +285,7 @@ var AdminTests = new function() {
                      .then(() => e.click("warningAccept"))
                      .then(() => e.sleep(2000)) // wait for delete
                      // check that trash is empty
-                     .then(() => e.verifyExistence("deleted--materials-bacteria-bac1-id", false))
-                     .then(() => e.verifyExistence("deleted--stock_catalog-requests-req17-id", false))
+                     .then(() => e.checkGridRange("grid\\.page-range-id", "No results found", false))
                      .then(() => e.sleep(1000))
                      .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
@@ -306,7 +305,7 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("vocabulary-browser-title-id")) // wait for page reload
                      // check count
                      .then(() => e.waitForId("vocabulary-grid\\.page-range-id"))
-                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of 37", false))
+                     .then(() => e.checkGridRange("vocabulary-grid\\.page-range-id", "1-10 of", false))
                      // search for PLASMID
                      .then(() => e.waitForId("vocabulary-grid\\.grid-global-filter"))
                      .then(() => r.setValue("vocabulary-grid\\.grid-global-filter", "PLASMID"))

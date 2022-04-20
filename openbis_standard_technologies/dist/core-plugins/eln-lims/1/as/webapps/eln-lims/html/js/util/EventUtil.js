@@ -427,10 +427,10 @@ function EventExecutor(testId) {
 	    return new Promise(function executor(resolve, reject) {
 	        try {
                 var element = EventUtil.getElement(gridId, ignoreError, resolve);
-                if (element.find('span').html() == range) {
+                if (element.find('span').html().startsWith(range)) {
                     resolve();
                 } else {
-                    throw "Grid range #" + gridId + " should be equal " + range;
+                    throw "Grid range #" + gridId + " should start with " + range;
                 }
             } catch(error) {
                 reject(error);
