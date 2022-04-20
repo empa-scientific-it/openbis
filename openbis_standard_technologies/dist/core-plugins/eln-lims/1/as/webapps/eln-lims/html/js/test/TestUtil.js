@@ -22,7 +22,7 @@ var TestUtil = new function() {
             var testName = "test" + id + "event";
             var event = jQuery.Event(testName);
             event.msg = msg;
-            window.parent.$("#eln-frame").trigger(event);
+            $("#eln-frame").trigger(event);
         }
     }
 
@@ -39,7 +39,7 @@ var TestUtil = new function() {
             console.log(event.msg);
         }
         console.log("Test " + i + " failed.");
-        window.parent.$("#eln-frame").trigger(event);
+        $("#eln-frame").trigger(event);
     }
 
     this.reportErrorToJenkins = function(e, msg) {

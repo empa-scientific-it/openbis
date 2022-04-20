@@ -145,7 +145,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     //Create Dataset
                     var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
                         mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
-                    }, "Upload");
+                    }, "Upload", null, "upload-btn");
                     toolbarModel.push({ component : $uploadBtn });
 	            }
 

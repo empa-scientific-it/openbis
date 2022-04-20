@@ -173,7 +173,7 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("search-btn-requests"))
                      .then(() => e.click("search-btn-requests"))
                      .then(() => e.searchForObjectInSelect2(e, "EN", "add-object-request"))
-                     .then(() => e.waitForId("req17-column-id"))
+                     .then(() => e.waitFor("a[id$=column-id]"))
                      // choose oder status
                      .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                      .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "ORDERED"))
@@ -181,7 +181,7 @@ var AdminTests = new function() {
                      .then(() => e.click("save-btn"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data
-                     .then(() => e.waitForId("req17-column-id"))
+                     .then(() => e.waitFor("a[id$=column-id]"))
                      .then(() => e.waitForId("catalogNum-0"))
                      // print
                      .then(() => e.waitForId("print-order-id"))
