@@ -22,7 +22,6 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.*;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -41,10 +40,17 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
@@ -269,7 +275,9 @@ public abstract class SeleniumTest
             FirefoxOptions opts = new FirefoxOptions();
             // If you use headless option selenium will work fine but Firefox won't be visible on the screen.
             opts.addArguments("--headless");
-
+            LoggingPreferences logPrefs = new LoggingPreferences();
+            logPrefs.enable(LogType.BROWSER, java.util.logging.Level.ALL);
+            opts.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
             driver = new FirefoxDriver(opts);
             setImplicitWaitToDefault();
             driver.manage().deleteAllCookies();
