@@ -1,2 +1,2 @@
 LIB=lib/
-java -jar $LIB/dss_client.jar $*
+java --add-opens=java.base/sun.net.www.protocol.https=ALL-UNNAMED -jar $LIB/dss_client.jar $*
