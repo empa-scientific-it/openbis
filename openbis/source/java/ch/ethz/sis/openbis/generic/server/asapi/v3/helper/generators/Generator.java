@@ -356,6 +356,8 @@ public class Generator extends AbstractGenerator
                 HistoryEntryFetchOptions.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "componentsHistory", "Components history",
                 HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "contentCopiesHistory", "Content copies history",
+                HistoryEntryFetchOptions.class);
 
         gen.addClassForImport(HistoryEntry.class);
 

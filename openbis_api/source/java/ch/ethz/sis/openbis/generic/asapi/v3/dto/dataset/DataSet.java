@@ -160,6 +160,9 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private List<HistoryEntry> componentsHistory;
 
     @JsonProperty
+    private List<HistoryEntry> contentCopiesHistory;
+
+    @JsonProperty
     private Date modificationDate;
 
     @JsonProperty
@@ -773,6 +776,26 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public void setComponentsHistory(List<HistoryEntry> componentsHistory)
     {
         this.componentsHistory = componentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getContentCopiesHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasContentCopiesHistory())
+        {
+            return contentCopiesHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Content copies history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setContentCopiesHistory(List<HistoryEntry> contentCopiesHistory)
+    {
+        this.contentCopiesHistory = contentCopiesHistory;
     }
 
     // Method automatically generated with DtoGenerator

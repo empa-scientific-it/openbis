@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -38,7 +39,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.id.UnknownRelatedObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentDataSetRelationshipHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentProjectRelationshipHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentPropertyHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentSampleRelationshipHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryContentCopyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
@@ -59,195 +66,30 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
 {
 
     @Autowired
-    private IExperimentAuthorizationValidator experimentValidator;
+    private DataSetPropertyHistoryTranslator propertyHistoryTranslator;
 
     @Autowired
-    private ISampleAuthorizationValidator sampleValidator;
+    private DataSetExperimentRelationshipHistoryTranslator experimentRelationshipHistoryTranslator;
 
     @Autowired
-    private IDataSetAuthorizationValidator dataSetValidator;
+    private DataSetSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
 
-    @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
+    @Autowired
+    private DataSetParentRelationshipHistoryTranslator parentRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetChildRelationshipHistoryTranslator childRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetContainerRelationshipHistoryTranslator containerRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetComponentRelationshipHistoryTranslator componentRelationshipHistoryTranslator;
+
+    @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getProperties(new LongOpenHashSet(entityIds));
+        return Arrays.asList(propertyHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
+                parentRelationshipHistoryTranslator, childRelationshipHistoryTranslator, containerRelationshipHistoryTranslator,
+                componentRelationshipHistoryTranslator);
     }
-
-    @Override
-    protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
-    {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
-    }
-
-    @Override
-    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
-    {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-
-        List<DataSetRelationshipRecord> records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
-        List<DataSetRelationshipRecord> validRecords = new ArrayList<DataSetRelationshipRecord>();
-
-        Set<Long> experimentIds = new HashSet<Long>();
-        Set<Long> sampleIds = new HashSet<Long>();
-        Set<Long> dataSetIds = new HashSet<Long>();
-
-        for (DataSetRelationshipRecord record : records)
-        {
-            if (record.experimentId != null)
-            {
-                experimentIds.add(record.experimentId);
-            } else if (record.sampleId != null)
-            {
-                sampleIds.add(record.sampleId);
-            } else if (record.dataSetId != null)
-            {
-                dataSetIds.add(record.dataSetId);
-            }
-        }
-
-        if (false == experimentIds.isEmpty())
-        {
-            experimentIds = experimentValidator.validate(context.getSession().tryGetPerson(), experimentIds);
-        }
-        if (false == sampleIds.isEmpty())
-        {
-            sampleIds = sampleValidator.validate(context.getSession().tryGetPerson(), sampleIds);
-        }
-        if (false == dataSetIds.isEmpty())
-        {
-            dataSetIds = dataSetValidator.validate(context.getSession().tryGetPerson(), dataSetIds);
-        }
-
-        final boolean isSystemUser = context.getSession().tryGetPerson() != null && context.getSession().tryGetPerson().isSystemUser();
-
-        for (DataSetRelationshipRecord record : records)
-        {
-            boolean isValid = false;
-
-            if (record.experimentId != null)
-            {
-                isValid = experimentIds.contains(record.experimentId);
-            } else if (record.sampleId != null)
-            {
-                isValid = sampleIds.contains(record.sampleId);
-            } else if (record.dataSetId != null)
-            {
-                isValid = dataSetIds.contains(record.dataSetId);
-            } else
-            {
-                isValid = isSystemUser;
-            }
-
-            if (isValid)
-            {
-                validRecords.add(record);
-            }
-        }
-
-        return validRecords;
-    }
-
-    @Override
-    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap,
-            HistoryEntryFetchOptions fetchOptions)
-    {
-        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap, fetchOptions);
-
-        DataSetRelationshipRecord dataSetRecord = (DataSetRelationshipRecord) record;
-
-        if (isExperiment(dataSetRecord))
-        {
-            entry.setRelationType(DataSetRelationType.EXPERIMENT);
-            entry.setRelatedObjectId(new ExperimentPermId(dataSetRecord.relatedObjectId));
-        } else if (isSample(dataSetRecord))
-        {
-            entry.setRelationType(DataSetRelationType.SAMPLE);
-            entry.setRelatedObjectId(new SamplePermId(dataSetRecord.relatedObjectId));
-        } else if (isDataSet(dataSetRecord))
-        {
-            RelationType relationType = RelationType.valueOf(dataSetRecord.relationType);
-
-            switch (relationType)
-            {
-                case PARENT:
-                    entry.setRelationType(DataSetRelationType.CHILD);
-                    break;
-                case CHILD:
-                    entry.setRelationType(DataSetRelationType.PARENT);
-                    break;
-                case CONTAINER:
-                    entry.setRelationType(DataSetRelationType.COMPONENT);
-                    break;
-                case CONTAINED:
-                case COMPONENT:
-                    entry.setRelationType(DataSetRelationType.CONTAINER);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported relation type: " + relationType);
-            }
-            entry.setRelatedObjectId(new DataSetPermId(dataSetRecord.relatedObjectId));
-        } else
-        {
-            entry.setRelatedObjectId(new UnknownRelatedObjectId(dataSetRecord.relatedObjectId, dataSetRecord.relationType));
-        }
-
-        return entry;
-    }
-
-    @Override
-    protected List<? extends HistoryRecord> loadAbritraryHistory(TranslationContext context, Collection<Long> entityIds)
-    {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getContentCopyHistory(new LongOpenHashSet(entityIds));
-    }
-
-    @Override
-    protected void createArbitraryEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRecord> records,
-            Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
-    {
-        List<? extends HistoryRecord> sortedRecords = new ArrayList<>(records);
-
-        sortedRecords.sort(Comparator.comparing(HistoryRecord::getValidFrom)
-                .thenComparing(HistoryRecord::getValidTo, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(HistoryRecord::getId));
-
-        for (HistoryRecord record : sortedRecords)
-        {
-            HistoryContentCopyRecord contentCopyRecord = (HistoryContentCopyRecord) record;
-            List<HistoryEntry> entries = entriesMap.get(contentCopyRecord.dataSetId);
-
-            if (entries == null)
-            {
-                entries = new LinkedList<HistoryEntry>();
-                entriesMap.put(contentCopyRecord.dataSetId, entries);
-            }
-
-            entries.add(createContentCopyEntry(record, authorMap, fetchOptions));
-        }
-    }
-
-    private HistoryEntry createContentCopyEntry(HistoryRecord record, Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
-    {
-        HistoryContentCopyRecord contentCopyRecord = (HistoryContentCopyRecord) record;
-        ContentCopyHistoryEntry entry = new ContentCopyHistoryEntry();
-        entry.setFetchOptions(new HistoryEntryFetchOptions());
-        entry.setExternalCode(contentCopyRecord.externalCode);
-        entry.setPath(contentCopyRecord.path);
-        entry.setGitCommitHash(contentCopyRecord.gitCommitHash);
-        entry.setGitRepositoryId(contentCopyRecord.gitRepositoryId);
-        entry.setExternalDmsId(contentCopyRecord.externalDmsId);
-        entry.setExternalDmsCode(contentCopyRecord.externalDmsCode);
-        entry.setExternalDmsLabel(contentCopyRecord.externalDmsLabel);
-        entry.setExternalDmsAddress(contentCopyRecord.externalDmsAddress);
-        entry.setValidFrom(contentCopyRecord.validFrom);
-        entry.setValidTo(contentCopyRecord.validTo);
-        if (fetchOptions.hasAuthor())
-        {
-            entry.setAuthor(authorMap.get(record.authorId));
-            entry.getFetchOptions().withAuthorUsing(fetchOptions.withAuthor());
-        }
-        return entry;
-    }
-
 }

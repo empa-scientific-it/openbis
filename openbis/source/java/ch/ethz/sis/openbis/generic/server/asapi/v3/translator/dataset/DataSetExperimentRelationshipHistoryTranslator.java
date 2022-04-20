@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.material;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentRelationshipHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.PropertyHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
@@ -34,20 +33,16 @@ import net.lemnik.eodsql.QueryTool;
  * @author pkupczyk
  */
 @Component
-public class MaterialHistoryTranslator extends PropertyHistoryTranslator implements IMaterialHistoryTranslator
+public class DataSetExperimentRelationshipHistoryTranslator extends DataSetRelationshipHistoryTranslator
 {
 
-    @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
+    @Override protected String getRelationshipEntityKind()
     {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getProperties(new LongOpenHashSet(entityIds));
+        return EXPERIMENT_RELATIONSHIP_ENTITY_KIND;
     }
 
-    @Override
-    protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
+    @Override protected RelationType getRelationshipRelationType()
     {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
+        return RelationType.OWNED;
     }
-
 }

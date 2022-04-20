@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,24 +27,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.history.ExperimentRelationType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.id.UnknownRelatedObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.history.SampleRelationType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.IDataSetAuthorizationValidator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.RelationshipHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.project.IProjectAuthorizationValidator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuthorizationValidator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.ISpaceAuthorizationValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
@@ -53,24 +51,16 @@ import net.lemnik.eodsql.QueryTool;
  * @author pkupczyk
  */
 @Component
-public class ExperimentHistoryTranslator extends HistoryTranslator implements IExperimentHistoryTranslator
+public class SampleSpaceRelationshipHistoryTranslator extends SampleRelationshipHistoryTranslator
 {
 
-    @Autowired
-    private ExperimentPropertyHistoryTranslator propertyHistoryTranslator;
-
-    @Autowired
-    private ExperimentProjectRelationshipHistoryTranslator projectRelationshipHistoryTranslator;
-
-    @Autowired
-    private ExperimentSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
-
-    @Autowired
-    private ExperimentDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
-
-    @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
+    @Override protected String getRelationshipEntityKind()
     {
-        return Arrays.asList(propertyHistoryTranslator, projectRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
-                dataSetRelationshipHistoryTranslator);
+        return SPACE_RELATIONSHIP_ENTITY_KIND;
+    }
+
+    @Override protected RelationType getRelationshipRelationType()
+    {
+        return RelationType.OWNED;
     }
 }

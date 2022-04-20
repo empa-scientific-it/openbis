@@ -109,6 +109,9 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private HistoryEntryFetchOptions componentsHistory;
 
     @JsonProperty
+    private HistoryEntryFetchOptions contentCopiesHistory;
+
+    @JsonProperty
     private PersonFetchOptions modifier;
 
     @JsonProperty
@@ -602,6 +605,28 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContentCopiesHistory()
+    {
+        if (contentCopiesHistory == null)
+        {
+            contentCopiesHistory = new HistoryEntryFetchOptions();
+        }
+        return contentCopiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContentCopiesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return contentCopiesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasContentCopiesHistory()
+    {
+        return contentCopiesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withModifier()
     {
         if (modifier == null)
@@ -688,6 +713,7 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
         f.addFetchOption("ChildrenHistory", childrenHistory);
         f.addFetchOption("ContainersHistory", containersHistory);
         f.addFetchOption("ComponentsHistory", componentsHistory);
+        f.addFetchOption("ContentCopiesHistory", contentCopiesHistory);
         f.addFetchOption("Modifier", modifier);
         f.addFetchOption("Registrator", registrator);
         return f;

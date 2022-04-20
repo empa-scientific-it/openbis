@@ -68,7 +68,7 @@ public interface ProjectQuery extends ObjectQuery
             + "prh.space_id as spaceId, prh.expe_id as experimentId, prh.samp_id as sampleId "
             + "from project_relationships_history prh where prh.main_proj_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds);
+    public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds, String relationType);
 
     @Select(sql = "select s.proj_id as objectId, s.id as relatedId from samples s where s.proj_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)

@@ -37,6 +37,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.childrenHistory = null;
         prototype.containersHistory = null;
         prototype.componentsHistory = null;
+        prototype.contentCopiesHistory = null;
 		prototype.modificationDate = null;
 		prototype.modifier = null;
 		prototype.registrationDate = null;
@@ -299,6 +300,17 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.componentsHistory = componentsHistory;
 		};
 
+		prototype.getContentCopiesHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasContentCopiesHistory()) {
+				return this.contentCopiesHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Content copies history has not been fetched.");
+			}
+		};
+		prototype.setContentCopiesHistory = function(contentCopiesHistory) {
+			this.contentCopiesHistory = contentCopiesHistory;
+		};
+
 		prototype.getModificationDate = function() {
 			return this.modificationDate;
 		};
@@ -471,6 +483,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			arguments : [ "HistoryEntry" ]
 		},
 		componentsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		contentCopiesHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

@@ -71,6 +71,15 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
     @Autowired
     private IProjectHistoryTranslator historyTranslator;
 
+    @Autowired
+    private ProjectSpaceRelationshipHistoryTranslator spaceRelationshipHistoryTranslator;
+
+    @Autowired
+    private ProjectExperimentRelationshipHistoryTranslator experimentRelationshipHistoryTranslator;
+
+    @Autowired
+    private ProjectSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
+
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> projectIds, ProjectFetchOptions fetchOptions)
     {
@@ -131,6 +140,24 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
         if (fetchOptions.hasHistory())
         {
             relations.put(IProjectHistoryTranslator.class, historyTranslator.translate(context, projectIds, fetchOptions.withHistory()));
+        }
+
+        if (fetchOptions.hasSpaceHistory())
+        {
+            relations.put(ProjectSpaceRelationshipHistoryTranslator.class,
+                    spaceRelationshipHistoryTranslator.translate(context, projectIds, fetchOptions.withSpaceHistory()));
+        }
+
+        if (fetchOptions.hasExperimentsHistory())
+        {
+            relations.put(ProjectExperimentRelationshipHistoryTranslator.class,
+                    experimentRelationshipHistoryTranslator.translate(context, projectIds, fetchOptions.withExperimentsHistory()));
+        }
+
+        if (fetchOptions.hasSamplesHistory())
+        {
+            relations.put(ProjectSampleRelationshipHistoryTranslator.class,
+                    sampleRelationshipHistoryTranslator.translate(context, projectIds, fetchOptions.withSamplesHistory()));
         }
 
         return relations;
@@ -200,6 +227,23 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
+        if (fetchOptions.hasSpaceHistory())
+        {
+            result.setSpaceHistory(relations.get(ProjectSpaceRelationshipHistoryTranslator.class, projectId));
+            result.getFetchOptions().withSpaceHistoryUsing(fetchOptions.withSpaceHistory());
+        }
+
+        if (fetchOptions.hasExperimentsHistory())
+        {
+            result.setExperimentsHistory(relations.get(ProjectExperimentRelationshipHistoryTranslator.class, projectId));
+            result.getFetchOptions().withExperimentsHistoryUsing(fetchOptions.withExperimentsHistory());
+        }
+
+        if (fetchOptions.hasSamplesHistory())
+        {
+            result.setSamplesHistory(relations.get(ProjectSampleRelationshipHistoryTranslator.class, projectId));
+            result.getFetchOptions().withSamplesHistoryUsing(fetchOptions.withSamplesHistory());
+        }
     }
 
 }

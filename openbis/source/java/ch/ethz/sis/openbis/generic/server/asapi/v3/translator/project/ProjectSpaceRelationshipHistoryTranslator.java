@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.project;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.id.UnknownRelatedObjectId;
@@ -36,15 +34,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.history.ProjectRelationType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.RelationshipHistoryTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.space.ISpaceAuthorizationValidator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -54,20 +47,11 @@ import net.lemnik.eodsql.QueryTool;
  * @author pkupczyk
  */
 @Component
-public class ProjectHistoryTranslator extends HistoryTranslator implements IProjectHistoryTranslator
+public class ProjectSpaceRelationshipHistoryTranslator extends ProjectRelationshipHistoryTranslator
 {
 
-    @Autowired
-    private ProjectSpaceRelationshipHistoryTranslator spaceRelationshipHistoryTranslator;
-
-    @Autowired
-    private ProjectExperimentRelationshipHistoryTranslator experimentRelationshipHistoryTranslator;
-
-    @Autowired
-    private ProjectSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
-
-    @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
+    @Override protected String getRelationshipType()
     {
-        return Arrays.asList(spaceRelationshipHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator);
+        return SPACE_RELATIONSHIP_ENTITY_KIND;
     }
 }

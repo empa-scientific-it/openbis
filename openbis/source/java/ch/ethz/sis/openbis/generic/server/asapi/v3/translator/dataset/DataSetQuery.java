@@ -146,7 +146,7 @@ public interface DataSetQuery extends ObjectQuery
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.main_data_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds);
+    public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds, String entityKind, String relationType);
 
     @Select(sql =
             "select dsch.id as id, dsch.data_id as dataSetId, dsch.external_code as externalCode, dsch.path as path, dsch.git_commit_hash as gitCommitHash, "

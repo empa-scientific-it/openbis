@@ -113,7 +113,7 @@ public interface SampleQuery extends ObjectQuery
             + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
             + "from sample_relationships_history srh where srh.main_samp_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<SampleRelationshipRecord> getRelationshipsHistory(LongSet sampleIds);
+    public List<SampleRelationshipRecord> getRelationshipsHistory(LongSet sampleIds, String entityKind, String relationType);
 
     @Select(sql = "select s.id as objectId, s.expe_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
