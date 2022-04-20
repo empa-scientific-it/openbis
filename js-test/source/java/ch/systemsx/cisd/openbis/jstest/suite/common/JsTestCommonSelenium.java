@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.jstest.suite.common;
 
 import java.io.File;
 
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -136,15 +139,29 @@ public class JsTestCommonSelenium extends SeleniumTest
                     new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
                             + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, junitReport);
+            saveConsoleLog(method);
 
 //            Assert.assertEquals(0, webapp.getFailedCount());
         } catch (Throwable t)
         {
+            saveConsoleLog(method);
             throw new AssertionError("Test runner throws exception: " + t, t);
         } finally
         {
             SeleniumTest.driver.switchTo().defaultContent();
         }
+    }
+
+    private void saveConsoleLog(String method)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (LogEntry logEntry : driver.manage().logs().get(LogType.BROWSER))
+        {
+            builder.append(logEntry).append("\n");
+        }
+        File logreport = new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
+                        + "/JS-console-logs-" + method + ".txt");
+        FileUtilities.writeToFile(logreport, builder.toString());
     }
 
     private String waitForJUnitReport(OpenbisJsCommonWebapp webapp)
