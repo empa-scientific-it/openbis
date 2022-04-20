@@ -49,7 +49,6 @@ public class JsTestCommonSelenium extends SeleniumTest
     /** How many checks for report should be performed. */
     private static final int CHECKS_COUNT = JUNIT_REPORT_TOTAL_DURATION / JUNIT_REPORT_SLEEP_DURATION;
 
-
     protected void createWebappLink()
     {
         try
@@ -113,13 +112,13 @@ public class JsTestCommonSelenium extends SeleniumTest
         logout();
     }
 
-    @Test(groups = {"js-test"})
+    @Test(groups = { "js-test" })
     public void runOpenbisJsTests()
     {
         runTests("runOpenbisJsTests", new OpenbisJsWebappLocation());
     }
 
-    @Test(groups = {"js-test"})
+    @Test(groups = { "js-test" })
     public void runOpenbisV3JsTests()
     {
         runTests("runOpenbisV3JsTests", new OpenbisV3JsWebappLocation());
@@ -139,9 +138,10 @@ public class JsTestCommonSelenium extends SeleniumTest
                     new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
                             + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, junitReport);
+            System.out.println("report for " + method + ":\n" + junitReport);
             saveConsoleLog(method);
 
-//            Assert.assertEquals(0, webapp.getFailedCount());
+            // Assert.assertEquals(0, webapp.getFailedCount());
         } catch (Throwable t)
         {
             saveConsoleLog(method);
@@ -159,8 +159,9 @@ public class JsTestCommonSelenium extends SeleniumTest
         {
             builder.append(logEntry).append("\n");
         }
+        System.out.println("console log for " + method + ":\n" + builder);
         File logreport = new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
-                        + "/JS-console-logs-" + method + ".txt");
+                + "/JS-console-logs-" + method + ".txt");
         FileUtilities.writeToFile(logreport, builder.toString());
     }
 
