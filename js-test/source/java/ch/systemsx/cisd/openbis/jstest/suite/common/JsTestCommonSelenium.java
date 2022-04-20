@@ -139,12 +139,12 @@ public class JsTestCommonSelenium extends SeleniumTest
                             + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, junitReport);
             System.out.println("report for " + method + ":\n" + junitReport);
-            saveConsoleLog(method);
+//            saveConsoleLog(method);
 
             // Assert.assertEquals(0, webapp.getFailedCount());
         } catch (Throwable t)
         {
-            saveConsoleLog(method);
+//            saveConsoleLog(method);
             throw new AssertionError("Test runner throws exception: " + t, t);
         } finally
         {
