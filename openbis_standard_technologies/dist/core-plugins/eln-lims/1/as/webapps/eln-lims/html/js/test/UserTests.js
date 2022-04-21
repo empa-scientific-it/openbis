@@ -221,7 +221,8 @@ var UserTests = new function() {
                              .then(() => e.checked("copyChildrenToParent", true))
                              .then(() => e.waitForId("copyAccept"))
                              .then(() => e.click("copyAccept"))
-                             .then(() => e.sleep(5000)) // wait when copy will finished
+                             .then(() => e.waitForId("jSuccess")) // wait when copy will finished
+                             .then(() => e.sleep(2000))
                              // go to bac1
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -279,45 +280,11 @@ var UserTests = new function() {
             Promise.resolve().then(() => TestUtil.overloadSaveAs())
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
-                             // TODO uncomment it and make it work.
-                             // TODO remove testLocally after that
                              .then(() => TestUtil.testLocally("12.1 \"EXPORTS\""))
-                             /*
-                             // export all columns with all rows
-                             .then(() => e.waitForId("sample-grid\\.exports-button-id"))
-                             .then(() => e.click("sample-grid\\.exports-button-id"))
-                             .then(() => e.sleep(1000))
-                             // choose "All Column"
-                             .then(() => r.mousedown("mui-component-select-columns"))
-                             .then(() => e.sleep(1000))
-                             .then(() => r.choosePopValue("[data-value]", "All Columns"))
-                             .then(() => e.sleep(1000))
-                             // choose "All Pages"
-                             .then(() => r.mousedown("mui-component-select-rows"))
-                             .then(() => e.sleep(1000))
-                             .then(() => r.choosePopValue("[data-value]", "All Pages"))
-                             .then(() => e.sleep(1000))
-                             // choose "Rich Text"
-                             .then(() => r.mousedown("mui-component-select-values"))
-                             .then(() => e.sleep(1000))
-                             .then(() => r.choosePopValue("[data-value]", "Rich Text"))
-                             .then(() => e.sleep(1000))
-                             // trigger export
-                             .then(() => e.waitForId("sample-grid\\.trigger-exports-button-id"))
-                             .then(() => e.click("sample-grid\\.trigger-exports-button-id"))
-                             .then(() => e.sleep(3000)) // wait for download
-                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllPages.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
-                             .then(() => e.waitForId("bac1-name-id"))
-                             .then(() => e.equalTo("bac1-name-id", "Aurantimonas", true, false))
-                             .then(() => e.equalTo("bac2-name-id", "Burantimonas", true, false))
-                             .then(() => e.equalTo("bac3-name-id", "Curantimonas", true, false))
-                             .then(() => e.equalTo("bac4-name-id", "Durantimonas", true, false))
-                             .then(() => e.equalTo("bac5-name-id", "Curantimonas", true, false))
-                             .then(() => e.equalTo("bac5_bac4-name-id", "Durantimonas", true, false))
-                             */
                              // Batch Update Objects
                              .then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToUpdateResource, false))
-                             .then(() => e.sleep(6000)) // wait for import
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              // check names after update
                              .then(() => e.waitForId("bac1-name-id"))
                              .then(() => e.equalTo("bac1-name-id", "AA", true, false))
@@ -343,6 +310,7 @@ var UserTests = new function() {
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToResource, true))
+                             .then(() => e.waitForId("jSuccess"))
                              .then(() => e.sleep(3500)) // wait for saving
                              // check that bacterias was created
                              .then(() => e.waitForId("bac6-column-id"))
@@ -364,6 +332,7 @@ var UserTests = new function() {
             var e = new EventExecutor(14);
             var r = ReactTestUtils;
             Promise.resolve().then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToResource, true))
+                             .then(() => e.waitForId("jSuccess"))
                              .then(() => e.sleep(5000)) // wait for saving
                              // check that bacterias was created
                              .then(() => e.waitForId("sample-grid\\.next-page-id"))
@@ -417,7 +386,6 @@ var UserTests = new function() {
                              // we wait for the save-button, cause page contains add-storage-btn
                              // even when page can't be edit. So we wait when page be reloaded.
                              .then(() => e.waitForId("save-btn"))
-                             .then(() => e.sleep(2000)) // wait for saving
                              .then(() => e.waitForId("add-storage-btn"))
                              .then(() => e.click("add-storage-btn"))
                              .then(() => e.waitForId("storage-drop-down-id"))
@@ -434,6 +402,8 @@ var UserTests = new function() {
                              .then(() => e.sleep(2000)) // wait for accept
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              // check that new storage was created
                              .then(() => e.waitForId("testbox-c2-id"))
                              .then(() => e.sleep(1000))
@@ -460,7 +430,8 @@ var UserTests = new function() {
                              .then(() => e.dragAndDrop("storage-drop-down-id-a-1-2-storage-box-0", "storage-drop-down-id-b-1-1", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
-                             .then(() => e.sleep(6000)) // wait for saving
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for saving
                              .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(e, error, reject));
@@ -482,6 +453,7 @@ var UserTests = new function() {
                              .then(() => e.dragAndDrop("storage-drop-down-id-a-C-2-storage-box-0", "storage-drop-down-id-a-A-3", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
+                             .then(() => e.waitForId("jSuccess"))
                              .then(() => e.sleep(4000)) // wait for saving
                              // Open object BAC1 and verify storage.
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -610,7 +582,8 @@ var UserTests = new function() {
                              .then(() => e.change("END_DATE", "", false))
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
-                             .then(() => e.sleep(1000))
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(e, error, reject));
@@ -677,7 +650,8 @@ var UserTests = new function() {
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
-                             .then(() => e.sleep(2000))
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(e, error, reject));
@@ -708,6 +682,8 @@ var UserTests = new function() {
                              .then(() => e.waitForClass("progressbar.ready"))
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              // open data set and edit it
                              .then(() => e.waitForId("dataSetPosInTree-0"))
                              .then(() => e.click("dataSetPosInTree-0"))
@@ -718,6 +694,8 @@ var UserTests = new function() {
                              .then(() => e.waitForId("NAME"))
                              .then(() => e.change("NAME", "New Name", false))
                              .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              .then(() => e.waitForId("dataset-edit-btn"))
                              .then(() => e.sleep(1000))
                              .then(() => TestUtil.testPassed(e))
@@ -777,7 +755,8 @@ var UserTests = new function() {
                              .then(() => e.write("Name", "Search for BAC5", false))
                              .then(() => e.waitForId("search-query-save-btn"))
                              .then(() => e.click("search-query-save-btn"))
-                             .then(() => e.sleep(6000)) // wait for saving
+                             .then(() => e.waitForId("jSuccess"))
+                             .then(() => e.sleep(2000)) // wait for import
                              // Click on BAC5
                              .then(() => e.waitForId("bac5-id"))
                              .then(() => e.click("bac5-id"))
@@ -927,6 +906,8 @@ var UserTests = new function() {
                               .then(() => e.changeStartsWith("quantity-of-items-pro", "18"))
                               .then(() => e.waitForId("save-btn"))
                               .then(() => e.click("save-btn"))
+                              .then(() => e.waitForId("jSuccess"))
+                              .then(() => e.sleep(2000)) // wait for import
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               // create Request with new Product
                               .then(() => e.waitForId("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
@@ -954,7 +935,8 @@ var UserTests = new function() {
                               .then(() => e.change("new-product-quantity-1", "18"))
                               .then(() => e.waitForId("save-btn"))
                               .then(() => e.click("save-btn"))
-                              .then(() => e.sleep(2000))
+                              .then(() => e.waitForId("jSuccess"))
+                              .then(() => e.sleep(2000)) // wait for import
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               .then(() => e.sleep(1000))
                               .then(() => TestUtil.testPassed(e))
