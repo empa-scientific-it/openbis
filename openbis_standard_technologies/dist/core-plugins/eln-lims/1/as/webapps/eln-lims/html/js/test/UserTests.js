@@ -926,7 +926,7 @@ var UserTests = new function() {
                               .then(() => e.waitFor("input[id^=quantity-of-items-pro]"))
                               .then(() => e.changeStartsWith("quantity-of-items-pro", "18"))
                               .then(() => e.waitForId("save-btn"))
-                              .then(() => e.click("save-btn"))                    //
+                              .then(() => e.click("save-btn"))
                               .then(() => e.waitForId("edit-btn")) // wait for saving
                               // create Request with new Product
                               .then(() => e.waitForId("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))

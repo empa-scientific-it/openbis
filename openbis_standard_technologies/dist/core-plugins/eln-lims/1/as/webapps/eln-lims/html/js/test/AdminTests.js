@@ -103,8 +103,7 @@ var AdminTests = new function() {
                      .then(() => e.click("logoutBtn"))
                      .then(() => TestUtil.testPassed(e))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(e, error, reject));
-//                     .catch((error) => reject(error));
+                     .catch((error) => reject(error));
         });
     }
 
@@ -118,8 +117,7 @@ var AdminTests = new function() {
                      .then(() => e.change("passwordRepeatId", "pass", true))
                      .then(() => e.click("createUserBtn", true))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(e, error, reject));
-//                     .catch((error) => reject(error));
+                     .catch((error) => reject(error));
         });
     }
 
@@ -134,8 +132,7 @@ var AdminTests = new function() {
                      .then(() => e.click("jNotifyDismiss", true))
                      .then(() => e.click("cancelBtn", true))
                      .then(() => resolve())
-                     .catch(error => TestUtil.reportError(e, error, reject));
-//                     .catch((error) => reject(error));
+                     .catch((error) => reject(error));
         });
     }
 

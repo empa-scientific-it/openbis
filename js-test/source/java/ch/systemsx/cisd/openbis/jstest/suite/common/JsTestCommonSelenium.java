@@ -139,12 +139,12 @@ public class JsTestCommonSelenium extends SeleniumTest
                             + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, junitReport);
             System.out.println("report for " + method + ":\n" + junitReport);
-            saveConsoleLog(method);
+//            saveConsoleLog(method);
 
             // Assert.assertEquals(0, webapp.getFailedCount());
         } catch (Throwable t)
         {
-            saveConsoleLog(method);
+//            saveConsoleLog(method);
             throw new AssertionError("Test runner throws exception: " + t, t);
         } finally
         {
@@ -155,13 +155,6 @@ public class JsTestCommonSelenium extends SeleniumTest
     private void saveConsoleLog(String method)
     {
         StringBuilder builder = new StringBuilder();
-        LogEntries clientLogEntries = driver.manage().logs().get(LogType.CLIENT);
-        System.out.println("client logs:"+clientLogEntries);
-        for (LogEntry logEntry : clientLogEntries)
-        {
-            System.out.println("CLIENT LOG ENTRY: "+logEntry);
-        }
-        System.out.println("driver logs:"+driver.manage().logs().get(LogType.DRIVER));
         LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
         for (LogEntry logEntry : logEntries)
         {
