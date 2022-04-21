@@ -17,12 +17,27 @@ var TestUtil = new function() {
         });
     }
 
+    this.getElnFrame = function() {
+        var iframe = $("iframe");
+        return iframe ? $("#eln-frame", iframe.contents()) : $("#eln-frame");
+    }
+
+    this.log = function(msg, attributes) {
+        console.log(msg, attributes);
+        var testLog = $("#test-log", TestUtil.getElnFrame().contents());
+        console.log(testLog);
+        if (testLog) {
+            console.log("test log element:"+testLog.text());
+            testLog.text(msg);
+        }
+    }
+
     this.reportToJenkins = function(id, msg) {
         if ($.cookie("report-to-jenkins") == "true") {
             var testName = "test" + id + "event";
             var event = jQuery.Event(testName);
             event.msg = msg;
-            $("#eln-frame").trigger(event);
+            TestUtil.getElnFrame().trigger(event);
         }
     }
 
@@ -36,10 +51,10 @@ var TestUtil = new function() {
             e.events.forEach(function(ev) {
                 event.msg += "\n{" + ev + "}, ";
             });
-            console.log(event.msg);
+            TestUtil.log(event.msg);
         }
-        console.log("Test " + i + " failed.");
-        $("#eln-frame").trigger(event);
+        TestUtil.log("Test " + i + " failed.");
+        TestUtil.getElnFrame().trigger(event);
     }
 
     this.reportErrorToJenkins = function(e, msg) {
@@ -52,7 +67,7 @@ var TestUtil = new function() {
                 chain = chain.then(() => TestUtil.sendEventToJenkins(e, i, error))
                              .then(() => EventUtil.sleep(1000));
             }
-            chain.catch(error => { console.log(error) });
+            chain.catch(error => { TestUtil.log(error) });
         }
     }
 
@@ -66,7 +81,7 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id + " passed";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: green");
+            TestUtil.log("%c" + msg, "color: green");
             resolve();
         });
     }
@@ -75,7 +90,7 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id +" is not exist";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: grey");
+            TestUtil.log("%c" + msg, "color: grey");
             resolve();
         });
     }
@@ -84,7 +99,7 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id + " should be tested locally";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: blue");
+            TestUtil.log("%c" + msg, "color: blue");
             resolve();
         });
     }

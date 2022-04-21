@@ -1,7 +1,6 @@
 QUnit.module("ELN-Test");
 
 var elnTest = function(number, name) {
-    console.log("TEST "+number+": "+name);
     QUnit.asyncTest(number + ". " + name, function(assert) {
         console.log("TEST2 "+number+": "+name);
         QUnit.expect(1);
