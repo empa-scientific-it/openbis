@@ -40,6 +40,23 @@ public class DataSource implements IDataSource
 
     private final Stack<Statistics> statisticsStack = new Stack<>();
 
+    private String sessionToken;
+
+    @Override public void open()
+    {
+        IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
+        sessionToken = v3.loginAsSystem();
+    }
+
+    @Override public void close()
+    {
+        if (sessionToken != null)
+        {
+            IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
+            v3.logout(sessionToken);
+        }
+    }
+
     @Override public Statistics executeInNewTransaction(TransactionCallback<?> callback)
     {
         Statistics statistics = null;
@@ -86,7 +103,6 @@ public class DataSource implements IDataSource
     public List<Project> loadProjects(List<IProjectId> ids, ProjectFetchOptions fo)
     {
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = v3.loginAsSystem();
         Map<IProjectId, Project> result = v3.getProjects(sessionToken, ids, fo);
 
         for (Statistics statistics : statisticsStack)
@@ -106,7 +122,6 @@ public class DataSource implements IDataSource
     public List<Experiment> loadExperiments(List<IExperimentId> ids, ExperimentFetchOptions fo)
     {
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = v3.loginAsSystem();
         Map<IExperimentId, Experiment> result = v3.getExperiments(sessionToken, ids, fo);
 
         for (Statistics statistics : statisticsStack)
@@ -125,7 +140,6 @@ public class DataSource implements IDataSource
     @Override public List<Sample> loadSamples(List<ISampleId> ids, SampleFetchOptions fo)
     {
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = v3.loginAsSystem();
         Map<ISampleId, Sample> result = v3.getSamples(sessionToken, ids, fo);
 
         for (Statistics statistics : statisticsStack)
