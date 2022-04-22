@@ -42,18 +42,6 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    private final IDataSource dataSource;
-
-    public EventsSearchMaintenanceTask()
-    {
-        this.dataSource = new DataSource();
-    }
-
-    public EventsSearchMaintenanceTask(IDataSource dataSource)
-    {
-        this.dataSource = dataSource;
-    }
-
     @Override public void setUp(String pluginName, Properties properties)
     {
     }
@@ -61,12 +49,24 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
     @Override
     public void execute()
     {
+        execute(new DataSource());
+    }
+
+    public void execute(IDataSource dataSource)
+    {
+        if (dataSource == null)
+        {
+            throw new IllegalArgumentException("Data source cannot be null");
+        }
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         try
         {
             operationLog.info("Execution started...");
+
+            dataSource.open();
 
             Statistics statistics = dataSource.executeInNewTransaction((TransactionCallback<Void>) status ->
             {
@@ -103,6 +103,15 @@ public class EventsSearchMaintenanceTask implements IMaintenanceTask
         {
             operationLog.error("Execution failed after: " + stopWatch.toString(), e);
             throw e;
+        } finally
+        {
+            try
+            {
+                dataSource.close();
+            } catch (Exception e)
+            {
+                operationLog.warn("Data source could not be closed - some resources might have not been released", e);
+            }
         }
     }
 

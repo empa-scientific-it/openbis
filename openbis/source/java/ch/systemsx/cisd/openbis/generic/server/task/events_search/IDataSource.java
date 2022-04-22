@@ -22,6 +22,10 @@ import java.util.List;
 interface IDataSource
 {
 
+    void open();
+
+    void close();
+
     Statistics executeInNewTransaction(TransactionCallback<?> callback);
 
     List<SpacePE> loadSpaces(List<String> codes);

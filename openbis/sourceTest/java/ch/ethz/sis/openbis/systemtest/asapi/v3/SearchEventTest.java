@@ -135,8 +135,8 @@ public class SearchEventTest extends AbstractTest
             @Override public Void doInTransaction(final TransactionStatus status)
             {
                 // process all existing events
-                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(new TestDataSource());
-                task.execute();
+                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+                task.execute(new TestDataSource());
 
                 // create test data
                 initSpaces();
@@ -199,8 +199,8 @@ public class SearchEventTest extends AbstractTest
                 deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "delete tags");
 
                 // process new events
-                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(new TestDataSource());
-                task.execute();
+                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+                task.execute(new TestDataSource());
 
                 return null;
             }
