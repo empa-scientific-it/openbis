@@ -170,7 +170,7 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("search-btn-requests"))
                      .then(() => e.click("search-btn-requests"))
                      .then(() => e.searchForObjectInSelect2(e, "EN", "add-object-request"))
-                     .then(() => e.waitFor("a[id$=column-id]"))
+                     .then(() => e.waitFor("a[id^=req][id$=column-id]"))
                      // choose oder status
                      .then(() => e.waitForId("ORDERINGORDER_STATUS"))
                      .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "ORDERED"))
@@ -178,7 +178,7 @@ var AdminTests = new function() {
                      .then(() => e.click("save-btn"))
                      .then(() => e.waitForId("edit-btn"))
                      // check data
-                     .then(() => e.waitFor("a[id$=column-id]"))
+                     .then(() => e.waitFor("a[id^=req][id$=column-id]"))
                      .then(() => e.waitForId("catalogNum-0"))
                      // print
                      .then(() => e.waitForId("print-order-id"))
@@ -207,9 +207,10 @@ var AdminTests = new function() {
                      .then(() => e.waitForId("currency-0"))
                      .then(() => e.equalTo("currency-0", "EUR", true, false))
                      // delete request
-                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
-                     .then(() => e.click($("a[id$=column-id").attr("id")))
-                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
+                     .then(() => e.waitForId($("a[id^=req][id$=column-id]").attr("id")))
+                     .then(() => e.click($("a[id^=req][id$=column-id]").attr("id")))
+                     .then(() => e.sleep(1000)) // wait for reload, otherwise next selector will be undefined
+                     .then(() => e.waitForId($("a[id^=pro][id$=column-id]").attr("id")))
                      .then(() => e.waitForId("options-menu-btn-sample-view-request"))
                      .then(() => e.click("options-menu-btn-sample-view-request"))
                      .then(() => e.waitForId("delete"))
@@ -228,8 +229,9 @@ var AdminTests = new function() {
                      .then(() => e.sleep(2000))
                      .then(() => e.waitForId("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
                      .then(() => e.click("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
-                     .then(() => e.waitForId($("a[id$=column-id").attr("id")))
-                     .then(() => e.click($("a[id$=column-id").attr("id")))
+                     .then(() => e.sleep(1000)) // wait for reload, otherwise next selector will be undefined
+                     .then(() => e.waitForId($("a[id^=order][id$=column-id]").attr("id")))
+                     .then(() => e.click($("a[id^=order][id$=column-id]").attr("id")))
                      .then(() => e.waitForId("edit-btn"))
                      // check data after delete (should be the same)
                      .then(() => e.waitForId("catalogNum-0"))
@@ -273,8 +275,8 @@ var AdminTests = new function() {
                      .then(() => e.click("TRASHCAN"))
                      .then(() => e.waitForId("empty-trash-btn"))
                      // The Objects BAC1 and the deleted request should be there.
-                     .then(() => e.waitForId($("a[id^=deleted--materials-bacteria-bac").attr("id")))
-                     .then(() => e.waitForId($("a[id^=deleted--stock_catalog-requests-req").attr("id")))
+                     .then(() => e.waitForId($("[id^=deleted--materials-bacteria-bac]").attr("id")))
+                     .then(() => e.waitForId($("[id^=deleted--stock_catalog-requests-req]").attr("id")))
                      // clear Trash
                      .then(() => e.waitForId("empty-trash-btn"))
                      .then(() => e.click("empty-trash-btn"))

@@ -284,7 +284,7 @@ var UserTests = new function() {
                              // Batch Update Objects
                              .then(() => UserTests.importBacteriasFromFile(e, baseURL + pathToUpdateResource, false))
                              .then(() => e.waitForId("jSuccess"))
-                             .then(() => e.sleep(2000)) // wait for import
+                             .then(() => e.sleep(5000)) // wait for import
                              // check names after update
                              .then(() => e.waitForId("bac1-name-id"))
                              .then(() => e.equalTo("bac1-name-id", "AA", true, false))
@@ -431,7 +431,7 @@ var UserTests = new function() {
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
                              .then(() => e.waitForId("jSuccess"))
-                             .then(() => e.sleep(2000)) // wait for saving
+                             .then(() => e.sleep(5000)) // wait for saving
                              .then(() => TestUtil.testPassed(e))
                              .then(() => resolve())
                              .catch(error => TestUtil.reportError(e, error, reject));
