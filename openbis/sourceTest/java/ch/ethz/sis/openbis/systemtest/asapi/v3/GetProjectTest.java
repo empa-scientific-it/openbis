@@ -485,8 +485,8 @@ public class GetProjectTest extends AbstractTest
         List<HistoryEntry> history = project.getHistory();
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), experimentPermIds.get(0), ProjectRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), experimentPermIds.get(0), ProjectRelationType.EXPERIMENT);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)

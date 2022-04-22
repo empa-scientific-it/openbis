@@ -144,7 +144,14 @@ public interface DataSetQuery extends ObjectQuery
             + "drh.entity_kind as entityKind, "
             + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
-            + "from data_set_relationships_history drh where drh.main_data_id = any(?{1})", parameterBindings = {
+            + "from (select *, "
+            + "case "
+            + "when expe_id is not null or entity_kind = 'EXPERIMENT' then 'EXPERIMENT' "
+            + "when samp_id is not null or entity_kind = 'SAMPLE' then 'SAMPLE' "
+            + "when data_id is not null or entity_kind = 'DATA SET' then 'DATA SET' "
+            + "end as entity_kind_not_null "
+            + "from data_set_relationships_history where main_data_id = any(?{1})) "
+            + "drh where drh.entity_kind_not_null = ?{2} and drh.relation_type = ?{3}", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds, String entityKind, String relationType);
 

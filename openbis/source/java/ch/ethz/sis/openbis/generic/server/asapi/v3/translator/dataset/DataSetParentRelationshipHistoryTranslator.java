@@ -34,6 +34,6 @@ public class DataSetParentRelationshipHistoryTranslator extends DataSetRelations
 
     @Override protected RelationType getRelationshipRelationType()
     {
-        return RelationType.PARENT;
+        return RelationType.CHILD;
     }
 }

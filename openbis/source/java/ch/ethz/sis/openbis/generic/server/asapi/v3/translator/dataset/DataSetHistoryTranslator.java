@@ -47,6 +47,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.Experim
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentPropertyHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.ExperimentSampleRelationshipHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentAuthorizationValidator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.DataSetContentCopyHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryContentCopyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRecord;
@@ -86,10 +87,13 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
     @Autowired
     private DataSetComponentRelationshipHistoryTranslator componentRelationshipHistoryTranslator;
 
+    @Autowired
+    private DataSetContentCopyHistoryTranslator contentCopyHistoryTranslator;
+
     @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
         return Arrays.asList(propertyHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
                 parentRelationshipHistoryTranslator, childRelationshipHistoryTranslator, containerRelationshipHistoryTranslator,
-                componentRelationshipHistoryTranslator);
+                componentRelationshipHistoryTranslator, contentCopyHistoryTranslator);
     }
 }

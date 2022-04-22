@@ -43,7 +43,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyR
  * @author pkupczyk
  */
 public abstract class PropertyHistoryTranslator extends AbstractCachingTranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>
-        implements IPropertyHistoryTranslator
 {
 
     @Autowired

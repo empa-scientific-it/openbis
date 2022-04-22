@@ -34,6 +34,6 @@ public class SampleContainerRelationshipHistoryTranslator extends SampleRelation
 
     @Override protected RelationType getRelationshipRelationType()
     {
-        return RelationType.CONTAINER;
+        return RelationType.CONTAINED;
     }
 }

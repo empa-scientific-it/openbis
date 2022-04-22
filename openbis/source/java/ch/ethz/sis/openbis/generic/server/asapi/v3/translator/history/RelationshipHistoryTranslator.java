@@ -43,7 +43,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTran
  */
 public abstract class RelationshipHistoryTranslator
         extends AbstractCachingTranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>
-        implements IRelationshipHistoryTranslator
 {
 
     protected static final String SPACE_RELATIONSHIP_ENTITY_KIND = "SPACE";

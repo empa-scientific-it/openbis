@@ -1674,11 +1674,11 @@ public class GetSampleTest extends AbstractSampleTest
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET,
-                dataSetAfterUpdate1.getModificationDate(), dataSetAfterUpdate2.getModificationDate());
-        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050940555-1032"), SampleRelationType.EXPERIMENT,
+        assertRelationshipHistory(history.get(0), new ExperimentPermId("200811050940555-1032"), SampleRelationType.EXPERIMENT,
                 sample.getRegistrationDate(),
                 null);
+        assertRelationshipHistory(history.get(1), new DataSetPermId("COMPONENT_1A"), SampleRelationType.DATA_SET,
+                dataSetAfterUpdate1.getModificationDate(), dataSetAfterUpdate2.getModificationDate());
     }
 
     @Test
@@ -1698,9 +1698,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CONTAINER, sample.getRegistrationDate(),
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), new SamplePermId("200811050919915-8"), SampleRelationType.CONTAINER, sample.getRegistrationDate(),
                 sample.getModificationDate());
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1720,9 +1720,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.COMPONENT, sample.getRegistrationDate(),
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), new SamplePermId("200811050919915-8"), SampleRelationType.COMPONENT, sample.getRegistrationDate(),
                 sample.getModificationDate());
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1742,9 +1742,9 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.PARENT, sample.getRegistrationDate(),
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), new SamplePermId("200811050919915-8"), SampleRelationType.PARENT, sample.getRegistrationDate(),
                 sample.getModificationDate());
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 
     @Test
@@ -1764,10 +1764,10 @@ public class GetSampleTest extends AbstractSampleTest
 
         assertEquals(history.size(), 2);
 
-        assertRelationshipHistory(history.get(0), new SamplePermId("200811050919915-8"), SampleRelationType.CHILD, sample.getRegistrationDate(),
-                sample.getModificationDate());
-        assertRelationshipHistory(history.get(1), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(),
+        assertRelationshipHistory(history.get(0), new SpacePermId("CISD"), SampleRelationType.SPACE, sample.getRegistrationDate(),
                 null);
+        assertRelationshipHistory(history.get(1), new SamplePermId("200811050919915-8"), SampleRelationType.CHILD, sample.getRegistrationDate(),
+                sample.getModificationDate());
     }
 
     private Sample testGetWithHistory(SampleCreation creation, SampleUpdate... updates)

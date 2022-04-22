@@ -1002,9 +1002,9 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(history.size(), 4);
 
         assertPropertyHistory(history.get(0), "COMMENT", "co comment");
-        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
-        assertRelationshipHistory(history.get(2), new ExperimentPermId("200811050951882-1028"), DataSetRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(3), new ExperimentPermId("200811050940555-1032"), DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(1), new ExperimentPermId("200811050951882-1028"), DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(2), new ExperimentPermId("200811050940555-1032"), DataSetRelationType.EXPERIMENT);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
     }
 
     @Test
@@ -1024,9 +1024,9 @@ public class GetDataSetTest extends AbstractDataSetTest
         assertEquals(history.size(), 4);
 
         assertPropertyHistory(history.get(0), "COMMENT", "co comment");
-        assertRelationshipHistory(history.get(1), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
-        assertRelationshipHistory(history.get(2), new SamplePermId("200811050946559-979"), DataSetRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(3), new SamplePermId("200811050946559-980"), DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(1), new SamplePermId("200811050946559-979"), DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(2), new SamplePermId("200811050946559-980"), DataSetRelationType.SAMPLE);
+        assertRelationshipHistory(history.get(3), new DataSetPermId("CONTAINER_1"), DataSetRelationType.PARENT);
     }
 
     @Test

@@ -1075,9 +1075,9 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertEquals(history.size(), 3);
 
         assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), null);
-        assertRelationshipHistory(history.get(1), samplePermIds.get(0), ExperimentRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
                 experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(2), samplePermIds.get(0), ExperimentRelationType.SAMPLE);
     }
 
     @Test
@@ -1117,9 +1117,9 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertEquals(history.size(), 3);
 
         assertPropertyHistory(history.get(0), "DESCRIPTION", "a description", experiment.getRegistrationDate(), null);
-        assertRelationshipHistory(history.get(1), new DataSetPermId("COMPONENT_1A"), ExperimentRelationType.DATA_SET);
-        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-101"), ExperimentRelationType.PROJECT,
                 experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(2), new DataSetPermId("COMPONENT_1A"), ExperimentRelationType.DATA_SET);
     }
 
     private Experiment testGetWithHistory(ExperimentCreation creation, ExperimentUpdate update)

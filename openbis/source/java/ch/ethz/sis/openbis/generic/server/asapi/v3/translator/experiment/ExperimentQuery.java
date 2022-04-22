@@ -116,13 +116,12 @@ public interface ExperimentQuery extends ObjectQuery
             + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
             + "from (select *, "
             + "case "
-            + "when proj_id is not null OR entity_kind = 'PROJECT' then 'PROJECT' "
-            + "when samp_id is not null OR entity_kind = 'SAMPLE' then 'SAMPLE' "
-            + "when data_id is not null OR entity_kind = 'DATA SET' then 'DATA_SET' "
+            + "when proj_id is not null or entity_kind = 'PROJECT' then 'PROJECT' "
+            + "when samp_id is not null or entity_kind = 'SAMPLE' then 'SAMPLE' "
+            + "when data_id is not null or entity_kind = 'DATA SET' then 'DATA SET' "
             + "end as entity_kind_not_null "
             + "from experiment_relationships_history where main_expe_id = any(?{1})) "
-            + "erh where erh.entity_kind_not_null = any(?{2})", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            + "erh where erh.entity_kind_not_null = ?{2}", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExperimentRelationshipRecord> getRelationshipsHistory(LongSet experimentIds, String relationshipType);
 
     @Select(sql = "select e.id as objectId, e.pers_id_registerer as relatedId from experiments e where e.id = any(?{1})", parameterBindings = {

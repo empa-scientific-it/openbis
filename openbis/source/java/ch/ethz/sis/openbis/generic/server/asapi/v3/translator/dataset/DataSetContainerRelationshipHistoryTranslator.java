@@ -34,6 +34,6 @@ public class DataSetContainerRelationshipHistoryTranslator extends DataSetRelati
 
     @Override protected RelationType getRelationshipRelationType()
     {
-        return RelationType.CONTAINER;
+        return RelationType.COMPONENT;
     }
 }

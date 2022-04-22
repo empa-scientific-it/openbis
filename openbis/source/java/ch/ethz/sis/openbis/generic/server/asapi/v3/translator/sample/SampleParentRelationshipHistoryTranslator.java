@@ -34,6 +34,6 @@ public class SampleParentRelationshipHistoryTranslator extends SampleRelationshi
 
     @Override protected RelationType getRelationshipRelationType()
     {
-        return RelationType.PARENT;
+        return RelationType.CHILD;
     }
 }
