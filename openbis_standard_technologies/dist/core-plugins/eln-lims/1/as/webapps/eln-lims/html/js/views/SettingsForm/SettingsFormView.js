@@ -567,14 +567,18 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				name : "Enable Storage",
 				enabled : sampleTypeSettings["ENABLE_STORAGE"]
 			});
+			var showInDropDowns = sampleTypeSettings["SHOW"];
+            if(showInDropDowns === undefined) {
+                showInDropDowns = false;
+            }
 			tableModel.addRow({
 				name : "Show in drop downs",
-				enabled : sampleTypeSettings["SHOW"],
+				enabled : showInDropDowns,
 				id : code + "_show_in_drop_downs"
 			});
 			var showOnNav = sampleTypeSettings["SHOW_ON_NAV"];
 			if(showOnNav === undefined) {
-			    showOnNav = true;
+			    showOnNav = false;
 			}
 			tableModel.addRow({
                 name : "Show in main menu",
@@ -595,7 +599,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             });
             tableModel.addRow({
                 name : "Show in main menu",
-                enabled : true
+                enabled : false
             });
 		}
 		// transform output

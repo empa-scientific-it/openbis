@@ -191,11 +191,10 @@ function SettingsManager(serverFacade) {
                      "SAMPLE_CHILDREN_DISABLED" : true,
                      "SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
                      "SAMPLE_PARENTS_DISABLED" : true,
-                     "SHOW" : true,
-                     "SHOW_ON_NAV" : true,
+                     "SHOW" : false,
+                     "SHOW_ON_NAV" : false,
                      "USE_AS_PROTOCOL" : true,
                  }
-
      		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
 
      			// If doesn't exist, it is created
