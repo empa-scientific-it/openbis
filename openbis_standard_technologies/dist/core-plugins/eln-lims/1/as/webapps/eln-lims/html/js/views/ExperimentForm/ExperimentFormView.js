@@ -107,10 +107,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     var warningText = "The " + experimentKindName + " has " + samples.length + " " 
                             + ELNDictionary.sample + "s, which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, samples.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(samples[cIdx]);
+                        warningText += "\n  " + Util.getDisplayNameForEntity(samples[cIdx]);
                     }
                     if (maxNumToShow < samples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n  ...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -121,10 +121,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets " 
                             + "which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, dataSets.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(dataSets[cIdx]);
+                        warningText += "\n  " + Util.getDisplayNameForEntity(dataSets[cIdx]);
                     }
                     if (maxNumToShow < dataSets.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n  ...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
