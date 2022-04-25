@@ -6,7 +6,12 @@ function SettingsManager(serverFacade) {
 		var _this = this;
 		var errors = this._validateSettings(settings);
 		if (errors.length > 0) {
-			Util.showError(FormUtil._getSanitizedErrorString("Settings validation errors:", errors));
+		    var errorString = "Settings validation errors: \n";
+		    for(var i = 0; i < errors.length; i++) {
+                errorString += errors[i] + "\n";
+		    }
+		    Util.unblockUI();
+			Util.showError(errorString);
 		} else {
 			settingsSample.properties = { "$ELN_SETTINGS" : JSON.stringify(settings) };
 			this._serverFacade.updateSample(settingsSample, function(ok) {
