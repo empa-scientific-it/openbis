@@ -68,8 +68,17 @@ public abstract class DataSetRelationshipHistoryTranslator extends RelationshipH
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
 
-        List<DataSetRelationshipRecord> records =
-                query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipEntityKind(), getRelationshipRelationType().name());
+        List<DataSetRelationshipRecord> records = null;
+
+        if (getRelationshipEntityKind() != null)
+        {
+            records =
+                    query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipEntityKind(), getRelationshipRelationType().name());
+        } else
+        {
+            records = query.getUnknownRelationshipsHistory(new LongOpenHashSet(entityIds));
+        }
+
         List<DataSetRelationshipRecord> validRecords = new ArrayList<DataSetRelationshipRecord>();
 
         Set<Long> experimentIds = new HashSet<Long>();

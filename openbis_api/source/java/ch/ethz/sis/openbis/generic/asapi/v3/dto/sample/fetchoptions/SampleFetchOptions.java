@@ -109,6 +109,9 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     private HistoryEntryFetchOptions dataSetsHistory;
 
     @JsonProperty
+    private HistoryEntryFetchOptions unknownHistory;
+
+    @JsonProperty
     private TagFetchOptions tags;
 
     @JsonProperty
@@ -608,6 +611,28 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistory()
+    {
+        if (unknownHistory == null)
+        {
+            unknownHistory = new HistoryEntryFetchOptions();
+        }
+        return unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return unknownHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasUnknownHistory()
+    {
+        return unknownHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -738,6 +763,7 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         f.addFetchOption("ContainerHistory", containerHistory);
         f.addFetchOption("ComponentsHistory", componentsHistory);
         f.addFetchOption("DataSetsHistory", dataSetsHistory);
+        f.addFetchOption("UnknownHistory", unknownHistory);
         f.addFetchOption("Tags", tags);
         f.addFetchOption("Registrator", registrator);
         f.addFetchOption("Modifier", modifier);

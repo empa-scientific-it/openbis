@@ -66,8 +66,12 @@ public class ProjectHistoryTranslator extends HistoryTranslator implements IProj
     @Autowired
     private ProjectSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
 
+    @Autowired
+    private ProjectUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
-        return Arrays.asList(spaceRelationshipHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator);
+        return Arrays.asList(spaceRelationshipHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
+                unknownRelationshipHistoryTranslator);
     }
 }

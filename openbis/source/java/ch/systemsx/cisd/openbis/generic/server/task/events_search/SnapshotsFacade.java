@@ -108,14 +108,19 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         ProjectFetchOptions fo = new ProjectFetchOptions();
-        fo.withHistory();
+        fo.withSpaceHistory();
+        fo.withUnknownHistory();
 
         List<IProjectId> ids = toLoad.stream().map(ProjectPermId::new).collect(Collectors.toList());
         List<Project> projects = dataSource.loadProjects(ids, fo);
 
         for (Project project : projects)
         {
-            for (HistoryEntry historyEntry : project.getHistory())
+            List<HistoryEntry> history = new LinkedList<>();
+            history.addAll(project.getSpaceHistory());
+            history.addAll(project.getUnknownHistory());
+
+            for (HistoryEntry historyEntry : history)
             {
                 if (historyEntry instanceof RelationHistoryEntry)
                 {
@@ -167,14 +172,19 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         ExperimentFetchOptions fo = new ExperimentFetchOptions();
-        fo.withHistory();
+        fo.withProjectHistory();
+        fo.withUnknownHistory();
 
         List<IExperimentId> ids = toLoad.stream().map(ExperimentPermId::new).collect(Collectors.toList());
         List<Experiment> experiments = dataSource.loadExperiments(ids, fo);
 
         for (Experiment experiment : experiments)
         {
-            for (HistoryEntry historyEntry : experiment.getHistory())
+            List<HistoryEntry> history = new LinkedList<>();
+            history.addAll(experiment.getProjectHistory());
+            history.addAll(experiment.getUnknownHistory());
+
+            for (HistoryEntry historyEntry : history)
             {
                 if (historyEntry instanceof RelationHistoryEntry)
                 {
@@ -226,14 +236,23 @@ class SnapshotsFacade
         List<Snapshot> snapshots = new LinkedList<>();
 
         SampleFetchOptions fo = new SampleFetchOptions();
-        fo.withHistory();
+        fo.withSpaceHistory();
+        fo.withProjectHistory();
+        fo.withExperimentHistory();
+        fo.withUnknownHistory();
 
         List<ISampleId> ids = toLoad.stream().map(SamplePermId::new).collect(Collectors.toList());
         List<Sample> samples = dataSource.loadSamples(ids, fo);
 
         for (Sample sample : samples)
         {
-            for (HistoryEntry historyEntry : sample.getHistory())
+            List<HistoryEntry> history = new LinkedList<>();
+            history.addAll(sample.getSpaceHistory());
+            history.addAll(sample.getProjectHistory());
+            history.addAll(sample.getExperimentHistory());
+            history.addAll(sample.getUnknownHistory());
+
+            for (HistoryEntry historyEntry : history)
             {
                 if (historyEntry instanceof RelationHistoryEntry)
                 {

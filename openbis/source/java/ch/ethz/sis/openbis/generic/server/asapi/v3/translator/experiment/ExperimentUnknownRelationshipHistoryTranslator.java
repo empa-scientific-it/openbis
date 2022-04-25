@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component;
  * @author pkupczyk
  */
 @Component
-public class ExperimentDataSetRelationshipHistoryTranslator extends ExperimentRelationshipHistoryTranslator
+public class ExperimentUnknownRelationshipHistoryTranslator extends ExperimentRelationshipHistoryTranslator
 {
 
     @Override protected String getRelationshipEntityKind()
     {
-        return DATA_SET_RELATIONSHIP_ENTITY_KIND;
+        return null;
     }
 }

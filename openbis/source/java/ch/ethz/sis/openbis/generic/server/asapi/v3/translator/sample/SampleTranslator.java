@@ -126,6 +126,9 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
     private SampleDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
 
     @Autowired
+    private SampleUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
+    @Autowired
     private ISampleRegistratorTranslator registratorTranslator;
 
     @Autowired
@@ -281,6 +284,12 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         {
             relations.put(SampleDataSetRelationshipHistoryTranslator.class,
                     dataSetRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withDataSetsHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(SampleUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withUnknownHistory()));
         }
 
         if (fetchOptions.hasRegistrator())
@@ -478,6 +487,12 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         {
             result.setDataSetsHistory(relations.get(SampleDataSetRelationshipHistoryTranslator.class, sampleId));
             result.getFetchOptions().withDataSetsHistoryUsing(fetchOptions.withDataSetsHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(SampleUnknownRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
         }
 
         if (fetchOptions.hasRegistrator())

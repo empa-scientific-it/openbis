@@ -43,6 +43,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
         prototype.containerHistory = null;
         prototype.componentsHistory = null;
         prototype.dataSetsHistory = null;
+        prototype.unknownHistory = null;
 		prototype.tags = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -397,6 +398,17 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 			this.dataSetsHistory = dataSetsHistory;
 		};
 
+		prototype.getUnknownHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUnknownHistory()) {
+				return this.unknownHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Unknown history has not been fetched.");
+			}
+		};
+		prototype.setUnknownHistory = function(unknownHistory) {
+			this.unknownHistory = unknownHistory;
+		};
+
 		prototype.getTags = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasTags()) {
 				return this.tags;
@@ -524,6 +536,10 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 			arguments : [ "HistoryEntry" ]
 		},
 		dataSetsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		unknownHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

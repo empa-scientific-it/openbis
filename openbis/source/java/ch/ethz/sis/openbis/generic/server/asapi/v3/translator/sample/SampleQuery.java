@@ -107,22 +107,20 @@ public interface SampleQuery extends ObjectQuery
                     + "where ph.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet sampleIds);
 
-    @Select(sql = "select srh.id as id, srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
-            + "srh.entity_kind as entityKind, "
-            + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
-            + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
-            + "from (select *, "
-            + "case "
-            + "when space_id is not null or entity_kind = 'SPACE' then 'SPACE' "
-            + "when proj_id is not null or entity_kind = 'PROJECT' then 'PROJECT' "
-            + "when expe_id is not null or entity_kind = 'EXPERIMENT' then 'EXPERIMENT' "
-            + "when samp_id is not null or entity_kind = 'SAMPLE' then 'SAMPLE' "
-            + "when data_id is not null or entity_kind = 'DATA SET' then 'DATA SET' "
-            + "end as entity_kind_not_null "
-            + "from sample_relationships_history where main_samp_id = any(?{1})) "
-            + "srh where srh.entity_kind_not_null = ?{2} and srh.relation_type = ?{3}", parameterBindings = {
+    public static final String RELATIONSHIPS_HISTORY_QUERY =
+            "select srh.id as id, srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
+                    + "srh.entity_kind as entityKind, "
+                    + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
+                    + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
+                    + "from sample_relationships_history srh where srh.main_samp_id = any(?{1}) ";
+
+    @Select(sql = RELATIONSHIPS_HISTORY_QUERY + "and srh.entity_kind = ?{2} and srh.relation_type = ?{3}", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getRelationshipsHistory(LongSet sampleIds, String entityKind, String relationType);
+
+    @Select(sql = RELATIONSHIPS_HISTORY_QUERY + "and srh.entity_kind is null", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<SampleRelationshipRecord> getUnknownRelationshipsHistory(LongSet sampleIds);
 
     @Select(sql = "select s.id as objectId, s.expe_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)

@@ -59,14 +59,23 @@ public abstract class ExperimentRelationshipHistoryTranslator extends Relationsh
     @Autowired
     private IDataSetAuthorizationValidator dataSetValidator;
 
-    protected abstract String getRelationshipType();
+    protected abstract String getRelationshipEntityKind();
 
     @Override
     protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
 
-        List<ExperimentRelationshipRecord> records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipType());
+        List<ExperimentRelationshipRecord> records = null;
+
+        if (getRelationshipEntityKind() != null)
+        {
+            records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipEntityKind());
+        } else
+        {
+            records = query.getUnknownRelationshipsHistory(new LongOpenHashSet(entityIds));
+        }
+
         List<ExperimentRelationshipRecord> validRecords = new ArrayList<ExperimentRelationshipRecord>();
 
         Set<Long> projectIds = new HashSet<Long>();

@@ -80,6 +80,9 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
     @Autowired
     private ProjectSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
 
+    @Autowired
+    private ProjectUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> projectIds, ProjectFetchOptions fetchOptions)
     {
@@ -158,6 +161,12 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
         {
             relations.put(ProjectSampleRelationshipHistoryTranslator.class,
                     sampleRelationshipHistoryTranslator.translate(context, projectIds, fetchOptions.withSamplesHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(ProjectUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, projectIds, fetchOptions.withUnknownHistory()));
         }
 
         return relations;
@@ -243,6 +252,12 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
         {
             result.setSamplesHistory(relations.get(ProjectSampleRelationshipHistoryTranslator.class, projectId));
             result.getFetchOptions().withSamplesHistoryUsing(fetchOptions.withSamplesHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(ProjectUnknownRelationshipHistoryTranslator.class, projectId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
         }
     }
 

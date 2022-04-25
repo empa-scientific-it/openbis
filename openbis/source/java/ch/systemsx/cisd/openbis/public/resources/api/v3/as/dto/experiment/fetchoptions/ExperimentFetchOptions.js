@@ -20,6 +20,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
         prototype.projectHistory = null;
         prototype.samplesHistory = null;
         prototype.dataSetsHistory = null;
+        prototype.unknownHistory = null;
 		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
@@ -150,6 +151,20 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
 			return this.dataSetsHistory != null;
 		};
 
+		prototype.withUnknownHistory = function() {
+			if (this.unknownHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.unknownHistory = new HistoryEntryFetchOptions();
+			}
+			return this.unknownHistory;
+		};
+		prototype.withUnknownHistoryUsing = function(fetchOptions) {
+			return this.unknownHistory = fetchOptions;
+		};
+		prototype.hasUnknownHistory = function() {
+			return this.unknownHistory != null;
+		};
+
 		prototype.withProperties = function() {
 			if (this.properties == null) {
 				var PropertyFetchOptions = require("as/dto/property/fetchoptions/PropertyFetchOptions");
@@ -261,6 +276,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
 		projectHistory : "HistoryEntryFetchOptions",
 		samplesHistory : "HistoryEntryFetchOptions",
 		dataSetsHistory : "HistoryEntryFetchOptions",
+		unknownHistory : "HistoryEntryFetchOptions",
 		properties : "PropertyFetchOptions",
 		materialProperties : "MaterialFetchOptions",
 		sampleProperties : "SampleFetchOptions",

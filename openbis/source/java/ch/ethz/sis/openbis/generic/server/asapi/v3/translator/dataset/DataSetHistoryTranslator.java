@@ -88,12 +88,15 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
     private DataSetComponentRelationshipHistoryTranslator componentRelationshipHistoryTranslator;
 
     @Autowired
+    private DataSetUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
+    @Autowired
     private DataSetContentCopyHistoryTranslator contentCopyHistoryTranslator;
 
     @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
         return Arrays.asList(propertyHistoryTranslator, experimentRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
                 parentRelationshipHistoryTranslator, childRelationshipHistoryTranslator, containerRelationshipHistoryTranslator,
-                componentRelationshipHistoryTranslator, contentCopyHistoryTranslator);
+                componentRelationshipHistoryTranslator, unknownRelationshipHistoryTranslator, contentCopyHistoryTranslator);
     }
 }

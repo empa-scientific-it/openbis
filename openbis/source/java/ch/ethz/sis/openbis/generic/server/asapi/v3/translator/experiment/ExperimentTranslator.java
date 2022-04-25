@@ -97,6 +97,9 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
     @Autowired
     private ExperimentDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
 
+    @Autowired
+    private ExperimentUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> experimentIds, ExperimentFetchOptions fetchOptions)
     {
@@ -206,6 +209,12 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
         {
             relations.put(ExperimentDataSetRelationshipHistoryTranslator.class,
                     dataSetRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withDataSetsHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(ExperimentUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withUnknownHistory()));
         }
 
         return relations;
@@ -321,6 +330,12 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
         {
             result.setDataSetsHistory(relations.get(ExperimentDataSetRelationshipHistoryTranslator.class, experimentId));
             result.getFetchOptions().withDataSetsHistoryUsing(fetchOptions.withDataSetsHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(ExperimentUnknownRelationshipHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
         }
     }
 

@@ -21,6 +21,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 		prototype.spaceHistory = null;
 		prototype.experimentsHistory = null;
 		prototype.samplesHistory = null;
+		prototype.unknownHistory = null;
 		prototype.sort = null;
 		prototype.withExperiments = function() {
 			if (this.experiments == null) {
@@ -169,6 +170,20 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 			return this.samplesHistory != null;
 		};
 
+		prototype.withUnknownHistory = function() {
+			if (this.unknownHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.unknownHistory = new HistoryEntryFetchOptions();
+			}
+			return this.unknownHistory;
+		};
+		prototype.withUnknownHistoryUsing = function(fetchOptions) {
+			return this.unknownHistory = fetchOptions;
+		};
+		prototype.hasUnknownHistory = function() {
+			return this.unknownHistory != null;
+		};
+
 		prototype.sortBy = function() {
 			if (this.sort == null) {
 				var ProjectSortOptions = require("as/dto/project/fetchoptions/ProjectSortOptions");
@@ -191,6 +206,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 		spaceHistory : "HistoryEntryFetchOptions",
 		experimentsHistory : "HistoryEntryFetchOptions",
 		samplesHistory : "HistoryEntryFetchOptions",
+		unknownHistory : "HistoryEntryFetchOptions",
 		sort : "ProjectSortOptions"
 	});
 	return ProjectFetchOptions;

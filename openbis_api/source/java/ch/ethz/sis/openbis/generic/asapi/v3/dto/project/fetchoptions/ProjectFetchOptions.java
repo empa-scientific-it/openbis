@@ -55,6 +55,9 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     private HistoryEntryFetchOptions samplesHistory;
 
     @JsonProperty
+    private HistoryEntryFetchOptions unknownHistory;
+
+    @JsonProperty
     private SpaceFetchOptions space;
 
     @JsonProperty
@@ -205,6 +208,28 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistory()
+    {
+        if (unknownHistory == null)
+        {
+            unknownHistory = new HistoryEntryFetchOptions();
+        }
+        return unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return unknownHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasUnknownHistory()
+    {
+        return unknownHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public SpaceFetchOptions withSpace()
     {
         if (space == null)
@@ -341,6 +366,7 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
         f.addFetchOption("SpaceHistory", spaceHistory);
         f.addFetchOption("ExperimentsHistory", experimentsHistory);
         f.addFetchOption("SamplesHistory", samplesHistory);
+        f.addFetchOption("UnknownHistory", unknownHistory);
         f.addFetchOption("Space", space);
         f.addFetchOption("Registrator", registrator);
         f.addFetchOption("Modifier", modifier);

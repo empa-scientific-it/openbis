@@ -163,6 +163,9 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private List<HistoryEntry> contentCopiesHistory;
 
     @JsonProperty
+    private List<HistoryEntry> unknownHistory;
+
+    @JsonProperty
     private Date modificationDate;
 
     @JsonProperty
@@ -796,6 +799,26 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public void setContentCopiesHistory(List<HistoryEntry> contentCopiesHistory)
     {
         this.contentCopiesHistory = contentCopiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getUnknownHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasUnknownHistory())
+        {
+            return unknownHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Unknown history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setUnknownHistory(List<HistoryEntry> unknownHistory)
+    {
+        this.unknownHistory = unknownHistory;
     }
 
     // Method automatically generated with DtoGenerator

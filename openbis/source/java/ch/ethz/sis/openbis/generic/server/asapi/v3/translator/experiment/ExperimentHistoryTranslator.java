@@ -68,9 +68,12 @@ public class ExperimentHistoryTranslator extends HistoryTranslator implements IE
     @Autowired
     private ExperimentDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
 
+    @Autowired
+    private ExperimentUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
         return Arrays.asList(propertyHistoryTranslator, projectRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
-                dataSetRelationshipHistoryTranslator);
+                dataSetRelationshipHistoryTranslator, unknownRelationshipHistoryTranslator);
     }
 }

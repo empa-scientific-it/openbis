@@ -178,6 +178,8 @@ public class Generator extends AbstractGenerator
                 HistoryEntryFetchOptions.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "dataSetsHistory", "Data sets history",
                 HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
+                HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addTags(gen);
@@ -280,6 +282,8 @@ public class Generator extends AbstractGenerator
                 HistoryEntryFetchOptions.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "dataSetsHistory", "Data sets history",
                 HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
+                HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addProperties(gen);
@@ -357,6 +361,8 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "componentsHistory", "Components history",
                 HistoryEntryFetchOptions.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "contentCopiesHistory", "Content copies history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
                 HistoryEntryFetchOptions.class);
 
         gen.addClassForImport(HistoryEntry.class);
@@ -585,6 +591,7 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "experimentsHistory", "Experiments history",
                 HistoryEntryFetchOptions.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "samplesHistory", "Samples history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addSpace(gen);

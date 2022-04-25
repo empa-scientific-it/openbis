@@ -30,6 +30,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
         prototype.containersHistory = null;
         prototype.componentsHistory = null;
         prototype.contentCopiesHistory = null;
+        prototype.unknownHistory = null;
 		prototype.modifier = null;
 		prototype.registrator = null;
 		prototype.experiment = null;
@@ -277,6 +278,20 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 			return this.contentCopiesHistory != null;
 		};
 
+		prototype.withUnknownHistory = function() {
+			if (this.unknownHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.unknownHistory = new HistoryEntryFetchOptions();
+			}
+			return this.unknownHistory;
+		};
+		prototype.withUnknownHistoryUsing = function(fetchOptions) {
+			return this.unknownHistory = fetchOptions;
+		};
+		prototype.hasUnknownHistory = function() {
+			return this.unknownHistory != null;
+		};
+
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
 				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
@@ -397,6 +412,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
         containersHistory : "HistoryEntryFetchOptions",
         componentsHistory : "HistoryEntryFetchOptions",
         contentCopiesHistory : "HistoryEntryFetchOptions",
+        unknownHistory : "HistoryEntryFetchOptions",
 		modifier : "PersonFetchOptions",
 		registrator : "PersonFetchOptions",
 		experiment : "ExperimentFetchOptions",

@@ -26,6 +26,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.projectHistory = null;
         prototype.samplesHistory = null;
         prototype.dataSetsHistory = null;
+        prototype.unknownHistory = null;
 		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
@@ -182,6 +183,17 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.dataSetsHistory = dataSetsHistory;
 		};
 
+		prototype.getUnknownHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUnknownHistory()) {
+				return this.unknownHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Unknown history has not been fetched.");
+			}
+		};
+		prototype.setUnknownHistory = function(unknownHistory) {
+			this.unknownHistory = unknownHistory;
+		};
+
 		prototype.getProperty = function(propertyName) {
 			var properties = this.getProperties();
 			return properties ? properties[propertyName] : null;
@@ -308,6 +320,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			arguments : [ "HistoryEntry" ]
 		},
 		dataSetsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		unknownHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

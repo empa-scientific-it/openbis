@@ -90,10 +90,14 @@ public class SampleHistoryTranslator extends HistoryTranslator implements ISampl
     @Autowired
     private SampleDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
 
+    @Autowired
+    private SampleUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
         return Arrays.asList(propertyHistoryTranslator, spaceRelationshipHistoryTranslator, projectRelationshipHistoryTranslator,
                 experimentRelationshipHistoryTranslator, parentRelationshipHistoryTranslator, childRelationshipHistoryTranslator,
-                containerRelationshipHistoryTranslator, componentRelationshipHistoryTranslator, dataSetRelationshipHistoryTranslator);
+                containerRelationshipHistoryTranslator, componentRelationshipHistoryTranslator, dataSetRelationshipHistoryTranslator,
+                unknownRelationshipHistoryTranslator);
     }
 }

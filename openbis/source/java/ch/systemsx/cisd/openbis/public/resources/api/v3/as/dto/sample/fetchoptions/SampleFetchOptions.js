@@ -33,6 +33,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		prototype.containerHistory = null;
 		prototype.componentsHistory = null;
 		prototype.dataSetsHistory = null;
+		prototype.unknownHistory = null;
 		prototype.tags = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -330,6 +331,20 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 			return this.dataSetsHistory != null;
 		};
 
+		prototype.withUnknownHistory = function() {
+			if (this.unknownHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.unknownHistory = new HistoryEntryFetchOptions();
+			}
+			return this.unknownHistory;
+		};
+		prototype.withUnknownHistoryUsing = function(fetchOptions) {
+			return this.unknownHistory = fetchOptions;
+		};
+		prototype.hasUnknownHistory = function() {
+			return this.unknownHistory != null;
+		};
+
 		prototype.withTags = function() {
 			if (this.tags == null) {
 				var TagFetchOptions = require("as/dto/tag/fetchoptions/TagFetchOptions");
@@ -415,6 +430,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		containerHistory : "HistoryEntryFetchOptions",
 		componentsHistory : "HistoryEntryFetchOptions",
 		dataSetsHistory : "HistoryEntryFetchOptions",
+		unknownHistory : "HistoryEntryFetchOptions",
 		tags : "TagFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",

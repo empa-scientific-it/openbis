@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class ExperimentSampleRelationshipHistoryTranslator extends ExperimentRelationshipHistoryTranslator
 {
 
-    @Override protected String getRelationshipType()
+    @Override protected String getRelationshipEntityKind()
     {
         return SAMPLE_RELATIONSHIP_ENTITY_KIND;
     }

@@ -116,6 +116,9 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     private List<HistoryEntry> dataSetsHistory;
 
     @JsonProperty
+    private List<HistoryEntry> unknownHistory;
+
+    @JsonProperty
     private Map<String, String> properties;
 
     @JsonProperty
@@ -440,6 +443,26 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     public void setDataSetsHistory(List<HistoryEntry> dataSetsHistory)
     {
         this.dataSetsHistory = dataSetsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getUnknownHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasUnknownHistory())
+        {
+            return unknownHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Unknown history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setUnknownHistory(List<HistoryEntry> unknownHistory)
+    {
+        this.unknownHistory = unknownHistory;
     }
 
     // Method automatically generated with DtoGenerator

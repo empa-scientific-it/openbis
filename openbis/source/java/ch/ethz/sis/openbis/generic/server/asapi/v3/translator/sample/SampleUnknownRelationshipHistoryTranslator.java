@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample;
 
 import org.springframework.stereotype.Component;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ExperimentDataSetRelationshipHistoryTranslator extends ExperimentRelationshipHistoryTranslator
+public class SampleUnknownRelationshipHistoryTranslator extends SampleRelationshipHistoryTranslator
 {
 
     @Override protected String getRelationshipEntityKind()
     {
-        return DATA_SET_RELATIONSHIP_ENTITY_KIND;
+        return null;
+    }
+
+    @Override protected RelationType getRelationshipRelationType()
+    {
+        return null;
     }
 }

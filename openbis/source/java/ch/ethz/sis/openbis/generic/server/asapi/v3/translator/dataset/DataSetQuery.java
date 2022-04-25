@@ -140,20 +140,20 @@ public interface DataSetQuery extends ObjectQuery
                     + "where ph.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet dataSetIds);
 
-    @Select(sql = "select drh.id as id, drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
-            + "drh.entity_kind as entityKind, "
-            + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
-            + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
-            + "from (select *, "
-            + "case "
-            + "when expe_id is not null or entity_kind = 'EXPERIMENT' then 'EXPERIMENT' "
-            + "when samp_id is not null or entity_kind = 'SAMPLE' then 'SAMPLE' "
-            + "when data_id is not null or entity_kind = 'DATA SET' then 'DATA SET' "
-            + "end as entity_kind_not_null "
-            + "from data_set_relationships_history where main_data_id = any(?{1})) "
-            + "drh where drh.entity_kind_not_null = ?{2} and drh.relation_type = ?{3}", parameterBindings = {
+    public static final String RELATIONSHIP_HISTORY_QUERY =
+            "select drh.id as id, drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
+                    + "drh.entity_kind as entityKind, "
+                    + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
+                    + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
+                    + "from data_set_relationships_history drh where drh.main_data_id = any(?{1}) ";
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and drh.entity_kind = ?{2} and drh.relation_type = ?{3}", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds, String entityKind, String relationType);
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and drh.entity_kind is null", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<DataSetRelationshipRecord> getUnknownRelationshipsHistory(LongSet dataSetIds);
 
     @Select(sql =
             "select dsch.id as id, dsch.data_id as dataSetId, dsch.external_code as externalCode, dsch.path as path, dsch.git_commit_hash as gitCommitHash, "

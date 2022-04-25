@@ -81,8 +81,17 @@ public abstract class SampleRelationshipHistoryTranslator extends RelationshipHi
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
 
-        List<SampleRelationshipRecord> records =
-                query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipEntityKind(), getRelationshipRelationType().name());
+        List<SampleRelationshipRecord> records = null;
+
+        if (getRelationshipEntityKind() != null)
+        {
+            records =
+                    query.getRelationshipsHistory(new LongOpenHashSet(entityIds), getRelationshipEntityKind(), getRelationshipRelationType().name());
+        } else
+        {
+            records = query.getUnknownRelationshipsHistory(new LongOpenHashSet(entityIds));
+        }
+
         List<SampleRelationshipRecord> validRecords = new ArrayList<SampleRelationshipRecord>();
 
         Set<Long> spaceIds = new HashSet<Long>();

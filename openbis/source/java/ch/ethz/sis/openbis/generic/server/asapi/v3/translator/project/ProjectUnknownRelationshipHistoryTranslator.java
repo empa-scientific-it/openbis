@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.project;
 
 import org.springframework.stereotype.Component;
 
@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component;
  * @author pkupczyk
  */
 @Component
-public class ExperimentDataSetRelationshipHistoryTranslator extends ExperimentRelationshipHistoryTranslator
+public class ProjectUnknownRelationshipHistoryTranslator extends ProjectRelationshipHistoryTranslator
 {
 
     @Override protected String getRelationshipEntityKind()
     {
-        return DATA_SET_RELATIONSHIP_ENTITY_KIND;
+        return null;
     }
 }

@@ -100,6 +100,9 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     private List<HistoryEntry> samplesHistory;
 
     @JsonProperty
+    private List<HistoryEntry> unknownHistory;
+
+    @JsonProperty
     private Space space;
 
     @JsonProperty
@@ -369,6 +372,26 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     public void setSamplesHistory(List<HistoryEntry> samplesHistory)
     {
         this.samplesHistory = samplesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getUnknownHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasUnknownHistory())
+        {
+            return unknownHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Unknown history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setUnknownHistory(List<HistoryEntry> unknownHistory)
+    {
+        this.unknownHistory = unknownHistory;
     }
 
     // Method automatically generated with DtoGenerator

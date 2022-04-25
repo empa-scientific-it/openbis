@@ -50,7 +50,7 @@ import net.lemnik.eodsql.QueryTool;
 public class ProjectSpaceRelationshipHistoryTranslator extends ProjectRelationshipHistoryTranslator
 {
 
-    @Override protected String getRelationshipType()
+    @Override protected String getRelationshipEntityKind()
     {
         return SPACE_RELATIONSHIP_ENTITY_KIND;
     }

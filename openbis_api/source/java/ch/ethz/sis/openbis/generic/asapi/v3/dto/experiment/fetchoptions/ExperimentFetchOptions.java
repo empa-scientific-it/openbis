@@ -68,6 +68,9 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     private HistoryEntryFetchOptions dataSetsHistory;
 
     @JsonProperty
+    private HistoryEntryFetchOptions unknownHistory;
+
+    @JsonProperty
     private PropertyFetchOptions properties;
 
     @JsonProperty
@@ -290,6 +293,28 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistory()
+    {
+        if (unknownHistory == null)
+        {
+            unknownHistory = new HistoryEntryFetchOptions();
+        }
+        return unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return unknownHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasUnknownHistory()
+    {
+        return unknownHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withProperties()
     {
         if (properties == null)
@@ -473,6 +498,7 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
         f.addFetchOption("ProjectHistory", projectHistory);
         f.addFetchOption("SamplesHistory", samplesHistory);
         f.addFetchOption("DataSetsHistory", dataSetsHistory);
+        f.addFetchOption("UnknownHistory", unknownHistory);
         f.addFetchOption("Properties", properties);
         f.addFetchOption("MaterialProperties", materialProperties);
         f.addFetchOption("SampleProperties", sampleProperties);
