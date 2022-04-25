@@ -476,7 +476,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from General Section
 		//
-		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
                 var isGeneralSection = propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "general" || propertyTypeGroup.name.toLowerCase() === "general info");
@@ -484,7 +483,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
-		}
 
 		//
 		//
@@ -560,7 +558,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from non General Section
 		//
-		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
                 var isGeneralSection = propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "general" || propertyTypeGroup.name.toLowerCase() === "general info");
@@ -568,7 +565,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
-		}
 
 		//
 		// Plate View
@@ -726,7 +722,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 
-			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
+            if(sampleTypeCode === "ENTRY" && (propertyType.code === "$NAME" || propertyType.code === "$DOCUMENT" || propertyType.code === "$ANNOTATIONS_STATE")) {
+                continue;
+            } else if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
 				continue;
 			} else if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
