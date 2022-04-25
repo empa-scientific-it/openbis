@@ -437,7 +437,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -447,7 +448,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -777,7 +778,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -787,7 +789,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
@@ -798,11 +800,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210401151815315-205197"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentBProjectBRelation = new RelationHistoryEntry();
         experimentBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-01 15:18:38.580"));
@@ -812,7 +815,7 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentB = new Experiment();
         experimentB.setCode("EXPERIMENT_B");
         experimentB.setPermId(new ExperimentPermId("20210401151838580-205199"));
-        experimentB.setHistory(Collections.singletonList(experimentBProjectBRelation));
+        experimentB.setProjectHistory(Collections.singletonList(experimentBProjectBRelation));
         experimentB.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -985,7 +988,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-19 17:30:33.073"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
         projectBSpaceBRelation.setValidFrom(dateTimeMillis("2021-04-19 17:30:58.839"));
@@ -995,11 +999,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210419173058839-205244"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentAProjectARelation = new RelationHistoryEntry();
         experimentAProjectARelation.setValidFrom(dateTimeMillis("2021-04-19 17:31:16.451"));
@@ -1014,7 +1019,7 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentA = new Experiment();
         experimentA.setCode("EXPERIMENT_A");
         experimentA.setPermId(new ExperimentPermId("20210419173116451-205245"));
-        experimentA.setHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
+        experimentA.setProjectHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
         experimentA.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -1169,7 +1174,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 10:58:14.693"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-04-20 10:58:29.314"));
@@ -1184,7 +1190,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210420105829314-205247"));
-        projectA.setHistory(Arrays.asList(projectASpaceARelation, projectASpaceBRelation));
+        projectA.setSpaceHistory(Arrays.asList(projectASpaceARelation, projectASpaceBRelation));
         projectA.setFetchOptions(projectFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -1379,7 +1385,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -1389,7 +1396,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
@@ -1400,11 +1407,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210401151815315-205197"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentBProjectBRelation = new RelationHistoryEntry();
         experimentBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-07 14:12:17.738"));
@@ -1414,11 +1422,14 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentB = new Experiment();
         experimentB.setCode("EXPERIMENT_B");
         experimentB.setPermId(new ExperimentPermId("20210407141217738-205212"));
-        experimentB.setHistory(Collections.singletonList(experimentBProjectBRelation));
+        experimentB.setProjectHistory(Collections.singletonList(experimentBProjectBRelation));
         experimentB.setFetchOptions(experimentFo);
 
         SampleFetchOptions sampleFo = new SampleFetchOptions();
-        sampleFo.withHistory();
+        sampleFo.withSpaceHistory();
+        sampleFo.withProjectHistory();
+        sampleFo.withExperimentHistory();
+        sampleFo.withUnknownHistory();
 
         RelationHistoryEntry sampleBProjectBRelation = new RelationHistoryEntry();
         sampleBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-07 14:13:18.103"));
@@ -1428,7 +1439,7 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleB = new Sample();
         sampleB.setCode("SAMPLE_B");
         sampleB.setPermId(new SamplePermId("20210407141318103-205214"));
-        sampleB.setHistory(Collections.singletonList(sampleBProjectBRelation));
+        sampleB.setProjectHistory(Collections.singletonList(sampleBProjectBRelation));
         sampleB.setFetchOptions(sampleFo);
 
         RelationHistoryEntry sampleCExperimentBRelation = new RelationHistoryEntry();
@@ -1439,7 +1450,7 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleC = new Sample();
         sampleC.setCode("SAMPLE_C");
         sampleC.setPermId(new SamplePermId("20210407141344363-205215"));
-        sampleC.setHistory(Collections.singletonList(sampleCExperimentBRelation));
+        sampleC.setExperimentHistory(Collections.singletonList(sampleCExperimentBRelation));
         sampleC.setFetchOptions(sampleFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -1611,7 +1622,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 11:41:51.801"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
         projectBSpaceBRelation.setValidFrom(dateTimeMillis("2021-04-20 11:42:13.918"));
@@ -1621,11 +1633,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210420114213918-205251"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentAProjectARelation = new RelationHistoryEntry();
         experimentAProjectARelation.setValidFrom(dateTimeMillis("2021-04-20 11:42:36.830"));
@@ -1640,7 +1653,7 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentA = new Experiment();
         experimentA.setCode("EXPERIMENT_A");
         experimentA.setPermId(new ExperimentPermId("20210420114236830-205252"));
-        experimentA.setHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
+        experimentA.setProjectHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
         experimentA.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -1796,7 +1809,10 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 11:41:51.801"));
 
         SampleFetchOptions sampleFo = new SampleFetchOptions();
-        sampleFo.withHistory();
+        sampleFo.withSpaceHistory();
+        sampleFo.withProjectHistory();
+        sampleFo.withExperimentHistory();
+        sampleFo.withUnknownHistory();
 
         RelationHistoryEntry sampleASpaceARelation = new RelationHistoryEntry();
         sampleASpaceARelation.setValidFrom(dateTimeMillis("2021-04-20 13:17:37.031"));
@@ -1811,7 +1827,7 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleA = new Sample();
         sampleA.setCode("SAMPLE_A");
         sampleA.setPermId(new SamplePermId("20210420131737031-205258"));
-        sampleA.setHistory(Arrays.asList(sampleASpaceARelation, sampleASpaceBRelation));
+        sampleA.setSpaceHistory(Arrays.asList(sampleASpaceARelation, sampleASpaceBRelation));
         sampleA.setFetchOptions(sampleFo);
 
         List<EventsSearchPE> events = new ArrayList<>();

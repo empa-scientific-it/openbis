@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.generic.server.task.events_search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -117,8 +118,8 @@ class SnapshotsFacade
         for (Project project : projects)
         {
             List<HistoryEntry> history = new LinkedList<>();
-            history.addAll(project.getSpaceHistory());
-            history.addAll(project.getUnknownHistory());
+            history.addAll(project.getSpaceHistory() != null ? project.getSpaceHistory() : Collections.emptyList());
+            history.addAll(project.getUnknownHistory() != null ? project.getUnknownHistory() : Collections.emptyList());
 
             for (HistoryEntry historyEntry : history)
             {
@@ -181,8 +182,8 @@ class SnapshotsFacade
         for (Experiment experiment : experiments)
         {
             List<HistoryEntry> history = new LinkedList<>();
-            history.addAll(experiment.getProjectHistory());
-            history.addAll(experiment.getUnknownHistory());
+            history.addAll(experiment.getProjectHistory() != null ? experiment.getProjectHistory() : Collections.emptyList());
+            history.addAll(experiment.getUnknownHistory() != null ? experiment.getUnknownHistory() : Collections.emptyList());
 
             for (HistoryEntry historyEntry : history)
             {
@@ -247,10 +248,10 @@ class SnapshotsFacade
         for (Sample sample : samples)
         {
             List<HistoryEntry> history = new LinkedList<>();
-            history.addAll(sample.getSpaceHistory());
-            history.addAll(sample.getProjectHistory());
-            history.addAll(sample.getExperimentHistory());
-            history.addAll(sample.getUnknownHistory());
+            history.addAll(sample.getSpaceHistory() != null ? sample.getSpaceHistory() : Collections.emptyList());
+            history.addAll(sample.getProjectHistory() != null ? sample.getProjectHistory() : Collections.emptyList());
+            history.addAll(sample.getExperimentHistory() != null ? sample.getExperimentHistory() : Collections.emptyList());
+            history.addAll(sample.getUnknownHistory() != null ? sample.getUnknownHistory() : Collections.emptyList());
 
             for (HistoryEntry historyEntry : history)
             {
