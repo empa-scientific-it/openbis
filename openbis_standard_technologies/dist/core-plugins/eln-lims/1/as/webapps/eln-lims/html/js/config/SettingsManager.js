@@ -1,6 +1,7 @@
 function SettingsManager(serverFacade) {
 
     this._serverFacade = serverFacade;
+    this._instanceSettings = null;
 
 	this.validateAndsave = function(settingsSample, settings, doneCallback) {
 		var _this = this;
@@ -42,6 +43,14 @@ function SettingsManager(serverFacade) {
 				    }
 				}
 				//
+				var settingsByPrefix = {};
+				for(var vOIdx = 0; vOIdx < validSettingObjects.length; vOIdx++) {
+				    var endOf = settingsObjects[vOIdx].code.indexOf("ELN_SETTINGS");
+				    var prefix = settingsObjects[vOIdx].code.substring(0, endOf);
+				    settingsByPrefix[prefix] = settingsObjects[vOIdx];
+				}
+				//
+				this._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
 			} else {
 				callback();
