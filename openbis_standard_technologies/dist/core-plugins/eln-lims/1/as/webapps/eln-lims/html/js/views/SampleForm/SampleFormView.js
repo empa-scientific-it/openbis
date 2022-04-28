@@ -97,7 +97,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
 			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
-				var sampleTypes = profile.getAllSampleTypes(true);
+				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
 				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
 					return function() {

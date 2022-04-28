@@ -350,6 +350,19 @@ var FormUtil = new function() {
 		return nameLabel
 	}
 
+    this.getSampleTypesOnDropdowns = function(spaceCode) {
+        var sampleTypes = profile.getAllSampleTypes();
+        var visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
+        var visibleObjectTypesForSpace = [];
+        for(var tIdx = 0; tIdx < sampleTypes.length; tIdx++) {
+            var sampleType = sampleTypes[tIdx];
+            if ($.inArray(sampleType.code, visibleObjectTypeCodesForSpace) !== -1) {
+                visibleObjectTypesForSpace.push(sampleType);
+            }
+        }
+        return visibleObjectTypesForSpace;
+    }
+
 	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode) {
 	    var visibleObjectTypeCodesForSpace = null;
 	    if(spaceCode) {

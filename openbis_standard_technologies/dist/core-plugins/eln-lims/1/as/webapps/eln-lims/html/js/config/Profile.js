@@ -628,15 +628,6 @@ $.extend(DefaultProfile.prototype, {
 			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["USE_AS_PROTOCOL"];
 		}
 
-		this.isSampleTypeHidden = function(sampleTypeCode) {
-			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
-			if(sampleType && sampleType.listable) {
-				return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
-			} else {
-				return false;
-			}
-		}
-
 		this.isExperimentTypeHidden = function(experimentTypeCode) {
 			return ($.inArray(experimentTypeCode, this.hideTypes["experimentTypeCodes"]) !== -1);
 		}
@@ -1092,19 +1083,8 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 
-		this.getAllSampleTypes = function(skipHidden) {
-			if(skipHidden) {
-				var allNonHiddenSampleTypes = [];
-				for(var sIdx = 0; sIdx < this.allSampleTypes.length; sIdx++) {
-					var sampleType = this.allSampleTypes[sIdx];
-					if(!this.isSampleTypeHidden(sampleType.code)) {
-						allNonHiddenSampleTypes.push(sampleType);
-					}
-				}
-				return allNonHiddenSampleTypes;
-			} else {
-				return this.allSampleTypes;
-			}
+		this.getAllSampleTypes = function() {
+			return this.allSampleTypes;
 		}
 
 		this.datasetViewerImagePreviewIconSize = 25; // width in px
@@ -1307,24 +1287,6 @@ $.extend(DefaultProfile.prototype, {
 				}
 				for(key in this.plugins[i].dataSetTypeDefinitionsExtension) {
 					this.dataSetTypeDefinitionsExtension[key] = this.plugins[i].dataSetTypeDefinitionsExtension[key];
-				}
-			}
-
-			// sampleTypeDefinitionsExtension gets overwritten with settings if found
-			for (var sampleTypeCode of Object.keys(this.sampleTypeDefinitionsExtension)) {
-				var sampleTypDefExt = this.sampleTypeDefinitionsExtension[sampleTypeCode];
-				// Add the types to hide == not show
-				if(!sampleTypDefExt.SHOW) {
-					this.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
-				}
-			}
-
-			// don't show sample types before definition extension is created
-			var sampleTypes = this.getAllSampleTypes();
-			for(var sIdx = 0; sIdx < sampleTypes.length; sIdx++) {
-				var sampleTypeCode = sampleTypes[sIdx].code;
-				if(!this.sampleTypeDefinitionsExtension[sampleTypeCode]) {
-					this.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
 				}
 			}
 

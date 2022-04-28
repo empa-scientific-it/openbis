@@ -279,19 +279,7 @@ function SettingsManager(serverFacade) {
                             targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
                         }
                      }
-
                  }
-
-     			// Remove current type from hideTypes, if present
-     			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
-     				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
-     				targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
-     			}
-
-     			// Add current type to hideTypes, if not SHOW
-     			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
-     				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
-     			}
      		}
      }
 

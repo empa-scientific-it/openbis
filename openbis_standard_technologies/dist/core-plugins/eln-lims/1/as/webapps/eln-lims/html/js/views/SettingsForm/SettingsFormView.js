@@ -454,7 +454,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintSampleTypesDefinition = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-definitions");
 		$fieldset.append(FormUtil.getInfoText(text.info));
-		for (var sampleType of profile.getAllSampleTypes(false)) {
+		for (var sampleType of profile.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
 			var displayName = Util.getDisplayNameFromCode(sampleType.code);

@@ -185,7 +185,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 
     this.registerSamples = function(experimentIdentifier) {
         var _this = this;
-        var allowedSampleTypes = this.getAllowedSampleTypes();
+        var allowedSampleTypes = this.getAllowedSampleTypes(experimentIdentifier);
         var experimentsByType = {};
         var spacesByType = {};
         if (this._sampleTableModel.sampleTypeCodeToUse) {
@@ -213,7 +213,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 
     this.updateSamples = function(experimentIdentifier) {
         var _this = this;
-        var allowedSampleTypes = this.getAllowedSampleTypes();
+        var allowedSampleTypes = this.getAllowedSampleTypes(experimentIdentifier);
         var experimentsByType = {};
         var spacesByType = {};
         if (this._sampleTableModel.sampleTypeCodeToUse) {
@@ -239,10 +239,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
                 "barcodePattern" : BarcodeUtil.getBarcodePattern().source});
     }
 
-    this.getAllowedSampleTypes = function() {
-        return profile.getAllSampleTypes().map(t => t.code).filter(function(type) {
-            return profile.isSampleTypeHidden(type) == false;
-        });
+    this.getAllowedSampleTypes = function(experimentIdentifier) {
+        return FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
     }
 
     this._handleResult = function(result, verb, experimentIdentifier) {
