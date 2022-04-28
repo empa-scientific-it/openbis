@@ -46,8 +46,8 @@ var EmptyLinksController = {
         }
 };
 
-function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj) {
-	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj);
+function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj, spaceCode) {
+	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj, spaceCode);
 	var linksView = new LinksView(this, linksModel);
 	
 	this.init = function($container) {

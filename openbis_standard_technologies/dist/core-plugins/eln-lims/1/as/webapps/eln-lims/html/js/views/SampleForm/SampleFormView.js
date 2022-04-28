@@ -981,7 +981,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
-																			annotations);
+																			annotations,
+																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier));
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -1041,7 +1042,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
-															annotations);
+															annotations,
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier));
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
@@ -1394,7 +1396,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 
