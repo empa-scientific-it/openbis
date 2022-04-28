@@ -350,7 +350,11 @@ var FormUtil = new function() {
 		return nameLabel
 	}
 
-	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly) {
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode) {
+	    var visibleObjectTypeCodesForSpace = null;
+	    if(spaceCode) {
+	        visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
+	    }
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
@@ -370,7 +374,7 @@ var FormUtil = new function() {
 			
 			if(showEvenIfHidden && ($.inArray(sampleType.code, showEvenIfHidden) !== -1)) {
 				// Show even if hidden
-			} else if (profile.isSampleTypeHidden(sampleType.code)) {
+			} else if (visibleObjectTypeCodesForSpace && !($.inArray(sampleType.code, visibleObjectTypeCodesForSpace) !== -1)) {
 				continue;
 			}
 			
@@ -2061,7 +2065,7 @@ var FormUtil = new function() {
 
 	this.createNewSample = function(experimentIdentifier) {
     		var _this = this;
-    		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
+    		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
     		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
 
     		$("#sampleTypeDropdown").on("change", function(event) {

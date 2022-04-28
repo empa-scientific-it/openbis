@@ -1,7 +1,48 @@
+var SettingsManagerUtils = new function() {
+    this._instanceSettings = null;
+
+    this._getSpaceSettingsObject = function(spaceCode) {
+        var endOf = spaceCode.indexOf("_");
+        var prefix = null;
+
+        if(endOf === -1) {
+            prefix = "GENERAL";
+        } else {
+            prefix = spaceCode.substring(0, endOf);
+        }
+
+        if(this._instanceSettings[prefix] === undefined) {
+            prefix = "GENERAL";
+        }
+
+        return this._instanceSettings[prefix];
+    }
+
+    this.ShowInSpaceSetting = {
+        showOnDropdowns : 0,
+        showOnNav : 1,
+    }
+
+    this.getVisibleObjectTypesForSpace = function(spaceCode, showInSpaceSetting) {
+        var spaceSettingsObject = this._getSpaceSettingsObject(spaceCode);
+        var spaceSettings = JSON.parse(spaceSettingsObject.properties["ELN_SETTINGS"]);
+
+        var objectTypeCodes = [];
+        for (var sampleTypeCode of Object.keys(spaceSettings.sampleTypeDefinitionsExtension)) {
+            if((showInSpaceSetting === this.ShowInSpaceSetting.showOnDropdowns) && spaceSettings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
+                objectTypeCodes.push(sampleTypeCode);
+            } else if(showInSpaceSetting === this.ShowInSpaceSetting.showOnNav && spaceSettings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW_ON_NAV) {
+                objectTypeCodes.push(sampleTypeCode);
+            }
+        }
+        return objectTypeCodes;
+    }
+
+};
+
 function SettingsManager(serverFacade) {
 
     this._serverFacade = serverFacade;
-    this._instanceSettings = null;
 
 	this.validateAndsave = function(settingsSample, settings, doneCallback) {
 		var _this = this;
@@ -45,12 +86,12 @@ function SettingsManager(serverFacade) {
 				//
 				var settingsByPrefix = {};
 				for(var vOIdx = 0; vOIdx < validSettingObjects.length; vOIdx++) {
-				    var endOf = settingsObjects[vOIdx].code.indexOf("ELN_SETTINGS");
+				    var endOf = settingsObjects[vOIdx].code.indexOf("_ELN_SETTINGS");
 				    var prefix = settingsObjects[vOIdx].code.substring(0, endOf);
 				    settingsByPrefix[prefix] = settingsObjects[vOIdx];
 				}
 				//
-				this._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
+				SettingsManagerUtils._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
 			} else {
 				callback();
