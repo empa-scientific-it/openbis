@@ -35,6 +35,7 @@ var SettingsManagerUtils = new function() {
                 objectTypeCodes.push(sampleTypeCode);
             }
         }
+        objectTypeCodes.sort();
         return objectTypeCodes;
     }
 
