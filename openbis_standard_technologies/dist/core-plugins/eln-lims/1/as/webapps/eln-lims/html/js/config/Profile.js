@@ -373,20 +373,15 @@ $.extend(DefaultProfile.prototype, {
             });
         }
 
-		this.showOnNav = function(sampleTypeCode) {
-		    var sampleTypeOnNav = true;
+        this.visibleObjectTypesForSpaceCache = {};
 
-		    if(profile.sampleTypeDefinitionsExtension[sampleTypeCode]) {
-		        var sampleTypeDefinitionsExtensionOnNav = null;
-		        if(profile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] === undefined) {
-		            sampleTypeDefinitionsExtensionOnNav = true;
-		        } else {
-		            sampleTypeDefinitionsExtensionOnNav = profile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"];
-		        }
-		        sampleTypeOnNav = profile.sampleTypeDefinitionsExtension[sampleTypeCode] &&
-                                sampleTypeDefinitionsExtensionOnNav;
+		this.showOnNavForSpace = function(spaceCode, sampleTypeCode) {
+		    var visibleObjectTypesForSpace = null;
+		    if(this.visibleObjectTypesForSpaceCache[spaceCode] === undefined) {
+		        this.visibleObjectTypesForSpaceCache[spaceCode] = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnNav);
 		    }
-		    return sampleTypeOnNav;
+            var showOnNavForSpace = $.inArray(sampleTypeCode, this.visibleObjectTypesForSpaceCache[spaceCode]) !== -1;
+            return showOnNavForSpace;
 		}
 
         this.getSettingsSpacePrefix = function(spaceCode) {
