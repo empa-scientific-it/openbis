@@ -47,7 +47,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		if(this._sampleTableModel.experimentIdentifier) {
 			var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
-			var allSampleTypes = profile.getAllSampleTypes();
+			var allSampleTypes = FormUtil.getSampleTypesOnDropdowns(experimentSpace);
 			var sampleTypeCodesFound = [];
 			for(var aIdx = 0; aIdx < allSampleTypes.length; aIdx++) {
 				var auxSampleTypeCode = allSampleTypes[aIdx].code;
@@ -191,7 +191,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this._getAllSampleTypesDropdown = function() {
 		var _this = this;
-		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false, ["STORAGE", "STORAGE_POSITION"]);
+		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false, ["STORAGE", "STORAGE_POSITION"], null, "?"); // This should return the types allowed on the GENERAL_ELN_SETTINGS
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
 			
