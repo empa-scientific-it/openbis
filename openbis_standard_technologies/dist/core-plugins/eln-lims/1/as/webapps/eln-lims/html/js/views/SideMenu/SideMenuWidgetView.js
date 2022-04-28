@@ -808,6 +808,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         sampleIcon = "fa fa-file";
                                     }
                                     var parentTypeCode = samples[0].type.code;
+                                    // showOnNavForParentTypes is only set by Plugins and they are merged at startup, this can't be by group configuration right now
                                     var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
                                     var showSampleOnNav = false;
                                     if(!showOnNavForParentTypes) {
