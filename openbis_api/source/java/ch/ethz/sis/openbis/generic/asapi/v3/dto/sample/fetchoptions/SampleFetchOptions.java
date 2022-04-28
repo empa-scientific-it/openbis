@@ -82,6 +82,36 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     private HistoryEntryFetchOptions history;
 
     @JsonProperty
+    private HistoryEntryFetchOptions propertiesHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions spaceHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions projectHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions experimentHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions parentsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions childrenHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions containerHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions componentsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions dataSetsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions unknownHistory;
+
+    @JsonProperty
     private TagFetchOptions tags;
 
     @JsonProperty
@@ -228,6 +258,7 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return materialProperties != null;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSampleProperties()
     {
         if (sampleProperties == null)
@@ -237,11 +268,13 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return sampleProperties;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamplePropertiesUsing(SampleFetchOptions fetchOptions)
     {
         return sampleProperties = fetchOptions;
     }
 
+    // Method automatically generated with DtoGenerator
     public boolean hasSampleProperties()
     {
         return sampleProperties != null;
@@ -380,6 +413,226 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistory()
+    {
+        if (propertiesHistory == null)
+        {
+            propertiesHistory = new HistoryEntryFetchOptions();
+        }
+        return propertiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return propertiesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasPropertiesHistory()
+    {
+        return propertiesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSpaceHistory()
+    {
+        if (spaceHistory == null)
+        {
+            spaceHistory = new HistoryEntryFetchOptions();
+        }
+        return spaceHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSpaceHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return spaceHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSpaceHistory()
+    {
+        return spaceHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withProjectHistory()
+    {
+        if (projectHistory == null)
+        {
+            projectHistory = new HistoryEntryFetchOptions();
+        }
+        return projectHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withProjectHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return projectHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasProjectHistory()
+    {
+        return projectHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentHistory()
+    {
+        if (experimentHistory == null)
+        {
+            experimentHistory = new HistoryEntryFetchOptions();
+        }
+        return experimentHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return experimentHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasExperimentHistory()
+    {
+        return experimentHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withParentsHistory()
+    {
+        if (parentsHistory == null)
+        {
+            parentsHistory = new HistoryEntryFetchOptions();
+        }
+        return parentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withParentsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return parentsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasParentsHistory()
+    {
+        return parentsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withChildrenHistory()
+    {
+        if (childrenHistory == null)
+        {
+            childrenHistory = new HistoryEntryFetchOptions();
+        }
+        return childrenHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withChildrenHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return childrenHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasChildrenHistory()
+    {
+        return childrenHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContainerHistory()
+    {
+        if (containerHistory == null)
+        {
+            containerHistory = new HistoryEntryFetchOptions();
+        }
+        return containerHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContainerHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return containerHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasContainerHistory()
+    {
+        return containerHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withComponentsHistory()
+    {
+        if (componentsHistory == null)
+        {
+            componentsHistory = new HistoryEntryFetchOptions();
+        }
+        return componentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withComponentsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return componentsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasComponentsHistory()
+    {
+        return componentsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withDataSetsHistory()
+    {
+        if (dataSetsHistory == null)
+        {
+            dataSetsHistory = new HistoryEntryFetchOptions();
+        }
+        return dataSetsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withDataSetsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return dataSetsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasDataSetsHistory()
+    {
+        return dataSetsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistory()
+    {
+        if (unknownHistory == null)
+        {
+            unknownHistory = new HistoryEntryFetchOptions();
+        }
+        return unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return unknownHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasUnknownHistory()
+    {
+        return unknownHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -484,7 +737,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
@@ -502,6 +754,16 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         f.addFetchOption("Components", components);
         f.addFetchOption("DataSets", dataSets);
         f.addFetchOption("History", history);
+        f.addFetchOption("PropertiesHistory", propertiesHistory);
+        f.addFetchOption("SpaceHistory", spaceHistory);
+        f.addFetchOption("ProjectHistory", projectHistory);
+        f.addFetchOption("ExperimentHistory", experimentHistory);
+        f.addFetchOption("ParentsHistory", parentsHistory);
+        f.addFetchOption("ChildrenHistory", childrenHistory);
+        f.addFetchOption("ContainerHistory", containerHistory);
+        f.addFetchOption("ComponentsHistory", componentsHistory);
+        f.addFetchOption("DataSetsHistory", dataSetsHistory);
+        f.addFetchOption("UnknownHistory", unknownHistory);
         f.addFetchOption("Tags", tags);
         f.addFetchOption("Registrator", registrator);
         f.addFetchOption("Modifier", modifier);

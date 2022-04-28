@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.PropertyHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
@@ -33,7 +34,7 @@ import net.lemnik.eodsql.QueryTool;
  * @author pkupczyk
  */
 @Component
-public class MaterialHistoryTranslator extends HistoryTranslator implements IMaterialHistoryTranslator
+public class MaterialHistoryTranslator extends PropertyHistoryTranslator implements IMaterialHistoryTranslator
 {
 
     @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
@@ -47,12 +48,6 @@ public class MaterialHistoryTranslator extends HistoryTranslator implements IMat
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
         return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
-    }
-
-    @Override
-    protected List<HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
-    {
-        return null;
     }
 
 }

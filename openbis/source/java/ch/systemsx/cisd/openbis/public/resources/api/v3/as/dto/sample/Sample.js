@@ -34,6 +34,16 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		prototype.components = null;
 		prototype.dataSets = null;
 		prototype.history = null;
+        prototype.propertiesHistory = null;
+        prototype.spaceHistory = null;
+        prototype.projectHistory = null;
+        prototype.experimentHistory = null;
+        prototype.parentsHistory = null;
+        prototype.childrenHistory = null;
+        prototype.containerHistory = null;
+        prototype.componentsHistory = null;
+        prototype.dataSetsHistory = null;
+        prototype.unknownHistory = null;
 		prototype.tags = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -288,6 +298,117 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		prototype.setHistory = function(history) {
 			this.history = history;
 		};
+
+		prototype.getPropertiesHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPropertiesHistory()) {
+				return this.propertiesHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Properties history has not been fetched.");
+			}
+		};
+		prototype.setPropertiesHistory = function(propertiesHistory) {
+			this.propertiesHistory = propertiesHistory;
+		};
+
+		prototype.getSpaceHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSpaceHistory()) {
+				return this.spaceHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Space history has not been fetched.");
+			}
+		};
+		prototype.setSpaceHistory = function(spaceHistory) {
+			this.spaceHistory = spaceHistory;
+		};
+
+		prototype.getProjectHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasProjectHistory()) {
+				return this.projectHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Project history has not been fetched.");
+			}
+		};
+		prototype.setProjectHistory = function(projectHistory) {
+			this.projectHistory = projectHistory;
+		};
+
+		prototype.getExperimentHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperimentHistory()) {
+				return this.experimentHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Experiment history has not been fetched.");
+			}
+		};
+		prototype.setExperimentHistory = function(experimentHistory) {
+			this.experimentHistory = experimentHistory;
+		};
+
+		prototype.getParentsHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasParentsHistory()) {
+				return this.parentsHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Parents history has not been fetched.");
+			}
+		};
+		prototype.setParentsHistory = function(parentsHistory) {
+			this.parentsHistory = parentsHistory;
+		};
+
+		prototype.getChildrenHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasChildrenHistory()) {
+				return this.childrenHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Children history has not been fetched.");
+			}
+		};
+		prototype.setChildrenHistory = function(childrenHistory) {
+			this.childrenHistory = childrenHistory;
+		};
+
+		prototype.getContainerHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasContainerHistory()) {
+				return this.containerHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Container history has not been fetched.");
+			}
+		};
+		prototype.setContainerHistory = function(containerHistory) {
+			this.containerHistory = containerHistory;
+		};
+
+		prototype.getComponentsHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasComponentsHistory()) {
+				return this.componentsHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Components history has not been fetched.");
+			}
+		};
+		prototype.setComponentsHistory = function(componentsHistory) {
+			this.componentsHistory = componentsHistory;
+		};
+
+		prototype.getDataSetsHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDataSetsHistory()) {
+				return this.dataSetsHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Data sets history has not been fetched.");
+			}
+		};
+		prototype.setDataSetsHistory = function(dataSetsHistory) {
+			this.dataSetsHistory = dataSetsHistory;
+		};
+
+		prototype.getUnknownHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUnknownHistory()) {
+				return this.unknownHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Unknown history has not been fetched.");
+			}
+		};
+		prototype.setUnknownHistory = function(unknownHistory) {
+			this.unknownHistory = unknownHistory;
+		};
+
 		prototype.getTags = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasTags()) {
 				return this.tags;
@@ -379,6 +500,46 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 			arguments : [ "DataSet" ]
 		},
 		history : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		propertiesHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		spaceHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		projectHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		experimentHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		parentsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		childrenHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		containerHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		componentsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		dataSetsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		unknownHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

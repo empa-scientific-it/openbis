@@ -88,6 +88,33 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private HistoryEntryFetchOptions history;
 
     @JsonProperty
+    private HistoryEntryFetchOptions propertiesHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions experimentHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions sampleHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions parentsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions childrenHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions containersHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions componentsHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions contentCopiesHistory;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions unknownHistory;
+
+    @JsonProperty
     private PersonFetchOptions modifier;
 
     @JsonProperty
@@ -272,6 +299,7 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
         return materialProperties != null;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSampleProperties()
     {
         if (sampleProperties == null)
@@ -281,11 +309,13 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
         return sampleProperties;
     }
 
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamplePropertiesUsing(SampleFetchOptions fetchOptions)
     {
         return sampleProperties = fetchOptions;
     }
 
+    // Method automatically generated with DtoGenerator
     public boolean hasSampleProperties()
     {
         return sampleProperties != null;
@@ -424,6 +454,204 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     }
 
     // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistory()
+    {
+        if (propertiesHistory == null)
+        {
+            propertiesHistory = new HistoryEntryFetchOptions();
+        }
+        return propertiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withPropertiesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return propertiesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasPropertiesHistory()
+    {
+        return propertiesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentHistory()
+    {
+        if (experimentHistory == null)
+        {
+            experimentHistory = new HistoryEntryFetchOptions();
+        }
+        return experimentHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withExperimentHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return experimentHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasExperimentHistory()
+    {
+        return experimentHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSampleHistory()
+    {
+        if (sampleHistory == null)
+        {
+            sampleHistory = new HistoryEntryFetchOptions();
+        }
+        return sampleHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withSampleHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return sampleHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasSampleHistory()
+    {
+        return sampleHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withParentsHistory()
+    {
+        if (parentsHistory == null)
+        {
+            parentsHistory = new HistoryEntryFetchOptions();
+        }
+        return parentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withParentsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return parentsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasParentsHistory()
+    {
+        return parentsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withChildrenHistory()
+    {
+        if (childrenHistory == null)
+        {
+            childrenHistory = new HistoryEntryFetchOptions();
+        }
+        return childrenHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withChildrenHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return childrenHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasChildrenHistory()
+    {
+        return childrenHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContainersHistory()
+    {
+        if (containersHistory == null)
+        {
+            containersHistory = new HistoryEntryFetchOptions();
+        }
+        return containersHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContainersHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return containersHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasContainersHistory()
+    {
+        return containersHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withComponentsHistory()
+    {
+        if (componentsHistory == null)
+        {
+            componentsHistory = new HistoryEntryFetchOptions();
+        }
+        return componentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withComponentsHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return componentsHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasComponentsHistory()
+    {
+        return componentsHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContentCopiesHistory()
+    {
+        if (contentCopiesHistory == null)
+        {
+            contentCopiesHistory = new HistoryEntryFetchOptions();
+        }
+        return contentCopiesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withContentCopiesHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return contentCopiesHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasContentCopiesHistory()
+    {
+        return contentCopiesHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistory()
+    {
+        if (unknownHistory == null)
+        {
+            unknownHistory = new HistoryEntryFetchOptions();
+        }
+        return unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public HistoryEntryFetchOptions withUnknownHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return unknownHistory = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasUnknownHistory()
+    {
+        return unknownHistory != null;
+    }
+
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withModifier()
     {
         if (modifier == null)
@@ -503,6 +731,15 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
         f.addFetchOption("Components", components);
         f.addFetchOption("Tags", tags);
         f.addFetchOption("History", history);
+        f.addFetchOption("PropertiesHistory", propertiesHistory);
+        f.addFetchOption("ExperimentHistory", experimentHistory);
+        f.addFetchOption("SampleHistory", sampleHistory);
+        f.addFetchOption("ParentsHistory", parentsHistory);
+        f.addFetchOption("ChildrenHistory", childrenHistory);
+        f.addFetchOption("ContainersHistory", containersHistory);
+        f.addFetchOption("ComponentsHistory", componentsHistory);
+        f.addFetchOption("ContentCopiesHistory", contentCopiesHistory);
+        f.addFetchOption("UnknownHistory", unknownHistory);
         f.addFetchOption("Modifier", modifier);
         f.addFetchOption("Registrator", registrator);
         return f;

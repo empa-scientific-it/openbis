@@ -22,6 +22,15 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		prototype.type = null;
 		prototype.dataStore = null;
 		prototype.history = null;
+        prototype.propertiesHistory = null;
+        prototype.experimentHistory = null;
+        prototype.sampleHistory = null;
+        prototype.parentsHistory = null;
+        prototype.childrenHistory = null;
+        prototype.containersHistory = null;
+        prototype.componentsHistory = null;
+        prototype.contentCopiesHistory = null;
+        prototype.unknownHistory = null;
 		prototype.modifier = null;
 		prototype.registrator = null;
 		prototype.experiment = null;
@@ -156,6 +165,133 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		prototype.hasHistory = function() {
 			return this.history != null;
 		};
+
+		prototype.withPropertiesHistory = function() {
+			if (this.propertiesHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.propertiesHistory = new HistoryEntryFetchOptions();
+			}
+			return this.propertiesHistory;
+		};
+		prototype.withPropertiesHistoryUsing = function(fetchOptions) {
+			return this.propertiesHistory = fetchOptions;
+		};
+		prototype.hasPropertiesHistory = function() {
+			return this.propertiesHistory != null;
+		};
+
+		prototype.withExperimentHistory = function() {
+			if (this.experimentHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.experimentHistory = new HistoryEntryFetchOptions();
+			}
+			return this.experimentHistory;
+		};
+		prototype.withExperimentHistoryUsing = function(fetchOptions) {
+			return this.experimentHistory = fetchOptions;
+		};
+		prototype.hasExperimentHistory = function() {
+			return this.experimentHistory != null;
+		};
+
+		prototype.withSampleHistory = function() {
+			if (this.sampleHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.sampleHistory = new HistoryEntryFetchOptions();
+			}
+			return this.sampleHistory;
+		};
+		prototype.withSampleHistoryUsing = function(fetchOptions) {
+			return this.sampleHistory = fetchOptions;
+		};
+		prototype.hasSampleHistory = function() {
+			return this.sampleHistory != null;
+		};
+
+		prototype.withParentsHistory = function() {
+			if (this.parentsHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.parentsHistory = new HistoryEntryFetchOptions();
+			}
+			return this.parentsHistory;
+		};
+		prototype.withParentsHistoryUsing = function(fetchOptions) {
+			return this.parentsHistory = fetchOptions;
+		};
+		prototype.hasParentsHistory = function() {
+			return this.parentsHistory != null;
+		};
+
+		prototype.withChildrenHistory = function() {
+			if (this.childrenHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.childrenHistory = new HistoryEntryFetchOptions();
+			}
+			return this.childrenHistory;
+		};
+		prototype.withChildrenHistoryUsing = function(fetchOptions) {
+			return this.childrenHistory = fetchOptions;
+		};
+		prototype.hasChildrenHistory = function() {
+			return this.childrenHistory != null;
+		};
+
+		prototype.withContainersHistory = function() {
+			if (this.containersHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.containersHistory = new HistoryEntryFetchOptions();
+			}
+			return this.containersHistory;
+		};
+		prototype.withContainersHistoryUsing = function(fetchOptions) {
+			return this.containersHistory = fetchOptions;
+		};
+		prototype.hasContainersHistory = function() {
+			return this.containersHistory != null;
+		};
+
+		prototype.withComponentsHistory = function() {
+			if (this.componentsHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.componentsHistory = new HistoryEntryFetchOptions();
+			}
+			return this.componentsHistory;
+		};
+		prototype.withComponentsHistoryUsing = function(fetchOptions) {
+			return this.componentsHistory = fetchOptions;
+		};
+		prototype.hasComponentsHistory = function() {
+			return this.componentsHistory != null;
+		};
+
+		prototype.withContentCopiesHistory = function() {
+			if (this.contentCopiesHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.contentCopiesHistory = new HistoryEntryFetchOptions();
+			}
+			return this.contentCopiesHistory;
+		};
+		prototype.withContentCopiesHistoryUsing = function(fetchOptions) {
+			return this.contentCopiesHistory = fetchOptions;
+		};
+		prototype.hasContentCopiesHistory = function() {
+			return this.contentCopiesHistory != null;
+		};
+
+		prototype.withUnknownHistory = function() {
+			if (this.unknownHistory == null) {
+				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.unknownHistory = new HistoryEntryFetchOptions();
+			}
+			return this.unknownHistory;
+		};
+		prototype.withUnknownHistoryUsing = function(fetchOptions) {
+			return this.unknownHistory = fetchOptions;
+		};
+		prototype.hasUnknownHistory = function() {
+			return this.unknownHistory != null;
+		};
+
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
 				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
@@ -268,6 +404,15 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		type : "DataSetTypeFetchOptions",
 		dataStore : "DataStoreFetchOptions",
 		history : "HistoryEntryFetchOptions",
+        propertiesHistory : "HistoryEntryFetchOptions",
+        experimentHistory : "HistoryEntryFetchOptions",
+        sampleHistory : "HistoryEntryFetchOptions",
+        parentsHistory : "HistoryEntryFetchOptions",
+        childrenHistory : "HistoryEntryFetchOptions",
+        containersHistory : "HistoryEntryFetchOptions",
+        componentsHistory : "HistoryEntryFetchOptions",
+        contentCopiesHistory : "HistoryEntryFetchOptions",
+        unknownHistory : "HistoryEntryFetchOptions",
 		modifier : "PersonFetchOptions",
 		registrator : "PersonFetchOptions",
 		experiment : "ExperimentFetchOptions",

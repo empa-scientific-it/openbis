@@ -22,6 +22,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.dataSets = null;
 		prototype.samples = null;
 		prototype.history = null;
+        prototype.propertiesHistory = null;
+        prototype.projectHistory = null;
+        prototype.samplesHistory = null;
+        prototype.dataSetsHistory = null;
+        prototype.unknownHistory = null;
 		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
@@ -133,6 +138,62 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setHistory = function(history) {
 			this.history = history;
 		};
+
+		prototype.getPropertiesHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPropertiesHistory()) {
+				return this.propertiesHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Properties history has not been fetched.");
+			}
+		};
+		prototype.setPropertiesHistory = function(propertiesHistory) {
+			this.propertiesHistory = propertiesHistory;
+		};
+
+		prototype.getProjectHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasProjectHistory()) {
+				return this.projectHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Project history has not been fetched.");
+			}
+		};
+		prototype.setProjectHistory = function(projectHistory) {
+			this.projectHistory = projectHistory;
+		};
+
+		prototype.getSamplesHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSamplesHistory()) {
+				return this.samplesHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Samples history has not been fetched.");
+			}
+		};
+		prototype.setSamplesHistory = function(samplesHistory) {
+			this.samplesHistory = samplesHistory;
+		};
+
+		prototype.getDataSetsHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDataSetsHistory()) {
+				return this.dataSetsHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Data sets history has not been fetched.");
+			}
+		};
+		prototype.setDataSetsHistory = function(dataSetsHistory) {
+			this.dataSetsHistory = dataSetsHistory;
+		};
+
+		prototype.getUnknownHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUnknownHistory()) {
+				return this.unknownHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Unknown history has not been fetched.");
+			}
+		};
+		prototype.setUnknownHistory = function(unknownHistory) {
+			this.unknownHistory = unknownHistory;
+		};
+
 		prototype.getProperty = function(propertyName) {
 			var properties = this.getProperties();
 			return properties ? properties[propertyName] : null;
@@ -243,6 +304,26 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			arguments : [ "Sample" ]
 		},
 		history : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		propertiesHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		projectHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		samplesHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		dataSetsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		unknownHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

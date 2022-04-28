@@ -85,6 +85,21 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
     @Autowired
     private IExperimentHistoryTranslator historyTranslator;
 
+    @Autowired
+    private ExperimentPropertyHistoryTranslator propertyHistoryTranslator;
+
+    @Autowired
+    private ExperimentProjectRelationshipHistoryTranslator projectRelationshipHistoryTranslator;
+
+    @Autowired
+    private ExperimentSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
+
+    @Autowired
+    private ExperimentDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
+
+    @Autowired
+    private ExperimentUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> experimentIds, ExperimentFetchOptions fetchOptions)
     {
@@ -170,6 +185,36 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
         if (fetchOptions.hasHistory())
         {
             relations.put(IExperimentHistoryTranslator.class, historyTranslator.translate(context, experimentIds, fetchOptions.withHistory()));
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            relations.put(ExperimentPropertyHistoryTranslator.class,
+                    propertyHistoryTranslator.translate(context, experimentIds, fetchOptions.withPropertiesHistory()));
+        }
+
+        if (fetchOptions.hasProjectHistory())
+        {
+            relations.put(ExperimentProjectRelationshipHistoryTranslator.class,
+                    projectRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withProjectHistory()));
+        }
+
+        if (fetchOptions.hasSamplesHistory())
+        {
+            relations.put(ExperimentSampleRelationshipHistoryTranslator.class,
+                    sampleRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withSamplesHistory()));
+        }
+
+        if (fetchOptions.hasDataSetsHistory())
+        {
+            relations.put(ExperimentDataSetRelationshipHistoryTranslator.class,
+                    dataSetRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withDataSetsHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(ExperimentUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, experimentIds, fetchOptions.withUnknownHistory()));
         }
 
         return relations;
@@ -261,6 +306,36 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
         {
             result.setHistory(relations.get(IExperimentHistoryTranslator.class, experimentId));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            result.setPropertiesHistory(relations.get(ExperimentPropertyHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withPropertiesHistoryUsing(fetchOptions.withPropertiesHistory());
+        }
+
+        if (fetchOptions.hasProjectHistory())
+        {
+            result.setProjectHistory(relations.get(ExperimentProjectRelationshipHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withProjectHistoryUsing(fetchOptions.withProjectHistory());
+        }
+
+        if (fetchOptions.hasSamplesHistory())
+        {
+            result.setSamplesHistory(relations.get(ExperimentSampleRelationshipHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withSamplesHistoryUsing(fetchOptions.withSamplesHistory());
+        }
+
+        if (fetchOptions.hasDataSetsHistory())
+        {
+            result.setDataSetsHistory(relations.get(ExperimentDataSetRelationshipHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withDataSetsHistoryUsing(fetchOptions.withDataSetsHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(ExperimentUnknownRelationshipHistoryTranslator.class, experimentId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
         }
     }
 

@@ -109,9 +109,12 @@ public class AbstractGenerator
         gen.addClassForImport(Map.class);
         gen.addPluralFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
                 MaterialFetchOptions.class).withInterface(IMaterialPropertiesHolder.class);
+        gen.addPluralFetchedField("Map<String, Sample>", Map.class.getName(), "sampleProperties", "Sample Properties",
+                SampleFetchOptions.class);
         gen.addClassForImport(Map.class);
         gen.addClassForImport(HashMap.class);
         gen.addClassForImport(Material.class);
+        gen.addClassForImport(Sample.class);
 
         gen.addAdditionalMethod("@Override\n"
                 + "    public String getProperty(String propertyName)\n"
