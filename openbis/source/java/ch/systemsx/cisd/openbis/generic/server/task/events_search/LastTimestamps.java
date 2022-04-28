@@ -1,17 +1,23 @@
 package ch.systemsx.cisd.openbis.generic.server.task.events_search;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 
 class LastTimestamps
 {
-    private final Map<Pair<EventType, EntityType>, Date> timestamps = new HashMap<>();
+    private final Map<Pair<EventType, EntityType>, Date> lastEventsSearchTimestamps = new HashMap<>();
+
+    private final Map<Pair<EventType, EntityType>, Date> firstEventsTimestamps = new HashMap<>();
 
     public LastTimestamps(IDataSource dataSource)
     {
@@ -19,8 +25,18 @@ class LastTimestamps
         {
             for (EntityType entityType : EntityType.values())
             {
-                Date lastTimestamp = dataSource.loadLastEventsSearchTimestamp(eventType, entityType);
-                timestamps.put(new ImmutablePair<>(eventType, entityType), lastTimestamp);
+                Date lastEventsSearchTimestamp = dataSource.loadLastEventsSearchTimestamp(eventType, entityType);
+                lastEventsSearchTimestamps.put(new ImmutablePair<>(eventType, entityType), lastEventsSearchTimestamp);
+
+                if (lastEventsSearchTimestamp == null)
+                {
+                    List<EventPE> firstEvents = dataSource.loadEvents(eventType, entityType, null, 1);
+                    if (firstEvents != null && firstEvents.size() > 0)
+                    {
+                        Date firstEventsTimestamp = new Date(firstEvents.get(0).getRegistrationDateInternal().getTime());
+                        firstEventsTimestamps.put(new ImmutablePair<>(eventType, entityType), firstEventsTimestamp);
+                    }
+                }
             }
         }
     }
@@ -31,11 +47,21 @@ class LastTimestamps
 
         for (EntityType entityType : entityTypes)
         {
-            Date timestamp = timestamps.get(new ImmutablePair<>(eventType, entityType));
+            ImmutablePair<EventType, EntityType> key = new ImmutablePair<>(eventType, entityType);
+
+            Date timestamp = lastEventsSearchTimestamps.get(key);
+            if (timestamp == null)
+            {
+                timestamp = firstEventsTimestamps.get(key);
+                if (timestamp != null)
+                {
+                    timestamp = new Date(timestamp.getTime() - DateUtils.MILLIS_PER_MINUTE);
+                }
+            }
 
             if (timestamp == null)
             {
-                return null;
+                continue;
             }
 
             if (earliest == null || timestamp.before(earliest))
@@ -53,7 +79,7 @@ class LastTimestamps
 
         for (EntityType entityType : entityTypes)
         {
-            Date timestamp = timestamps.get(new ImmutablePair<>(eventType, entityType));
+            Date timestamp = lastEventsSearchTimestamps.get(new ImmutablePair<>(eventType, entityType));
 
             if (timestamp == null)
             {
