@@ -2556,3 +2556,79 @@ get Total Samples Count
 set Total Data Sets Count
 set Total Experiments Count
 set Total Samples Count
+
+get Children History
+get Components History
+get Container History
+get Containers History
+get Content Copies History
+get Data Sets History
+get Experiment History
+get Experiments History
+get Parents History
+get Project History
+get Properties History
+get Sample History
+get Samples History
+get Space History
+get Unknown History
+has Children History
+has Components History
+has Container History
+has Containers History
+has Content Copies History
+has Data Sets History
+has Experiment History
+has Experiments History
+has Parents History
+has Project History
+has Properties History
+has Sample History
+has Samples History
+has Space History
+has Unknown History
+set Children History
+set Components History
+set Container History
+set Containers History
+set Content Copies History
+set Data Sets History
+set Experiment History
+set Experiments History
+set Parents History
+set Project History
+set Properties History
+set Sample History
+set Samples History
+set Space History
+set Unknown History
+with Children History
+with Children History Using
+with Components History
+with Components History Using
+with Container History
+with Container History Using
+with Containers History
+with Containers History Using
+with Content Copies History
+with Content Copies History Using
+with Data Sets History
+with Data Sets History Using
+with Experiment History
+with Experiment History Using
+with Experiments History
+with Experiments History Using
+with Parents History
+with Parents History Using
+with Project History
+with Project History Using
+with Properties History
+with Properties History Using
+with Sample History
+with Sample History Using
+with Samples History
+with Samples History Using
+with Space History
+with Space History Using
+with Unknown History
+with Unknown History Using
