@@ -567,18 +567,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             }
 
 		//
-		// Plate View
-		//
-		if(this._sampleFormModel.sample.sampleTypeCode === "PLATE" && this._sampleFormModel.mode !== FormMode.CREATE) {
-			var plateContainer = $("<div>", { 'id' : 'sample-form-plate-view' });
-			$formColumn.append($("<legend>").append("Plate"));
-			var plateController = new PlateController(this._sampleFormModel.sample, this._sampleFormModel.mode !== FormMode.EDIT);
-			plateController.init(plateContainer);
-			$formColumn.append(plateContainer);
-			this._sampleFormController._plateController = plateController;
-		}
-
-		//
 		// Storage
 		//
 		var isStorageAvailable = profile.isSampleTypeWithStorage(this._sampleFormModel.sample.sampleTypeCode);

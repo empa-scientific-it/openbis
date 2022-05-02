@@ -330,20 +330,6 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 					
 					var extraCustomId = null;
 					var extraContent = null;
-					if(sample.sampleTypeCode === "PLATE") {
-						var plateController = new PlateController(sample, true);
-						
-						//Delete old view for redraws - Corner Case
-						var oldPlaceHolderFound = $("#" + plateController.getPlaceHolderId());
-						if(oldPlaceHolderFound.length !== 0) {
-							oldPlaceHolderFound.remove();
-						}
-						
-						//Normal plate draw using place holder for the svg graph size calculations 
-						extraContent = plateController.getPlaceHolder();
-						extraCustomId = plateController.getPlaceHolderId();
-						plateController.initWithPlaceHolder();
-					}
 					var $graphTable = PrintUtil.getTable(sample, true, title, null, extraCustomId, extraContent);
 					
 					$nodeContent.empty();
