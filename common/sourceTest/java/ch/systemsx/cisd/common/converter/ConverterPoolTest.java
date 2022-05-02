@@ -126,10 +126,10 @@ public final class ConverterPoolTest
         assertEquals(Boolean.FALSE, pool.convert("1", Boolean.TYPE));
         assertEquals(Boolean.TRUE, pool.convert("TrUe", Boolean.TYPE));
         // Character
-        assertEquals(new Character('c'), pool.convert("c", Character.class));
-        assertEquals(new Character('c'), pool.convert("c", Character.TYPE));
-        assertEquals(new Character('c'), pool.convert("choubidou", Character.class));
-        assertEquals(new Character(NULL), pool.convert("", Character.class));
+        assertEquals(Character.valueOf('c'), pool.convert("c", Character.class));
+        assertEquals(Character.valueOf('c'), pool.convert("c", Character.TYPE));
+        assertEquals(Character.valueOf('c'), pool.convert("choubidou", Character.class));
+        assertEquals(Character.valueOf(NULL), pool.convert("", Character.class));
         // Customized Integer converter
         pool.registerConverter(Integer.class, new IntegerConverter());
         assertEquals(Integer.valueOf(13), pool.convert("1", Integer.class));
