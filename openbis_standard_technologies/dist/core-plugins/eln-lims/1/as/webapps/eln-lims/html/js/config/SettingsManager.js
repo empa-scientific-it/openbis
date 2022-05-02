@@ -230,9 +230,11 @@ function SettingsManager(serverFacade) {
 
              // Dataset Types from File Extension
              if(isMergeGroup) { // Merge found values
-                for(var idxTp = 0; idxTp < settings.dataSetTypeForFileNameMap.length; idxTp++) {
+                if(settings.dataSetTypeForFileNameMap) {
+                    for(var idxTp = 0; idxTp < settings.dataSetTypeForFileNameMap.length; idxTp++) {
                      targetProfile.dataSetTypeForFileNameMap.push(settings.dataSetTypeForFileNameMap[idxTp]);
-                 }
+                    }
+                }
              } else { // Replaces or sets values
                 targetProfile.dataSetTypeForFileNameMap = settings.dataSetTypeForFileNameMap;
              }

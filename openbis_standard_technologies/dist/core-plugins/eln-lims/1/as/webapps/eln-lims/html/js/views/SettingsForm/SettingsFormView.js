@@ -113,17 +113,22 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
 	this._getSettings = function() {
-		return {
-			dataSetTypeForFileNameMap : this._datasetTypesTableModel.getValues(),
-			mainMenu : this._mainMenuItemsTableModel.getValues(),
-			forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
-			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
-			inventorySpaces : this._inventorySpacesTableModel.getValues(),
-			inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues(),
-			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
-			showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-			hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
-		};
+	    var settings = {
+            mainMenu : this._mainMenuItemsTableModel.getValues(),
+            forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
+            sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
+            showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
+            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+        };
+
+        if(profile.isAdmin) {
+            settings.dataSetTypeForFileNameMap = this._datasetTypesTableModel.getValues();
+            settings.inventorySpaces = this._inventorySpacesTableModel.getValues();
+            settings.inventorySpacesReadOnly = this._inventorySpacesReadOnlyTableModel.getValues();
+            settings.forceMonospaceFont = this._forcedMonospaceTableModel.getValues();
+        }
+
+		return settings;
 	}
 
 	this._getSampleTypeDefinitionsExtension = function() {
