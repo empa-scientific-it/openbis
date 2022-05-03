@@ -340,6 +340,21 @@ public class TranslatorUtils
         joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
         result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
 
+        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
+                || tableMapper == TableMapper.DATA_SET)
+        {
+            final String samplePropertyAlias = aliasFactory.createAlias();
+            final JoinInformation joinInformation7 = new JoinInformation();
+            joinInformation7.setJoinType(JoinType.LEFT);
+            joinInformation7.setMainTable(TableMapper.SAMPLE.getValuesTable());
+            joinInformation7.setMainTableAlias(valuesTableAlias);
+            joinInformation7.setMainTableIdField(SAMPLE_PROP_COLUMN);
+            joinInformation7.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
+            joinInformation7.setSubTableAlias(samplePropertyAlias);
+            joinInformation7.setSubTableIdField(ColumnNames.ID_COLUMN);
+            result.put(SAMPLE_PROP_COLUMN, joinInformation7);
+        }
+
         return result;
     }
 
@@ -992,7 +1007,6 @@ public class TranslatorUtils
     {
         sqlBuilder.append(EXISTS).append(SP);
         sqlBuilder.append(LP);
-
         sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
                 .append(SAMPLES_VIEW).append(SP).append(SAMPLES_TABLE_ALIAS).append(SP)
                 .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
@@ -1013,4 +1027,17 @@ public class TranslatorUtils
         sqlBuilder.append(RP);
         sqlBuilder.append(RP);
     }
+
+    public static void appendSampleExistsSubselect(final StringBuilder sqlBuilder, final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(SAMPLES_VIEW).append(SP).append(SAMPLES_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(SAMPLE_PROP_COLUMN).append(SP).append(EQ).append(SP)
+                .append(SAMPLES_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
+        sqlBuilder.append(RP);
+    }
+
 }
