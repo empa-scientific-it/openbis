@@ -618,7 +618,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
 
             @Override
             public void setCommon(Map<Role, List<String>> commonSpacesByRole, Map<String, String> commonSamples,
-                    Map<String, String> commonExperiments)
+                    List<Map<String, String>> commonExperiments)
             {
                 logger.log(LogLevel.INFO, "Common spaces: " + commonSpacesByRole);
                 logger.log(LogLevel.INFO, "Common samples: " + commonSamples);

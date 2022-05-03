@@ -31,7 +31,7 @@ class UserManagerConfig
 
     private Map<String, String> commonSamples = new HashMap<>();
 
-    private Map<String, String> commonExperiments = new HashMap<>();
+    private List<Map<String, String>> commonExperiments = new ArrayList();
 
     private List<UserGroup> groups;
 
@@ -65,12 +65,12 @@ class UserManagerConfig
         this.commonSamples = commonSamples;
     }
 
-    public Map<String, String> getCommonExperiments()
+    public List<Map<String, String>> getCommonExperiments()
     {
         return commonExperiments;
     }
 
-    public void setCommonExperiments(Map<String, String> commonExperiments)
+    public void setCommonExperiments(List<Map<String, String>> commonExperiments)
     {
         this.commonExperiments = commonExperiments;
     }

@@ -117,7 +117,7 @@ public class UserManager
 
     private Map<String, String> commonSamples = new HashMap<>();
 
-    private Map<String, String> commonExperiments;
+    private List<Map<String, String>> commonExperiments;
 
     private Map<String, HomeSpaceRequest> requestedHomeSpaceByUserId = new TreeMap<>();
 
@@ -143,7 +143,7 @@ public class UserManager
     }
 
     public void setCommon(Map<Role, List<String>> commonSpacesByRole, Map<String, String> commonSamples,
-            Map<String, String> commonExperiments)
+                          List<Map<String, String>> commonExperiments)
     {
         this.commonSpacesByRole = commonSpacesByRole;
         this.commonSamples = commonSamples;
@@ -153,6 +153,24 @@ public class UserManager
         checkIdentifierTemplates(commonSamples, commonSpaces, "sample", "<common space code>/<common sample code>");
         checkIdentifierTemplates(commonExperiments, commonSpaces, "experiment",
                 "<common space code>/<common project code>/<common experiment code>");
+    }
+
+    private void checkIdentifierTemplates(List<Map<String, String>> commonEntities, Set<String> commonSpaces,
+                                          String entityKind, String templateSchema)
+    {
+        for (Map<String, String> templateModel : commonEntities)
+        {
+            String identifierTemplate = templateModel.get("identifierTemplate");
+            String[] parts = identifierTemplate.split("/");
+            if (commonSpaces.contains(parts[0]) == false)
+            {
+                throw createConfigException(identifierTemplate, templateSchema, "No common space for common " + entityKind);
+            }
+            if (parts.length != templateSchema.split("/").length)
+            {
+                throw createConfigException(identifierTemplate, templateSchema, "");
+            }
+        }
     }
 
     private void checkIdentifierTemplates(Map<String, String> commonEntities, Set<String> commonSpaces,
@@ -520,10 +538,8 @@ public class UserManager
         if (commonExperiments.isEmpty() == false)
         {
             Set<ProjectIdentifier> projectIdentifiers = new LinkedHashSet<>();
-            Set<String> keySet = commonExperiments.keySet();
-            for (String identifierTemplate : keySet)
-            {
-                String[] identifierTemplateParts = identifierTemplate.split("/");
+            for(Map<String, String> experimentTemplateModel:commonExperiments) {
+                String[] identifierTemplateParts = experimentTemplateModel.get("identifierTemplate").split("/");
                 String spaceCode = createCommonSpaceCode(groupCode, identifierTemplateParts[0]);
                 String projectCode = createCommonSpaceCode(groupCode, identifierTemplateParts[1]);
                 projectIdentifiers.add(new ProjectIdentifier(spaceCode, projectCode));
@@ -541,10 +557,11 @@ public class UserManager
                 context.add(projectCreation);
                 context.getReport().addProject(identifier);
             }
-            for (Entry<String, String> entry : commonExperiments.entrySet())
+
+            for(Map<String, String> experimentTemplateModel:commonExperiments)
             {
-                String experimentType = entry.getValue();
-                String[] identifierTemplateParts = entry.getKey().split("/");
+                String experimentType = experimentTemplateModel.get("experimentType");
+                String[] identifierTemplateParts = experimentTemplateModel.get("identifierTemplate").split("/");
                 String spaceCode = createCommonSpaceCode(groupCode, identifierTemplateParts[0]);
                 String projectCode = createCommonSpaceCode(groupCode, identifierTemplateParts[1]);
                 String experimentCode = createCommonSpaceCode(groupCode, identifierTemplateParts[2]);
@@ -555,6 +572,11 @@ public class UserManager
                     experimentCreation.setProjectId(new ProjectIdentifier(spaceCode, projectCode));
                     experimentCreation.setCode(experimentCode);
                     experimentCreation.setTypeId(new EntityTypePermId(experimentType));
+                    for (String key: experimentTemplateModel.keySet()) { // Sets any properties available
+                        if (key.equals("experimentType") == false && key.equals("identifierTemplate") == false && experimentTemplateModel.get(key) != null) {
+                            experimentCreation.setProperty(key, experimentTemplateModel.get(key));
+                        }
+                    }
                     context.add(experimentCreation);
                     context.getReport().addExperiment(identifier);
                 }
