@@ -970,7 +970,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
 																			annotations,
-																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier));
+																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -1031,7 +1031,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations,
-															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier));
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
