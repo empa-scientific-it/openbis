@@ -380,6 +380,10 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 logRecorder.getLogContent());
     }
 
+
+    public static final String testExecuteInvalidCommonExperimentsConfig = "{\"commonSpaces\":{\"USER\": [\"ALPHA\"]}, " + getCommonExperiments("ALPHA/B", "B") + ","
+            + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"]}]}";
+
     @Test
     public void testExecuteInvalidCommonExperiments()
     {
@@ -389,8 +393,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 .withUserManagerReport(report);
         FileUtilities.writeToFile(configFile, "");
         task.setUp("", properties);
-        FileUtilities.writeToFile(configFile, "{\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonExperiments\":[" + getCommonExperiment("ALPHA/B", "B") + "],"
-                + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"]}]}");
+        FileUtilities.writeToFile(configFile, testExecuteInvalidCommonExperimentsConfig);
 
         // When
         task.execute();
@@ -412,6 +415,11 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 logRecorder.getLogContent());
     }
 
+    public static final String testExecuteHappyCaseConfig = "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},"
+            + "\"commonSamples\":{\"ALPHA/B\":\"B\"}," + getCommonExperiments("ALPHA/P/E", "E") + ","
+            + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
+            + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}";
+
     @Test
     public void testExecuteHappyCase()
     {
@@ -424,10 +432,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 .withGroup("a", U1).withUserManagerReport(report);
         FileUtilities.writeToFile(configFile, "");
         task.setUp("", properties);
-        FileUtilities.writeToFile(configFile, "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},"
-                + "\"commonSamples\":{\"ALPHA/B\":\"B\"},\"commonExperiments\":[" + getCommonExperiment("ALPHA/P/E", "E") + "],"
-                + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
-                + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}");
+        FileUtilities.writeToFile(configFile, testExecuteHappyCaseConfig);
 
         // When
         task.execute();
@@ -454,7 +459,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "1970-01-01 01:00:01 [ADD-USER] a\n"
                 + "1970-01-01 01:00:02 [CONFIG-UPDATE-START] Last modified: " + lastModified + "\n"
                 + "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonSamples\":{\"ALPHA/B\":\"B\"},"
-                + "\"commonExperiments\":[" + getCommonExperiment("ALPHA/P/E", "E") + "],\"groups\": ["
+                + getCommonExperiments("ALPHA/P/E", "E") + ",\"groups\": ["
                 + "{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}\n"
                 + "1970-01-01 01:00:03 [CONFIG-UPDATE-END] \n"
@@ -540,9 +545,14 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
     }
 
 
-    private String getCommonExperiment(String identifierTemplate, String experimentType) {
-        return "{" + "\"identifierTemplate\" : \"" + identifierTemplate + "\"," + "\"experimentType\" : \""  + experimentType + "\"" + "}";
+    private static String getCommonExperiments(String identifierTemplate, String experimentType) {
+        return "\"commonExperiments\": [{ \"identifierTemplate\" : \"" + identifierTemplate + "\", \"experimentType\" : \""  + experimentType + "\" }]";
     }
+
+//    public static void main(String[] args) throws IOException {
+//        ObjectMapper mapper = new ObjectMapper();
+//        UserManagerConfig config = mapper.readValue(testExecuteHappyCaseConfig, UserManagerConfig.class);
+//    }
 
     private final class UserManagementMaintenanceTaskWithMocks extends UserManagementMaintenanceTask
     {
