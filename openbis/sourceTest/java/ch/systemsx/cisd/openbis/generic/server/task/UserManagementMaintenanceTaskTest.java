@@ -389,7 +389,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 .withUserManagerReport(report);
         FileUtilities.writeToFile(configFile, "");
         task.setUp("", properties);
-        FileUtilities.writeToFile(configFile, "{\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonExperiments\":{\"ALPHA/B\":\"B\"},"
+        FileUtilities.writeToFile(configFile, "{\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonExperiments\":[" + getCommonExperiment("ALPHA/B", "B") + "],"
                 + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"]}]}");
 
         // When
@@ -425,7 +425,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
         FileUtilities.writeToFile(configFile, "");
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},"
-                + "\"commonSamples\":{\"ALPHA/B\":\"B\"},\"commonExperiments\":{\"ALPHA/P/E\":\"E\"},"
+                + "\"commonSamples\":{\"ALPHA/B\":\"B\"},\"commonExperiments\":[" + getCommonExperiment("ALPHA/P/E", "E") + "],"
                 + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}");
 
@@ -454,7 +454,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "1970-01-01 01:00:01 [ADD-USER] a\n"
                 + "1970-01-01 01:00:02 [CONFIG-UPDATE-START] Last modified: " + lastModified + "\n"
                 + "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonSamples\":{\"ALPHA/B\":\"B\"},"
-                + "\"commonExperiments\":{\"ALPHA/P/E\":\"E\"},\"groups\": ["
+                + "\"commonExperiments\":[" + getCommonExperiment("ALPHA/P/E", "E") + "],\"groups\": ["
                 + "{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}\n"
                 + "1970-01-01 01:00:03 [CONFIG-UPDATE-END] \n"
@@ -537,6 +537,11 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
         {
             assertContains(errorMessageSnippet, e.getMessage());
         }
+    }
+
+
+    private String getCommonExperiment(String identifierTemplate, String experimentType) {
+        return "{" + "\"identifierTemplate\" : \"" + identifierTemplate + "\"," + "\"experimentType\" : \""  + experimentType + "\"" + "}";
     }
 
     private final class UserManagementMaintenanceTaskWithMocks extends UserManagementMaintenanceTask
