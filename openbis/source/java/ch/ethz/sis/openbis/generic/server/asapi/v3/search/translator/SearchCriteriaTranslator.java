@@ -142,10 +142,12 @@ public class SearchCriteriaTranslator
 
             TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, tableMapper, joinInformationMap);
             resultSqlBuilder.append(SP).append(IS_NOT_NULL);
-            resultSqlBuilder.append(SP).append(OR).append(SP).append(LP);
+            resultSqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendMaterialExistsSubselect(resultSqlBuilder,
+                    joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
+            resultSqlBuilder.append(SP).append(OR).append(SP);
             TranslatorUtils.appendSampleExistsSubselect(resultSqlBuilder,
                     joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
-            resultSqlBuilder.append(RP);
 
             return resultSqlBuilder.toString();
         } else

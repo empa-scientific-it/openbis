@@ -212,10 +212,12 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         {
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
             sqlBuilder.append(SP).append(IS_NOT_NULL);
-            sqlBuilder.append(SP).append(OR).append(SP).append(LP);
+            sqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendMaterialExistsSubselect(sqlBuilder,
+                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            sqlBuilder.append(SP).append(OR).append(SP);
             TranslatorUtils.appendSampleExistsSubselect(sqlBuilder,
                     aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
-            sqlBuilder.append(RP);
         }
 
         final boolean useWildcards = criterion.isUseWildcards();
@@ -237,16 +239,15 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
                 }
 
-                final String materialsTableAlias = aliases.get(MATERIALS_TABLE).getSubTableAlias();
-                sqlBuilder.append(NL).append(WHEN).append(SP).append(materialsTableAlias).append(PERIOD)
-                        .append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
-                TranslatorUtils.translateStringComparison(materialsTableAlias, CODE_COLUMN, value, useWildcards, null,
-                        sqlBuilder, args);
+                final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+
+                sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
+                        .append(MATERIAL_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
+                TranslatorUtils.appendMaterialExistsSubselect(args, sqlBuilder, value, useWildcards, valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                         || tableMapper == TableMapper.DATA_SET)
                 {
-                    final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
                     sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
                             .append(SAMPLE_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN)
                             .append(SP);

@@ -59,6 +59,8 @@ public class TranslatorUtils
 
     private static final String SAMPLES_TABLE_ALIAS = "samp";
 
+    private static final String MATERIALS_TABLE_ALIAS = "mat";
+
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
 
@@ -329,16 +331,6 @@ public class TranslatorUtils
         joinInformation5.setSubTableAlias(aliasFactory.createAlias());
         joinInformation5.setSubTableIdField(ColumnNames.ID_COLUMN);
         result.put(CONTROLLED_VOCABULARY_TERM_TABLE, joinInformation5);
-
-        final JoinInformation joinInformation6 = new JoinInformation();
-        joinInformation6.setJoinType(JoinType.LEFT);
-        joinInformation6.setMainTable(tableMapper.getValuesTable());
-        joinInformation6.setMainTableAlias(valuesTableAlias);
-        joinInformation6.setMainTableIdField(MATERIAL_PROP_COLUMN);
-        joinInformation6.setSubTable(TableMapper.MATERIAL.getEntitiesTable());
-        joinInformation6.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
 
         return result;
     }
@@ -956,9 +948,6 @@ public class TranslatorUtils
         sqlBuilder.append(COMMA).append(SP);
         sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
                 .append(CODE_COLUMN);
-        sqlBuilder.append(COMMA).append(SP);
-        sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
-                .append(CODE_COLUMN);
         sqlBuilder.append(RP);
     }
 
@@ -1020,5 +1009,36 @@ public class TranslatorUtils
                 .append(SAMPLES_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
         sqlBuilder.append(RP);
     }
+
+    public static void appendMaterialExistsSubselect(final List<Object> args, final StringBuilder sqlBuilder,
+            final AbstractStringValue value, final boolean useWildcards, final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(MATERIALS_TABLE).append(SP).append(MATERIALS_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(MATERIAL_PROP_COLUMN).append(SP).append(EQ).append(SP)
+                .append(MATERIALS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(AND).append(SP);
+
+        translateStringComparison(MATERIALS_TABLE_ALIAS, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendMaterialExistsSubselect(final StringBuilder sqlBuilder, final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(MATERIALS_TABLE).append(SP).append(MATERIALS_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(MATERIAL_PROP_COLUMN).append(SP).append(EQ).append(SP)
+                .append(MATERIALS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
+
+        sqlBuilder.append(RP);
+    }
+
 
 }
