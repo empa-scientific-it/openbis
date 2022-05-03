@@ -229,7 +229,7 @@ public class OrderTranslator
                             .append(VALUE_COLUMN).append(DOUBLE_COLON).append(casting.toLowerCase());
                 } else
                 {
-                    TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, joinInformationMap);
+                    TranslatorUtils.appendPropertyValueCoalesceForOrder(sqlBuilder, tableMapper, joinInformationMap);
                 }
             } else
             {

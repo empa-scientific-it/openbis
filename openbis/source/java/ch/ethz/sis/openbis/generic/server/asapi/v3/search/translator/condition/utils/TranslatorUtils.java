@@ -340,21 +340,6 @@ public class TranslatorUtils
         joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
         result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
 
-        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
-                || tableMapper == TableMapper.DATA_SET)
-        {
-            final String samplePropertyAlias = aliasFactory.createAlias();
-            final JoinInformation joinInformation7 = new JoinInformation();
-            joinInformation7.setJoinType(JoinType.LEFT);
-            joinInformation7.setMainTable(TableMapper.SAMPLE.getValuesTable());
-            joinInformation7.setMainTableAlias(valuesTableAlias);
-            joinInformation7.setMainTableIdField(SAMPLE_PROP_COLUMN);
-            joinInformation7.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
-            joinInformation7.setSubTableAlias(samplePropertyAlias);
-            joinInformation7.setSubTableIdField(ColumnNames.ID_COLUMN);
-            result.put(SAMPLE_PROP_COLUMN, joinInformation7);
-        }
-
         return result;
     }
 
@@ -663,25 +648,6 @@ public class TranslatorUtils
         }
     }
 
-    /**
-     * Appends given string to string builder only when atomic boolean is false. Otherwise just sets atomic boolean to false.
-     *
-     * @param sb string builder to be updated.
-     * @param value the value to be added when needed.
-     * @param first atomic boolean, if {@code true} it will be set to false with no change to sb, otherwise the {@code value} will be appended to
-     * {@code sb}.
-     */
-    public static void appendIfNotFirst(final StringBuilder sb, final String value, final AtomicBoolean first)
-    {
-        if (first.get())
-        {
-            first.set(false);
-        } else
-        {
-            sb.append(value);
-        }
-    }
-
     public static boolean isPropertySortingFieldName(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY);
@@ -982,6 +948,21 @@ public class TranslatorUtils
     }
 
     public static void appendPropertyValueCoalesce(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final Map<String, JoinInformation> joinInformationMap)
+    {
+        sqlBuilder.append(COALESCE).append(LP);
+        sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                .append(VALUE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendPropertyValueCoalesceForOrder(final StringBuilder sqlBuilder, final TableMapper tableMapper,
             final Map<String, JoinInformation> joinInformationMap)
     {
         sqlBuilder.append(COALESCE).append(LP);

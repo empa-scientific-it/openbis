@@ -212,6 +212,10 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         {
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
             sqlBuilder.append(SP).append(IS_NOT_NULL);
+            sqlBuilder.append(SP).append(OR).append(SP).append(LP);
+            TranslatorUtils.appendSampleExistsSubselect(sqlBuilder,
+                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            sqlBuilder.append(RP);
         }
 
         final boolean useWildcards = criterion.isUseWildcards();
