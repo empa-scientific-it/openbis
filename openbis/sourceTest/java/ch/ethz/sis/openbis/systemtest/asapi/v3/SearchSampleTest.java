@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
@@ -63,6 +64,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.sql.ISQLExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.AnyFieldSearchConditionTranslator;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 

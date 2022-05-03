@@ -239,23 +239,16 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                 TranslatorUtils.translateStringComparison(materialsTableAlias, CODE_COLUMN, value, useWildcards, null,
                         sqlBuilder, args);
 
-                final JoinInformation samplesPropertyTable = aliases.get(SAMPLE_PROP_COLUMN);
-                if (samplesPropertyTable != null)
+                if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
+                        || tableMapper == TableMapper.DATA_SET)
                 {
-                    sqlBuilder.append(NL).append(WHEN).append(SP).append(samplesPropertyTable.getSubTableAlias())
-                            .append(PERIOD).append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP)
-                            .append(THEN).append(SP);
+                    final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+                    sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
+                            .append(SAMPLE_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN)
+                            .append(SP);
 
-                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                            CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
-
-                    sqlBuilder.append(SP).append(OR).append(SP);
-                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                            PERM_ID_COLUMN, value, useWildcards, null, sqlBuilder, args);
-
-                    sqlBuilder.append(SP).append(OR).append(SP);
-                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                            SAMPLE_IDENTIFIER_COLUMN, value, useWildcards, null, sqlBuilder, args);
+                    TranslatorUtils.appendSampleExistsSubselect(args, sqlBuilder, value, useWildcards,
+                            valuesTableAlias);
                 }
 
                 sqlBuilder.append(NL).append(ELSE).append(SP);

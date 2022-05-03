@@ -95,10 +95,10 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                         || tableMapper == TableMapper.DATA_SET)
                 {
-                    appendSamplePropertyComparison(sqlBuilder, value, useWildcards, aliases, CODE_COLUMN, args);
-                    appendSamplePropertyComparison(sqlBuilder, value, useWildcards, aliases, PERM_ID_COLUMN, args);
-                    appendSamplePropertyComparison(sqlBuilder, value, useWildcards, aliases, SAMPLE_IDENTIFIER_COLUMN,
-                            args);
+                    sqlBuilder.append(SP).append(OR).append(SP);
+
+                    TranslatorUtils.appendSampleExistsSubselect(args, sqlBuilder, value, useWildcards,
+                            aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
                 }
 
                 sqlBuilder.append(RP);

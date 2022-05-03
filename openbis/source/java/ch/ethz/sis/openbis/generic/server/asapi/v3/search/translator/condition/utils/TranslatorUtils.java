@@ -57,6 +57,8 @@ public class TranslatorUtils
 
     public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
 
+    private static final String SAMPLES_TABLE_ALIAS = "samp";
+
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
 
@@ -337,21 +339,6 @@ public class TranslatorUtils
         joinInformation6.setSubTableAlias(aliasFactory.createAlias());
         joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
         result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
-
-        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
-                || tableMapper == TableMapper.DATA_SET)
-        {
-            final String samplePropertyAlias = aliasFactory.createAlias();
-            final JoinInformation joinInformation7 = new JoinInformation();
-            joinInformation7.setJoinType(JoinType.LEFT);
-            joinInformation7.setMainTable(TableMapper.SAMPLE.getValuesTable());
-            joinInformation7.setMainTableAlias(valuesTableAlias);
-            joinInformation7.setMainTableIdField(SAMPLE_PROP_COLUMN);
-            joinInformation7.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
-            joinInformation7.setSubTableAlias(samplePropertyAlias);
-            joinInformation7.setSubTableIdField(ColumnNames.ID_COLUMN);
-            result.put(SAMPLE_PROP_COLUMN, joinInformation7);
-        }
 
         return result;
     }
@@ -905,6 +892,7 @@ public class TranslatorUtils
         sqlBuilder.append(COMMA).append(SP);
         sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
                 .append(CODE_COLUMN);
+        // TODO: replace with subselects
         if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
         {
             sqlBuilder.append(COMMA).append(SP);
@@ -914,4 +902,30 @@ public class TranslatorUtils
         sqlBuilder.append(RP);
     }
 
+    public static void appendSampleExistsSubselect(final List<Object> args, final StringBuilder sqlBuilder,
+            final AbstractStringValue value, final boolean useWildcards, final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(SAMPLES_VIEW).append(SP).append(SAMPLES_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(SAMPLE_PROP_COLUMN).append(SP).append(EQ).append(SP)
+                .append(SAMPLES_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(AND).append(SP)
+                .append(LP);
+
+        translateStringComparison(SAMPLES_TABLE_ALIAS, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(SAMPLES_TABLE_ALIAS, PERM_ID_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(SAMPLES_TABLE_ALIAS, SAMPLE_IDENTIFIER_COLUMN, value, useWildcards, null, sqlBuilder,
+                args);
+
+        sqlBuilder.append(RP);
+        sqlBuilder.append(RP);
+    }
 }
