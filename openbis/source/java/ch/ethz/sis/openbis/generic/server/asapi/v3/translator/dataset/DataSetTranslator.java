@@ -31,7 +31,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.DataSetContentCopyHistoryTranslator;
 
 /**
  * @author pkupczyk

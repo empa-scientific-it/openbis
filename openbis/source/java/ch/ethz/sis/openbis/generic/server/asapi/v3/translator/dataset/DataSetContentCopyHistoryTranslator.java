@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +37,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.DataSetQuery;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryContentCopyRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
