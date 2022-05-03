@@ -343,6 +343,92 @@ public class TranslatorUtils
         return result;
     }
 
+    public static Map<String, JoinInformation> getPropertyJoinInformationMapForOrder(final TableMapper tableMapper,
+            final IAliasFactory aliasFactory)
+    {
+        final Map<String, JoinInformation> result = new LinkedHashMap<>();
+        final String valuesTableAlias = aliasFactory.createAlias();
+        final String entityTypesAttributeTypesTableAlias = aliasFactory.createAlias();
+        final String attributeTypesTableAlias = aliasFactory.createAlias();
+
+        final JoinInformation joinInformation1 = new JoinInformation();
+        joinInformation1.setJoinType(JoinType.LEFT);
+        joinInformation1.setMainTable(tableMapper.getEntitiesTable());
+        joinInformation1.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+        joinInformation1.setMainTableIdField(ID_COLUMN);
+        joinInformation1.setSubTable(tableMapper.getValuesTable());
+        joinInformation1.setSubTableAlias(valuesTableAlias);
+        joinInformation1.setSubTableIdField(tableMapper.getValuesTableEntityIdField());
+        result.put(tableMapper.getValuesTable(), joinInformation1);
+
+        final JoinInformation joinInformation2 = new JoinInformation();
+        joinInformation2.setJoinType(JoinType.LEFT);
+        joinInformation2.setMainTable(tableMapper.getValuesTable());
+        joinInformation2.setMainTableAlias(valuesTableAlias);
+        joinInformation2.setMainTableIdField(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+        joinInformation2.setSubTable(tableMapper.getEntityTypesAttributeTypesTable());
+        joinInformation2.setSubTableAlias(entityTypesAttributeTypesTableAlias);
+        joinInformation2.setSubTableIdField(ID_COLUMN);
+        result.put(tableMapper.getEntityTypesAttributeTypesTable(), joinInformation2);
+
+        final JoinInformation joinInformation3 = new JoinInformation();
+        joinInformation3.setJoinType(JoinType.LEFT);
+        joinInformation3.setMainTable(tableMapper.getEntityTypesAttributeTypesTable());
+        joinInformation3.setMainTableAlias(entityTypesAttributeTypesTableAlias);
+        joinInformation3.setMainTableIdField(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
+        joinInformation3.setSubTable(tableMapper.getAttributeTypesTable());
+        joinInformation3.setSubTableAlias(attributeTypesTableAlias);
+        joinInformation3.setSubTableIdField(ID_COLUMN);
+        result.put(tableMapper.getAttributeTypesTable(), joinInformation3);
+
+        final JoinInformation joinInformation4 = new JoinInformation();
+        joinInformation4.setJoinType(JoinType.LEFT);
+        joinInformation4.setMainTable(tableMapper.getAttributeTypesTable());
+        joinInformation4.setMainTableAlias(attributeTypesTableAlias);
+        joinInformation4.setMainTableIdField(tableMapper.getAttributeTypesTableDataTypeIdField());
+        joinInformation4.setSubTable(TableNames.DATA_TYPES_TABLE);
+        joinInformation4.setSubTableAlias(aliasFactory.createAlias());
+        joinInformation4.setSubTableIdField(ColumnNames.ID_COLUMN);
+        result.put(TableNames.DATA_TYPES_TABLE, joinInformation4);
+
+        final JoinInformation joinInformation5 = new JoinInformation();
+        joinInformation5.setJoinType(JoinType.LEFT);
+        joinInformation5.setMainTable(tableMapper.getValuesTable());
+        joinInformation5.setMainTableAlias(valuesTableAlias);
+        joinInformation5.setMainTableIdField(VOCABULARY_TERM_COLUMN);
+        joinInformation5.setSubTable(CONTROLLED_VOCABULARY_TERM_TABLE);
+        joinInformation5.setSubTableAlias(aliasFactory.createAlias());
+        joinInformation5.setSubTableIdField(ColumnNames.ID_COLUMN);
+        result.put(CONTROLLED_VOCABULARY_TERM_TABLE, joinInformation5);
+
+        final JoinInformation joinInformation6 = new JoinInformation();
+        joinInformation6.setJoinType(JoinType.LEFT);
+        joinInformation6.setMainTable(tableMapper.getValuesTable());
+        joinInformation6.setMainTableAlias(valuesTableAlias);
+        joinInformation6.setMainTableIdField(MATERIAL_PROP_COLUMN);
+        joinInformation6.setSubTable(TableMapper.MATERIAL.getEntitiesTable());
+        joinInformation6.setSubTableAlias(aliasFactory.createAlias());
+        joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
+        result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
+
+        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
+                || tableMapper == TableMapper.DATA_SET)
+        {
+            final String samplePropertyAlias = aliasFactory.createAlias();
+            final JoinInformation joinInformation7 = new JoinInformation();
+            joinInformation7.setJoinType(JoinType.LEFT);
+            joinInformation7.setMainTable(TableMapper.SAMPLE.getValuesTable());
+            joinInformation7.setMainTableAlias(valuesTableAlias);
+            joinInformation7.setMainTableIdField(SAMPLE_PROP_COLUMN);
+            joinInformation7.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
+            joinInformation7.setSubTableAlias(samplePropertyAlias);
+            joinInformation7.setSubTableIdField(ColumnNames.ID_COLUMN);
+            result.put(SAMPLE_PROP_COLUMN, joinInformation7);
+        }
+
+        return result;
+    }
+
     public static Map<String, JoinInformation> getTypeJoinInformationMap(final TableMapper tableMapper, final IAliasFactory aliasFactory)
     {
         final Map<String, JoinInformation> result = new LinkedHashMap<>();
@@ -892,7 +978,6 @@ public class TranslatorUtils
         sqlBuilder.append(COMMA).append(SP);
         sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
                 .append(CODE_COLUMN);
-        // TODO: replace with subselects
         if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
         {
             sqlBuilder.append(COMMA).append(SP);

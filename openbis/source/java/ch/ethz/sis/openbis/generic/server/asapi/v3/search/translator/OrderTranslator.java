@@ -295,12 +295,12 @@ public class OrderTranslator
                 TranslatorUtils.isAnyPropertyScoreSortingFieldName(sortingCriterionFieldName);
         if (propertyScoreSortingFieldName || propertySortingFieldName)
         {
-            joinInformationMap = TranslatorUtils.getPropertyJoinInformationMap(tableMapper,
+            joinInformationMap = TranslatorUtils.getPropertyJoinInformationMapForOrder(tableMapper,
                     () -> getOrderingAlias(indexCounter));
             aliasesMapKey = trimFieldName(sortingCriterionFieldName).toLowerCase();
         } else if (anyPropertyScoreSortingFieldName)
         {
-            joinInformationMap = TranslatorUtils.getPropertyJoinInformationMap(tableMapper,
+            joinInformationMap = TranslatorUtils.getPropertyJoinInformationMapForOrder(tableMapper,
                     () -> getOrderingAlias(indexCounter));
             aliasesMapKey = ANY_PROPERTY_SCORE;
         } else if (isTypeSearchCriterion(sortingCriterionFieldName) ||
