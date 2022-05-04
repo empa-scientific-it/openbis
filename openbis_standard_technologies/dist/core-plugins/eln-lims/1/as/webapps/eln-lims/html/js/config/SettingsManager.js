@@ -24,8 +24,15 @@ var SettingsManagerUtils = new function() {
     }
 
     this.getVisibleObjectTypesForSpace = function(spaceCode, showInSpaceSetting) {
-        var spaceSettingsObject = this._getSpaceSettingsObject(spaceCode);
-        var spaceSettings = JSON.parse(spaceSettingsObject.properties["ELN_SETTINGS"]);
+        var spaceSettingsProperty = this._getSpaceSettingsObject(spaceCode).properties["ELN_SETTINGS"];
+        var spaceSettings = null;
+        if(spaceSettingsProperty) {
+            spaceSettings = JSON.parse(spaceSettingsProperty);
+        } else { // Provide default empty settings when settings are missing
+            spaceSettings = {
+                sampleTypeDefinitionsExtension : []
+            };
+        }
 
         var objectTypeCodes = [];
         for (var sampleTypeCode of Object.keys(spaceSettings.sampleTypeDefinitionsExtension)) {
