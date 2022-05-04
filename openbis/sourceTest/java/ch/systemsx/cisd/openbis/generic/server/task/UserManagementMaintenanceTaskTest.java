@@ -200,7 +200,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'ABC' skipped because no users specified or found.\n" 
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -227,7 +227,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:null, enabled:true, ldapGroupKeys:null, users:[alpha, beta], admins:null] with users [alpha=alpha, beta=beta]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 2 users for group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
@@ -255,7 +255,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'ABC' has empty ldapGroupKey.\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'ABC' skipped because no users specified or found.\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
@@ -283,7 +283,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'ABC' has no users found for ldapGroupKey 'a1'.\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'ABC' skipped because no users specified or found.\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
@@ -313,7 +313,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'SIS' skipped because no shareIds specified.\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -342,7 +342,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "WARN  OPERATION.UserManagementMaintenanceTaskWithMocks - Group 'SIS' skipped because no shareIds specified.\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -371,7 +371,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {A=B}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "ERROR NOTIFY.UserManagementMaintenanceTaskWithMocks - Identifier template 'A' is invalid "
                 + "(reason: No common space for common sample). Template schema: <common space code>/<common sample code>\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:null, admins:null] with users [u1=u1]\n"
@@ -406,7 +406,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {ALPHA/B=B}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: [{identifierTemplate=ALPHA/B, experimentType=B}]\n"
                 + "ERROR NOTIFY.UserManagementMaintenanceTaskWithMocks - Identifier template 'ALPHA/B' is invalid. "
                 + "Template schema: <common space code>/<common project code>/<common experiment code>\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:null, admins:null] with users [u1=u1]\n"
@@ -445,7 +445,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: [ES]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {ALPHA/B=B}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {ALPHA/P/E=E}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: [{identifierTemplate=ALPHA/P/E, experimentType=E}]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:[u2], admins:[u2]] with users [u1=u1, u2=u2]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 2 users for group SIS\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
@@ -499,7 +499,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for disabled group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished\n"
@@ -507,7 +507,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for disabled group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished\n"
@@ -515,7 +515,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:true, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
