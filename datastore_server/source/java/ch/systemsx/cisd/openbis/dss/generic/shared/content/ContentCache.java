@@ -500,10 +500,6 @@ public class ContentCache implements IContentCache, InitializingBean
     {
         try
         {
-            if (url.toLowerCase().startsWith("https"))
-            {
-                return new URL(null, url, new sun.net.www.protocol.https.Handler());
-            }
             return new URL(url);
         } catch (MalformedURLException ex)
         {
