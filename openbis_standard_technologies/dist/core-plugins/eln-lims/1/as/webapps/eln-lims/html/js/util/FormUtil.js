@@ -1131,12 +1131,19 @@ var FormUtil = new function() {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
 	    var Builder = null;
-	    if(toolbarContainer) {
-            Builder = InlineEditor.DecoupledEditor;
-	    } else {
-	        Builder = InlineEditor.InlineEditor;
-	    }
+// CK Editor 34
+//	    if(toolbarContainer) {
+//            Builder = InlineEditor.DecoupledEditor;
+//	    } else {
+//	        Builder = InlineEditor.InlineEditor;
+//	    }
 
+        // CK Editor 18
+	    if(toolbarContainer) {
+            Builder = CKEDITOR.DecoupledEditor;
+	    } else {
+	        Builder = CKEDITOR.InlineEditor;
+	    }
         Builder.create($component[0], {
                          placeholder: placeholder,
                          simpleUpload: {
