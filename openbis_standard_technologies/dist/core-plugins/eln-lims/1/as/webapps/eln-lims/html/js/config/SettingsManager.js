@@ -1,7 +1,7 @@
 var SettingsManagerUtils = new function() {
     this._instanceSettings = null;
 
-    this._getSpaceSettingsObject = function(spaceCode) {
+    this._getSpaceGroupPrefix = function(spaceCode) {
         var endOf = spaceCode.indexOf("_");
         var prefix = null;
 
@@ -15,7 +15,11 @@ var SettingsManagerUtils = new function() {
             prefix = "GENERAL";
         }
 
-        return this._instanceSettings[prefix];
+        return prefix;
+    }
+
+    this._getSpaceSettingsObject = function(spaceCode) {
+        return this._instanceSettings[this._getSpaceGroupPrefix(spaceCode)];
     }
 
     this.ShowInSpaceSetting = {
@@ -29,6 +33,7 @@ var SettingsManagerUtils = new function() {
         if(spaceSettingsProperty) {
             spaceSettings = JSON.parse(spaceSettingsProperty);
         } else { // Provide default empty settings when settings are missing
+            alert("Settings for group " + this._getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
             spaceSettings = {
                 sampleTypeDefinitionsExtension : []
             };
