@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.common.exceptions;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**

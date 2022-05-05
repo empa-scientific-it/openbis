@@ -44,8 +44,11 @@ import java.util.jar.JarFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Operations on classes using reflection.
@@ -54,6 +57,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public final class ClassUtils
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ClassUtils.class);
+
     private ClassUtils()
     {
         // Can not be instantiated.
@@ -360,6 +365,7 @@ public final class ClassUtils
                 field.setAccessible(true);
             } catch (InaccessibleObjectException e)
             {
+                operationLog.warn("Can not make field " + field.getType() + "." + field.getName() + " accessible: " + e);
                 return null;
             }
         }
@@ -450,8 +456,7 @@ public final class ClassUtils
     @SuppressWarnings("unchecked")
     private final static List<File> listClasses(final File packageFile)
     {
-        return (List<File>) FileUtils.listFiles(packageFile, new String[]
-        { "class" }, false);
+        return (List<File>) FileUtils.listFiles(packageFile, new String[] { "class" }, false);
     }
 
     private final static List<String> listEntries(final JarFile jarFile, final String packageName)
