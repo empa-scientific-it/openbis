@@ -46,6 +46,6 @@ public final class ServiceExceptionTranslator implements ThrowsAdvice
 
     public final void afterThrowing(final Exception exception) throws Exception
     {
-        throw ExceptionUtils.createMasqueradingException(exception, packages);
+        throw ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, packages);
     }
 }
