@@ -47,17 +47,10 @@ public final class ExceptionUtilsTest
 {
 
     private final void checkReturnedClientSafeException(final String message,
-            final Exception rootException, final Exception clientSafeException,
-            final boolean clientSafe)
+            final Exception rootException, final Exception clientSafeException)
     {
-        if (clientSafe)
-        {
-            assertSame(clientSafeException, rootException);
-        } else
-        {
-            assertNotSame(clientSafeException, rootException);
-            assertTrue(clientSafeException instanceof MasqueradingException);
-        }
+        assertNotSame(clientSafeException, rootException);
+        assertTrue(clientSafeException instanceof MasqueradingException);
         assertEquals(message, clientSafeException.getMessage());
         assertTrue(Arrays
                 .equals(rootException.getStackTrace(), clientSafeException.getStackTrace()));
@@ -72,7 +65,7 @@ public final class ExceptionUtilsTest
     {
         try
         {
-            ExceptionUtils.createMasqueradingExceptionIfNeeded(null, Collections.<String> emptyList());
+            ExceptionUtils.createMasqueradingException(null, Collections.<String> emptyList());
             fail("Null exception not allowed.");
         } catch (final AssertionError ex)
         {
@@ -86,9 +79,9 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final UserFailureException exception = new UserFailureException(message);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
+                ExceptionUtils.createMasqueradingException(exception, Collections
                         .<String> emptyList());
-        checkReturnedClientSafeException(message, exception, clientSafeException, true);
+        checkReturnedClientSafeException(message, exception, clientSafeException);
     }
 
     @Test
@@ -97,8 +90,8 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final Exception exception = new SAXException(message);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Arrays.asList("org.xml"));
-        checkReturnedClientSafeException(message, exception, clientSafeException, true);
+                ExceptionUtils.createMasqueradingException(exception, Arrays.asList("org.xml"));
+        checkReturnedClientSafeException(message, exception, clientSafeException);
     }
 
     @Test
@@ -107,9 +100,9 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final Exception exception = new SAXException(message);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
+                ExceptionUtils.createMasqueradingException(exception, Collections
                         .<String> emptyList());
-        checkReturnedClientSafeException(message, exception, clientSafeException, false);
+        checkReturnedClientSafeException(message, exception, clientSafeException);
     }
 
     @Test
@@ -124,14 +117,14 @@ public final class ExceptionUtilsTest
         final UnsupportedOperationException unsupportedOperationException =
                 new UnsupportedOperationException(unsupportedOperationText, runtimeException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(unsupportedOperationException,
+                ExceptionUtils.createMasqueradingException(unsupportedOperationException,
                         Collections.<String> emptyList());
         checkReturnedClientSafeException(unsupportedOperationText, unsupportedOperationException,
-                clientSafeException, true);
+                clientSafeException);
         checkReturnedClientSafeException(runtimeText, runtimeException,
-                (Exception) clientSafeException.getCause(), true);
+                (Exception) clientSafeException.getCause());
         checkReturnedClientSafeException(userFailureText, userFailureException,
-                (Exception) clientSafeException.getCause().getCause(), true);
+                (Exception) clientSafeException.getCause().getCause());
     }
 
     @Test
@@ -145,14 +138,13 @@ public final class ExceptionUtilsTest
         final DigestException digestException =
                 new DigestException(digestExceptionText, runtimeException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(digestException, Collections
+                ExceptionUtils.createMasqueradingException(digestException, Collections
                         .<String> emptyList());
-        checkReturnedClientSafeException(digestExceptionText, digestException, clientSafeException,
-                false);
+        checkReturnedClientSafeException(digestExceptionText, digestException, clientSafeException);
         checkReturnedClientSafeException(runtimeText, runtimeException,
-                (Exception) clientSafeException.getCause(), true);
+                (Exception) clientSafeException.getCause());
         checkReturnedClientSafeException(saxExceptionText, saxException,
-                (Exception) clientSafeException.getCause().getCause(), false);
+                (Exception) clientSafeException.getCause().getCause());
     }
 
     @Test
@@ -163,7 +155,7 @@ public final class ExceptionUtilsTest
         final RuntimeException checkedExceptionTunnel =
                 CheckedExceptionTunnel.wrapIfNecessary(ioException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(checkedExceptionTunnel,
+                ExceptionUtils.createMasqueradingException(checkedExceptionTunnel,
                         Collections.<String> emptyList());
         assertNotSame(clientSafeException, checkedExceptionTunnel);
         assertNotSame(clientSafeException, ioException);

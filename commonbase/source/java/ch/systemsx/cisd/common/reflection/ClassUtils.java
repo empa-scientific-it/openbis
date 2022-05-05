@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -136,7 +137,7 @@ public final class ClassUtils
         assert superClazz != null : "Missing super class";
         assert clazz != null : "Missing class name";
 
-        final Exception exception;
+        Exception exception;
         try
         {
             assert clazz.isInterface() == false : "Interface '" + clazz.getName()
@@ -321,6 +322,8 @@ public final class ClassUtils
         } catch (final IllegalArgumentException ex)
         {
         } catch (final IllegalAccessException ex)
+        {
+        } catch (final InaccessibleObjectException ex)
         {
         }
         return false;
