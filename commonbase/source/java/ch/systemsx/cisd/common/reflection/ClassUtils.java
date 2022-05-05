@@ -323,8 +323,6 @@ public final class ClassUtils
         {
         } catch (final IllegalAccessException ex)
         {
-        } catch (final InaccessibleObjectException ex)
-        {
         }
         return false;
     }
@@ -335,7 +333,7 @@ public final class ClassUtils
      * Before returning it, it call {@link Field#setAccessible(boolean)} with <code>true</code>.
      * </p>
      * 
-     * @return <code>null</code> if given <var>fieldName</var> could not be found.
+     * @return <code>null</code> if given <var>fieldName</var> could not be found or it couldn't be made accessible.
      */
     public final static Field tryGetDeclaredField(final Class<?> c, final String fieldName)
     {
@@ -357,7 +355,13 @@ public final class ClassUtils
         } while (field == null && clazz != null);
         if (field != null)
         {
-            field.setAccessible(true);
+            try
+            {
+                field.setAccessible(true);
+            } catch (InaccessibleObjectException e)
+            {
+                return null;
+            }
         }
         return field;
     }
