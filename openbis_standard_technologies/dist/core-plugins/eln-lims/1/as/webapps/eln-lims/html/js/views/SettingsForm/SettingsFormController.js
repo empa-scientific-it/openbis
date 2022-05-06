@@ -26,8 +26,17 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	        var profileToEdit = null;
             if(settingsSample.properties["$ELN_SETTINGS"]) {
                 profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
-            } else {
+            }
+            var initialGroupSettings = profileToEdit && Object.keys(profileToEdit).length == 2 && profileToEdit["inventorySpaces"] && profileToEdit["inventorySpacesReadOnly"];
+            if(initialGroupSettings) { // Special initialisation for group settings
                 var newProfile = jQuery.extend(true, {}, profile);
+                newProfile["inventorySpaces"] = profileToEdit["inventorySpaces"];
+                newProfile["inventorySpacesReadOnly"] = profileToEdit["inventorySpacesReadOnly"];
+                profileToEdit = newProfile;
+            } else { // Special initialisation for general settings
+                var newProfile = jQuery.extend(true, {}, profile);
+                newProfile["inventorySpaces"] = profile.inventorySpacesPostFixes;
+                newProfile["inventorySpacesReadOnly"] = profile.inventorySpacesReadOnlyPostFixes;
                 profileToEdit = newProfile;
             }
             require(["as/dto/sample/id/SampleIdentifier"], function(SampleIdentifier) {

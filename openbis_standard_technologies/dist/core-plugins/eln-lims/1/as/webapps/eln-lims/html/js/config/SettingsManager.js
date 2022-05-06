@@ -32,7 +32,9 @@ var SettingsManagerUtils = new function() {
         var spaceSettings = null;
         if(spaceSettingsProperty) {
             spaceSettings = JSON.parse(spaceSettingsProperty);
-        } else { // Provide default empty settings when settings are missing
+        }
+        var initialGroupSettings = spaceSettings && Object.keys(spaceSettings).length == 2 && spaceSettings["inventorySpaces"] && spaceSettings["inventorySpacesReadOnly"];
+        if(!spaceSettingsProperty || initialGroupSettings) { // Provide default empty settings when settings are missing
             alert("Settings for group " + this._getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
             spaceSettings = {
                 sampleTypeDefinitionsExtension : []
@@ -265,6 +267,9 @@ function SettingsManager(serverFacade) {
                      "SHOW_ON_NAV" : false,
                      "USE_AS_PROTOCOL" : true,
                  }
+            if(!settings.sampleTypeDefinitionsExtension) {
+                settings.sampleTypeDefinitionsExtension = {};
+            }
      		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
 
      			// If doesn't exist, it is created

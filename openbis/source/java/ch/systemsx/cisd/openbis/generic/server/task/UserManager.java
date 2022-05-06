@@ -526,11 +526,53 @@ public class UserManager
                     sampleCreation.setCode(sampleCode);
                     sampleCreation.setTypeId(new EntityTypePermId(sampleType));
                     sampleCreation.setSpaceId(new SpacePermId(spaceCode));
+                    if (sampleType.equals("GENERAL_ELN_SETTINGS")) {
+                        sampleCreation.setProperty("$ELN_SETTINGS", getCommonSpacesConfiguration(groupCode, commonSpacesByRole));
+                    }
                     context.add(sampleCreation);
                     context.getReport().addSample(sampleId);
                 }
             }
         }
+    }
+
+    private String getCommonSpacesConfiguration(String groupCode, Map<Role, List<String>> commonSpacesByRole) {
+        String  jsonConfiguration = "";
+                jsonConfiguration += "{";
+                jsonConfiguration += "\"inventorySpaces\":";
+                jsonConfiguration += "[";
+                boolean isFirstInventorySpace = true;
+                for (Role role:commonSpacesByRole.keySet()) {
+                    if (role != Role.OBSERVER) {
+                        List<String> spaceCodes = commonSpacesByRole.get(role);
+                        for (String spaceCode:spaceCodes) {
+                            String groupSpaceCode = groupCode + "_" + spaceCode;
+                            if (isFirstInventorySpace) {
+                                isFirstInventorySpace = false;
+                            } else {
+                                jsonConfiguration += ",";
+                            }
+                            jsonConfiguration += "\"" + groupSpaceCode + "\"";
+                        }
+                    }
+                }
+                jsonConfiguration += "],";
+                jsonConfiguration += "\"inventorySpacesReadOnly\":";
+                jsonConfiguration += "[";
+                boolean isFirstinventorySpacesReadOnly = true;
+                List<String> spaceCodes = commonSpacesByRole.get(Role.OBSERVER);
+                for (String spaceCode:spaceCodes) {
+                    String groupSpaceCode = groupCode + "_" + spaceCode;
+                    if (isFirstinventorySpacesReadOnly) {
+                        isFirstinventorySpacesReadOnly = false;
+                    } else {
+                        jsonConfiguration += ",";
+                    }
+                    jsonConfiguration += "\"" + groupSpaceCode + "\"";
+                }
+                jsonConfiguration += "]";
+                jsonConfiguration += "}";
+        return jsonConfiguration;
     }
 
     private void createExperiments(Context context, String groupCode)
