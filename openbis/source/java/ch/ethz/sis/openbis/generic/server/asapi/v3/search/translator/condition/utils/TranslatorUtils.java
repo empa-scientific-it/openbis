@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
@@ -60,6 +59,8 @@ public class TranslatorUtils
     private static final String SAMPLES_TABLE_ALIAS = "samp";
 
     private static final String MATERIALS_TABLE_ALIAS = "mat";
+
+    private static final String VOCABULARY_TERMS_TABLE_ALIAS = "cvt";
 
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
@@ -321,16 +322,6 @@ public class TranslatorUtils
         joinInformation4.setSubTableAlias(aliasFactory.createAlias());
         joinInformation4.setSubTableIdField(ColumnNames.ID_COLUMN);
         result.put(TableNames.DATA_TYPES_TABLE, joinInformation4);
-
-        final JoinInformation joinInformation5 = new JoinInformation();
-        joinInformation5.setJoinType(JoinType.LEFT);
-        joinInformation5.setMainTable(tableMapper.getValuesTable());
-        joinInformation5.setMainTableAlias(valuesTableAlias);
-        joinInformation5.setMainTableIdField(VOCABULARY_TERM_COLUMN);
-        joinInformation5.setSubTable(CONTROLLED_VOCABULARY_TERM_TABLE);
-        joinInformation5.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation5.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(CONTROLLED_VOCABULARY_TERM_TABLE, joinInformation5);
 
         return result;
     }
@@ -657,7 +648,6 @@ public class TranslatorUtils
 
     public static Object convertStringToType(final String value, final Class<?> klass)
     {
-        // Integer numbers need to be converted from string to a real number first, because they can be presented with decimal point.
         if (Boolean.class == klass)
         {
             return Boolean.parseBoolean(value);
@@ -672,6 +662,7 @@ public class TranslatorUtils
             final float decimalValue = Float.parseFloat(value);
             return (short) decimalValue;
         }
+        // Integer numbers need to be converted from string to a real number first, because in text they can be presented with decimal point.
         if (Integer.class == klass)
         {
             final float decimalValue = Float.parseFloat(value);
@@ -870,7 +861,8 @@ public class TranslatorUtils
         return spacesJoinInformation;
     }
 
-    public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue, final String alias, final List<Object> args)
+    public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue,
+            final String alias, final List<Object> args)
     {
         if ("".equals(stringValue.getValue()))
         {
@@ -879,10 +871,10 @@ public class TranslatorUtils
         {
             final String tsQueryValue = toTsQueryText(stringValue);
             sqlBuilder.append(alias).append(PERIOD)
-            .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
-            .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
-            .append(SP).append(BARS).append(SP)
-            .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
+                    .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+                    .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
+                    .append(SP).append(BARS).append(SP)
+                    .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
             args.add(tsQueryValue);
             args.add(tsQueryValue);
         }
@@ -945,9 +937,6 @@ public class TranslatorUtils
         sqlBuilder.append(COALESCE).append(LP);
         sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
                 .append(VALUE_COLUMN);
-        sqlBuilder.append(COMMA).append(SP);
-        sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
-                .append(CODE_COLUMN);
         sqlBuilder.append(RP);
     }
 
@@ -1036,9 +1025,39 @@ public class TranslatorUtils
                 .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
                 .append(MATERIAL_PROP_COLUMN).append(SP).append(EQ).append(SP)
                 .append(MATERIALS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendControlledVocabularyTermExistsSubselect(final List<Object> args,
+            final StringBuilder sqlBuilder, final AbstractStringValue value, final boolean useWildcards,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP).append(VOCABULARY_TERMS_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(VOCABULARY_TERM_COLUMN).append(SP).append(EQ).append(SP)
+                .append(VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(AND).append(SP);
+
+        translateStringComparison(VOCABULARY_TERMS_TABLE_ALIAS, CODE_COLUMN, value, useWildcards, null, sqlBuilder,
+                args);
 
         sqlBuilder.append(RP);
     }
 
+    public static void appendControlledVocabularyTermExistsSubselect(final StringBuilder sqlBuilder,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
+                .append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP).append(VOCABULARY_TERMS_TABLE_ALIAS).append(SP)
+                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(VOCABULARY_TERM_COLUMN).append(SP).append(EQ).append(SP)
+                .append(VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
+        sqlBuilder.append(RP);
+    }
 
 }

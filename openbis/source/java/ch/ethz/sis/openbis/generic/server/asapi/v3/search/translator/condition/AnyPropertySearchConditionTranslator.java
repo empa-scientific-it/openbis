@@ -88,10 +88,10 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
                 final String finalValue = TranslatorUtils.stripQuotationMarks(value.getValue());
                 TranslatorUtils.appendStringComparatorOp(value.getClass(), finalValue, useWildcards, sqlBuilder, args);
 
-                sqlBuilder.append(SP).append(OR).append(SP).append(aliases.get(CONTROLLED_VOCABULARY_TERM_TABLE)
-                        .getSubTableAlias()).append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP);
-                TranslatorUtils.appendStringComparatorOp(value.getClass(), finalValue, useWildcards, sqlBuilder,
-                        args);
+                sqlBuilder.append(SP).append(OR).append(SP);
+
+                TranslatorUtils.appendControlledVocabularyTermExistsSubselect(args, sqlBuilder, value, useWildcards,
+                        valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                         || tableMapper == TableMapper.DATA_SET)

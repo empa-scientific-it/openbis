@@ -213,6 +213,9 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
             sqlBuilder.append(SP).append(IS_NOT_NULL);
             sqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendControlledVocabularyTermExistsSubselect(sqlBuilder,
+                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            sqlBuilder.append(SP).append(OR).append(SP);
             TranslatorUtils.appendMaterialExistsSubselect(sqlBuilder,
                     aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
             sqlBuilder.append(SP).append(OR).append(SP);
@@ -234,9 +237,8 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             .append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
                             .append(SP).append(EQ).append(SP).append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY)
                             .append(SQ).append(SP).append(THEN).append(SP);
-                    TranslatorUtils.translateStringComparison(
-                            aliases.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias(),
-                            CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+                    TranslatorUtils.appendControlledVocabularyTermExistsSubselect(args, sqlBuilder, value, useWildcards,
+                            aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
                 }
 
                 final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
