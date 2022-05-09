@@ -26,7 +26,7 @@ import java.util.TimerTask;
  */
 public class TimerUtilities
 {
-    private static Thread tryGetTimerThread(String timerThreadName)
+    static Thread tryGetTimerThread(String timerThreadName)
     {
         for (Thread thread : Thread.getAllStackTraces().keySet())
         {
@@ -45,7 +45,7 @@ public class TimerUtilities
      * @param millis The time-out in milli-seconds to wait for the thread to die.
      * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
-    private static boolean tryJoinThread(Thread thread, long millis)
+    static boolean tryJoinThread(Thread thread, long millis)
     {
         try
         {

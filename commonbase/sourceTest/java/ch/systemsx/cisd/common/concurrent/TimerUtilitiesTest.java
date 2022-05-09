@@ -70,6 +70,8 @@ public class TimerUtilitiesTest
     {
         final Semaphore sem = new Semaphore(0);
         final Timer timer = new Timer("timer-testJoin");
+        Thread timerThread = TimerUtilities.tryGetTimerThread("timer-testJoin");
+
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -82,7 +84,7 @@ public class TimerUtilitiesTest
         timer.schedule(task, 50L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         timer.cancel();
-        assertTrue(TimerUtilities.tryJoinTimerThread("timer-testJoin", 200L));
+        assertTrue(TimerUtilities.tryJoinThread(timerThread, 200L));
     }
 
     @Test
