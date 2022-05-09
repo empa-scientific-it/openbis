@@ -38,16 +38,10 @@ import org.testng.annotations.Test;
 public class TimerUtilitiesTest
 {
     @Test
-    public void testOperational()
-    {
-        assertTrue(TimerUtilities.isOperational());
-    }
-
-    @Test
     public void testInterrupt() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testInterrupt");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -67,7 +61,7 @@ public class TimerUtilitiesTest
             };
         timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
-        assertTrue(TimerUtilities.tryInterruptTimerThread(timer));
+        assertTrue(TimerUtilities.tryInterruptTimerThread(timer, "timer-testInterrupt"));
         assertTrue(sem.tryAcquire(100L, TimeUnit.MILLISECONDS));
     }
 
@@ -75,7 +69,7 @@ public class TimerUtilitiesTest
     public void testJoin() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testJoin");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -88,14 +82,14 @@ public class TimerUtilitiesTest
         timer.schedule(task, 50L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         timer.cancel();
-        assertTrue(TimerUtilities.tryJoinTimerThread(timer, 200L));
+        assertTrue(TimerUtilities.tryJoinTimerThread("timer-testJoin", 200L));
     }
 
     @Test
     public void testJoinFailed() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testJoinFailed");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -113,7 +107,7 @@ public class TimerUtilitiesTest
             };
         timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
-        assertFalse(TimerUtilities.tryJoinTimerThread(timer, 100L));
+        assertFalse(TimerUtilities.tryJoinTimerThread("timer-testJoinFailed", 100L));
         timer.cancel(); // Ensure the timer doesn't get called again.
     }
 
@@ -121,7 +115,7 @@ public class TimerUtilitiesTest
     public void testInterruptAndJoin() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testInterruptAndJoin");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -142,8 +136,8 @@ public class TimerUtilitiesTest
         timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         timer.cancel();
-        assertTrue(TimerUtilities.tryInterruptTimerThread(timer));
-        assertTrue(TimerUtilities.tryJoinTimerThread(timer, 100L));
+        assertTrue(TimerUtilities.tryInterruptTimerThread(timer, "timer-testInterruptAndJoin"));
+        assertTrue(TimerUtilities.tryJoinTimerThread("timer-testInterruptAndJoin", 100L));
         assertTrue(sem.tryAcquire());
     }
 
@@ -151,7 +145,7 @@ public class TimerUtilitiesTest
     public void testInterruptAndJoinFailed() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testInterruptAndJoinFailed");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -172,8 +166,8 @@ public class TimerUtilitiesTest
         timer.schedule(task, 0L, 1000L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         // Here we would need a timer.cancel() to make the join succeed
-        assertTrue(TimerUtilities.tryInterruptTimerThread(timer));
-        assertFalse(TimerUtilities.tryJoinTimerThread(timer, 100L));
+        assertTrue(TimerUtilities.tryInterruptTimerThread(timer, "timer-testInterruptAndJoinFailed"));
+        assertFalse(TimerUtilities.tryJoinTimerThread("timer-testInterruptAndJoinFailed", 100L));
         assertTrue(sem.tryAcquire());
         timer.cancel(); // Ensure the timer doesn't get called again.
     }
@@ -182,7 +176,7 @@ public class TimerUtilitiesTest
     public void testShutdown() throws InterruptedException
     {
         final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
+        final Timer timer = new Timer("timer-testShutdown");
         final TimerTask task = new TimerTask()
             {
                 @Override
@@ -202,7 +196,7 @@ public class TimerUtilitiesTest
             };
         timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
-        assertTrue(TimerUtilities.tryShutdownTimer(timer, 100L));
+        assertTrue(TimerUtilities.tryShutdownTimer(timer, "timer-testShutdown", 100L));
         assertTrue(sem.tryAcquire());
         timer.cancel(); // Just to be sure.
     }

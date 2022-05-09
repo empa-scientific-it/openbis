@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import java.lang.reflect.Field;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
  * Utilities for {@link Timer}.
@@ -29,29 +26,14 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
  */
 public class TimerUtilities
 {
-    private static final Field timerThreadFieldOrNull = tryGetTimerThreadField();
-
-    private static Field tryGetTimerThreadField()
+    private static Thread tryGetTimerThread(String timerThreadName)
     {
-        final Field field = ClassUtils.tryGetDeclaredField(Timer.class, "thread");
-        if (field != null && Thread.class.isAssignableFrom(field.getType()))
+        for (Thread thread : Thread.getAllStackTraces().keySet())
         {
-            return field;
-        }
-        return null;
-    }
-
-    private static Thread tryGetTimerThread(Timer timer)
-    {
-        try
-        {
-            if (timerThreadFieldOrNull != null)
+            if (thread.getName().equals(timerThreadName))
             {
-                return (Thread) timerThreadFieldOrNull.get(timer);
+                return thread;
             }
-        } catch (Exception ex)
-        {
-            // Nothing to do here.
         }
         return null;
     }
@@ -76,22 +58,13 @@ public class TimerUtilities
     }
 
     /**
-     * Returns <code>true</code>, if these utilities are operational (i.e. can work with the {@link Timer} class of the JRE) and <code>false</code>
-     * otherwise.
-     */
-    public static boolean isOperational()
-    {
-        return (timerThreadFieldOrNull != null);
-    }
-
-    /**
      * Tries to interrupt the thread that the given <var>timer</var> uses for processing {@link TimerTask}s.
      * 
      * @return <code>true</code>, if the timer thread was successfully interrupted and <code>false</code> otherwise.
      */
-    public static boolean tryInterruptTimerThread(Timer timer)
+    public static boolean tryInterruptTimerThread(Timer timer, String timerThreadName)
     {
-        final Thread timerThreadOrNull = tryGetTimerThread(timer);
+        final Thread timerThreadOrNull = tryGetTimerThread(timerThreadName);
         if (timerThreadOrNull != null)
         {
             timerThreadOrNull.interrupt();
@@ -104,14 +77,15 @@ public class TimerUtilities
 
     /**
      * Tries to join the thread that <var>timer</var> is running its {@link TimerTask}s in (see {@link Thread#join(long)}.
-     * 
-     * @param timer The {@link Timer} to get the thread from.
+     *
+     * @param timerThreadName The name of the timer thread.
      * @param millis The time-out in milli-seconds to wait for the thread to die.
+     * 
      * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
-    public static boolean tryJoinTimerThread(Timer timer, long millis)
+    public static boolean tryJoinTimerThread(String timerThreadName, long millis)
     {
-        final Thread timerThreadOrNull = tryGetTimerThread(timer);
+        final Thread timerThreadOrNull = tryGetTimerThread(timerThreadName);
         if (timerThreadOrNull != null)
         {
             return tryJoinThread(timerThreadOrNull, millis);
@@ -128,10 +102,10 @@ public class TimerUtilities
      *            specified.
      * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
-    public static boolean tryShutdownTimer(Timer timer, long millis)
+    public static boolean tryShutdownTimer(Timer timer, String timerThreadName, long millis)
     {
+        Thread timerThread = tryGetTimerThread(timerThreadName);
         timer.cancel();
-        final Thread timerThread = tryGetTimerThread(timer);
         if (timerThread == null)
         {
             return false;

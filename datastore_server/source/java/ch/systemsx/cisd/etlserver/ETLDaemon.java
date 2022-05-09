@@ -218,18 +218,6 @@ public final class ETLDaemon
             e.printStackTrace();
             exitHandler.exit(1);
         }
-        if (TimerUtilities.isOperational())
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Timer task interruption is operational.");
-            }
-        } else
-        {
-            operationLog.warn("Timer task interruption is not operational. "
-                    + "No clean up can be performed on extraordinary shutdown.");
-        }
-
     }
 
     private static void checkFullyAccesible(final File directory)
@@ -368,7 +356,7 @@ public final class ETLDaemon
                 threadParameters.getThreadName() + " - Incoming Data Monitor";
         final Timer workerTimer = new Timer(timerThreadName);
         workerTimer.schedule(dataMonitorTask, 0L, parameters.getCheckIntervalMillis());
-        addShutdownHookForCleanup(workerTimer, pathHandler, parameters.getShutdownTimeOutMillis(),
+        addShutdownHookForCleanup(workerTimer, timerThreadName, pathHandler, parameters.getShutdownTimeOutMillis(),
                 threadParameters.getThreadName());
         return pathHandler;
     }
@@ -525,7 +513,7 @@ public final class ETLDaemon
             };
     }
 
-    private static void addShutdownHookForCleanup(final Timer workerTimer,
+    private static void addShutdownHookForCleanup(final Timer workerTimer, String timerThreadName,
             final ITopLevelDataSetRegistrator mover, final long timeoutMillis,
             final String threadName)
     {
@@ -563,7 +551,7 @@ public final class ETLDaemon
                                         2 * timeoutLeftMillis / 1000));
                             }
                             final boolean shutdownOK =
-                                    TimerUtilities.tryShutdownTimer(workerTimer, timeoutLeftMillis);
+                                    TimerUtilities.tryShutdownTimer(workerTimer, timerThreadName, timeoutLeftMillis);
                             operationLog.log(shutdownOK ? Level.INFO : Level.ERROR,
                                     "Worker thread shutdown, status="
                                             + (shutdownOK ? "OK" : "FAILED"));
