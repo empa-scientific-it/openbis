@@ -24,8 +24,8 @@ check sets [reflection]
 [process] = ${package}.process.*
 check sets [process]
 
-layer layer0 = [reflection]
-layer layer0b = [logging]
+layer layer0 = [logging]
+layer layer0b = [reflection]
 layer layer1 = [exception]  
 layer layer2 = [collection]  
 layer layer2b = [properties]
