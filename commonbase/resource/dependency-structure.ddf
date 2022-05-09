@@ -24,7 +24,8 @@ check sets [reflection]
 [process] = ${package}.process.*
 check sets [process]
 
-layer layer0 = [logging] [reflection]
+layer layer0 = [reflection]
+layer layer0b = [logging]
 layer layer1 = [exception]  
 layer layer2 = [collection]  
 layer layer2b = [properties]
@@ -32,7 +33,7 @@ layer layer3 = [process]
 layer layer4 = [io]
 layer layer5 = [parser]
 
-check layeringOf layer0 layer1 layer2 layer2b layer3 layer4 layer5
+check layeringOf layer0 layer0b layer1 layer2 layer2b layer3 layer4 layer5
 
 check [parser] independentOf ${package}.exceptions.UserFailureException
 
