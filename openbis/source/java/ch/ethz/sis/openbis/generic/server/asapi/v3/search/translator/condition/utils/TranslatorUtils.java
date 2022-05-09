@@ -56,8 +56,6 @@ public class TranslatorUtils
 
     public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
 
-    private static final String VOCABULARY_TERMS_TABLE_ALIAS = "cvt";
-
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
 
@@ -1022,17 +1020,14 @@ public class TranslatorUtils
             final StringBuilder sqlBuilder, final AbstractStringValue value, final boolean useWildcards,
             final String propertyTableAlias)
     {
-        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(VOCABULARY_TERM_COLUMN).append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
-        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
-                .append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP).append(VOCABULARY_TERMS_TABLE_ALIAS).append(SP)
-                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
-                .append(VOCABULARY_TERM_COLUMN).append(SP).append(EQ).append(SP)
-                .append(VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP).append(AND).append(SP);
 
-        translateStringComparison(VOCABULARY_TERMS_TABLE_ALIAS, CODE_COLUMN, value, useWildcards, null, sqlBuilder,
-                args);
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP)
+                .append(WHERE).append(SP);
+        translateStringComparison(null, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
 
         sqlBuilder.append(RP);
     }
@@ -1040,13 +1035,13 @@ public class TranslatorUtils
     public static void appendControlledVocabularyTermExistsSubselect(final StringBuilder sqlBuilder,
             final String propertyTableAlias)
     {
-        sqlBuilder.append(EXISTS).append(SP);
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(VOCABULARY_TERM_COLUMN).append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
-        sqlBuilder.append(SELECT).append(SP).append(1).append(SP).append(FROM).append(SP)
-                .append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP).append(VOCABULARY_TERMS_TABLE_ALIAS).append(SP)
-                .append(WHERE).append(SP).append(propertyTableAlias).append(PERIOD)
-                .append(VOCABULARY_TERM_COLUMN).append(SP).append(EQ).append(SP)
-                .append(VOCABULARY_TERMS_TABLE_ALIAS).append(PERIOD).append(ID_COLUMN);
+
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP);
+
         sqlBuilder.append(RP);
     }
 
