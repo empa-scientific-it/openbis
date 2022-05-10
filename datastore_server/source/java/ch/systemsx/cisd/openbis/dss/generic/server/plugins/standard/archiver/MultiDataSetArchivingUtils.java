@@ -16,19 +16,29 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -83,5 +93,20 @@ class MultiDataSetArchivingUtils
         logger.log(LogLevel.INFO, "Sanity check finished.");
 
         return statuses;
+    }
+
+    static Share getScratchShare(File storeRoot, IEncapsulatedOpenBISService service,
+            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger logger)
+    {
+        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
+        Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ARCHIVING_SCRATCH,
+                        incomingShares, freeSpaceProvider, service, logger);
+        if (shares.size() != 1)
+        {
+            throw new ConfigurationFailureException("There should be exactly one unarchiving scratch share configured!");
+        }
+        return shares.get(0);
     }
 }

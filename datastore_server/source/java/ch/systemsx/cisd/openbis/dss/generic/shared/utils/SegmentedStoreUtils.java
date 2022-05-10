@@ -208,7 +208,8 @@ public class SegmentedStoreUtils
         {
             throw new ConfigurationFailureException(
                     "Couldn't create a test file in the following incoming folder: "
-                            + incomingFolder, ex);
+                            + incomingFolder,
+                    ex);
         }
         return testFile;
     }
@@ -272,8 +273,7 @@ public class SegmentedStoreUtils
                             + " is set to true.");
                 }
                 return share;
-            }
-            else
+            } else
             {
                 testFile.delete();
             }
@@ -346,18 +346,9 @@ public class SegmentedStoreUtils
             List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
                     listDataSetsToRemoveFromShare(filteredDataSetsInShare, requestedSpace, actualFreeSpace,
                             unarchivingScratchShare, logger);
-            logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId()
-                    + "' and set their archiving status back to ARCHIVED: "
-                    + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
-            service.updateDataSetStatuses(extractCodes(dataSetsToRemoveFromShare), DataSetArchivingStatus.ARCHIVED, true);
-            for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
-            {
-                deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
-            }
+            deleteFromUnarchivingScratchShare(dataSetsToRemoveFromShare, unarchivingScratchShare, service, 
+                    dataSetDirectoryProvider, shareIdManager, logger);
             availableSpace += calculateTotalSize(dataSetsToRemoveFromShare);
-            logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
-                    + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
-                    + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
             actualFreeSpace = Math.min(availableSpace, unarchivingScratchShare.calculateFreeSpace());
         }
         logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
@@ -365,6 +356,23 @@ public class SegmentedStoreUtils
                 + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(actualFreeSpace))
                 + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
+    }
+
+    public static void deleteFromUnarchivingScratchShare(List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare,
+            Share unarchivingScratchShare, IEncapsulatedOpenBISService service, 
+            IDataSetDirectoryProvider dataSetDirectoryProvider, IShareIdManager shareIdManager, ISimpleLogger logger)
+    {
+        logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId()
+                + "' and set their archiving status back to ARCHIVED: "
+                + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+        service.updateDataSetStatuses(extractCodes(dataSetsToRemoveFromShare), DataSetArchivingStatus.ARCHIVED, true);
+        for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
+        {
+            deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
+        }
+        logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
+                + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
+                + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
     }
 
     private static List<SimpleDataSetInformationDTO> getAvailableArchivedDataSetsInUnarchivingScratchShare(Share unarchivingScratchShare)
@@ -380,7 +388,6 @@ public class SegmentedStoreUtils
         }
         return availableDataSets;
     }
-    
 
     /**
      * Remove common data sets from both lists
