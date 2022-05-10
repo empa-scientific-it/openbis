@@ -565,13 +565,26 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 String newShareId = scratchShare.getShareId();
                 if (newShareId.equals(oldShareId) == false)
                 {
-                    service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
+                    service.updateShareIdAndSize(dataSetCode, newShareId, getSize(dataSet));
                     shareIdManager.setShareId(dataSetCode, newShareId);
                 }
             }
 
             SegmentedStoreUtils.freeSpace(scratchShare, service, dataSets, directoryProvider, shareIdManager, new Log4jSimpleLogger(operationLog));
 
+        }
+
+        private long getSize(DatasetDescription dataSet)
+        {
+            Long dataSetSize = dataSet.getDataSetSize();
+            if (dataSetSize != null)
+            {
+                return dataSetSize;
+            }
+            // Get the size from pathinfo database
+            IHierarchicalContentProvider contentProvider = ServiceProvider.getHierarchicalContentProvider();
+            IHierarchicalContentNode rootNode = contentProvider.asContent(dataSet.getDataSetCode()).getRootNode();
+            return rootNode.getFileLength();
         }
     }
 
