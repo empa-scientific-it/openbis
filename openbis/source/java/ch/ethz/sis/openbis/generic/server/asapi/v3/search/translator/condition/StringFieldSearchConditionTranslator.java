@@ -126,8 +126,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
 
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD).append(joinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL);
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
 
         if (fullPropertyName == null)
         {
@@ -213,13 +212,13 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
             sqlBuilder.append(SP).append(IS_NOT_NULL);
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendControlledVocabularyTermExistsSubselect(sqlBuilder,
+            TranslatorUtils.appendControlledVocabularyTermSubselect(sqlBuilder,
                     aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendMaterialExistsSubselect(sqlBuilder,
+            TranslatorUtils.appendMaterialSubselect(sqlBuilder,
                     aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendSampleExistsSubselect(sqlBuilder,
+            TranslatorUtils.appendSampleSubselect(sqlBuilder,
                     aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
         }
 
@@ -237,7 +236,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             .append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
                             .append(SP).append(EQ).append(SP).append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY)
                             .append(SQ).append(SP).append(THEN).append(SP);
-                    TranslatorUtils.appendControlledVocabularyTermExistsSubselect(args, sqlBuilder, value, useWildcards,
+                    TranslatorUtils.appendControlledVocabularyTermSubselect(args, sqlBuilder, value, useWildcards,
                             aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
                 }
 
@@ -245,7 +244,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
                 sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
                         .append(MATERIAL_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
-                TranslatorUtils.appendMaterialExistsSubselect(args, sqlBuilder, value, useWildcards, valuesTableAlias);
+                TranslatorUtils.appendMaterialSubselect(args, sqlBuilder, value, useWildcards, valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                         || tableMapper == TableMapper.DATA_SET)
@@ -254,7 +253,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             .append(SAMPLE_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN)
                             .append(SP);
 
-                    TranslatorUtils.appendSampleExistsSubselect(args, sqlBuilder, value, useWildcards,
+                    TranslatorUtils.appendSampleSubselect(args, sqlBuilder, value, useWildcards,
                             valuesTableAlias);
                 }
 

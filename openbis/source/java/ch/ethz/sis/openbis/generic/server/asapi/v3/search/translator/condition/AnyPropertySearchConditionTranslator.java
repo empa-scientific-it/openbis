@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.appendTsVectorMatch;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
 
 public class AnyPropertySearchConditionTranslator implements IConditionTranslator<AnyPropertySearchCriteria>
 {
@@ -90,7 +89,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
 
                 sqlBuilder.append(SP).append(OR).append(SP);
 
-                TranslatorUtils.appendControlledVocabularyTermExistsSubselect(args, sqlBuilder, value, useWildcards,
+                TranslatorUtils.appendControlledVocabularyTermSubselect(args, sqlBuilder, value, useWildcards,
                         valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
@@ -98,7 +97,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
                 {
                     sqlBuilder.append(SP).append(OR).append(SP);
 
-                    TranslatorUtils.appendSampleExistsSubselect(args, sqlBuilder, value, useWildcards,
+                    TranslatorUtils.appendSampleSubselect(args, sqlBuilder, value, useWildcards,
                             valuesTableAlias);
                 }
 
