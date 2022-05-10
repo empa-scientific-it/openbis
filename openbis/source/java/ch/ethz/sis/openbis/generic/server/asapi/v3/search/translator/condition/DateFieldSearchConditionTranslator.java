@@ -25,7 +25,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.u
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.util.List;
 import java.util.Map;
@@ -222,10 +221,11 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
             args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
         }
 
-        sqlBuilder.append(SP).append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(IN).append(SP)
-                .append(SELECT_UNNEST);
-        args.add(dataTypeStrings);
+        sqlBuilder.append(SP).append(LP);
+        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
+                aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+        sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP)
+                .append(SQ).append(String.join(SQ + COMMA + SP + SQ, dataTypeStrings)).append(SQ).append(RP);
 
         sqlBuilder.append(SP).append(THEN).append(SP);
 

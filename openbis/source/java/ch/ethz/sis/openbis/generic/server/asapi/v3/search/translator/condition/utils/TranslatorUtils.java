@@ -56,9 +56,11 @@ public class TranslatorUtils
 
     public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
 
-    public static final String PROPETY_TYPE_ALIAS = "pt";
+    public static final String DATA_TYPE_ALIAS = "dt";
 
-    public static final String ENTITY_TYPE_PROPETY_TYPE_ALIAS = "etpt";
+    public static final String PROPERTY_TYPE_ALIAS = "pt";
+
+    public static final String ENTITY_TYPE_PROPERTY_TYPE_ALIAS = "etpt";
 
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
@@ -315,16 +317,6 @@ public class TranslatorUtils
         joinInformation3.setSubTableAlias(attributeTypesTableAlias);
         joinInformation3.setSubTableIdField(ID_COLUMN);
         result.put(tableMapper.getAttributeTypesTable(), joinInformation3);
-
-        final JoinInformation joinInformation4 = new JoinInformation();
-        joinInformation4.setJoinType(JoinType.LEFT);
-        joinInformation4.setMainTable(tableMapper.getAttributeTypesTable());
-        joinInformation4.setMainTableAlias(attributeTypesTableAlias);
-        joinInformation4.setMainTableIdField(tableMapper.getAttributeTypesTableDataTypeIdField());
-        joinInformation4.setSubTable(TableNames.DATA_TYPES_TABLE);
-        joinInformation4.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation4.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(TableNames.DATA_TYPES_TABLE, joinInformation4);
 
         return result;
     }
@@ -1020,12 +1012,31 @@ public class TranslatorUtils
         sqlBuilder.append(RP);
     }
 
-    public static void appendControlledVocabularyTermSubselect(final List<Object> args,
-            final StringBuilder sqlBuilder, final AbstractStringValue value, final boolean useWildcards,
+    public static void appendDataTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
             final String propertyTableAlias)
     {
-        sqlBuilder.append(propertyTableAlias).append(PERIOD)
-                .append(VOCABULARY_TERM_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(SELECT).append(SP).append(DATA_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(NL)
+                .append(FROM).append(SP).append(DATA_TYPES_TABLE).append(SP).append(DATA_TYPE_ALIAS).append(NL)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
+                .append(DATA_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(tableMapper.getAttributeTypesTableDataTypeIdField())
+                .append(NL)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(NL)
+                .append(WHERE).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+    }
+
+    public static void appendControlledVocabularyTermIdSubselect(final List<Object> args, final StringBuilder sqlBuilder,
+            final AbstractStringValue value, final boolean useWildcards, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VOCABULARY_TERM_COLUMN)
+                .append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
 
         sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
@@ -1058,15 +1069,15 @@ public class TranslatorUtils
         sqlBuilder.append(propertyTableAlias).append(PERIOD)
                 .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(EQ).append(SP);
         sqlBuilder.append(LP);
-        sqlBuilder.append(SELECT).append(SP).append(PROPETY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP)
+        sqlBuilder.append(SELECT).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP)
                 .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
-                .append(PROPETY_TYPE_ALIAS).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP)
                 .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
-                .append(ENTITY_TYPE_PROPETY_TYPE_ALIAS).append(SP)
-                .append(ON).append(SP).append(PROPETY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPETY_TYPE_ALIAS).append(PERIOD)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
+                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
                 .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
-                .append(WHERE).append(SP).append(PROPETY_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
+                .append(WHERE).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
                 .append(SP).append(EQ).append(SP);
 
         translateStringComparison(null, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);

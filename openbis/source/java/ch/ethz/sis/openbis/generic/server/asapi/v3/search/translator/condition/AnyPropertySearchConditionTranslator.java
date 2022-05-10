@@ -89,7 +89,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
 
                 sqlBuilder.append(SP).append(OR).append(SP);
 
-                TranslatorUtils.appendControlledVocabularyTermSubselect(args, sqlBuilder, value, useWildcards,
+                TranslatorUtils.appendControlledVocabularyTermIdSubselect(args, sqlBuilder, value, useWildcards,
                         valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT

@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,13 +132,15 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         if (fullPropertyName == null)
         {
             sqlBuilder.append(SP).append(AND).append(SP);
-            sqlBuilder.append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
-                    .append(SP).append(IN).append(SP).append(LP)
-                        .append(SQ).append(DataTypeCode.VARCHAR).append(SQ).append(COMMA).append(SP)
-                        .append(SQ).append(DataTypeCode.MULTILINE_VARCHAR).append(SQ).append(COMMA).append(SP)
-                        .append(SQ).append(DataTypeCode.HYPERLINK).append(SQ).append(COMMA).append(SP)
-                        .append(SQ).append(DataTypeCode.XML).append(SQ)
-                    .append(RP);
+            sqlBuilder.append(LP);
+            TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
+                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP)
+                    .append(SQ).append(String.join(SQ + COMMA + SP + SQ,
+                            Arrays.asList(DataTypeCode.VARCHAR.toString(), DataTypeCode.MULTILINE_VARCHAR.toString(),
+                                    DataTypeCode.HYPERLINK.toString(), DataTypeCode.XML.toString())
+                                    .toArray(new String[0])))
+                    .append(SQ).append(RP);
         }
 
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
@@ -229,18 +232,19 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
             if (value.getClass() != StringMatchesValue.class)
             {
+                final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+
                 sqlBuilder.append(CASE);
                 if (fullPropertyName != null)
                 {
-                    sqlBuilder.append(NL).append(WHEN).append(SP)
-                            .append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
-                            .append(SP).append(EQ).append(SP).append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY)
-                            .append(SQ).append(SP).append(THEN).append(SP);
-                    TranslatorUtils.appendControlledVocabularyTermSubselect(args, sqlBuilder, value, useWildcards,
-                            aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+                    sqlBuilder.append(NL).append(WHEN).append(SP).append(LP);
+                    TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, valuesTableAlias);
+                    sqlBuilder.append(NL).append(RP).append(SP).append(EQ).append(SP)
+                            .append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY).append(SQ).append(SP)
+                            .append(THEN).append(SP);
+                    TranslatorUtils.appendControlledVocabularyTermIdSubselect(args, sqlBuilder, value, useWildcards,
+                            valuesTableAlias);
                 }
-
-                final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
 
                 sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
                         .append(MATERIAL_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
