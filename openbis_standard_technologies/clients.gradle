@@ -145,7 +145,7 @@ task signWebStartJars(type: Copy, dependsOn: [copyJarsForWebStart]) {
                 }
             }
             ant.signjar(jar: file, keystore: keystoreFile,
-                        alias: 'openbis', storepass: 'changeit')
+                        alias: 'openbis', storepass: 'openbistest')
         }
     }
 }
