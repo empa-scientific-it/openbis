@@ -20,10 +20,12 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -40,7 +42,11 @@ import ch.systemsx.cisd.common.utilities.IWaitingCondition;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.FileBasedPause;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
@@ -63,7 +69,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     public static final String CONTAINER_ID_KEY = "container-id";
 
     public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
-    
+
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
 
     public static final String FINALIZER_POLLING_TIME_KEY = "finalizer-polling-time";
@@ -88,6 +94,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     private final Properties cleanerProperties;
 
     private transient IMultiDataSetArchiveCleaner cleaner;
+
+    private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
     MultiDataSetArchivingFinalizer(Properties cleanerProperties, File pauseFile, long pauseFilePollingTime,
             ITimeAndWaitingProvider timeProvider)
@@ -118,7 +126,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 operationLog.info("Waiting for replication of archive '" + originalFile
                         + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
                 boolean noTimeout = waitUntilReplicated(parameters);
-                if (noTimeout)
+                if (noTimeout && checkMultiDatasetArchiveDatabase(dataSetCodes, parameters))
                 {
                     DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
                     IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
@@ -143,6 +151,38 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         ProcessingStatus processingStatus = new ProcessingStatus();
         processingStatus.addDatasetStatuses(datasets, status);
         return processingStatus;
+    }
+
+    private boolean checkMultiDatasetArchiveDatabase(List<String> dataSetCodes, Parameters parameters)
+    {
+        IMultiDataSetArchiverReadonlyQueryDAO query = getReadonlyQuery();
+        Long containerId = parameters.getContainerId();
+        MultiDataSetArchiverContainerDTO container = query.getContainerForId(containerId);
+        if (container == null)
+        {
+            operationLog.warn("No container found in Multi Data Set Archive database with container ID "
+                    + containerId + ".");
+            return false;
+        }
+        if (parameters.getOriginalFile().getPath().endsWith(container.getPath()) == false)
+        {
+            operationLog.warn("Archive file '" + parameters.getOriginalFile().getPath() + "' doesn't ends with '"
+                    + container.getPath() + "'.");
+            return false;
+        }
+        List<String> dataSetCodesFromDb = query.listDataSetsForContainerId(containerId).stream()
+                .map(MultiDataSetArchiverDataSetDTO::getCode).collect(Collectors.toList());
+        Collections.sort(dataSetCodesFromDb);
+        Collections.sort(dataSetCodes);
+        if (dataSetCodes.equals(dataSetCodesFromDb) == false)
+        {
+            operationLog.warn("Data sets in Multi Data Set Archive database are different from provided data sets: "
+                    + "Provided data sets: " + CollectionUtils.abbreviate(dataSetCodes, 30)
+                    + ". Data sets in Multi Data Set Archive database: " 
+                    + CollectionUtils.abbreviate(dataSetCodesFromDb, 20));
+            return false;
+        }
+        return true;
     }
 
     private Status createStatusAndRearchive(List<String> dataSetCodes, Parameters parameters, boolean removeFromDataStore, File originalFile,
@@ -196,6 +236,15 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             cleaner = MultiDataSetArchivingUtils.createCleaner(cleanerProperties);
         }
         return cleaner;
+    }
+
+    protected IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+    {
+        if (readonlyQuery == null)
+        {
+            readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
+        }
+        return readonlyQuery;
     }
 
     IMultiDataSetArchiverDBTransaction getTransaction()
@@ -310,9 +359,9 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private long waitingTime;
 
         private DataSetArchivingStatus status;
-        
+
         private String subDirectory;
-        
+
         private Long containerId;
 
         public void setOriginalFile(File file)

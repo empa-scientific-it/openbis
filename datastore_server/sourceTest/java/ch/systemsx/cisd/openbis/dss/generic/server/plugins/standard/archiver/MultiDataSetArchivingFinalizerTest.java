@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -46,6 +47,9 @@ import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
@@ -103,6 +107,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
     private File pauseFile;
 
+    private IMultiDataSetArchiverReadonlyQueryDAO queryDAO;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -114,6 +120,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         openBISService = ServiceProviderTestWrapper.mock(context, IEncapsulatedOpenBISService.class);
         dataSetDeleter = context.mock(IDataSetDeleter.class);
         transaction = context.mock(IMultiDataSetArchiverDBTransaction.class);
+        queryDAO = context.mock(IMultiDataSetArchiverReadonlyQueryDAO.class);
         pauseFile = new File(workingDirectory, "pause");
         File archive = new File(workingDirectory, "archive");
         archive.mkdirs();
@@ -204,6 +211,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         prepareScheduleDeletion(ds1);
+        prepareMultiDataArchiveDatabase(42, dataFileInArchive.getName(), ds1.getDataSetCode());
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
@@ -211,7 +219,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
@@ -225,10 +233,11 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     }
 
     @Test
-    public void testReplicationForAddToArchiv()
+    public void testReplicationForArchivingMissingContainerInDb()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
-        parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
+        prepareMultiDataArchiveDatabase(42, null, ds1.getDataSetCode());
+        RecordingMatcher<Map<String, String>> optionsMatcher = prepareDeletionAndReArchiving(42L, ds1);
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
@@ -236,7 +245,114 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group}\n"
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "No container found in Multi Data Set Archive database with container ID 42.\n",
+                logRecorder.getLogContent());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
+                status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFileReplicated).toString(), cleaner.toString());
+        assertEquals("{" + Constants.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testReplicationForArchivingWrongContainerPathInDb()
+    {
+        DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        prepareMultiDataArchiveDatabase(42, "wrong/path", ds1.getDataSetCode());
+        RecordingMatcher<Map<String, String>> optionsMatcher = prepareDeletionAndReArchiving(42L, ds1);
+        
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
+        
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Archive file '" + dataFileInArchive.getPath() + "' doesn't ends with 'wrong/path'.\n",
+                logRecorder.getLogContent());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
+                status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFileReplicated).toString(), cleaner.toString());
+        assertEquals("{" + Constants.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testReplicationForArchivingWithUnknown()
+    {
+        DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        prepareMultiDataArchiveDatabase(42, dataFileInArchive.getName(), "unknown");
+        RecordingMatcher<Map<String, String>> optionsMatcher = prepareDeletionAndReArchiving(42L, ds1);
+        
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
+        
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Data sets in Multi Data Set Archive database are different from provided data sets: "
+                + "Provided data sets: [ds1]. Data sets in Multi Data Set Archive database: [unknown]\n",
+                logRecorder.getLogContent());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
+                status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFileReplicated).toString(), cleaner.toString());
+        assertEquals("{" + Constants.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+    
+    private RecordingMatcher<Map<String, String>> prepareDeletionAndReArchiving(long containerId, DatasetDescription dataSet)
+    {
+        RecordingMatcher<Map<String, String>> optionsMatcher = new RecordingMatcher<Map<String, String>>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(transaction).deleteContainer(containerId);
+                    one(transaction).commit();
+                    one(transaction).close();
+                    one(openBISService).archiveDataSets(with(Arrays.asList(dataSet.getDataSetCode())), with(true),
+                            with(optionsMatcher));
+                }
+            });
+        return optionsMatcher;
+    }
+
+    @Test
+    public void testReplicationForAddToArchiv()
+    {
+        DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
+        prepareMultiDataArchiveDatabase(42, dataFileInArchive.getName(), ds1.getDataSetCode());
+
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
+
+        AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
+                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group, container-id=42}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
@@ -247,6 +363,25 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals(true, updatedStatus.get(0).isPresentInArchive());
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
+    }
+
+    private void prepareMultiDataArchiveDatabase(long containerId, String containerPathOrNull, String... dataSetCodes)
+    {
+        parameterBindings.put(MultiDataSetArchivingFinalizer.CONTAINER_ID_KEY, Long.toString(containerId));
+        List<MultiDataSetArchiverDataSetDTO> dataSets = Arrays.asList(dataSetCodes).stream()
+                .map(c -> new MultiDataSetArchiverDataSetDTO(1L, c, containerId, 1L)).collect(Collectors.toList());
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(queryDAO).getContainerForId(containerId);
+                    if (containerPathOrNull != null)
+                    {
+                        will(returnValue(new MultiDataSetArchiverContainerDTO(containerId, containerPathOrNull)));
+                    }
+                    allowing(queryDAO).listDataSetsForContainerId(containerId);
+                    will(returnValue(dataSets));
+                }
+            });
     }
 
     @Test
@@ -416,6 +551,12 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 protected IMultiDataSetArchiveCleaner getCleaner()
                 {
                     return cleaner;
+                }
+
+                @Override
+                protected IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+                {
+                    return queryDAO;
                 }
             };
     }
