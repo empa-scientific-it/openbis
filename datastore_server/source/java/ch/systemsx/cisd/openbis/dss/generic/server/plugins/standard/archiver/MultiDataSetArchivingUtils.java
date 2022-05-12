@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -95,10 +95,10 @@ class MultiDataSetArchivingUtils
         return statuses;
     }
 
-    static Share getScratchShare(File storeRoot, IEncapsulatedOpenBISService service,
-            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger logger)
+    static Share getScratchShare(File storeRoot, IEncapsulatedOpenBISService service, IFreeSpaceProvider freeSpaceProvider,
+            IConfigProvider configProvider, ISimpleLogger logger)
     {
-        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
+        String dataStoreCode = configProvider.getDataStoreCode();
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ARCHIVING_SCRATCH,

@@ -521,7 +521,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         IEncapsulatedOpenBISService service = getService();
         IFreeSpaceProvider freeSpaceProvider = createFreeSpaceProvider();
         ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
-        return MultiDataSetArchivingUtils.getScratchShare(this.storeRoot, service, freeSpaceProvider, logger);
+        return MultiDataSetArchivingUtils.getScratchShare(this.storeRoot, service, freeSpaceProvider,
+                ServiceProvider.getConfigProvider(), logger);
     }
 
     private static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation

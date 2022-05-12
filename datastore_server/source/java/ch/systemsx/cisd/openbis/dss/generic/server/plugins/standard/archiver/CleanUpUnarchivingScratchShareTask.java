@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -78,7 +79,8 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
         IEncapsulatedOpenBISService service = getService();
         IFreeSpaceProvider spaceProvider = createFreeSpaceProvider();
         ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
-        Share scratchShare = MultiDataSetArchivingUtils.getScratchShare(storeRoot, service, spaceProvider, logger);
+        IConfigProvider configProvider = getConfigProvider();
+        Share scratchShare = MultiDataSetArchivingUtils.getScratchShare(storeRoot, service, spaceProvider, configProvider, logger);
         List<SimpleDataSetInformationDTO> dataSets = scratchShare.getDataSetsOrderedBySize();
         operationLog.info("Starting clean up. Scanning " + dataSets.size() + " data sets.");
         List<SimpleDataSetInformationDTO> dataSetsToBeRemoved = findDataSetsToBeRemoved(storeRoot, dataSets);
@@ -112,7 +114,7 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
                 if (dataSetInArchive == null)
                 {
                     operationLog.warn("Data set " + dataSetCode + " unknown by Multi Data Set database.");
-                    break;
+                    continue;
                 }
                 long containerId = dataSetInArchive.getContainerId();
                 String containerPath = multiDataSetQuery.getContainerForId(containerId).getPath();
@@ -123,14 +125,14 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
                 {
                     operationLog.warn("Container file for data set " + dataSetCode + " does not exists: "
                             + containerFile.getAbsolutePath());
-                    break;
+                    continue;
                 }
                 if (Math.abs(containerFile.length() - size) > size / 10)
                 {
                     operationLog.warn("Size of container file " + containerFile.getAbsolutePath()
                             + " (which contains data set " + dataSetCode + ") doesn't match the size calculated "
                             + "from the Multi Data Set database: " + containerFile.length() + " vs " + size);
-                    break;
+                    continue;
                 }
                 dataSetsToBeRemoved.add(dataSet);
             }
@@ -165,6 +167,11 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
     protected IFreeSpaceProvider createFreeSpaceProvider()
     {
         return new SimpleFreeSpaceProvider();
+    }
+    
+    protected IConfigProvider getConfigProvider()
+    {
+        return ServiceProvider.getConfigProvider();
     }
 
     protected IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
