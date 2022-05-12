@@ -90,7 +90,7 @@ public class CleanUpUnarchivingScratchShareTaskTest extends AbstractFileSystemTe
     @BeforeMethod
     public void setup()
     {
-        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, ".*"+CLAZZ);
         context = new Mockery();
         store = createFolder(workingDirectory, "store");
         scratchShare = createFolder(store, SCRATCH_SHARE_ID);
