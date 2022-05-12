@@ -37,7 +37,6 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -69,10 +69,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -520,18 +518,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private Share findScratchShare()
     {
-        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
-        Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
+        IEncapsulatedOpenBISService service = getService();
         IFreeSpaceProvider freeSpaceProvider = createFreeSpaceProvider();
-        List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ARCHIVING_SCRATCH, incomingShares,
-                        freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
-        if (shares.size() != 1)
-        {
-            throw new ConfigurationFailureException("There should be exactly one unarchiving scratch share configured!");
-        }
-        Share scratchShare = shares.get(0);
-        return scratchShare;
+        ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
+        return MultiDataSetArchivingUtils.getScratchShare(this.storeRoot, service, freeSpaceProvider,
+                ServiceProvider.getConfigProvider(), logger);
     }
 
     private static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
@@ -565,13 +556,26 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 String newShareId = scratchShare.getShareId();
                 if (newShareId.equals(oldShareId) == false)
                 {
-                    service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
+                    service.updateShareIdAndSize(dataSetCode, newShareId, getSize(dataSet));
                     shareIdManager.setShareId(dataSetCode, newShareId);
                 }
             }
 
             SegmentedStoreUtils.freeSpace(scratchShare, service, dataSets, directoryProvider, shareIdManager, new Log4jSimpleLogger(operationLog));
 
+        }
+
+        private long getSize(DatasetDescription dataSet)
+        {
+            Long dataSetSize = dataSet.getDataSetSize();
+            if (dataSetSize != null)
+            {
+                return dataSetSize;
+            }
+            // Get the size from pathinfo database
+            IHierarchicalContentProvider contentProvider = ServiceProvider.getHierarchicalContentProvider();
+            IHierarchicalContentNode rootNode = contentProvider.asContent(dataSet.getDataSetCode()).getRootNode();
+            return rootNode.getFileLength();
         }
     }
 

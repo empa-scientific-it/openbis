@@ -2,6 +2,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.Relationship;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.*;
@@ -74,6 +75,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
@@ -95,6 +97,7 @@ import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Generator extends AbstractGenerator
 {
@@ -106,24 +109,77 @@ public class Generator extends AbstractGenerator
         addPermId(gen, SamplePermId.class);
         gen.addSimpleField(SampleIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
+
+        gen.addSimpleField(boolean.class, "frozen");
+        gen.addSimpleField(boolean.class, "frozenForComponents");
+        gen.addSimpleField(boolean.class, "frozenForChildren");
+        gen.addSimpleField(boolean.class, "frozenForParents");
+        gen.addSimpleField(boolean.class, "frozenForDataSets");
+
         addRegistrationDate(gen);
         addModificationDate(gen);
 
         gen.addFetchedField(SampleType.class, "type", "Sample type", SampleTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
-        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class).withInterface(IProjectHolder.class);
         addSpace(gen);
         addExperiment(gen);
         addProperties(gen);
+
+        gen.addClassForImport(ISampleId.class);
+        gen.addClassForImport(Relationship.class);
+
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "parents", "Parents", SampleFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
+        DTOField parentsRelationships =
+                gen.addPluralFetchedField("Map<SamplePermId, Relationship>", Map.class.getName(), "parentsRelationships", "Parents",
+                        SampleFetchOptions.class);
+        parentsRelationships.fetchOptionsFieldName = "parents";
+        gen.addAdditionalMethod("@JsonIgnore\n"
+                + "    public Relationship getParentRelationship(ISampleId parentId)\n"
+                + "    {\n"
+                + "        Map<SamplePermId, Relationship> relationships = getParentsRelationships();\n"
+                + "        return relationships == null ? new Relationship() : relationships.get(parentId);\n"
+                + "    }");
+
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
+        DTOField childrenRelationships =
+                gen.addPluralFetchedField("Map<SamplePermId, Relationship>", Map.class.getName(), "childrenRelationships", "Children",
+                        SampleFetchOptions.class);
+        childrenRelationships.fetchOptionsFieldName = "children";
+        gen.addAdditionalMethod("@JsonIgnore\n"
+                + "    public Relationship getChildRelationship(ISampleId childId)\n"
+                + "    {\n"
+                + "        Map<SamplePermId, Relationship> relationships = getChildrenRelationships();\n"
+                + "        return relationships == null ? new Relationship() : relationships.get(childId);\n"
+                + "    }");
+
         gen.addFetchedField(Sample.class, "container", "Container sample", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "components", "Component samples", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class)
                 .withInterface(IDataSetsHolder.class);
         gen.addClassForImport(DataSet.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "propertiesHistory", "Properties history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "spaceHistory", "Space history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "projectHistory", "Project history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "experimentHistory", "Experiment history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "parentsHistory", "Parents history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "childrenHistory", "Children history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "containerHistory", "Container history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "componentsHistory", "Components history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "dataSetsHistory", "Data sets history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
+                HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addTags(gen);
@@ -198,6 +254,11 @@ public class Generator extends AbstractGenerator
         addPermId(gen, ExperimentPermId.class);
         gen.addSimpleField(ExperimentIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
+
+        gen.addSimpleField(boolean.class, "frozen");
+        gen.addSimpleField(boolean.class, "frozenForDataSets");
+        gen.addSimpleField(boolean.class, "frozenForSamples");
+
         addRegistrationDate(gen);
         addModificationDate(gen);
 
@@ -213,6 +274,16 @@ public class Generator extends AbstractGenerator
         gen.addClassForImport(Sample.class);
 
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "propertiesHistory", "Properties history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "projectHistory", "Project history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "samplesHistory", "Samples history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "dataSetsHistory", "Data sets history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
+                HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addProperties(gen);
@@ -249,7 +320,16 @@ public class Generator extends AbstractGenerator
 
         addPermId(gen, DataSetPermId.class);
         addCode(gen);
+
+        gen.addSimpleField(boolean.class, "frozen");
+        gen.addSimpleField(boolean.class, "frozenForChildren");
+        gen.addSimpleField(boolean.class, "frozenForParents");
+        gen.addSimpleField(boolean.class, "frozenForComponents");
+        gen.addSimpleField(boolean.class, "frozenForContainers");
+
         gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class).withInterface(IEntityTypeHolder.class);
+        gen.addSimpleField(DataSetKind.class, "kind");
+
         gen.addFetchedField(DataStore.class, "dataStore", "Data store", DataStoreFetchOptions.class);
         gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
@@ -269,6 +349,22 @@ public class Generator extends AbstractGenerator
         addTags(gen);
 
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "propertiesHistory", "Properties history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "experimentHistory", "Experiment history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "sampleHistory", "Sample history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "parentsHistory", "Parents history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "childrenHistory", "Children history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "containersHistory", "Containers history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "componentsHistory", "Components history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "contentCopiesHistory", "Content copies history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history",
+                HistoryEntryFetchOptions.class);
+
         gen.addClassForImport(HistoryEntry.class);
 
         // add data set type
@@ -477,6 +573,11 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(ProjectIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
         addDescription(gen);
+
+        gen.addSimpleField(boolean.class, "frozen");
+        gen.addSimpleField(boolean.class, "frozenForExperiments");
+        gen.addSimpleField(boolean.class, "frozenForSamples");
+
         addRegistrationDate(gen);
         addModificationDate(gen);
 
@@ -486,6 +587,11 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "spaceHistory", "Space history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "experimentsHistory", "Experiments history",
+                HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "samplesHistory", "Samples history", HistoryEntryFetchOptions.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "unknownHistory", "Unknown history", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
 
         addSpace(gen);

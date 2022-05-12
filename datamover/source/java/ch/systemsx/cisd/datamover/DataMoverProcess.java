@@ -108,8 +108,7 @@ class DataMoverProcess implements ITerminable, ITriggerable
             recoverableTimerTask.cancel();
         }
         timerTask.cancel();
-        timer.cancel();
-        return TimerUtilities.tryJoinTimerThread(timer, Long.MAX_VALUE);
+        return TimerUtilities.tryShutdownTimer(timer, taskName, Long.MAX_VALUE);
     }
 
     //

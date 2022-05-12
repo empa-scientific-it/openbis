@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
@@ -57,7 +57,16 @@ public final class ExceptionUtils
             return new MasqueradingException(rootException);
         } else
         {
-            return rootException;
+            try
+            {
+                Constructor<? extends Exception> constructor = rootException.getClass().getConstructor(String.class);
+                Exception clonedException = constructor.newInstance(rootException.getMessage());
+                clonedException.setStackTrace(rootException.getStackTrace());
+                return clonedException;
+            } catch (Exception e)
+            {
+                return new MasqueradingException(rootException);
+            }
         }
     }
 
@@ -89,7 +98,7 @@ public final class ExceptionUtils
      * @return <code>true</code> if the fully qualified class name of <code>exception</code> doesn't start with a package name from
      *         <code>acceptedPackages</code> or <code>java.lang, ch.systemsx.cisd.common</code>.
      */
-    final static boolean isCandidateForMasquerading(final Exception exception,
+    private final static boolean isCandidateForMasquerading(final Exception exception,
             final Collection<String> acceptedPackages)
     {
         assert exception != null : "Unspecified exception.";

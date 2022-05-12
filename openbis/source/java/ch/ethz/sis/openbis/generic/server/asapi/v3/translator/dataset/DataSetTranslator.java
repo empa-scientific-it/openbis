@@ -91,6 +91,33 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
     private IDataSetHistoryTranslator historyTranslator;
 
     @Autowired
+    private DataSetPropertyHistoryTranslator propertyHistoryTranslator;
+
+    @Autowired
+    private DataSetExperimentRelationshipHistoryTranslator experimentRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetParentRelationshipHistoryTranslator parentRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetChildRelationshipHistoryTranslator childRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetContainerRelationshipHistoryTranslator containerRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetComponentRelationshipHistoryTranslator componentRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
+    @Autowired
+    private DataSetContentCopyHistoryTranslator contentCopyHistoryTranslator;
+
+    @Autowired
     private IDataSetRegistratorTranslator registratorTranslator;
 
     @Autowired
@@ -198,6 +225,60 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         if (fetchOptions.hasHistory())
         {
             relations.put(IDataSetHistoryTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            relations.put(DataSetPropertyHistoryTranslator.class,
+                    propertyHistoryTranslator.translate(context, dataSetIds, fetchOptions.withPropertiesHistory()));
+        }
+
+        if (fetchOptions.hasExperimentHistory())
+        {
+            relations.put(DataSetExperimentRelationshipHistoryTranslator.class,
+                    experimentRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withExperimentHistory()));
+        }
+
+        if (fetchOptions.hasSampleHistory())
+        {
+            relations.put(DataSetSampleRelationshipHistoryTranslator.class,
+                    sampleRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withSampleHistory()));
+        }
+
+        if (fetchOptions.hasParentsHistory())
+        {
+            relations.put(DataSetParentRelationshipHistoryTranslator.class,
+                    parentRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withParentsHistory()));
+        }
+
+        if (fetchOptions.hasChildrenHistory())
+        {
+            relations.put(DataSetChildRelationshipHistoryTranslator.class,
+                    childRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withChildrenHistory()));
+        }
+
+        if (fetchOptions.hasContainersHistory())
+        {
+            relations.put(DataSetContainerRelationshipHistoryTranslator.class,
+                    containerRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withContainersHistory()));
+        }
+
+        if (fetchOptions.hasComponentsHistory())
+        {
+            relations.put(DataSetComponentRelationshipHistoryTranslator.class,
+                    componentRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withComponentsHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(DataSetUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, dataSetIds, fetchOptions.withUnknownHistory()));
+        }
+
+        if (fetchOptions.hasContentCopiesHistory())
+        {
+            relations.put(DataSetContentCopyHistoryTranslator.class,
+                    contentCopyHistoryTranslator.translate(context, dataSetIds, fetchOptions.withContentCopiesHistory()));
         }
 
         if (fetchOptions.hasRegistrator())
@@ -324,6 +405,60 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         {
             result.setHistory(relations.get(IDataSetHistoryTranslator.class, dataSetId));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            result.setPropertiesHistory(relations.get(DataSetPropertyHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withPropertiesHistoryUsing(fetchOptions.withPropertiesHistory());
+        }
+
+        if (fetchOptions.hasExperimentHistory())
+        {
+            result.setExperimentHistory(relations.get(DataSetExperimentRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withExperimentHistoryUsing(fetchOptions.withExperimentHistory());
+        }
+
+        if (fetchOptions.hasSampleHistory())
+        {
+            result.setSampleHistory(relations.get(DataSetSampleRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withSampleHistoryUsing(fetchOptions.withSampleHistory());
+        }
+
+        if (fetchOptions.hasParentsHistory())
+        {
+            result.setParentsHistory(relations.get(DataSetParentRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withParentsHistoryUsing(fetchOptions.withParentsHistory());
+        }
+
+        if (fetchOptions.hasChildrenHistory())
+        {
+            result.setChildrenHistory(relations.get(DataSetChildRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withChildrenHistoryUsing(fetchOptions.withChildrenHistory());
+        }
+
+        if (fetchOptions.hasContainersHistory())
+        {
+            result.setContainersHistory(relations.get(DataSetContainerRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withContainersHistoryUsing(fetchOptions.withContainersHistory());
+        }
+
+        if (fetchOptions.hasComponentsHistory())
+        {
+            result.setComponentsHistory(relations.get(DataSetComponentRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withComponentsHistoryUsing(fetchOptions.withComponentsHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(DataSetUnknownRelationshipHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
+        }
+
+        if (fetchOptions.hasContentCopiesHistory())
+        {
+            result.setContentCopiesHistory(relations.get(DataSetContentCopyHistoryTranslator.class, dataSetId));
+            result.getFetchOptions().withContentCopiesHistoryUsing(fetchOptions.withContentCopiesHistory());
         }
 
         if (fetchOptions.hasRegistrator())

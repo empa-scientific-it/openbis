@@ -629,15 +629,7 @@ class AuthenticatedState extends AbstractDssComponentState
                         dataSet.getCode(), path);
         try
         {
-            if (url.toLowerCase().startsWith("https"))
-            {
-                // TODO: find a way to accept invalid certificates on request
-                return new URL(null, url, new sun.net.www.protocol.https.Handler())
-                        .openConnection().getInputStream();
-            } else
-            {
-                return new URL(url).openStream();
-            }
+            return new URL(url).openStream();
         } catch (MalformedURLException ex)
         {
             throw new ConfigurationFailureException("Malformed URL: " + url);

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -43,8 +44,11 @@ import java.util.jar.JarFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Operations on classes using reflection.
@@ -53,6 +57,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public final class ClassUtils
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ClassUtils.class);
+
     private ClassUtils()
     {
         // Can not be instantiated.
@@ -136,7 +142,7 @@ public final class ClassUtils
         assert superClazz != null : "Missing super class";
         assert clazz != null : "Missing class name";
 
-        final Exception exception;
+        Exception exception;
         try
         {
             assert clazz.isInterface() == false : "Interface '" + clazz.getName()
@@ -332,7 +338,7 @@ public final class ClassUtils
      * Before returning it, it call {@link Field#setAccessible(boolean)} with <code>true</code>.
      * </p>
      * 
-     * @return <code>null</code> if given <var>fieldName</var> could not be found.
+     * @return <code>null</code> if given <var>fieldName</var> could not be found or it couldn't be made accessible.
      */
     public final static Field tryGetDeclaredField(final Class<?> c, final String fieldName)
     {
@@ -354,7 +360,14 @@ public final class ClassUtils
         } while (field == null && clazz != null);
         if (field != null)
         {
-            field.setAccessible(true);
+            try
+            {
+                field.setAccessible(true);
+            } catch (InaccessibleObjectException e)
+            {
+                operationLog.warn("Can not make field " + field.getType() + "." + field.getName() + " accessible: " + e);
+                return null;
+            }
         }
         return field;
     }
@@ -443,8 +456,7 @@ public final class ClassUtils
     @SuppressWarnings("unchecked")
     private final static List<File> listClasses(final File packageFile)
     {
-        return (List<File>) FileUtils.listFiles(packageFile, new String[]
-        { "class" }, false);
+        return (List<File>) FileUtils.listFiles(packageFile, new String[] { "class" }, false);
     }
 
     private final static List<String> listEntries(final JarFile jarFile, final String packageName)

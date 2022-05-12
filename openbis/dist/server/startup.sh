@@ -25,7 +25,6 @@ disableJythonByProperty
      $OPENBIS_OPTS \
      -Dpython.path=$JETTY_LIB_PATH \
      -Dnative.libpath=$JETTY_BIN_DIR/../webapps/openbis/WEB-INF/lib/native \
-     --add-opens=java.base/java.lang=ALL-UNNAMED \
      -jar ../jetty-dist/start.jar --lib=lib/logging/*.jar:webapps/openbis/WEB-INF/lib/*.jar etc/jetty-started.xml >> logs/jetty.out 2>&1 &
 
 # Write PID to PID file

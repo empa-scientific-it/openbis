@@ -47,8 +47,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IDescriptionHolder, IExperimentsHolder, IIdentifierHolder,
-        IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IDescriptionHolder, IExperimentsHolder, IIdentifierHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -90,6 +89,18 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
 
     @JsonProperty
     private List<HistoryEntry> history;
+
+    @JsonProperty
+    private List<HistoryEntry> spaceHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> experimentsHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> samplesHistory;
+
+    @JsonProperty
+    private List<HistoryEntry> unknownHistory;
 
     @JsonProperty
     private Space space;
@@ -175,31 +186,40 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         this.description = description;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozen()
     {
         return frozen;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozen(boolean frozen)
     {
         this.frozen = frozen;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForExperiments()
     {
         return frozenForExperiments;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForExperiments(boolean frozenForExperiments)
     {
         this.frozenForExperiments = frozenForExperiments;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public boolean isFrozenForSamples()
     {
         return frozenForSamples;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setFrozenForSamples(boolean frozenForSamples)
     {
         this.frozenForSamples = frozenForSamples;
@@ -241,7 +261,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasExperiments())
         {
             return experiments;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Experiments have not been fetched.");
         }
@@ -260,7 +281,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasSamples())
         {
             return samples;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Samples have not been fetched.");
         }
@@ -279,7 +301,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("History have not been fetched.");
         }
@@ -293,13 +316,94 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    public List<HistoryEntry> getSpaceHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSpaceHistory())
+        {
+            return spaceHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Space history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSpaceHistory(List<HistoryEntry> spaceHistory)
+    {
+        this.spaceHistory = spaceHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getExperimentsHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasExperimentsHistory())
+        {
+            return experimentsHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Experiments history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setExperimentsHistory(List<HistoryEntry> experimentsHistory)
+    {
+        this.experimentsHistory = experimentsHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getSamplesHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSamplesHistory())
+        {
+            return samplesHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Samples history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSamplesHistory(List<HistoryEntry> samplesHistory)
+    {
+        this.samplesHistory = samplesHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<HistoryEntry> getUnknownHistory()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasUnknownHistory())
+        {
+            return unknownHistory;
+        }
+        else
+        {
+            throw new NotFetchedException("Unknown history have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setUnknownHistory(List<HistoryEntry> unknownHistory)
+    {
+        this.unknownHistory = unknownHistory;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     @Override
     public Space getSpace()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Space has not been fetched.");
         }
@@ -319,7 +423,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }
@@ -339,7 +444,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Modifier has not been fetched.");
         }
@@ -358,7 +464,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasLeader())
         {
             return leader;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Leader has not been fetched.");
         }
@@ -378,7 +485,8 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Attachments have not been fetched.");
         }

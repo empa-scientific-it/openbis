@@ -135,8 +135,8 @@ public class ProjectRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), id, ProjectRelationType.EXPERIMENT);
-        assertRelationshipHistory(history.get(1), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), id, ProjectRelationType.EXPERIMENT);
     }
 
     @Test
@@ -169,8 +169,8 @@ public class ProjectRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), id, ProjectRelationType.SAMPLE);
-        assertRelationshipHistory(history.get(1), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), spaceId1, ProjectRelationType.SPACE, project.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), id, ProjectRelationType.SAMPLE);
     }
 
     private Project getProjectHistory()

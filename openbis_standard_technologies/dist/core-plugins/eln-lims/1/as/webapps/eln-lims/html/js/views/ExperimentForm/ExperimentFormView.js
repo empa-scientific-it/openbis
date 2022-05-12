@@ -65,7 +65,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		    var toolbarConfig = profile.getExperimentTypeToolbarConfiguration(_this._experimentFormModel.experiment.experimentTypeCode);
 			if (_this._allowedToCreateSample() && toolbarConfig.CREATE) {
 				//Create Experiment Step
-				var sampleTypes = profile.getAllSampleTypes(true);
+				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._experimentFormModel.experiment.identifier));
 				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, ["ENTRY", "EXPERIMENTAL_STEP"], function(typeCode) {
 					return function() {
 						Util.blockUI();
@@ -565,7 +565,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				} else {
 					var $component = null;
 					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
-						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false);
+						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier));
 					} else {
 						$component = FormUtil.getFieldForPropertyType(propertyType, value);
 					}

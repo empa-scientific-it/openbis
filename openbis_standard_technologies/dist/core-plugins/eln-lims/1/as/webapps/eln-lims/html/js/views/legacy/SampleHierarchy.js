@@ -164,10 +164,10 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 		this._repaintGraph(this.sample);
 	}
 	
-	this._addChildFor = function(permId) {
+	this._addChildFor = function(permId, identifier) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
-		var $dropdown = FormUtil.getSampleTypeDropdown('sampleTypeSelector', true);
+		var $dropdown = FormUtil.getSampleTypeDropdown('sampleTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(identifier));
 		Util.blockUI("Select the type for the Child: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 		$("#sampleTypeSelector").select2({ width: '100%', theme: "bootstrap" });
 		
@@ -184,9 +184,9 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 					mainController.currentView._sampleFormModel.sampleLinksParents.addSample(data[0]);
 					Util.unblockUI();
 				}
-				
-				var repeatUntilSet = function() {
-					if(mainController.currentView.isLoaded()) {
+				var repeatUntilSet = null;
+				    repeatUntilSet = function() {
+					if(mainController.currentView && mainController.currentView.isLoaded && mainController.currentView.isLoaded()) {
 						setParent();
 					} else {
 						setTimeout(repeatUntilSet, 100);
@@ -304,7 +304,7 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 						}));
 				
 				var $addChildLink = $('<a>', {
-					'href' : "javascript:mainController.currentView._addChildFor('" + sample.permId + "');"
+					'href' : "javascript:mainController.currentView._addChildFor('" + sample.permId + "','" + sample.identifier + "');"
 				}).append(
 						$('<img>', { 
 							'src' : './img/plus-sign-icon.png',
@@ -330,20 +330,6 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 					
 					var extraCustomId = null;
 					var extraContent = null;
-					if(sample.sampleTypeCode === "PLATE") {
-						var plateController = new PlateController(sample, true);
-						
-						//Delete old view for redraws - Corner Case
-						var oldPlaceHolderFound = $("#" + plateController.getPlaceHolderId());
-						if(oldPlaceHolderFound.length !== 0) {
-							oldPlaceHolderFound.remove();
-						}
-						
-						//Normal plate draw using place holder for the svg graph size calculations 
-						extraContent = plateController.getPlaceHolder();
-						extraCustomId = plateController.getPlaceHolderId();
-						plateController.initWithPlaceHolder();
-					}
 					var $graphTable = PrintUtil.getTable(sample, true, title, null, extraCustomId, extraContent);
 					
 					$nodeContent.empty();

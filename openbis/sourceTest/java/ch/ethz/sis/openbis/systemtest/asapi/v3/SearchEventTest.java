@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.MultilineRecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -131,80 +132,84 @@ public class SearchEventTest extends AbstractTest
         ConcurrencyUtilities.sleep(1000);
 
         executeInTransaction(new TransactionCallback<Void>()
-        {
-            @Override public Void doInTransaction(final TransactionStatus status)
             {
-                // process all existing events
-                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
-                task.execute(new TestDataSource());
+                @Override
+                public Void doInTransaction(final TransactionStatus status)
+                {
+                    // process all existing events
+                    EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+                    task.execute(new TestDataSource());
 
-                // create test data
-                initSpaces();
-                initProjects();
-                initExperimentTypes();
-                initExperiments();
-                initTags();
+                    // create test data
+                    initSpaces();
+                    initProjects();
+                    initExperimentTypes();
+                    initExperiments();
+                    initTags();
 
-                String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-                // generate new events (they will be created in a different transaction than the events
-                // created in beforeMethod and therefore will have a different registration date)
+                    // generate new events (they will be created in a different transaction than the events
+                    // created in beforeMethod and therefore will have a different registration date)
 
-                deleteSpaces(sessionToken, Collections.singletonList(spaceD.getPermId()), "delete spaces");
+                    deleteSpaces(sessionToken, Collections.singletonList(spaceD.getPermId()), "delete spaces");
 
-                return null;
-            }
-        }, TransactionDefinition.PROPAGATION_REQUIRED);
+                    return null;
+                }
+            }, TransactionDefinition.PROPAGATION_REQUIRED);
     }
 
     @AfterClass
     public void afterClass()
     {
         executeInTransaction(new TransactionCallback<Void>()
-        {
-            @Override public Void doInTransaction(final TransactionStatus status)
             {
-                String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                @Override
+                public Void doInTransaction(final TransactionStatus status)
+                {
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-                // clean up test data
-                deleteExperiments(sessionToken, Arrays.asList(experimentAAA.getPermId(), experimentBBB.getPermId(), experimentBBC.getPermId()),
-                        "clean up experiments");
-                deleteExperimentTypes(sessionToken, Collections.singletonList(experimentTypeId), "clean up experiment types");
-                deleteProjects(sessionToken, Arrays.asList(projectAA.getPermId(), projectBB.getPermId(), projectCC.getPermId()), "clean up projects");
-                deleteSpaces(sessionToken, Arrays.asList(spaceA.getPermId(), spaceB.getPermId(), spaceC.getPermId()), "clean up spaces");
-                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "clean up tags");
+                    // clean up test data
+                    deleteExperiments(sessionToken, Arrays.asList(experimentAAA.getPermId(), experimentBBB.getPermId(), experimentBBC.getPermId()),
+                            "clean up experiments");
+                    deleteExperimentTypes(sessionToken, Collections.singletonList(experimentTypeId), "clean up experiment types");
+                    deleteProjects(sessionToken, Arrays.asList(projectAA.getPermId(), projectBB.getPermId(), projectCC.getPermId()),
+                            "clean up projects");
+                    deleteSpaces(sessionToken, Arrays.asList(spaceA.getPermId(), spaceB.getPermId(), spaceC.getPermId()), "clean up spaces");
+                    deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "clean up tags");
 
-                return null;
-            }
-        }, TransactionDefinition.PROPAGATION_REQUIRED);
+                    return null;
+                }
+            }, TransactionDefinition.PROPAGATION_REQUIRED);
     }
 
     @BeforeMethod
     public void beforeMethod()
     {
         executeInTransaction(new TransactionCallback<Void>()
-        {
-            @Override public Void doInTransaction(final TransactionStatus status)
             {
-                String sessionToken = v3api.login(TEST_USER, PASSWORD);
-                String systemSessionToken = v3api.loginAsSystem();
+                @Override
+                public Void doInTransaction(final TransactionStatus status)
+                {
+                    String sessionToken = v3api.login(TEST_USER, PASSWORD);
+                    String systemSessionToken = v3api.loginAsSystem();
 
-                // generate new events (they will be created in a different transaction than the events
-                // created in beforeClass and therefore will have a different registration date)
+                    // generate new events (they will be created in a different transaction than the events
+                    // created in beforeClass and therefore will have a different registration date)
 
-                freezeExperiment(systemSessionToken, experimentAAA.getPermId());
-                deleteExperiments(sessionToken, Arrays.asList(experimentBBB.getPermId(), experimentBBC.getPermId()), "delete experiments");
-                deleteProjects(sessionToken, Arrays.asList(projectBB.getPermId(), projectCC.getPermId()), "delete projects");
-                deleteSpaces(sessionToken, Collections.singletonList(spaceB.getPermId()), "delete spaces");
-                deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "delete tags");
+                    freezeExperiment(systemSessionToken, experimentAAA.getPermId());
+                    deleteExperiments(sessionToken, Arrays.asList(experimentBBB.getPermId(), experimentBBC.getPermId()), "delete experiments");
+                    deleteProjects(sessionToken, Arrays.asList(projectBB.getPermId(), projectCC.getPermId()), "delete projects");
+                    deleteSpaces(sessionToken, Collections.singletonList(spaceB.getPermId()), "delete spaces");
+                    deleteTags(sessionToken, Arrays.asList(tagA.getPermId(), tagB.getPermId()), "delete tags");
 
-                // process new events
-                EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
-                task.execute(new TestDataSource());
+                    // process new events
+                    EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+                    task.execute(new TestDataSource());
 
-                return null;
-            }
-        }, TransactionDefinition.PROPAGATION_REQUIRED);
+                    return null;
+                }
+            }, TransactionDefinition.PROPAGATION_REQUIRED);
     }
 
     private void initSpaces()
@@ -703,18 +708,20 @@ public class SearchEventTest extends AbstractTest
         EventFetchOptions fo = new EventFetchOptions();
 
         assertAuthorizationFailureException(new IDelegatedAction()
-        {
-            @Override public void execute()
             {
-                v3api.searchEvents(sessionToken, criteria, fo);
-            }
-        });
+                @Override
+                public void execute()
+                {
+                    v3api.searchEvents(sessionToken, criteria, fo);
+                }
+            });
     }
 
     private static class TestDataSource extends DataSource
     {
 
-        @Override public Statistics executeInNewTransaction(final TransactionCallback<?> callback)
+        @Override
+        public Statistics executeInNewTransaction(final TransactionCallback<?> callback)
         {
             // for testing execute everything in the main transaction instead of starting a new transaction
             return executeInTransaction(callback, TransactionDefinition.PROPAGATION_REQUIRED);
@@ -942,7 +949,23 @@ public class SearchEventTest extends AbstractTest
 
     private static String toString(Object object)
     {
-        return new ReflectionToStringBuilder(object, new MultilineRecursiveToStringStyle()).toString();
+        ToStringStyle stringStyle = new MultilineRecursiveToStringStyle()
+            {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void append(StringBuffer buffer, String fieldName, Object value, Boolean fullDetail)
+                {
+                    if (value != null && value.getClass().getName().startsWith("ch."))
+                    {
+                        super.append(buffer, fieldName, value, fullDetail);
+                    } else
+                    {
+                        super.append(buffer, fieldName, String.valueOf(value), true);
+                    }
+                }
+            };
+        return new ReflectionToStringBuilder(object, stringStyle).toString();
     }
 
 }

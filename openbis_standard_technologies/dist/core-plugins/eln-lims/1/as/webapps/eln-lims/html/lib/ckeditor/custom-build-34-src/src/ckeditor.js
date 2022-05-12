@@ -81,7 +81,6 @@ const plugins = [Essentials,
                  	TableToolbar,
                  	TableProperties,
                  	TableCellProperties,
-                 	RemoveFormat,
                  	SpecialCharacters,
                  	SpecialCharactersEssentials];
 

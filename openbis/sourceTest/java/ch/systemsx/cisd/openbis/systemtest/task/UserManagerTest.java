@@ -1899,7 +1899,7 @@ public class UserManagerTest extends AbstractTest
 
         private Map<String, String> commonSamples = new TreeMap<>();
 
-        private Map<String, String> commonExperiments = new TreeMap<>();
+        private List<Map<String, String>> commonExperiments = new ArrayList<>();
 
         private File shareIdsMappingFile;
 
@@ -1959,7 +1959,10 @@ public class UserManagerTest extends AbstractTest
 
         private UserManagerBuilder commonExperiment(String experimentIdentifierTemplate, String experimentType)
         {
-            commonExperiments.put(experimentIdentifierTemplate, experimentType);
+            Map<String, String> commonExperimentData = new HashMap<>();
+            commonExperimentData.put("identifierTemplate", experimentIdentifierTemplate);
+            commonExperimentData.put("experimentType", experimentType);
+            commonExperiments.add(commonExperimentData);
             return this;
         }
 

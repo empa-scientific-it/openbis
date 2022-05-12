@@ -12,6 +12,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
@@ -57,6 +61,12 @@ public class EventsSearchMaintenanceTaskTest
 
     private static final DateFormat DATE_TIME_MILLIS_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    public static final int LARGE_BATCH_SIZE = 1000;
+
+    public static final int SMALL_BATCH_SIZE = 1;
+
+    public static final int FIRST_ONLY_BATCH_SIZE = 1;
+
     private Mockery mockery;
 
     private final TestResources resources = new TestResources(getClass());
@@ -80,7 +90,7 @@ public class EventsSearchMaintenanceTaskTest
                 {
                     @Override public Object invoke(Invocation invocation) throws Throwable
                     {
-                        ((TransactionCallback) invocation.getParameter(0)).doInTransaction(null);
+                        ((TransactionCallback<?>) invocation.getParameter(0)).doInTransaction(null);
                         return new Statistics();
                     }
                 });
@@ -160,26 +170,32 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2000-01-01 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2000-01-01 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2000-01-01 00:26:00.000"), deletionA1, deletionA2);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionA2.getRegistrationDateInternal(), deletionB);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2000-01-01 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2000-01-01 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2000-01-01 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2000-01-01 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2000-01-01 00:25:00.000"));
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2000-01-01 00:26:00.000"), LARGE_BATCH_SIZE, deletionA1,
+                    deletionA2);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionA2.getRegistrationDateInternal(), LARGE_BATCH_SIZE, deletionB);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2000-01-01 00:25:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2000-01-01 00:25:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2000-01-01 00:25:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2000-01-01 00:26:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2000-01-01 00:25:00.000"), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -288,30 +304,37 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"), deletionSpaceA, deletionSpaceB);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionProjectA);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), deletionProjectB);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"), LARGE_BATCH_SIZE, deletionSpaceA,
+                    deletionSpaceB);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), LARGE_BATCH_SIZE,
+                    deletionProjectB);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"));
             expectLoadSpaces(Collections.singletonList("SPACE_C"), spaceC);
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -439,7 +462,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -449,7 +473,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -461,23 +485,25 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionProjectA,
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE, deletionProjectA,
                     deletionProjectB);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionExperimentA);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), deletionExperimentsAB);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentsAB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE,
+                    deletionExperimentA);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE,
+                    deletionExperimentsAB);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentsAB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceA, spaceB);
@@ -485,8 +511,13 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadProjects(Collections.singletonList("20210329151103947-205180"), projectA);
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -616,26 +647,43 @@ public class EventsSearchMaintenanceTaskTest
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestampsEmpty(EventType.values());
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, deletionSpaceA);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, deletionProjectA);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, deletionExperimentA);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal());
 
-            for (EntityType entityType : EnumSet
-                    .of(EntityType.SAMPLE, EntityType.DATASET, EntityType.MATERIAL,
-                            EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE,
-                            EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, FIRST_ONLY_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-19 16:27:27.497"), LARGE_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-19 16:27:27.497"), LARGE_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE, deletionExperimentA);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-19 16:27:27.497"), LARGE_BATCH_SIZE,
+                    deletionExperimentA);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, SMALL_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, SMALL_BATCH_SIZE);
+
+            for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE, EntityType.VOCABULARY,
+                    EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
-                expectLoadEvents(EventType.DELETION, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceB);
             expectLoadProjects(Collections.singletonList("20210419162753803-205241"));
 
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -779,7 +827,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -789,7 +838,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
@@ -800,11 +849,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210401151815315-205197"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentBProjectBRelation = new RelationHistoryEntry();
         experimentBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-01 15:18:38.580"));
@@ -814,7 +864,7 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentB = new Experiment();
         experimentB.setCode("EXPERIMENT_B");
         experimentB.setPermId(new ExperimentPermId("20210401151838580-205199"));
-        experimentB.setHistory(Collections.singletonList(experimentBProjectBRelation));
+        experimentB.setProjectHistory(Collections.singletonList(experimentBProjectBRelation));
         experimentB.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -826,23 +876,25 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-01 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-01 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-01 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-01 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-01 00:25:00.000"), deletionExperimentA);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-01 00:25:00.000"), deletionSampleA, deletionSampleB);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleB.getRegistrationDateInternal(), deletionSampleC,
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-01 00:26:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-01 00:25:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-01 00:25:00.000"), LARGE_BATCH_SIZE,
+                    deletionExperimentA);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-01 00:25:00.000"), SMALL_BATCH_SIZE, deletionSampleA,
+                    deletionSampleB);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleB.getRegistrationDateInternal(), SMALL_BATCH_SIZE, deletionSampleC,
                     deletionSampleD);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleD.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-01 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-01 00:25:00.000"));
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleD.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-01 00:26:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-01 00:25:00.000"), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceA, spaceB);
@@ -854,8 +906,13 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadExperiments(Arrays.asList("20210401151838580-205199", "20210401151830921-205198"), experimentB);
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -987,7 +1044,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-19 17:30:33.073"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
         projectBSpaceBRelation.setValidFrom(dateTimeMillis("2021-04-19 17:30:58.839"));
@@ -997,11 +1055,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210419173058839-205244"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentAProjectARelation = new RelationHistoryEntry();
         experimentAProjectARelation.setValidFrom(dateTimeMillis("2021-04-19 17:31:16.451"));
@@ -1016,34 +1075,49 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentA = new Experiment();
         experimentA.setCode("EXPERIMENT_A");
         experimentA.setPermId(new ExperimentPermId("20210419173116451-205245"));
-        experimentA.setHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
+        experimentA.setProjectHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
         experimentA.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestampsEmpty(EventType.values());
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, deletionProjectA);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal());
+
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-19 17:31:01.964"), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-19 17:31:01.964"), LARGE_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             if (delete)
             {
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, deletionExperimentA);
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal());
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE, deletionExperimentA);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-19 17:31:01.964"), LARGE_BATCH_SIZE,
+                        deletionExperimentA);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
             } else
             {
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-19 17:31:01.964"), LARGE_BATCH_SIZE);
             }
 
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, deletionSampleA);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, FIRST_ONLY_BATCH_SIZE, deletionSampleA);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-19 17:31:01.964"), SMALL_BATCH_SIZE, deletionSampleA);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet
                     .of(EntityType.DATASET, EntityType.MATERIAL,
                             EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE,
                             EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
-                expectLoadEvents(EventType.DELETION, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                if (entityType.equals(EntityType.DATASET))
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, SMALL_BATCH_SIZE);
+                } else
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
+                }
             }
 
             expectLoadSpaces(Collections.singletonList("SPACE_A"), spaceA);
@@ -1058,8 +1132,13 @@ public class EventsSearchMaintenanceTaskTest
                 expectLoadExperiments(Collections.singletonList("20210419173116451-205245"), experimentA);
             }
 
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -1171,7 +1250,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 10:58:14.693"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-04-20 10:58:29.314"));
@@ -1186,34 +1266,49 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210420105829314-205247"));
-        projectA.setHistory(Arrays.asList(projectASpaceARelation, projectASpaceBRelation));
+        projectA.setSpaceHistory(Arrays.asList(projectASpaceARelation, projectASpaceBRelation));
         projectA.setFetchOptions(projectFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestampsEmpty(EventType.values());
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, deletionSpaceA);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal());
+
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, FIRST_ONLY_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-20 10:58:14.843"), LARGE_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             if (delete)
             {
-                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, deletionProjectA);
-                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal());
+                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE, deletionProjectA);
+                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-20 10:58:14.843"), LARGE_BATCH_SIZE,
+                        deletionProjectA);
+                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
             } else
             {
-                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null);
+                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-20 10:58:14.843"), LARGE_BATCH_SIZE);
             }
 
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, deletionSampleA);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-20 10:58:14.843"), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, FIRST_ONLY_BATCH_SIZE, deletionSampleA);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-20 10:58:14.843"), SMALL_BATCH_SIZE, deletionSampleA);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet
                     .of(EntityType.DATASET, EntityType.MATERIAL,
                             EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE,
                             EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
-                expectLoadEvents(EventType.DELETION, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                if (entityType.equals(EntityType.DATASET))
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, SMALL_BATCH_SIZE);
+                } else
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
+                }
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceB);
@@ -1226,8 +1321,13 @@ public class EventsSearchMaintenanceTaskTest
                 expectLoadProjects(Collections.singletonList("20210420105829314-205247"), projectA);
             }
 
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -1381,7 +1481,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-03-29 15:08:03.609"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectASpaceARelation = new RelationHistoryEntry();
         projectASpaceARelation.setValidFrom(dateTimeMillis("2021-03-29 15:11:03.947"));
@@ -1391,7 +1492,7 @@ public class EventsSearchMaintenanceTaskTest
         Project projectA = new Project();
         projectA.setCode("PROJECT_A");
         projectA.setPermId(new ProjectPermId("20210329151103947-205180"));
-        projectA.setHistory(Collections.singletonList(projectASpaceARelation));
+        projectA.setSpaceHistory(Collections.singletonList(projectASpaceARelation));
         projectA.setFetchOptions(projectFo);
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
@@ -1402,11 +1503,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210401151815315-205197"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentBProjectBRelation = new RelationHistoryEntry();
         experimentBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-07 14:12:17.738"));
@@ -1416,11 +1518,14 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentB = new Experiment();
         experimentB.setCode("EXPERIMENT_B");
         experimentB.setPermId(new ExperimentPermId("20210407141217738-205212"));
-        experimentB.setHistory(Collections.singletonList(experimentBProjectBRelation));
+        experimentB.setProjectHistory(Collections.singletonList(experimentBProjectBRelation));
         experimentB.setFetchOptions(experimentFo);
 
         SampleFetchOptions sampleFo = new SampleFetchOptions();
-        sampleFo.withHistory();
+        sampleFo.withSpaceHistory();
+        sampleFo.withProjectHistory();
+        sampleFo.withExperimentHistory();
+        sampleFo.withUnknownHistory();
 
         RelationHistoryEntry sampleBProjectBRelation = new RelationHistoryEntry();
         sampleBProjectBRelation.setValidFrom(dateTimeMillis("2021-04-07 14:13:18.103"));
@@ -1430,7 +1535,7 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleB = new Sample();
         sampleB.setCode("SAMPLE_B");
         sampleB.setPermId(new SamplePermId("20210407141318103-205214"));
-        sampleB.setHistory(Collections.singletonList(sampleBProjectBRelation));
+        sampleB.setProjectHistory(Collections.singletonList(sampleBProjectBRelation));
         sampleB.setFetchOptions(sampleFo);
 
         RelationHistoryEntry sampleCExperimentBRelation = new RelationHistoryEntry();
@@ -1441,7 +1546,7 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleC = new Sample();
         sampleC.setCode("SAMPLE_C");
         sampleC.setPermId(new SamplePermId("20210407141344363-205215"));
-        sampleC.setHistory(Collections.singletonList(sampleCExperimentBRelation));
+        sampleC.setExperimentHistory(Collections.singletonList(sampleCExperimentBRelation));
         sampleC.setFetchOptions(sampleFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
@@ -1453,24 +1558,26 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-07 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-07 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-07 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-07 00:25:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-07 00:25:00.000"), deletionExperimentA);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-07 00:25:00.000"), deletionSampleA);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-07 00:26:00.000"), deletionDataSetA);
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal(), deletionDataSetB,
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-07 00:26:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-07 00:25:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-07 00:25:00.000"), LARGE_BATCH_SIZE,
+                    deletionExperimentA);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-07 00:25:00.000"), SMALL_BATCH_SIZE, deletionSampleA);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-07 00:26:00.000"), SMALL_BATCH_SIZE, deletionDataSetA);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal(), SMALL_BATCH_SIZE,
+                    deletionDataSetB,
                     deletionDataSetC);
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetC.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-07 00:25:00.000"));
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetC.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-04-07 00:25:00.000"), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceA, spaceB);
@@ -1480,8 +1587,13 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadSamples(Collections.singletonList("20210407141206022-205211"));
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -1613,7 +1725,8 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 11:41:51.801"));
 
         ProjectFetchOptions projectFo = new ProjectFetchOptions();
-        projectFo.withHistory();
+        projectFo.withSpaceHistory();
+        projectFo.withUnknownHistory();
 
         RelationHistoryEntry projectBSpaceBRelation = new RelationHistoryEntry();
         projectBSpaceBRelation.setValidFrom(dateTimeMillis("2021-04-20 11:42:13.918"));
@@ -1623,11 +1736,12 @@ public class EventsSearchMaintenanceTaskTest
         Project projectB = new Project();
         projectB.setCode("PROJECT_B");
         projectB.setPermId(new ProjectPermId("20210420114213918-205251"));
-        projectB.setHistory(Collections.singletonList(projectBSpaceBRelation));
+        projectB.setSpaceHistory(Collections.singletonList(projectBSpaceBRelation));
         projectB.setFetchOptions(projectFo);
 
         ExperimentFetchOptions experimentFo = new ExperimentFetchOptions();
-        experimentFo.withHistory();
+        experimentFo.withProjectHistory();
+        experimentFo.withUnknownHistory();
 
         RelationHistoryEntry experimentAProjectARelation = new RelationHistoryEntry();
         experimentAProjectARelation.setValidFrom(dateTimeMillis("2021-04-20 11:42:36.830"));
@@ -1642,35 +1756,44 @@ public class EventsSearchMaintenanceTaskTest
         Experiment experimentA = new Experiment();
         experimentA.setCode("EXPERIMENT_A");
         experimentA.setPermId(new ExperimentPermId("20210420114236830-205252"));
-        experimentA.setHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
+        experimentA.setProjectHistory(Arrays.asList(experimentAProjectARelation, experimentAProjectBRelation));
         experimentA.setFetchOptions(experimentFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestampsEmpty(EventType.values());
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, deletionProjectA);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-20 11:44:56.375"), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-20 11:44:56.375"), LARGE_BATCH_SIZE, deletionProjectA);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             if (delete)
             {
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, deletionExperimentA);
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal());
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE, deletionExperimentA);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-20 11:44:56.375"), LARGE_BATCH_SIZE,
+                        deletionExperimentA);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
             } else
             {
-                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-20 11:44:56.375"), LARGE_BATCH_SIZE);
             }
 
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null);
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, deletionDataSetA);
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-20 11:44:56.375"), SMALL_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, FIRST_ONLY_BATCH_SIZE, deletionDataSetA);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-20 11:44:56.375"), SMALL_BATCH_SIZE, deletionDataSetA);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet
-                    .of(EntityType.MATERIAL,
-                            EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE,
-                            EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
+                    .of(EntityType.ATTACHMENT, EntityType.MATERIAL, EntityType.PROPERTY_TYPE, EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP,
+                            EntityType.METAPROJECT))
             {
-                expectLoadEvents(EventType.DELETION, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Collections.singletonList("SPACE_A"), spaceA);
@@ -1685,8 +1808,13 @@ public class EventsSearchMaintenanceTaskTest
                 expectLoadExperiments(Collections.singletonList("20210420114236830-205252"), experimentA);
             }
 
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -1798,7 +1926,10 @@ public class EventsSearchMaintenanceTaskTest
         spaceB.setRegistrationDate(dateTimeMillis("2021-04-20 11:41:51.801"));
 
         SampleFetchOptions sampleFo = new SampleFetchOptions();
-        sampleFo.withHistory();
+        sampleFo.withSpaceHistory();
+        sampleFo.withProjectHistory();
+        sampleFo.withExperimentHistory();
+        sampleFo.withUnknownHistory();
 
         RelationHistoryEntry sampleASpaceARelation = new RelationHistoryEntry();
         sampleASpaceARelation.setValidFrom(dateTimeMillis("2021-04-20 13:17:37.031"));
@@ -1813,34 +1944,43 @@ public class EventsSearchMaintenanceTaskTest
         Sample sampleA = new Sample();
         sampleA.setCode("SAMPLE_A");
         sampleA.setPermId(new SamplePermId("20210420131737031-205258"));
-        sampleA.setHistory(Arrays.asList(sampleASpaceARelation, sampleASpaceBRelation));
+        sampleA.setSpaceHistory(Arrays.asList(sampleASpaceARelation, sampleASpaceBRelation));
         sampleA.setFetchOptions(sampleFo);
 
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestampsEmpty(EventType.values());
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, deletionSpaceA);
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, null, FIRST_ONLY_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-04-20 13:18:23.605"), LARGE_BATCH_SIZE, deletionSpaceA);
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, deletionSpaceA.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-04-20 13:18:23.605"), LARGE_BATCH_SIZE);
+
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, null, FIRST_ONLY_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-04-20 13:18:23.605"), LARGE_BATCH_SIZE);
 
             if (delete)
             {
-                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, deletionSampleA);
-                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal());
+                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, SMALL_BATCH_SIZE, deletionSampleA);
+                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-20 13:18:23.605"), SMALL_BATCH_SIZE, deletionSampleA);
+                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
             } else
             {
-                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null);
+                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-04-20 13:18:23.605"), SMALL_BATCH_SIZE);
             }
 
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, deletionDataSetA);
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, null, SMALL_BATCH_SIZE, deletionDataSetA);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-04-20 13:18:23.605"), SMALL_BATCH_SIZE, deletionDataSetA);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, deletionDataSetA.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL,
                     EntityType.ATTACHMENT, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
-                expectLoadEvents(EventType.DELETION, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Arrays.asList("SPACE_A", "SPACE_B"), spaceB);
@@ -1855,8 +1995,13 @@ public class EventsSearchMaintenanceTaskTest
                 expectLoadSamples(Collections.singletonList("20210420131737031-205258"), sampleA);
             }
 
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -2073,26 +2218,29 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadLastTimestamp(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
             expectLoadLastTimestamp(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"));
 
-            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionProjectB);
-            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionExperimentC);
-            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentC.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"), deletionSampleD);
-            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleD.getRegistrationDateInternal());
-            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"));
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"), deletionAttachmentD1,
+            expectLoadEvents(EventType.DELETION, EntityType.SPACE, dateTimeMillis("2021-03-29 00:26:00.000"), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE, deletionProjectB);
+            expectLoadEvents(EventType.DELETION, EntityType.PROJECT, deletionProjectB.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE,
+                    deletionExperimentC);
+            expectLoadEvents(EventType.DELETION, EntityType.EXPERIMENT, deletionExperimentC.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, dateTimeMillis("2021-03-29 00:25:00.000"), SMALL_BATCH_SIZE, deletionSampleD);
+            expectLoadEvents(EventType.DELETION, EntityType.SAMPLE, deletionSampleD.getRegistrationDateInternal(), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.DATASET, dateTimeMillis("2021-03-29 00:26:00.000"), SMALL_BATCH_SIZE);
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, dateTimeMillis("2021-03-29 00:25:00.000"), LARGE_BATCH_SIZE,
+                    deletionAttachmentD1,
                     deletionAttachmentD2, deletionAttachmentD3);
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, deletionAttachmentD3.getRegistrationDateInternal(), deletionAttachmentC2,
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, deletionAttachmentD3.getRegistrationDateInternal(), LARGE_BATCH_SIZE,
+                    deletionAttachmentC2,
                     deletionAttachmentC1, deletionAttachmentC3, deletionAttachmentB1, deletionAttachmentB2, deletionAttachmentB3);
-            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, deletionAttachmentB3.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, EntityType.ATTACHMENT, deletionAttachmentB3.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             for (EntityType entityType : EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
                     EntityType.VOCABULARY, EntityType.AUTHORIZATION_GROUP, EntityType.METAPROJECT))
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, entityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, entityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadSpaces(Collections.singletonList("SPACE_A"), spaceA);
@@ -2100,9 +2248,19 @@ public class EventsSearchMaintenanceTaskTest
             expectLoadExperiments(Collections.singletonList("20210427145943350-205271"));
             expectLoadSamples(Collections.singletonList("20210427150007514-205272"));
 
-            expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadLastTimestamp(EventType.FREEZING, entityType, null);
+                expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadLastTimestamp(EventType.MOVEMENT, entityType, null);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -2308,15 +2466,22 @@ public class EventsSearchMaintenanceTaskTest
         List<EventsSearchPE> events = new ArrayList<>();
         {
             expectLoadLastTimestamp(EventType.DELETION, entityType, dateTimeMillis("2000-01-01 00:30:00.000"));
-            expectLoadEvents(EventType.DELETION, entityType, dateTimeMillis("2000-01-01 00:30:00.000"), deletionA);
-            expectLoadEvents(EventType.DELETION, entityType, deletionA.getRegistrationDateInternal(), deletionB, deletionC);
-            expectLoadEvents(EventType.DELETION, entityType, deletionC.getRegistrationDateInternal());
+            expectLoadEvents(EventType.DELETION, entityType, dateTimeMillis("2000-01-01 00:30:00.000"), LARGE_BATCH_SIZE, deletionA);
+            expectLoadEvents(EventType.DELETION, entityType, deletionA.getRegistrationDateInternal(), LARGE_BATCH_SIZE, deletionB, deletionC);
+            expectLoadEvents(EventType.DELETION, entityType, deletionC.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             for (EntityType specialEntityType : EnumSet.of(EntityType.SPACE, EntityType.PROJECT, EntityType.EXPERIMENT,
                     EntityType.SAMPLE, EntityType.DATASET, EntityType.ATTACHMENT))
             {
                 expectLoadLastTimestamp(EventType.DELETION, specialEntityType, null);
-                expectLoadEvents(EventType.DELETION, specialEntityType, null);
+                expectLoadEvents(EventType.DELETION, specialEntityType, null, FIRST_ONLY_BATCH_SIZE);
+                if (specialEntityType.equals(EntityType.SAMPLE) || specialEntityType.equals(EntityType.DATASET))
+                {
+                    expectLoadEvents(EventType.DELETION, specialEntityType, null, SMALL_BATCH_SIZE);
+                } else
+                {
+                    expectLoadEvents(EventType.DELETION, specialEntityType, null, LARGE_BATCH_SIZE);
+                }
             }
 
             EnumSet<EntityType> otherGenericEntityTypes = EnumSet.of(EntityType.MATERIAL, EntityType.PROPERTY_TYPE,
@@ -2328,12 +2493,17 @@ public class EventsSearchMaintenanceTaskTest
             {
                 Date randomTimestamp = new Date((long) (Math.random() * 10000));
                 expectLoadLastTimestamp(EventType.DELETION, otherGenericEntityType, randomTimestamp);
-                expectLoadEvents(EventType.DELETION, otherGenericEntityType, randomTimestamp);
+                expectLoadEvents(EventType.DELETION, otherGenericEntityType, randomTimestamp, LARGE_BATCH_SIZE);
             }
 
             expectLoadLastTimestampsEmpty(EventType.FREEZING, EventType.MOVEMENT);
-            expectLoadEvents(EventType.FREEZING, null, null);
-            expectLoadEvents(EventType.MOVEMENT, null, null);
+            for (EntityType anEntityType : EntityType.values())
+            {
+                expectLoadEvents(EventType.FREEZING, anEntityType, null, FIRST_ONLY_BATCH_SIZE);
+                expectLoadEvents(EventType.MOVEMENT, anEntityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+            expectLoadEvents(EventType.FREEZING, null, null, LARGE_BATCH_SIZE);
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -2416,8 +2586,25 @@ public class EventsSearchMaintenanceTaskTest
             for (EntityType entityType : EntityType.values())
             {
                 expectLoadLastTimestamp(EventType.DELETION, entityType, null);
-                expectLoadLastTimestamp(EventType.MOVEMENT, entityType, null);
+                expectLoadEvents(EventType.DELETION, entityType, null, FIRST_ONLY_BATCH_SIZE);
 
+                if (EntityType.SAMPLE.equals(entityType) || EntityType.DATASET.equals(entityType))
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, SMALL_BATCH_SIZE);
+                } else
+                {
+                    expectLoadEvents(EventType.DELETION, entityType, null, LARGE_BATCH_SIZE);
+                }
+            }
+
+            for (EntityType entityType : EntityType.values())
+            {
+                expectLoadLastTimestamp(EventType.MOVEMENT, entityType, null);
+                expectLoadEvents(EventType.MOVEMENT, entityType, null, FIRST_ONLY_BATCH_SIZE);
+            }
+
+            for (EntityType entityType : EntityType.values())
+            {
                 if (EntityType.SAMPLE.equals(entityType))
                 {
                     expectLoadLastTimestamp(EventType.FREEZING, entityType, dateTimeMillis("2000-01-01 00:10:00.000"));
@@ -2427,21 +2614,16 @@ public class EventsSearchMaintenanceTaskTest
                 } else
                 {
                     expectLoadLastTimestamp(EventType.FREEZING, entityType, null);
-
+                    expectLoadEvents(EventType.FREEZING, entityType, null, FIRST_ONLY_BATCH_SIZE);
                 }
             }
 
-            for (EntityType anEntityType : EntityType.values())
-            {
-                expectLoadEvents(EventType.DELETION, anEntityType, null);
-            }
+            expectLoadEvents(EventType.FREEZING, null, dateTimeMillis("2000-01-01 00:20:00.000"), LARGE_BATCH_SIZE, eventA);
+            expectLoadEvents(EventType.FREEZING, null, eventA.getRegistrationDateInternal(), LARGE_BATCH_SIZE, eventC);
+            expectLoadEvents(EventType.FREEZING, null, eventC.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
-            expectLoadEvents(EventType.FREEZING, null, dateTimeMillis("2000-01-01 00:20:00.000"), eventA);
-            expectLoadEvents(EventType.FREEZING, null, eventA.getRegistrationDateInternal(), eventC);
-            expectLoadEvents(EventType.FREEZING, null, eventC.getRegistrationDateInternal());
-
-            expectLoadEvents(EventType.MOVEMENT, null, null, eventB, eventD);
-            expectLoadEvents(EventType.MOVEMENT, null, eventD.getRegistrationDateInternal());
+            expectLoadEvents(EventType.MOVEMENT, null, null, LARGE_BATCH_SIZE, eventB, eventD);
+            expectLoadEvents(EventType.MOVEMENT, null, eventD.getRegistrationDateInternal(), LARGE_BATCH_SIZE);
 
             expectCreateEvents(events);
         }
@@ -2543,12 +2725,12 @@ public class EventsSearchMaintenanceTaskTest
         });
     }
 
-    private void expectLoadEvents(EventType eventType, EntityType entityType, Date lastSeenTimestamp, EventPE... events)
+    private void expectLoadEvents(EventType eventType, EntityType entityType, Date lastSeenTimestamp, Integer limit, EventPE... events)
     {
         mockery.checking(new Expectations()
         {
             {
-                one(dataSource).loadEvents(with(eventType), with(entityType), with(lastSeenTimestamp), with(any(Integer.class)));
+                one(dataSource).loadEvents(with(eventType), with(entityType), with(lastSeenTimestamp), with(limit));
                 will(returnValue(Arrays.asList(events)));
             }
         });

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,13 +29,16 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.history.ExperimentRelationType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.id.UnknownRelatedObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.IDataSetAuthorizationValidator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history.HistoryRelationshipRecord;
@@ -53,121 +57,23 @@ public class ExperimentHistoryTranslator extends HistoryTranslator implements IE
 {
 
     @Autowired
-    private IProjectAuthorizationValidator projectValidator;
+    private ExperimentPropertyHistoryTranslator propertyHistoryTranslator;
 
     @Autowired
-    private ISampleAuthorizationValidator sampleValidator;
+    private ExperimentProjectRelationshipHistoryTranslator projectRelationshipHistoryTranslator;
 
     @Autowired
-    private IDataSetAuthorizationValidator dataSetValidator;
+    private ExperimentSampleRelationshipHistoryTranslator sampleRelationshipHistoryTranslator;
 
-    @Override protected List<? extends PropertyRecord> loadProperties(final Collection<Long> entityIds)
+    @Autowired
+    private ExperimentDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
+
+    @Autowired
+    private ExperimentUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
+    @Override protected List<ITranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>> getTranslators()
     {
-        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        return query.getProperties(new LongOpenHashSet(entityIds));
+        return Arrays.asList(propertyHistoryTranslator, projectRelationshipHistoryTranslator, sampleRelationshipHistoryTranslator,
+                dataSetRelationshipHistoryTranslator, unknownRelationshipHistoryTranslator);
     }
-
-    @Override
-    protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
-    {
-        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
-    }
-
-    @Override
-    protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(TranslationContext context, Collection<Long> entityIds)
-    {
-        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-
-        List<ExperimentRelationshipRecord> records = query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
-        List<ExperimentRelationshipRecord> validRecords = new ArrayList<ExperimentRelationshipRecord>();
-
-        Set<Long> projectIds = new HashSet<Long>();
-        Set<Long> sampleIds = new HashSet<Long>();
-        Set<Long> dataSetIds = new HashSet<Long>();
-
-        for (ExperimentRelationshipRecord record : records)
-        {
-            if (record.projectId != null)
-            {
-                projectIds.add(record.projectId);
-            } else if (record.sampleId != null)
-            {
-                sampleIds.add(record.sampleId);
-            } else if (record.dataSetId != null)
-            {
-                dataSetIds.add(record.dataSetId);
-            }
-        }
-
-        if (false == projectIds.isEmpty())
-        {
-            projectIds = projectValidator.validate(context.getSession().tryGetPerson(), projectIds);
-        }
-        if (false == sampleIds.isEmpty())
-        {
-            sampleIds = sampleValidator.validate(context.getSession().tryGetPerson(), sampleIds);
-        }
-        if (false == dataSetIds.isEmpty())
-        {
-            dataSetIds = dataSetValidator.validate(context.getSession().tryGetPerson(), dataSetIds);
-        }
-
-        final boolean isSystemUser = context.getSession().tryGetPerson() != null && context.getSession().tryGetPerson().isSystemUser();
-
-        for (ExperimentRelationshipRecord record : records)
-        {
-            boolean isValid = false;
-
-            if (record.projectId != null)
-            {
-                isValid = projectIds.contains(record.projectId);
-            } else if (record.sampleId != null)
-            {
-                isValid = sampleIds.contains(record.sampleId);
-            } else if (record.dataSetId != null)
-            {
-                isValid = dataSetIds.contains(record.dataSetId);
-            } else
-            {
-                isValid = isSystemUser;
-            }
-
-            if (isValid)
-            {
-                validRecords.add(record);
-            }
-        }
-
-        return validRecords;
-    }
-
-    @Override
-    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap,
-            HistoryEntryFetchOptions fetchOptions)
-    {
-        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap, fetchOptions);
-
-        ExperimentRelationshipRecord experimentRecord = (ExperimentRelationshipRecord) record;
-
-        if (isProject(experimentRecord))
-        {
-            entry.setRelationType(ExperimentRelationType.PROJECT);
-            entry.setRelatedObjectId(new ProjectPermId(experimentRecord.relatedObjectId));
-        } else if (isSample(experimentRecord))
-        {
-            entry.setRelationType(ExperimentRelationType.SAMPLE);
-            entry.setRelatedObjectId(new SamplePermId(experimentRecord.relatedObjectId));
-        } else if (isDataSet(experimentRecord))
-        {
-            entry.setRelationType(ExperimentRelationType.DATA_SET);
-            entry.setRelatedObjectId(new DataSetPermId(experimentRecord.relatedObjectId));
-        } else
-        {
-            entry.setRelatedObjectId(new UnknownRelatedObjectId(experimentRecord.relatedObjectId, experimentRecord.relationType));
-        }
-
-        return entry;
-    }
-
 }

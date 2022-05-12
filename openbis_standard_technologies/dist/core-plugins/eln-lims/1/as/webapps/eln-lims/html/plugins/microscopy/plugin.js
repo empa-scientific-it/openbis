@@ -308,60 +308,113 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                 // Query the server
                 mainController.openbisV3.searchDataSets(dataSetCriteria, dataSetFetchOptions).done(function (result) {
                     if (result.getTotalCount() == 0) {
+                        
+                        // Thumbnail
+                        let imD = $("#" + img_id);
+                        
+                        // Make sure to reset the display attribute
+                        imD.css("display", "inline");
+                        
+                        // Thumbnail not found!
+                        imD.attr("src", "./img/unavailable.png");
+                        imD.attr("title", "Could not find a thumbnail for this dataset!");
+                        
                         return null;
                     }
-                    var dataSetContainer = result.getObjects()[0];
-                    for (var i = 0; i < dataSetContainer.getComponents().length; i++) {
-                        var dataSet = dataSetContainer.getComponents()[i];
 
-                        if (dataSet.getType().code === "MICROSCOPY_IMG_THUMBNAIL") {
 
-                            // Now retrieve the thumbnail and add display it
+                    // Declare the dataSet that we will use to retrieve the thumbnail
+                    let dataSet = null;
 
-                            // Get the file
-                            var criteria = new DataSetFileSearchCriteria();
-                            var dataSetCriteria = criteria.withDataSet().withOrOperator();
-                            dataSetCriteria.withPermId().thatEquals(dataSet.permId.permId);
-
-                            var fetchOptions = new DataSetFileFetchOptions();
-
-                            // Query the server
-                            mainController.openbisV3.getDataStoreFacade().searchFiles(criteria, fetchOptions).done(function (result) {
-
-                                // Thumbnail
-                                var imD = $("#" + img_id);
-
-                                // Make sure to reset the display attribute
-                                imD.css("display", "inline");
-
-                                if (result.getTotalCount() == 0) {
-
-                                    // Thumbnail not found!
-                                    imD.attr("src", "./img/image_unavailable.png");
-                                    imD.attr("title", "Could not find a thumbnail for this dataset!");
-
-                                    return;
-                                }
-
-                                // Extract the files
-                                var datasetFiles = result.getObjects();
-
-                                // Find the only fcs file and add its name and URL to the DynaTree
-                                datasetFiles.forEach(function (f) {
-
-                                    	// Build the download URL
-                                    var url = f.getDataStore().getDownloadUrl() + "/datastore_server/" +
-                                    f.permId.dataSetId.permId + "/" + f.getPath() + "?sessionID=" +
-                                    mainController.serverFacade.openbisServer.getSession();
-
-                                    // Replace the image
-                                    var eUrl = encodeURI(url);
-                                    eUrl = eUrl.replace('+', '%2B');
-                                    imD.attr("src", eUrl);
-                                });
-                            });
+                    // All MICROSCOPY_IMG_CONTAINER datasets (i.e. a file series) contain a MICROSCOPY_IMG_OVERVIEW
+                    // and a MICROSCOPY_IMG dataset; one of the series will also contain a MICROSCOPY_IMG_THUMBNAIL,
+                    // which is what we are looking for here.
+                    // Even though the MICROSCOPY_IMG_THUMBNAIL is always created for series 0, we cannot guarantee
+                    // here that series zero will be returned as the first. We quickly scan through the returned
+                    // results for the MICROSCOPY_IMG_CONTAINER that has three contained datasets.
+                    // From there we can then quickly retrieve the MICROSCOPY_IMG_THUMBNAIL.
+                    external_loop:
+                    for (let i = 0; i < result.objects.length; i++) {
+                        let currentDataSet = result.objects[i];
+                        if (null == currentDataSet.components) {
+                            continue;
+                        }
+                        for (let j = 0; j < currentDataSet.components.length; j++) {
+                            if (currentDataSet.components[j].type.code === "MICROSCOPY_IMG_THUMBNAIL") {
+                                dataSet = currentDataSet.components[j];
+                                break external_loop;
+                            }
                         }
                     }
+
+
+                    // Check that we indeed found the dataSet of type MICROSCOPY_IMG_THUMBNAIL
+                    if (dataSet == null) {
+
+                        // Thumbnail
+                        let imD = $("#" + img_id);
+
+                        // Make sure to reset the display attribute
+                        imD.css("display", "inline");
+
+                        // Thumbnail not found!
+                        imD.attr("src", "./img/unavailable.png");
+                        imD.attr("title", "Could not find a thumbnail for this dataset!");
+
+                        return;
+                    }
+
+                    // Now retrieve the thumbnail and add display it
+
+                    // Get the file
+                    let criteria = new DataSetFileSearchCriteria();
+                    let dataSetCriteria = criteria.withDataSet().withOrOperator();
+                    dataSetCriteria.withPermId().thatEquals(dataSet.permId.permId);
+
+                    let fetchOptions = new DataSetFileFetchOptions();
+
+                    var dataSetContainer = result.getObjects()[0];
+                    
+                    // Query the server
+                    mainController.openbisV3.getDataStoreFacade().searchFiles(criteria, fetchOptions).done(function (result) {
+
+                        // Thumbnail
+                        let imD = $("#" + img_id);
+
+                        // Make sure to reset the display attribute
+                        imD.css("display", "inline");
+
+                        if (result.getTotalCount() === 0) {
+
+                            // Thumbnail not found!
+                            imD.attr("src", "./img/unavailable.png");
+                            imD.attr("title", "Could not find a thumbnail for this dataset!");
+
+                            return;
+                        }
+
+                        // Extract the files
+                        let datasetFiles = result.getObjects();
+
+                        // Find the thumbnail
+                        datasetFiles.forEach(function (f) {
+
+                            if (!f.isDirectory()) {
+
+                                if (f.getPath() == "thumbnail.png") {
+                                    // Build the download URL
+                                    let url = f.getDataStore().getDownloadUrl() + "/datastore_server/" +
+                                        f.permId.dataSetId.permId + "/" + f.getPath() + "?sessionID=" +
+                                        mainController.serverFacade.openbisServer.getSession();
+
+                                    // Replace the image
+                                    let eUrl = encodeURI(url);
+                                    eUrl = eUrl.replace('+', '%2B');
+                                    imD.attr("src", eUrl);
+                                }
+                            }
+                        });
+                    });
                 });
             });
     }

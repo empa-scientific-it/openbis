@@ -51,7 +51,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			//
 			// Toolbar
 			//
-			var toolbarModel = [];		
+			var toolbarModel = [];
 
 			if(this._settingsFormModel.mode === FormMode.VIEW) {
 				if (this._settingsFormModel.sampleRights.rights.indexOf("UPDATE") >= 0) {
@@ -84,6 +84,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             if(profile.isAdmin) {
                 $formColumn.append($("<h2>").append("Instance Settings"));
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
+	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
+	            this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
+	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			}
 
             $formColumn.append($("<h2>").append("Group Settings"));
@@ -94,16 +97,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
             this._paintStoragesSection($formColumn, texts.storages);
 			this._paintTemplateSection($formColumn, texts.templates);
-
+            this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
 			this._paintMainMenuSection($formColumn, texts.mainMenu);
 			this._paintMiscellaneous($formColumn, texts.miscellaneous)
 
+            $formColumn.append($("<h2>").append("Deprecated"));
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
-			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
-			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
-			this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
-			this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
-
 
 			$container.append($form);
 
@@ -114,17 +113,22 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
 	this._getSettings = function() {
-		return {
-			dataSetTypeForFileNameMap : this._datasetTypesTableModel.getValues(),
-			mainMenu : this._mainMenuItemsTableModel.getValues(),
-			forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
-			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
-			inventorySpaces : this._inventorySpacesTableModel.getValues(),
-			inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues(),
-			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
-			showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-			hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
-		};
+	    var settings = {
+            mainMenu : this._mainMenuItemsTableModel.getValues(),
+            forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
+            sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
+            showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
+            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+        };
+
+        if(profile.isAdmin) {
+            settings.dataSetTypeForFileNameMap = this._datasetTypesTableModel.getValues();
+            settings.inventorySpaces = this._inventorySpacesTableModel.getValues();
+            settings.inventorySpacesReadOnly = this._inventorySpacesReadOnlyTableModel.getValues();
+            settings.forceMonospaceFont = this._forcedMonospaceTableModel.getValues();
+        }
+
+		return settings;
 	}
 
 	this._getSampleTypeDefinitionsExtension = function() {
@@ -241,14 +245,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 
 	this._paintForcedMonospaceSection = function($container, text) {
-		var $fieldset = this._getFieldset($container, text.title, "settings-section-monospace");
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-monospace", true);
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._forcedMonospaceTableModel = this._getForcedMonospaceTableModel();
 		$fieldset.append(this._getTable(this._forcedMonospaceTableModel));
 	}
 
 	this._paintInventorySpacesSection = function($container, text) {
-		var $fieldset = this._getFieldset($container, text.title, "settings-section-inventory-spaces");
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-inventory-spaces", true);
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
 		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
@@ -407,7 +411,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	// dataset types for filenames
 	//
 	this._paintDataSetTypesForFileNamesSection = function($container, text) {
-		var $fieldset = this._getFieldset($container, text.title, "settings-section-dataset-types");
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-dataset-types", true);
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._datasetTypesTableModel = this._getDatasetTypesTableModel();
 		$fieldset.append(this._getTable(this._datasetTypesTableModel));
@@ -455,7 +459,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintSampleTypesDefinition = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-definitions");
 		$fieldset.append(FormUtil.getInfoText(text.info));
-		for (var sampleType of profile.getAllSampleTypes(false)) {
+		for (var sampleType of profile.getAllSampleTypes()) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
 			var displayName = Util.getDisplayNameFromCode(sampleType.code);

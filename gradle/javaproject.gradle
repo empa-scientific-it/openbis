@@ -254,11 +254,7 @@ test {
     systemProperty "ant.project.name", project.name
 
     maxHeapSize = "8192m"
-    jvmArgs '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
-        '--add-opens=java.base/java.lang=ALL-UNNAMED',
-        '--add-opens=java.base/java.util=ALL-UNNAMED',
-        '--add-opens=java.base/sun.util.calendar=ALL-UNNAMED',
-        '--add-opens=java.sql/java.sql=ALL-UNNAMED'
+    jvmArgs '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog'
     
     testLogging.showStandardStreams = true
     ignoreFailures = true

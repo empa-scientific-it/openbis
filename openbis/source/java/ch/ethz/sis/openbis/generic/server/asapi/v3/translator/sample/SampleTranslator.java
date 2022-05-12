@@ -99,6 +99,36 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
     private ISampleHistoryTranslator historyTranslator;
 
     @Autowired
+    private SamplePropertyHistoryTranslator propertyHistoryTranslator;
+
+    @Autowired
+    private SampleSpaceRelationshipHistoryTranslator spaceRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleProjectRelationshipHistoryTranslator projectRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleExperimentRelationshipHistoryTranslator experimentRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleParentRelationshipHistoryTranslator parentRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleChildRelationshipHistoryTranslator childRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleContainerRelationshipHistoryTranslator containerRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleComponentRelationshipHistoryTranslator componentRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleDataSetRelationshipHistoryTranslator dataSetRelationshipHistoryTranslator;
+
+    @Autowired
+    private SampleUnknownRelationshipHistoryTranslator unknownRelationshipHistoryTranslator;
+
+    @Autowired
     private ISampleRegistratorTranslator registratorTranslator;
 
     @Autowired
@@ -200,6 +230,66 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         if (fetchOptions.hasHistory())
         {
             relations.put(ISampleHistoryTranslator.class, historyTranslator.translate(context, sampleIds, fetchOptions.withHistory()));
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            relations.put(SamplePropertyHistoryTranslator.class,
+                    propertyHistoryTranslator.translate(context, sampleIds, fetchOptions.withPropertiesHistory()));
+        }
+
+        if (fetchOptions.hasSpaceHistory())
+        {
+            relations.put(SampleSpaceRelationshipHistoryTranslator.class,
+                    spaceRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withSpaceHistory()));
+        }
+
+        if (fetchOptions.hasProjectHistory())
+        {
+            relations.put(SampleProjectRelationshipHistoryTranslator.class,
+                    projectRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withProjectHistory()));
+        }
+
+        if (fetchOptions.hasExperimentHistory())
+        {
+            relations.put(SampleExperimentRelationshipHistoryTranslator.class,
+                    experimentRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withExperimentHistory()));
+        }
+
+        if (fetchOptions.hasParentsHistory())
+        {
+            relations.put(SampleParentRelationshipHistoryTranslator.class,
+                    parentRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withParentsHistory()));
+        }
+
+        if (fetchOptions.hasChildrenHistory())
+        {
+            relations.put(SampleChildRelationshipHistoryTranslator.class,
+                    childRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withChildrenHistory()));
+        }
+
+        if (fetchOptions.hasContainerHistory())
+        {
+            relations.put(SampleContainerRelationshipHistoryTranslator.class,
+                    containerRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withContainerHistory()));
+        }
+
+        if (fetchOptions.hasComponentsHistory())
+        {
+            relations.put(SampleComponentRelationshipHistoryTranslator.class,
+                    componentRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withComponentsHistory()));
+        }
+
+        if (fetchOptions.hasDataSetsHistory())
+        {
+            relations.put(SampleDataSetRelationshipHistoryTranslator.class,
+                    dataSetRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withDataSetsHistory()));
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            relations.put(SampleUnknownRelationshipHistoryTranslator.class,
+                    unknownRelationshipHistoryTranslator.translate(context, sampleIds, fetchOptions.withUnknownHistory()));
         }
 
         if (fetchOptions.hasRegistrator())
@@ -343,6 +433,66 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         {
             result.setHistory(relations.get(ISampleHistoryTranslator.class, sampleId));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
+        }
+
+        if (fetchOptions.hasPropertiesHistory())
+        {
+            result.setPropertiesHistory(relations.get(SamplePropertyHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withPropertiesHistoryUsing(fetchOptions.withPropertiesHistory());
+        }
+
+        if (fetchOptions.hasSpaceHistory())
+        {
+            result.setSpaceHistory(relations.get(SampleSpaceRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withSpaceHistoryUsing(fetchOptions.withSpaceHistory());
+        }
+
+        if (fetchOptions.hasProjectHistory())
+        {
+            result.setProjectHistory(relations.get(SampleProjectRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withProjectHistoryUsing(fetchOptions.withProjectHistory());
+        }
+
+        if (fetchOptions.hasExperimentHistory())
+        {
+            result.setExperimentHistory(relations.get(SampleExperimentRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withExperimentHistoryUsing(fetchOptions.withExperimentHistory());
+        }
+
+        if (fetchOptions.hasParentsHistory())
+        {
+            result.setParentsHistory(relations.get(SampleParentRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withParentsHistoryUsing(fetchOptions.withParentsHistory());
+        }
+
+        if (fetchOptions.hasChildrenHistory())
+        {
+            result.setChildrenHistory(relations.get(SampleChildRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withChildrenHistoryUsing(fetchOptions.withChildrenHistory());
+        }
+
+        if (fetchOptions.hasContainerHistory())
+        {
+            result.setContainerHistory(relations.get(SampleContainerRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withContainerHistoryUsing(fetchOptions.withContainerHistory());
+        }
+
+        if (fetchOptions.hasComponentsHistory())
+        {
+            result.setComponentsHistory(relations.get(SampleComponentRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withComponentsHistoryUsing(fetchOptions.withComponentsHistory());
+        }
+
+        if (fetchOptions.hasDataSetsHistory())
+        {
+            result.setDataSetsHistory(relations.get(SampleDataSetRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withDataSetsHistoryUsing(fetchOptions.withDataSetsHistory());
+        }
+
+        if (fetchOptions.hasUnknownHistory())
+        {
+            result.setUnknownHistory(relations.get(SampleUnknownRelationshipHistoryTranslator.class, sampleId));
+            result.getFetchOptions().withUnknownHistoryUsing(fetchOptions.withUnknownHistory());
         }
 
         if (fetchOptions.hasRegistrator())

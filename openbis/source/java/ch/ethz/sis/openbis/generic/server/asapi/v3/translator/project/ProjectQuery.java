@@ -62,13 +62,20 @@ public interface ProjectQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getLeaderIds(LongSet projectIds);
 
-    @Select(sql = "select prh.id as id, prh.main_proj_id as objectId, prh.pers_id_author as authorId, prh.relation_type as relationType, "
-            + "prh.entity_kind as entityKind, "
-            + "prh.entity_perm_id as relatedObjectId, prh.valid_from_timestamp as validFrom, prh.valid_until_timestamp as validTo, "
-            + "prh.space_id as spaceId, prh.expe_id as experimentId, prh.samp_id as sampleId "
-            + "from project_relationships_history prh where prh.main_proj_id = any(?{1})", parameterBindings = {
+    public static final String RELATIONSHIP_HISTORY_QUERY =
+            "select prh.id as id, prh.main_proj_id as objectId, prh.pers_id_author as authorId, prh.relation_type as relationType, "
+                    + "prh.entity_kind as entityKind, "
+                    + "prh.entity_perm_id as relatedObjectId, prh.valid_from_timestamp as validFrom, prh.valid_until_timestamp as validTo, "
+                    + "prh.space_id as spaceId, prh.expe_id as experimentId, prh.samp_id as sampleId "
+                    + "from project_relationships_history prh where prh.main_proj_id = any(?{1}) ";
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and prh.entity_kind = ?{2}", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds);
+    public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds, String entityKind);
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and prh.entity_kind is null", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ProjectRelationshipRecord> getUnknownRelationshipsHistory(LongSet projectIds);
 
     @Select(sql = "select s.proj_id as objectId, s.id as relatedId from samples s where s.proj_id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)

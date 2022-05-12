@@ -647,7 +647,7 @@ public class DtoGenerator
     {
         printMethodJavaDoc();
         printGetterAnnotation(field);
-        if (field.definitionClassName.equals("Boolean"))
+        if (field.definitionClassName.equalsIgnoreCase("Boolean"))
         {
             print("public %s is%s()", field.definitionClassName, field.getCapitalizedName());
         } else
@@ -662,7 +662,7 @@ public class DtoGenerator
 
     private void printBasicGetterJS(DTOField field)
     {
-        if (field.definitionClassName.equals("Boolean"))
+        if (field.definitionClassName.equalsIgnoreCase("Boolean"))
         {
             print("this.is%s = function()", field.getCapitalizedName());
         } else

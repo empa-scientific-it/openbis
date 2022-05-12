@@ -350,7 +350,24 @@ var FormUtil = new function() {
 		return nameLabel
 	}
 
-	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly) {
+    this.getSampleTypesOnDropdowns = function(spaceCode) {
+        var sampleTypes = profile.getAllSampleTypes();
+        var visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
+        var visibleObjectTypesForSpace = [];
+        for(var tIdx = 0; tIdx < sampleTypes.length; tIdx++) {
+            var sampleType = sampleTypes[tIdx];
+            if ($.inArray(sampleType.code, visibleObjectTypeCodesForSpace) !== -1) {
+                visibleObjectTypesForSpace.push(sampleType);
+            }
+        }
+        return visibleObjectTypesForSpace;
+    }
+
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode) {
+	    var visibleObjectTypeCodesForSpace = null;
+	    if(spaceCode) {
+	        visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
+	    }
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
@@ -370,7 +387,7 @@ var FormUtil = new function() {
 			
 			if(showEvenIfHidden && ($.inArray(sampleType.code, showEvenIfHidden) !== -1)) {
 				// Show even if hidden
-			} else if (profile.isSampleTypeHidden(sampleType.code)) {
+			} else if (visibleObjectTypeCodesForSpace && !($.inArray(sampleType.code, visibleObjectTypeCodesForSpace) !== -1)) {
 				continue;
 			}
 			
@@ -1114,12 +1131,19 @@ var FormUtil = new function() {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
 	    var Builder = null;
-	    if(toolbarContainer) {
-            Builder = InlineEditor.DecoupledEditor;
-	    } else {
-	        Builder = InlineEditor.InlineEditor;
-	    }
+// CK Editor 34
+//	    if(toolbarContainer) {
+//            Builder = InlineEditor.DecoupledEditor;
+//	    } else {
+//	        Builder = InlineEditor.InlineEditor;
+//	    }
 
+        // CK Editor 18
+	    if(toolbarContainer) {
+            Builder = CKEDITOR.DecoupledEditor;
+	    } else {
+	        Builder = CKEDITOR.InlineEditor;
+	    }
         Builder.create($component[0], {
                          placeholder: placeholder,
                          simpleUpload: {
@@ -2061,7 +2085,7 @@ var FormUtil = new function() {
 
 	this.createNewSample = function(experimentIdentifier) {
     		var _this = this;
-    		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
+    		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
     		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
 
     		$("#sampleTypeDropdown").on("change", function(event) {

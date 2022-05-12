@@ -224,9 +224,9 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), sampleId1, DataSetRelationType.SAMPLE, dataSet.getRegistrationDate(),
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getModificationDate(), null);
+        assertRelationshipHistory(history.get(1), sampleId1, DataSetRelationType.SAMPLE, dataSet.getRegistrationDate(),
                 dataSet.getModificationDate());
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getModificationDate(), null);
     }
 
     @Test
@@ -256,8 +256,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), childId, DataSetRelationType.CHILD);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), childId, DataSetRelationType.CHILD);
     }
 
     @Test
@@ -287,8 +287,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), parentId, DataSetRelationType.PARENT);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), parentId, DataSetRelationType.PARENT);
     }
 
     @Test
@@ -318,8 +318,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), componentId, DataSetRelationType.COMPONENT);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), componentId, DataSetRelationType.COMPONENT);
     }
 
     @Test
@@ -349,8 +349,8 @@ public class DataSetRelationshipHistoryTest extends AbstractTest
 
         // Then
         assertEquals(history.size(), 2);
-        assertRelationshipHistory(history.get(0), containerId, DataSetRelationType.CONTAINER);
-        assertRelationshipHistory(history.get(1), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(0), experimentId1, DataSetRelationType.EXPERIMENT, dataSet.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(1), containerId, DataSetRelationType.CONTAINER);
     }
 
     private DataSetCreation createDataSet(String code)

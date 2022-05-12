@@ -21,6 +21,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.experiments = null;
 		prototype.samples = null;
 		prototype.history = null;
+        prototype.spaceHistory = null;
+        prototype.experimentsHistory = null;
+        prototype.samplesHistory = null;
+        prototype.unknownHistory = null;
 		prototype.space = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -116,6 +120,51 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setHistory = function(history) {
 			this.history = history;
 		};
+
+		prototype.getSpaceHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSpaceHistory()) {
+				return this.spaceHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Space history have not been fetched.");
+			}
+		};
+		prototype.setSpaceHistory = function(spaceHistory) {
+			this.spaceHistory = spaceHistory;
+		};
+
+		prototype.getExperimentsHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperimentsHistory()) {
+				return this.experimentsHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Experiments history have not been fetched.");
+			}
+		};
+		prototype.setExperimentsHistory = function(experimentsHistory) {
+			this.experimentsHistory = experimentsHistory;
+		};
+
+		prototype.getSamplesHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSamplesHistory()) {
+				return this.samplesHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Samples history have not been fetched.");
+			}
+		};
+		prototype.setSamplesHistory = function(samplesHistory) {
+			this.samplesHistory = samplesHistory;
+		};
+
+		prototype.getUnknownHistory = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasUnknownHistory()) {
+				return this.unknownHistory;
+			} else {
+				throw new exceptions.NotFetchedException("Unknown history have not been fetched.");
+			}
+		};
+		prototype.setUnknownHistory = function(unknownHistory) {
+			this.unknownHistory = unknownHistory;
+		};
+
 		prototype.getSpace = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasSpace()) {
 				return this.space;
@@ -177,6 +226,22 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			arguments : [ "Sample" ]
 		},
 		history : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		spaceHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		experimentsHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		samplesHistory : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
+		},
+		unknownHistory : {
 			name : "List",
 			arguments : [ "HistoryEntry" ]
 		},

@@ -19,7 +19,6 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 	this._sampleFormModel = new SampleFormModel(mode, sample, paginationInfo);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
-	this._plateController = null;
 	
 	this.init = function(views, loadFromTemplate) {
 		// Loading datasets
@@ -417,11 +416,9 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			
 			var changesToDo = [];
 			
-			if(_this._plateController) {
-				changesToDo = _this._plateController.getChangesToDo();
-			} else if(newChangesToDo) {
-				changesToDo = newChangesToDo;
-			}
+            if(newChangesToDo) {
+                changesToDo = newChangesToDo;
+            }
 			
 			var parameters = {
 					//API Method

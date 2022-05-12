@@ -653,10 +653,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         for(var sIdx = 0; sIdx < samples.length; sIdx++) {
                             var sample = samples[sIdx];
                             var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
-                            var sampleTypeOnNav = profile.showOnNav(sample.type.code);
+                            var sampleTypeOnNav = profile.showOnNavForSpace(IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()), sample.type.code);
     						var sampleExperimentIdentifier = sample.experiment.identifier.identifier;
                             if((sampleIsExperiment || sampleTypeOnNav) &&
-                                profile.showOnNav(sample.type.code)) {
+                                profile.showOnNavForSpace(IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()), sample.type.code)) {
                                 var parentInELN = false;
                                 if(sample.parents) {
                                     for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
@@ -790,7 +790,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var experiment = samples[0].experiment.identifier.identifier;
                             var children = samples[0].children.filter(function(sample) {
                                     return sample.experiment && sample.experiment.identifier.identifier === experiment
-                                        && profile.showOnNav(sample.type.code)
+                                        && profile.showOnNavForSpace(IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()), sample.type.code)
                                 });
                             if (children.length > 50) {
                                 Util.showInfo("More than 50 " + ELNDictionary.samples 
@@ -808,6 +808,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         sampleIcon = "fa fa-file";
                                     }
                                     var parentTypeCode = samples[0].type.code;
+                                    // showOnNavForParentTypes is only set by Plugins and they are merged at startup, this can't be by group configuration right now
                                     var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
                                     var showSampleOnNav = false;
                                     if(!showOnNavForParentTypes) {

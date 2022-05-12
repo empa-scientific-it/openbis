@@ -632,7 +632,7 @@ function LinksView(linksController, linksModel) {
 	
 	linksView.getAddSearchAnyBtn = function() {
 		var enabledFunction = function() {
-			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
+			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true, null, null, linksModel.spaceCode);
 			Util.showDropdownAndBlockUI("sampleTypeSelector", $sampleTypesDropdown);
 			
 			$("#sampleTypeSelector").on("change", function(event) {

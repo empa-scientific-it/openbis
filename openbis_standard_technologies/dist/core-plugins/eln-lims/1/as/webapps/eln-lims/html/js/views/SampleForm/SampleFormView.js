@@ -97,7 +97,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
 			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
-				var sampleTypes = profile.getAllSampleTypes(true);
+				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
 				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
 					return function() {
@@ -567,18 +567,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             }
 
 		//
-		// Plate View
-		//
-		if(this._sampleFormModel.sample.sampleTypeCode === "PLATE" && this._sampleFormModel.mode !== FormMode.CREATE) {
-			var plateContainer = $("<div>", { 'id' : 'sample-form-plate-view' });
-			$formColumn.append($("<legend>").append("Plate"));
-			var plateController = new PlateController(this._sampleFormModel.sample, this._sampleFormModel.mode !== FormMode.EDIT);
-			plateController.init(plateContainer);
-			$formColumn.append(plateContainer);
-			this._sampleFormController._plateController = plateController;
-		}
-
-		//
 		// Storage
 		//
 		var isStorageAvailable = profile.isSampleTypeWithStorage(this._sampleFormModel.sample.sampleTypeCode);
@@ -981,7 +969,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
-																			annotations);
+																			annotations,
+																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -1041,7 +1030,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
-															annotations);
+															annotations,
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
@@ -1394,7 +1384,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 

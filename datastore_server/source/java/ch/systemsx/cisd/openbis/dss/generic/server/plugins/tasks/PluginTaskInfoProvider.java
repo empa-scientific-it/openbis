@@ -28,8 +28,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.spring.WhiteAndBlackListCodebaseAwareObjectInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
@@ -52,8 +50,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
             PluginTaskInfoProvider.class);
 
     /** name of archiver properties section */
-    @Private
-    static final String ARCHIVER_SECTION_NAME = "archiver";
+    public static final String ARCHIVER_SECTION_NAME = "archiver";
 
     private final PluginTaskProvider<IReportingPluginTask> reportingPlugins;
 

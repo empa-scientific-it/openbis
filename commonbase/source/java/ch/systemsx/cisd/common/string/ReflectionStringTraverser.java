@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.string;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,7 +52,7 @@ class ReflectionStringTraverser
             Boolean.class, boolean.class, Character.class, char.class, Byte.class, byte.class,
             Short.class, short.class, Integer.class, int.class, Long.class, long.class,
             Float.class, float.class, Double.class, double.class, Void.class, void.class,
-            Date.class));
+            Date.class, Timestamp.class));
 
     public static interface ReflectionFieldVisitor
     {

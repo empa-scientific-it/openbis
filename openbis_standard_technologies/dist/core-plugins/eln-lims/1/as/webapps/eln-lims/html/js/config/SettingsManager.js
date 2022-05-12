@@ -1,3 +1,60 @@
+var SettingsManagerUtils = new function() {
+    this._instanceSettings = null;
+
+    this._getSpaceGroupPrefix = function(spaceCode) {
+        var endOf = spaceCode.indexOf("_");
+        var prefix = null;
+
+        if(endOf === -1) {
+            prefix = "GENERAL";
+        } else {
+            prefix = spaceCode.substring(0, endOf);
+        }
+
+        if(this._instanceSettings[prefix] === undefined) {
+            prefix = "GENERAL";
+        }
+
+        return prefix;
+    }
+
+    this._getSpaceSettingsObject = function(spaceCode) {
+        return this._instanceSettings[this._getSpaceGroupPrefix(spaceCode)];
+    }
+
+    this.ShowInSpaceSetting = {
+        showOnDropdowns : 0,
+        showOnNav : 1,
+    }
+
+    this.getVisibleObjectTypesForSpace = function(spaceCode, showInSpaceSetting) {
+        var spaceSettingsProperty = this._getSpaceSettingsObject(spaceCode).properties["ELN_SETTINGS"];
+        var spaceSettings = null;
+        if(spaceSettingsProperty) {
+            spaceSettings = JSON.parse(spaceSettingsProperty);
+        }
+        var initialGroupSettings = spaceSettings && Object.keys(spaceSettings).length == 2 && spaceSettings["inventorySpaces"] && spaceSettings["inventorySpacesReadOnly"];
+        if(!spaceSettingsProperty || initialGroupSettings) { // Provide default empty settings when settings are missing
+            alert("Settings for group " + this._getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
+            spaceSettings = {
+                sampleTypeDefinitionsExtension : []
+            };
+        }
+
+        var objectTypeCodes = [];
+        for (var sampleTypeCode of Object.keys(spaceSettings.sampleTypeDefinitionsExtension)) {
+            if((showInSpaceSetting === this.ShowInSpaceSetting.showOnDropdowns) && spaceSettings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
+                objectTypeCodes.push(sampleTypeCode);
+            } else if(showInSpaceSetting === this.ShowInSpaceSetting.showOnNav && spaceSettings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW_ON_NAV) {
+                objectTypeCodes.push(sampleTypeCode);
+            }
+        }
+        objectTypeCodes.sort();
+        return objectTypeCodes;
+    }
+
+};
+
 function SettingsManager(serverFacade) {
 
     this._serverFacade = serverFacade;
@@ -42,6 +99,14 @@ function SettingsManager(serverFacade) {
 				    }
 				}
 				//
+				var settingsByPrefix = {};
+				for(var vOIdx = 0; vOIdx < validSettingObjects.length; vOIdx++) {
+				    var endOf = settingsObjects[vOIdx].code.indexOf("_ELN_SETTINGS");
+				    var prefix = settingsObjects[vOIdx].code.substring(0, endOf);
+				    settingsByPrefix[prefix] = settingsObjects[vOIdx];
+				}
+				//
+				SettingsManagerUtils._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
 			} else {
 				callback();
@@ -179,9 +244,11 @@ function SettingsManager(serverFacade) {
 
              // Dataset Types from File Extension
              if(isMergeGroup) { // Merge found values
-                for(var idxTp = 0; idxTp < settings.dataSetTypeForFileNameMap.length; idxTp++) {
+                if(settings.dataSetTypeForFileNameMap) {
+                    for(var idxTp = 0; idxTp < settings.dataSetTypeForFileNameMap.length; idxTp++) {
                      targetProfile.dataSetTypeForFileNameMap.push(settings.dataSetTypeForFileNameMap[idxTp]);
-                 }
+                    }
+                }
              } else { // Replaces or sets values
                 targetProfile.dataSetTypeForFileNameMap = settings.dataSetTypeForFileNameMap;
              }
@@ -200,6 +267,9 @@ function SettingsManager(serverFacade) {
                      "SHOW_ON_NAV" : false,
                      "USE_AS_PROTOCOL" : true,
                  }
+            if(!settings.sampleTypeDefinitionsExtension) {
+                settings.sampleTypeDefinitionsExtension = {};
+            }
      		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
 
      			// If doesn't exist, it is created
@@ -229,19 +299,7 @@ function SettingsManager(serverFacade) {
                             targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
                         }
                      }
-
                  }
-
-     			// Remove current type from hideTypes, if present
-     			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
-     				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
-     				targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
-     			}
-
-     			// Add current type to hideTypes, if not SHOW
-     			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
-     				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
-     			}
      		}
      }
 

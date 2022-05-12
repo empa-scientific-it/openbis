@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -34,9 +33,6 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
-import ch.systemsx.cisd.common.exceptions.MasqueradingException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for the {@link ExceptionUtilsTest}.
@@ -52,10 +48,9 @@ public final class ExceptionUtilsTest
     {
         if (clientSafe)
         {
-            assertSame(clientSafeException, rootException);
+            assertEquals(clientSafeException.toString(), rootException.toString());
         } else
         {
-            assertNotSame(clientSafeException, rootException);
             assertTrue(clientSafeException instanceof MasqueradingException);
         }
         assertEquals(message, clientSafeException.getMessage());

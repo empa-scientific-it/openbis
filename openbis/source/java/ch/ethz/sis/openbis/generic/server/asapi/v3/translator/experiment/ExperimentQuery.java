@@ -109,13 +109,18 @@ public interface ExperimentQuery extends ObjectQuery
                     + "where ph.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet experimentIds);
 
-    @Select(sql = "select erh.id as id, erh.main_expe_id as objectId, erh.pers_id_author as authorId, erh.relation_type as relationType, "
-            + "erh.entity_kind as entityKind, "
-            + "erh.entity_perm_id as relatedObjectId, erh.valid_from_timestamp as validFrom, erh.valid_until_timestamp as validTo, "
-            + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
-            + "from experiment_relationships_history erh where erh.main_expe_id = any(?{1})", parameterBindings = {
-            LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ExperimentRelationshipRecord> getRelationshipsHistory(LongSet experimentIds);
+    public static final String RELATIONSHIP_HISTORY_QUERY =
+            "select erh.id as id, erh.main_expe_id as objectId, erh.pers_id_author as authorId, erh.relation_type as relationType, "
+                    + "erh.entity_kind as entityKind, "
+                    + "erh.entity_perm_id as relatedObjectId, erh.valid_from_timestamp as validFrom, erh.valid_until_timestamp as validTo, "
+                    + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
+                    + "from experiment_relationships_history erh where erh.main_expe_id = any(?{1}) ";
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and erh.entity_kind = ?{2}", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ExperimentRelationshipRecord> getRelationshipsHistory(LongSet experimentIds, String entityKind);
+
+    @Select(sql = RELATIONSHIP_HISTORY_QUERY + "and erh.entity_kind is null", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ExperimentRelationshipRecord> getUnknownRelationshipsHistory(LongSet experimentIds);
 
     @Select(sql = "select e.id as objectId, e.pers_id_registerer as relatedId from experiments e where e.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)

@@ -347,7 +347,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 						var used = positionsUsed / totalPositions;
 						var available = parseInt(_this._storageModel.storageConfig.lowBoxSpaceWarning) / 100;
 						if(used >= available) {
-							Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+							Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " possible positions are taken.", function() {}, true);
 						}
 					}
 					
