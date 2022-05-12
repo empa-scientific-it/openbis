@@ -80,7 +80,8 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
         IFreeSpaceProvider spaceProvider = createFreeSpaceProvider();
         ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
         IConfigProvider configProvider = getConfigProvider();
-        Share scratchShare = MultiDataSetArchivingUtils.getScratchShare(storeRoot, service, spaceProvider, configProvider, logger);
+        Share scratchShare = MultiDataSetArchivingUtils.getScratchShare(storeRoot, service, spaceProvider,
+                configProvider, logger);
         List<SimpleDataSetInformationDTO> dataSets = scratchShare.getDataSetsOrderedBySize();
         operationLog.info("Starting clean up. Scanning " + dataSets.size() + " data sets.");
         List<SimpleDataSetInformationDTO> dataSetsToBeRemoved = findDataSetsToBeRemoved(storeRoot, dataSets);
@@ -168,7 +169,7 @@ public class CleanUpUnarchivingScratchShareTask implements IMaintenanceTask
     {
         return new SimpleFreeSpaceProvider();
     }
-    
+
     protected IConfigProvider getConfigProvider()
     {
         return ServiceProvider.getConfigProvider();
