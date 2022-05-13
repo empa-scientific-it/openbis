@@ -65,7 +65,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				//Save
 				var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
 				    var widgetSettings = null;
-				    if(profile.isAdmin) {
+				    if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
 				        widgetSettings = this._customWidgetsTableModel.getValues();
 				    }
 					this._settingsFormController.save(this._getSettings(), widgetSettings);
@@ -81,11 +81,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			var texts = ELNDictionary.settingsView.sections;
 
-            if(profile.isAdmin) {
+            if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
                 $formColumn.append($("<h2>").append("Instance Settings"));
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
-	            this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			}
 
@@ -98,11 +97,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             this._paintStoragesSection($formColumn, texts.storages);
 			this._paintTemplateSection($formColumn, texts.templates);
             this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
+            this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
 			this._paintMainMenuSection($formColumn, texts.mainMenu);
 			this._paintMiscellaneous($formColumn, texts.miscellaneous)
 
-            $formColumn.append($("<h2>").append("Deprecated"));
-			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
+            if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
+                $formColumn.append($("<h2>").append("Deprecated"));
+                this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
+            }
 
 			$container.append($form);
 
@@ -115,17 +117,17 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._getSettings = function() {
 	    var settings = {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
-            forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
             hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+            inventorySpaces : this._inventorySpacesTableModel.getValues(),
+            inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
         };
 
-        if(profile.isAdmin) {
+        if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
             settings.dataSetTypeForFileNameMap = this._datasetTypesTableModel.getValues();
-            settings.inventorySpaces = this._inventorySpacesTableModel.getValues();
-            settings.inventorySpacesReadOnly = this._inventorySpacesReadOnlyTableModel.getValues();
             settings.forceMonospaceFont = this._forcedMonospaceTableModel.getValues();
+            settings.forcedDisableRTF = this._forcedDisableRTFTableModel.getValues();
         }
 
 		return settings;

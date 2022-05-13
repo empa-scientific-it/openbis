@@ -81,8 +81,8 @@ function SettingsFormController(mainController, settingsSample, mode) {
             }));
 	    }
 
+        Util.blockUI();
 	    if(widgetSettings) {
-	        Util.blockUI();
             this._mainController.serverFacade.setCustomWidgetSettings(widgetSettings, onSave);
         } else {
             onSave();
