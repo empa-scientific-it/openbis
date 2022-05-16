@@ -549,8 +549,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         for (var i = 0; i < spaces.length; i++) {
                             var space = spaces[i];
                             var isInventorySpace = profile.isInventorySpace(space.code);
-                            var showInventory = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showInventory);
-                            if((space.getCode().endsWith("STOCK_CATALOG") || space.getCode().endsWith("STOCK_ORDERS")) && isInventorySpace && showInventory) {
+                            var showStock = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showStock);
+                            if((space.getCode().endsWith("STOCK_CATALOG") || space.getCode().endsWith("STOCK_ORDERS")) && isInventorySpace && showStock) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
                                 var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {

@@ -56,6 +56,8 @@ var SettingsManagerUtils = new function() {
     this.ShowSetting = {
             showInventory : 0,
             showLabNotebook : 1,
+            showStock : 2,
+            showDatasets : 3,
     }
 
     this.isEnabledForGroup = function(spaceCode, showSetting) {
@@ -73,6 +75,10 @@ var SettingsManagerUtils = new function() {
                 result = spaceSettings.mainMenu.showInventory;
             } else if(showSetting === this.ShowSetting.showLabNotebook) {
                 result = spaceSettings.mainMenu.showLabNotebook;
+            } else if(showSetting === this.ShowSetting.showStock) {
+                result = spaceSettings.mainMenu.showStock;
+            } else if(showSetting === this.ShowSetting.showDatasets) {
+                result = spaceSettings.mainMenu.showDatasets;
             }
             return result;
         }
