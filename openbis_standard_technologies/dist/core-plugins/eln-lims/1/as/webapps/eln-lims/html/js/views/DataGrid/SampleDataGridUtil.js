@@ -847,9 +847,7 @@ var SampleDataGridUtil = new function() {
                 }
                 propertyColumnsToSort.push(getDateColumn(propertyType));
             } else {
-                var renderValue = function(row, params) {
-                    return "test";
-                }
+                var renderValue = null;
 
                 if(propertyType.dataType === "XML"){
                     renderValue = (function(propertyType){
