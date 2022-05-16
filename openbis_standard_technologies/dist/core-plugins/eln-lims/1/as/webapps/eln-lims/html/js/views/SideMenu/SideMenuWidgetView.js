@@ -709,6 +709,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         title : sampleLink,
                                         entityType: "SAMPLE",
                                         key : sample.getPermId().getPermId(),
+                                        space : IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()),
                                         folder : true,
                                         lazy : true,
                                         view : "showViewSamplePageFromPermId",
@@ -858,51 +859,57 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 }
                             }
                         }
-                        
-                        var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
-                        mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
-                            
-                            var datasets = [];
 
-                            for (var i = 0; i < searchResult.objects.length; i++) {
-                                var dataset = searchResult.objects[i];
-                                var datasetTypeCode = dataset.getType().getCode();
-                                if(profile.showDatasetOnNav(datasetTypeCode)) {
-                                    datasets.push(dataset);
-                                }
-                            }
+                        var showDatasets = SettingsManagerUtils.isEnabledForGroup(data.node.data.space, SettingsManagerUtils.ShowSetting.showDatasets);
+                        if(showDatasets) {
+                            var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
+                            mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
 
-                            if(profile.mainMenu.showDatasets) {
-                                if(datasets.length > 50) {
-                                    Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
-                                } else {
-                                    for (var i = 0; i < datasets.length; i++) {
-                                        var dataset = datasets[i];
-                                        var datasetDisplayName = dataset.code;
-                                        if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
-                                            datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
-                                        }
-                    
-                                        var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
-                                        results.push({
-                                            displayName: datasetDisplayName,
-                                            title : datasetLink,
-                                            entityType: "DATASET",
-                                            key : dataset.getPermId().getPermId(),
-                                            folder : true,
-                                            lazy : false,
-                                            view : "showViewDataSetPageFromPermId",
-                                            viewData: dataset.getPermId().getPermId(),
-                                            icon : "fa fa-database",
-                                            registrationDate: dataset.registrationDate,
-                                        });
+                                var datasets = [];
+
+                                for (var i = 0; i < searchResult.objects.length; i++) {
+                                    var dataset = searchResult.objects[i];
+                                    var datasetTypeCode = dataset.getType().getCode();
+                                    if(profile.showDatasetOnNav(datasetTypeCode)) {
+                                        datasets.push(dataset);
                                     }
                                 }
-                            }
-                            
+
+                                if(showDatasets) {
+                                    if(datasets.length > 50) {
+                                        Util.showInfo("More than 50 Datasets, please use the dataset viewer on the sample to navigate them.");
+                                    } else {
+                                        for (var i = 0; i < datasets.length; i++) {
+                                            var dataset = datasets[i];
+                                            var datasetDisplayName = dataset.code;
+                                            if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+                                                datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+                                            }
+
+                                            var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
+                                            results.push({
+                                                displayName: datasetDisplayName,
+                                                title : datasetLink,
+                                                entityType: "DATASET",
+                                                key : dataset.getPermId().getPermId(),
+                                                folder : true,
+                                                lazy : false,
+                                                view : "showViewDataSetPageFromPermId",
+                                                viewData: dataset.getPermId().getPermId(),
+                                                icon : "fa fa-database",
+                                                registrationDate: dataset.registrationDate,
+                                            });
+                                        }
+                                    }
+                                }
+
+                                results.sort(sortItems);
+                                dfd.resolve(results);
+                            });
+                        } else {
                             results.sort(sortItems);
                             dfd.resolve(results);
-                        });
+                        }
                     });
                     
                     break;
