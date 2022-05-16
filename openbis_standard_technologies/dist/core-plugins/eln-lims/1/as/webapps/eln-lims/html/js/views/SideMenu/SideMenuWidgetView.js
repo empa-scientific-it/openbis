@@ -416,9 +416,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                     var spacesByCode = {}; 
                         for (var i = 0; i < spaces.length; i++) {
                             var space = spaces[i];
-                            var isInventorySpace = profile.isInventorySpace(space.code);
+                            var isLabNotebookSpace = !profile.isInventorySpace(space.code);
+                            var showLabNotebook = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showLabNotebook);
                             var isHiddenSpace = profile.isHiddenSpace(space.code);
-                            if(!isInventorySpace && (space.code !== HOME_SPACE) && !isHiddenSpace) {
+                            if(isLabNotebookSpace && showLabNotebook && (space.code !== HOME_SPACE) && !isHiddenSpace) {
                                     nonInventoryNonHiddenSpaces.push(space.code);
                                     spacesByCode[space.code] = space;
                             }
@@ -471,9 +472,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         var spaces = searchResult.objects;
                         for (var i = 0; i < spaces.length; i++) {
                             var space = spaces[i];
-                            var isInventorySpace = profile.isInventorySpace(space.code);
+                            var isLabNotebookSpace = !profile.isInventorySpace(space.code);
+                            var showLabNotebook = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showLabNotebook);
                             var isHiddenSpace = profile.isHiddenSpace(space.code);
-                            if(!isInventorySpace && (space.code === HOME_SPACE) && !isHiddenSpace) {
+                            if(isLabNotebookSpace && showLabNotebook && (space.code === HOME_SPACE) && !isHiddenSpace) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
                                 var spaceLink = _this.getLinkForNode("My Space (" + normalizedSpaceTitle + ")", space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {
@@ -513,7 +515,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var space = spaces[i];
                             var isInventorySpace = profile.isInventorySpace(space.code);
                             var isHiddenSpace = profile.isHiddenSpace(space.code);
-                            if(((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) && !isHiddenSpace) {
+                            var showLabNotebook = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showLabNotebook);
+                            var showInventory = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showInventory);
+                            if(((type === "LAB_NOTEBOOK" && !isInventorySpace &&  showLabNotebook) || (type === "INVENTORY" && isInventorySpace && showInventory)) && !isHiddenSpace) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
                                 
                                 var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode(), null);
@@ -545,7 +549,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         for (var i = 0; i < spaces.length; i++) {
                             var space = spaces[i];
                             var isInventorySpace = profile.isInventorySpace(space.code);
-                            if((space.getCode().endsWith("STOCK_CATALOG") || space.getCode().endsWith("STOCK_ORDERS")) && isInventorySpace) {
+                            var showInventory = SettingsManagerUtils.isEnabledForGroup(space.code, SettingsManagerUtils.ShowSetting.showInventory);
+                            if((space.getCode().endsWith("STOCK_CATALOG") || space.getCode().endsWith("STOCK_ORDERS")) && isInventorySpace && showInventory) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
                                 var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {
