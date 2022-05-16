@@ -84,6 +84,11 @@ public class UserManagerReport implements IChangedHandler
         log("ADD-AUTHORIZATION-GROUP", groupCode);
     }
 
+    void removeGroup(String groupCode)
+    {
+        log("REMOVE-AUTHORIZATION-GROUP", groupCode);
+    }
+    
     void deactivateUser(String userId)
     {
         log("DEACTIVATE-USER", userId);

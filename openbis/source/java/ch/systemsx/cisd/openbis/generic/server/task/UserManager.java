@@ -16,11 +16,39 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.UpdateAuthorizationGroupsOperation;
@@ -74,25 +102,13 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
-import org.apache.commons.collections4.map.LinkedMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 /**
  * @author Franz-Josef Elmer
  */
 public class UserManager
 {
+    private static final String ADMIN_POSTFIX = "_ADMIN";
+
     private static final String GLOBAL_AUTHORIZATION_GROUP_CODE = "ALL_GROUPS";
 
     private static final AuthorizationGroupPermId GLOBAL_AUTHORIZATION_GROUP_ID = new AuthorizationGroupPermId(GLOBAL_AUTHORIZATION_GROUP_CODE);
@@ -231,7 +247,9 @@ public class UserManager
         {
             String sessionToken = service.loginAsSystem();
 
+            List<AuthorizationGroup> removedGroups = getRemovedGroups(sessionToken);
             updateMappingFile();
+            removeGroups(sessionToken, removedGroups, report);
             manageGlobalSpaces(sessionToken, report);
             if (deactivateUnknownUsers)
             {
@@ -252,6 +270,76 @@ public class UserManager
             report.addErrorMessage("Error: " + e.toString());
             logger.log(LogLevel.ERROR, "", e);
         }
+    }
+
+    /*
+     * Get removed groups by the following heuristics: 
+     * 1. Find all groups which ends with <code>_ADMIN</code>. 
+     * 2. Get for each admin group the
+     * corresponding group. 
+     * 3. Take it as a deleted if it isn't specific in the list of added groups as specified in configuration 
+     *   AND if the users of the admin group are also in the group.
+     */
+    private List<AuthorizationGroup> getRemovedGroups(String sessionToken)
+    {
+        Map<String, AuthorizationGroup> adminGroupsByGroupId = getAdminGroups(sessionToken);
+        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
+        searchCriteria.withCodes().setFieldValue(adminGroupsByGroupId.keySet());
+        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withUsers();
+        List<AuthorizationGroup> groups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
+                fetchOptions).getObjects();
+        List<AuthorizationGroup> removedGroups = new ArrayList<>();
+        for (AuthorizationGroup group : groups)
+        {
+            AuthorizationGroup adminGroup = adminGroupsByGroupId.get(group.getCode());
+            if (groupsByCode.containsKey(group.getCode()) == false && adminGroup != null)
+            {
+                Set<String> users = extractUserIds(group);
+                if (users.containsAll(extractUserIds(adminGroup)))
+                {
+                    removedGroups.add(group);
+                }
+            }
+        }
+        return removedGroups;
+    }
+
+    private Map<String, AuthorizationGroup> getAdminGroups(String sessionToken)
+    {
+        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
+        searchCriteria.withCode().thatEndsWith(ADMIN_POSTFIX);
+        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withUsers();
+        List<AuthorizationGroup> adminGroups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
+                fetchOptions).getObjects();
+        Map<String, AuthorizationGroup> adminGroupsByGroupId = new HashMap<>();
+        for (AuthorizationGroup adminGroup : adminGroups)
+        {
+            adminGroupsByGroupId.put(adminGroup.getCode().split(ADMIN_POSTFIX)[0], adminGroup);
+        }
+        return adminGroupsByGroupId;
+    }
+
+    private Set<String> extractUserIds(AuthorizationGroup group)
+    {
+        return group.getUsers().stream().map(Person::getUserId).collect(Collectors.toSet());
+    }
+
+    private void removeGroups(String sessionToken, List<AuthorizationGroup> groups, UserManagerReport report)
+    {
+        List<IAuthorizationGroupId> groupIds = new ArrayList<>();
+        for (AuthorizationGroup group : groups)
+        {
+            groupIds.add(group.getPermId());
+            report.removeGroup(group.getCode());
+            String adminGroupCode = group.getCode() + ADMIN_POSTFIX;
+            groupIds.add(new AuthorizationGroupPermId(adminGroupCode));
+            report.removeGroup(adminGroupCode);
+        }
+        AuthorizationGroupDeletionOptions deletionOptions = new AuthorizationGroupDeletionOptions();
+        deletionOptions.setReason("Deletion of groups " + groupIds);
+        service.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);
     }
 
     private void updateMappingFile()
@@ -1045,7 +1133,7 @@ public class UserManager
 
     public static String createAdminGroupCode(String groupCode)
     {
-        return groupCode + "_ADMIN";
+        return groupCode + ADMIN_POSTFIX;
     }
 
     private Map<ISpaceId, Space> getSpaces(String sessionToken, Collection<String> spaceCodes)
