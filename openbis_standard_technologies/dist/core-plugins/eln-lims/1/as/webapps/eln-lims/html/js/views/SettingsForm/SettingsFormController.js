@@ -33,12 +33,13 @@ function SettingsFormController(mainController, settingsSample, mode) {
                 newProfile["inventorySpaces"] = profileToEdit["inventorySpaces"];
                 newProfile["inventorySpacesReadOnly"] = profileToEdit["inventorySpacesReadOnly"];
                 profileToEdit = newProfile;
-            } else { // Special initialisation for general settings
+            } else if(!settingsSample.properties["$ELN_SETTINGS"]) { // Special initialisation for general settings
                 var newProfile = jQuery.extend(true, {}, profile);
                 newProfile["inventorySpaces"] = profile.inventorySpacesPostFixes;
                 newProfile["inventorySpacesReadOnly"] = profile.inventorySpacesReadOnlyPostFixes;
                 profileToEdit = newProfile;
             }
+
             require(["as/dto/sample/id/SampleIdentifier"], function(SampleIdentifier) {
 				var sampId = new SampleIdentifier(settingsSample.identifier);
 				mainController.openbisV3.getRights([sampId], null).done(function(rightsByIds) {
