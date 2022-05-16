@@ -612,7 +612,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             if(experiment.properties && experiment.properties[profile.propertyReplacingCode]) {
                                 experimentDisplayName = experiment.properties[profile.propertyReplacingCode];
                             }
-                            var isInventorySpace = profile.isInventorySpace(IdentifierUtil.getSpaceCodeFromIdentifier(experiment.getIdentifier().getIdentifier()));
+                            var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(experiment.getIdentifier().getIdentifier());
+                            var isInventorySpace = profile.isInventorySpace(experimentSpace);
                             var viewToUse = null;
                             var loadSamples = null;
                             if(isInventorySpace) {
@@ -632,6 +633,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     title : experimentLink,
                                     entityType: "EXPERIMENT",
                                     key : experiment.getPermId().getPermId(),
+                                    space : experimentSpace,
                                     folder : true,
                                     lazy : loadSamples,
                                     view : viewToUse,
@@ -716,55 +718,60 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     };
                                     results.push(sampleNode);
                                 }
-                                
-                                var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
-                                mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
-                                    
-                                    var datasets = searchResult.objects;
-                                    var experimentDatasets = [];
-                                    for (var i = 0; i < datasets.length; i++) {
-                                        var dataset = datasets[i];
-                                        if(!dataset.sample) {
-                                                var datasetTypeCode = dataset.getType().getCode();
-                                                if(profile.showDatasetOnNav(datasetTypeCode)) {
-                                                    experimentDatasets.push(dataset);
-                                                }
-                                        }
-                                    }
-                    
-                                    if(profile.mainMenu.showDatasets) {
-                                        if(experimentDatasets.length > 50) {
-                                                Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
-                                        } else {
-                                                for (var i = 0; i < experimentDatasets.length; i++) {
-                                                var dataset = experimentDatasets[i];
-                                                var datasetDisplayName = dataset.code;
-                                                if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
-                                                        datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
-                                                }
-                            
-                                                var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
-                                                results.push({
-                                                    displayName: datasetDisplayName,
-                                                    title : datasetLink,
-                                                    entityType: "DATASET",
-                                                    key : dataset.getPermId().getPermId(),
-                                                    folder : true,
-                                                    lazy : false,
-                                                    view : "showViewDataSetPageFromPermId",
-                                                    viewData: dataset.getPermId().getPermId(),
-                                                    icon : "fa fa-database",
-                                                    registrationDate: dataset.registrationDate,
-                                                });
+                                var showDatasets = SettingsManagerUtils.isEnabledForGroup(data.node.data.space, SettingsManagerUtils.ShowSetting.showDatasets);
+                                if(showDatasets) {
+                                    var datasetRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
+                                    mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, null, function(searchResult) {
+
+                                        var datasets = searchResult.objects;
+                                        var experimentDatasets = [];
+                                        for (var i = 0; i < datasets.length; i++) {
+                                            var dataset = datasets[i];
+                                            if(!dataset.sample) {
+                                                    var datasetTypeCode = dataset.getType().getCode();
+                                                    if(profile.showDatasetOnNav(datasetTypeCode)) {
+                                                        experimentDatasets.push(dataset);
+                                                    }
                                             }
                                         }
-                                    }
-                                
+
+                                        if(showDatasets) {
+                                            if(experimentDatasets.length > 50) {
+                                                    Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
+                                            } else {
+                                                    for (var i = 0; i < experimentDatasets.length; i++) {
+                                                    var dataset = experimentDatasets[i];
+                                                    var datasetDisplayName = dataset.code;
+                                                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+                                                            datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+                                                    }
+
+                                                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
+                                                    results.push({
+                                                        displayName: datasetDisplayName,
+                                                        title : datasetLink,
+                                                        entityType: "DATASET",
+                                                        key : dataset.getPermId().getPermId(),
+                                                        folder : true,
+                                                        lazy : false,
+                                                        view : "showViewDataSetPageFromPermId",
+                                                        viewData: dataset.getPermId().getPermId(),
+                                                        icon : "fa fa-database",
+                                                        registrationDate: dataset.registrationDate,
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        results.sort(sortItems);
+                                        dfd.resolve(results);
+                                        Util.unblockUI();
+                                    });
+                                } else {
                                     results.sort(sortItems);
                                     dfd.resolve(results);
                                     Util.unblockUI();
-                                });
-                                
+                                }
                             }
                         };
                         
