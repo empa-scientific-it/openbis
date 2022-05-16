@@ -71,8 +71,6 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases)
     {
         final AbstractStringValue value = criterion.getFieldValue();
-        final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
 
         if (value.getClass() != AnyStringValue.class)
         {
@@ -80,8 +78,8 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
             {
                 final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
 
-                sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD).append(joinInformation.getSubTableIdField())
-                        .append(SP).append(IS_NOT_NULL).append(SP).append(AND).append(SP).append(LP);
+                TranslatorUtils.appendPropertiesExist(sqlBuilder, valuesTableAlias);
+                sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
                 sqlBuilder.append(valuesTableAlias).append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(SP);
                 final String finalValue = TranslatorUtils.stripQuotationMarks(value.getValue());
@@ -89,7 +87,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
 
                 sqlBuilder.append(SP).append(OR).append(SP);
 
-                TranslatorUtils.appendControlledVocabularyTermIdSubselect(args, sqlBuilder, value, useWildcards,
+                TranslatorUtils.appendControlledVocabularyTermIdSubselectConstraint(args, sqlBuilder, value, useWildcards,
                         valuesTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
@@ -97,7 +95,7 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
                 {
                     sqlBuilder.append(SP).append(OR).append(SP);
 
-                    TranslatorUtils.appendSampleSubselect(args, sqlBuilder, value, useWildcards,
+                    TranslatorUtils.appendSampleSubselectConstraint(args, sqlBuilder, value, useWildcards,
                             valuesTableAlias);
                 }
 

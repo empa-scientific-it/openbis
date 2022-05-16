@@ -137,12 +137,9 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final AbstractNumberValue value,
             final String fullPropertyName)
     {
-        final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = attributeTypesJoinInformation.getSubTableAlias();
-
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
-                .append(attributeTypesJoinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL).append(SP).append(AND).append(SP).append(LP);
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
+        sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         if (value != null)
         {
@@ -151,11 +148,13 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
         if (fullPropertyName != null)
         {
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    TranslatorUtils.isPropertyInternal(fullPropertyName));
-            sqlBuilder.append(SP).append(AND).append(SP).append(attributeTypesJoinInformation.getSubTableAlias())
-                    .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
-            args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+            TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
+                    fullPropertyName, propertyTableAlias);
+
+            sqlBuilder.append(SP).append(AND).append(SP);
+            
+            TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
+                    propertyTableAlias);
 
             sqlBuilder.append(SP).append(AND);
         }
@@ -175,7 +174,7 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(SP).append(THEN).append(SP);
             sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias())
                     .append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(DOUBLE_COLON)
-                    .append(PSQLTypes.NUMERIC.toString()).append(SP);
+                    .append(PSQLTypes.NUMERIC).append(SP);
             TranslatorUtils.appendNumberComparatorOp(value, sqlBuilder);
             args.add(value.getValue());
 

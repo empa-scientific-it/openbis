@@ -143,13 +143,13 @@ public class SearchCriteriaTranslator
             TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, tableMapper, joinInformationMap);
             resultSqlBuilder.append(SP).append(IS_NOT_NULL);
             resultSqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendControlledVocabularyTermSubselect(resultSqlBuilder,
+            TranslatorUtils.appendControlledVocabularyTermSubselectConstraint(resultSqlBuilder,
                     joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
             resultSqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendMaterialSubselect(resultSqlBuilder,
+            TranslatorUtils.appendMaterialSubselectConstraint(resultSqlBuilder,
                     joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
             resultSqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendSampleSubselect(resultSqlBuilder,
+            TranslatorUtils.appendSampleSubselectConstraint(resultSqlBuilder,
                     joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
 
             return resultSqlBuilder.toString();

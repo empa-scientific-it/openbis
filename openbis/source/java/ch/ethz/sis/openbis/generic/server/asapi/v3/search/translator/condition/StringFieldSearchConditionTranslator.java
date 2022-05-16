@@ -35,7 +35,6 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.VARCH
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.appendTsVectorMatch;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class StringFieldSearchConditionTranslator implements IConditionTranslator<StringFieldSearchCriteria>
 {
@@ -124,17 +123,14 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             final Map<String, JoinInformation> aliases, final Map<String, String> dataTypeByPropertyCode,
             final AbstractStringValue value, final String fullPropertyName)
     {
-        final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
-
-        TranslatorUtils.appendPropertiesExist(sqlBuilder, aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
 
         if (fullPropertyName == null)
         {
             sqlBuilder.append(SP).append(AND).append(SP);
             sqlBuilder.append(LP);
-            TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
-                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
             sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP)
                     .append(SQ).append(String.join(SQ + COMMA + SP + SQ,
                             Arrays.asList(DataTypeCode.VARCHAR.toString(), DataTypeCode.MULTILINE_VARCHAR.toString(),
@@ -184,7 +180,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                     sqlBuilder.append(CASE);
                     DateFieldSearchConditionTranslator.appendWhenForDateOrTimestampProperties(sqlBuilder, args,
                             tableMapper, convertStringValueToDateValue(value), aliases, null, fullPropertyName,
-                            entityTypesSubTableAlias, bareDateValue, dataType.toString());
+                            bareDateValue, dataType.toString());
                     sqlBuilder.append(SP).append(END);
                     sqlBuilder.append(RP);
                     return;
@@ -193,8 +189,8 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
             sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
 
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    TranslatorUtils.isPropertyInternal(criterion.getFieldName()));
+            TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
+                    criterion.getFieldName(), propertyTableAlias);
 
             if (fullPropertyName != null)
             {
@@ -207,22 +203,18 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
         if (fullPropertyName != null)
         {
-            sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
-                    .append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
-            args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+            TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
+                    propertyTableAlias);
         } else if (value instanceof AnyStringValue)
         {
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);
             sqlBuilder.append(SP).append(IS_NOT_NULL);
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendControlledVocabularyTermSubselect(sqlBuilder,
-                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            TranslatorUtils.appendControlledVocabularyTermSubselectConstraint(sqlBuilder, propertyTableAlias);
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendMaterialSubselect(sqlBuilder,
-                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            TranslatorUtils.appendMaterialSubselectConstraint(sqlBuilder, propertyTableAlias);
             sqlBuilder.append(SP).append(OR).append(SP);
-            TranslatorUtils.appendSampleSubselect(sqlBuilder,
-                    aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+            TranslatorUtils.appendSampleSubselectConstraint(sqlBuilder, propertyTableAlias);
         }
 
         final boolean useWildcards = criterion.isUseWildcards();
@@ -232,33 +224,30 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
             if (value.getClass() != StringMatchesValue.class)
             {
-                final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
-
                 sqlBuilder.append(CASE);
                 if (fullPropertyName != null)
                 {
                     sqlBuilder.append(NL).append(WHEN).append(SP).append(LP);
-                    TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, valuesTableAlias);
+                    TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
                     sqlBuilder.append(NL).append(RP).append(SP).append(EQ).append(SP)
                             .append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY).append(SQ).append(SP)
                             .append(THEN).append(SP);
-                    TranslatorUtils.appendControlledVocabularyTermIdSubselect(args, sqlBuilder, value, useWildcards,
-                            valuesTableAlias);
+                    TranslatorUtils.appendControlledVocabularyTermIdSubselectConstraint(args, sqlBuilder, value, useWildcards,
+                            propertyTableAlias);
                 }
 
-                sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
+                sqlBuilder.append(NL).append(WHEN).append(SP).append(propertyTableAlias).append(PERIOD)
                         .append(MATERIAL_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
-                TranslatorUtils.appendMaterialSubselect(args, sqlBuilder, value, useWildcards, valuesTableAlias);
+                TranslatorUtils.appendMaterialSubselectConstraint(args, sqlBuilder, value, useWildcards, propertyTableAlias);
 
                 if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                         || tableMapper == TableMapper.DATA_SET)
                 {
-                    sqlBuilder.append(NL).append(WHEN).append(SP).append(valuesTableAlias).append(PERIOD)
+                    sqlBuilder.append(NL).append(WHEN).append(SP).append(propertyTableAlias).append(PERIOD)
                             .append(SAMPLE_PROP_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN)
                             .append(SP);
 
-                    TranslatorUtils.appendSampleSubselect(args, sqlBuilder, value, useWildcards,
-                            valuesTableAlias);
+                    TranslatorUtils.appendSampleSubselectConstraint(args, sqlBuilder, value, useWildcards, propertyTableAlias);
                 }
 
                 sqlBuilder.append(NL).append(ELSE).append(SP);
@@ -270,21 +259,19 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                     {
                         sqlBuilder.append(LOWER).append(LP);
                     }
-                    sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
-                            .append(VALUE_COLUMN);
+                    sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VALUE_COLUMN);
                     if (equalsToComparison)
                     {
                         sqlBuilder.append(RP);
                     }
 
-                    final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue())
-                            .toLowerCase();
+                    final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue()).toLowerCase();
 
                     TranslatorUtils.appendStringComparatorOp(value.getClass(), strippedValue, useWildcards,
                             sqlBuilder, args);
                 } else
                 {
-                    TranslatorUtils.translateStringComparison(aliases.get(tableMapper.getValuesTable()).getSubTableAlias(),
+                    TranslatorUtils.translateStringComparison(propertyTableAlias,
                             VALUE_COLUMN, value, useWildcards, null, sqlBuilder, args);
                 }
 
@@ -292,7 +279,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             } else
             {
                 appendTsVectorMatch(sqlBuilder, criterion.getFieldValue(),
-                        aliases.get(tableMapper.getValuesTable()).getSubTableAlias(), args);
+                        propertyTableAlias, args);
             }
 
             sqlBuilder.append(NL).append(ELSE).append(SP).append(FALSE).append(NL).append(END);
