@@ -128,137 +128,7 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 			
-			var propertyColumnsToSort = [];
-			for (propertyCode in foundPropertyCodes) {
-				var propertiesToSkip = ["$NAME", "$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
-				if($.inArray(propertyCode, propertiesToSkip) !== -1) {
-					continue;
-				}
-				var propertyType = profile.getPropertyType(propertyCode);
-
-				if(propertyType.dataType === "BOOLEAN"){
-					var getBooleanColumn = function(propertyType) {
-						return {
-							label : propertyType.label,
-							property : propertyType.code,
-							isExportable: true,
-							filterable : true,
-							sortable : true,
-							metadata: {
-								dataType: propertyType.dataType
-							},
-							renderFilter : function(params) {
-								return FormUtil.renderBooleanGridFilter(params);
-							}
-						};
-					}
-					propertyColumnsToSort.push(getBooleanColumn(propertyType));
-				} else if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-					var getVocabularyColumn = function(propertyType) {
-						return function() {
-							return {
-								label : propertyType.label,
-								property : propertyType.code,
-								isExportable: true,
-								filterable: true,
-								sortable : true,
-								metadata: {
-									dataType: propertyType.dataType
-								},
-								render : function(data) {
-									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-								},
-								renderFilter: function(params){
-									return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
-								},
-								filter : function(data, filter) {
-									var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-									return value && value.toLowerCase().indexOf(filter) !== -1;
-								},
-								sort : function(data1, data2, asc) {
-									var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
-									if(!value1) {
-										value1 = ""
-									};
-									var value2 = FormUtil.getVocabularyLabelForTermCode(propertyType, data2[propertyType.code]);
-									if(!value2) {
-										value2 = ""
-									};
-									var sortDirection = (asc)? 1 : -1;
-									return sortDirection * naturalSort(value1, value2);
-								}
-							};
-						}
-					}
-					
-					var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
-					propertyColumnsToSort.push(newVocabularyColumnFunc());
-				} else if (propertyType.dataType === "HYPERLINK") {
-					var getHyperlinkColumn = function(propertyType) {
-						return {
-							label : propertyType.label,
-							property : propertyType.code,
-							isExportable: true,
-							filterable : true,
-							sortable : true,
-							metadata: {
-								dataType: propertyType.dataType
-							},
-							render : function(data) {
-								return FormUtil.asHyperlink(data[propertyType.code]);
-							}
-						};
-					}
-					propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
-				} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
-					var getDateColumn = function(propertyType){
-						return {
-							label : propertyType.label,
-							property : propertyType.code,
-							isExportable: true,
-							filterable : true,
-							sortable : true,
-							metadata: {
-								dataType: propertyType.dataType
-							},
-							renderFilter : function(params) {
-								return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
-							}
-						}
-					}
-					propertyColumnsToSort.push(getDateColumn(propertyType));
-				} else {
-					var renderValue = null
-
-					if(propertyType.dataType === "XML"){
-						renderValue = (function(propertyType){
-							return function(row, params){
-								return FormUtil.renderXmlGridValue(row, params, propertyType)
-							}
-						})(propertyType)
-					}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
-						renderValue = (function(propertyType){
-							return function(row, params){
-								return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
-							}
-						})(propertyType)
-					}
-
-					propertyColumnsToSort.push({
-						label : propertyType.label,
-						property : propertyType.code,
-						isExportable: true,
-						filterable : true,
-						sortable : propertyType.dataType !== "XML",
-						truncate: true,
-						metadata: {
-							dataType: propertyType.dataType
-						},
-						render: renderValue
-					});
-				}
-			}
-
+            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
 			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
 				return {
 					entityKind: "SAMPLE",
@@ -875,5 +745,140 @@ var SampleDataGridUtil = new function() {
 			}
 		}
 	}
-	
+
+    this.createPropertyColumns = function(foundPropertyCodes) {
+        var propertyColumnsToSort = [];
+        for (propertyCode in foundPropertyCodes) {
+            var propertiesToSkip = ["$NAME", "$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
+            if($.inArray(propertyCode, propertiesToSkip) !== -1) {
+                continue;
+            }
+            var propertyType = profile.getPropertyType(propertyCode);
+
+            if(propertyType.dataType === "BOOLEAN"){
+                var getBooleanColumn = function(propertyType) {
+                    return {
+                        label : propertyType.label,
+                        property : propertyType.code,
+                        isExportable: true,
+                        filterable : true,
+                        sortable : true,
+                        metadata: {
+                            dataType: propertyType.dataType
+                        },
+                        renderFilter : function(params) {
+                            return FormUtil.renderBooleanGridFilter(params);
+                        }
+                    };
+                }
+                propertyColumnsToSort.push(getBooleanColumn(propertyType));
+            } else if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+                var getVocabularyColumn = function(propertyType) {
+                    return function() {
+                        return {
+                            label : propertyType.label,
+                            property : propertyType.code,
+                            isExportable: true,
+                            filterable: true,
+                            sortable : true,
+                            metadata: {
+                                dataType: propertyType.dataType
+                            },
+                            render : function(data) {
+                                return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+                            },
+                            renderFilter: function(params){
+                                return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
+                            },
+                            filter : function(data, filter) {
+                                var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+                                return value && value.toLowerCase().indexOf(filter) !== -1;
+                            },
+                            sort : function(data1, data2, asc) {
+                                var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
+                                if(!value1) {
+                                    value1 = ""
+                                };
+                                var value2 = FormUtil.getVocabularyLabelForTermCode(propertyType, data2[propertyType.code]);
+                                if(!value2) {
+                                    value2 = ""
+                                };
+                                var sortDirection = (asc)? 1 : -1;
+                                return sortDirection * naturalSort(value1, value2);
+                            }
+                        };
+                    }
+                }
+                
+                var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
+                propertyColumnsToSort.push(newVocabularyColumnFunc());
+            } else if (propertyType.dataType === "HYPERLINK") {
+                var getHyperlinkColumn = function(propertyType) {
+                    return {
+                        label : propertyType.label,
+                        property : propertyType.code,
+                        isExportable: true,
+                        filterable : true,
+                        sortable : true,
+                        metadata: {
+                            dataType: propertyType.dataType
+                        },
+                        render : function(data) {
+                            return FormUtil.asHyperlink(data[propertyType.code]);
+                        }
+                    };
+                }
+                propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
+            } else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
+                var getDateColumn = function(propertyType){
+                    return {
+                        label : propertyType.label,
+                        property : propertyType.code,
+                        isExportable: true,
+                        filterable : true,
+                        sortable : true,
+                        metadata: {
+                            dataType: propertyType.dataType
+                        },
+                        renderFilter : function(params) {
+                            return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
+                        }
+                    }
+                }
+                propertyColumnsToSort.push(getDateColumn(propertyType));
+            } else {
+                var renderValue = function(row, params) {
+                    return "test";
+                }
+
+                if(propertyType.dataType === "XML"){
+                    renderValue = (function(propertyType){
+                        return function(row, params){
+                            return FormUtil.renderXmlGridValue(row, params, propertyType)
+                        }
+                    })(propertyType)
+                }else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+                    renderValue = (function(propertyType){
+                        return function(row, params){
+                            return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
+                        }
+                    })(propertyType)
+                }
+
+                propertyColumnsToSort.push({
+                    label : propertyType.label,
+                    property : propertyType.code,
+                    isExportable: true,
+                    filterable : true,
+                    sortable : propertyType.dataType !== "XML",
+                    truncate: true,
+                    metadata: {
+                        dataType: propertyType.dataType
+                    },
+                    render: renderValue
+                });
+            }
+        }
+        return propertyColumnsToSort;
+    }
 }

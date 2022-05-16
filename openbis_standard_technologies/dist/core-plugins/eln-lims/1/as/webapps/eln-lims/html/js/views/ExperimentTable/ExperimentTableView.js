@@ -32,7 +32,6 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 		
 		var toolbarModel = [];
 		toolbarModel.push({ component : this._showExperimentFromOverviewDropdown(), tooltip: null });
-		toolbarModel.push({ component : this._getProjectExperimentTypesDropdown(), tooltip: null });
 		
 		$container.append(FormUtil.getToolbar(toolbarModel));
 		$container.append(this._tableContainer);
@@ -73,23 +72,4 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 		});
 		return $("<span>").append($experimentDropdown);
 	}
-	
-	this._getProjectExperimentTypesDropdown = function() {
-		var _this = this;
-		var	$typesSelector = $('<select>', { class : 'form-control', id : 'project-experiment-type-drop-down' });
-		var projectIdentifier = IdentifierUtil.getProjectIdentifier(this._experimentTableModel.project.spaceCode, this._experimentTableModel.project.code);
-		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " type"));
-		for(typeCode in this._experimentTableModel.types) {
-			$typesSelector.append($('<option>', { 'value' : typeCode }).text(Util.getDisplayNameFromCode(typeCode)));
-		}
-		
-		$typesSelector.change(function(event) {
-			var typeToShow = $(this).val();
-			_this._experimentTableController._reloadTableWithType(typeToShow);
-		});
-		this.typeSelector = $typesSelector;
-		Select2Manager.add($typesSelector);
-		return $("<span>").append($typesSelector);
-	}
-	
 }
