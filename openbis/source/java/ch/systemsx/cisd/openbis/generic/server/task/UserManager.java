@@ -80,9 +80,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRole
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.DeleteRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -249,15 +247,15 @@ public class UserManager
         {
             String sessionToken = service.loginAsSystem();
 
-            List<AuthorizationGroup> removedGroups = getGroupsToBeRemoved(sessionToken);
+            List<AuthorizationGroup> groupsToBeRemoved = getGroupsToBeRemoved(sessionToken);
             updateMappingFile();
-            CurrentState currentState = loadCurrentState(sessionToken, service);
-            removeGroups(sessionToken, currentState, removedGroups, report);
             manageGlobalSpaces(sessionToken, report);
             if (deactivateUnknownUsers)
             {
                 revokeUnknownUsers(sessionToken, knownUsers, report);
             }
+            CurrentState currentState = loadCurrentState(sessionToken, service);
+            removeGroups(sessionToken, currentState, groupsToBeRemoved, report);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
                 String groupCode = entry.getKey();
