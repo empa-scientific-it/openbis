@@ -128,12 +128,8 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
         {
             sqlBuilder.append(SP).append(AND).append(SP);
 
-            TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
-                    fullPropertyName, aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
-
-            sqlBuilder.append(SP).append(AND).append(SP);
-            TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
-                    propertyTableAlias);
+            TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
+                    fullPropertyName, propertyTableAlias);
         }
 
         if (value != null)

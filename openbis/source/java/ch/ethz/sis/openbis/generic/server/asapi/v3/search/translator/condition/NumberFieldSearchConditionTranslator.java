@@ -148,13 +148,8 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
         if (fullPropertyName != null)
         {
-            TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
+            TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
                     fullPropertyName, propertyTableAlias);
-
-            sqlBuilder.append(SP).append(AND).append(SP);
-            
-            TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
-                    propertyTableAlias);
 
             sqlBuilder.append(SP).append(AND);
         }

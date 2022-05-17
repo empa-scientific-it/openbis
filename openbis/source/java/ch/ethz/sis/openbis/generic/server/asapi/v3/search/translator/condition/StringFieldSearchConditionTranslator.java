@@ -189,12 +189,15 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
             sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
 
-            TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
-                    criterion.getFieldName(), propertyTableAlias);
-
             if (fullPropertyName != null)
             {
-                sqlBuilder.append(SP).append(AND).append(SP);
+                TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
+                        fullPropertyName, propertyTableAlias);
+
+            } else
+            {
+                TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
+                        TranslatorUtils.isPropertyInternal(criterion.getFieldName()), propertyTableAlias);
             }
         } else
         {
@@ -203,8 +206,11 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
         if (fullPropertyName != null)
         {
-            TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
-                    propertyTableAlias);
+            if (value instanceof AnyStringValue)
+            {
+                TranslatorUtils.appendAttributeTypesSubselectConstraint(tableMapper, args, sqlBuilder, fullPropertyName,
+                        propertyTableAlias);
+            }
         } else if (value instanceof AnyStringValue)
         {
             TranslatorUtils.appendPropertyValueCoalesce(sqlBuilder, tableMapper, aliases);

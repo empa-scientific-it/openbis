@@ -1063,7 +1063,7 @@ public class TranslatorUtils
             final String propertyTableAlias)
     {
         sqlBuilder.append(propertyTableAlias).append(PERIOD)
-                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(EQ).append(SP);
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
         sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
                 .append(SP)
@@ -1087,7 +1087,7 @@ public class TranslatorUtils
     }
 
     public static void appendInternalExternalConstraint(final TableMapper tableMapper, final List<Object> args,
-            final StringBuilder sqlBuilder, final String propertyTypeCode, final String propertyTableAlias)
+            final StringBuilder sqlBuilder, final boolean internal, final String propertyTableAlias)
     {
         sqlBuilder.append(propertyTableAlias).append(PERIOD)
                 .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
@@ -1105,7 +1105,7 @@ public class TranslatorUtils
 
         sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
                 .append(SP).append(QU);
-        args.add(isPropertyInternal(propertyTypeCode));
+        args.add(internal);
 
         sqlBuilder.append(RP);
     }
