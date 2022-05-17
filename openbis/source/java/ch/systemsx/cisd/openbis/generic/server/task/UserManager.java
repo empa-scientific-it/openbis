@@ -80,7 +80,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRole
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.DeleteRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -247,15 +249,15 @@ public class UserManager
         {
             String sessionToken = service.loginAsSystem();
 
-            List<AuthorizationGroup> removedGroups = getRemovedGroups(sessionToken);
+            List<AuthorizationGroup> removedGroups = getGroupsToBeRemoved(sessionToken);
             updateMappingFile();
-            removeGroups(sessionToken, removedGroups, report);
+            CurrentState currentState = loadCurrentState(sessionToken, service);
+            removeGroups(sessionToken, currentState, removedGroups, report);
             manageGlobalSpaces(sessionToken, report);
             if (deactivateUnknownUsers)
             {
                 revokeUnknownUsers(sessionToken, knownUsers, report);
             }
-            CurrentState currentState = loadCurrentState(sessionToken, service);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
                 String groupCode = entry.getKey();
@@ -273,14 +275,14 @@ public class UserManager
     }
 
     /*
-     * Get removed groups by the following heuristics: 
+     * Get groups to be removed by the following heuristics: 
      * 1. Find all groups which ends with <code>_ADMIN</code>. 
      * 2. Get for each admin group the
      * corresponding group. 
      * 3. Take it as a deleted if it isn't specific in the list of added groups as specified in configuration 
      *   AND if the users of the admin group are also in the group.
      */
-    private List<AuthorizationGroup> getRemovedGroups(String sessionToken)
+    private List<AuthorizationGroup> getGroupsToBeRemoved(String sessionToken)
     {
         Map<String, AuthorizationGroup> adminGroupsByGroupId = getAdminGroups(sessionToken);
         AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
@@ -326,11 +328,14 @@ public class UserManager
         return group.getUsers().stream().map(Person::getUserId).collect(Collectors.toSet());
     }
 
-    private void removeGroups(String sessionToken, List<AuthorizationGroup> groups, UserManagerReport report)
+    private void removeGroups(String sessionToken, CurrentState currentState, List<AuthorizationGroup> groups,
+            UserManagerReport report)
     {
         List<IAuthorizationGroupId> groupIds = new ArrayList<>();
         for (AuthorizationGroup group : groups)
         {
+            Context context = new Context(sessionToken, service, currentState, report);
+            removeUsersFromGroup(context, group.getCode(), extractUserIds(group));
             groupIds.add(group.getPermId());
             report.removeGroup(group.getCode());
             String adminGroupCode = group.getCode() + ADMIN_POSTFIX;
@@ -784,7 +789,7 @@ public class UserManager
                 removePersonFromAuthorizationGroup(context, adminGroupCode, userId);
             }
         }
-        removeUsersFromGroup(context, groupCode, usersToBeRemoved, useEmailAsUserId);
+        removeUsersFromGroup(context, groupCode, usersToBeRemoved);
         handleRoleAssignmentForUserSpaces(context, groupCode);
     }
 
@@ -903,8 +908,7 @@ public class UserManager
         }
     }
 
-    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved,
-                                      boolean useEmailAsUserId)
+    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
         for (String userId : usersToBeRemoved)
