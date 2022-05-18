@@ -895,6 +895,7 @@ public class UserManager
             roleCreation.setRole(Role.ADMIN);
             roleCreation.setSpaceId(userSpaceId);
             context.add(roleCreation);
+            context.getReport().assignRoleTo(userId, roleCreation.getRole(), roleCreation.getSpaceId());
             AuthorizationGroupPermId adminGroupId = new AuthorizationGroupPermId(createAdminGroupCode(groupCode));
             createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
             UserGroup group = groupsByCode.get(groupCode);

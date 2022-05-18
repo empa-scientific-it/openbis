@@ -129,11 +129,16 @@ public class UserManagerReport implements IChangedHandler
         log("ADD-EXPERIMENT", identifier);
     }
 
+    void assignRoleTo(String userId, Role role, ISpaceId spaceId)
+    {
+        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);
+    }
+
     void assignRoleTo(AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId)
     {
         log("ASSIGN-ROLE-TO-AUTHORIZATION-GROUP", "group: " + groupId + ", role: SPACE_" + role + " for " + spaceId);
     }
-
+    
     void unassignRoleFrom(String userId, Role role, ISpaceId spaceId)
     {
         log("UNASSIGN-ROLE-FORM-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);

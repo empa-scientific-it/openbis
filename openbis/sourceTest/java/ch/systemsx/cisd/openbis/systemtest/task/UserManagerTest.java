@@ -129,14 +129,16 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G1_U1\n"
                 + "1970-01-01 01:00:12 [ADD-USER] u1\n"
-                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
-                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:16 [ADD-SPACE] G1_U2\n"
-                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
-                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n");
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:17 [ADD-SPACE] G1_U2\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:21 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:22 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2);
         builder.space("G1_ALPHA").admin(U1).user(U2);
@@ -353,14 +355,16 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G1_U1\n"
                 + "1970-01-01 01:00:12 [ADD-USER] u1\n"
-                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
-                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:16 [ADD-SPACE] G1_U2\n"
-                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
-                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n");
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:17 [ADD-SPACE] G1_U2\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:21 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:22 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2);
         builder.space("G1_ALPHA").admin(U1).user(U2);
@@ -413,47 +417,51 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:15 [ADD-SPACE] G1_U1\n"
                 + "1970-01-01 01:00:16 [ADD-USER] u1\n"
-                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
-                + "1970-01-01 01:00:19 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
-                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:21 [ADD-SPACE] G1_U2\n"
-                + "1970-01-01 01:00:22 [ADD-USER] u2\n"
-                + "1970-01-01 01:00:23 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:24 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:25 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:26 [ADD-SPACE] G1_U3\n"
-                + "1970-01-01 01:00:27 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:28 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
-                + "1970-01-01 01:00:29 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
-                + "1970-01-01 01:00:30 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
-                + "1970-01-01 01:00:31 [ADD-SAMPLE] /G1_GAMMA/G1_G\n"
-                + "1970-01-01 01:00:32 [ADD-PROJECT] /G1_ALPHA/G1_ST\n"
-                + "1970-01-01 01:00:33 [ADD-EXPERIMENT] /G1_ALPHA/G1_ST/G1_STC\n"
-                + "1970-01-01 01:00:34 [ADD-AUTHORIZATION-GROUP] G2\n"
-                + "1970-01-01 01:00:35 [ADD-AUTHORIZATION-GROUP] G2_ADMIN\n"
-                + "1970-01-01 01:00:36 [ADD-SPACE] G2_ALPHA\n"
-                + "1970-01-01 01:00:37 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_ALPHA\n"
-                + "1970-01-01 01:00:38 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_ALPHA\n"
-                + "1970-01-01 01:00:39 [ADD-SPACE] G2_BETA\n"
-                + "1970-01-01 01:00:40 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_BETA\n"
-                + "1970-01-01 01:00:41 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_BETA\n"
-                + "1970-01-01 01:00:42 [ADD-SPACE] G2_GAMMA\n"
-                + "1970-01-01 01:00:43 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
-                + "1970-01-01 01:00:44 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
-                + "1970-01-01 01:00:45 [ADD-SPACE] G2_U4\n"
-                + "1970-01-01 01:00:46 [ADD-USER] u4\n"
-                + "1970-01-01 01:00:47 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U4\n"
-                + "1970-01-01 01:00:48 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u4\n"
-                + "1970-01-01 01:00:49 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u4\n"
-                + "1970-01-01 01:00:50 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u4\n"
-                + "1970-01-01 01:00:51 [ADD-SAMPLE] /G2_GAMMA/G2_G\n"
-                + "1970-01-01 01:00:52 [ADD-PROJECT] /G2_ALPHA/G2_ST\n"
-                + "1970-01-01 01:00:53 [ADD-EXPERIMENT] /G2_ALPHA/G2_ST/G2_STC\n"
-                + "1970-01-01 01:00:54 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
-                + "1970-01-01 01:00:55 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
-                + "1970-01-01 01:00:56 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n"
-                + "1970-01-01 01:00:57 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G2_U4\n");
+                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:19 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
+                + "1970-01-01 01:00:21 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:22 [ADD-SPACE] G1_U2\n"
+                + "1970-01-01 01:00:23 [ADD-USER] u2\n"
+                + "1970-01-01 01:00:24 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:25 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:26 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:27 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
+                + "1970-01-01 01:00:28 [ADD-SPACE] G1_U3\n"
+                + "1970-01-01 01:00:29 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:30 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:31 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:32 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
+                + "1970-01-01 01:00:33 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
+                + "1970-01-01 01:00:34 [ADD-SAMPLE] /G1_GAMMA/G1_G\n"
+                + "1970-01-01 01:00:35 [ADD-PROJECT] /G1_ALPHA/G1_ST\n"
+                + "1970-01-01 01:00:36 [ADD-EXPERIMENT] /G1_ALPHA/G1_ST/G1_STC\n"
+                + "1970-01-01 01:00:37 [ADD-AUTHORIZATION-GROUP] G2\n"
+                + "1970-01-01 01:00:38 [ADD-AUTHORIZATION-GROUP] G2_ADMIN\n"
+                + "1970-01-01 01:00:39 [ADD-SPACE] G2_ALPHA\n"
+                + "1970-01-01 01:00:40 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_ALPHA\n"
+                + "1970-01-01 01:00:41 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_ALPHA\n"
+                + "1970-01-01 01:00:42 [ADD-SPACE] G2_BETA\n"
+                + "1970-01-01 01:00:43 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_BETA\n"
+                + "1970-01-01 01:00:44 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_BETA\n"
+                + "1970-01-01 01:00:45 [ADD-SPACE] G2_GAMMA\n"
+                + "1970-01-01 01:00:46 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
+                + "1970-01-01 01:00:47 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
+                + "1970-01-01 01:00:48 [ADD-SPACE] G2_U4\n"
+                + "1970-01-01 01:00:49 [ADD-USER] u4\n"
+                + "1970-01-01 01:00:50 [ASSIGN-ROLE-TO-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:51 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:52 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u4\n"
+                + "1970-01-01 01:00:53 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u4\n"
+                + "1970-01-01 01:00:54 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u4\n"
+                + "1970-01-01 01:00:55 [ADD-SAMPLE] /G2_GAMMA/G2_G\n"
+                + "1970-01-01 01:00:56 [ADD-PROJECT] /G2_ALPHA/G2_ST\n"
+                + "1970-01-01 01:00:57 [ADD-EXPERIMENT] /G2_ALPHA/G2_ST/G2_STC\n"
+                + "1970-01-01 01:00:58 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:59 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
+                + "1970-01-01 01:01:00 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n"
+                + "1970-01-01 01:01:01 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G2_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.globalSpaces(globalSpaces).groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.samples(SAMPLE_TYPE, "/G1_GAMMA/G1_G", "/G2_GAMMA/G2_G");
@@ -508,44 +516,50 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G1_U1\n"
                 + "1970-01-01 01:00:12 [ADD-USER] u1\n"
-                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
-                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:16 [ADD-SPACE] G1_U2\n"
-                + "1970-01-01 01:00:17 [ADD-USER] u2\n"
-                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:19 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:20 [ADD-SPACE] G1_U3\n"
-                + "1970-01-01 01:00:21 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:22 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
-                + "1970-01-01 01:00:23 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
-                + "1970-01-01 01:00:24 [ADD-AUTHORIZATION-GROUP] G2\n"
-                + "1970-01-01 01:00:25 [ADD-AUTHORIZATION-GROUP] G2_ADMIN\n"
-                + "1970-01-01 01:00:26 [ADD-SPACE] G2_ALPHA\n"
-                + "1970-01-01 01:00:27 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_ALPHA\n"
-                + "1970-01-01 01:00:28 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_ALPHA\n"
-                + "1970-01-01 01:00:29 [ADD-SPACE] G2_BETA\n"
-                + "1970-01-01 01:00:30 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_BETA\n"
-                + "1970-01-01 01:00:31 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_BETA\n"
-                + "1970-01-01 01:00:32 [ADD-SPACE] G2_GAMMA\n"
-                + "1970-01-01 01:00:33 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
-                + "1970-01-01 01:00:34 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
-                + "1970-01-01 01:00:35 [ADD-SPACE] G2_U2\n"
-                + "1970-01-01 01:00:36 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:37 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:38 [ADD-SPACE] G2_U3\n"
-                + "1970-01-01 01:00:39 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:40 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:41 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u3\n"
-                + "1970-01-01 01:00:42 [ADD-SPACE] G2_U4\n"
-                + "1970-01-01 01:00:43 [ADD-USER] u4\n"
-                + "1970-01-01 01:00:44 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U4\n"
-                + "1970-01-01 01:00:45 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u4\n"
-                + "1970-01-01 01:00:46 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u4\n"
-                + "1970-01-01 01:00:47 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
-                + "1970-01-01 01:00:48 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
-                + "1970-01-01 01:00:49 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n"
-                + "1970-01-01 01:00:50 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G2_U4\n");
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:17 [ADD-SPACE] G1_U2\n"
+                + "1970-01-01 01:00:18 [ADD-USER] u2\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:20 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:21 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:22 [ADD-SPACE] G1_U3\n"
+                + "1970-01-01 01:00:23 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:24 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:25 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:26 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
+                + "1970-01-01 01:00:27 [ADD-AUTHORIZATION-GROUP] G2\n"
+                + "1970-01-01 01:00:28 [ADD-AUTHORIZATION-GROUP] G2_ADMIN\n"
+                + "1970-01-01 01:00:29 [ADD-SPACE] G2_ALPHA\n"
+                + "1970-01-01 01:00:30 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_ALPHA\n"
+                + "1970-01-01 01:00:31 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_ALPHA\n"
+                + "1970-01-01 01:00:32 [ADD-SPACE] G2_BETA\n"
+                + "1970-01-01 01:00:33 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_USER for G2_BETA\n"
+                + "1970-01-01 01:00:34 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_BETA\n"
+                + "1970-01-01 01:00:35 [ADD-SPACE] G2_GAMMA\n"
+                + "1970-01-01 01:00:36 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
+                + "1970-01-01 01:00:37 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
+                + "1970-01-01 01:00:38 [ADD-SPACE] G2_U2\n"
+                + "1970-01-01 01:00:39 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:40 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:41 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:42 [ADD-SPACE] G2_U3\n"
+                + "1970-01-01 01:00:43 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:44 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:45 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:46 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u3\n"
+                + "1970-01-01 01:00:47 [ADD-SPACE] G2_U4\n"
+                + "1970-01-01 01:00:48 [ADD-USER] u4\n"
+                + "1970-01-01 01:00:49 [ASSIGN-ROLE-TO-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:50 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:51 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u4\n"
+                + "1970-01-01 01:00:52 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u4\n"
+                + "1970-01-01 01:00:53 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:54 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
+                + "1970-01-01 01:00:55 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n"
+                + "1970-01-01 01:00:56 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G2_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.space("G1_ALPHA").admin(U1).user(U2, U3).non(U4);
@@ -594,20 +608,23 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G1_A.E_AT_ABC.DE\n"
                 + "1970-01-01 01:00:12 [ADD-USER] a.e_AT_abc.de\n"
-                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_A.E_AT_ABC.DE\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: a.e_AT_abc.de\n"
-                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: a.e_AT_abc.de\n"
-                + "1970-01-01 01:00:16 [ADD-SPACE] G1_I.N_AT_ABC.DE\n"
-                + "1970-01-01 01:00:17 [ADD-USER] i.n_AT_abc.de\n"
-                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_I.N_AT_ABC.DE\n"
-                + "1970-01-01 01:00:19 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: i.n_AT_abc.de\n"
-                + "1970-01-01 01:00:20 [ADD-SPACE] G1_A.T_AT_ABC.DE\n"
-                + "1970-01-01 01:00:21 [ADD-USER] a.t_AT_abc.de\n"
-                + "1970-01-01 01:00:22 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_A.T_AT_ABC.DE\n"
-                + "1970-01-01 01:00:23 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: a.t_AT_abc.de\n"
-                + "1970-01-01 01:00:24 [ASSIGN-HOME-SPACE-FOR-USER] user: a.e_AT_abc.de, home space: G1_A.E_AT_ABC.DE\n"
-                + "1970-01-01 01:00:25 [ASSIGN-HOME-SPACE-FOR-USER] user: a.t_AT_abc.de, home space: G1_A.T_AT_ABC.DE\n"
-                + "1970-01-01 01:00:26 [ASSIGN-HOME-SPACE-FOR-USER] user: i.n_AT_abc.de, home space: G1_I.N_AT_ABC.DE\n");
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-USER] user: a.e_AT_abc.de, role: SPACE_ADMIN for G1_A.E_AT_ABC.DE\n"
+                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_A.E_AT_ABC.DE\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: a.e_AT_abc.de\n"
+                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: a.e_AT_abc.de\n"
+                + "1970-01-01 01:00:17 [ADD-SPACE] G1_I.N_AT_ABC.DE\n"
+                + "1970-01-01 01:00:18 [ADD-USER] i.n_AT_abc.de\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-USER] user: i.n_AT_abc.de, role: SPACE_ADMIN for G1_I.N_AT_ABC.DE\n"
+                + "1970-01-01 01:00:20 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_I.N_AT_ABC.DE\n"
+                + "1970-01-01 01:00:21 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: i.n_AT_abc.de\n"
+                + "1970-01-01 01:00:22 [ADD-SPACE] G1_A.T_AT_ABC.DE\n"
+                + "1970-01-01 01:00:23 [ADD-USER] a.t_AT_abc.de\n"
+                + "1970-01-01 01:00:24 [ASSIGN-ROLE-TO-USER] user: a.t_AT_abc.de, role: SPACE_ADMIN for G1_A.T_AT_ABC.DE\n"
+                + "1970-01-01 01:00:25 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_A.T_AT_ABC.DE\n"
+                + "1970-01-01 01:00:26 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: a.t_AT_abc.de\n"
+                + "1970-01-01 01:00:27 [ASSIGN-HOME-SPACE-FOR-USER] user: a.e_AT_abc.de, home space: G1_A.E_AT_ABC.DE\n"
+                + "1970-01-01 01:00:28 [ASSIGN-HOME-SPACE-FOR-USER] user: a.t_AT_abc.de, home space: G1_A.T_AT_ABC.DE\n"
+                + "1970-01-01 01:00:29 [ASSIGN-HOME-SPACE-FOR-USER] user: i.n_AT_abc.de, home space: G1_I.N_AT_ABC.DE\n");
         UserManagerExpectationsBuilder builder = createBuilder().useEmailAsUserId();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2, U3);
@@ -646,16 +663,18 @@ public class UserManagerTest extends AbstractTest
 
         // Then
         assertEquals(report.getErrorReport(), "");
-        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U2\n"
-                + "1970-01-01 01:00:01 [ADD-USER] u2\n"
-                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:04 [ADD-SPACE] G2_U3\n"
-                + "1970-01-01 01:00:05 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:06 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:07 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:08 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
-                + "1970-01-01 01:00:09 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U2\n" +
+                "1970-01-01 01:00:01 [ADD-USER] u2\n" +
+                "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n" +
+                "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n" +
+                "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n" +
+                "1970-01-01 01:00:05 [ADD-SPACE] G2_U3\n" +
+                "1970-01-01 01:00:06 [ADD-USER] u3\n" +
+                "1970-01-01 01:00:07 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3\n" +
+                "1970-01-01 01:00:08 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n" +
+                "1970-01-01 01:00:09 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n" +
+                "1970-01-01 01:00:10 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n" +
+                "1970-01-01 01:00:11 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G2_ALPHA").admin(U1).user(U2, U3);
@@ -772,21 +791,21 @@ public class UserManagerTest extends AbstractTest
         userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
         userManager.setGlobalSpaces(globalSpaces);
         userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1), users(U1));
-        
+
         // When
         UserManagerReport report = manage(userManager);
-        
+
         // Then
         assertEquals(report.getErrorReport(), "");
-        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n" + 
-                "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u2\n" + 
-                "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n" + 
-                "1970-01-01 01:00:03 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n" + 
-                "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n" + 
-                "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n" + 
-                "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n" + 
-                "1970-01-01 01:00:07 [REMOVE-AUTHORIZATION-GROUP] G2\n" + 
-                "1970-01-01 01:00:08 [REMOVE-AUTHORIZATION-GROUP] G2_ADMIN\n");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u2\n"
+                + "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
+                + "1970-01-01 01:00:03 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
+                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:07 [REMOVE-AUTHORIZATION-GROUP] G2\n"
+                + "1970-01-01 01:00:08 [REMOVE-AUTHORIZATION-GROUP] G2_ADMIN\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1);
 //        builder.usersWithoutAuthentication(U2, U3);
@@ -798,7 +817,7 @@ public class UserManagerTest extends AbstractTest
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
     }
-    
+
     @Test
     public void testDisableEnableAGroup()
     {
@@ -828,21 +847,24 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U1_2\n"
-                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1_2\n"
-                + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
-                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
-                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:05 [ADD-SPACE] G2_U2_2\n"
-                + "1970-01-01 01:00:06 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
-                + "1970-01-01 01:00:07 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:08 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:09 [ADD-SPACE] G2_U3_2\n"
-                + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3_2\n"
-                + "1970-01-01 01:00:11 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:12 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
-                + "1970-01-01 01:00:13 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1_2\n"
-                + "1970-01-01 01:00:14 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n"
-                + "1970-01-01 01:00:15 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3_2\n");
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G2_U1_2\n"
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1_2\n"
+                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
+                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
+                + "1970-01-01 01:00:05 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:06 [ADD-SPACE] G2_U2_2\n"
+                + "1970-01-01 01:00:07 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:08 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:09 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:10 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
+                + "1970-01-01 01:00:11 [ADD-SPACE] G2_U3_2\n"
+                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3_2\n"
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3_2\n"
+                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
+                + "1970-01-01 01:00:16 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1_2\n"
+                + "1970-01-01 01:00:17 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n"
+                + "1970-01-01 01:00:18 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3_2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("A").observer(U1).observer(U2).observer(U3);
@@ -958,9 +980,10 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U2_2\n"
-                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
-                + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:03 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n");
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:04 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G2_ALPHA").admin(U1).user(U2, U3);
@@ -1039,10 +1062,11 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U1_2\n"
-                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1_2\n"
-                + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
-                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:04 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1_2\n");
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G2_U1_2\n"
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1_2\n"
+                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
+                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1_2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G2_ALPHA").admin(U1).user(U2, U3);
@@ -1091,15 +1115,17 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:09 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G2_U2\n"
-                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:13 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:14 [ADD-SPACE] G2_U3\n"
-                + "1970-01-01 01:00:15 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:16 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:17 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
-                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:15 [ADD-SPACE] G2_U3\n"
+                + "1970-01-01 01:00:16 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:19 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u3\n"
+                + "1970-01-01 01:00:21 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
+                + "1970-01-01 01:00:22 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1151,15 +1177,17 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:09 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G2_U1\n"
-                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1\n"
-                + "1970-01-01 01:00:13 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:15 [ADD-SPACE] G2_U3\n"
-                + "1970-01-01 01:00:16 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1\n"
-                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G2_U1\n"
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U1\n"
+                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u1\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:16 [ADD-SPACE] G2_U3\n"
+                + "1970-01-01 01:00:17 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:21 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G2_U1\n"
+                + "1970-01-01 01:00:22 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1211,15 +1239,17 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:09 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2, role: SPACE_OBSERVER for G2_GAMMA\n"
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G2_U2\n"
-                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:13 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u2\n"
-                + "1970-01-01 01:00:15 [ADD-SPACE] G2_U3\n"
-                + "1970-01-01 01:00:16 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:17 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:18 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:19 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
-                + "1970-01-01 01:00:20 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
+                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:14 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u2\n"
+                + "1970-01-01 01:00:16 [ADD-SPACE] G2_U3\n"
+                + "1970-01-01 01:00:17 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:18 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:20 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:21 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
+                + "1970-01-01 01:00:22 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G2_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3);
@@ -1266,9 +1296,10 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
                 + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
                 + "1970-01-01 01:00:02 [ADD-SPACE] G2_U2\n"
-                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n");
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:04 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:05 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:06 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.space("G1_ALPHA").admin(U1).non(U2, U3, U4);
@@ -1315,11 +1346,12 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G1_U4\n"
-                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
-                + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
-                + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u4\n"
-                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
-                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u4, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
+                + "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u4\n"
+                + "1970-01-01 01:00:05 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:06 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3).user(U4);
@@ -1368,11 +1400,12 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G1_U4\n"
-                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
-                + "1970-01-01 01:00:02 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
-                + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u4\n"
-                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
-                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u4, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
+                + "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u4\n"
+                + "1970-01-01 01:00:05 [UNASSIGN-ROLE-FORM-USER] user: u4, role: SPACE_ADMIN for G2_U4\n"
+                + "1970-01-01 01:00:06 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1", "G2").commonSpaces(commonSpaces).users(U1, U2, U3, U4);
         builder.space("G1_ALPHA").admin(U1).user(U2).non(U3).user(U4);
@@ -1442,7 +1475,7 @@ public class UserManagerTest extends AbstractTest
         userManager = new UserManagerBuilder(v3api, logger, report()).unknownUser(U2).commonSpaces(commonSpaces).noDeactivation().get();
         userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1), users(U1, U3));
 
-        // When 
+        // When
         UserManagerReport report = manage(userManager);
 
         // Then
@@ -1488,9 +1521,10 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U2_2\n"
                 + "1970-01-01 01:00:01 [REUSE-USER] u2\n"
-                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
-                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:04 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n");
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_2\n"
+                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G2_ALPHA").admin(U1).user(U2).user(U3);
@@ -1539,9 +1573,10 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G2_U2_3\n"
                 + "1970-01-01 01:00:01 [REUSE-USER] u2\n"
-                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_3\n"
-                + "1970-01-01 01:00:03 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:04 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_3\n");
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2_3\n"
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2_3\n"
+                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:05 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2_3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G2_ALPHA").admin(U1).user(U2).user(U3);
@@ -1586,23 +1621,26 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_GAMMA\n"
                 + "1970-01-01 01:00:11 [ADD-SPACE] G1_U1\n"
                 + "1970-01-01 01:00:12 [ADD-USER] u1\n"
-                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
-                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U1\n"
-                + "1970-01-01 01:00:15 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
-                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:17 [ADD-SPACE] G1_U2\n"
-                + "1970-01-01 01:00:18 [ADD-USER] u2\n"
-                + "1970-01-01 01:00:19 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:20 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U2\n"
-                + "1970-01-01 01:00:21 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:22 [ADD-SPACE] G1_U3\n"
-                + "1970-01-01 01:00:23 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:24 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
-                + "1970-01-01 01:00:25 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
-                + "1970-01-01 01:00:26 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
-                + "1970-01-01 01:00:27 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
-                + "1970-01-01 01:00:28 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
-                + "1970-01-01 01:00:29 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n");
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:14 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:15 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U1\n"
+                + "1970-01-01 01:00:16 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:17 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:18 [ADD-SPACE] G1_U2\n"
+                + "1970-01-01 01:00:19 [ADD-USER] u2\n"
+                + "1970-01-01 01:00:20 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:21 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:22 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U2\n"
+                + "1970-01-01 01:00:23 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:24 [ADD-SPACE] G1_U3\n"
+                + "1970-01-01 01:00:25 [ADD-USER] u3\n"
+                + "1970-01-01 01:00:26 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:27 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:28 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
+                + "1970-01-01 01:00:29 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
+                + "1970-01-01 01:00:30 [ASSIGN-HOME-SPACE-FOR-USER] user: u1, home space: G1_U1\n"
+                + "1970-01-01 01:00:31 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G1_U2\n"
+                + "1970-01-01 01:00:32 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2, U3);
         builder.space("G1_ALPHA").admin(U1).user(U2).user(U3);
@@ -1638,12 +1676,13 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G1_U3\n"
                 + "1970-01-01 01:00:01 [ADD-USER] u3\n"
-                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
-                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
-                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
-                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:07 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n");
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-USER] user: u3, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U3\n"
+                + "1970-01-01 01:00:04 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
+                + "1970-01-01 01:00:05 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u3\n"
+                + "1970-01-01 01:00:06 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:07 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:08 [ASSIGN-HOME-SPACE-FOR-USER] user: u3, home space: G1_U3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.usersWithoutAuthentication(U2);
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U3);
@@ -1802,7 +1841,6 @@ public class UserManagerTest extends AbstractTest
         builder.assertExpectations();
     }
 
-
     @Test
     public void testChangeUserSpaceRoleAndChangeUsers()
     {
@@ -1826,18 +1864,19 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-SPACE] G1_U4\n"
                 + "1970-01-01 01:00:01 [ADD-USER] u4\n"
-                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
-                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U4\n"
-                + "1970-01-01 01:00:04 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
-                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
-                + "1970-01-01 01:00:07 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U1\n"
-                + "1970-01-01 01:00:08 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U1\n"
-                + "1970-01-01 01:00:09 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U2\n"
-                + "1970-01-01 01:00:10 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U2\n"
-                + "1970-01-01 01:00:11 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U3\n"
-                + "1970-01-01 01:00:12 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
-                + "1970-01-01 01:00:13 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
+                + "1970-01-01 01:00:02 [ASSIGN-ROLE-TO-USER] user: u4, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1_ADMIN, role: SPACE_ADMIN for G1_U4\n"
+                + "1970-01-01 01:00:04 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U4\n"
+                + "1970-01-01 01:00:05 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G1, user: u4\n"
+                + "1970-01-01 01:00:06 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:07 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:08 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U1\n"
+                + "1970-01-01 01:00:09 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U1\n"
+                + "1970-01-01 01:00:10 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U2\n"
+                + "1970-01-01 01:00:11 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U2\n"
+                + "1970-01-01 01:00:12 [UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP] group: G1, role: SPACE_USER for G1_U3\n"
+                + "1970-01-01 01:00:13 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G1, role: SPACE_OBSERVER for G1_U3\n"
+                + "1970-01-01 01:00:14 [ASSIGN-HOME-SPACE-FOR-USER] user: u4, home space: G1_U4\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U3, U4);
         builder.space("G1_ALPHA").admin(U1).non(U2).user(U3, U4);
