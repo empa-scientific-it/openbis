@@ -330,9 +330,9 @@ public class UserManager
             UserManagerReport report)
     {
         List<IAuthorizationGroupId> groupIds = new ArrayList<>();
+        Context context = new Context(sessionToken, service, currentState, report);
         for (AuthorizationGroup group : groups)
         {
-            Context context = new Context(sessionToken, service, currentState, report);
             removeUsersFromGroup(context, group.getCode(), extractUserIds(group));
             groupIds.add(group.getPermId());
             report.removeGroup(group.getCode());
@@ -340,6 +340,7 @@ public class UserManager
             groupIds.add(new AuthorizationGroupPermId(adminGroupCode));
             report.removeGroup(adminGroupCode);
         }
+        context.executeOperations();
         AuthorizationGroupDeletionOptions deletionOptions = new AuthorizationGroupDeletionOptions();
         deletionOptions.setReason("Deletion of groups " + groupIds);
         service.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);

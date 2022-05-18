@@ -808,7 +808,7 @@ public class UserManagerTest extends AbstractTest
                 + "1970-01-01 01:00:08 [REMOVE-AUTHORIZATION-GROUP] G2_ADMIN\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1);
-//        builder.usersWithoutAuthentication(U2, U3);
+        builder.usersWithoutAuthentication(U2, U3);
         builder.space("G1_ALPHA").admin(U1);
         builder.space("G1_BETA").admin(U1);
         builder.space("G1_GAMMA").admin(U1);
