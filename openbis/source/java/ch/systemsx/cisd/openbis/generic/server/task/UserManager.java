@@ -80,7 +80,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRole
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.DeleteRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -727,7 +729,6 @@ public class UserManager
     private void manageNewGroup(Context context, String groupCode, Map<String, Principal> groupUsers)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
-        assertNoCommonSpaceExists(context, groupCode);
 
         createAuthorizationGroup(context, groupCode);
         createAuthorizationGroup(context, adminGroupCode);
@@ -746,12 +747,10 @@ public class UserManager
             {
                 String spaceCode = createCommonSpaceCode(groupCode, commonSpaceCode);
                 Space space = context.getCurrentState().getSpace(spaceCode);
-                if (space == null)
-                {
-                    ISpaceId spaceId = createSpace(context, spaceCode);
-                    createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), role, spaceId);
-                    createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)), Role.ADMIN, spaceId);
-                }
+                ISpaceId spaceId = space != null ? space.getId() : createSpace(context, spaceCode);
+                createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), role, spaceId, spaceCode);
+                createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)), 
+                        Role.ADMIN, spaceId, spaceCode);
             }
         }
     }
@@ -1011,29 +1010,39 @@ public class UserManager
 
     private void createRoleAssignment(Context context, AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId)
     {
+        createRoleAssignment(context, groupId, role, spaceId, null);
+    }
+
+    // The space code is needed for logging because spaceId can be an instance of SpaceTechId
+    private void createRoleAssignment(Context context, AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId, String spaceCodeOrNull)
+    {
+        RoleAssignmentSearchCriteria searchCriteria = new RoleAssignmentSearchCriteria();
+        searchCriteria.withAuthorizationGroup().withId().thatEquals(groupId);
+        RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withSpace();
+        List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
+                searchCriteria, fetchOptions).getObjects();
+        for (RoleAssignment roleAssignment : roleAssignments)
+        {
+            if (roleAssignment.getRole().equals(role))
+            {
+                Space space = roleAssignment.getSpace();
+                if ((space == null && spaceId == null) || space.getId().equals(spaceId))
+                {
+                    return;
+                }
+            }
+        }
         RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
         roleCreation.setAuthorizationGroupId(groupId);
         roleCreation.setRole(role);
         roleCreation.setSpaceId(spaceId);
         context.add(roleCreation);
+        if (spaceCodeOrNull != null)
+        {
+            spaceId = new SpacePermId(spaceCodeOrNull);
+        }
         context.getReport().assignRoleTo(groupId, role, spaceId);
-    }
-
-    private void assertNoCommonSpaceExists(Context context, String groupCode)
-    {
-        Set<String> commonSpaces = new TreeSet<>();
-        for (List<String> set : commonSpacesByRole.values())
-        {
-            commonSpaces.addAll(set.stream().map(s -> createCommonSpaceCode(groupCode, s)).collect(Collectors.toList()));
-        }
-        Map<ISpaceId, Space> spaces = getSpaces(context.getSessionToken(), commonSpaces);
-        if (spaces.isEmpty())
-        {
-            return;
-        }
-        List<String> existingSpaces = new ArrayList<>(spaces.values()).stream().map(Space::getCode).collect(Collectors.toList());
-        Collections.sort(existingSpaces);
-        throw new IllegalStateException("The group '" + groupCode + "' has already the following spaces: " + existingSpaces);
     }
 
     private static final class CurrentState
