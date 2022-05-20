@@ -16,11 +16,39 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.UpdateAuthorizationGroupsOperation;
@@ -52,7 +80,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRole
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.DeleteRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.CreateSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -74,25 +104,13 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
-import org.apache.commons.collections4.map.LinkedMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 /**
  * @author Franz-Josef Elmer
  */
 public class UserManager
 {
+    private static final String ADMIN_POSTFIX = "_ADMIN";
+
     private static final String GLOBAL_AUTHORIZATION_GROUP_CODE = "ALL_GROUPS";
 
     private static final AuthorizationGroupPermId GLOBAL_AUTHORIZATION_GROUP_ID = new AuthorizationGroupPermId(GLOBAL_AUTHORIZATION_GROUP_CODE);
@@ -231,6 +249,7 @@ public class UserManager
         {
             String sessionToken = service.loginAsSystem();
 
+            List<AuthorizationGroup> groupsToBeRemoved = getGroupsToBeRemoved(sessionToken);
             updateMappingFile();
             manageGlobalSpaces(sessionToken, report);
             if (deactivateUnknownUsers)
@@ -238,6 +257,7 @@ public class UserManager
                 revokeUnknownUsers(sessionToken, knownUsers, report);
             }
             CurrentState currentState = loadCurrentState(sessionToken, service);
+            removeGroups(sessionToken, currentState, groupsToBeRemoved, report);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
                 String groupCode = entry.getKey();
@@ -252,6 +272,80 @@ public class UserManager
             report.addErrorMessage("Error: " + e.toString());
             logger.log(LogLevel.ERROR, "", e);
         }
+    }
+
+    /*
+     * Get groups to be removed by the following heuristics: 
+     * 1. Find all groups which ends with <code>_ADMIN</code>. 
+     * 2. Get for each admin group the
+     * corresponding group. 
+     * 3. Take it as a deleted if it isn't specific in the list of added groups as specified in configuration 
+     *   AND if the users of the admin group are also in the group.
+     */
+    private List<AuthorizationGroup> getGroupsToBeRemoved(String sessionToken)
+    {
+        Map<String, AuthorizationGroup> adminGroupsByGroupId = getAdminGroups(sessionToken);
+        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
+        searchCriteria.withCodes().setFieldValue(adminGroupsByGroupId.keySet());
+        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withUsers();
+        List<AuthorizationGroup> groups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
+                fetchOptions).getObjects();
+        List<AuthorizationGroup> removedGroups = new ArrayList<>();
+        for (AuthorizationGroup group : groups)
+        {
+            AuthorizationGroup adminGroup = adminGroupsByGroupId.get(group.getCode());
+            if (groupsByCode.containsKey(group.getCode()) == false && adminGroup != null)
+            {
+                Set<String> users = extractUserIds(group);
+                if (users.containsAll(extractUserIds(adminGroup)))
+                {
+                    removedGroups.add(group);
+                }
+            }
+        }
+        return removedGroups;
+    }
+
+    private Map<String, AuthorizationGroup> getAdminGroups(String sessionToken)
+    {
+        AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
+        searchCriteria.withCode().thatEndsWith(ADMIN_POSTFIX);
+        AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withUsers();
+        List<AuthorizationGroup> adminGroups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
+                fetchOptions).getObjects();
+        Map<String, AuthorizationGroup> adminGroupsByGroupId = new HashMap<>();
+        for (AuthorizationGroup adminGroup : adminGroups)
+        {
+            adminGroupsByGroupId.put(adminGroup.getCode().split(ADMIN_POSTFIX)[0], adminGroup);
+        }
+        return adminGroupsByGroupId;
+    }
+
+    private Set<String> extractUserIds(AuthorizationGroup group)
+    {
+        return group.getUsers().stream().map(Person::getUserId).collect(Collectors.toSet());
+    }
+
+    private void removeGroups(String sessionToken, CurrentState currentState, List<AuthorizationGroup> groups,
+            UserManagerReport report)
+    {
+        List<IAuthorizationGroupId> groupIds = new ArrayList<>();
+        Context context = new Context(sessionToken, service, currentState, report);
+        for (AuthorizationGroup group : groups)
+        {
+            removeUsersFromGroup(context, group.getCode(), extractUserIds(group));
+            groupIds.add(group.getPermId());
+            report.removeGroup(group.getCode());
+            String adminGroupCode = group.getCode() + ADMIN_POSTFIX;
+            groupIds.add(new AuthorizationGroupPermId(adminGroupCode));
+            report.removeGroup(adminGroupCode);
+        }
+        context.executeOperations();
+        AuthorizationGroupDeletionOptions deletionOptions = new AuthorizationGroupDeletionOptions();
+        deletionOptions.setReason("Deletion of groups " + groupIds);
+        service.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);
     }
 
     private void updateMappingFile()
@@ -635,7 +729,6 @@ public class UserManager
     private void manageNewGroup(Context context, String groupCode, Map<String, Principal> groupUsers)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
-        assertNoCommonSpaceExists(context, groupCode);
 
         createAuthorizationGroup(context, groupCode);
         createAuthorizationGroup(context, adminGroupCode);
@@ -654,12 +747,10 @@ public class UserManager
             {
                 String spaceCode = createCommonSpaceCode(groupCode, commonSpaceCode);
                 Space space = context.getCurrentState().getSpace(spaceCode);
-                if (space == null)
-                {
-                    ISpaceId spaceId = createSpace(context, spaceCode);
-                    createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), role, spaceId);
-                    createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)), Role.ADMIN, spaceId);
-                }
+                ISpaceId spaceId = space != null ? space.getId() : createSpace(context, spaceCode);
+                createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), role, spaceId, spaceCode);
+                createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)), 
+                        Role.ADMIN, spaceId, spaceCode);
             }
         }
     }
@@ -696,7 +787,7 @@ public class UserManager
                 removePersonFromAuthorizationGroup(context, adminGroupCode, userId);
             }
         }
-        removeUsersFromGroup(context, groupCode, usersToBeRemoved, useEmailAsUserId);
+        removeUsersFromGroup(context, groupCode, usersToBeRemoved);
         handleRoleAssignmentForUserSpaces(context, groupCode);
     }
 
@@ -804,6 +895,7 @@ public class UserManager
             roleCreation.setRole(Role.ADMIN);
             roleCreation.setSpaceId(userSpaceId);
             context.add(roleCreation);
+            context.getReport().assignRoleTo(userId, roleCreation.getRole(), roleCreation.getSpaceId());
             AuthorizationGroupPermId adminGroupId = new AuthorizationGroupPermId(createAdminGroupCode(groupCode));
             createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
             UserGroup group = groupsByCode.get(groupCode);
@@ -815,8 +907,7 @@ public class UserManager
         }
     }
 
-    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved,
-                                      boolean useEmailAsUserId)
+    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
         for (String userId : usersToBeRemoved)
@@ -919,29 +1010,39 @@ public class UserManager
 
     private void createRoleAssignment(Context context, AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId)
     {
+        createRoleAssignment(context, groupId, role, spaceId, null);
+    }
+
+    // The space code is needed for logging because spaceId can be an instance of SpaceTechId
+    private void createRoleAssignment(Context context, AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId, String spaceCodeOrNull)
+    {
+        RoleAssignmentSearchCriteria searchCriteria = new RoleAssignmentSearchCriteria();
+        searchCriteria.withAuthorizationGroup().withId().thatEquals(groupId);
+        RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
+        fetchOptions.withSpace();
+        List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
+                searchCriteria, fetchOptions).getObjects();
+        for (RoleAssignment roleAssignment : roleAssignments)
+        {
+            if (roleAssignment.getRole().equals(role))
+            {
+                Space space = roleAssignment.getSpace();
+                if ((space == null && spaceId == null) || space.getId().equals(spaceId))
+                {
+                    return;
+                }
+            }
+        }
         RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
         roleCreation.setAuthorizationGroupId(groupId);
         roleCreation.setRole(role);
         roleCreation.setSpaceId(spaceId);
         context.add(roleCreation);
+        if (spaceCodeOrNull != null)
+        {
+            spaceId = new SpacePermId(spaceCodeOrNull);
+        }
         context.getReport().assignRoleTo(groupId, role, spaceId);
-    }
-
-    private void assertNoCommonSpaceExists(Context context, String groupCode)
-    {
-        Set<String> commonSpaces = new TreeSet<>();
-        for (List<String> set : commonSpacesByRole.values())
-        {
-            commonSpaces.addAll(set.stream().map(s -> createCommonSpaceCode(groupCode, s)).collect(Collectors.toList()));
-        }
-        Map<ISpaceId, Space> spaces = getSpaces(context.getSessionToken(), commonSpaces);
-        if (spaces.isEmpty())
-        {
-            return;
-        }
-        List<String> existingSpaces = new ArrayList<>(spaces.values()).stream().map(Space::getCode).collect(Collectors.toList());
-        Collections.sort(existingSpaces);
-        throw new IllegalStateException("The group '" + groupCode + "' has already the following spaces: " + existingSpaces);
     }
 
     private static final class CurrentState
@@ -1045,7 +1146,7 @@ public class UserManager
 
     public static String createAdminGroupCode(String groupCode)
     {
-        return groupCode + "_ADMIN";
+        return groupCode + ADMIN_POSTFIX;
     }
 
     private Map<ISpaceId, Space> getSpaces(String sessionToken, Collection<String> spaceCodes)

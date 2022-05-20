@@ -53,6 +53,36 @@ var SettingsManagerUtils = new function() {
         return objectTypeCodes;
     }
 
+    this.ShowSetting = {
+            showInventory : 0,
+            showLabNotebook : 1,
+            showStock : 2,
+            showDatasets : 3,
+    }
+
+    this.isEnabledForGroup = function(spaceCode, showSetting) {
+        var spaceSettingsProperty = this._getSpaceSettingsObject(spaceCode).properties["ELN_SETTINGS"];
+        var spaceSettings = null;
+        if(spaceSettingsProperty) {
+            spaceSettings = JSON.parse(spaceSettingsProperty);
+        }
+        var initialGroupSettings = spaceSettings && Object.keys(spaceSettings).length == 2 && spaceSettings["inventorySpaces"] && spaceSettings["inventorySpacesReadOnly"];
+        if(!spaceSettingsProperty || initialGroupSettings) {
+            return true;
+        } else {
+            var result = false;
+            if(showSetting === this.ShowSetting.showInventory) {
+                result = spaceSettings.mainMenu.showInventory;
+            } else if(showSetting === this.ShowSetting.showLabNotebook) {
+                result = spaceSettings.mainMenu.showLabNotebook;
+            } else if(showSetting === this.ShowSetting.showStock) {
+                result = spaceSettings.mainMenu.showStock;
+            } else if(showSetting === this.ShowSetting.showDatasets) {
+                result = spaceSettings.mainMenu.showDatasets;
+            }
+            return result;
+        }
+    }
 };
 
 function SettingsManager(serverFacade) {

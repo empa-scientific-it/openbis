@@ -28,8 +28,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
@@ -43,7 +45,7 @@ public class UserManagerReport implements IChangedHandler
     private StringBuilder errorReport = new StringBuilder();
 
     private StringBuilder auditLog = new StringBuilder();
-    
+
     private ITimeProvider timeProvider;
 
     private BufferedAppender bufferedAppender;
@@ -58,7 +60,7 @@ public class UserManagerReport implements IChangedHandler
         this.timeProvider = timeProvider;
         this.bufferedAppender = bufferedAppender;
     }
-    
+
     public String getLog()
     {
         return bufferedAppender != null ? bufferedAppender.getLogContent() : "";
@@ -82,6 +84,11 @@ public class UserManagerReport implements IChangedHandler
     void addGroup(String groupCode)
     {
         log("ADD-AUTHORIZATION-GROUP", groupCode);
+    }
+
+    void removeGroup(String groupCode)
+    {
+        log("REMOVE-AUTHORIZATION-GROUP", groupCode);
     }
 
     void deactivateUser(String userId)
@@ -124,6 +131,16 @@ public class UserManagerReport implements IChangedHandler
         log("ADD-EXPERIMENT", identifier);
     }
 
+    void assignRoleTo(String userId, Role role, ISpaceId spaceId)
+    {
+        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);
+    }
+
+    void assignRoleTo(AuthorizationGroupPermId groupId, Role role, Space space)
+    {
+        assignRoleTo(groupId, role, new SpacePermId(space.getCode()));
+    }
+
     void assignRoleTo(AuthorizationGroupPermId groupId, Role role, ISpaceId spaceId)
     {
         log("ASSIGN-ROLE-TO-AUTHORIZATION-GROUP", "group: " + groupId + ", role: SPACE_" + role + " for " + spaceId);
@@ -138,7 +155,7 @@ public class UserManagerReport implements IChangedHandler
     {
         log("UNASSIGN-ROLE-FORM-AUTHORIZATION-GROUP", "group: " + groupId + ", role: SPACE_" + role + " for " + spaceId);
     }
-    
+
     void addUserToGroup(String groupCode, String userId)
     {
         log("ADD-USER-TO-AUTHORIZATION-GROUP", "group: " + groupCode + ", user: " + userId);

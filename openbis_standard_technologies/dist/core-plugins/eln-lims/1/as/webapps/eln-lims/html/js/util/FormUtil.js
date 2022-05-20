@@ -1657,7 +1657,7 @@ var FormUtil = new function() {
 		return $("<p>")
 			.append($("<div>", { class : "glyphicon glyphicon-info-sign" })
 				.css("margin-right", "3px"))
-			.append($("<span>").text(infoText));
+			.append($("<span>").append(FormUtil.sanitizeRichHTMLText(infoText)));
 	}
 
 	this.getWarningText = function(infoText) {

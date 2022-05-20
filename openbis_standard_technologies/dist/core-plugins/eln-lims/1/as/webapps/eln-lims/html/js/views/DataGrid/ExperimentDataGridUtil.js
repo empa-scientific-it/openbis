@@ -1,9 +1,5 @@
 var ExperimentDataGridUtil = new function() {
-	this.getExperimentDataGrid = function(typeCode, entities, rowClick, heightPercentage) {
-		var type = profile.getExperimentTypeForExperimentTypeCode(typeCode);
-		var propertyCodes = profile.getAllPropertiCodesForExperimentTypeCode(typeCode);
-		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForExperimentTypeCode(typeCode, propertyCodes);
-		
+	this.getExperimentDataGrid = function(entities, rowClick, heightPercentage) {
 		//Fill Columns model
 		var columns = [];
 
@@ -25,154 +21,19 @@ var ExperimentDataGridUtil = new function() {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
-
-		if($.inArray("$NAME", propertyCodes) !== -1) {
-			columns.push({
-				label : 'Name',
-				property : '$NAME',
-				isExportable: true,
-				sortable : true,
-				render : function(data) {
-					return FormUtil.getFormLink(data[profile.propertyReplacingCode], "Experiment", data.identifier);
-				}
-			});
-		}
-		
-		var propertyColumnsToSort = [];
-		for (var idx = 0; idx < propertyCodes.length; idx++) {
-			var propertiesToSkip = ["$NAME", "$XMLCOMMENTS"];
-			var propertyCode = propertyCodes[idx];
-			if($.inArray(propertyCode, propertiesToSkip) !== -1) {
-				continue;
-			}
-			var propertyType = profile.getPropertyType(propertyCode);
-			if(propertyType.dataType === "BOOLEAN"){
-				var getBooleanColumn = function(propertyType) {
-					return {
-						label : propertyCodesDisplayNames[idx],
-						property : propertyCodes[idx],
-						isExportable: true,
-						filterable : true,
-						sortable : true,
-						renderFilter : function(params) {
-							return FormUtil.renderBooleanGridFilter(params);
-						}
-					};
-				}
-				propertyColumnsToSort.push(getBooleanColumn(propertyType));
-			} else if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-				var getVocabularyColumn = function(propertyType) {
-					return function() {
-						return {
-							label : propertyCodesDisplayNames[idx],
-							property : propertyCodes[idx],
-							isExportable: true,
-							sortable : true,
-							render : function(data) {
-								return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-							},
-							renderFilter: function(params){
-								return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
-							},
-							filter : function(data, filter) {
-								return data[propertyType.code] === filter
-							},
-							sort : function(data1, data2, asc) {
-								var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
-								if(!value1) {
-									value1 = ""
-								};
-								var value2 = FormUtil.getVocabularyLabelForTermCode(propertyType, data2[propertyType.code]);
-								if(!value2) {
-									value2 = ""
-								};
-								var sortDirection = (asc)? 1 : -1;
-								return sortDirection * naturalSort(value1, value2);
-							}
-						};
-					}
-				}
-				
-				var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
-				propertyColumnsToSort.push(newVocabularyColumnFunc());
-			} else if (propertyType.dataType === "HYPERLINK") {
-				var getHyperlinkColumn = function(propertyType) {
-					return {
-						label : propertyType.label,
-						property : propertyType.code,
-						isExportable: true,
-						sortable : true,
-						render : function(data) {
-							return FormUtil.asHyperlink(data[propertyType.code]);
-						}
-					};
-				}
-				propertyColumnsToSort.push(getHyperlinkColumn(propertyType));
-			} else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
-				var getDateColumn = function(propertyType, idx){
-					return {
-						label : propertyCodesDisplayNames[idx],
-						property : propertyCodes[idx],
-						isExportable: true,
-						sortable : true,
-						renderFilter : function(params) {
-							return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType);
-						},
-						filter : function(data, filter){
-							return FormUtil.filterDateRangeGridColumn(data[propertyCodes[idx]], filter)
-						}
-					}
-				}
-				propertyColumnsToSort.push(getDateColumn(propertyType, idx))
-			} else {
-				var renderValue = null
-
-				if(propertyType.dataType === "XML"){
-					renderValue = (function(propertyType){
-						return function(row, params){
-							return FormUtil.renderXmlGridValue(row, params, propertyType)
-						}
-					})(propertyType)
-				}else if(propertyType.dataType === "MULTILINE_VARCHAR"){
-					renderValue = (function(propertyType){
-						return function(row, params){
-							return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
-						}
-					})(propertyType)
-				}
-				
-				propertyColumnsToSort.push({
-					label : propertyCodesDisplayNames[idx],
-					property : propertyCodes[idx],
-					isExportable: true,
-					sortable : true,
-					truncate: true,
-					render: renderValue
-				});
-			}
-		}
-		
-		columns.push({
-			label : '---------------',
-			property : null,
-			isExportable: false,
-			sortable : false
-		});
-
-		FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
-            return {
-                entityKind: "EXPERIMENT",
-                entityType: typeCode
+        columns.push({
+            label : 'Name',
+            property : '$NAME',
+            isExportable: true,
+            sortable : true,
+            render : function(data) {
+                var nameToUse = "";
+                if(data[profile.propertyReplacingCode]) {
+                    nameToUse = data[profile.propertyReplacingCode];
+                }
+                return FormUtil.getFormLink(nameToUse, "Experiment", data.identifier);
             }
-        }))
-
-		columns = columns.concat(propertyColumnsToSort);
-		columns.push({
-			label : '---------------',
-			property : null,
-			isExportable: false,
-			sortable : false
-		});
+        });
 
 		columns.push({
 			label : 'Identifier',
@@ -193,6 +54,13 @@ var ExperimentDataGridUtil = new function() {
 			}
 		});
 
+        columns.push({
+            label : 'Type',
+            property : 'type',
+            isExportable: true,
+            sortable : true
+        });
+        
 		columns.push({
 			label : 'Registrator',
 			property : 'registrator',
@@ -243,25 +111,48 @@ var ExperimentDataGridUtil = new function() {
 									'code' : entity.code,
 									'identifier' : entity.identifier,
 									'permId' : entity.permId,
+                                    'type' : entity.experimentTypeCode,
 									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),
 									'modifier' : entity.registrationDetails.modifierUserId,
 									'modificationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.modificationDate))
 				};
-				
-				for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-					var propertyCode = propertyCodes[pIdx];
-					model[propertyCode] = entity.properties[propertyCode];
-				}
-				
+				if(entity.properties) {
+                    for(var propertyCode in entity.properties) {
+                        model[propertyCode] = entity.properties[propertyCode];
+                    }
+                }
 				dataList.push(model);
 			}
 			callback(dataList);
 		};
+
+        var dynamicColumnsFunc = function(experiments) {
+            var foundPropertyCodes = {};
+            var foundExperimentTypes = {};
+            for(var idx = 0; idx < experiments.length; idx++) {
+                var experiment = experiments[idx];
+                if(!foundExperimentTypes[experiment.type]) {
+                    foundExperimentTypes[experiment.type] = true;
+                    var propertyCodes = profile.getAllPropertiCodesForExperimentTypeCode(experiment.type);
+                    for(var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
+                        foundPropertyCodes[propertyCodes[pIdx]] = true;
+                    }
+                }
+            }
+            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+            FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
+                return {
+                    entityKind: "EXPERIMENT",
+                    entityType: entity.type
+                }
+            }))
+            return propertyColumnsToSort;
+        }
 			
 		//Create and return a data grid controller
-		var configKey = "ENTITY_TABLE_"+ typeCode;
-		var dataGridController = new DataGridController(null, columns, [], null, getDataList, rowClick, false, configKey, null, heightPercentage);
+        var configKey = "EXPERIMENT_TABLE";
+        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, heightPercentage);
 		dataGridController.setId("experiment-grid")
 		return dataGridController;
 	}

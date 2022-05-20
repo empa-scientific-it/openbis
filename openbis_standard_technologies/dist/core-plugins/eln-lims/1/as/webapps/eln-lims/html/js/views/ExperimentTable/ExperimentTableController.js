@@ -24,8 +24,6 @@ function ExperimentTableController(parentController, title, project, showInProje
 		Util.blockUI();
 		this._experimentTableModel.reset();
 		var callback = function(data) {
-			var typeCount = 0;
-			var lastType = null;
 			for(var i = 0; i < data.result.length; i++) {
 				var item = data.result[i];
 				
@@ -33,21 +31,12 @@ function ExperimentTableController(parentController, title, project, showInProje
 				var showAll = !_this._experimentTableModel.showInProjectOverview;
 				if(showOnlyOverview || showAll) {
 					_this._experimentTableModel.allExperiments.push(item);
-					if(!_this._experimentTableModel.types[item.experimentTypeCode]) {
-						lastType = item.experimentTypeCode;
-						_this._experimentTableModel.types[item.experimentTypeCode] = true;
-						typeCount++;
-					}
 				}
 			}
 			
 			_this._experimentTableView.repaint($container);
 			Util.unblockUI();
-			
-			if(typeCount === 1) {
-				_this._experimentTableView.getTypeSelector().val(lastType);
-				_this._reloadTableWithType(lastType);
-			}
+            _this._reloadTable();
 		};
 		
 		if(this._experimentTableModel.project) {
@@ -62,28 +51,23 @@ function ExperimentTableController(parentController, title, project, showInProje
 		mainController.serverFacade.listExperiments([project], callback);
 	}
 	
-	this._reloadTableWithType = function(selectedTypeCode) {
-		if(selectedTypeCode !== '') { //Verify something selected
-			//Get experiments from type
-			var experiments = [];
-			for (var idx = 0; idx < this._experimentTableModel.allExperiments.length; idx++) {
-				var exptoCheckType = this._experimentTableModel.allExperiments[idx];
-				if(exptoCheckType.experimentTypeCode === selectedTypeCode) {
-					var showOnlyOverview = this._experimentTableModel.showInProjectOverview && exptoCheckType.properties["$SHOW_IN_PROJECT_OVERVIEW"] === "true";
-					var showAll = !this._experimentTableModel.showInProjectOverview;
-					if(showOnlyOverview || showAll) {
-						experiments.push(exptoCheckType);
-					}
-				}
-			}
-			
-			//Click event
-			var rowClick = null;
-			
-			//Create and display table
-			this._dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(selectedTypeCode, experiments, rowClick, 50);
-			this._dataGridController.init(this._experimentTableView.getTableContainer());
-		}
+	this._reloadTable = function() {
+        var experiments = [];
+        for (var idx = 0; idx < this._experimentTableModel.allExperiments.length; idx++) {
+            var exptoCheckType = this._experimentTableModel.allExperiments[idx];
+            var showOnlyOverview = this._experimentTableModel.showInProjectOverview && exptoCheckType.properties["$SHOW_IN_PROJECT_OVERVIEW"] === "true";
+            var showAll = !this._experimentTableModel.showInProjectOverview;
+            if(showOnlyOverview || showAll) {
+                experiments.push(exptoCheckType);
+            }
+        }
+        
+        //Click event
+        var rowClick = null;
+        
+        //Create and display table
+        this._dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(experiments, rowClick, 50);
+        this._dataGridController.init(this._experimentTableView.getTableContainer());
 	}
 	
 	this.refresh = function()

@@ -316,7 +316,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                         imD.css("display", "inline");
                         
                         // Thumbnail not found!
-                        imD.attr("src", "./img/unavailable.png");
+                        imD.attr("src", "./img/image_unavailable.png");
                         imD.attr("title", "Could not find a thumbnail for this dataset!");
                         
                         return null;
@@ -358,7 +358,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                         imD.css("display", "inline");
 
                         // Thumbnail not found!
-                        imD.attr("src", "./img/unavailable.png");
+                        imD.attr("src", "./img/image_unavailable.png");
                         imD.attr("title", "Could not find a thumbnail for this dataset!");
 
                         return;
@@ -387,7 +387,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                         if (result.getTotalCount() === 0) {
 
                             // Thumbnail not found!
-                            imD.attr("src", "./img/unavailable.png");
+                            imD.attr("src", "./img/image_unavailable.png");
                             imD.attr("title", "Could not find a thumbnail for this dataset!");
 
                             return;

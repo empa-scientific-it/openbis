@@ -34,7 +34,9 @@ ELNDictionary.settingsView = {
 		},
 		mainMenu : {
 			title : "Main Menu",
-			info : "These options give the opportunity to the administrator to show/hide different sections of the user interface from the main menu.",
+			info : "<br>" +
+			       "<b>Space Settings:</b> showLabNotebook, showInventory, showStock and showDatasets affect the spaces of the group they are configured on, or all spaces without group if part of GENERAL_ELN_SETTINGS.<br>" +
+			       "<b>Other Settings:</b> show/hide different tools of the user interface from the main menu. GENERAL_ELN_SETTINGS affect all groups.",
 		},
 		customWidgets : {
 		    title : "Custom Widgets",
