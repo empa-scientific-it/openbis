@@ -262,23 +262,11 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
                 if (casting != null)
                 {
-                    final boolean equalsToComparison = (value.getClass() == StringEqualToValue.class);
-                    if (equalsToComparison)
-                    {
-                        sqlBuilder.append(LOWER).append(LP);
-                    }
                     sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
                             .append(VALUE_COLUMN);
-                    if (equalsToComparison)
-                    {
-                        sqlBuilder.append(RP);
-                    }
 
-                    final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue())
-                            .toLowerCase();
-
-                    TranslatorUtils.appendStringComparatorOp(value.getClass(), strippedValue, useWildcards,
-                            sqlBuilder, args);
+                    TranslatorUtils.appendStringComparatorOp(value.getClass(),
+                            TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards, sqlBuilder, args);
                 } else
                 {
                     TranslatorUtils.translateStringComparison(aliases.get(tableMapper.getValuesTable()).getSubTableAlias(),

@@ -95,7 +95,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatEquals()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
-        criteria.withCode().thatEquals("test-SPACE");
+        criteria.withCode().thatEquals("TEST-SPACE");
         testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
