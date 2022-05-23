@@ -13,12 +13,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -27,11 +35,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -49,11 +59,20 @@ public class MaterialsMigration {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MaterialsMigration.class);
     private static final String PREFIX = "MATERIAL.";
     private static final String SPACE_CODE = PREFIX + "GLOBAL";
+    private static final String PROJECT_CODE = SPACE_CODE;
+    private static final String EXPERIMENT_TYPE = "COLLECTION";
+    private static final String EXPERIMENT_POSTFIX = "_COLLECTION";
+    private static final String DESCRIPTION = "Used to hold objects instances from all migrated materials.";
+
+    private static void info(String method, String message) {
+        operationLog.info(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
+        System.out.println(MaterialsMigration.class.getSimpleName() + " : " + message + " - " + message);
+    }
 
     public static void main(String[] args) throws Exception {
-        operationLog.info("main");
+        info("main (doMaterialsMigration development substitute)","");
         final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
-        final int TIMEOUT = 10000;
+        final int TIMEOUT = Integer.MAX_VALUE;
         IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
         String sessionToken = v3.login("admin", "a");
         doMaterialsMigrationInsertNew(sessionToken, v3);
@@ -62,7 +81,7 @@ public class MaterialsMigration {
     }
 
     public static void doMaterialsMigration() throws Exception {
-        operationLog.info("doMaterialsMigration");
+        info("doMaterialsMigration","start");
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
         String sessionToken = v3.loginAsSystem();
         doMaterialsMigrationInsertNew(sessionToken, v3);
@@ -70,9 +89,11 @@ public class MaterialsMigration {
         v3.logout(sessionToken);
     }
 
-    public static void doMaterialsMigrationInsertNew(String sessionToken, IApplicationServerApi v3) throws Exception {
-        operationLog.info("doMaterialsMigrationInsertNew");
+    private static void doMaterialsMigrationInsertNew(String sessionToken, IApplicationServerApi v3) throws Exception {
+        info("doMaterialsMigrationInsertNew","start");
         createSampleSpace(sessionToken, v3);
+        createExperimentType(sessionToken, v3);
+        createExperiment(sessionToken, v3);
         createSampleTypes(sessionToken, v3);
         List<IEntityTypeUpdate> makeMandatory = createAndAssignPropertyTypesNoMandatoryFields(sessionToken, v3);
         createSamples(sessionToken, v3);
@@ -81,14 +102,43 @@ public class MaterialsMigration {
     }
 
     private static void createSampleSpace(String sessionToken, IApplicationServerApi v3) {
+        info("createSampleSpace","start");
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(PREFIX + SPACE_CODE);
-        spaceCreation.setDescription("Space used to hold objects instances from all migrated materials.");
+        spaceCreation.setCode(SPACE_CODE);
+        spaceCreation.setDescription(DESCRIPTION);
         v3.createSpaces(sessionToken, List.of(spaceCreation));
     }
 
+    private static void createExperimentType(String sessionToken, IApplicationServerApi v3) {
+        info("createExperimentType","start");
+        ExperimentTypeCreation experimentTypeCreation = new ExperimentTypeCreation();
+        experimentTypeCreation.setCode(EXPERIMENT_TYPE);
+        experimentTypeCreation.setDescription(DESCRIPTION);
+        v3.createExperimentTypes(sessionToken, List.of(experimentTypeCreation));
+    }
+
+    private static void createExperiment(String sessionToken, IApplicationServerApi v3) {
+        info("createExperiment","start");
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setSpaceId(new SpacePermId(SPACE_CODE));
+        projectCreation.setCode(SPACE_CODE);
+        projectCreation.setDescription(DESCRIPTION);
+        v3.createProjects(sessionToken, List.of(projectCreation));
+
+        List<ExperimentCreation> collectionsToCreate = new ArrayList<>();
+        SearchResult<MaterialType> materialTypes = v3.searchMaterialTypes(sessionToken, new MaterialTypeSearchCriteria(), new MaterialTypeFetchOptions());
+        for (MaterialType materialType:materialTypes.getObjects()) {
+            ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId(EXPERIMENT_TYPE, EntityKind.EXPERIMENT));
+            experimentCreation.setProjectId(new ProjectIdentifier(SPACE_CODE, PROJECT_CODE));
+            experimentCreation.setCode(materialType.getCode() + EXPERIMENT_POSTFIX);
+            collectionsToCreate.add(experimentCreation);
+        }
+        v3.createExperiments(sessionToken, collectionsToCreate);
+    }
+
     private static void createSampleTypes(String sessionToken, IApplicationServerApi v3) {
-        operationLog.info("createSampleTypes");
+        info("createSampleTypes","start");
         List<SampleTypeCreation> sampleTypeCreations = new ArrayList<>();
         MaterialTypeFetchOptions materialTypeFetchOptions = new MaterialTypeFetchOptions();
         PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = materialTypeFetchOptions.withPropertyAssignments();
@@ -97,8 +147,7 @@ public class MaterialsMigration {
         materialTypeFetchOptions.withValidationPlugin();
         SearchResult<MaterialType> materialTypes = v3.searchMaterialTypes(sessionToken, new MaterialTypeSearchCriteria(), materialTypeFetchOptions);
         for (MaterialType materialType:materialTypes.getObjects()) {
-            operationLog.info("Found Material Type: " + materialType.getCode());
-            System.out.println("Found Material Type: " + materialType.getCode());
+            info("createSampleTypes", "Found Material Type: " + materialType.getCode());
 
             SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
             sampleTypeCreation.setCode(PREFIX + materialType.getCode());
@@ -121,8 +170,7 @@ public class MaterialsMigration {
                 }
                 sampleTypeCreation.getPropertyAssignments().add(propertyAssignmentCreation);
             }
-            operationLog.info("Creating Material Type: " + sampleTypeCreation.getCode());
-            System.out.println("Creating Material Type: " + sampleTypeCreation.getCode());
+            info("createSampleTypes", "Creating Material Sample Type: " + materialType.getCode());
             sampleTypeCreations.add(sampleTypeCreation);
         }
 
@@ -130,6 +178,7 @@ public class MaterialsMigration {
     }
 
     private static List<IEntityTypeUpdate> createAndAssignPropertyTypesNoMandatoryFields(String sessionToken, IApplicationServerApi v3) {
+        info("createAndAssignPropertyTypesNoMandatoryFields","start");
         Map<String, PropertyTypeCreation> createPropertyTypes = new HashMap<>();
         List<IEntityTypeUpdate> makeMandatoryLater = new ArrayList<>();
 
@@ -158,13 +207,13 @@ public class MaterialsMigration {
     }
 
     private static void createAndAssignPropertyTypesNoMandatoryFieldsForHolder(String sessionToken, IApplicationServerApi v3, Map<String, PropertyTypeCreation> createPropertyTypes, List<IEntityTypeUpdate> makeMandatoryLater, List<? extends IPropertyAssignmentsHolder> holders) {
+        info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder","start");
         for (IPropertyAssignmentsHolder holder: holders) {
             for (PropertyAssignment oldPropertyAssignment: holder.getPropertyAssignments()) {
                 if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
                     PropertyType oldPropertyType = oldPropertyAssignment.getPropertyType();
                     PropertyTypePermId newPropertyTypeId = new PropertyTypePermId(PREFIX + oldPropertyType.getCode());
-                    System.out.println(holder.getClass().getSimpleName() + ": " + ((ICodeHolder)holder).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
-                    operationLog.info(holder.getClass().getSimpleName() + ": " + ((ICodeHolder)holder).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
+                    info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder",holder.getClass().getSimpleName() + ": " + ((ICodeHolder)holder).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
                     boolean create = !createPropertyTypes.containsKey(PREFIX + oldPropertyType.getCode());
                     if (create) {
                         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
@@ -226,6 +275,36 @@ public class MaterialsMigration {
     }
 
     private static void createSamples(String sessionToken, IApplicationServerApi v3) {
+        info("createSamples","start");
+        List<SampleCreation> sampleCreations = new ArrayList<>();
+        MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
+        materialFetchOptions.withProperties();
+        materialFetchOptions.withTags();
+        materialFetchOptions.withType();
+        materialFetchOptions.withMaterialProperties();
+        SearchResult<Material> materialSearchResult = v3.searchMaterials(sessionToken, new MaterialSearchCriteria(), materialFetchOptions);
+        Map<String, Map<String,String>> assignLater = new HashMap<>(); // Objects can't
+        for (Material material:materialSearchResult.getObjects()) {
+            SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setSpaceId(new SpacePermId(SPACE_CODE));
+            sampleCreation.setExperimentId(new ExperimentIdentifier(SPACE_CODE, PROJECT_CODE, material.getType().getCode() + EXPERIMENT_POSTFIX));
+            sampleCreation.setTypeId(new EntityTypePermId(PREFIX + material.getType().getCode(), EntityKind.SAMPLE));
+            sampleCreation.setCode(material.getCode());
+            for (String propertyCode:material.getProperties().keySet()) {
+                if (material.getMaterialProperties().keySet().contains(propertyCode)) { // Convert material property to sample property
+                    if (!assignLater.containsKey(material.getCode())) {
+                        assignLater.put(material.getCode(), new HashMap<>());
+                    }
+                    assignLater.get(material.getCode()).put(propertyCode, material.getProperty(propertyCode));
+                } else {
+                    sampleCreation.setProperty(propertyCode, material.getProperty(propertyCode));
+                }
+            }
+            sampleCreations.add(sampleCreation);
+        }
+        v3.createSamples(sessionToken, sampleCreations);
+
+        // Assign properties that required an existing foreign key
     }
 
     private static void assignSamplesToProperties(String sessionToken, IApplicationServerApi v3) {
