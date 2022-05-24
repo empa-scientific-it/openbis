@@ -2,24 +2,35 @@ package ch.systemsx.cisd.openbis.generic.server.hotfix;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringPropertySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.PropertyAssignmentListUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
@@ -29,7 +40,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -38,18 +48,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -57,10 +69,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MaterialsMigration {
 
@@ -273,14 +282,14 @@ public class MaterialsMigration {
         return false;
     }
 
-    private static void createAndAssignPropertyTypesNoMandatoryFieldsForHolder(String sessionToken, IApplicationServerApi v3, Map<String, PropertyTypeCreation> createPropertyTypes, List<IEntityTypeUpdate> makeMandatoryLater, List<? extends IPropertyAssignmentsHolder> holders) {
+    private static void createAndAssignPropertyTypesNoMandatoryFieldsForHolder(String sessionToken, IApplicationServerApi v3, Map<String, PropertyTypeCreation> createPropertyTypes, List<IEntityTypeUpdate> makeMandatoryLater, List<? extends IPropertyAssignmentsHolder> holderTypes) {
         info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder","start");
-        for (IPropertyAssignmentsHolder holder: holders) {
-            for (PropertyAssignment oldPropertyAssignment: holder.getPropertyAssignments()) {
+        for (IPropertyAssignmentsHolder holderType: holderTypes) {
+            for (PropertyAssignment oldPropertyAssignment: holderType.getPropertyAssignments()) {
                 if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
                     PropertyType oldPropertyType = oldPropertyAssignment.getPropertyType();
                     PropertyTypePermId newPropertyTypeId = new PropertyTypePermId(PREFIX + oldPropertyType.getCode());
-                    info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder",holder.getClass().getSimpleName() + ": " + ((ICodeHolder)holder).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
+                    info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder",holderType.getClass().getSimpleName() + ": " + ((ICodeHolder)holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
                     boolean create = !isPropertyType(sessionToken, v3, PREFIX + oldPropertyType.getCode());
                     if (create) {
                         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
@@ -301,7 +310,7 @@ public class MaterialsMigration {
                     //
                     // Assignment of new property type
                     //
-                    boolean assign = !isPropertyTypeAssigned(PREFIX + oldPropertyType.getCode(), holder);
+                    boolean assign = !isPropertyTypeAssigned(PREFIX + oldPropertyType.getCode(), holderType);
                     PropertyAssignmentCreation newPropertyAssignment = new PropertyAssignmentCreation();
                     newPropertyAssignment.setPropertyTypeId(newPropertyTypeId);
                     newPropertyAssignment.setOrdinal(oldPropertyAssignment.getOrdinal());
@@ -315,23 +324,23 @@ public class MaterialsMigration {
                     add.setItems(List.of(newPropertyAssignment));
 
                     IEntityTypeUpdate update = null;
-                    if (holder instanceof SampleType) {
+                    if (holderType instanceof SampleType) {
                         update = new SampleTypeUpdate();
-                        update.setTypeId(((SampleType) holder).getPermId());
+                        update.setTypeId(((SampleType) holderType).getPermId());
                         update.setPropertyAssignmentActions(List.of(add));
                         if (assign) {
                             v3.updateSampleTypes(sessionToken, List.of((SampleTypeUpdate) update));
                         }
-                    } else if (holder instanceof ExperimentType) {
+                    } else if (holderType instanceof ExperimentType) {
                         update = new ExperimentTypeUpdate();
-                        update.setTypeId(((ExperimentType) holder).getPermId());
+                        update.setTypeId(((ExperimentType) holderType).getPermId());
                         update.setPropertyAssignmentActions(List.of(add));
                         if (assign) {
                             v3.updateExperimentTypes(sessionToken, List.of((ExperimentTypeUpdate) update));
                         }
-                    } else if (holder instanceof DataSetType) {
+                    } else if (holderType instanceof DataSetType) {
                         update = new DataSetTypeUpdate();
-                        update.setTypeId(((DataSetType) holder).getPermId());
+                        update.setTypeId(((DataSetType) holderType).getPermId());
                         update.setPropertyAssignmentActions(List.of(add));
                         if (assign) {
                             v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate) update));
@@ -365,8 +374,9 @@ public class MaterialsMigration {
         int totalCount = materialSearchResult.getTotalCount();
 
         for (Material material:materialSearchResult.getObjects()) {
+            count++;
             if (isSample(sessionToken, v3, "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode())) {
-                info("createSamples","skip");
+                info("createSamples","skip: " + count + "/" + totalCount + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
                 continue; // Skip already done migration step
             }
             SampleCreation sampleCreation = new SampleCreation();
@@ -383,7 +393,6 @@ public class MaterialsMigration {
             }
             info("createSamples",count + "/" + totalCount + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
             sampleCreations.add(sampleCreation);
-            count++;
             if (sampleCreations.size() == 1000) {
                 long start = System.currentTimeMillis();
                 info("createSamples","Insert batch of 1000");
@@ -398,9 +407,153 @@ public class MaterialsMigration {
     }
 
     private static void assignSamplesToProperties(String sessionToken, IApplicationServerApi v3) {
+        info("assignSamplesToProperties","start");
+        SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<SampleType> sampleTypeSearchResult = v3.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+        assignSamplesToPropertiesForHolders(sessionToken, v3, sampleTypeSearchResult.getObjects());
+
+        ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
+        ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+        experimentTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        experimentTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<ExperimentType> experimentTypeSearchResult = v3.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
+        assignSamplesToPropertiesForHolders(sessionToken, v3, experimentTypeSearchResult.getObjects());
+
+        DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<DataSetType> dataTypeSearchResult = v3.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, dataSetTypeFetchOptions);
+        assignSamplesToPropertiesForHolders(sessionToken, v3, dataTypeSearchResult.getObjects());
+    }
+
+    private static boolean isSampleAssigned(IPropertiesHolder holder, String propertyCode, String sampleIdentifier) {
+        return holder.getProperty(propertyCode) != null && holder.getProperty(propertyCode).equals(sampleIdentifier);
+    }
+
+    private static void assignSamplesToPropertiesForHolders(String sessionToken, IApplicationServerApi v3, List<? extends IPropertyAssignmentsHolder> holderTypes) {
+        info("assignSamplesToPropertiesForHolders","start");
+        for (IPropertyAssignmentsHolder holderType: holderTypes) {
+            for (PropertyAssignment oldPropertyAssignment : holderType.getPropertyAssignments()) {
+                if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
+                    int count = 0;
+                    int offset = 0;
+                    int limit = 10000;
+                    int total = -1;
+                    while (offset + limit < total || total == -1) {
+                        List updates = new ArrayList<>();
+                        info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
+                        SearchResult<? extends IPropertiesHolder> result = null;
+                        List<? extends IPropertiesHolder> holders = null;
+                        if (holderType instanceof SampleType) {
+                            SampleSearchCriteria criteria = new SampleSearchCriteria();
+                            criteria.withType().withCode().equals(((SampleType) holderType).getCode());
+                            SampleFetchOptions options = new SampleFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchSamples(sessionToken, criteria, options);
+                        } else if (holderType instanceof ExperimentType) {
+                            ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+                            criteria.withType().withCode().equals(((ExperimentType) holderType).getCode());
+                            ExperimentFetchOptions options = new ExperimentFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchExperiments(sessionToken, criteria, options);
+                        } else if (holderType instanceof DataSetType) {
+                            DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+                            criteria.withType().withCode().equals(((DataSetType) holderType).getCode());
+                            DataSetFetchOptions options = new DataSetFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchDataSets(sessionToken, criteria, options);
+                        }
+                        total = result.getTotalCount();
+                        holders = result.getObjects();
+                        if (offset + limit < total) {
+                            offset += limit;
+                        }
+
+                        info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found: " + offset + " / " + total);
+
+                        for (IPropertiesHolder holder : holders) {
+                            count++;
+                            String oldPropertyMaterialCode = null;
+                            if (holder instanceof Sample && ((Sample) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((Sample) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            } else if (holder instanceof Experiment && ((Experiment) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((Experiment) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            } else if (holder instanceof DataSet && ((DataSet) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((DataSet) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            }
+                            String newPropertySampleCode = PREFIX + oldPropertyAssignment.getPropertyType().getCode();
+                            String sampleIdentifier = null;
+                            if (oldPropertyMaterialCode != null) {
+                                sampleIdentifier = "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + oldPropertyMaterialCode;
+                            }
+                            boolean notUpdated = sampleIdentifier != null && !isSampleAssigned(holder, newPropertySampleCode, sampleIdentifier);
+                            if (notUpdated) {
+                                if (holder instanceof Sample) {
+                                    SampleUpdate update = new SampleUpdate();
+                                    update.setSampleId(((Sample) holder).getPermId());
+                                    update.setProperty(newPropertySampleCode, sampleIdentifier);
+                                    updates.add(update);
+                                } else if (holder instanceof Experiment) {
+                                    ExperimentUpdate update = new ExperimentUpdate();
+                                    update.setExperimentId(((Experiment) holder).getPermId());
+                                    update.setProperty(newPropertySampleCode, sampleIdentifier);
+                                    updates.add(update);
+                                } else if (holder instanceof DataSet) {
+                                    DataSetUpdate update = new DataSetUpdate();
+                                    update.setDataSetId(((DataSet) holder).getPermId());
+                                    update.setProperty(newPropertySampleCode, sampleIdentifier);
+                                    updates.add(update);
+                                }
+                            } else {
+                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " skip: " + count + " / " + total);
+                            }
+                        }
+
+                        if (!updates.isEmpty()) {
+                            if (updates.get(0) instanceof SampleUpdate) {
+                                v3.updateSamples(sessionToken, updates);
+                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                            } else if (updates.get(0) instanceof ExperimentUpdate) {
+                                v3.updateExperiments(sessionToken, updates);
+                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                            } else if (updates.get(0) instanceof DataSetUpdate) {
+                                v3.updateDataSets(sessionToken, updates);
+                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void updateAssignedPropertyTypesMandatoryFields(String sessionToken, IApplicationServerApi v3, List<IEntityTypeUpdate> makeMandatory) {
+//        info("updateAssignedPropertyTypesMandatoryFields","start");
+//        for (IEntityTypeUpdate entityTypeUpdate:makeMandatory) {
+//            Collection<PropertyAssignmentCreation> propertyAssignmentCreations = entityTypeUpdate.getPropertyAssignments().getAdded();
+//            for (PropertyAssignmentCreation propertyAssignmentCreation:propertyAssignmentCreations) {
+//                propertyAssignmentCreation.setMandatory(true);
+//            }
+//
+//            if(entityTypeUpdate instanceof SampleTypeUpdate) {
+//                v3.updateSampleTypes(sessionToken, List.of((SampleTypeUpdate) entityTypeUpdate));
+//            } else if(entityTypeUpdate instanceof ExperimentTypeUpdate) {
+//                v3.updateExperimentTypes(sessionToken, List.of((ExperimentTypeUpdate) entityTypeUpdate));
+//            } else if(entityTypeUpdate instanceof DataSetTypeUpdate) {
+//                v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate) entityTypeUpdate));
+//            }
+//
+//        }
     }
 
     private static void doMaterialsMigrationDeleteOld(String sessionToken, IApplicationServerApi v3) throws Exception {
