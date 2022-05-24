@@ -420,7 +420,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSearchForSamplesByMetaprojectNameWithDifferentCase()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -468,6 +468,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEntities("[/TEST-SPACE/TEST-PROJECT/EV-TEST]", samples);
     }
 
+    @Test(enabled = false)
     public void testSearchForSamplesByMetaprojectIdentifierWithDifferentCase()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
