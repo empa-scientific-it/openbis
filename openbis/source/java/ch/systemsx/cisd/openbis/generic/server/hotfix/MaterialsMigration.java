@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.generic.server.hotfix;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -17,6 +18,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.PropertyAssignmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -459,7 +461,7 @@ public class MaterialsMigration {
                     int limit = BATCH_SIZE;
                     int total = -1;
                     while (offset < total || total == -1) {
-                        info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
+                        info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
                         SearchResult<? extends IPropertiesHolder> result = null;
                         List<? extends IPropertiesHolder> holders = null;
                         if (holderType instanceof SampleType) {
@@ -495,7 +497,7 @@ public class MaterialsMigration {
                             offset = total;
                         }
 
-                        info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found: " + offset + " / " + total);
+                        info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found: " + offset + " / " + total);
 
                         for (IPropertiesHolder holder : holders) {
                             count++;
@@ -531,20 +533,20 @@ public class MaterialsMigration {
                                     updates.add(update);
                                 }
                             } else {
-                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " skip: " + count + " / " + total);
+                                info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " skip: " + count + " / " + total);
                             }
                         }
 
                         if (updates.size() == BATCH_SIZE || (!updates.isEmpty() && offset == total)) {
                             if (updates.get(0) instanceof SampleUpdate) {
                                 v3.updateSamples(sessionToken, updates);
-                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                                info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
                             } else if (updates.get(0) instanceof ExperimentUpdate) {
                                 v3.updateExperiments(sessionToken, updates);
-                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                                info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
                             } else if (updates.get(0) instanceof DataSetUpdate) {
                                 v3.updateDataSets(sessionToken, updates);
-                                info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
+                                info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
                             }
                         }
                     }
@@ -554,22 +556,87 @@ public class MaterialsMigration {
     }
 
     private static void updateAssignedPropertyTypesMandatoryFields(String sessionToken, IApplicationServerApi v3, List<IEntityTypeUpdate> makeMandatory) {
-//        info("updateAssignedPropertyTypesMandatoryFields","start");
-//        for (IEntityTypeUpdate entityTypeUpdate:makeMandatory) {
-//            Collection<PropertyAssignmentCreation> propertyAssignmentCreations = entityTypeUpdate.getPropertyAssignments().getAdded();
-//            for (PropertyAssignmentCreation propertyAssignmentCreation:propertyAssignmentCreations) {
-//                propertyAssignmentCreation.setMandatory(true);
-//            }
-//
-//            if(entityTypeUpdate instanceof SampleTypeUpdate) {
-//                v3.updateSampleTypes(sessionToken, List.of((SampleTypeUpdate) entityTypeUpdate));
-//            } else if(entityTypeUpdate instanceof ExperimentTypeUpdate) {
-//                v3.updateExperimentTypes(sessionToken, List.of((ExperimentTypeUpdate) entityTypeUpdate));
-//            } else if(entityTypeUpdate instanceof DataSetTypeUpdate) {
-//                v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate) entityTypeUpdate));
-//            }
-//
-//        }
+        info("updateAssignedPropertyTypesMandatoryFields","start");
+        for (IEntityTypeUpdate entityTypeUpdate:makeMandatory) {
+
+            // Complete Entity Type
+            EntityTypePermId entityTypePermId = (EntityTypePermId) entityTypeUpdate.getTypeId();
+            IEntityType iEntityType = null;
+            switch (entityTypePermId.getEntityKind()) {
+                case EXPERIMENT:
+                    ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+                    experimentTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                    experimentTypeFetchOptions.withPropertyAssignments().withPlugin();
+                    iEntityType = v3.getExperimentTypes(sessionToken, List.of(entityTypePermId), experimentTypeFetchOptions).get(entityTypePermId);
+                    break;
+                case SAMPLE:
+                    SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+                    sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                    sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
+                    iEntityType = v3.getSampleTypes(sessionToken, List.of(entityTypePermId), sampleTypeFetchOptions).get(entityTypePermId);
+                    break;
+                case DATA_SET:
+                    DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+                    dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                    dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
+                    iEntityType = v3.getDataSetTypes(sessionToken, List.of(entityTypePermId), dataSetTypeFetchOptions).get(entityTypePermId);
+                    break;
+            }
+
+            // Entity Type properties to make mandatory
+            Collection<PropertyAssignmentCreation> propertyAssignmentCreations = entityTypeUpdate.getPropertyAssignments().getAdded();
+            List<PropertyTypePermId> mandatoryPropertyTypePermIds = new ArrayList<>();
+            for (PropertyAssignmentCreation propertyAssignmentCreation:propertyAssignmentCreations) {
+                mandatoryPropertyTypePermIds.add((PropertyTypePermId) propertyAssignmentCreation.getPropertyTypeId());
+            }
+
+            info("updateAssignedPropertyTypesMandatoryFields", entityTypeUpdate.getClass().getSimpleName() + "-" + entityTypeUpdate.getTypeId());
+            IEntityTypeUpdate typeUpdate = null;
+            if(entityTypeUpdate instanceof SampleTypeUpdate) {
+                typeUpdate = new SampleTypeUpdate();
+            } else if(entityTypeUpdate instanceof ExperimentTypeUpdate) {
+                typeUpdate = new ExperimentTypeUpdate();
+            } else if(entityTypeUpdate instanceof DataSetTypeUpdate) {
+                typeUpdate = new DataSetTypeUpdate();
+            }
+            typeUpdate.setTypeId(entityTypeUpdate.getTypeId());
+            typeUpdate.setDescription(entityTypeUpdate.getDescription().getValue());
+            if (entityTypeUpdate.getValidationPluginId() != null) {
+                typeUpdate.setValidationPluginId(entityTypeUpdate.getValidationPluginId().getValue());
+            }
+            List<PropertyAssignmentCreation> newPropertyAssignmentCreations = new ArrayList<>();
+            for (PropertyAssignment propertyAssignment:iEntityType.getPropertyAssignments()) {
+                PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
+                creation.setPropertyTypeId(propertyAssignment.getPropertyType().getPermId());
+                if (mandatoryPropertyTypePermIds.contains(propertyAssignment.getPropertyType().getPermId()) || propertyAssignment.isMandatory()) {
+                    creation.setMandatory(true);
+                }
+                creation.setOrdinal(propertyAssignment.getOrdinal());
+                if (propertyAssignment.getPlugin() != null) {
+                    creation.setPluginId(propertyAssignment.getPlugin().getPermId());
+                }
+                creation.setSection(propertyAssignment.getSection());
+                creation.setShowInEditView(propertyAssignment.isShowInEditView());
+                newPropertyAssignmentCreations.add(creation);
+            }
+
+            ListUpdateValue.ListUpdateActionSet<Object> set = new ListUpdateValue.ListUpdateActionSet<>();
+            set.setItems(newPropertyAssignmentCreations);
+
+            typeUpdate.setPropertyAssignmentActions(List.of(set));
+
+            if(typeUpdate instanceof SampleTypeUpdate) {
+                v3.updateSampleTypes(sessionToken, List.of((SampleTypeUpdate)typeUpdate));
+            } else if(typeUpdate instanceof ExperimentTypeUpdate) {
+                v3.updateExperimentTypes(sessionToken, List.of((ExperimentTypeUpdate)typeUpdate));
+            } else if(typeUpdate instanceof DataSetTypeUpdate) {
+                ((DataSetTypeUpdate)typeUpdate).setMainDataSetPath(((DataSetType)iEntityType).getMainDataSetPath());
+                ((DataSetTypeUpdate)typeUpdate).setMainDataSetPattern(((DataSetType)iEntityType).getMainDataSetPattern());
+                ((DataSetTypeUpdate)typeUpdate).setDisallowDeletion(((DataSetType)iEntityType).isDisallowDeletion());
+                v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate)typeUpdate));
+            }
+
+        }
     }
 
     private static void doMaterialsMigrationDeleteOld(String sessionToken, IApplicationServerApi v3) throws Exception {
