@@ -61,8 +61,58 @@ def process(context, parameters):
         result = getSamplesImportTemplate(context, parameters)
     elif method == "createSpace":
         result = createSpace(context, parameters)
+    elif method == "deleteSpace":
+        result = deleteSpace(context, parameters)
     return result
 
+def deleteSpace(context, parameters):
+    code = parameters.get("code")
+    reason = parameters.get("reason")
+    _deleteSpace(context, parameters, code, reason)
+    settingsSamples = _getAllSettingsSamples(context)
+    return _removeInventorySpace(context, settingsSamples, code)
+
+def _deleteSpace(context, parameters, code, reason):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete import SpaceDeletionOptions
+
+    options = SpaceDeletionOptions()
+    options.setReason(reason)
+    context.getApplicationService().deleteSpaces(context.getSessionToken(), [SpacePermId(code)], options)
+
+def _getAllSettingsSamples(context):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+
+    criteria = SampleSearchCriteria()
+    criteria.withType().withCode().thatEquals("GENERAL_ELN_SETTINGS")
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    return context.getApplicationService().searchSamples(context.getSessionToken(), criteria, fetchOptions).getObjects()
+
+def _removeInventorySpace(context, settingsSamples, code):
+    settingsUpdated = False
+    for settingsSample in settingsSamples:
+        print("SAMPLE:%s" % settingsSample.getIdentifier())
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is not None:
+            print("SETTINGS:%s" % settings)
+            settings = json.loads(settings)
+            print("SPACES: %s, %s" % (settings["inventorySpaces"], code))
+            removed = _removeFromList(settings["inventorySpaces"], code)
+            print("CONTAINED:",removed)
+            removed = removed or _removeFromList(settings["inventorySpacesReadOnly"], code)
+            if removed:
+                settingsUpdated = True
+                _updateSettings(context, settingsSample, settings)
+    return settingsUpdated
+
+def _removeFromList(list, element):
+    if list and element in list:
+        list.remove(element)
+        return True
+    return False
+    
 def createSpace(context, parameters):
     group = parameters.get("group")
     code = parameters.get("postfix")
@@ -82,7 +132,7 @@ def createSpace(context, parameters):
         spaces = settings["inventorySpacesReadOnly" if isReadOnly else "inventorySpaces"]
         if not code in spaces:
             spaces.append(code)
-            _updateSettings(context, parameters, settingsSample, settings)
+            _updateSettings(context, settingsSample, settings)
             reloadNeeded = True
         if group:
             _addAuthorizations(context, parameters, group, code, isReadOnly)
@@ -115,7 +165,7 @@ def _getSettingsSample(context, parameters, group):
         raise UserFailureException("No settings sample for %s" % settingsIdentifier)
     return settingsSample
 
-def _updateSettings(context, parameters, settingsSample, settings):
+def _updateSettings(context, settingsSample, settings):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update import SampleUpdate
 
     sampleUpdate = SampleUpdate()

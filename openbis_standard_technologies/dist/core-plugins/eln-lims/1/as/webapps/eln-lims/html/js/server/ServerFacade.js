@@ -134,6 +134,16 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.deleteSpace = function(code, reason, callback) {
+        this.customELNASAPI({
+            "method" : "deleteSpace",
+            "code" : code,
+            "reason" : reason,
+        }, function(result) {
+            callback(result);
+        });
+    }
+
     this.updateSamples = function(allowedSampleTypes, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",
