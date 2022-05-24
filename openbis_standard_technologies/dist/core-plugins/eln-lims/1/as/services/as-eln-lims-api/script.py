@@ -59,7 +59,82 @@ def process(context, parameters):
         result = importSamples(context, parameters)
     elif method == "getSamplesImportTemplate":
         result = getSamplesImportTemplate(context, parameters)
-    return result;
+    elif method == "createSpace":
+        result = createSpace(context, parameters)
+    return result
+
+def createSpace(context, parameters):
+    group = parameters.get("group")
+    code = parameters.get("postfix")
+    if group is not None and len(group) > 0:
+        code = "%s_%s" % (group, code)
+    print("CREATE SPACE:%s %s" % (code, parameters))
+    spaceIds = _createSpace(context, parameters, code)
+
+    reloadNeeded = False
+    if parameters.get("isInventory"):
+        settingsSample = _getSettingsSample(context, parameters, group)
+        settings = json.loads(settingsSample.getProperty("$ELN_SETTINGS"))
+        isReadOnly = parameters.get("isReadOnly")
+        spaces = settings["inventorySpacesReadOnly" if isReadOnly else "inventorySpaces"]
+        if not code in spaces:
+            spaces.append(code)
+            _updateSettings(context, parameters, settingsSample, settings)
+            reloadNeeded = True
+        if group:
+            _addAuthorizations(context, parameters, group, code, isReadOnly)
+    return {"spaceIds" : spaceIds, "reloadNeeded" : reloadNeeded}
+
+def _createSpace(context, parameters, code):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
+
+    spaceCreation = SpaceCreation()
+    description = parameters.get("description")
+    spaceCreation.setCode(code);
+    if description is not None:
+        spaceCreation.setDescription(description)
+    return context.getApplicationService().createSpaces(context.getSessionToken(), [spaceCreation])
+
+def _getSettingsSample(context, parameters, group):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+
+    settingsIdentifier = "/ELN_SETTINGS/GENERAL_ELN_SETTINGS"
+    if group:
+        settingsIdentifier = "/%s_ELN_SETTINGS/%s_ELN_SETTINGS" % (group, group)
+    settingsIdentifier = SampleIdentifier(settingsIdentifier)
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    sessionToken = context.getSessionToken()
+    api = context.getApplicationService()
+    settingsSample = api.getSamples(sessionToken, [settingsIdentifier], fetchOptions).get(settingsIdentifier)
+    if settingsSample is None:
+        raise UserFailureException("No settings sample for %s" % settingsIdentifier)
+    return settingsSample
+
+def _updateSettings(context, parameters, settingsSample, settings):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update import SampleUpdate
+
+    sampleUpdate = SampleUpdate()
+    sampleUpdate.setSampleId(settingsSample.getPermId())
+    sampleUpdate.setProperty("$ELN_SETTINGS", json.dumps(settings))
+    context.getApplicationService().updateSamples(context.getSessionToken(), [sampleUpdate])
+
+def _addAuthorizations(context, parameters, group, code, isReadOnly):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create import RoleAssignmentCreation
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id import AuthorizationGroupPermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import Role
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
+
+    creation = RoleAssignmentCreation()
+    creation.setAuthorizationGroupId(AuthorizationGroupPermId(group))
+    creation.setSpaceId(SpacePermId(code))
+    creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
+    creationAdmin = RoleAssignmentCreation()
+    creationAdmin.setAuthorizationGroupId(AuthorizationGroupPermId("%s_ADMIN" % group))
+    creationAdmin.setSpaceId(SpacePermId(code))
+    creationAdmin.setRole(Role.ADMIN)
+    context.getApplicationService().createRoleAssignments(context.getSessionToken(), [creation, creationAdmin])
 
 def getSamplesImportTemplate(context, parameters):
     from java.io import ByteArrayOutputStream

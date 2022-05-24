@@ -107,6 +107,19 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.registerSpace = function(group, postfix, isInventory, isReadOnly, description, callback) {
+        this.customELNASAPI({
+            "method" : "createSpace",
+            "group" : group,
+            "postfix" : postfix,
+            "isInventory" : isInventory,
+            "isReadOnly" : isReadOnly,
+            "description" : description,
+        }, function(result) {
+            callback(result);
+        });
+    }
+
     this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, barcodeValidationInfo, sessionKey, callback) {
         this.customELNASAPI({
             "method" : "importSamples",

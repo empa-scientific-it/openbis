@@ -41,6 +41,12 @@ function InventoryView(inventoryController, inventoryView) {
                     }
 	            }
 	            
+                if (profile.isAdmin) {
+                    var $createSpace = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+                        _this.inventoryController.createSpace();
+                    }, "New Inventory Space", null, "create-btn");
+                    toolbarModel.push({component : $createSpace});
+                }
 				//Export
 				var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
 				toolbarModel.push({ component : $exportAll });
