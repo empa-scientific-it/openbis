@@ -179,11 +179,9 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             ? DataType.TIMESTAMP : DataType.DATE;
                     final boolean bareDateValue = TranslatorUtils.isDateWithoutTime(value.getValue());
 
-                    sqlBuilder.append(CASE);
-                    DateFieldSearchConditionTranslator.appendWhenForDateOrTimestampProperties(sqlBuilder, args,
+                    DateFieldSearchConditionTranslator.appendConditionForDateOrTimestampProperties(sqlBuilder, args,
                             tableMapper, convertStringValueToDateValue(value), aliases, null, fullPropertyName,
                             entityTypesSubTableAlias, bareDateValue, dataType.toString());
-                    sqlBuilder.append(SP).append(END);
                     sqlBuilder.append(RP);
                     return;
                 }

@@ -67,6 +67,8 @@ public class SQLLexemes
 
     public static final String SAFE_DOUBLE = "safe_double";
 
+    public static final String SAFE_TIMESTAMP = "safe_timestamp";
+
     public static final String AT_TIME_ZONE = "AT TIME ZONE";
 
     public static final String SELECT = "SELECT";

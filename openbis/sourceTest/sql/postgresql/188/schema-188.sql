@@ -877,6 +877,14 @@ RETURN s::double precision;
 EXCEPTION WHEN OTHERS THEN
     RETURN NULL;
 END; $$;
+CREATE FUNCTION safe_timestamp(s text) RETURNS timestamp with time zone
+    LANGUAGE plpgsql STRICT
+    AS $$
+BEGIN
+RETURN s::timestamp with time zone;
+EXCEPTION WHEN OTHERS THEN
+    RETURN NULL;
+END; $$;
 CREATE FUNCTION sample_fill_code_unique_check() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
