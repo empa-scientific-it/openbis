@@ -5,8 +5,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringPropertySearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -19,7 +17,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.IEntityTypeUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.update.PropertyAssignmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -54,6 +51,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
@@ -74,6 +72,7 @@ import java.util.*;
 public class MaterialsMigration {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MaterialsMigration.class);
+    private static final int BATCH_SIZE = 10000;
     private static final String PREFIX = "MATERIAL.";
     private static final String SPACE_CODE = PREFIX + "GLOBAL";
     private static final String PROJECT_CODE = SPACE_CODE;
@@ -357,52 +356,67 @@ public class MaterialsMigration {
         }
     }
 
-    private static boolean isSample(String sessionToken, IApplicationServerApi v3, String sampleIdentifier) {
-        return !v3.getSamples(sessionToken, List.of(new SampleIdentifier(sampleIdentifier)), new SampleFetchOptions()).isEmpty();
+    private static Map<ISampleId, Sample> getSample(String sessionToken, IApplicationServerApi v3, List<Material> materials) {
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+        for (Material material:materials) {
+            SampleIdentifier sampleIdentifier = new SampleIdentifier("/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
+            sampleIdentifiers.add(sampleIdentifier);
+        }
+        return v3.getSamples(sessionToken, sampleIdentifiers, new SampleFetchOptions());
     }
 
     private static void createSamples(String sessionToken, IApplicationServerApi v3) {
         info("createSamples","start");
-        List<SampleCreation> sampleCreations = new ArrayList<>();
-        MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
-        materialFetchOptions.withProperties();
-        materialFetchOptions.withTags();
-        materialFetchOptions.withType();
-        materialFetchOptions.withMaterialProperties();
-        SearchResult<Material> materialSearchResult = v3.searchMaterials(sessionToken, new MaterialSearchCriteria(), materialFetchOptions);
         int count = 0;
-        int totalCount = materialSearchResult.getTotalCount();
+        int offset = 0;
+        int limit = BATCH_SIZE;
+        int total = -1;
+        while (offset < total || total == -1) {
+            info("createSamples", offset + "/" + total);
+            List<SampleCreation> sampleCreations = new ArrayList<>();
+            MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
+            materialFetchOptions.withProperties();
+            materialFetchOptions.withTags();
+            materialFetchOptions.withType();
+            materialFetchOptions.withMaterialProperties();
+            materialFetchOptions.from(offset).count(limit);
+            SearchResult<Material> materialSearchResult = v3.searchMaterials(sessionToken, new MaterialSearchCriteria(), materialFetchOptions);
 
-        for (Material material:materialSearchResult.getObjects()) {
-            count++;
-            if (isSample(sessionToken, v3, "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode())) {
-                info("createSamples","skip: " + count + "/" + totalCount + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
-                continue; // Skip already done migration step
+            total = materialSearchResult.getTotalCount();
+            if (offset + limit < total) {
+                offset += limit;
+            } else {
+                offset = total;
             }
-            SampleCreation sampleCreation = new SampleCreation();
-            sampleCreation.setSpaceId(new SpacePermId(SPACE_CODE));
-            sampleCreation.setExperimentId(new ExperimentIdentifier(SPACE_CODE, PROJECT_CODE, material.getType().getCode() + EXPERIMENT_POSTFIX));
-            sampleCreation.setTypeId(new EntityTypePermId(PREFIX + material.getType().getCode(), EntityKind.SAMPLE));
-            sampleCreation.setCode(material.getCode());
-            for (String propertyCode:material.getProperties().keySet()) {
-                if (material.getMaterialProperties().keySet().contains(propertyCode)) {
-                    // Convert material properties to sample properties is done later since this needs to be done for all Material properties of all entity types
-                } else {
-                    sampleCreation.setProperty(propertyCode, material.getProperty(propertyCode));
+
+            Map<ISampleId, Sample> samples = getSample(sessionToken, v3, materialSearchResult.getObjects());
+            for (Material material:materialSearchResult.getObjects()) {
+                count++;
+                if (samples.containsKey(new SampleIdentifier("/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode()))) {
+                    info("createSamples","skip: " + count + "/" + total + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
+                    continue; // Skip already done migration step
                 }
+                SampleCreation sampleCreation = new SampleCreation();
+                sampleCreation.setSpaceId(new SpacePermId(SPACE_CODE));
+                sampleCreation.setExperimentId(new ExperimentIdentifier(SPACE_CODE, PROJECT_CODE, material.getType().getCode() + EXPERIMENT_POSTFIX));
+                sampleCreation.setTypeId(new EntityTypePermId(PREFIX + material.getType().getCode(), EntityKind.SAMPLE));
+                sampleCreation.setCode(material.getCode());
+                for (String propertyCode:material.getProperties().keySet()) {
+                    if (material.getMaterialProperties().keySet().contains(propertyCode)) {
+                        // Convert material properties to sample properties is done later since this needs to be done for all Material properties of all entity types
+                    } else {
+                        sampleCreation.setProperty(propertyCode, material.getProperty(propertyCode));
+                    }
+                }
+                info("createSamples",count + "/" + total + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
+                sampleCreations.add(sampleCreation);
             }
-            info("createSamples",count + "/" + totalCount + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
-            sampleCreations.add(sampleCreation);
-            if (sampleCreations.size() == 1000) {
+            if (sampleCreations.size() == BATCH_SIZE || (!sampleCreations.isEmpty() && offset == total)) {
                 long start = System.currentTimeMillis();
-                info("createSamples","Insert batch of 1000");
+                info("createSamples","Insert batch of " + BATCH_SIZE);
                 v3.createSamples(sessionToken, sampleCreations);
-                sampleCreations.clear();
-                info("createSamples","Inserted batch of 1000 in " + (System.currentTimeMillis()-start) + " millis.");
+                info("createSamples","Inserted batch of " + BATCH_SIZE + " in " + (System.currentTimeMillis()-start) + " millis.");
             }
-        }
-        if (sampleCreations.size() > 0) {
-            v3.createSamples(sessionToken, sampleCreations);
         }
     }
 
@@ -436,15 +450,15 @@ public class MaterialsMigration {
 
     private static void assignSamplesToPropertiesForHolders(String sessionToken, IApplicationServerApi v3, List<? extends IPropertyAssignmentsHolder> holderTypes) {
         info("assignSamplesToPropertiesForHolders","start");
+        List updates = new ArrayList<>();
         for (IPropertyAssignmentsHolder holderType: holderTypes) {
             for (PropertyAssignment oldPropertyAssignment : holderType.getPropertyAssignments()) {
                 if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
                     int count = 0;
                     int offset = 0;
-                    int limit = 10000;
+                    int limit = BATCH_SIZE;
                     int total = -1;
-                    while (offset + limit < total || total == -1) {
-                        List updates = new ArrayList<>();
+                    while (offset < total || total == -1) {
                         info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
                         SearchResult<? extends IPropertiesHolder> result = null;
                         List<? extends IPropertiesHolder> holders = null;
@@ -477,6 +491,8 @@ public class MaterialsMigration {
                         holders = result.getObjects();
                         if (offset + limit < total) {
                             offset += limit;
+                        } else {
+                            offset = total;
                         }
 
                         info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found: " + offset + " / " + total);
@@ -519,7 +535,7 @@ public class MaterialsMigration {
                             }
                         }
 
-                        if (!updates.isEmpty()) {
+                        if (updates.size() == BATCH_SIZE || (!updates.isEmpty() && offset == total)) {
                             if (updates.get(0) instanceof SampleUpdate) {
                                 v3.updateSamples(sessionToken, updates);
                                 info("createAndAssignPropertyTypesNoMandatoryFieldsForHolder", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
