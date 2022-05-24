@@ -192,13 +192,13 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 var $fullCodeField = FormUtil._getInputField('text');
                 $fullCodeField.attr('disabled','disabled');
                 $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($fullCodeField, "Full Code"));
-                if (_this._spaceFormModel.isInventory) {
-                    var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory");
-                    $readOnlyField.change(function() {
-                        _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
-                    });
-                    $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($readOnlyField, "Read only"));
-                }
+            }
+            if (_this._spaceFormModel.isInventory) {
+                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory");
+                $readOnlyField.change(function() {
+                    _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
+                });
+                $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($readOnlyField, "Read only"));
             }
         }
         $identificationInfo.hide();

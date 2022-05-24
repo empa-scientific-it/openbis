@@ -68,13 +68,16 @@ def createSpace(context, parameters):
     code = parameters.get("postfix")
     if group is not None and len(group) > 0:
         code = "%s_%s" % (group, code)
-    print("CREATE SPACE:%s %s" % (code, parameters))
     spaceIds = _createSpace(context, parameters, code)
 
     reloadNeeded = False
     if parameters.get("isInventory"):
         settingsSample = _getSettingsSample(context, parameters, group)
-        settings = json.loads(settingsSample.getProperty("$ELN_SETTINGS"))
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is None:
+            raise UserFailureException("Settings %s not yet defined. Please, edit them first." 
+                                       % settingsSample.getIdentifier())
+        settings = json.loads(settings)
         isReadOnly = parameters.get("isReadOnly")
         spaces = settings["inventorySpacesReadOnly" if isReadOnly else "inventorySpaces"]
         if not code in spaces:
