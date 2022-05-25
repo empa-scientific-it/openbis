@@ -970,7 +970,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
 																			annotations,
-																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
+																			this._sampleFormModel.sample.spaceCode);
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
