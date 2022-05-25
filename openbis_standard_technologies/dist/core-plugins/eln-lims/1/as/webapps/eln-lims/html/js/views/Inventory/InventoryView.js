@@ -36,7 +36,8 @@ function InventoryView(inventoryController, inventoryView) {
 	            var labSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
 	                var space = spaces[i];
-                    if (Util.elementEndsWithArrayElement(space, profile.getSpaceEndingsForInventory)) {
+                    if(profile.isInventorySpace(space) && !space.endsWith("STOCK_CATALOG") 
+                            && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS")) {
                         labSpaces.push({ type: "SPACE", permId : space, expand : true });
                     }
 	            }

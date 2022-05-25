@@ -491,13 +491,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
         this.isInventorySpace = function(spaceCode) {
-            return Util.elementEndsWithArrayElement(spaceCode, this.inventorySpaces.concat(this.inventorySpacesReadOnly));
-        }
-
-        this.getSpaceEndingsForInventory = function() {
-            return this.inventorySpaces.concat(this.inventorySpacesReadOnly).filter(function (space) {
-                return !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS");
-            });
+            return this.inventorySpaces.includes(spaceCode) || this.inventorySpacesReadOnly.includes(spaceCode)
         }
 
 		this.isFileAuthenticationService = false;
