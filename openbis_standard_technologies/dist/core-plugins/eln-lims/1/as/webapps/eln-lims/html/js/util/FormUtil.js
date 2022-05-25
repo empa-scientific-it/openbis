@@ -243,7 +243,12 @@ var FormUtil = new function() {
 		return $storageBoxesDropDown;
 	}
 	
-	this.getDefaultStoragesDropDown = function(id, isRequired, callbackFunction) {
+	this.getDefaultStoragesDropDown = function(spaceCode, id, isRequired, callbackFunction) {
+	    var spaceGroupPrefix = null;
+	    if(spaceCode !== null) {
+	        spaceGroupPrefix = SettingsManagerUtils.getSpaceGroupPrefix(spaceCode);
+	    }
+
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
@@ -256,7 +261,11 @@ var FormUtil = new function() {
 			
 			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a Storage"));
 			for(var idx = 0; idx < storageConfigurations.length; idx++) {
-				var storageConfiguration = storageConfigurations[idx];
+			    var storageConfiguration = storageConfigurations[idx];
+			    var storageGroupPrefix = SettingsManagerUtils.getSpaceGroupPrefix(storageConfiguration.spaceCode);
+			    if(spaceGroupPrefix !== null && spaceGroupPrefix !== storageGroupPrefix) {
+			        continue;
+			    }
 				var label = null;
 				if(storageConfiguration.label) {
 					label = storageConfiguration.label;
