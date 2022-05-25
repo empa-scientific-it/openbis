@@ -355,12 +355,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             // Templates
             if(toolbarConfig.TEMPLATES && this._sampleFormModel.mode === FormMode.CREATE) {
                 var $templateBtn = FormUtil.getButtonWithIcon("glyphicon-list-alt", function() {
+                    var storageGroupPrefix = SettingsManagerUtils.getSpaceGroupPrefix(_this._sampleFormModel.sample.spaceCode);
+                    if(storageGroupPrefix == "GENERAL") {
+                        storageGroupPrefix = "";
+                    } else {
+                        storageGroupPrefix = storageGroupPrefix + "_";
+                    }
                     var criteria = {
                         entityKind : "SAMPLE",
                     	logicalOperator : "AND",
                         rules : {
-                            "1" : { type : "Experiment",  name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES_COLLECTION" },
-                            "2" : { type : "Project",     name : "ATTR.CODE", operator : "thatEndsWith", value : "TEMPLATES" },
+                            "1" : { type : "Experiment",  name : "ATTR.CODE", operator : "thatEquals", value : storageGroupPrefix + "TEMPLATES_COLLECTION" },
+                            "2" : { type : "Project",     name : "ATTR.CODE", operator : "thatEquals", value : storageGroupPrefix + "TEMPLATES" },
                             "3" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
                         }
                     }
