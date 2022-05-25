@@ -179,11 +179,9 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                             ? DataType.TIMESTAMP : DataType.DATE;
                     final boolean bareDateValue = TranslatorUtils.isDateWithoutTime(value.getValue());
 
-                    sqlBuilder.append(CASE);
-                    DateFieldSearchConditionTranslator.appendWhenForDateOrTimestampProperties(sqlBuilder, args,
+                    DateFieldSearchConditionTranslator.appendConditionForDateOrTimestampProperties(sqlBuilder, args,
                             tableMapper, convertStringValueToDateValue(value), aliases, null, fullPropertyName,
                             entityTypesSubTableAlias, bareDateValue, dataType.toString());
-                    sqlBuilder.append(SP).append(END);
                     sqlBuilder.append(RP);
                     return;
                 }
@@ -262,23 +260,11 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
                 if (casting != null)
                 {
-                    final boolean equalsToComparison = (value.getClass() == StringEqualToValue.class);
-                    if (equalsToComparison)
-                    {
-                        sqlBuilder.append(LOWER).append(LP);
-                    }
                     sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
                             .append(VALUE_COLUMN);
-                    if (equalsToComparison)
-                    {
-                        sqlBuilder.append(RP);
-                    }
 
-                    final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue())
-                            .toLowerCase();
-
-                    TranslatorUtils.appendStringComparatorOp(value.getClass(), strippedValue, useWildcards,
-                            sqlBuilder, args);
+                    TranslatorUtils.appendStringComparatorOp(value.getClass(),
+                            TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards, sqlBuilder, args);
                 } else
                 {
                     TranslatorUtils.translateStringComparison(aliases.get(tableMapper.getValuesTable()).getSubTableAlias(),

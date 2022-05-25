@@ -1102,7 +1102,7 @@ public class GlobalSearchCriteriaTranslator
             default:
             {
                 buildFullIdentifierConcatenationString(sqlBuilder, hasSpaces || hasProjects ? spaceTableAlias : null,
-                        hasProjects ? projectTableAlias : null, null, false);
+                        hasProjects ? projectTableAlias : null, null);
                 break;
             }
         }

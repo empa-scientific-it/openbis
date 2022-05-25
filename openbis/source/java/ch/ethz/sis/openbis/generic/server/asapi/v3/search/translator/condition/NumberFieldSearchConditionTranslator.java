@@ -17,21 +17,18 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AND;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.CASE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DOUBLE_COLON;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ELSE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.END;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.COMMA;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NOT_NULL;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.OR;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SAFE_DOUBLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.THEN;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHEN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SQ;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,7 +38,6 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractNumberValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
@@ -140,12 +136,9 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
         sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
                 .append(attributeTypesJoinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL).append(SP).append(AND).append(SP).append(LP);
+                .append(SP).append(IS_NOT_NULL);
 
-        if (value != null)
-        {
-            sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
-        }
+        sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         if (fullPropertyName != null)
         {
@@ -157,31 +150,22 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
             sqlBuilder.append(SP).append(AND);
         }
-        sqlBuilder.append(SP).append(LP);
 
-        sqlBuilder.append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
-        args.add(DataTypeCode.INTEGER.toString());
-
-        sqlBuilder.append(SP).append(OR).append(SP);
-
-        sqlBuilder.append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
-        args.add(DataTypeCode.REAL.toString());
-
-        sqlBuilder.append(RP);
+        sqlBuilder.append(SP).append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
+                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(IN).append(SP).append(LP)
+                .append(SQ).append(DataTypeCode.INTEGER).append(SQ).append(COMMA).append(SP)
+                .append(SQ).append(DataTypeCode.REAL).append(SQ)
+                .append(RP);
 
         if (value != null)
         {
-            sqlBuilder.append(SP).append(THEN).append(SP);
-            sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias())
-                    .append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(DOUBLE_COLON)
-                    .append(PSQLTypes.NUMERIC.toString()).append(SP);
+            sqlBuilder.append(SP).append(AND).append(SP).append(SAFE_DOUBLE).append(LP)
+                    .append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias())
+                    .append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(RP).append(SP);
             TranslatorUtils.appendNumberComparatorOp(value, sqlBuilder);
             args.add(value.getValue());
-
-            sqlBuilder.append(SP).append(ELSE).append(SP).append(false).append(SP).append(END);
         }
+
         sqlBuilder.append(RP);
     }
 

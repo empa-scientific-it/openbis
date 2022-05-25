@@ -87,7 +87,7 @@ public class CodeSearchConditionTranslator implements IConditionTranslator<Strin
             final String column = (tableMapper == TAG) ? NAME_COLUMN : CODE_COLUMN;
             sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD)
                     .append(column).append(SP);
-            TranslatorUtils.appendStringComparatorOp(valueClass, stringValue.toUpperCase(),
+            TranslatorUtils.appendStringComparatorOp(valueClass, stringValue,
                     useWildcards, sqlBuilder, args);
         }
     }

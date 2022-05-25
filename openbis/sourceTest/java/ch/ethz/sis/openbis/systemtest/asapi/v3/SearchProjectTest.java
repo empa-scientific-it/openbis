@@ -89,7 +89,7 @@ public class SearchProjectTest extends AbstractTest
     public void testSearchWithCodeThatEquals()
     {
         ProjectSearchCriteria criteria = new ProjectSearchCriteria();
-        criteria.withCode().thatEquals("test-PROJECT");
+        criteria.withCode().thatEquals("TEST-PROJECT");
         testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
