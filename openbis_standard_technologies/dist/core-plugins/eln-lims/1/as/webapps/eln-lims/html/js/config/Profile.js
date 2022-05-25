@@ -1242,14 +1242,10 @@ $.extend(DefaultProfile.prototype, {
 
         this.initUserManagementMaintenanceTaskConfig = function(callback) {
             var _this = this;
-            if (this.showUserManagementConfig) {
-                this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
-                    _this.userManagementMaintenanceTaskConfig = config;
-                    callback();
-                });
-            } else {
+            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                _this.userManagementMaintenanceTaskConfig = config;
                 callback();
-            }
+            });
         }
 
 		this.initDatasetTypeCodes = function(callback) {

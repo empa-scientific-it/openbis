@@ -93,14 +93,10 @@ def _getAllSettingsSamples(context):
 def _removeInventorySpace(context, settingsSamples, code):
     settingsUpdated = False
     for settingsSample in settingsSamples:
-        print("SAMPLE:%s" % settingsSample.getIdentifier())
         settings = settingsSample.getProperty("$ELN_SETTINGS")
         if settings is not None:
-            print("SETTINGS:%s" % settings)
             settings = json.loads(settings)
-            print("SPACES: %s, %s" % (settings["inventorySpaces"], code))
             removed = _removeFromList(settings["inventorySpaces"], code)
-            print("CONTAINED:",removed)
             removed = removed or _removeFromList(settings["inventorySpacesReadOnly"], code)
             if removed:
                 settingsUpdated = True
@@ -130,12 +126,11 @@ def createSpace(context, parameters):
         settings = json.loads(settings)
         isReadOnly = parameters.get("isReadOnly")
         spaces = settings["inventorySpacesReadOnly" if isReadOnly else "inventorySpaces"]
+        _addAuthorizations(context, parameters, group, code, isReadOnly, spaces)
         if not code in spaces:
             spaces.append(code)
             _updateSettings(context, settingsSample, settings)
             reloadNeeded = True
-        if group:
-            _addAuthorizations(context, parameters, group, code, isReadOnly)
     return {"spaceIds" : spaceIds, "reloadNeeded" : reloadNeeded}
 
 def _createSpace(context, parameters, code):
@@ -173,21 +168,53 @@ def _updateSettings(context, settingsSample, settings):
     sampleUpdate.setProperty("$ELN_SETTINGS", json.dumps(settings))
     context.getApplicationService().updateSamples(context.getSessionToken(), [sampleUpdate])
 
-def _addAuthorizations(context, parameters, group, code, isReadOnly):
+def _addAuthorizations(context, parameters, group, code, isReadOnly, spaces):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create import RoleAssignmentCreation
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id import AuthorizationGroupPermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id import PersonPermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import Role
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 
-    creation = RoleAssignmentCreation()
-    creation.setAuthorizationGroupId(AuthorizationGroupPermId(group))
-    creation.setSpaceId(SpacePermId(code))
-    creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
-    creationAdmin = RoleAssignmentCreation()
-    creationAdmin.setAuthorizationGroupId(AuthorizationGroupPermId("%s_ADMIN" % group))
-    creationAdmin.setSpaceId(SpacePermId(code))
-    creationAdmin.setRole(Role.ADMIN)
-    context.getApplicationService().createRoleAssignments(context.getSessionToken(), [creation, creationAdmin])
+    creations = []
+    if group:
+        creation = RoleAssignmentCreation()
+        creation.setAuthorizationGroupId(AuthorizationGroupPermId(group))
+        creation.setSpaceId(SpacePermId(code))
+        creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
+        creations.append(creation)
+        creationAdmin = RoleAssignmentCreation()
+        creationAdmin.setAuthorizationGroupId(AuthorizationGroupPermId("%s_ADMIN" % group))
+        creationAdmin.setSpaceId(SpacePermId(code))
+        creationAdmin.setRole(Role.ADMIN)
+        creations.append(creationAdmin)
+    elif spaces:
+        users = _getUsers(context, spaces)
+        for user in users:
+            creation = RoleAssignmentCreation()
+            creation.setUserId(PersonPermId(user))
+            creation.setSpaceId(SpacePermId(code))
+            creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
+            creations.append(creation)
+    if creations:
+        context.getApplicationService().createRoleAssignments(context.getSessionToken(), creations)
+
+def _getUsers(context, spaces):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import RoleAssignment
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions import RoleAssignmentFetchOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search import RoleAssignmentSearchCriteria
+
+    searchCriteria = RoleAssignmentSearchCriteria()
+    searchCriteria.withSpace().withCodes().thatIn(spaces)
+    fetchOptions = RoleAssignmentFetchOptions()
+    fetchOptions.withUser()
+    assignments = context.getApplicationService().searchRoleAssignments(
+        context.getSessionToken(), searchCriteria, fetchOptions).getObjects()
+    users = set()
+    for assignment in assignments:
+        user = assignment.getUser()
+        if user:
+            users.add(user.getUserId());
+    return users
 
 def getSamplesImportTemplate(context, parameters):
     from java.io import ByteArrayOutputStream
