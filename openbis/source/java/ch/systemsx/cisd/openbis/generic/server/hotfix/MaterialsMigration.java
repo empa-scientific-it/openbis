@@ -31,10 +31,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
@@ -43,9 +47,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -80,6 +86,8 @@ public class MaterialsMigration {
     private static final String EXPERIMENT_TYPE = "COLLECTION";
     private static final String EXPERIMENT_POSTFIX = "_COLLECTION";
     private static final String DESCRIPTION = "Used to hold objects instances from all migrated materials.";
+    private static final String REASON = "Materials Migration.";
+
 
     private static void info(String method, String message) {
         operationLog.info(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
@@ -416,7 +424,7 @@ public class MaterialsMigration {
                 long start = System.currentTimeMillis();
                 info("createSamples","Insert batch of " + BATCH_SIZE);
                 v3.createSamples(sessionToken, sampleCreations);
-                info("createSamples","Inserted batch of " + BATCH_SIZE + " in " + (System.currentTimeMillis()-start) + " millis.");
+                info("createSamples","Inserted batch of " + BATCH_SIZE + " in " + (System.currentTimeMillis()-start) + " millis");
             }
         }
     }
@@ -639,23 +647,150 @@ public class MaterialsMigration {
     }
 
     private static void doMaterialsMigrationDeleteOld(String sessionToken, IApplicationServerApi v3) throws Exception {
-        operationLog.info("doMaterialsMigrationDeleteOld");
-        unassignMaterials(sessionToken, v3);
-        removeMaterials(sessionToken, v3);
+        info("doMaterialsMigrationDeleteOld","");
+        unassignMaterialProperties(sessionToken, v3);
         removeMaterialProperties(sessionToken, v3);
+        removeMaterials(sessionToken, v3);
         removeMaterialTypes(sessionToken, v3);
     }
 
-    private static void unassignMaterials(String sessionToken, IApplicationServerApi v3) {
+    private static void unassignMaterialProperties(String sessionToken, IApplicationServerApi v3) {
+        info("unassignMaterialProperties","start");
+        SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<SampleType> sampleTypeSearchResult = v3.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+        unassignMaterialPropertiesForHolder(sessionToken, v3, sampleTypeSearchResult.getObjects());
+
+        ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
+        ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+        experimentTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        experimentTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<ExperimentType> experimentTypeSearchResult = v3.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
+        unassignMaterialPropertiesForHolder(sessionToken, v3, experimentTypeSearchResult.getObjects());
+
+        DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<DataSetType> dataTypeSearchResult = v3.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, dataSetTypeFetchOptions);
+        unassignMaterialPropertiesForHolder(sessionToken, v3, dataTypeSearchResult.getObjects());
+
+        MaterialTypeSearchCriteria materialTypeSearchCriteria = new MaterialTypeSearchCriteria();
+        MaterialTypeFetchOptions materialTypeFetchOptions = new MaterialTypeFetchOptions();
+        materialTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        materialTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<MaterialType> materialTypeSearchResult = v3.searchMaterialTypes(sessionToken, materialTypeSearchCriteria, materialTypeFetchOptions);
+        unassignMaterialPropertiesForHolder(sessionToken, v3, materialTypeSearchResult.getObjects());
     }
 
-    private static void removeMaterials(String sessionToken, IApplicationServerApi v3) {
-    }
-
-    private static void removeMaterialTypes(String sessionToken, IApplicationServerApi v3) {
+    private static void unassignMaterialPropertiesForHolder(String sessionToken, IApplicationServerApi v3, List<? extends IPropertyAssignmentsHolder> holderTypes) {
+        info("unassignMaterialPropertiesForHolder","start");
+        for (IPropertyAssignmentsHolder holderType: holderTypes) {
+            for (PropertyAssignment oldPropertyAssignment : holderType.getPropertyAssignments()) {
+                if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
+                    info("unassignMaterialPropertiesForHolder","removing" + oldPropertyAssignment.getPropertyType().getCode());
+                    ListUpdateValue.ListUpdateActionRemove remove = new ListUpdateValue.ListUpdateActionRemove<>();
+                    remove.setItems(List.of(oldPropertyAssignment.getPermId()));
+                    IEntityTypeUpdate update = null;
+                    if (holderType instanceof SampleType) {
+                        update = new SampleTypeUpdate();
+                        update.setTypeId(((SampleType) holderType).getPermId());
+                        update.setPropertyAssignmentActions(List.of(remove));
+                        update.getPropertyAssignments().setForceRemovingAssignments(true);
+                        v3.updateSampleTypes(sessionToken, List.of((SampleTypeUpdate) update));
+                    } else if (holderType instanceof ExperimentType) {
+                        update = new ExperimentTypeUpdate();
+                        update.setTypeId(((ExperimentType) holderType).getPermId());
+                        update.setPropertyAssignmentActions(List.of(remove));
+                        update.getPropertyAssignments().setForceRemovingAssignments(true);
+                        v3.updateExperimentTypes(sessionToken, List.of((ExperimentTypeUpdate) update));
+                    } else if (holderType instanceof DataSetType) {
+                        update = new DataSetTypeUpdate();
+                        update.setTypeId(((DataSetType) holderType).getPermId());
+                        update.setPropertyAssignmentActions(List.of(remove));
+                        update.getPropertyAssignments().setForceRemovingAssignments(true);
+                        v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate) update));
+                    } else if (holderType instanceof MaterialType) {
+                        update = new MaterialTypeUpdate();
+                        update.setTypeId(((MaterialType) holderType).getPermId());
+                        update.setPropertyAssignmentActions(List.of(remove));
+                        update.getPropertyAssignments().setForceRemovingAssignments(true);
+                        v3.updateMaterialTypes(sessionToken, List.of((MaterialTypeUpdate) update));
+                    }
+                }
+            }
+        }
     }
 
     private static void removeMaterialProperties(String sessionToken, IApplicationServerApi v3) {
+        info("removeMaterialProperties","");
+        SearchResult<PropertyType> propertyTypeSearchResult = v3.searchPropertyTypes(sessionToken, new PropertyTypeSearchCriteria(), new PropertyTypeFetchOptions());
+        List<PropertyTypePermId> materialPropertyTypes = new ArrayList<>();
+        for (PropertyType propertyType:propertyTypeSearchResult.getObjects()) {
+            if (propertyType.getDataType() == DataType.MATERIAL) {
+                materialPropertyTypes.add(propertyType.getPermId());
+            }
+        }
+        info("removeMaterialProperties", "Found material properties " + materialPropertyTypes);
+        PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
+        propertyTypeDeletionOptions.setReason(REASON);
+        v3.deletePropertyTypes(sessionToken, materialPropertyTypes, propertyTypeDeletionOptions);
+    }
+
+    private static void removeMaterials(String sessionToken, IApplicationServerApi v3) {
+        info("removeMaterials","start");
+        SearchResult<MaterialType> materialTypeSearchResult = v3.searchMaterialTypes(sessionToken, new MaterialTypeSearchCriteria(),  new MaterialTypeFetchOptions());
+        for (MaterialType materialType:materialTypeSearchResult.getObjects()) {
+            int count = 0;
+            int offset = 0;
+            int limit = BATCH_SIZE/10;
+            int total = -1;
+            while (offset < total || total == -1) {
+                MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+                criteria.withType().withCode().equals(materialType.getCode());
+                MaterialFetchOptions options = new MaterialFetchOptions();
+                options.from(offset).count(limit);
+                SearchResult<Material> materialSearchResult = v3.searchMaterials(sessionToken, criteria, options);
+                total = materialSearchResult.getTotalCount();
+                List<Material> materials = materialSearchResult.getObjects();
+                info("removeMaterials", materialType.getCode() + " " + total);
+                if (offset + limit < total) {
+                    offset += limit;
+                } else {
+                    offset = total;
+                }
+                List<MaterialPermId> deletePermIds = new ArrayList<>();
+                for (Material material:materials) {
+                    count++;
+                    deletePermIds.add(material.getPermId());
+
+                    if (deletePermIds.size() == limit || (!deletePermIds.isEmpty() && offset == total)) {
+                        MaterialDeletionOptions materialDeletionOptions = new MaterialDeletionOptions();
+                        materialDeletionOptions.setReason(REASON);
+                        long start = System.currentTimeMillis();
+                        info("removeMaterials", " removing " + options.getFrom() + " / " + offset + " of " + total);
+                        v3.deleteMaterials(sessionToken, deletePermIds, materialDeletionOptions);
+                        info("removeMaterials", " removed " + options.getFrom() + " / " + offset + " - using " + (System.currentTimeMillis() - start) + " millis");
+
+                    }
+                }
+            }
+        }
+     }
+
+    private static void removeMaterialTypes(String sessionToken, IApplicationServerApi v3) {
+        info("removeMaterialTypes","start");
+        SearchResult<MaterialType> materialTypeSearchResult = v3.searchMaterialTypes(sessionToken, new MaterialTypeSearchCriteria(),  new MaterialTypeFetchOptions());
+        List<EntityTypePermId> materialPermIds = new ArrayList<>();
+        for (MaterialType materialType:materialTypeSearchResult.getObjects()) {
+            materialPermIds.add(materialType.getPermId());
+        }
+        info("removeMaterialTypes","removing " + materialPermIds);
+        MaterialTypeDeletionOptions deletionOptions = new MaterialTypeDeletionOptions();
+        deletionOptions.setReason(REASON);
+        v3.deleteMaterialTypes(sessionToken, materialPermIds, deletionOptions);
     }
 
 }
