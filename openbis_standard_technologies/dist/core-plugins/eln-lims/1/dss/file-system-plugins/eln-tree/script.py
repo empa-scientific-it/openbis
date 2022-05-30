@@ -1,3 +1,4 @@
+import json
 import os
 
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
@@ -19,8 +20,6 @@ class Acceptor(object):
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
         self.hideSpaceEndingWith("STORAGE")
-        self.spaceEndingsBySection = {"Inventory": ["MATERIALS", "METHODS", "PUBLICATIONS"], 
-                                      "Stock" : ["STOCK_CATALOG", "STOCK_ORDERS"]}
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
@@ -28,21 +27,38 @@ class Acceptor(object):
     def hideSpaceEndingWith(self, spaceCodeEnding):
         self.endingsOfHiddenSpaces.append(spaceCodeEnding)
 
-    def acceptSpace(self, section, space):
+    def acceptSpace(self, section, inventorySpaces, mainMenues, space):
         code = space.getCode()
         for ending in self.endingsOfHiddenSpaces:
             if code.endswith(ending):
                 return False
-        if section in self.spaceEndingsBySection:
-            for ending in self.spaceEndingsBySection[section]:
-                if code.endswith(ending):
-                    return True
-            return False
-        for endings in self.spaceEndingsBySection.values():
-            for ending in endings:
-                if code.endswith(ending):
-                    return False
+        if section == "Lab Notebook":
+            return not code in inventorySpaces and not self._showStockSpace(code, mainMenues) \
+                and self._showItem(code, mainMenues, "LabNotebook")
+        elif section == "Inventory":
+            return code in inventorySpaces and not self._showStockSpace(code, mainMenues) \
+                and self._showItem(code, mainMenues, "Inventory")
+        elif section == "Stock":
+            return code in inventorySpaces and self._showStockSpace(code, mainMenues)
         return True
+
+    def _showStockSpace(self, code, mainMenues):
+        for ending in ["STOCK_CATALOG", "STOCK_ORDERS"]:
+            if code.endswith(ending):
+                return self._showItem(code, mainMenues, "Stock")
+        return False
+
+    def _showItem(self, code, mainMenues, item):
+        group = self._getGroupPrefix(code, mainMenues)
+        if group in mainMenues:
+            mainMenue = mainMenues[group]
+            showTerm = "show%s" % item
+            return mainMenue[showTerm] if showTerm in mainMenue else False
+        return False
+    
+    def _getGroupPrefix(self, code, mainMenues):
+        groups = filter(lambda group: code.startswith(group), mainMenues.keys())
+        return groups[0] if groups else "GENERAL"
 
     def hideExperimentType(self, typeCode):
         self.hiddenExperimentTypes[typeCode] = True
@@ -99,10 +115,29 @@ def listSpaces(section, acceptor, context):
     fetchOptions = SpaceFetchOptions()
     spaces = context.getApi().searchSpaces(context.getSessionToken(), SpaceSearchCriteria(), fetchOptions).getObjects()
     response = context.createDirectoryResponse()
+    inventorySpaces, mainMenues = getAllInventorySpacesAndMainMenues(context)
     for space in spaces:
-        if acceptor.acceptSpace(section, space):
+        if acceptor.acceptSpace(section, inventorySpaces, mainMenues, space):
             response.addDirectory(space.getCode(), space.getModificationDate())
     return response
+
+def getAllInventorySpacesAndMainMenues(context):
+    criteria = SampleSearchCriteria()
+    criteria.withType().withCode().thatEquals("GENERAL_ELN_SETTINGS")
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    settingsSamples = context.getApi().searchSamples(context.getSessionToken(), criteria, fetchOptions).getObjects()
+    spaces = set()
+    mainMenues = {}
+    for settingsSample in settingsSamples:
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is not None:
+            settings = json.loads(settings)
+            spaces.update(settings["inventorySpaces"])
+            spaces.update(settings["inventorySpacesReadOnly"])
+            if "mainMenu" in settings:
+                mainMenues[settingsSample.getCode().split("_ELN_SETTINGS")[0]] = settings["mainMenu"]
+    return (spaces, mainMenues)
 
 def listProjects(space, acceptor, context):
     searchCriteria = ProjectSearchCriteria()
