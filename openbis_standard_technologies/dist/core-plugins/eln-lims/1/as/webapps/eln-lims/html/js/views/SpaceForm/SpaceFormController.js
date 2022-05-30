@@ -64,37 +64,21 @@ function SpaceFormController(mainController, mode, isInventory, space) {
                 Util.showError("Code Missing.");
                 return;
             }
-            var postFixes = profile.getSpaceEndingsForInventory();
-            var postFix = this.getMatchIngPostfix(this._spaceFormModel.space, postFixes);
-            if (this._spaceFormModel.isInventory && postFix === null) {
-                Util.showError("Invalid inventory space code: The code has to end with one of the following post fixes: "
-                        + postFixes.join(", "));
-                return;
-            }
-            if (!this._spaceFormModel.isInventory && postFix !== null) {
-                Util.showError("Invalid space code: The code shouldn't end with " + postFix);
-                return;
-            }
-            
-            require(["as/dto/space/create/SpaceCreation"], function(SpaceCreation) {
-                var spaceCreation = new SpaceCreation();    
-                spaceCreation.setCode(_this._spaceFormModel.space);
-                if (_this._spaceFormModel.description) {
-                    spaceCreation.setDescription(_this._spaceFormModel.description);
-                }
-                _this._mainController.openbisV3.createSpaces([spaceCreation])
-                    .done(function(permIds) {
-                        Util.showSuccess("Space created", function() {
-                            _this._mainController.changeView("showSpacePage", permIds[0].getPermId());
-                            Util.unblockUI();
-                        });
-                        _this._mainController.sideMenu.refreshCurrentNode();
-                    })
-                    .fail(function(error) {
-                        Util.showFailedServerCallError(error);
+            var groupPrefix = this._spaceFormModel.prefix;
+            var isInventorySpace = this._spaceFormModel.isInventory;
+            var isReadOnly = this._spaceFormModel.isReadOnly;
+            this._mainController.serverFacade.registerSpace(groupPrefix, this._spaceFormModel.postfix,
+                    isInventorySpace, isReadOnly, this._spaceFormModel.description, 
+                function(result) {
+                    Util.showSuccess("Space created", function() {
+                        _this._mainController.changeView("showSpacePage", result.spaceIds[0].getPermId());
+                        if (result.reloadNeeded) {
+                            Util.reloadApplication("Application will be reloaded because the settings have changed.");
+                         }
                         Util.unblockUI();
                     });
-            });
+                    _this._mainController.sideMenu.refreshCurrentNode();
+                });
         } else { // update
             require(["as/dto/space/update/SpaceUpdate"], function(SpaceUpdate) {
                 var spaceUpdate = new SpaceUpdate();
@@ -119,30 +103,43 @@ function SpaceFormController(mainController, mode, isInventory, space) {
     }
     
     this.deleteSpace = function(reason) {
-        var _this = this;
-        require(["as/dto/space/delete/SpaceDeletionOptions" ], function(SpaceDeletionOptions) {
-            var options = new SpaceDeletionOptions();
-            options.setReason(reason);
-            var spaceId = _this._spaceFormModel.v3_space.getPermId()
-            _this._mainController.openbisV3.deleteSpaces([spaceId], options)
-                .done(function(deletionId) {
-                    Util.showSuccess("Space Deleted");
-                    mainController.sideMenu.deleteNodeByEntityPermId(spaceId.getPermId(), true);
-                })
-                .fail(function(error) {
-                    Util.showFailedServerCallError(error);
-                    Util.unblockUI();
-                });
+        var spaceCode = this._spaceFormModel.space;
+        this._mainController.serverFacade.deleteSpace(spaceCode, reason, function(updated) {
+            Util.showSuccess("Space Deleted");
+            mainController.sideMenu.deleteNodeByEntityPermId(spaceCode, true);
+            if (updated) {
+                Util.reloadApplication("Application will be reloaded because the settings have changed.");
+            }
         });
     }
 
-    this.getMatchIngPostfix = function(code, postfixes) {
-        for(var iIdx = 0; iIdx < postfixes.length; iIdx++) {
-            if(code.endsWith(postfixes[iIdx])) {
-                return postfixes[iIdx];
-            }
+    this.getAllGroupPrefixes = function() {
+        var config = this._mainController.profile.userManagementMaintenanceTaskConfig;
+        if (config) {
+            return JSON.parse(config).groups.map(def => def.key.toUpperCase());
         }
-        return null;
+        return [];
     }
 
+    this.setPrefix = function(prefix) {
+        this._spaceFormModel.prefix = prefix;
+        this._createCode();
+    }
+
+    this.setPostfix = function(postfix) {
+        this._spaceFormModel.postfix = postfix;
+        this._createCode();
+    }
+    
+    this._createCode = function() {
+        var prefix = this._spaceFormModel.prefix;
+        if (prefix.length > 0) {
+            prefix += "_";
+        }
+        var postfix = this._spaceFormModel.postfix;
+        if (postfix) {
+            this._spaceFormModel.space = prefix + postfix;
+            this._spaceFormModel.isFormDirty = true;
+        }
+    }
 }

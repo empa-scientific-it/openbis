@@ -83,19 +83,18 @@ public class TranslatorUtils
             final AbstractStringValue value, final boolean useWildcards, final PSQLTypes casting,
             final StringBuilder sqlBuilder, final List<Object> args)
     {
-        sqlBuilder.append(LOWER).append(LP);
         if (tableAlias != null)
         {
             sqlBuilder.append(tableAlias).append(PERIOD);
         }
-        sqlBuilder.append(columnName).append(RP);
+        sqlBuilder.append(columnName);
         if (casting != null)
         {
             sqlBuilder.append(DOUBLE_COLON).append(casting);
         }
 
-        final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue()).toLowerCase();
-        appendStringComparatorOp(value.getClass(), strippedValue, useWildcards, sqlBuilder, args);
+        appendStringComparatorOp(value.getClass(), TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards,
+                sqlBuilder, args);
     }
 
     public static void appendStringComparatorOp(final AbstractStringValue value, final boolean useWildcards,
@@ -683,21 +682,20 @@ public class TranslatorUtils
     /**
      * Appends one of the the following texts to {@code sqlBuilder} depending on the value of {@code samplesTableAlias}. If it is {@code null} the second
      * version will be appended.
-     *
      * <pre>
      *     '/' || coalesce([spacesTableAlias].code || '/', '') || coalesce([projectsTableAlias].code || '/', '') || coalesce([samplesTableAlias].code || ':', '') || t0.code
      * </pre>
      * <pre>
      *     '/' || coalesce([spacesTableAlias].code || '/', '') || coalesce([projectsTableAlias].code || '/', '') || t0.code
      * </pre>
-     * @param sqlBuilder query builder.
-     * @param spacesTableAlias alias of the spaces table.
+     *
+     * @param sqlBuilder         query builder.
+     * @param spacesTableAlias   alias of the spaces table.
      * @param projectsTableAlias alias of the projects table.
-     * @param samplesTableAlias alias of the samples table, {@code null} indicates that the table should not be included.
-     * @param useLowerCase
+     * @param samplesTableAlias  alias of the samples table, {@code null} indicates that the table should not be included.
      */
     public static void buildFullIdentifierConcatenationString(final StringBuilder sqlBuilder, final String spacesTableAlias,
-            final String projectsTableAlias, final String samplesTableAlias, final boolean useLowerCase)
+            final String projectsTableAlias, final String samplesTableAlias)
     {
         final String slash = "/";
         final String colon = ":";
@@ -705,53 +703,34 @@ public class TranslatorUtils
 
         if (spacesTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, spacesTableAlias, slash, useLowerCase);
+            appendCoalesce(sqlBuilder, spacesTableAlias, slash);
         }
         if (projectsTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, projectsTableAlias, slash, useLowerCase);
+            appendCoalesce(sqlBuilder, projectsTableAlias, slash);
         }
         if (samplesTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, samplesTableAlias, colon, useLowerCase);
+            appendCoalesce(sqlBuilder, samplesTableAlias, colon);
         }
 
-        if (useLowerCase)
-        {
-            sqlBuilder.append(SP).append(LOWER).append(LP);
-        }
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
-        if (useLowerCase)
-        {
-            sqlBuilder.append(RP);
-        }
     }
 
     /**
      * Appends the following text to sqlBuilder.
-     *
      * <pre>
      *     coalesce([alias].code || '[separator]', '') ||
      * </pre>
+     *
      * @param sqlBuilder query builder.
-     * @param alias alias of the table.
-     * @param separator string to be appender at the end in the first parameter.
-     * @param useLowerCase whether to convert search column to lower case.
+     * @param alias      alias of the table.
+     * @param separator  string to be appender at the end in the first parameter.
      */
-    private static void appendCoalesce(final StringBuilder sqlBuilder, final String alias, final String separator,
-            final boolean useLowerCase)
+    private static void appendCoalesce(final StringBuilder sqlBuilder, final String alias, final String separator)
     {
-        sqlBuilder.append(SP).append(COALESCE).append(LP);
-        if (useLowerCase)
-        {
-            sqlBuilder.append(LOWER).append(LP);
-        }
-        sqlBuilder.append(alias).append(PERIOD).append(CODE_COLUMN);
-        if (useLowerCase)
-        {
-            sqlBuilder.append(RP);
-        }
-        sqlBuilder.append(SP).append(BARS).append(SP)
+        sqlBuilder.append(SP).append(COALESCE).append(LP).append(alias).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(BARS).append(SP)
                 .append(SQ).append(separator).append(SQ).append(COMMA).append(SP).append(SQ).append(SQ).append(RP)
                 .append(SP).append(BARS);
     }

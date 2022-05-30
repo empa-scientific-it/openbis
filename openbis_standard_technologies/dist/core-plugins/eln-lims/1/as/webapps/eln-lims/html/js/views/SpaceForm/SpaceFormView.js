@@ -161,7 +161,20 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
             var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", 
                    Util.getFormatedDate(new Date(space.registrationDate)));
             $identificationInfo.append($registationDate);
-        } else {
+        } else { // FormMode.CREATE
+            var groupPrefixes = this._spaceFormController.getAllGroupPrefixes();
+            if (groupPrefixes.length > 0) {
+                var values = [{label:"(no group)", value:"", selected:true}];
+                groupPrefixes.forEach(p => values.push({label:p, value:p}));
+                var $prefixDropdown = FormUtil.getDropdown(values, "Select group");
+                $prefixDropdown.on("change", function() {
+                    _this._spaceFormController.setPrefix(this.value);
+                    if ($fullCodeField) {
+                        $fullCodeField.val(_this._spaceFormModel.space);
+                    }
+                });
+                $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($prefixDropdown, "Group"));
+            }
             var $textField = FormUtil._getInputField('text', "space-code-id", "Space Code", null, true);
             $textField.keyup(function(event){
                 var textField = $(this);
@@ -169,10 +182,24 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 textField.val(textField.val().toUpperCase());
                 this.selectionStart = caretPosition;
                 this.selectionEnd = caretPosition;
-                _this._spaceFormModel.space = textField.val();
-                _this._spaceFormModel.isFormDirty = true;
+                _this._spaceFormController.setPostfix(textField.val());
+                if ($fullCodeField) {
+                    $fullCodeField.val(_this._spaceFormModel.space);
+                }
             });
             $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+            if (groupPrefixes.length > 0) {
+                var $fullCodeField = FormUtil._getInputField('text');
+                $fullCodeField.attr('disabled','disabled');
+                $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($fullCodeField, "Full Code"));
+            }
+            if (_this._spaceFormModel.isInventory) {
+                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory");
+                $readOnlyField.change(function() {
+                    _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
+                });
+                $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($readOnlyField, "Read only"));
+            }
         }
         $identificationInfo.hide();
         return $identificationInfo;
@@ -224,6 +251,6 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
     };
     this._allowedToDeleteSpace = function() {
         var space = this._spaceFormModel.v3_space;
-        return (space.frozen == false && profile.isAdmin && profile.inventorySpacesReadOnlyPostFixes.indexOf(space.code) < 0) && this._allowedToEditSpace();
+        return (space.frozen == false && profile.isAdmin && profile.inventorySpacesReadOnly.indexOf(space.code) < 0) && this._allowedToEditSpace();
     };
 }

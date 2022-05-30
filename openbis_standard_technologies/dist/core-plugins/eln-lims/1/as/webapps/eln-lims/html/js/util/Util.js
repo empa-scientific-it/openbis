@@ -21,6 +21,11 @@
  */
 var Util = new function() {
 	
+    this.reloadApplication = function(popupMessage) {
+        alert(popupMessage);
+        window.location.reload();
+    }
+
 	//
 	// Methods to block user input
 	//

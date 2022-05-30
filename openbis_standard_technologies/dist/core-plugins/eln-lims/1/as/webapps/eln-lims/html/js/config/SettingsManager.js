@@ -1,25 +1,18 @@
 var SettingsManagerUtils = new function() {
     this._instanceSettings = null;
 
-    this._getSpaceGroupPrefix = function(spaceCode) {
-        var endOf = spaceCode.indexOf("_");
-        var prefix = null;
-
-        if(endOf === -1) {
-            prefix = "GENERAL";
-        } else {
-            prefix = spaceCode.substring(0, endOf);
+    this.getSpaceGroupPrefix = function(spaceCode) {
+        if (this._instanceSettings) {
+            groups = Object.keys(this._instanceSettings).filter(group => spaceCode.startsWith(group));
+            if (groups.length > 0) {
+                return groups[0];
+            }
         }
-
-        if(this._instanceSettings[prefix] === undefined) {
-            prefix = "GENERAL";
-        }
-
-        return prefix;
+        return "GENERAL";
     }
 
     this._getSpaceSettingsObject = function(spaceCode) {
-        return this._instanceSettings[this._getSpaceGroupPrefix(spaceCode)];
+        return this._instanceSettings[this.getSpaceGroupPrefix(spaceCode)];
     }
 
     this.ShowInSpaceSetting = {
@@ -35,7 +28,7 @@ var SettingsManagerUtils = new function() {
         }
         var initialGroupSettings = spaceSettings && Object.keys(spaceSettings).length == 2 && spaceSettings["inventorySpaces"] && spaceSettings["inventorySpacesReadOnly"];
         if(!spaceSettingsProperty || initialGroupSettings) { // Provide default empty settings when settings are missing
-            alert("Settings for group " + this._getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
+            alert("Settings for group " + this.getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
             spaceSettings = {
                 sampleTypeDefinitionsExtension : []
             };

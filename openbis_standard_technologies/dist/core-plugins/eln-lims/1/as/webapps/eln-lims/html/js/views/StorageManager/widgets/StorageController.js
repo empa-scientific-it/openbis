@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-function StorageController(configOverride) {
+function StorageController(configOverride, spaceCode) {
 	//Pointer to himself
 	var _this = this;
 	
 	//This controller M/V
-	this._storageModel = new StorageModel(configOverride);
+	this._storageModel = new StorageModel(configOverride, spaceCode);
 	
 	//Dependent widgets
 	

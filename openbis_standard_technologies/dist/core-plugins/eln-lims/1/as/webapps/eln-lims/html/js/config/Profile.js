@@ -491,13 +491,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
         this.isInventorySpace = function(spaceCode) {
-            return Util.elementEndsWithArrayElement(spaceCode, this.inventorySpaces.concat(this.inventorySpacesReadOnly));
-        }
-
-        this.getSpaceEndingsForInventory = function() {
-            return this.inventorySpaces.concat(this.inventorySpacesReadOnly).filter(function (space) {
-                return !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS");
-            });
+            return this.inventorySpaces.includes(spaceCode) || this.inventorySpacesReadOnly.includes(spaceCode)
         }
 
 		this.isFileAuthenticationService = false;
@@ -1242,14 +1236,10 @@ $.extend(DefaultProfile.prototype, {
 
         this.initUserManagementMaintenanceTaskConfig = function(callback) {
             var _this = this;
-            if (this.showUserManagementConfig) {
-                this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
-                    _this.userManagementMaintenanceTaskConfig = config;
-                    callback();
-                });
-            } else {
+            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                _this.userManagementMaintenanceTaskConfig = config;
                 callback();
-            }
+            });
         }
 
 		this.initDatasetTypeCodes = function(callback) {

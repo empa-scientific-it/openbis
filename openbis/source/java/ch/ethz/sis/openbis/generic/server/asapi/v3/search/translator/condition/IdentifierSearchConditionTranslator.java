@@ -31,7 +31,6 @@ import java.util.Map;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdentifierSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
@@ -77,15 +76,12 @@ public class IdentifierSearchConditionTranslator implements IConditionTranslator
 
         if (tableMapper != TableMapper.SAMPLE)
         {
-            buildFullIdentifierConcatenationString(sqlBuilder, spacesTableAlias, projectsTableAlias, samplesTableAlias,
-                    true);
+            buildFullIdentifierConcatenationString(sqlBuilder, spacesTableAlias, projectsTableAlias, samplesTableAlias);
         } else
         {
-            sqlBuilder.append(LOWER).append(LP).append(MAIN_TABLE_ALIAS).append(PERIOD)
-                    .append(SAMPLE_IDENTIFIER_COLUMN).append(RP);
+            sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN);
         }
-        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue().toLowerCase(), useWildcards,
-                sqlBuilder, args);
+        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue(), useWildcards, sqlBuilder, args);
     }
 
 }

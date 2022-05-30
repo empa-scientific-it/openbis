@@ -193,7 +193,6 @@ function StorageListView(storageListController, storageListModel) {
 		var containerButtons = "<a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>";
 			
 		Util.blockUI(container, css);
-		
 		var storageController = new StorageController({
 			title : "Physical Storage",
 			storagePropertyGroupSelector : "off",
@@ -210,7 +209,7 @@ function StorageListView(storageListController, storageListModel) {
 			boxPositionMultiple: "on",
 			positionDragAndDropEnabled: "off",
 			storageId : "storage-drop-down-id"
-		});
+		}, this._storageListModel.sample.spaceCode);
 		
 		var storagePropGroup = profile.getStoragePropertyGroup();
 		storageController.getModel().storagePropertyGroup = storagePropGroup;

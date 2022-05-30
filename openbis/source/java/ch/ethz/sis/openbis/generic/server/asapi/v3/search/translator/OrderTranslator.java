@@ -402,7 +402,7 @@ public class OrderTranslator
                 buildFullIdentifierConcatenationString(sqlBuilder,
                         (spacesTableAlias != null) ? spacesTableAlias.getSubTableAlias() : null,
                         (projectsTableAlias != null) ? projectsTableAlias.getSubTableAlias() : null,
-                        (entitiesTableAlias != null) ? entitiesTableAlias.getSubTableAlias() : null, false);
+                        (entitiesTableAlias != null) ? entitiesTableAlias.getSubTableAlias() : null);
             } else
             {
                 sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN);

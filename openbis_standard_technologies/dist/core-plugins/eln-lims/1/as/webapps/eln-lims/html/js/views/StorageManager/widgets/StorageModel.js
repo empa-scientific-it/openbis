@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function StorageModel(configOverride) {
+function StorageModel(configOverride, spaceCode) {
+    this.spaceCode = spaceCode;
 	if(configOverride) {
 		this.config = configOverride;
 	} else { //Default configuration, not used anywhere, given as example
