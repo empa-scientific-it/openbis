@@ -72,11 +72,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.task.AbstractMaintenanceTask;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 
-public class MaterialsMigration {
+public class MaterialsMigration extends AbstractMaintenanceTask {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MaterialsMigration.class);
     private static final int BATCH_SIZE = 10000;
@@ -88,6 +89,23 @@ public class MaterialsMigration {
     private static final String DESCRIPTION = "Used to hold objects instances from all migrated materials.";
     private static final String REASON = "Materials Migration.";
 
+    private static boolean doMaterialsMigrationInsertNew = false;
+    private static boolean doMaterialsMigrationDeleteOld = false;
+
+    public MaterialsMigration(boolean configMandatory) {
+        super(true);
+    }
+    
+    @Override
+    protected void setUpSpecific(Properties properties) {
+        doMaterialsMigrationInsertNew = Boolean.valueOf(properties.getProperty("doMaterialsMigrationInsertNew", Boolean.TRUE.toString()));
+        doMaterialsMigrationDeleteOld = Boolean.valueOf(properties.getProperty("doMaterialsMigrationDeleteOld", Boolean.TRUE.toString()));
+    }
+
+    @Override
+    public void execute() {
+
+    }
 
     private static void info(String method, String message) {
         operationLog.info(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
