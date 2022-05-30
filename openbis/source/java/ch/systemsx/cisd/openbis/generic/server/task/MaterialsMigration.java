@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.server.hotfix;
+package ch.systemsx.cisd.openbis.generic.server.task;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -68,11 +68,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.task.AbstractMaintenanceTask;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -89,22 +89,38 @@ public class MaterialsMigration extends AbstractMaintenanceTask {
     private static final String DESCRIPTION = "Used to hold objects instances from all migrated materials.";
     private static final String REASON = "Materials Migration.";
 
-    private static boolean doMaterialsMigrationInsertNew = false;
-    private static boolean doMaterialsMigrationDeleteOld = false;
+    private static Boolean doMaterialsMigrationInsertNew = null;
+    private static Boolean doMaterialsMigrationDeleteOld = null;
 
-    public MaterialsMigration(boolean configMandatory) {
+    public MaterialsMigration() {
         super(true);
     }
-    
+
     @Override
     protected void setUpSpecific(Properties properties) {
-        doMaterialsMigrationInsertNew = Boolean.valueOf(properties.getProperty("doMaterialsMigrationInsertNew", Boolean.TRUE.toString()));
-        doMaterialsMigrationDeleteOld = Boolean.valueOf(properties.getProperty("doMaterialsMigrationDeleteOld", Boolean.TRUE.toString()));
+
+    }
+
+    @Override
+    public void setUp(String pluginName, Properties properties)
+    {
+        if (properties.getProperty("doMaterialsMigrationInsertNew") == null) {
+            throw new ConfigurationFailureException("Configuration property doMaterialsMigrationInsertNew missing.");
+        }
+        doMaterialsMigrationInsertNew = Boolean.valueOf(properties.getProperty("doMaterialsMigrationInsertNew", Boolean.FALSE.toString()));
+        if (properties.getProperty("doMaterialsMigrationDeleteOld") == null) {
+            throw new ConfigurationFailureException("Configuration property doMaterialsMigrationDeleteOld missing.");
+        }
+        doMaterialsMigrationDeleteOld = Boolean.valueOf(properties.getProperty("doMaterialsMigrationDeleteOld", Boolean.FALSE.toString()));
     }
 
     @Override
     public void execute() {
-
+        try {
+            doMaterialsMigration();
+        } catch (Exception e) {
+            operationLog.error(MaterialsMigration.class.getSimpleName(), e);
+        }
     }
 
     private static void info(String method, String message) {
@@ -127,8 +143,12 @@ public class MaterialsMigration extends AbstractMaintenanceTask {
         info("doMaterialsMigration","start");
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
         String sessionToken = v3.loginAsSystem();
-        doMaterialsMigrationInsertNew(sessionToken, v3);
-        doMaterialsMigrationDeleteOld(sessionToken, v3);
+        if (doMaterialsMigrationInsertNew) {
+            doMaterialsMigrationInsertNew(sessionToken, v3);
+        }
+        if (doMaterialsMigrationDeleteOld) {
+            doMaterialsMigrationDeleteOld(sessionToken, v3);
+        }
         v3.logout(sessionToken);
     }
 
