@@ -1644,7 +1644,14 @@ function ServerFacade(openbisServer) {
                                         case "thatEqualsBoolean":
                                             var validBoolean = getValidBoolean(propertyValue)
                                             if(validBoolean !== null){
-                                                criteria.withBooleanProperty(propertyName).thatEquals(validBoolean);
+                                                if (validBoolean) {
+                                                    criteria.withBooleanProperty(propertyName).thatEquals(validBoolean);
+                                                } else {
+                                                    var propertyCriteria = criteria.withSubcriteria();
+                                                    propertyCriteria.withOrOperator();
+                                                    propertyCriteria.withBooleanProperty(propertyName).thatEquals(false);
+                                                    propertyCriteria.withSubcriteria().negate().withBooleanProperty(propertyName);
+                                                }
                                             }
                                             break;
                                         case "thatEqualsDate":
