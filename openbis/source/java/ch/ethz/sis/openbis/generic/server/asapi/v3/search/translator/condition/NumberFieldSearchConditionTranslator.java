@@ -134,12 +134,7 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
     {
         final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
         final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = attributeTypesJoinInformation.getSubTableAlias();
-
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
-                .append(attributeTypesJoinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL);
-
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         if (fullPropertyName != null)
@@ -150,11 +145,16 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(SP).append(AND);
         }
 
-        sqlBuilder.append(SP).append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(IN).append(SP).append(LP)
-                .append(SQ).append(DataTypeCode.INTEGER).append(SQ).append(COMMA).append(SP)
-                .append(SQ).append(DataTypeCode.REAL).append(SQ)
-                .append(RP);
+        sqlBuilder.append(SP).append(LP);
+
+        sqlBuilder.append(LP);
+        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
+                aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+        sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP);
+        sqlBuilder.append(SQ).append(DataTypeCode.INTEGER).append(SQ).append(COMMA).append(SP)
+                .append(SQ).append(DataTypeCode.REAL).append(SQ);
+        sqlBuilder.append(RP);
+        sqlBuilder.append(RP);
 
         if (value != null)
         {
