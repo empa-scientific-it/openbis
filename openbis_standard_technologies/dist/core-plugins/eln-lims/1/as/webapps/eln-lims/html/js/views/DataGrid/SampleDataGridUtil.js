@@ -762,7 +762,7 @@ var SampleDataGridUtil = new function() {
                         property : propertyType.code,
                         isExportable: true,
                         filterable : true,
-                        sortable : true,
+                        sortable : false,
                         metadata: {
                             dataType: propertyType.dataType
                         },

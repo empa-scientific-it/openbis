@@ -1132,7 +1132,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
-						sortable : !isGlobalSearch && propertyType.dataType !== "XML",
+						sortable : !isGlobalSearch && propertyType.dataType !== "XML" && propertyType.dataType !== "BOOLEAN",
 						truncate: true,
 						metadata: {
 							dataType: propertyType.dataType
