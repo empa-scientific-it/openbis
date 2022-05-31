@@ -768,7 +768,12 @@ var SampleDataGridUtil = new function() {
                         },
                         renderFilter : function(params) {
                             return FormUtil.renderBooleanGridFilter(params);
-                        }
+                        },
+                        render : (function(propertyType){
+                            return function(row, params){
+                                return FormUtil.renderBooleanGridValue(row, params, propertyType)
+                            }
+                        })(propertyType)
                     };
                 }
                 propertyColumnsToSort.push(getBooleanColumn(propertyType));

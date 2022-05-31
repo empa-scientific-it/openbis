@@ -2320,6 +2320,11 @@ var FormUtil = new function() {
 		return id;
 	}
 
+    this.renderBooleanGridValue = function(row, params, propertyType) {
+        var value = row[propertyType.code]
+        return value ? value : "false";
+    }
+
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
         return this.renderCustomWidgetGridValue(row, params, propertyType)
     }
