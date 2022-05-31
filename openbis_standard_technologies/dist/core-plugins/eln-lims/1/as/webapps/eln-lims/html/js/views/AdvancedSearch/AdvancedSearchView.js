@@ -388,7 +388,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                                     { value : "thatIsEarlierThanOrEqualToDate",      label : "thatIsEarlierThanOrEqualTo (Date)" },
                                     { value : "thatIsEarlierThanDate",               label : "thatIsEarlierThan (Date)" }
                                   ];
-            } else if (dataType === "TYPE") {
+            } else if (dataType === "TYPE" || dataType === "BOOLEAN") {
                 operatorOptions = [];
             } else if (dataType === "PERSON") {
                 operatorOptions = [ { value : "thatEqualsUserId",                    label : "thatEqualsUserId (UserId)", selected : true },
@@ -504,6 +504,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         }
     }
 
+    this._addBooleanDropdownField = function($container, uuid) {
+        var _this = this;
+        var terms = [{value:false, label:"false"}, {value:true, label:"true"}];
+        var $valueDropdown = FormUtil.getDropdown(terms, "Select a value");
+        $valueDropdown.change(function() {
+            _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
+            _this._advancedSearchModel.criteria.rules[uuid].operator = "thatEqualsBoolean";
+        });
+        _this._injectValue($valueDropdown, uuid);
+        $container.append($valueDropdown);
+    }
+
     this._addVocabularyDropdownField = function($container, uuid, vocabularyCode) {
         var _this = this;
         require([ "as/dto/vocabulary/id/VocabularyPermId", "as/dto/vocabulary/fetchoptions/VocabularyFetchOptions" ],
@@ -571,6 +583,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             this._addTimestampField($container, uuid, false);
         } else if (dataType === "DATE") {
             this._addTimestampField($container, uuid, true);
+        } else if (dataType === "BOOLEAN") {
+            this._addBooleanDropdownField($container, uuid);
         } else if (dataType === "CONTROLLEDVOCABULARY" && operator === "thatEqualsString") {
             this._addVocabularyDropdownField($container, uuid, propertyType.vocabulary.code);
         } else if (dataType === "PERSON" && operator === "thatEqualsUserId") {
