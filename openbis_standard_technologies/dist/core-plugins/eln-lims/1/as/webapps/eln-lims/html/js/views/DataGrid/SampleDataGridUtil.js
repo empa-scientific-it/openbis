@@ -747,6 +747,7 @@ var SampleDataGridUtil = new function() {
 	}
 
     this.createPropertyColumns = function(foundPropertyCodes) {
+        var _this = this;
         var propertyColumnsToSort = [];
         for (propertyCode in foundPropertyCodes) {
             var propertiesToSkip = ["$NAME", "$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
@@ -766,6 +767,11 @@ var SampleDataGridUtil = new function() {
                         metadata: {
                             dataType: propertyType.dataType
                         },
+                        getValue : (function(propertyType) {
+                            return function(params) {
+                                return _this.getBooleanValue(params, propertyType);
+                            };
+                        })(propertyType),
                         renderFilter : function(params) {
                             return FormUtil.renderBooleanGridFilter(params);
                         },
@@ -883,5 +889,16 @@ var SampleDataGridUtil = new function() {
             }
         }
         return propertyColumnsToSort;
+    }
+
+    this.getBooleanValue = function(params, propertyType) {
+        var value = params.row[propertyType.code]
+        if (params.operation === 'export') {
+            if (params.exportOptions.values === 'PLAIN_TEXT' && value !== "true") {
+                value = "false"
+            }
+        }
+        return value;
+
     }
 }

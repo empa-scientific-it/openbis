@@ -1088,18 +1088,24 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					}
 
                     var propertyType = profile.getPropertyType(propertyCode)
-                    var renderValue = null
-                    var renderFilter = null
+                    var renderValue = null;
+                    var renderFilter = null;
+                    var getValue = null;
 
                     if(propertyType.dataType === "BOOLEAN"){
                         renderFilter = function(params){
                             return FormUtil.renderBooleanGridFilter(params);
-                        }
+                        };
                         renderValue = (function(propertyType){
                             return function(row, params){
                                 return FormUtil.renderBooleanGridValue(row, params, propertyType)
                             }
-                        })(propertyType)
+                        })(propertyType);
+                        getValue = (function(propertyType) {
+                            return function(params) {
+                                return SampleDataGridUtil.getBooleanValue(params, propertyType);
+                            };
+                        })(propertyType);
                     } else if(propertyType.dataType === "CONTROLLEDVOCABULARY"){
                         renderFilter = (function(propertyType){
                             return function(params){
@@ -1132,6 +1138,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
+						getValue: getValue,
 						sortable : !isGlobalSearch && propertyType.dataType !== "XML" && propertyType.dataType !== "BOOLEAN",
 						truncate: true,
 						metadata: {
