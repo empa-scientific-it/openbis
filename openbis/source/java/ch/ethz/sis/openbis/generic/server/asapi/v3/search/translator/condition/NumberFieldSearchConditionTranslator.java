@@ -132,6 +132,7 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final AbstractNumberValue value,
             final String fullPropertyName)
     {
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
         final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = attributeTypesJoinInformation.getSubTableAlias();
 

@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.u
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.util.List;
 import java.util.Map;
