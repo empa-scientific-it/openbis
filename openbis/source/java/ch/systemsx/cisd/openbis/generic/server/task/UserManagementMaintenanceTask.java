@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 /**
  * @author Franz-Josef Elmer
  */
-public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
+public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
 {
     static final String DEACTIVATE_UNKOWN_USERS_PROPERTY = "deactivate-unknown-users";
 

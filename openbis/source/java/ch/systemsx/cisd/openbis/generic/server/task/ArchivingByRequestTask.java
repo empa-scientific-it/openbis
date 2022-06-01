@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 /**
  * @author Franz-Josef Elmer
  */
-public class ArchivingByRequestTask extends AbstractMaintenanceTask
+public class ArchivingByRequestTask extends AbstractGroupMaintenanceTask
 {
     static final String KEEP_IN_STORE = "keep-in-store";
 

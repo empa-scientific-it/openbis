@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
  * 
  * @author Franz-Josef Elmer
  */
-public class UsageReportingTask extends AbstractMaintenanceTask
+public class UsageReportingTask extends AbstractGroupMaintenanceTask
 {
     public static interface IUsageInfoHandler
     {

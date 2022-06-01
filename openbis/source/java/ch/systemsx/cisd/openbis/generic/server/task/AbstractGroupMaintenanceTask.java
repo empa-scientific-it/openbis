@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.string.StringUtilities;
 /**
  * @author Franz-Josef Elmer
  */
-abstract class AbstractMaintenanceTask implements IMaintenanceTask
+abstract class AbstractGroupMaintenanceTask implements IMaintenanceTask
 {
     static final String CONFIGURATION_FILE_PATH_PROPERTY = "configuration-file-path";
 
@@ -51,7 +51,7 @@ abstract class AbstractMaintenanceTask implements IMaintenanceTask
 
     protected MaintenanceTaskParameters parameters;
 
-    AbstractMaintenanceTask(boolean configMandatory)
+    AbstractGroupMaintenanceTask(boolean configMandatory)
     {
         this.configMandatory = configMandatory;
         operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
