@@ -68,16 +68,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 
-public class MaterialsMigration extends AbstractMaintenanceTask {
+public class MaterialsMigration implements IMaintenanceTask {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MaterialsMigration.class);
     private static final int BATCH_SIZE = 10000;
@@ -93,25 +94,15 @@ public class MaterialsMigration extends AbstractMaintenanceTask {
     private static Boolean doMaterialsMigrationDeleteOld = null;
 
     public MaterialsMigration() {
-        super(true);
-    }
-
-    @Override
-    protected void setUpSpecific(Properties properties) {
-
     }
 
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        if (properties.getProperty("doMaterialsMigrationInsertNew") == null) {
-            throw new ConfigurationFailureException("Configuration property doMaterialsMigrationInsertNew missing.");
-        }
-        doMaterialsMigrationInsertNew = Boolean.valueOf(properties.getProperty("doMaterialsMigrationInsertNew", Boolean.FALSE.toString()));
-        if (properties.getProperty("doMaterialsMigrationDeleteOld") == null) {
-            throw new ConfigurationFailureException("Configuration property doMaterialsMigrationDeleteOld missing.");
-        }
-        doMaterialsMigrationDeleteOld = Boolean.valueOf(properties.getProperty("doMaterialsMigrationDeleteOld", Boolean.FALSE.toString()));
+        String doMaterialsMigrationInsertNewValue = PropertyUtils.getMandatoryProperty(properties, "doMaterialsMigrationInsertNew");
+        doMaterialsMigrationInsertNew = Boolean.parseBoolean(doMaterialsMigrationInsertNewValue);
+        String doMaterialsMigrationDeleteOldValue = PropertyUtils.getMandatoryProperty(properties, "doMaterialsMigrationDeleteOld");
+        doMaterialsMigrationDeleteOld = Boolean.parseBoolean(doMaterialsMigrationDeleteOldValue);
     }
 
     @Override
