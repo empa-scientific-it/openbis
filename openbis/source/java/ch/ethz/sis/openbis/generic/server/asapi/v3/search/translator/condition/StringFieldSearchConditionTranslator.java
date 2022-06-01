@@ -228,6 +228,22 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             if (value.getClass() != StringMatchesValue.class)
             {
                 sqlBuilder.append(CASE);
+
+                sqlBuilder.append(NL).append(WHEN).append(SP).append(propertyTableAlias).append(PERIOD)
+                        .append(VALUE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
+
+                if (casting != null)
+                {
+                    sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VALUE_COLUMN);
+
+                    TranslatorUtils.appendStringComparatorOp(value.getClass(),
+                            TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards, sqlBuilder, args);
+                } else
+                {
+                    TranslatorUtils.translateStringComparison(propertyTableAlias,
+                            VALUE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+                }
+
                 if (fullPropertyName != null)
                 {
                     sqlBuilder.append(NL).append(WHEN).append(SP)
@@ -251,19 +267,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                     TranslatorUtils.appendSampleSubselectConstraint(args, sqlBuilder, value, useWildcards, propertyTableAlias);
                 }
 
-                sqlBuilder.append(NL).append(ELSE).append(SP);
-
-                if (casting != null)
-                {
-                    sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VALUE_COLUMN);
-
-                    TranslatorUtils.appendStringComparatorOp(value.getClass(),
-                            TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards, sqlBuilder, args);
-                } else
-                {
-                    TranslatorUtils.translateStringComparison(propertyTableAlias,
-                            VALUE_COLUMN, value, useWildcards, null, sqlBuilder, args);
-                }
+                sqlBuilder.append(NL).append(ELSE).append(SP).append(FALSE);
 
                 sqlBuilder.append(NL).append(END);
             } else
