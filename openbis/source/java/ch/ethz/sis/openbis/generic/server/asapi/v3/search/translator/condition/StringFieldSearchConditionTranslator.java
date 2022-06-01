@@ -162,7 +162,6 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                 // Delegating translation for number properties
                 if (casting.equals(DataTypeCode.INTEGER.toString()) || casting.equals(DataTypeCode.REAL.toString()))
                 {
-
                     NumberFieldSearchConditionTranslator.translateNumberProperty(tableMapper, args, sqlBuilder,
                             aliases, convertStringValueToNumberValue(value), fullPropertyName);
                     sqlBuilder.append(RP);
@@ -231,11 +230,9 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                 sqlBuilder.append(CASE);
                 if (fullPropertyName != null)
                 {
-                    sqlBuilder.append(NL).append(WHEN).append(SP).append(LP);
-                    TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
-                    sqlBuilder.append(NL).append(RP).append(SP).append(EQ).append(SP)
-                            .append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY).append(SQ).append(SP)
-                            .append(THEN).append(SP);
+                    sqlBuilder.append(NL).append(WHEN).append(SP)
+                            .append(propertyTableAlias).append(PERIOD).append(VOCABULARY_TERM_COLUMN).append(SP)
+                            .append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
                     TranslatorUtils.appendControlledVocabularyTermIdSubselectConstraint(args, sqlBuilder, value, useWildcards,
                             propertyTableAlias);
                 }
