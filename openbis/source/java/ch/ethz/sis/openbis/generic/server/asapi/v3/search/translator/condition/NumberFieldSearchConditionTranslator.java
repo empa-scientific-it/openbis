@@ -133,7 +133,6 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             final String fullPropertyName)
     {
         final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
-        final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
