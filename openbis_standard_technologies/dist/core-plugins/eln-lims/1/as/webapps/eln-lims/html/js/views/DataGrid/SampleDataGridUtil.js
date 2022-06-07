@@ -795,6 +795,11 @@ var SampleDataGridUtil = new function() {
                             metadata: {
                                 dataType: propertyType.dataType
                             },
+                            getValue : (function(propertyType) {
+                                return function(params) {
+                                    return _this.getTerm(params, propertyType);
+                                };
+                            })(propertyType),
                             render : function(data) {
                                 return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
                             },
@@ -803,7 +808,7 @@ var SampleDataGridUtil = new function() {
                             },
                             filter : function(data, filter) {
                                 var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-                                return value && value.toLowerCase().indexOf(filter) !== -1;
+                                return value && value.toLowerCase().indexOf(filter ? filter.toLowerCase() : filter) !== -1;
                             },
                             sort : function(data1, data2, asc) {
                                 var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
@@ -897,8 +902,14 @@ var SampleDataGridUtil = new function() {
             if (params.exportOptions.values === 'PLAIN_TEXT' && value !== "true") {
                 value = "false"
             }
+        } else if (!value) {
+            value = "false";
         }
         return value;
-
+    }
+    
+    this.getTerm = function(params, propertyType) {
+        var value = params.row[propertyType.code]
+        return value ? value : "";
     }
 }
