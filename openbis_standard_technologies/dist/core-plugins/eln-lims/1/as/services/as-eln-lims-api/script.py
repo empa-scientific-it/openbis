@@ -583,7 +583,10 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
             searchCriteriaStorageBoxResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageBoxPosition, fetchOptions).getObjects();
             # 5.1 If the given box position dont exists (the list is empty), is new
             for sample in searchCriteriaStorageBoxResults:
-                if sample.getPermId().getPermId() != samplePermId and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
+                if sample.getPermId().getPermId() != samplePermId \
+                        and storageBoxSubPosition in sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").split(" ") \
+                        and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
+                        and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
                     raise UserFailureException("Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:
