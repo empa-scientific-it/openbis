@@ -1196,14 +1196,16 @@ public class AbstractTest extends SystemTestCase
 
     protected static void assertSampleIdentifiersInOrder(Collection<Sample> samples, String... expectedIdentifiers)
     {
-        List<String> identifiers = new LinkedList<String>();
-
-        for (Sample sample : samples)
-        {
-            identifiers.add(sample.getIdentifier().getIdentifier());
-        }
-
+        final List<String> identifiers = samples.stream().map(sample -> sample.getIdentifier().getIdentifier())
+                .collect(Collectors.toCollection(LinkedList::new));
         assertEquals(identifiers, Arrays.asList(expectedIdentifiers));
+    }
+
+    protected static void assertSamplePermIdsInOrder(Collection<Sample> samples, String... expectedPermIds)
+    {
+        final List<String> identifiers = samples.stream().map(sample -> sample.getPermId().getPermId())
+                .collect(Collectors.toCollection(LinkedList::new));
+        assertEquals(identifiers, Arrays.asList(expectedPermIds));
     }
 
     protected static void assertMaterialIdentifiersInOrder(final Collection<Material> materials,
