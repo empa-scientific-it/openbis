@@ -3449,6 +3449,38 @@ function ServerFacade(openbisServer) {
 		})
 	}
 
+    this.searchProcessingServices = function(callbackFunction) {
+        require(['as/dto/service/search/ProcessingServiceSearchCriteria', 'as/dto/service/fetchoptions/ProcessingServiceFetchOptions'],
+            function(ProcessingServiceSearchCriteria, ProcessingServiceFetchOptions) {
+                var searchCriteria = new ProcessingServiceSearchCriteria();
+                var fetchOptions = new ProcessingServiceFetchOptions();
+                mainController.openbisV3.searchProcessingServices(searchCriteria, fetchOptions).done(function(result) {
+                    callbackFunction(result);
+                }).fail(function(result) {
+                    Util.showFailedServerCallError(result);
+                    callbackFunction(false);
+                });
+            }
+        );
+    }
+
+    this.processDataSets = function(processingServiceId, dataSets, callbackFunction) {
+        require([ "as/dto/service/execute/ProcessingServiceExecutionOptions"],
+            function(ProcessingServiceExecutionOptions) {
+                var options = new ProcessingServiceExecutionOptions();
+                options.withDataSets(dataSets);
+                mainController.openbisV3.executeProcessingService(processingServiceId, options).done(function() {
+                    callbackFunction();
+                }).fail(function(result) {
+                     var msg = result.message;
+                     if (!msg) {
+                         msg = "Call failed to server: " + JSON.stringify(result);
+                     }
+                     Util.showError(msg);
+                });
+         });
+    }
+
 	this.searchCustomASServices = function(code, callbackFunction) {
 		require(['as/dto/service/search/CustomASServiceSearchCriteria', 'as/dto/service/fetchoptions/CustomASServiceFetchOptions'],
 			function(CustomASServiceSearchCriteria, CustomASServiceFetchOptions) {

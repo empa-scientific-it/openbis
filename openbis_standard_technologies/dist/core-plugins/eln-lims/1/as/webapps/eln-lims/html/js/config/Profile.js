@@ -358,6 +358,24 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.initProcessingServiceInfos = function(callback) {
+            var _this = this;
+            mainController.serverFacade.searchProcessingServices(function(result) {
+                _this._processingServices = result.getObjects();
+                callback();
+            });
+        }
+
+        this.getAvailableProcessingServices = function(dataSetTypeCode) {
+            var services = [];
+            this._processingServices.forEach(function(service) {
+                if (service.getDataSetTypeCodes().includes(dataSetTypeCode)) {
+                    services.push(service);
+                }
+            });
+            return services;
+        }
+
         this.showDataset = function(datasetTypeCode) {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
         }
@@ -1332,15 +1350,17 @@ $.extend(DefaultProfile.prototype, {
                                         _this.initServerInfo(function() {
                                             _this.isFileAuthUser(function() {
                                                 _this.initSpaces(function() {
-                                                    _this.initCustomWidgetSettings(function() {
-                                                        _this.initSettings(function() {
-                                                            //Check if the new storage system can be enabled
-                                                            var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-                                                            var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
-                                                            _this.storagesConfiguration = {
-                                                                    "isEnabled" : storageRack && storagePositionType
-                                                            };
-                                                            callbackWhenDone();
+                                                    _this.initProcessingServiceInfos(function() {
+                                                        _this.initCustomWidgetSettings(function() {
+                                                            _this.initSettings(function() {
+                                                                //Check if the new storage system can be enabled
+                                                                var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+                                                                var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
+                                                                _this.storagesConfiguration = {
+                                                                        "isEnabled" : storageRack && storagePositionType
+                                                                };
+                                                                callbackWhenDone();
+                                                            });
                                                         });
                                                     });
                                                 });

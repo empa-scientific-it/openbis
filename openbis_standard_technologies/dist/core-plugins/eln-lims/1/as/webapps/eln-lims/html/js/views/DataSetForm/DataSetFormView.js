@@ -121,7 +121,55 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                     action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false)
                 });
 			}
-			
+
+            if (this._dataSetFormModel.availableProcessingServices.length > 0) {
+                dropdownOptionsModel.push({
+                    label : "Process",
+                    action : function() {
+                        var $window = $('<form>', {
+                            'action' : 'javascript:void(0);'
+                        });
+                        
+                        $window.append($('<legend>').append("Process Data Set"));
+                        var services = [];
+                        var servicesById = {};
+                        _this._dataSetFormModel.availableProcessingServices.forEach(function(service) {
+                            var id = service.getPermId().toString();
+                            services.push({value:id, label:service.getLabel()});
+                            servicesById[id] = service;
+                        });
+                        var $serviceDropdown = FormUtil.getDropdown(services, "Select a processing service");
+                        $window.append($serviceDropdown);
+                        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+                        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                        $btnCancel.click(function() {
+                            Util.unblockUI();
+                        });
+                        $window.append($('<br>'));
+                        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+                        $window.submit(function() {
+                            Util.blockUI();
+                            var service = servicesById[$serviceDropdown.val()];
+                            var dataSetCode = _this._dataSetFormModel.dataSetV3.getCode();
+                            mainController.serverFacade.processDataSets(service.getPermId(), [dataSetCode], function() {
+                                Util.unblockUI();
+                                Util.showInfo("Processing task '" + service.getLabel() 
+                                        + "' successfully submitted for data set " + dataSetCode + ".");
+                            });
+                        });
+                        var css = {
+                                'text-align' : 'left',
+                                'top' : '15%',
+                                'width' : '50%',
+                                'left' : '15%',
+                                'right' : '20%',
+                                'overflow' : 'auto'
+                        };
+                        Util.blockUI($window, css);
+                    }
+                });
+            }
+
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
                 dropdownOptionsModel.push({
