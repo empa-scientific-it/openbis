@@ -21,8 +21,10 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	
 	this.init = function(views) {
 		var _this = this;
-        _this._dataSetFormModel.availableProcessingServices 
-                = profile.getAvailableProcessingServices(_this._dataSetFormModel.dataSetV3.getType().getCode());
+        if (_this._dataSetFormModel.dataSetV3) {
+            _this._dataSetFormModel.availableProcessingServices 
+                    = profile.getAvailableProcessingServices(_this._dataSetFormModel.dataSetV3.getType().getCode());
+        }
 		mainController.serverFacade.getDatasetTypes(function(dataSetTypesV3) {
         _this._dataSetFormModel.dataSetTypesV3 = dataSetTypesV3;
 		mainController.serverFacade.listDataSetTypes(function(data) {
