@@ -18,13 +18,21 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport.PropertyNames;
 
 /**
  * Tools to be used by servers.
@@ -83,5 +91,26 @@ public class ServerUtils
     public static String escapeEmail(String email)
     {
         return email.replace("@", "_AT_");
+    }
+
+    public static List<CustomImport> getCustomImportDescriptions(Properties serviceProperties)
+    {
+        List<CustomImport> results = new ArrayList<CustomImport>();
+    
+        SectionProperties[] sectionProperties =
+                PropertyParametersUtil.extractSectionProperties(serviceProperties,
+                        CustomImport.PropertyNames.CUSTOM_IMPORTS.getName(), false);
+    
+        for (SectionProperties props : sectionProperties)
+        {
+            Map<String, String> properties = new HashMap<String, String>();
+            for (Map.Entry<Object, Object> entry : props.getProperties().entrySet())
+            {
+                properties.put((String) entry.getKey(), (String) entry.getValue());
+            }
+            results.add(new CustomImport(props.getKey(), properties));
+        }
+    
+        return results;
     }
 }

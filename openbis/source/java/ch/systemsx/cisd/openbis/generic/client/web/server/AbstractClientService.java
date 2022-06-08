@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,8 +40,6 @@ import ch.systemsx.cisd.authentication.ISessionActionListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
@@ -494,7 +491,7 @@ public abstract class AbstractClientService implements IClientService,
         }
         applicationInfo.setEnabledTechnologies(ServerUtils.extractSet(getServiceProperties()
                 .getProperty(Constants.ENABLED_MODULES_KEY)));
-        applicationInfo.setCustomImports(extractCustomImportProperties());
+        applicationInfo.setCustomImports(getCustomImports());
         applicationInfo.setWebapps(extractWebAppsProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setProjectSamplesEnabled(isProjectSamplesEnabled());
@@ -502,27 +499,6 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setProjectLevelAuthorizationUser(isProjectLevelAuthorizationUser());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
-    }
-
-    private List<CustomImport> extractCustomImportProperties()
-    {
-        List<CustomImport> results = new ArrayList<CustomImport>();
-
-        SectionProperties[] sectionProperties =
-                PropertyParametersUtil.extractSectionProperties(getServiceProperties(),
-                        CustomImport.PropertyNames.CUSTOM_IMPORTS.getName(), false);
-
-        for (SectionProperties props : sectionProperties)
-        {
-            Map<String, String> properties = new HashMap<String, String>();
-            for (Map.Entry<Object, Object> entry : props.getProperties().entrySet())
-            {
-                properties.put((String) entry.getKey(), (String) entry.getValue());
-            }
-            results.add(new CustomImport(props.getKey(), properties));
-        }
-
-        return results;
     }
 
     private List<WebApp> extractWebAppsProperties()
@@ -534,7 +510,7 @@ public abstract class AbstractClientService implements IClientService,
     @Override
     public final List<CustomImport> getCustomImports()
     {
-        return extractCustomImportProperties();
+        return ServerUtils.getCustomImportDescriptions(getServiceProperties());
     }
 
     @Override
