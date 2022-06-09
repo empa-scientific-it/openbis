@@ -23,7 +23,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IAliasFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.text.ParseException;
 import java.time.ZoneId;
@@ -64,12 +63,6 @@ public class TranslatorUtils
 
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
-
-    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
-
-    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER =
-            DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
 
     /** Indicator that the property is internal. */
     private static final String INTERNAL_PROPERTY_PREFIX = "$";
@@ -395,36 +388,6 @@ public class TranslatorUtils
         return result;
     }
 
-    public static void appendCastedTimestamp(final StringBuilder sqlBuilder, final String columnName, final IDate fieldValue)
-    {
-        sqlBuilder.append(columnName);
-        if (fieldValue instanceof AbstractDateValue)
-        {
-            // String type date value.
-            final String dateString = ((AbstractDateValue) fieldValue).getValue();
-            try
-            {
-                DATE_WITHOUT_TIMEZONE_FORMATTER.parse(dateString);
-            } catch (final DateTimeParseException e1)
-            {
-                try
-                {
-                    DATE_WITH_SHORT_TIME_FORMATTER.parse(dateString);
-                } catch (final DateTimeParseException e2)
-                {
-                    try
-                    {
-                        DATE_WITHOUT_TIME_FORMATTER.parse(dateString);
-                        sqlBuilder.append(DOUBLE_COLON).append(DATE);
-                    } catch (final DateTimeParseException e3)
-                    {
-                        throw new IllegalArgumentException("Illegal date [dateString='" + dateString + "']", e3);
-                    }
-                }
-            }
-        }
-    }
-
     public static void appendTimeZoneConversion(final IDate fieldValue, final StringBuilder sqlBuilder, final ITimeZone timeZone)
     {
         if (fieldValue instanceof AbstractDateValue && timeZone instanceof TimeZone)
@@ -564,49 +527,6 @@ public class TranslatorUtils
     public static boolean isAnyPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE);
-    }
-
-    public static Object convertStringToType(final String value, final Class<?> klass)
-    {
-        if (Boolean.class == klass)
-        {
-            return Boolean.parseBoolean(value);
-        }
-        if (Byte.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (byte) decimalValue;
-        }
-        if (Short.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (short) decimalValue;
-        }
-        // Integer numbers need to be converted from string to a real number first, because in text they can be presented with decimal point.
-        if (Integer.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (int) decimalValue;
-        }
-        if (Long.class == klass)
-        {
-            final double decimalValue = Double.parseDouble(value);
-            return (long) decimalValue;
-        }
-        if (Float.class == klass)
-        {
-            return Float.parseFloat(value);
-        }
-        if (Double.class == klass)
-        {
-            return Double.parseDouble(value);
-        }
-        if (Date.class == klass)
-        {
-            return parseDate(value);
-        }
-
-        return value;
     }
 
     public static String stripQuotationMarks(final String value)
