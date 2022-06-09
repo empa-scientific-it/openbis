@@ -336,16 +336,6 @@ public class TranslatorUtils
         joinInformation3.setSubTableIdField(ID_COLUMN);
         result.put(tableMapper.getAttributeTypesTable(), joinInformation3);
 
-        final JoinInformation joinInformation4 = new JoinInformation();
-        joinInformation4.setJoinType(JoinType.LEFT);
-        joinInformation4.setMainTable(tableMapper.getAttributeTypesTable());
-        joinInformation4.setMainTableAlias(attributeTypesTableAlias);
-        joinInformation4.setMainTableIdField(tableMapper.getAttributeTypesTableDataTypeIdField());
-        joinInformation4.setSubTable(TableNames.DATA_TYPES_TABLE);
-        joinInformation4.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation4.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(TableNames.DATA_TYPES_TABLE, joinInformation4);
-
         final JoinInformation joinInformation5 = new JoinInformation();
         joinInformation5.setJoinType(JoinType.LEFT);
         joinInformation5.setMainTable(tableMapper.getValuesTable());
