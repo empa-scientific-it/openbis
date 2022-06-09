@@ -19,10 +19,21 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
+import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -50,7 +61,10 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         }
     }
 
-    IDAOFactory daoFactory;
+    @Autowired
+    private PlatformTransactionManager txManager;
+
+    private IDAOFactory daoFactory;
 
     private String userForAnonymousLogin;
 
@@ -64,7 +78,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     {
         super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
                 parseAsIntOrReturnDefaultValue(sessionExpirationPeriodMinutesForNoLogin, DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN),
-                tryEmailAsUserName);
+                tryEmailAsUserName, daoFactory.getPersonalAccessTokenDAO());
         this.daoFactory = daoFactory;
     }
 
@@ -74,6 +88,43 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     {
         this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
                 sessionExpirationPeriodMinutesForNoLogin, false, daoFactory);
+    }
+
+    @PostConstruct
+    @Override protected void init()
+    {
+        TransactionTemplate tmpl = new TransactionTemplate(txManager);
+        tmpl.execute(new TransactionCallbackWithoutResult()
+        {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status)
+            {
+                OpenBisSessionManager.super.init();
+            }
+        });
+    }
+
+    @Override protected FullSession<Session> createSession(final String sessionToken, final String userName, final Principal principal,
+            final String remoteHost, final long sessionStart, final int sessionExpirationTime, final boolean isPATSession)
+    {
+        FullSession<Session> session =
+                super.createSession(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime, isPATSession);
+
+        if (session.isPATSession())
+        {
+            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userName);
+
+            if (person == null)
+            {
+                throw new InvalidSessionException(String.format("User '%s' not found in the database.", userName));
+            }
+
+            HibernateUtils.initialize(person.getAllPersonRoles());
+            session.getSession().setPerson(person);
+            session.getSession().setCreatorPerson(person);
+        }
+
+        return session;
     }
 
     @Override

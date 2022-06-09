@@ -23,7 +23,10 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
+import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
+
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -115,6 +118,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final ISemanticAnnotationDAO semanticAnnotationDAO;
 
+    private final IPersonalAccessTokenDAO personalAccessTokenDAO;
+
     private DatabaseConfigurationContext context;
 
     public static final boolean USE_NEW_SQL_ENGINE = true;
@@ -164,6 +169,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         operationExecutionDAO =
                 new OperationExecutionDAO(sessionFactory, historyCreator);
         semanticAnnotationDAO = new SemanticAnnotationDAO(sessionFactory, historyCreator);
+        personalAccessTokenDAO = new FileBasedPersonalAccessTokenDAO();
     }
 
     //
@@ -335,6 +341,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public ISemanticAnnotationDAO getSemanticAnnotationDAO()
     {
         return semanticAnnotationDAO;
+    }
+
+    @Override public IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
+    {
+        return personalAccessTokenDAO;
     }
 
     private static String projectConstraintFunction =

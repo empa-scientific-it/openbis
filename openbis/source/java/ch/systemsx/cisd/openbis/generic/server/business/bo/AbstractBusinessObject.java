@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.LockMode;
@@ -577,6 +578,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final ISemanticAnnotationDAO getSemanticAnnotationDAO()
     {
         return daoFactory.getSemanticAnnotationDAO();
+    }
+
+    @Override public IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
+    {
+        return daoFactory.getPersonalAccessTokenDAO();
     }
 
     @Override

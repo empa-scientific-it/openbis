@@ -581,29 +581,31 @@
 	</bean>
 
 	<bean id="objectMapper-v1"
-		class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
+		  class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper"/>
 	<bean id="objectMapper-v3"
-		class="ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper" />
+		  class="ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper"/>
 
 	<!-- // Plugins -->
 
 	<bean
-		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+			class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 	<bean
-		class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans" />
+			class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
+	<bean
+			class="ch.ethz.sis.openbis.generic.server.asapi.v3.pat.ApplicationServerApiPersonalAccessTokenPostProcessor"/>
 
 	<plugins:component-scan base-package="ch.systemsx.cisd.openbis"
-		annotation-config="false">
+							annotation-config="false">
 		<plugins:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Controller" />
+								expression="org.springframework.stereotype.Controller"/>
 	</plugins:component-scan>
 
 	<plugins:component-scan base-package="ch.ethz.sis.openbis"
-		annotation-config="false">
+							annotation-config="false">
 		<plugins:exclude-filter type="regex"
-			expression="ch\.ethz\.sis\.openbis\.generic\.server\.dssapi\..*" />
+								expression="ch\.ethz\.sis\.openbis\.generic\.server\.dssapi\..*"/>
 		<plugins:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Controller" />
+								expression="org.springframework.stereotype.Controller"/>
 	</plugins:component-scan>
 
 

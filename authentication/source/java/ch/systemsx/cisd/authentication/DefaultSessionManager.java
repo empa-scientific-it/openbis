@@ -37,7 +37,6 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -95,17 +94,24 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     protected static final class FullSession<S extends BasicSession>
     {
-        /** Session data. */
+        /**
+         * Session data.
+         */
         private final S session;
 
-        /** The last time when this session has been used (in milliseconds since 1970-01-01). */
+        private final boolean isPATSession;
+
+        /**
+         * The last time when this session has been used (in milliseconds since 1970-01-01).
+         */
         private long lastActiveTime;
 
-        FullSession(final S session)
+        FullSession(final S session, final boolean isPATSession)
         {
             assert session != null : "Undefined session";
 
             this.session = session;
+            this.isPATSession = isPATSession;
             touch();
         }
 
@@ -115,6 +121,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         public S getSession()
         {
             return session;
+        }
+
+        /**
+         * Returns <code>true</code> if the session is a personal access token session.
+         */
+        public boolean isPATSession()
+        {
+            return isPATSession;
         }
 
         /**
@@ -133,6 +147,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
             return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
         }
+
     }
 
     private final ISessionFactory<T> sessionFactory;
@@ -143,9 +158,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
      * The map of session tokens to sessions. Access to this data structure needs to be synchronized.
      */
     protected final Map<String, FullSession<T>> sessions =
-            new LinkedHashMap<String, FullSession<T>>();
-
-    protected final Map<String, FullSession<T>> patSessions =
             new LinkedHashMap<String, FullSession<T>>();
 
     private final IAuthenticationService authenticationService;
@@ -227,6 +239,46 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.patDAO = patDAO;
     }
 
+    protected void init()
+    {
+        List<PersonalAccessTokenSession> patSessions = patDAO.listSessions();
+
+        synchronized (sessions)
+        {
+            for (PersonalAccessTokenSession patSession : patSessions)
+            {
+                try
+                {
+                    final Principal principal = authenticationService.getPrincipal(patSession.getUserId());
+
+                    if (principal == null)
+                    {
+                        sessions.remove(patSession.getHash());
+                        throw new InvalidSessionException("User '%s' not found by the authentication service.");
+                    } else
+                    {
+                        principal.setAuthenticated(true);
+                    }
+
+                    final FullSession<T> createdSession = createSession(patSession.getHash(), patSession.getUserId(), principal, getRemoteHost(),
+                            patSession.getValidFrom().getTime(), (int) (patSession.getValidUntil().getTime() - System.currentTimeMillis()), true);
+
+                    sessions.put(createdSession.getSession().getSessionToken(), createdSession);
+                } catch (InvalidSessionException e)
+                {
+                    operationLog.info("Invalid personal access session. Skipping it.", e);
+                }
+            }
+        }
+    }
+
+    protected FullSession<T> createSession(String sessionToken, String userName, Principal principal, String remoteHost, long sessionStart,
+            int sessionExpirationTime, boolean isPATSession)
+    {
+        T session = sessionFactory.create(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime);
+        return new FullSession<>(session, isPATSession);
+    }
+
     private final T createAndStoreSession(final String user, final Principal principal,
             final long now)
     {
@@ -238,7 +290,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
             if (maxNumberOfSessions > 0)
             {
-                List<FullSession<T>> openSessions = getOpenSessionsFor(user);
+                List<FullSession<T>> openSessions = getOpenSessionsForClosing(user);
                 while (openSessions.size() >= maxNumberOfSessions)
                 {
                     FullSession<T> session = openSessions.remove(0);
@@ -246,43 +298,25 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             }
 
-            final T session =
-                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
-                            sessionExpirationPeriodMillis);
-            final FullSession<T> createdSession = new FullSession<T>(session);
+            final FullSession<T> createdSession = createSession(sessionToken, user, principal, getRemoteHost(), now,
+                    sessionExpirationPeriodMillis, false);
             sessions.put(createdSession.getSession().getSessionToken(), createdSession);
 
             getSessionMonitor().logSessionMonitoringInfo();
 
-            return session;
+            return createdSession.getSession();
         }
     }
 
-    private final FullSession<T> createPersonalAccessTokenSession(final String userId, final String hash, final Date now, final Date validFrom,
-            final Date validUntil)
-    {
-        final Principal principal = tryGetAndAuthenticateUser(userId, null);
-
-        if (principal == null)
-        {
-            throw new InvalidSessionException(
-                    String.format("Personal access session cannot be created because personal access token user '%s' does not exist.",
-                            userId));
-        }
-
-        final T newSession = sessionFactory.create(hash, userId, principal, getRemoteHost(), validFrom.getTime(),
-                (int) (validUntil.getTime() - now.getTime()));
-
-        patSessions.put(newSession.getSessionToken(), new FullSession<>(newSession));
-
-        return new FullSession<>(newSession);
-    }
-
-    private List<FullSession<T>> getOpenSessionsFor(String user)
+    private List<FullSession<T>> getOpenSessionsForClosing(String user)
     {
         List<FullSession<T>> userSessions = new ArrayList<>();
         for (FullSession<T> session : sessions.values())
         {
+            if (session.isPATSession())
+            {
+                continue;
+            }
             if (session.getSession().getUserName().equals(user))
             {
                 userSessions.add(session);
@@ -391,10 +425,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         public void logSessionMonitoringInfo()
         {
             int sessionsSize = sessions.size();
-            int patSessionsSize = patSessions.size();
+            long patSessionsSize =
+                    sessions.values().stream().filter(FullSession::isPATSession).count();
 
-            operationLog.info("Currently active sessions: " + sessionsSize);
-            operationLog.info("Currently active personal access token sessions: " + patSessionsSize);
+            operationLog.info("All currently active sessions: " + sessionsSize);
+            operationLog.info("Personal access token active sessions: " + patSessionsSize);
 
             if (sessionsSize > sessionNotifyThreshold)
             {
@@ -441,8 +476,19 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private boolean doSessionExpiration(final FullSession<T> session)
     {
-        Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
-        return session != null && session.hasExpired(expTimeOrNull);
+        if (session == null)
+        {
+            return false;
+        }
+
+        if (session.isPATSession())
+        {
+            return session.hasExpired(null);
+        } else
+        {
+            Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
+            return session.hasExpired(expTimeOrNull);
+        }
     }
 
     private void logAuthenticed(final T session, final long timeToLoginMillis)
@@ -552,13 +598,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
-        T patSession = getPersonalAccessTokenSession(sessionToken);
-
-        if (patSession != null)
-        {
-            return patSession;
-        }
-
         return getSession(sessionToken, true);
     }
 
@@ -627,97 +666,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 session.touch();
             }
             return session.getSession();
-        }
-    }
-
-    private T getPersonalAccessTokenSession(String hash)
-    {
-        PersonalAccessToken patToken = patDAO.getTokenByHash(hash);
-        Date now = new Date();
-
-        if (patToken == null)
-        {
-            PersonalAccessTokenSession patSession = patDAO.getSessionByHash(hash);
-
-            if (patSession == null)
-            {
-                return null;
-            } else
-            {
-                if (now.before(patSession.getValidFrom()))
-                {
-                    throw new InvalidSessionException("Personal access token session is not yet valid.");
-                }
-
-                if (now.after(patSession.getValidUntil()))
-                {
-                    throw new InvalidSessionException("Personal access token session is no longer valid.");
-                }
-
-                patSession.setLastAccessedAt(now);
-                patDAO.updateSession(patSession);
-
-                FullSession<T> newSession =
-                        createPersonalAccessTokenSession(patSession.getUserId(), patSession.getHash(), now, patSession.getValidFrom(),
-                                patSession.getValidUntil());
-
-                return newSession.getSession();
-            }
-        } else
-        {
-            if (now.before(patToken.getValidFrom()))
-            {
-                throw new InvalidSessionException("Personal access token is not yet valid.");
-            }
-
-            if (now.after(patToken.getValidUntil()))
-            {
-                throw new InvalidSessionException("Personal access token is no longer valid.");
-            }
-
-            final PersonalAccessTokenSession patSession =
-                    patDAO.getSessionByUserIdAndSessionName(patToken.getUserId(), patToken.getSessionName());
-
-            synchronized (patSessions)
-            {
-                patToken.setLastAccessedAt(now);
-                patDAO.updateToken(patToken);
-
-                if (patSession == null)
-                {
-                    final String newSessionHash =
-                            patToken.getUserId() + SESSION_TOKEN_SEPARATOR + tokenGenerator.getNewToken(now.getTime(), TIMESTAMP_TOKEN_SEPARATOR);
-
-                    FullSession<T> newSession =
-                            createPersonalAccessTokenSession(patToken.getUserId(), newSessionHash, now, now,
-                                    patToken.getValidUntil());
-
-                    final PersonalAccessTokenSession newPatSession = new PersonalAccessTokenSession();
-                    newPatSession.setUserId(patToken.getUserId());
-                    newPatSession.setSessionName(patToken.getSessionName());
-                    newPatSession.setHash(newSession.getSession().getSessionToken());
-                    newPatSession.setValidFrom(now);
-                    newPatSession.setValidUntil(patToken.getValidUntil());
-                    newPatSession.setLastAccessedAt(now);
-                    patDAO.createSession(newPatSession);
-
-                    return newSession.getSession();
-                } else
-                {
-                    patSession.setLastAccessedAt(now);
-                    if (patToken.getValidUntil().after(patSession.getValidUntil()))
-                    {
-                        patSession.setValidUntil(patToken.getValidUntil());
-                    }
-                    patDAO.updateSession(patSession);
-
-                    FullSession<T> newSession =
-                            createPersonalAccessTokenSession(patSession.getUserId(), patSession.getHash(), now, patSession.getValidFrom(),
-                                    patSession.getValidUntil());
-
-                    return newSession.getSession();
-                }
-            }
         }
     }
 

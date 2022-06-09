@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperation;
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -46,12 +48,6 @@ public class GetServerInformationOperationExecutor
         extends OperationExecutor<GetServerInformationOperation, GetServerInformationOperationResult>
         implements IGetServerInformationOperationExecutor
 {
-    @Autowired
-    private IApplicationServerInternalApi server;
-
-    @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
-    private IServer basicServer;
-
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
@@ -70,9 +66,11 @@ public class GetServerInformationOperationExecutor
         Map<String, String> info = new TreeMap<>();
         info.putAll(getPublicInformation(context));
 
-        info.put("api-version", server.getMajorVersion() + "." + server.getMinorVersion());
-        info.put("project-samples-enabled", Boolean.toString(basicServer.isProjectSamplesEnabled(null)));
-        info.put("archiving-configured", Boolean.toString(basicServer.isArchivingConfigured(null)));
+        info.put("api-version",
+                CommonServiceProvider.getApplicationServerApi().getMajorVersion() + "." + CommonServiceProvider.getApplicationServerApi()
+                        .getMinorVersion());
+        info.put("project-samples-enabled", Boolean.toString(CommonServiceProvider.getCommonServer().isProjectSamplesEnabled(null)));
+        info.put("archiving-configured", Boolean.toString(CommonServiceProvider.getCommonServer().isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
         info.put("create-continuous-sample-codes", configurer.getResolvedProps().getProperty(Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY));
         info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
