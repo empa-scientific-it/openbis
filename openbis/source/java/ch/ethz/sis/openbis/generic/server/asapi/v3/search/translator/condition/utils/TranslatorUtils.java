@@ -551,8 +551,8 @@ public class TranslatorUtils
     public static void buildTypeCodeIdentifierConcatenationString(final StringBuilder sqlBuilder, final String entityTypesTableAlias)
     {
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP).append(BARS).append(SP)
-                .append(SQ).append(" (").append(SQ).append(SP).append(BARS).append(SP).append(entityTypesTableAlias).append(PERIOD)
-                .append(CODE_COLUMN).append(SP).append(BARS).append(SP).append(SQ).append(")").append(SQ);
+                .append(SQ).append(SP).append(LP).append(SQ).append(SP).append(BARS).append(SP).append(entityTypesTableAlias).append(PERIOD)
+                .append(CODE_COLUMN).append(SP).append(BARS).append(SP).append(SQ).append(RP).append(SQ);
     }
 
     /**
@@ -837,10 +837,23 @@ public class TranslatorUtils
         sqlBuilder.append(RP);
     }
 
-    public static void appendDataTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
-            final String propertyTableAlias)
+    public static void appendDataTypesSubselectCondition(final TableMapper tableMapper, final StringBuilder sqlBuilder,
+            final Map<String, JoinInformation> aliases, final String... dataTypeCodes)
     {
-        sqlBuilder.append(SELECT).append(SP).append(DATA_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(NL)
+        sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField())
+                .append(SP).append(IN).append(SP);
+
+        sqlBuilder.append(LP);
+        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, dataTypeCodes);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendDataTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
+            final String... dataTypeCodes)
+    {
+        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(ID_COLUMN).append(NL)
                 .append(FROM).append(SP).append(DATA_TYPES_TABLE).append(SP).append(DATA_TYPE_ALIAS).append(NL)
                 .append(LEFT_JOIN).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
                 .append(PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
@@ -852,9 +865,10 @@ public class TranslatorUtils
                 .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
                 .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
                 .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(NL)
-                .append(WHERE).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP).append(EQ).append(SP).append(propertyTableAlias).append(PERIOD)
-                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+                .append(WHERE).append(SP).append(DATA_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(IN).append(SP).append(LP).append(SQ)
+                .append(String.join(SQ + COMMA + SP + SQ, dataTypeCodes))
+                .append(SQ).append(RP);
     }
 
     public static void appendAttributeTypesSubselectConstraint(final TableMapper tableMapper, final List<Object> args,

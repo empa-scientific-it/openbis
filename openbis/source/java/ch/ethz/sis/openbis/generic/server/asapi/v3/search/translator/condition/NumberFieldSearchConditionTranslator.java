@@ -146,13 +146,9 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
         sqlBuilder.append(SP).append(LP);
 
-        sqlBuilder.append(LP);
-        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
-                aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
-        sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP);
-        sqlBuilder.append(SQ).append(DataTypeCode.INTEGER).append(SQ).append(COMMA).append(SP)
-                .append(SQ).append(DataTypeCode.REAL).append(SQ);
-        sqlBuilder.append(RP);
+        TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases,
+                DataTypeCode.INTEGER.toString(), DataTypeCode.REAL.toString());
+
         sqlBuilder.append(RP);
 
         if (value != null)
