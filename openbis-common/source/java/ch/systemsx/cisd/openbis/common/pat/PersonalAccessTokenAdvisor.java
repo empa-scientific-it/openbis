@@ -14,42 +14,53 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.common.spring;
+package ch.systemsx.cisd.openbis.common.pat;
 
 import org.aopalliance.aop.Advice;
+import org.springframework.aop.ClassFilter;
+import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.RootClassFilter;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.core.Ordered;
 
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenAdvisor;
-
-/**
- * A pointcut advisor which applies the {@link LogInterceptor} advice to classes with the {@link Logging} annotation.
- * 
- * @author Bernd Rinn
- */
-public class LogAdvisor extends DefaultPointcutAdvisor
+public class PersonalAccessTokenAdvisor extends DefaultPointcutAdvisor
 {
 
     private static final long serialVersionUID = 1L;
 
-    public static final int ORDER = PersonalAccessTokenAdvisor.ORDER + 1;
+    public static final int ORDER = Ordered.HIGHEST_PRECEDENCE;
 
-    LogAdvisor()
+    PersonalAccessTokenAdvisor()
     {
         super(createPointcut(), createAdvice());
         setOrder(ORDER);
     }
 
-    private final static Advice createAdvice()
+    private static Advice createAdvice()
     {
-        return new LogInterceptor();
+        return new PersonalAccessTokenInterceptor();
     }
 
-    private final static Pointcut createPointcut()
+    private static Pointcut createPointcut()
     {
-        return new AnnotationMatchingPointcut(Logging.class, null);
+        return new PersonalAccessTokenAwarePointcut();
+    }
+
+    private static class PersonalAccessTokenAwarePointcut implements Pointcut
+    {
+        @Override
+        public MethodMatcher getMethodMatcher()
+        {
+            return MethodMatcher.TRUE;
+        }
+
+        @Override
+        public ClassFilter getClassFilter()
+        {
+            return new RootClassFilter(IPersonalAccessTokenAware.class);
+        }
     }
 
 }

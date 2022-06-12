@@ -520,25 +520,28 @@
 
 	<bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
 	<bean
-		class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener" />
+			class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener"/>
 
 	<!-- // Optimistic Lock Failure Retrying -->
 	<bean
-		class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor" />
+			class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor"/>
 
 	<!-- // Logging of long running threads -->
 	<bean
-		class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
+			class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor"/>
 
+	<!-- // Personal Access Tokens conversion -->
+	<bean
+			class="ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenAdvisor"/>
 
 	<!-- //Mail Client Parameters -->
 	<bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
-		<property name="from" value="${mail.from}" />
-		<property name="smtpHost" value="${mail.smtp.host}" />
-		<property name="smtpPort" value="${mail.smtp.port}" />
-		<property name="smtpUser" value="${mail.smtp.user}" />
-		<property name="smtpPassword" value="${mail.smtp.password}" />
-		<property name="testAddress" value="${mail.smtp.address}" />
+		<property name="from" value="${mail.from}"/>
+		<property name="smtpHost" value="${mail.smtp.host}"/>
+		<property name="smtpPort" value="${mail.smtp.port}"/>
+		<property name="smtpUser" value="${mail.smtp.user}"/>
+		<property name="smtpPassword" value="${mail.smtp.password}"/>
+		<property name="testAddress" value="${mail.smtp.address}"/>
 	</bean>
 
 	<!-- Maintenance Tasks -->
@@ -591,8 +594,6 @@
 			class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 	<bean
 			class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
-	<bean
-			class="ch.ethz.sis.openbis.generic.server.asapi.v3.pat.ApplicationServerApiPersonalAccessTokenPostProcessor"/>
 
 	<plugins:component-scan base-package="ch.systemsx.cisd.openbis"
 							annotation-config="false">

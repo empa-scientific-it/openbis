@@ -497,6 +497,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.UpdateVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOperationExecutor;
+import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenAware;
+import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -514,7 +516,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
  */
 @Component(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> implements
-        IApplicationServerInternalApi
+        IApplicationServerInternalApi, IPersonalAccessTokenAware
 {
     /**
      * Name of this service for which it is registered as Spring bean
@@ -1735,6 +1737,11 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         CreateCodesOperationResult result = executeOperation(sessionToken, new CreateCodesOperation(prefix, entityKind, count));
         return result.getCodes();
+    }
+
+    @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation context)
+    {
+        return new ApplicationServerApiPersonalAccessTokenInvocationHandler(context);
     }
 
     @Override
