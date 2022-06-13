@@ -256,17 +256,20 @@
         // Logging
     -->
 
-    <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
-  
-     <!--
-      // Logging of long running threads
-    -->  
-    <bean class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
-  
+    <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor"/>
+
+    <!--
+     // Logging of long running threads
+   -->
+    <bean class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor"/>
+
+    <!-- // Personal Access Tokens conversion -->
+    <bean class="ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenAdvisor"/>
+
     <!-- 
         // FTP server
      -->
-    
+
     <!-- Adapts the openBIS users for the FTP server -->
     <bean id="adapted-ftp-user-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpUserManager">
         <constructor-arg ref="etl-lims-service"/>

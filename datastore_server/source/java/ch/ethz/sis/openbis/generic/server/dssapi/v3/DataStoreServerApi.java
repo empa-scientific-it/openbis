@@ -71,6 +71,8 @@ import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenAware;
+import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
@@ -93,7 +95,7 @@ import net.lemnik.eodsql.QueryTool;
  */
 @Component(Constants.INTERNAL_SERVICE_NAME)
 public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerApi>
-        implements IDataStoreServerApi
+        implements IDataStoreServerApi, IPersonalAccessTokenAware
 {
     @Autowired
     private IConfigProvider configProvider;
@@ -453,5 +455,10 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 }
             }
         }
+    }
+
+    @Override public Object createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
+    {
+        return new DataStoreServerPersonalAccessTokenInvocationHandler(invocation);
     }
 }
