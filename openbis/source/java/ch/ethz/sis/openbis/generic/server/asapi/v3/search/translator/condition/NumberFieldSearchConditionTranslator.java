@@ -29,6 +29,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SAFE_DOUBLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SQ;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -131,31 +132,24 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final AbstractNumberValue value,
             final String fullPropertyName)
     {
-        final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = attributeTypesJoinInformation.getSubTableAlias();
-
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD)
-                .append(attributeTypesJoinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL);
-
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         if (fullPropertyName != null)
         {
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    TranslatorUtils.isPropertyInternal(fullPropertyName));
-            sqlBuilder.append(SP).append(AND).append(SP).append(attributeTypesJoinInformation.getSubTableAlias())
-                    .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
-            args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+            TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
+                    fullPropertyName, propertyTableAlias);
 
             sqlBuilder.append(SP).append(AND);
         }
 
-        sqlBuilder.append(SP).append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(IN).append(SP).append(LP)
-                .append(SQ).append(DataTypeCode.INTEGER).append(SQ).append(COMMA).append(SP)
-                .append(SQ).append(DataTypeCode.REAL).append(SQ)
-                .append(RP);
+        sqlBuilder.append(SP).append(LP);
+
+        TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases,
+                DataTypeCode.INTEGER.toString(), DataTypeCode.REAL.toString());
+
+        sqlBuilder.append(RP);
 
         if (value != null)
         {

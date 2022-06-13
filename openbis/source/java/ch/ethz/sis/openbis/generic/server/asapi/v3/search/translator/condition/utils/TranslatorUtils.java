@@ -23,7 +23,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IAliasFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.text.ParseException;
 import java.time.ZoneId;
@@ -34,7 +33,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
@@ -57,14 +55,14 @@ public class TranslatorUtils
 
     public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
 
+    public static final String DATA_TYPE_ALIAS = "dt";
+
+    public static final String PROPERTY_TYPE_ALIAS = "pt";
+
+    public static final String ENTITY_TYPE_PROPERTY_TYPE_ALIAS = "etpt";
+
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
-
-    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
-
-    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER =
-            DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
 
     /** Indicator that the property is internal. */
     private static final String INTERNAL_PROPERTY_PREFIX = "$";
@@ -78,7 +76,11 @@ public class TranslatorUtils
             final AbstractStringValue value, final boolean useWildcards, final PSQLTypes casting,
             final StringBuilder sqlBuilder, final List<Object> args)
     {
-        sqlBuilder.append(tableAlias).append(PERIOD).append(columnName);
+        if (tableAlias != null)
+        {
+            sqlBuilder.append(tableAlias).append(PERIOD);
+        }
+        sqlBuilder.append(columnName);
         if (casting != null)
         {
             sqlBuilder.append(DOUBLE_COLON).append(casting);
@@ -275,8 +277,6 @@ public class TranslatorUtils
     {
         final Map<String, JoinInformation> result = new LinkedHashMap<>();
         final String valuesTableAlias = aliasFactory.createAlias();
-        final String entityTypesAttributeTypesTableAlias = aliasFactory.createAlias();
-        final String attributeTypesTableAlias = aliasFactory.createAlias();
 
         final JoinInformation joinInformation1 = new JoinInformation();
         joinInformation1.setJoinType(JoinType.LEFT);
@@ -288,69 +288,46 @@ public class TranslatorUtils
         joinInformation1.setSubTableIdField(tableMapper.getValuesTableEntityIdField());
         result.put(tableMapper.getValuesTable(), joinInformation1);
 
+        return result;
+    }
+
+    public static Map<String, JoinInformation> getPropertyJoinInformationMapForOrder(final TableMapper tableMapper,
+            final IAliasFactory aliasFactory)
+    {
+        final Map<String, JoinInformation> result = new LinkedHashMap<>();
+
+        final JoinInformation joinInformation1 = new JoinInformation();
+        joinInformation1.setJoinType(JoinType.LEFT);
+        joinInformation1.setMainTable(tableMapper.getValuesTable());
+        joinInformation1.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+        joinInformation1.setMainTableIdField(VOCABULARY_TERM_COLUMN);
+        joinInformation1.setSubTable(CONTROLLED_VOCABULARY_TERM_TABLE);
+        joinInformation1.setSubTableAlias(aliasFactory.createAlias());
+        joinInformation1.setSubTableIdField(ColumnNames.ID_COLUMN);
+        result.put(CONTROLLED_VOCABULARY_TERM_TABLE, joinInformation1);
+
         final JoinInformation joinInformation2 = new JoinInformation();
         joinInformation2.setJoinType(JoinType.LEFT);
         joinInformation2.setMainTable(tableMapper.getValuesTable());
-        joinInformation2.setMainTableAlias(valuesTableAlias);
-        joinInformation2.setMainTableIdField(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
-        joinInformation2.setSubTable(tableMapper.getEntityTypesAttributeTypesTable());
-        joinInformation2.setSubTableAlias(entityTypesAttributeTypesTableAlias);
-        joinInformation2.setSubTableIdField(ID_COLUMN);
-        result.put(tableMapper.getEntityTypesAttributeTypesTable(), joinInformation2);
-
-        final JoinInformation joinInformation3 = new JoinInformation();
-        joinInformation3.setJoinType(JoinType.LEFT);
-        joinInformation3.setMainTable(tableMapper.getEntityTypesAttributeTypesTable());
-        joinInformation3.setMainTableAlias(entityTypesAttributeTypesTableAlias);
-        joinInformation3.setMainTableIdField(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
-        joinInformation3.setSubTable(tableMapper.getAttributeTypesTable());
-        joinInformation3.setSubTableAlias(attributeTypesTableAlias);
-        joinInformation3.setSubTableIdField(ID_COLUMN);
-        result.put(tableMapper.getAttributeTypesTable(), joinInformation3);
-
-        final JoinInformation joinInformation4 = new JoinInformation();
-        joinInformation4.setJoinType(JoinType.LEFT);
-        joinInformation4.setMainTable(tableMapper.getAttributeTypesTable());
-        joinInformation4.setMainTableAlias(attributeTypesTableAlias);
-        joinInformation4.setMainTableIdField(tableMapper.getAttributeTypesTableDataTypeIdField());
-        joinInformation4.setSubTable(TableNames.DATA_TYPES_TABLE);
-        joinInformation4.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation4.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(TableNames.DATA_TYPES_TABLE, joinInformation4);
-
-        final JoinInformation joinInformation5 = new JoinInformation();
-        joinInformation5.setJoinType(JoinType.LEFT);
-        joinInformation5.setMainTable(tableMapper.getValuesTable());
-        joinInformation5.setMainTableAlias(valuesTableAlias);
-        joinInformation5.setMainTableIdField(VOCABULARY_TERM_COLUMN);
-        joinInformation5.setSubTable(CONTROLLED_VOCABULARY_TERM_TABLE);
-        joinInformation5.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation5.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(CONTROLLED_VOCABULARY_TERM_TABLE, joinInformation5);
-
-        final JoinInformation joinInformation6 = new JoinInformation();
-        joinInformation6.setJoinType(JoinType.LEFT);
-        joinInformation6.setMainTable(tableMapper.getValuesTable());
-        joinInformation6.setMainTableAlias(valuesTableAlias);
-        joinInformation6.setMainTableIdField(MATERIAL_PROP_COLUMN);
-        joinInformation6.setSubTable(TableMapper.MATERIAL.getEntitiesTable());
-        joinInformation6.setSubTableAlias(aliasFactory.createAlias());
-        joinInformation6.setSubTableIdField(ColumnNames.ID_COLUMN);
-        result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation6);
+        joinInformation2.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+        joinInformation2.setMainTableIdField(MATERIAL_PROP_COLUMN);
+        joinInformation2.setSubTable(TableMapper.MATERIAL.getEntitiesTable());
+        joinInformation2.setSubTableAlias(aliasFactory.createAlias());
+        joinInformation2.setSubTableIdField(ColumnNames.ID_COLUMN);
+        result.put(TableMapper.MATERIAL.getEntitiesTable(), joinInformation2);
 
         if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                 || tableMapper == TableMapper.DATA_SET)
         {
-            final String samplePropertyAlias = aliasFactory.createAlias();
-            final JoinInformation joinInformation7 = new JoinInformation();
-            joinInformation7.setJoinType(JoinType.LEFT);
-            joinInformation7.setMainTable(TableMapper.SAMPLE.getValuesTable());
-            joinInformation7.setMainTableAlias(valuesTableAlias);
-            joinInformation7.setMainTableIdField(SAMPLE_PROP_COLUMN);
-            joinInformation7.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
-            joinInformation7.setSubTableAlias(samplePropertyAlias);
-            joinInformation7.setSubTableIdField(ColumnNames.ID_COLUMN);
-            result.put(SAMPLE_PROP_COLUMN, joinInformation7);
+            final JoinInformation joinInformation3 = new JoinInformation();
+            joinInformation3.setJoinType(JoinType.LEFT);
+            joinInformation3.setMainTable(tableMapper.getValuesTable());
+            joinInformation3.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+            joinInformation3.setMainTableIdField(SAMPLE_PROP_COLUMN);
+            joinInformation3.setSubTable(TableMapper.SAMPLE.getEntitiesTable());
+            joinInformation3.setSubTableAlias(aliasFactory.createAlias());
+            joinInformation3.setSubTableIdField(ColumnNames.ID_COLUMN);
+            result.put(SAMPLE_PROP_COLUMN, joinInformation3);
         }
 
         return result;
@@ -409,36 +386,6 @@ public class TranslatorUtils
         result.put(RELATIONSHIP_TYPES_TABLE, joinInformation3);
 
         return result;
-    }
-
-    public static void appendCastedTimestamp(final StringBuilder sqlBuilder, final String columnName, final IDate fieldValue)
-    {
-        sqlBuilder.append(columnName);
-        if (fieldValue instanceof AbstractDateValue)
-        {
-            // String type date value.
-            final String dateString = ((AbstractDateValue) fieldValue).getValue();
-            try
-            {
-                DATE_WITHOUT_TIMEZONE_FORMATTER.parse(dateString);
-            } catch (final DateTimeParseException e1)
-            {
-                try
-                {
-                    DATE_WITH_SHORT_TIME_FORMATTER.parse(dateString);
-                } catch (final DateTimeParseException e2)
-                {
-                    try
-                    {
-                        DATE_WITHOUT_TIME_FORMATTER.parse(dateString);
-                        sqlBuilder.append(DOUBLE_COLON).append(DATE);
-                    } catch (final DateTimeParseException e3)
-                    {
-                        throw new IllegalArgumentException("Illegal date [dateString='" + dateString + "']", e3);
-                    }
-                }
-            }
-        }
     }
 
     public static void appendTimeZoneConversion(final IDate fieldValue, final StringBuilder sqlBuilder, final ITimeZone timeZone)
@@ -553,14 +500,6 @@ public class TranslatorUtils
         return isPropertyInternal(propertyName) ? propertyName.substring(INTERNAL_PROPERTY_PREFIX.length()) : propertyName;
     }
 
-    public static void appendInternalExternalConstraint(final StringBuilder sqlBuilder, final List<Object> args,
-            final String entityTypesSubTableAlias, final boolean internalProperty)
-    {
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD).append(ColumnNames.IS_MANAGED_INTERNALLY).append(SP)
-                .append(EQ).append(SP).append(QU);
-        args.add(internalProperty);
-    }
-
     public static void appendJoin(final StringBuilder sqlBuilder, final JoinInformation joinInformation)
     {
         if (joinInformation.getSubTable() != null)
@@ -572,25 +511,6 @@ public class TranslatorUtils
                     .append(SP)
                     .append(EQ).append(SP).append(joinInformation.getSubTableAlias()).append(PERIOD)
                     .append(joinInformation.getSubTableIdField());
-        }
-    }
-
-    /**
-     * Appends given string to string builder only when atomic boolean is false. Otherwise just sets atomic boolean to false.
-     *
-     * @param sb string builder to be updated.
-     * @param value the value to be added when needed.
-     * @param first atomic boolean, if {@code true} it will be set to false with no change to sb, otherwise the {@code value} will be appended to
-     * {@code sb}.
-     */
-    public static void appendIfNotFirst(final StringBuilder sb, final String value, final AtomicBoolean first)
-    {
-        if (first.get())
-        {
-            first.set(false);
-        } else
-        {
-            sb.append(value);
         }
     }
 
@@ -607,49 +527,6 @@ public class TranslatorUtils
     public static boolean isAnyPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE);
-    }
-
-    public static Object convertStringToType(final String value, final Class<?> klass)
-    {
-        // Integer numbers need to be converted from string to a real number first, because they can be presented with decimal point.
-        if (Boolean.class == klass)
-        {
-            return Boolean.parseBoolean(value);
-        }
-        if (Byte.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (byte) decimalValue;
-        }
-        if (Short.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (short) decimalValue;
-        }
-        if (Integer.class == klass)
-        {
-            final float decimalValue = Float.parseFloat(value);
-            return (int) decimalValue;
-        }
-        if (Long.class == klass)
-        {
-            final double decimalValue = Double.parseDouble(value);
-            return (long) decimalValue;
-        }
-        if (Float.class == klass)
-        {
-            return Float.parseFloat(value);
-        }
-        if (Double.class == klass)
-        {
-            return Double.parseDouble(value);
-        }
-        if (Date.class == klass)
-        {
-            return parseDate(value);
-        }
-
-        return value;
     }
 
     public static String stripQuotationMarks(final String value)
@@ -674,8 +551,8 @@ public class TranslatorUtils
     public static void buildTypeCodeIdentifierConcatenationString(final StringBuilder sqlBuilder, final String entityTypesTableAlias)
     {
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP).append(BARS).append(SP)
-                .append(SQ).append(" (").append(SQ).append(SP).append(BARS).append(SP).append(entityTypesTableAlias).append(PERIOD)
-                .append(CODE_COLUMN).append(SP).append(BARS).append(SP).append(SQ).append(")").append(SQ);
+                .append(SQ).append(SP).append(LP).append(SQ).append(SP).append(BARS).append(SP).append(entityTypesTableAlias).append(PERIOD)
+                .append(CODE_COLUMN).append(SP).append(BARS).append(SP).append(SQ).append(RP).append(SQ);
     }
 
     /**
@@ -804,7 +681,8 @@ public class TranslatorUtils
         return spacesJoinInformation;
     }
 
-    public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue, final String alias, final List<Object> args)
+    public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue,
+            final String alias, final List<Object> args)
     {
         if ("".equals(stringValue.getValue()))
         {
@@ -813,10 +691,10 @@ public class TranslatorUtils
         {
             final String tsQueryValue = toTsQueryText(stringValue);
             sqlBuilder.append(alias).append(PERIOD)
-            .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
-            .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
-            .append(SP).append(BARS).append(SP)
-            .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
+                    .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+                    .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
+                    .append(SP).append(BARS).append(SP)
+                    .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
             args.add(tsQueryValue);
             args.add(tsQueryValue);
         }
@@ -879,6 +757,14 @@ public class TranslatorUtils
         sqlBuilder.append(COALESCE).append(LP);
         sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
                 .append(VALUE_COLUMN);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendPropertyValueCoalesceForOrder(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final Map<String, JoinInformation> joinInformationMap)
+    {
+        sqlBuilder.append(COALESCE).append(LP);
+        sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN);
         sqlBuilder.append(COMMA).append(SP);
         sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
                 .append(CODE_COLUMN);
@@ -892,6 +778,209 @@ public class TranslatorUtils
                     .append(CODE_COLUMN);
         }
         sqlBuilder.append(RP);
+    }
+
+    public static void appendSampleSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,
+            final AbstractStringValue value, final boolean useWildcards, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(SAMPLE_PROP_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(SAMPLES_VIEW).append(SP)
+                .append(WHERE).append(SP);
+
+        translateStringComparison(null, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(null, PERM_ID_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(null, SAMPLE_IDENTIFIER_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendSampleSubselectConstraint(final StringBuilder sqlBuilder, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(SAMPLE_PROP_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(SAMPLES_VIEW);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendMaterialSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,
+            final AbstractStringValue value, final boolean useWildcards, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(MATERIAL_PROP_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(MATERIALS_TABLE).append(SP)
+                .append(WHERE).append(SP);
+        translateStringComparison(null, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendMaterialSubselectConstraint(final StringBuilder sqlBuilder,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(MATERIAL_PROP_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(MATERIALS_TABLE);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendDataTypesSubselectCondition(final TableMapper tableMapper, final StringBuilder sqlBuilder,
+            final Map<String, JoinInformation> aliases, final String... dataTypeCodes)
+    {
+        sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField())
+                .append(SP).append(IN).append(SP);
+
+        sqlBuilder.append(LP);
+        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, dataTypeCodes);
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendDataTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
+            final String... dataTypeCodes)
+    {
+        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(ID_COLUMN).append(NL)
+                .append(FROM).append(SP).append(DATA_TYPES_TABLE).append(SP).append(DATA_TYPE_ALIAS).append(NL)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
+                .append(DATA_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(tableMapper.getAttributeTypesTableDataTypeIdField())
+                .append(NL)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(NL)
+                .append(WHERE).append(SP).append(DATA_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(IN).append(SP).append(LP).append(SQ)
+                .append(String.join(SQ + COMMA + SP + SQ, dataTypeCodes))
+                .append(SQ).append(RP);
+    }
+
+    public static void appendAttributeTypesSubselectConstraint(final TableMapper tableMapper, final List<Object> args,
+            final StringBuilder sqlBuilder, final String fullPropertyName, final String propertyTableAlias)
+    {
+        sqlBuilder.append(LP);
+        TranslatorUtils.appendAttributeTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
+        sqlBuilder.append(RP).append(SP).append(EQ).append(SP).append(QU);
+
+        args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+    }
+
+    public static void appendAttributeTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(SELECT).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(NL)
+                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(NL)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP).append(ON).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN).append(SP).append(EQ).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(NL)
+                .append(WHERE).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(propertyTableAlias).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+    }
+
+    public static void appendControlledVocabularyTermIdSubselectConstraint(final List<Object> args,
+            final StringBuilder sqlBuilder, final AbstractStringValue value, final boolean useWildcards,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VOCABULARY_TERM_COLUMN)
+                .append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP)
+                .append(WHERE).append(SP);
+        translateStringComparison(null, CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendControlledVocabularyTermSubselectConstraint(final StringBuilder sqlBuilder,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(VOCABULARY_TERM_COLUMN).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+
+        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+                .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendEntityTypePropertyTypeSubselectConstraint(final TableMapper tableMapper,
+            final List<Object> args, final StringBuilder sqlBuilder, final String propertyTypeCode,
+            final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP)
+                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
+                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
+                .append(WHERE).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(EQ).append(SP).append(QU);
+        args.add(normalisePropertyName(propertyTypeCode));
+
+        sqlBuilder.append(SP).append(AND).append(SP);
+        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
+                .append(SP).append(QU);
+        args.add(isPropertyInternal(propertyTypeCode));
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendInternalExternalConstraint(final TableMapper tableMapper, final List<Object> args,
+            final StringBuilder sqlBuilder, final boolean internal, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP)
+                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
+                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
+                .append(WHERE).append(SP);
+
+        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
+                .append(SP).append(QU);
+        args.add(internal);
+
+        sqlBuilder.append(RP);
+    }
+
+    public static void appendPropertiesExist(final StringBuilder sqlBuilder, final String propertiesTableAlias)
+    {
+        sqlBuilder.append(propertiesTableAlias).append(PERIOD).append(ID_COLUMN).append(SP).append(IS_NOT_NULL);
     }
 
 }

@@ -136,9 +136,22 @@ public class SearchCriteriaTranslator
         } else if (isSearchAnyPropertyCriteria(criteria))
         {
             final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
-            TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, translationContext.getTableMapper(),
-                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next()));
+            final TableMapper tableMapper = translationContext.getTableMapper();
+            final Map<String, JoinInformation> joinInformationMap =
+                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next());
+
+            TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, tableMapper, joinInformationMap);
             resultSqlBuilder.append(SP).append(IS_NOT_NULL);
+            resultSqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendControlledVocabularyTermSubselectConstraint(resultSqlBuilder,
+                    joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
+            resultSqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendMaterialSubselectConstraint(resultSqlBuilder,
+                    joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
+            resultSqlBuilder.append(SP).append(OR).append(SP);
+            TranslatorUtils.appendSampleSubselectConstraint(resultSqlBuilder,
+                    joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias());
+
             return resultSqlBuilder.toString();
         } else
         {

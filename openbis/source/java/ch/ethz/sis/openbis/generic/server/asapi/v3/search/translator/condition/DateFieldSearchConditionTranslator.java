@@ -25,13 +25,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.u
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.util.List;
 import java.util.Map;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITH_TZ;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MODIFICATION_TIMESTAMP_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.REGISTRATION_TIMESTAMP_COLUMN;
@@ -136,11 +134,10 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
         final ITimeZone timeZone = criterion.getTimeZone();
         final boolean bareDateValue = value instanceof AbstractDateValue &&
                 TranslatorUtils.isDateWithoutTime(((AbstractDateValue) value).getValue());
-        final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
 
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD).append(joinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL).append(SP).append(AND).append(SP).append(LP);
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
+        sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         final String casting = dataTypeByPropertyCode.get(fullPropertyName);
 
@@ -154,28 +151,28 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
                 {
                     sqlBuilder.append(LP);
                     appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                            null, entityTypesSubTableAlias, true, DataType.DATE.toString());
+                            null, true, DataType.DATE.toString());
                     sqlBuilder.append(SP).append(OR).append(SP);
                     appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                            null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                            null, false, DataType.TIMESTAMP.toString());
                     sqlBuilder.append(RP);
                 } else
                 {
                     if (bareDateValue)
                     {
                         appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases,
-                                timeZone, null, entityTypesSubTableAlias, true,
+                                timeZone, null, true,
                                 DataType.DATE.toString(), DataType.TIMESTAMP.toString());
                     } else
                     {
                         appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases,
-                                timeZone, null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                                timeZone, null, false, DataType.TIMESTAMP.toString());
                     }
                 }
             } else
             {
                 appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString(), DataType.DATE.toString());
+                        null, false, DataType.TIMESTAMP.toString(), DataType.DATE.toString());
             }
         } else
         {
@@ -190,11 +187,11 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
                             fullPropertyName, DataType.DATE));
                 }
                 appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, null,
-                        fullPropertyName, entityTypesSubTableAlias, true, DataType.DATE.toString());
+                        fullPropertyName, true, DataType.DATE.toString());
             } else if (DataType.TIMESTAMP.toString().equals(casting))
             {
                 appendConditionForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        fullPropertyName, entityTypesSubTableAlias, bareDateValue,
+                        fullPropertyName, bareDateValue,
                         DataType.TIMESTAMP.toString());
             } else
             {
@@ -207,24 +204,20 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
 
     static void appendConditionForDateOrTimestampProperties(final StringBuilder sqlBuilder, final List<Object> args,
             final TableMapper tableMapper, final IDate value, final Map<String, JoinInformation> aliases,
-            final ITimeZone timeZone, final String fullPropertyName,
-            final String entityTypesSubTableAlias, final boolean castToDate,
+            final ITimeZone timeZone, final String fullPropertyName, final boolean castToDate,
             final String... dataTypeStrings)
     {
         if (fullPropertyName != null)
         {
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    TranslatorUtils.isPropertyInternal(fullPropertyName));
-            sqlBuilder.append(SP).append(AND).append(SP);
-            sqlBuilder.append(aliases.get(tableMapper.getAttributeTypesTable()).getSubTableAlias())
-                    .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
+            TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
+                    fullPropertyName, aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+
             sqlBuilder.append(SP).append(AND);
-            args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
         }
 
-        sqlBuilder.append(SP).append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(IN).append(SP)
-                .append(LP).append(SQ).append(String.join(SQ + COMMA + SP + SQ, dataTypeStrings)).append(SQ).append(RP);
+        sqlBuilder.append(SP).append(LP);
+        TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases, dataTypeStrings);
+        sqlBuilder.append(RP);
 
         sqlBuilder.append(SP).append(AND).append(SP);
 

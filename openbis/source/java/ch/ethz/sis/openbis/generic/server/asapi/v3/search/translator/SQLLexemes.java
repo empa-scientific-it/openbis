@@ -25,6 +25,8 @@ public class SQLLexemes
 
     public static final String COALESCE = "COALESCE";
 
+    public static final String EXISTS = "EXISTS";
+
     public static final String CONCAT = "CONCAT";
 
     public static final String LOWER = "LOWER";

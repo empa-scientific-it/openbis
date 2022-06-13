@@ -804,19 +804,19 @@ public class GlobalSearchCriteriaTranslator
                     .append(COMMA).append(SP);
         }
 
-        appendRankCalculation(sqlBuilder, tableMapper, forAttributes, stringValue, args, MAIN_TABLE_ALIAS,
+        appendRankCalculation(sqlBuilder, tableMapper, forAttributes, stringValue, args,
                 PROPERTIES_TABLE_ALIAS, MATERIALS_TABLE_ALIAS, SAMPLES_TABLE_ALIAS);
         sqlBuilder.append(SP).append(RANK_ALIAS).append(NL);
     }
 
     public static void appendRankCalculation(final StringBuilder sqlBuilder, final TableMapper tableMapper,
             final boolean forAttributes, final AbstractStringValue stringValue, final List<Object> args,
-            final String mainTableAlias, final String propertiesTableAlias, final String materialsTableAlias,
+            final String propertiesTableAlias, final String materialsTableAlias,
             final String samplesTableAlias)
     {
         if (forAttributes)
         {
-            buildTsRank(sqlBuilder, mainTableAlias, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
+            buildTsRank(sqlBuilder, MAIN_TABLE_ALIAS, () -> buildCastingTsQueryPart(sqlBuilder, stringValue, args));
         } else
         {
             buildTsRank(sqlBuilder, propertiesTableAlias, () -> buildTsQueryPart(sqlBuilder, stringValue, args));

@@ -109,30 +109,24 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final Boolean value,
             final String fullPropertyName)
     {
-        final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
-        final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
-
-        sqlBuilder.append(entityTypesSubTableAlias).append(PERIOD).append(joinInformation.getSubTableIdField())
-                .append(SP).append(IS_NOT_NULL).append(SP).append(AND).append(SP).append(LP);
+        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
+        sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
         if (value != null)
         {
             sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
         }
 
-        sqlBuilder.append(aliases.get(TableNames.DATA_TYPES_TABLE).getSubTableAlias())
-                .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP)
-                .append(SQ).append(DataType.BOOLEAN).append(SQ);
+        TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases,
+                DataTypeCode.BOOLEAN.toString());
 
         if (fullPropertyName != null)
         {
             sqlBuilder.append(SP).append(AND).append(SP);
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    TranslatorUtils.isPropertyInternal(fullPropertyName));
-            sqlBuilder.append(SP).append(AND);
-            sqlBuilder.append(SP).append(entityTypesSubTableAlias).append(PERIOD).append(ColumnNames.CODE_COLUMN)
-                    .append(SP).append(EQ).append(SP).append(QU);
-            args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+
+            TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
+                    fullPropertyName, propertyTableAlias);
         }
 
         if (value != null)
