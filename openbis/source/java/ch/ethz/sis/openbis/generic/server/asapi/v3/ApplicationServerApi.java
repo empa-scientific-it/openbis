@@ -1739,9 +1739,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         return result.getCodes();
     }
 
-    @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation context)
+    @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
-        return new ApplicationServerApiPersonalAccessTokenInvocationHandler(context);
+        return new ApplicationServerApiPersonalAccessTokenInvocationHandler(invocation);
     }
 
     @Override

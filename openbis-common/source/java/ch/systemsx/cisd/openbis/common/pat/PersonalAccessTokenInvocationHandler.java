@@ -12,7 +12,7 @@ public abstract class PersonalAccessTokenInvocationHandler
 
     protected abstract IPersonalAccessTokenDAO getPersonalAccessTokenDAO();
 
-    protected String toSessionToken(String sessionTokenOrPAT)
+    protected String convertPersonalAccessToken(String sessionTokenOrPAT)
     {
         IPersonalAccessTokenDAO patDAO = getPersonalAccessTokenDAO();
         PersonalAccessToken patToken = patDAO.getTokenByHash(sessionTokenOrPAT);

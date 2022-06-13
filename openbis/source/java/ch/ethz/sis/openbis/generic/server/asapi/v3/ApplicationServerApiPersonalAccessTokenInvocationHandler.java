@@ -267,7 +267,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler extends Pe
 
     @Override public void registerUser(final String sessionToken)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public String login(final String userId, final String password)
@@ -292,802 +292,802 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler extends Pe
 
     @Override public SessionInformation getSessionInformation(final String sessionToken)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public boolean isSessionActive(final String sessionToken)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<SpacePermId> createSpaces(final String sessionToken, final List<SpaceCreation> newSpaces)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<ProjectPermId> createProjects(final String sessionToken, final List<ProjectCreation> newProjects)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<ExperimentPermId> createExperiments(final String sessionToken, final List<ExperimentCreation> newExperiments)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<EntityTypePermId> createExperimentTypes(final String sessionToken, final List<ExperimentTypeCreation> newExperimentTypes)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<SamplePermId> createSamples(final String sessionToken, final List<SampleCreation> newSamples)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<EntityTypePermId> createSampleTypes(final String sessionToken, final List<SampleTypeCreation> newSampleTypes)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<DataSetPermId> createDataSets(final String sessionToken, final List<DataSetCreation> newDataSets)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<EntityTypePermId> createDataSetTypes(final String sessionToken, final List<DataSetTypeCreation> newDataSetTypes)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<MaterialPermId> createMaterials(final String sessionToken, final List<MaterialCreation> newMaterials)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<EntityTypePermId> createMaterialTypes(final String sessionToken, final List<MaterialTypeCreation> newMaterialTypes)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<PropertyTypePermId> createPropertyTypes(final String sessionToken, final List<PropertyTypeCreation> newPropertyTypes)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<PluginPermId> createPlugins(final String sessionToken, final List<PluginCreation> newPlugins)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<VocabularyPermId> createVocabularies(final String sessionToken, final List<VocabularyCreation> newVocabularies)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<VocabularyTermPermId> createVocabularyTerms(final String sessionToken,
             final List<VocabularyTermCreation> newVocabularyTerms)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<TagPermId> createTags(final String sessionToken, final List<TagCreation> newTags)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<AuthorizationGroupPermId> createAuthorizationGroups(final String sessionToken,
             final List<AuthorizationGroupCreation> newAuthorizationGroups)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<RoleAssignmentTechId> createRoleAssignments(final String sessionToken,
             final List<RoleAssignmentCreation> newRoleAssignments)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<PersonPermId> createPersons(final String sessionToken, final List<PersonCreation> newPersons)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<ExternalDmsPermId> createExternalDataManagementSystems(final String sessionToken,
             final List<ExternalDmsCreation> newExternalDataManagementSystems)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<QueryTechId> createQueries(final String sessionToken, final List<QueryCreation> newQueries)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<SemanticAnnotationPermId> createSemanticAnnotations(final String sessionToken,
             final List<SemanticAnnotationCreation> newAnnotations)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateSpaces(final String sessionToken, final List<SpaceUpdate> spaceUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateProjects(final String sessionToken, final List<ProjectUpdate> projectUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateExperiments(final String sessionToken, final List<ExperimentUpdate> experimentUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateExperimentTypes(final String sessionToken, final List<ExperimentTypeUpdate> experimentTypeUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateSamples(final String sessionToken, final List<SampleUpdate> sampleUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateSampleTypes(final String sessionToken, final List<SampleTypeUpdate> sampleTypeUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateDataSets(final String sessionToken, final List<DataSetUpdate> dataSetUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateDataSetTypes(final String sessionToken, final List<DataSetTypeUpdate> dataSetTypeUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateMaterials(final String sessionToken, final List<MaterialUpdate> materialUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateMaterialTypes(final String sessionToken, final List<MaterialTypeUpdate> materialTypeUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateExternalDataManagementSystems(final String sessionToken, final List<ExternalDmsUpdate> externalDmsUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updatePropertyTypes(final String sessionToken, final List<PropertyTypeUpdate> propertyTypeUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updatePlugins(final String sessionToken, final List<PluginUpdate> pluginUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateVocabularies(final String sessionToken, final List<VocabularyUpdate> vocabularyUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateVocabularyTerms(final String sessionToken, final List<VocabularyTermUpdate> vocabularyTermUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateTags(final String sessionToken, final List<TagUpdate> tagUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateAuthorizationGroups(final String sessionToken, final List<AuthorizationGroupUpdate> authorizationGroupUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updatePersons(final String sessionToken, final List<PersonUpdate> personUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateOperationExecutions(final String sessionToken, final List<OperationExecutionUpdate> executionUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateSemanticAnnotations(final String sessionToken, final List<SemanticAnnotationUpdate> annotationUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void updateQueries(final String sessionToken, final List<QueryUpdate> queryUpdates)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IObjectId, Rights> getRights(final String sessionToken, final List<? extends IObjectId> ids,
             final RightsFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<ISpaceId, Space> getSpaces(final String sessionToken, final List<? extends ISpaceId> spaceIds,
             final SpaceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IProjectId, Project> getProjects(final String sessionToken, final List<? extends IProjectId> projectIds,
             final ProjectFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IExperimentId, Experiment> getExperiments(final String sessionToken, final List<? extends IExperimentId> experimentIds,
             final ExperimentFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IEntityTypeId, ExperimentType> getExperimentTypes(final String sessionToken,
             final List<? extends IEntityTypeId> experimentTypeIds,
             final ExperimentTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<ISampleId, Sample> getSamples(final String sessionToken, final List<? extends ISampleId> sampleIds,
             final SampleFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IEntityTypeId, SampleType> getSampleTypes(final String sessionToken, final List<? extends IEntityTypeId> sampleTypeIds,
             final SampleTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IDataSetId, DataSet> getDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds,
             final DataSetFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IEntityTypeId, DataSetType> getDataSetTypes(final String sessionToken, final List<? extends IEntityTypeId> dataSetTypeIds,
             final DataSetTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IMaterialId, Material> getMaterials(final String sessionToken, final List<? extends IMaterialId> materialIds,
             final MaterialFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IEntityTypeId, MaterialType> getMaterialTypes(final String sessionToken, final List<? extends IEntityTypeId> materialTypeIds,
             final MaterialTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IPropertyTypeId, PropertyType> getPropertyTypes(final String sessionToken, final List<? extends IPropertyTypeId> typeIds,
             final PropertyTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IPluginId, Plugin> getPlugins(final String sessionToken, final List<? extends IPluginId> pluginIds,
             final PluginFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IVocabularyId, Vocabulary> getVocabularies(final String sessionToken, final List<? extends IVocabularyId> vocabularyIds,
             final VocabularyFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(final String sessionToken,
             final List<? extends IVocabularyTermId> vocabularyTermIds, final VocabularyTermFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<ITagId, Tag> getTags(final String sessionToken, final List<? extends ITagId> tagIds, final TagFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(final String sessionToken,
             final List<? extends IAuthorizationGroupId> groupIds, final AuthorizationGroupFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(final String sessionToken, final List<? extends IRoleAssignmentId> ids,
             final RoleAssignmentFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IPersonId, Person> getPersons(final String sessionToken, final List<? extends IPersonId> ids,
             final PersonFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(final String sessionToken,
             final List<? extends IExternalDmsId> externalDmsIds, final ExternalDmsFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(final String sessionToken,
             final List<? extends ISemanticAnnotationId> annotationIds, final SemanticAnnotationFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(final String sessionToken,
             final List<? extends IOperationExecutionId> executionIds, final OperationExecutionFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IQueryId, Query> getQueries(final String sessionToken, final List<? extends IQueryId> queryIds,
             final QueryFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(final String sessionToken,
             final List<? extends IQueryDatabaseId> queryDatabaseIds,
             final QueryDatabaseFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Space> searchSpaces(final String sessionToken, final SpaceSearchCriteria searchCriteria,
             final SpaceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Project> searchProjects(final String sessionToken, final ProjectSearchCriteria searchCriteria,
             final ProjectFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Experiment> searchExperiments(final String sessionToken, final ExperimentSearchCriteria searchCriteria,
             final ExperimentFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<ExperimentType> searchExperimentTypes(final String sessionToken, final ExperimentTypeSearchCriteria searchCriteria,
             final ExperimentTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Sample> searchSamples(final String sessionToken, final SampleSearchCriteria searchCriteria,
             final SampleFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<SampleType> searchSampleTypes(final String sessionToken, final SampleTypeSearchCriteria searchCriteria,
             final SampleTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<DataSet> searchDataSets(final String sessionToken, final DataSetSearchCriteria searchCriteria,
             final DataSetFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<DataSetType> searchDataSetTypes(final String sessionToken, final DataSetTypeSearchCriteria searchCriteria,
             final DataSetTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Material> searchMaterials(final String sessionToken, final MaterialSearchCriteria searchCriteria,
             final MaterialFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<ExternalDms> searchExternalDataManagementSystems(final String sessionToken,
             final ExternalDmsSearchCriteria searchCriteria,
             final ExternalDmsFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<MaterialType> searchMaterialTypes(final String sessionToken, final MaterialTypeSearchCriteria searchCriteria,
             final MaterialTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Plugin> searchPlugins(final String sessionToken, final PluginSearchCriteria searchCriteria,
             final PluginFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Vocabulary> searchVocabularies(final String sessionToken, final VocabularySearchCriteria searchCriteria,
             final VocabularyFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<VocabularyTerm> searchVocabularyTerms(final String sessionToken, final VocabularyTermSearchCriteria searchCriteria,
             final VocabularyTermFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Tag> searchTags(final String sessionToken, final TagSearchCriteria searchCriteria,
             final TagFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<AuthorizationGroup> searchAuthorizationGroups(final String sessionToken,
             final AuthorizationGroupSearchCriteria searchCriteria,
             final AuthorizationGroupFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<RoleAssignment> searchRoleAssignments(final String sessionToken, final RoleAssignmentSearchCriteria searchCriteria,
             final RoleAssignmentFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Person> searchPersons(final String sessionToken, final PersonSearchCriteria searchCriteria,
             final PersonFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<CustomASService> searchCustomASServices(final String sessionToken,
             final CustomASServiceSearchCriteria searchCriteria,
             final CustomASServiceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<SearchDomainService> searchSearchDomainServices(final String sessionToken,
             final SearchDomainServiceSearchCriteria searchCriteria, final SearchDomainServiceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<AggregationService> searchAggregationServices(final String sessionToken,
             final AggregationServiceSearchCriteria searchCriteria,
             final AggregationServiceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<ReportingService> searchReportingServices(final String sessionToken,
             final ReportingServiceSearchCriteria searchCriteria,
             final ReportingServiceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<ProcessingService> searchProcessingServices(final String sessionToken,
             final ProcessingServiceSearchCriteria searchCriteria,
             final ProcessingServiceFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<ObjectKindModification> searchObjectKindModifications(final String sessionToken,
             final ObjectKindModificationSearchCriteria searchCriteria, final ObjectKindModificationFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<GlobalSearchObject> searchGlobally(final String sessionToken, final GlobalSearchCriteria searchCriteria,
             final GlobalSearchObjectFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<OperationExecution> searchOperationExecutions(final String sessionToken,
             final OperationExecutionSearchCriteria searchCriteria,
             final OperationExecutionFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<DataStore> searchDataStores(final String sessionToken, final DataStoreSearchCriteria searchCriteria,
             final DataStoreFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<SemanticAnnotation> searchSemanticAnnotations(final String sessionToken,
             final SemanticAnnotationSearchCriteria searchCriteria,
             final SemanticAnnotationFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<PropertyType> searchPropertyTypes(final String sessionToken, final PropertyTypeSearchCriteria searchCriteria,
             final PropertyTypeFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<PropertyAssignment> searchPropertyAssignments(final String sessionToken,
             final PropertyAssignmentSearchCriteria searchCriteria,
             final PropertyAssignmentFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Query> searchQueries(final String sessionToken, final QuerySearchCriteria searchCriteria,
             final QueryFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<QueryDatabase> searchQueryDatabases(final String sessionToken, final QueryDatabaseSearchCriteria searchCriteria,
             final QueryDatabaseFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteSpaces(final String sessionToken, final List<? extends ISpaceId> spaceIds, final SpaceDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteProjects(final String sessionToken, final List<? extends IProjectId> projectIds,
             final ProjectDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public IDeletionId deleteExperiments(final String sessionToken, final List<? extends IExperimentId> experimentIds,
             final ExperimentDeletionOptions deletionOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public IDeletionId deleteSamples(final String sessionToken, final List<? extends ISampleId> sampleIds,
             final SampleDeletionOptions deletionOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public IDeletionId deleteDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds,
             final DataSetDeletionOptions deletionOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteMaterials(final String sessionToken, final List<? extends IMaterialId> materialIds,
             final MaterialDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deletePlugins(final String sessionToken, final List<? extends IPluginId> pluginIds,
             final PluginDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deletePropertyTypes(final String sessionToken, final List<? extends IPropertyTypeId> propertyTypeIds,
             final PropertyTypeDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteVocabularies(final String sessionToken, final List<? extends IVocabularyId> ids,
             final VocabularyDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteVocabularyTerms(final String sessionToken, final List<? extends IVocabularyTermId> termIds,
             final VocabularyTermDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteExperimentTypes(final String sessionToken, final List<? extends IEntityTypeId> experimentTypeIds,
             final ExperimentTypeDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteSampleTypes(final String sessionToken, final List<? extends IEntityTypeId> sampleTypeIds,
             final SampleTypeDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteDataSetTypes(final String sessionToken, final List<? extends IEntityTypeId> dataSetTypeIds,
             final DataSetTypeDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteMaterialTypes(final String sessionToken, final List<? extends IEntityTypeId> materialTypeIds,
             final MaterialTypeDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteExternalDataManagementSystems(final String sessionToken, final List<? extends IExternalDmsId> externalDmsIds,
             final ExternalDmsDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteTags(final String sessionToken, final List<? extends ITagId> tagIds, final TagDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteAuthorizationGroups(final String sessionToken, final List<? extends IAuthorizationGroupId> groupIds,
             final AuthorizationGroupDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteRoleAssignments(final String sessionToken, final List<? extends IRoleAssignmentId> assignmentIds,
             final RoleAssignmentDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteOperationExecutions(final String sessionToken, final List<? extends IOperationExecutionId> executionIds,
             final OperationExecutionDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteSemanticAnnotations(final String sessionToken, final List<? extends ISemanticAnnotationId> annotationIds,
             final SemanticAnnotationDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deleteQueries(final String sessionToken, final List<? extends IQueryId> queryIds,
             final QueryDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void deletePersons(final String sessionToken, final List<? extends IPersonId> personIds,
             final PersonDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Deletion> searchDeletions(final String sessionToken, final DeletionSearchCriteria searchCriteria,
             final DeletionFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<Event> searchEvents(final String sessionToken, final EventSearchCriteria searchCriteria,
             final EventFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void revertDeletions(final String sessionToken, final List<? extends IDeletionId> deletionIds)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void confirmDeletions(final String sessionToken, final List<? extends IDeletionId> deletionIds)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Object executeCustomASService(final String sessionToken, final ICustomASServiceId serviceId,
             final CustomASServiceExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(final String sessionToken,
             final SearchDomainServiceExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public TableModel executeAggregationService(final String sessionToken, final IDssServiceId serviceId,
             final AggregationServiceExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public TableModel executeReportingService(final String sessionToken, final IDssServiceId serviceId,
             final ReportingServiceExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void executeProcessingService(final String sessionToken, final IDssServiceId serviceId,
             final ProcessingServiceExecutionOptions options)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public TableModel executeQuery(final String sessionToken, final IQueryId queryId, final QueryExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public TableModel executeSql(final String sessionToken, final String sql, final SqlExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public PluginEvaluationResult evaluatePlugin(final String sessionToken, final PluginEvaluationOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void archiveDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds, final DataSetArchiveOptions options)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void unarchiveDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds,
             final DataSetUnarchiveOptions options)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void lockDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds, final DataSetLockOptions options)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public void unlockDataSets(final String sessionToken, final List<? extends IDataSetId> dataSetIds, final DataSetUnlockOptions options)
     {
-        invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public IOperationExecutionResults executeOperations(final String sessionToken, final List<? extends IOperation> operations,
             final IOperationExecutionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<String, String> getServerInformation(final String sessionToken)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public Map<String, String> getServerPublicInformation()
@@ -1097,12 +1097,12 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler extends Pe
 
     @Override public List<String> createPermIdStrings(final String sessionToken, final int count)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override public List<String> createCodes(final String sessionToken, final String prefix, final EntityKind entityKind, final int count)
     {
-        return invocation.proceedWithNewFirstArgument(toSessionToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
     }
 
     @Override protected IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
