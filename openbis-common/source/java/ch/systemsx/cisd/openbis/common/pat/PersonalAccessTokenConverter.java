@@ -7,15 +7,19 @@ import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
 
-public abstract class PersonalAccessTokenInvocationHandler
+public class PersonalAccessTokenConverter
 {
 
-    protected abstract IPersonalAccessTokenDAO getPersonalAccessTokenDAO();
+    private final IPersonalAccessTokenDAO dao;
 
-    protected String convertPersonalAccessToken(String sessionTokenOrPAT)
+    public PersonalAccessTokenConverter(IPersonalAccessTokenDAO dao)
     {
-        IPersonalAccessTokenDAO patDAO = getPersonalAccessTokenDAO();
-        PersonalAccessToken patToken = patDAO.getTokenByHash(sessionTokenOrPAT);
+        this.dao = dao;
+    }
+
+    public String convert(String sessionTokenOrPAT)
+    {
+        PersonalAccessToken patToken = dao.getTokenByHash(sessionTokenOrPAT);
 
         if (patToken == null)
         {
@@ -35,10 +39,10 @@ public abstract class PersonalAccessTokenInvocationHandler
             }
 
             patToken.setLastAccessedAt(now);
-            patDAO.updateToken(patToken);
+            dao.updateToken(patToken);
 
             final PersonalAccessTokenSession patSession =
-                    patDAO.getSessionByUserIdAndSessionName(patToken.getUserId(), patToken.getSessionName());
+                    dao.getSessionByUserIdAndSessionName(patToken.getUserId(), patToken.getSessionName());
 
             if (patSession == null)
             {

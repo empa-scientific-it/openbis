@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalConte
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.VirtualHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetAwareHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
@@ -346,7 +348,9 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         final String urlPrefixWithDataset =
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
-        final String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
+        String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
+        sessionIDOrNull = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionIDOrNull);
+
         String displayMode = getDisplayMode(request);
 
         Boolean autoResolveOrNull = Boolean.valueOf(request.getParameter(AUTO_RESOLVE_KEY));

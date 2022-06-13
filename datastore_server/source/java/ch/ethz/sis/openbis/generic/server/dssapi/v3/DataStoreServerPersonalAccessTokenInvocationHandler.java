@@ -16,13 +16,14 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenInvocationHandler;
+import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
 
-public class DataStoreServerPersonalAccessTokenInvocationHandler extends PersonalAccessTokenInvocationHandler implements IDataStoreServerApi
+public class DataStoreServerPersonalAccessTokenInvocationHandler implements IDataStoreServerApi
 {
     private final IPersonalAccessTokenInvocation invocation;
+
+    private final PersonalAccessTokenConverter converter = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO());
 
     public DataStoreServerPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
@@ -42,34 +43,29 @@ public class DataStoreServerPersonalAccessTokenInvocationHandler extends Persona
     @Override public SearchResult<DataSetFile> searchFiles(final String sessionToken, final DataSetFileSearchCriteria searchCriteria,
             final DataSetFileFetchOptions fetchOptions)
     {
-        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public InputStream downloadFiles(final String sessionToken, final List<? extends IDataSetFileId> fileIds,
             final DataSetFileDownloadOptions downloadOptions)
     {
-        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public FastDownloadSession createFastDownloadSession(final String sessionToken, final List<? extends IDataSetFileId> fileIds,
             final FastDownloadSessionOptions options)
     {
-        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public DataSetPermId createUploadedDataSet(final String sessionToken, final UploadedDataSetCreation newDataSet)
     {
-        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public List<DataSetPermId> createDataSets(final String sessionToken, final List<FullDataSetCreation> newDataSets)
     {
-        return invocation.proceedWithNewFirstArgument(convertPersonalAccessToken(sessionToken));
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
-    @Override protected IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
-    {
-        // TODO replace with DAO that talks to AS
-        return new FileBasedPersonalAccessTokenDAO();
-    }
 }

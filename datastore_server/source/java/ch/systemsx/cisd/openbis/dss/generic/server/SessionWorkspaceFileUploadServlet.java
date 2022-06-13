@@ -30,7 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.common.servlet.HttpServletRequestUtils;
+import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
@@ -115,7 +117,9 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
         public String getSessionId()
         {
-            return HttpServletRequestUtils.getStringParameter(request, Utils.SESSION_ID_PARAM);
+            String sessionId = HttpServletRequestUtils.getStringParameter(request, Utils.SESSION_ID_PARAM);
+            sessionId = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionId);
+            return sessionId;
         }
 
         public Integer getId()

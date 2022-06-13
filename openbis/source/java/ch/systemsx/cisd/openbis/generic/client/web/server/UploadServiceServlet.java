@@ -39,10 +39,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
@@ -167,6 +169,8 @@ public final class UploadServiceServlet extends AbstractController
             // We must have a session reaching this point. See the constructor where we set
             HttpSession session = request.getSession(false);
             String sessionToken = request.getParameter("sessionID");
+
+            sessionToken = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionToken);
 
             // If no session is found, the user from an API have a chance to give the sessionID
             if (session == null && sessionToken != null && !sessionToken.isEmpty())
