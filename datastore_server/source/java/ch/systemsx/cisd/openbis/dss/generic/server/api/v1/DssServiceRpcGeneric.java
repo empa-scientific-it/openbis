@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -245,6 +247,29 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         return putService.putDataSet(sessionToken, newDataSet, inputStream);
+    }
+
+    @Override
+    public void putDataSet(String sessionToken, String dropboxName, String fileName)
+    {
+        File workspaceDir = new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
+                .getSessionWorkspace();
+        File file = new File(workspaceDir, FilenameUtils.getName(fileName));
+        FileInputStream inputStream = null;
+        try
+        {
+            inputStream = new FileInputStream(file);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            IOUtils.copyLarge(inputStream, outputStream);
+            CustomImportFile customImportFile = new CustomImportFile(fileName, outputStream.toByteArray());
+            putService.putDataSet(sessionToken, dropboxName, customImportFile);
+        } catch (IOException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     @Override

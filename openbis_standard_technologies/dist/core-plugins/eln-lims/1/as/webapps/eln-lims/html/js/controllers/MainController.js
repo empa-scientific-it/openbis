@@ -431,6 +431,10 @@ function MainController(profile) {
 					document.title = "Edit Settings";
 					this._showSettingsPage(FormMode.EDIT, arg);
 					break;
+                case "showCustomImportPage":
+                    document.title = "Custom Import";
+                    this._showCustomImportPage();
+                    break;
 				case "showExportTreePage":
 					document.title = "Export Builder";
 					var newExportView = new ExportTreeController(this);
@@ -1011,6 +1015,12 @@ function MainController(profile) {
 		}
 	}
 	
+    this._showCustomImportPage = function() {
+        var newView = new CustomImportController(this);
+        var views = this._getNewViewModel(true, true, false);
+        newView.init(views);
+    }
+
     this._showOtherToolsPage = function() {
         var views = this._getNewViewModel(true, true, false);
         var $header = views.header;

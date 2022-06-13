@@ -301,7 +301,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             var unarchivingHelperLink = _this.getLinkForNode("Unarchiving Helper", "UNARCHIVING_HELPER", "showUnarchivingHelperPage", null, null);
             treeModelUtils.push({ displayName: "Unarchiving Helper", title : unarchivingHelperLink, entityType: "UNARCHIVING_HELPER", key : "UNARCHIVING_HELPER", folder : false, lazy : false, view : "showUnarchivingHelperPage", icon : "glyphicon glyphicon-open" });
         }
-        
+
+        if (profile.customImportDefinitions.length > 0) {
+            var customImportLink = _this.getLinkForNode("Custom Import", "CUSTOM_IMPORT", "showCustomImportPage", null, null);
+            treeModelUtils.push({ displayName: "Custom Import", title : customImportLink, entityType: "CUSTOM_IMPORT", key : "CUSTOM_IMPORT", folder : false, lazy : false, view : "showCustomImportPage", icon : "glyphicon glyphicon-import" });
+        }
+
         if (profile.mainMenu.showExports || options.showResearchCollectionExportBuilder || profile.mainMenu.showZenodoExportBuilder) {
             var treeModelExports = [];
 

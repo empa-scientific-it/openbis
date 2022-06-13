@@ -63,7 +63,22 @@ def process(context, parameters):
         result = createSpace(context, parameters)
     elif method == "deleteSpace":
         result = deleteSpace(context, parameters)
+    elif method == "getCustomImportDefinitions":
+        result = getCustomImportDefinitions(context, parameters)
     return result
+
+def getCustomImportDefinitions(context, parameters):
+    from ch.systemsx.cisd.common.spring import ExposablePropertyPlaceholderConfigurer
+    from ch.systemsx.cisd.openbis.generic.shared.util import ServerUtils
+
+    properties = CommonServiceProvider.tryToGetBean(ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME) \
+                    .getResolvedProps()
+    descriptions = ServerUtils.getCustomImportDescriptions(properties)
+    for description in descriptions:
+        description.getCode()
+        description.getProperties()
+        print(">>>>>>>>>>>>>>> code: %s, %s" % (description.getCode(), description.getProperties()))
+    return descriptions
 
 def deleteSpace(context, parameters):
     code = parameters.get("code")

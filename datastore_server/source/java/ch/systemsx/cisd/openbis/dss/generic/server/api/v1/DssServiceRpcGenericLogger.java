@@ -119,6 +119,12 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public void putDataSet(String sessionToken, String dropboxName, String fileName)
+    {
+        logTracking(sessionToken, "put_data_set", "DROP_BOX(%s) FILE(%s)", dropboxName, fileName);
+    }
+
+    @Override
     @DataSetAccessGuard
     public long putFileToSessionWorkspace(String sessionToken, String filePath,
             InputStream inputStream) throws IOExceptionUnchecked

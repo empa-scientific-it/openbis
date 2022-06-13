@@ -184,6 +184,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
             @AuthorizationGuard(guardClass = NewDataSetPredicate.class) NewDataSetDTO newDataset,
             InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
 
+    public void putDataSet(String sessionToken, String dropboxName, String fileName);
+
     /**
      * Upload a new file to the user's session workspace.
      * 

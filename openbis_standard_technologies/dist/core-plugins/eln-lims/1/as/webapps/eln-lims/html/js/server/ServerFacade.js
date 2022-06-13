@@ -213,6 +213,14 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.getCustomImportDefinitions = function(callback) {
+        this.customELNASAPI({
+            "method" : "getCustomImportDefinitions"
+        }, function(result) {
+            callback(result)
+        });
+    }
+    
 	//
 	// Display Settings
 	//

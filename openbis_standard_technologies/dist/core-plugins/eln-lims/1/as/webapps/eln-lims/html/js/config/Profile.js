@@ -1322,7 +1322,10 @@ $.extend(DefaultProfile.prototype, {
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }
-	                mainController.serverFacade.getSessionInformation(callback);
+	                mainController.serverFacade.getCustomImportDefinitions(function(definitions) {
+	                    _this.customImportDefinitions = definitions;
+	                    mainController.serverFacade.getSessionInformation(callback);
+	                });
 	            });
 			});
 		}
