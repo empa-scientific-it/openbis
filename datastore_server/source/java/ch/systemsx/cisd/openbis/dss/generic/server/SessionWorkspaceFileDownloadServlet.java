@@ -32,9 +32,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.common.servlet.HttpServletRequestUtils;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
@@ -97,7 +96,7 @@ public class SessionWorkspaceFileDownloadServlet extends HttpServlet
         public String getSessionId()
         {
             String sessionId = HttpServletRequestUtils.getStringParameter(request, Utils.SESSION_ID_PARAM);
-            sessionId = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionId);
+            sessionId = new PersonalAccessTokenConverterFromEncapsulatedService(ServiceProvider.getOpenBISService()).convert(sessionId);
             return sessionId;
         }
 

@@ -44,8 +44,9 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SessionConstants;
@@ -170,7 +171,8 @@ public final class UploadServiceServlet extends AbstractController
             HttpSession session = request.getSession(false);
             String sessionToken = request.getParameter("sessionID");
 
-            sessionToken = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionToken);
+            sessionToken =
+                    new PersonalAccessTokenConverterFromDAO(CommonServiceProvider.getDAOFactory().getPersonalAccessTokenDAO()).convert(sessionToken);
 
             // If no session is found, the user from an API have a chance to give the sessionID
             if (session == null && sessionToken != null && !sessionToken.isEmpty())

@@ -15,19 +15,21 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fastdownload.FastDo
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 public class DataStoreServerPersonalAccessTokenInvocationHandler implements IDataStoreServerApi
 {
     private final IPersonalAccessTokenInvocation invocation;
 
-    private final PersonalAccessTokenConverter converter = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO());
+    private final AbstractPersonalAccessTokenConverter converter;
 
     public DataStoreServerPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         this.invocation = invocation;
+        this.converter = new PersonalAccessTokenConverterFromEncapsulatedService(ServiceProvider.getOpenBISService());
     }
 
     @Override public int getMajorVersion()

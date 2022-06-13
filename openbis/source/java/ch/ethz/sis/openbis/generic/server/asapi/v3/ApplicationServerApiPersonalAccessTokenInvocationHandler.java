@@ -234,20 +234,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements IApplicationServerInternalApi
 {
 
     private final IPersonalAccessTokenInvocation invocation;
 
-    private final PersonalAccessTokenConverter converter = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO());
+    private final AbstractPersonalAccessTokenConverter converter;
 
     public ApplicationServerApiPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         this.invocation = invocation;
+        this.converter = new PersonalAccessTokenConverterFromDAO(CommonServiceProvider.getDAOFactory().getPersonalAccessTokenDAO());
     }
 
     @Override public int getMajorVersion()

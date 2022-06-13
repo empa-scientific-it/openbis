@@ -35,7 +35,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -43,9 +42,10 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalConte
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.VirtualHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetAwareHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
@@ -349,7 +349,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
-        sessionIDOrNull = new PersonalAccessTokenConverter(new FileBasedPersonalAccessTokenDAO()).convert(sessionIDOrNull);
+        sessionIDOrNull = new PersonalAccessTokenConverterFromEncapsulatedService(ServiceProvider.getOpenBISService()).convert(sessionIDOrNull);
 
         String displayMode = getDisplayMode(request);
 

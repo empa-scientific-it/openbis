@@ -1,25 +1,23 @@
-package ch.systemsx.cisd.openbis.common.pat;
+package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
-public class PersonalAccessTokenConverter
+public abstract class AbstractPersonalAccessTokenConverter
 {
 
-    private final IPersonalAccessTokenDAO dao;
+    abstract protected PersonalAccessToken getTokenByHash(String tokenHash);
 
-    public PersonalAccessTokenConverter(IPersonalAccessTokenDAO dao)
-    {
-        this.dao = dao;
-    }
+    abstract protected void touchToken(String tokenHash, Date date);
+
+    abstract protected PersonalAccessTokenSession getSessionByUserIdAndSessionName(String userId, String sessionName);
 
     public String convert(String sessionTokenOrPAT)
     {
-        PersonalAccessToken patToken = dao.getTokenByHash(sessionTokenOrPAT);
+        PersonalAccessToken patToken = getTokenByHash(sessionTokenOrPAT);
 
         if (patToken == null)
         {
@@ -38,11 +36,10 @@ public class PersonalAccessTokenConverter
                 throw new InvalidSessionException("Personal access token is no longer valid.");
             }
 
-            patToken.setLastAccessedAt(now);
-            dao.updateToken(patToken);
+            touchToken(patToken.getHash(), now);
 
             final PersonalAccessTokenSession patSession =
-                    dao.getSessionByUserIdAndSessionName(patToken.getUserId(), patToken.getSessionName());
+                    getSessionByUserIdAndSessionName(patToken.getUserId(), patToken.getSessionName());
 
             if (patSession == null)
             {
