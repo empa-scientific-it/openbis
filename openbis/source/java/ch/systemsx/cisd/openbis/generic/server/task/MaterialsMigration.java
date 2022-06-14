@@ -116,18 +116,6 @@ public class MaterialsMigration implements IMaintenanceTask {
 
     private static void info(String method, String message) {
         operationLog.info(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
-        System.out.println(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
-    }
-
-    public static void main(String[] args) throws Exception {
-        info("main (doMaterialsMigration development substitute)","");
-        final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
-        final int TIMEOUT = Integer.MAX_VALUE;
-        IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
-        String sessionToken = v3.login("admin", "a");
-        doMaterialsMigrationInsertNew(sessionToken, v3);
-        doMaterialsMigrationDeleteOld(sessionToken, v3);
-        v3.logout(sessionToken);
     }
 
     public static void doMaterialsMigration() throws Exception {
@@ -137,6 +125,7 @@ public class MaterialsMigration implements IMaintenanceTask {
         if (doMaterialsMigrationInsertNew) {
             doMaterialsMigrationInsertNew(sessionToken, v3);
         }
+        doMaterialsMigrationValidation(sessionToken, v3);
         if (doMaterialsMigrationDeleteOld) {
             doMaterialsMigrationDeleteOld(sessionToken, v3);
         }
@@ -409,9 +398,9 @@ public class MaterialsMigration implements IMaintenanceTask {
         int offset = 0;
         int limit = BATCH_SIZE;
         int total = -1;
+        List<SampleCreation> sampleCreations = new ArrayList<>();
         while (offset < total || total == -1) {
             info("createSamples", offset + "/" + total);
-            List<SampleCreation> sampleCreations = new ArrayList<>();
             MaterialFetchOptions materialFetchOptions = new MaterialFetchOptions();
             materialFetchOptions.withProperties();
             materialFetchOptions.withTags();
@@ -440,11 +429,7 @@ public class MaterialsMigration implements IMaintenanceTask {
                 sampleCreation.setTypeId(new EntityTypePermId(PREFIX + material.getType().getCode(), EntityKind.SAMPLE));
                 sampleCreation.setCode(material.getCode());
                 for (String propertyCode:material.getProperties().keySet()) {
-                    if (material.getMaterialProperties().keySet().contains(propertyCode)) {
-                        // Convert material properties to sample properties is done later since this needs to be done for all Material properties of all entity types
-                    } else {
-                        sampleCreation.setProperty(propertyCode, material.getProperty(propertyCode));
-                    }
+                    sampleCreation.setProperty(propertyCode, material.getProperty(propertyCode));
                 }
                 info("createSamples",count + "/" + total + " : " + "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + material.getCode());
                 sampleCreations.add(sampleCreation);
@@ -454,6 +439,7 @@ public class MaterialsMigration implements IMaintenanceTask {
                 info("createSamples","Insert batch of " + BATCH_SIZE);
                 v3.createSamples(sessionToken, sampleCreations);
                 info("createSamples","Inserted batch of " + BATCH_SIZE + " in " + (System.currentTimeMillis()-start) + " millis");
+                sampleCreations.clear();
             }
         }
     }
@@ -483,7 +469,7 @@ public class MaterialsMigration implements IMaintenanceTask {
     }
 
     private static boolean isSampleAssigned(IPropertiesHolder holder, String propertyCode, String sampleIdentifier) {
-        return holder.getProperty(propertyCode) != null && holder.getProperty(propertyCode).equals(sampleIdentifier);
+        return holder.getProperty(propertyCode) != null;
     }
 
     private static void assignSamplesToPropertiesForHolders(String sessionToken, IApplicationServerApi v3, List<? extends IPropertyAssignmentsHolder> holderTypes) {
@@ -584,6 +570,7 @@ public class MaterialsMigration implements IMaintenanceTask {
                                 v3.updateDataSets(sessionToken, updates);
                                 info("assignSamplesToPropertiesForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " updated: " + updates.size());
                             }
+                            updates.clear();
                         }
                     }
                 }
@@ -672,6 +659,102 @@ public class MaterialsMigration implements IMaintenanceTask {
                 v3.updateDataSetTypes(sessionToken, List.of((DataSetTypeUpdate)typeUpdate));
             }
 
+        }
+    }
+
+    private static void doMaterialsMigrationValidation(String sessionToken, IApplicationServerApi v3) {
+        info("doMaterialsMigrationValidation","start");
+        SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<SampleType> sampleTypeSearchResult = v3.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+        doMaterialsMigrationValidationForHolders(sessionToken, v3, sampleTypeSearchResult.getObjects());
+
+        ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
+        ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+        experimentTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        experimentTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<ExperimentType> experimentTypeSearchResult = v3.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
+        doMaterialsMigrationValidationForHolders(sessionToken, v3, experimentTypeSearchResult.getObjects());
+
+        DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType().withMaterialType();
+        dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
+        SearchResult<DataSetType> dataTypeSearchResult = v3.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, dataSetTypeFetchOptions);
+        doMaterialsMigrationValidationForHolders(sessionToken, v3, dataTypeSearchResult.getObjects());
+    }
+
+    private static void doMaterialsMigrationValidationForHolders(String sessionToken, IApplicationServerApi v3, List<? extends IPropertyAssignmentsHolder> holderTypes) {
+        info("doMaterialsMigrationValidationForHolders","start");
+        for (IPropertyAssignmentsHolder holderType: holderTypes) {
+            for (PropertyAssignment oldPropertyAssignment : holderType.getPropertyAssignments()) {
+                if (oldPropertyAssignment.getPropertyType().getDataType() == DataType.MATERIAL) {
+                    int offset = 0;
+                    int limit = BATCH_SIZE;
+                    int total = -1;
+                    while (offset < total || total == -1) {
+                        info("doMaterialsMigrationValidationForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found Material Type: " + oldPropertyAssignment.getPropertyType().getCode());
+                        SearchResult<? extends IPropertiesHolder> result = null;
+                        List<? extends IPropertiesHolder> holders = null;
+                        if (holderType instanceof SampleType) {
+                            SampleSearchCriteria criteria = new SampleSearchCriteria();
+                            criteria.withType().withCode().equals(((SampleType) holderType).getCode());
+                            SampleFetchOptions options = new SampleFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchSamples(sessionToken, criteria, options);
+                        } else if (holderType instanceof ExperimentType) {
+                            ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+                            criteria.withType().withCode().equals(((ExperimentType) holderType).getCode());
+                            ExperimentFetchOptions options = new ExperimentFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchExperiments(sessionToken, criteria, options);
+                        } else if (holderType instanceof DataSetType) {
+                            DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+                            criteria.withType().withCode().equals(((DataSetType) holderType).getCode());
+                            DataSetFetchOptions options = new DataSetFetchOptions();
+                            options.withMaterialProperties();
+                            options.withProperties();
+                            options.from(offset).count(limit);
+                            result = v3.searchDataSets(sessionToken, criteria, options);
+                        }
+                        total = result.getTotalCount();
+                        holders = result.getObjects();
+                        if (offset + limit < total) {
+                            offset += limit;
+                        } else {
+                            offset = total;
+                        }
+
+                        info("doMaterialsMigrationValidationForHolders", holderType.getClass().getSimpleName() + ": " + ((ICodeHolder) holderType).getCode() + " found: " + offset + " / " + total);
+
+                        for (IPropertiesHolder holder : holders) {
+                            String oldPropertyMaterialCode = null;
+                            if (holder instanceof Sample && ((Sample) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((Sample) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            } else if (holder instanceof Experiment && ((Experiment) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((Experiment) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            } else if (holder instanceof DataSet && ((DataSet) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()) != null) {
+                                oldPropertyMaterialCode = ((DataSet) holder).getMaterialProperty(oldPropertyAssignment.getPropertyType().getCode()).getCode();
+                            }
+                            String newPropertySampleCode = PREFIX + oldPropertyAssignment.getPropertyType().getCode();
+                            String sampleIdentifier = null;
+                            if (oldPropertyMaterialCode != null) {
+                                sampleIdentifier = "/" + SPACE_CODE + "/" + PROJECT_CODE + "/" + oldPropertyMaterialCode;
+                            }
+                            boolean notUpdated = sampleIdentifier != null && !isSampleAssigned(holder, newPropertySampleCode, sampleIdentifier);
+                            if (notUpdated) {
+                                throw new RuntimeException("Sample not assigned found: " + sampleIdentifier);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -801,8 +884,8 @@ public class MaterialsMigration implements IMaintenanceTask {
                         long start = System.currentTimeMillis();
                         info("removeMaterials", " removing " + options.getFrom() + " / " + offset + " of " + total);
                         v3.deleteMaterials(sessionToken, deletePermIds, materialDeletionOptions);
+                        deletePermIds.clear();
                         info("removeMaterials", " removed " + options.getFrom() + " / " + offset + " - using " + (System.currentTimeMillis() - start) + " millis");
-
                     }
                 }
             }
