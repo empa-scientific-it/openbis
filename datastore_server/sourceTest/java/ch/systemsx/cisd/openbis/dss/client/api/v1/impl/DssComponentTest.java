@@ -757,6 +757,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         {
             return url.toString();
         }
+
+        @Override
+        public void putDataSet(String sessionToken, String dropboxName, String fileName)
+        {
+        }
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0
