@@ -77,7 +77,13 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
         if (destination == null)
         {
-            operationLog.info("No destination directory found, this task can't execute.");
+            operationLog.info("No destination directory found, this task can't be executed.");
+            return;
+        }
+        File destinationFolder = new File(destination);
+        if (destinationFolder.isDirectory() == false)
+        {
+            operationLog.warn("The destination directory does not exist or isn't a folder: " + destinationFolder.getAbsolutePath());
             return;
         }
 
@@ -109,7 +115,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        File[] filesOnDisk = new File(destination).listFiles();
+        File[] filesOnDisk = destinationFolder.listFiles();
         operationLog.info("3. Verify if the " + filesOnDisk.length
                 + " files on destination are on multi dataset archiver containers or a normal archived dataset.");
         Set<String> presentInArchiveFS = new HashSet<String>();
