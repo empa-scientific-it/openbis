@@ -128,7 +128,9 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
 	jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
 			 '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
-			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
+			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M',
+			 '--add-opens=java.base/java.util=ALL-UNNAMED', '--add-opens=java.base/java.lang=ALL-UNNAMED',
+			 '-ea'])
 	args(['--classes', '../commonbase/targets/gradle/classes/java/main',
 		  '--classes', '../common/targets/gradle/classes/java/main',
 		  '--classes', '../authentication/targets/gradle/classes/java/main',
