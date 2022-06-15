@@ -53,10 +53,10 @@ public abstract class AbstractSQLExecutor implements ISQLExecutor
     @Override
     public List<Map<String, Object>> execute(final String sqlQuery, final List<Object> args)
     {
-        OPERATION_LOG.info("QUERY: " + sqlQuery);
-        if (OPERATION_LOG.isInfoEnabled())
+        OPERATION_LOG.debug("QUERY: " + sqlQuery);
+        if (OPERATION_LOG.isTraceEnabled())
         {
-            OPERATION_LOG.info("ARGS: " + Arrays.deepToString(args.toArray()));
+            OPERATION_LOG.trace("ARGS: " + Arrays.deepToString(args.toArray()));
         }
 
         final List<Map<String, Object>> results = new ArrayList<>();
@@ -89,8 +89,8 @@ public abstract class AbstractSQLExecutor implements ISQLExecutor
             throw new RuntimeException(ex);
         }
 
-        OPERATION_LOG.info("RESULTS COUNT: " + results.size());
-        OPERATION_LOG.info("RESULTS: " + results);
+        OPERATION_LOG.debug("RESULTS COUNT: " + results.size());
+        OPERATION_LOG.trace("RESULTS: " + results);
         return results;
     }
 
