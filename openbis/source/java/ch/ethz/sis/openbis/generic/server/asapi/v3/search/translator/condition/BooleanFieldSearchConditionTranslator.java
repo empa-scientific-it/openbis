@@ -113,11 +113,6 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
         TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
-        if (value != null)
-        {
-            sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
-        }
-
         TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases,
                 DataTypeCode.BOOLEAN.toString());
 
@@ -131,11 +126,11 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
 
         if (value != null)
         {
-            sqlBuilder.append(SP).append(THEN).append(SP);
+            sqlBuilder.append(SP).append(AND).append(SP);
             sqlBuilder.append(aliases.get(tableMapper.getValuesTable())
-                    .getSubTableAlias()).append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(DOUBLE_COLON)
-                    .append(BOOLEAN).append(SP).append(EQ).append(SP).append(QU).append(SP).append(END);
-            args.add(value);
+                    .getSubTableAlias()).append(PERIOD).append(ColumnNames.VALUE_COLUMN).append(SP)
+                    .append(EQ).append(SP).append(QU);
+            args.add(String.valueOf(value));
         }
 
         sqlBuilder.append(RP);

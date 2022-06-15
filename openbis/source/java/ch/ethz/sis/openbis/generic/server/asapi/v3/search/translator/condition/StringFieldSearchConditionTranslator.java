@@ -179,8 +179,6 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                 }
             }
 
-            sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
-
             if (fullPropertyName != null)
             {
                 TranslatorUtils.appendEntityTypePropertyTypeSubselectConstraint(tableMapper, args, sqlBuilder,
@@ -218,7 +216,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         final boolean useWildcards = criterion.isUseWildcards();
         if (!(value instanceof AnyStringValue))
         {
-            sqlBuilder.append(SP).append(THEN).append(NL);
+            sqlBuilder.append(SP).append(AND).append(NL);
 
             if (value.getClass() != StringMatchesValue.class)
             {
@@ -271,7 +269,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                         propertyTableAlias, args);
             }
 
-            sqlBuilder.append(NL).append(ELSE).append(SP).append(FALSE).append(NL).append(END);
+            sqlBuilder.append(NL);
         }
         sqlBuilder.append(RP);
     }
