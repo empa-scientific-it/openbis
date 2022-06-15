@@ -3090,6 +3090,54 @@ function ServerFacade(openbisServer) {
 		);
 	}
 
+    this.getProjectWithAttachments = function(projectPermId, callbackFunction) {
+        require(["as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions"],
+                function(ProjectPermId, ProjectFetchOptions) {
+            var projectId = new ProjectPermId(projectPermId);
+            var fetchOptions = new ProjectFetchOptions();
+            fetchOptions.withAttachments().withContent();
+            mainController.openbisV3.getProjects([projectId], fetchOptions).done(function(result) {
+                var project = result[projectId];
+                callbackFunction(project);
+            }).fail(function(result) {
+                Util.showFailedServerCallError(result);
+                callbackFunction(false);
+            });
+        });
+    }
+
+    this.getExperimentWithAttachments = function(experimentPermId, callbackFunction) {
+        require(["as/dto/experiment/id/ExperimentPermId", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+                function(ExperimentPermId, ExperimentFetchOptions) {
+            var experimentId = new ExperimentPermId(experimentPermId);
+            var fetchOptions = new ExperimentFetchOptions();
+            fetchOptions.withAttachments().withContent();
+            mainController.openbisV3.getExperiments([experimentId], fetchOptions).done(function(result) {
+                var experiment = result[experimentId];
+                callbackFunction(experiment);
+            }).fail(function(result) {
+                Util.showFailedServerCallError(result);
+                callbackFunction(false);
+            });
+        });
+    }
+
+    this.getSampleWithAttachments = function(samplePermId, callbackFunction) {
+        require(["as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions"],
+                function(SamplePermId, SampleFetchOptions) {
+            var sampleId = new SamplePermId(samplePermId);
+            var fetchOptions = new SampleFetchOptions();
+            fetchOptions.withAttachments().withContent();
+            mainController.openbisV3.getSamples([sampleId], fetchOptions).done(function(result) {
+                var sample = result[sampleId];
+                callbackFunction(sample);
+            }).fail(function(result) {
+                Util.showFailedServerCallError(result);
+                callbackFunction(false);
+            });
+        });
+    }
+
 	this.searchSamplesV3 = function(sampleType, callbackFunction) {
 		require(["as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions"],
 				function(SampleSearchCriteria, SampleFetchOptions) {

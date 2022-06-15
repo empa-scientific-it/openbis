@@ -270,6 +270,8 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "updateExperiment":
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
+	if method == "dropDataSet":
+		isOk = dropDataSet(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 	if method == "updateDataSet":
@@ -501,6 +503,13 @@ def updateDataSet(tr, parameters, tableBuilder):
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Return from the call
+	return True;
+
+def dropDataSet(tr, parameters, tableBuilder):
+	sessionToken = parameters.get("sessionToken")
+	dropBoxName = parameters.get("dropBoxName")
+	fileName = parameters.get("fileName")
+	ServiceProvider.getDssServiceRpcGeneric().getService().putDataSet(sessionToken, dropBoxName, fileName)
 	return True;
 
 def insertDataSet(tr, parameters, tableBuilder):

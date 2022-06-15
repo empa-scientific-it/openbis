@@ -481,6 +481,9 @@ var FormUtil = new function() {
 			if (mapVals[mIdx].selected) {
 				$option.attr('selected', '');
 			}
+            if (mapVals[mIdx].tooltip) {
+                $option.attr("title", mapVals[mIdx].tooltip);
+            }
 			$component.append($option);
 		}
 	};

@@ -8,13 +8,37 @@ function CustomImportView(customImportController, customImportModel) {
         $header.append($("<h1>").append("Custom Import"));
 
         var $contents = views.content;
+        var definitionsById = {};
         var dropdownList = [];
         profile.customImportDefinitions.forEach(function(definition) {
-            dropdownList.push({value:definition.code, label:definition.properties["name"]});
+            definitionsById[definition.code] = definition;
+            dropdownList.push({value:definition.code, label:definition.properties["name"], tooltip:definition.properties["description"]});
         });
         var $customImports = FormUtil.getDropdown(dropdownList, "Select a service");
+        $customImports.on("change", function(event) {
+            var serviceId = $customImports.val();
+            var definition = definitionsById[serviceId];
+            var templateEntityKind = definition.properties["template-entity-kind"];
+            var templateEntityPermid = definition.properties["template-entity-permid"];
+            var templateAttachmentName = definition.properties["template-attachment-name"];
+            if (templateEntityKind && templateEntityPermid && templateAttachmentName) {
+                var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
+                var $templateLink = $("<a>").text("Download");
+                $templateLink.on("click", function() {
+                    _this._controller.getAttachment(templateEntityKind, templateEntityPermid, templateAttachmentName,
+                            function(attachment) {
+                                Util.download(attachment.getContent(), "application/octet-stream", true, attachment.getFileName());
+                            });
+                });
+                $component.append($templateLink);
+                var $linkGroup = FormUtil.getFieldForComponentWithLabel($component, 'Template');
+                $("#template-link").empty();
+                $("#template-link").append($linkGroup);
+            }
+        });
         $customImports.attr('required', '');
         $contents.append(FormUtil.getFieldForComponentWithLabel($customImports, "Custom Import Service"));
+        $contents.append($('<div>', { 'id' : 'template-link' } ));
         $contents.append($('<div>', { 'id' : 'APIUploader' } ));
         mainController.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), function(data) {
                 _this._model.file = data.name;

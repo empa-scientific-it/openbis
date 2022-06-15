@@ -77,7 +77,6 @@ def getCustomImportDefinitions(context, parameters):
     for description in descriptions:
         description.getCode()
         description.getProperties()
-        print(">>>>>>>>>>>>>>> code: %s, %s" % (description.getCode(), description.getProperties()))
     return descriptions
 
 def deleteSpace(context, parameters):
