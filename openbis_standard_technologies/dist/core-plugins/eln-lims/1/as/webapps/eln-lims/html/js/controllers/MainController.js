@@ -1044,13 +1044,8 @@ function MainController(profile) {
     this.createReport = function(reportDefinition) {
         var parameters = reportDefinition.parameters ? reportDefinition.parameters : {};
         mainController.serverFacade.customASService(parameters, function(result){
-            var link = document.createElement('a');
             var mimeType = reportDefinition.mimeType ? reportDefinition.mimeType : "text/plain";
-            link.href = "data:" + mimeType + ";" + (reportDefinition.binary ? "base64," : ",") + result;
-            link.download = reportDefinition.filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            Util.download(result, mimeType, reportDefinition.binary, reportDefinition.filename);
         }, reportDefinition.service);
     }
 
