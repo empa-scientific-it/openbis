@@ -12,10 +12,15 @@ function CustomImportView(customImportController, customImportModel) {
         var dropdownList = [];
         profile.customImportDefinitions.forEach(function(definition) {
             definitionsById[definition.code] = definition;
-            dropdownList.push({value:definition.code, label:definition.properties["name"], tooltip:definition.properties["description"]});
+            var item = {value:definition.code, label:definition.properties["name"]};
+            if (definition.properties["description"]) {
+                item.tooltip = definition.properties["description"];
+            }
+            dropdownList.push(item);
         });
         var $customImports = FormUtil.getDropdown(dropdownList, "Select a service");
         $customImports.on("change", function(event) {
+            $("#template-link").empty();
             var serviceId = $customImports.val();
             var definition = definitionsById[serviceId];
             var templateEntityKind = definition.properties["template-entity-kind"];
@@ -32,7 +37,6 @@ function CustomImportView(customImportController, customImportModel) {
                 });
                 $component.append($templateLink);
                 var $linkGroup = FormUtil.getFieldForComponentWithLabel($component, 'Template');
-                $("#template-link").empty();
                 $("#template-link").append($linkGroup);
             }
         });
