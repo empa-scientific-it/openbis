@@ -68,7 +68,7 @@ function CustomImportView(customImportController, customImportModel) {
                         + "' successfully submitted for service '" + serviceId + "'.");
                 mainController._showCustomImportPage();
             });
-        }, "Save", null, "save-btn");
+        }, "Import", null, "save-btn");
         $saveBtn.removeClass("btn-default");
         $saveBtn.addClass("btn-primary");
         $header.append($saveBtn);
