@@ -126,11 +126,15 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 task openBISDevelopementEnvironmentASStart(type: JavaExec) {
 	main = 'org.eclipse.jetty.runner.Runner'
 	classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
-	jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
+	jvmArgs(JavaVersion.current() >= JavaVersion.VERSION_17
+			? ['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
+			   '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
+			   '-Dorg.mortbay.util.FileResource.checkAliases=false',
+			   '--add-opens=java.base/java.util=ALL-UNNAMED', '--add-opens=java.base/java.lang=ALL-UNNAMED',
+			   '-Xmx2048M', '-ea']
+			: ['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
 			 '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
-			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M',
-			 '--add-opens=java.base/java.util=ALL-UNNAMED', '--add-opens=java.base/java.lang=ALL-UNNAMED',
-			 '-ea'])
+			 '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
 	args(['--classes', '../commonbase/targets/gradle/classes/java/main',
 		  '--classes', '../common/targets/gradle/classes/java/main',
 		  '--classes', '../authentication/targets/gradle/classes/java/main',
