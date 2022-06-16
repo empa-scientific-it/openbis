@@ -16,7 +16,7 @@ public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessT
         this.dao = dao;
     }
 
-    @Override protected PersonalAccessToken getTokenByHash(final String tokenHash)
+    @Override protected PersonalAccessToken getToken(final String tokenHash)
     {
         return dao.getTokenByHash(tokenHash);
     }
@@ -26,13 +26,20 @@ public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessT
         PersonalAccessToken token = dao.getTokenByHash(tokenHash);
         if (token != null)
         {
-            token.setLastAccessedAt(date);
+            token.setAccessDate(date);
             dao.updateToken(token);
         }
     }
 
-    @Override protected PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
+    @Override protected String getSessionToken(final String userId, final String sessionName)
     {
-        return dao.getSessionByUserIdAndSessionName(userId, sessionName);
+        PersonalAccessTokenSession session = dao.getSessionByUserIdAndSessionName(userId, sessionName);
+        if (session != null)
+        {
+            return session.getSessionHash();
+        } else
+        {
+            return null;
+        }
     }
 }

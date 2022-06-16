@@ -99,7 +99,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         private final S session;
 
-        private final boolean isPATSession;
+        private final boolean isPersonalAccessTokenSession;
 
         /**
          * The last time when this session has been used (in milliseconds since 1970-01-01).
@@ -111,7 +111,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             assert session != null : "Undefined session";
 
             this.session = session;
-            this.isPATSession = isPATSession;
+            this.isPersonalAccessTokenSession = isPATSession;
             touch();
         }
 
@@ -126,9 +126,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         /**
          * Returns <code>true</code> if the session is a personal access token session.
          */
-        public boolean isPATSession()
+        public boolean isPersonalAccessTokenSession()
         {
-            return isPATSession;
+            return isPersonalAccessTokenSession;
         }
 
         /**
@@ -253,15 +253,17 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
                     if (principal == null)
                     {
-                        sessions.remove(patSession.getHash());
+                        sessions.remove(patSession.getSessionHash());
                         throw new InvalidSessionException("User '%s' not found by the authentication service.");
                     } else
                     {
                         principal.setAuthenticated(true);
                     }
 
-                    final FullSession<T> createdSession = createSession(patSession.getHash(), patSession.getUserId(), principal, getRemoteHost(),
-                            patSession.getValidFrom().getTime(), (int) (patSession.getValidUntil().getTime() - System.currentTimeMillis()), true);
+                    final FullSession<T> createdSession =
+                            createSession(patSession.getSessionHash(), patSession.getUserId(), principal, getRemoteHost(),
+                                    patSession.getValidFrom().getTime(), (int) (patSession.getValidUntil().getTime() - System.currentTimeMillis()),
+                                    true);
 
                     sessions.put(createdSession.getSession().getSessionToken(), createdSession);
                 } catch (InvalidSessionException e)
@@ -313,7 +315,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         List<FullSession<T>> userSessions = new ArrayList<>();
         for (FullSession<T> session : sessions.values())
         {
-            if (session.isPATSession())
+            if (session.isPersonalAccessTokenSession())
             {
                 continue;
             }
@@ -426,7 +428,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         {
             int sessionsSize = sessions.size();
             long patSessionsSize =
-                    sessions.values().stream().filter(FullSession::isPATSession).count();
+                    sessions.values().stream().filter(FullSession::isPersonalAccessTokenSession).count();
 
             operationLog.info("All currently active sessions: " + sessionsSize);
             operationLog.info("Personal access token active sessions: " + patSessionsSize);
@@ -481,7 +483,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             return false;
         }
 
-        if (session.isPATSession())
+        if (session.isPersonalAccessTokenSession())
         {
             return session.hasExpired(null);
         } else

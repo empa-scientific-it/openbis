@@ -28,6 +28,15 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryDatabaseFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
@@ -1101,6 +1110,23 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(final IMetaprojectId metaprojectId)
     {
         return service.listNotArchivedDatasetsWithMetaproject(session.getSessionToken(), metaprojectId);
+    }
+
+    @Override public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(
+            final List<? extends IPersonalAccessTokenId> personalAccessTokenIds, final PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        return ServiceProvider.getV3ApplicationService().getPersonalAccessTokens(session.getSessionToken(), personalAccessTokenIds, fetchOptions);
+    }
+
+    @Override public void updatePersonalAccessTokens(final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+    {
+        ServiceProvider.getV3ApplicationService().updatePersonalAccessTokens(session.getSessionToken(), personalAccessTokenUpdates);
+    }
+
+    @Override public SearchResult<SessionInformation> searchSessionInformation(final SessionInformationSearchCriteria searchCriteria,
+            final SessionInformationFetchOptions fetchOptions)
+    {
+        return ServiceProvider.getV3ApplicationService().searchSessionInformation(session.getSessionToken(), searchCriteria, fetchOptions);
     }
 
     @Override

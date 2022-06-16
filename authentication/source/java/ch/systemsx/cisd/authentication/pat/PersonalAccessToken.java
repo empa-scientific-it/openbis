@@ -5,30 +5,30 @@ import java.util.Date;
 public class PersonalAccessToken
 {
 
-    private String userId;
+    private String hash;
 
     private String sessionName;
 
-    private String hash;
+    private String ownerId;
 
-    private Date createdAt;
+    private Date validFromDate;
 
-    private Date modifiedAt;
+    private Date validToDate;
 
-    private Date validFrom;
+    private Date registrationDate;
 
-    private Date validUntil;
+    private Date modificationDate;
 
-    private Date lastAccessedAt;
+    private Date accessDate;
 
-    public String getUserId()
+    public String getHash()
     {
-        return userId;
+        return hash;
     }
 
-    public void setUserId(final String userId)
+    public void setHash(final String hash)
     {
-        this.userId = userId;
+        this.hash = hash;
     }
 
     public String getSessionName()
@@ -41,63 +41,63 @@ public class PersonalAccessToken
         this.sessionName = sessionName;
     }
 
-    public String getHash()
+    public String getOwnerId()
     {
-        return hash;
+        return ownerId;
     }
 
-    public void setHash(final String hash)
+    public void setOwnerId(final String ownerId)
     {
-        this.hash = hash;
+        this.ownerId = ownerId;
     }
 
-    public Date getCreatedAt()
+    public Date getValidFromDate()
     {
-        return createdAt;
+        return validFromDate;
     }
 
-    public void setCreatedAt(final Date createdAt)
+    public void setValidFromDate(final Date validFromDate)
     {
-        this.createdAt = createdAt;
+        this.validFromDate = validFromDate;
     }
 
-    public Date getModifiedAt()
+    public Date getValidToDate()
     {
-        return modifiedAt;
+        return validToDate;
     }
 
-    public void setModifiedAt(final Date modifiedAt)
+    public void setValidToDate(final Date validToDate)
     {
-        this.modifiedAt = modifiedAt;
+        this.validToDate = validToDate;
     }
 
-    public Date getValidFrom()
+    public Date getRegistrationDate()
     {
-        return validFrom;
+        return registrationDate;
     }
 
-    public void setValidFrom(final Date validFrom)
+    public void setRegistrationDate(final Date registrationDate)
     {
-        this.validFrom = validFrom;
+        this.registrationDate = registrationDate;
     }
 
-    public Date getValidUntil()
+    public Date getModificationDate()
     {
-        return validUntil;
+        return modificationDate;
     }
 
-    public void setValidUntil(final Date validUntil)
+    public void setModificationDate(final Date modificationDate)
     {
-        this.validUntil = validUntil;
+        this.modificationDate = modificationDate;
     }
 
-    public Date getLastAccessedAt()
+    public Date getAccessDate()
     {
-        return lastAccessedAt;
+        return accessDate;
     }
 
-    public void setLastAccessedAt(final Date lastAccessedAt)
+    public void setAccessDate(final Date accessDate)
     {
-        this.lastAccessedAt = lastAccessedAt;
+        this.accessDate = accessDate;
     }
 }

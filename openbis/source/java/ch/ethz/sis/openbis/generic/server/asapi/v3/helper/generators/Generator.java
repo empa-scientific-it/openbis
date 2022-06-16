@@ -1,17 +1,49 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators;
 
+import java.io.FileNotFoundException;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.Relationship;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionError;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationExecutionProgress;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.*;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.StorageFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.FileFormatTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LocatorTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.PhysicalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.StorageFormatFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
@@ -44,12 +76,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionNotification;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionAvailability;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionDetails;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionState;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecutionSummary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionDetailsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionNotificationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.OperationExecutionSummaryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.OperationExecutionPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -82,6 +120,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -92,12 +131,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.generators.DtoGenerator.DTOField;
-
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class Generator extends AbstractGenerator
 {
@@ -950,9 +983,50 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createPersonalAccessToken()
+    {
+        DtoGenerator gen = new DtoGenerator("pat", "PersonalAccessToken", PersonalAccessTokenFetchOptions.class);
+
+        addPermId(gen, PersonalAccessTokenPermId.class);
+        gen.addSimpleField(String.class, "hash");
+        gen.addSimpleField(String.class, "sessionName");
+        gen.addDateField("validFromDate");
+        gen.addDateField("validToDate");
+        gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class).withInterface(IOwnerHolder.class);
+        addRegistrator(gen);
+        addModifier(gen);
+
+        addRegistrationDate(gen);
+        addModificationDate(gen);
+        gen.addDateField("accessDate");
+
+        gen.setToStringMethod("\"Personal Access Token \" + permId");
+
+        return gen;
+    }
+
+    private static DtoGenerator createSessionInformation()
+    {
+        DtoGenerator gen = new DtoGenerator("session", "SessionInformation", SessionInformationFetchOptions.class);
+
+        gen.addSimpleField(boolean.class, "personalAccessTokenSession");
+        gen.addSimpleField(String.class, "sessionName");
+        gen.addSimpleField(String.class, "sessionToken");
+        gen.addSimpleField(String.class, "userName");
+        gen.addSimpleField(String.class, "homeGroupCode");
+        gen.addFetchedField(Person.class, "person", "Person", PersonFetchOptions.class);
+        gen.addFetchedField(Person.class, "creatorPerson", "CreatorPerson", PersonFetchOptions.class);
+
+        gen.setToStringMethod("\"Session Information \" + userName");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
+        list.add(createSessionInformation());
+        list.add(createPersonalAccessToken());
         list.add(createDataSetGenerator());
         list.add(createDataSetTypeGenerator());
         list.add(createAttachmentGenerator());

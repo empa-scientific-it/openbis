@@ -96,6 +96,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.Operation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
@@ -202,6 +210,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingService
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -234,10 +244,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
-import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
 
 public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements IApplicationServerInternalApi
 {
@@ -294,7 +305,11 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public SessionInformation getSessionInformation(final String sessionToken)
     {
-        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to get session information.");
+        }
+        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public boolean isSessionActive(final String sessionToken)
@@ -392,7 +407,11 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public List<PersonPermId> createPersons(final String sessionToken, final List<PersonCreation> newPersons)
     {
-        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public List<ExternalDmsPermId> createExternalDataManagementSystems(final String sessionToken,
@@ -410,6 +429,16 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
             final List<SemanticAnnotationCreation> newAnnotations)
     {
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    @Override public List<PersonalAccessTokenPermId> createPersonalAccessTokens(final String sessionToken,
+            final List<PersonalAccessTokenCreation> newPersonalAccessTokens)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public void updateSpaces(final String sessionToken, final List<SpaceUpdate> spaceUpdates)
@@ -499,7 +528,11 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public void updatePersons(final String sessionToken, final List<PersonUpdate> personUpdates)
     {
-        invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        invocation.proceedWithOriginalArguments();
     }
 
     @Override public void updateOperationExecutions(final String sessionToken, final List<OperationExecutionUpdate> executionUpdates)
@@ -515,6 +548,15 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public void updateQueries(final String sessionToken, final List<QueryUpdate> queryUpdates)
     {
         invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    @Override public void updatePersonalAccessTokens(final String sessionToken, final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
+        }
+        invocation.proceedWithOriginalArguments();
     }
 
     @Override public Map<IObjectId, Rights> getRights(final String sessionToken, final List<? extends IObjectId> ids,
@@ -660,6 +702,16 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
             final QueryDatabaseFetchOptions fetchOptions)
     {
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    @Override public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(final String sessionToken,
+            final List<? extends IPersonalAccessTokenId> personalAccessTokenIds, final PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
+        }
+        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public SearchResult<Space> searchSpaces(final String sessionToken, final SpaceSearchCriteria searchCriteria,
@@ -863,6 +915,16 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
+    @Override public SearchResult<SessionInformation> searchSessionInformation(final String sessionToken,
+            final SessionInformationSearchCriteria searchCriteria, final SessionInformationFetchOptions fetchOptions)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to get session information.");
+        }
+        return invocation.proceedWithOriginalArguments();
+    }
+
     @Override public void deleteSpaces(final String sessionToken, final List<? extends ISpaceId> spaceIds, final SpaceDeletionOptions deletionOptions)
     {
         invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
@@ -990,7 +1052,21 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public void deletePersons(final String sessionToken, final List<? extends IPersonId> personIds,
             final PersonDeletionOptions deletionOptions)
     {
-        invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        invocation.proceedWithOriginalArguments();
+    }
+
+    @Override public void deletePersonalAccessTokens(final String sessionToken, final List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            final PersonalAccessTokenDeletionOptions deletionOptions)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        invocation.proceedWithOriginalArguments();
     }
 
     @Override public SearchResult<Deletion> searchDeletions(final String sessionToken, final DeletionSearchCriteria searchCriteria,
@@ -1003,6 +1079,16 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
             final EventFetchOptions fetchOptions)
     {
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    @Override public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(final String sessionToken,
+            final PersonalAccessTokenSearchCriteria searchCriteria, final PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        if (converter.shouldConvert(sessionToken))
+        {
+            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+        }
+        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public void revertDeletions(final String sessionToken, final List<? extends IDeletionId> deletionIds)

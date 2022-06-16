@@ -9,7 +9,7 @@ public class PersonalAccessTokenSession
 
     private String sessionName;
 
-    private String hash;
+    private String sessionHash;
 
     private Date validFrom;
 
@@ -37,14 +37,14 @@ public class PersonalAccessTokenSession
         this.sessionName = sessionName;
     }
 
-    public String getHash()
+    public String getSessionHash()
     {
-        return hash;
+        return sessionHash;
     }
 
-    public void setHash(final String hash)
+    public void setSessionHash(final String sessionHash)
     {
-        this.hash = hash;
+        this.sessionHash = sessionHash;
     }
 
     public Date getValidFrom()

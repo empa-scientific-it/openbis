@@ -20,18 +20,18 @@ public class FileBasedPersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         {
             // TEST DATA
             PersonalAccessToken token1 = new PersonalAccessToken();
-            token1.setUserId("admin");
+            token1.setOwnerId("admin");
             token1.setSessionName("app1");
             token1.setHash("admin-111111111111111x11111111111111111111111111111111");
-            token1.setValidFrom(DateUtils.parseDate("2022-01-01 10:00", "YYYY-MM-dd HH:mm"));
-            token1.setValidUntil(DateUtils.parseDate("2022-06-10 12:00", "YYYY-MM-dd HH:mm"));
+            token1.setValidFromDate(DateUtils.parseDate("2022-01-01 10:00", "YYYY-MM-dd HH:mm"));
+            token1.setValidToDate(DateUtils.parseDate("2022-06-10 12:00", "YYYY-MM-dd HH:mm"));
 
             PersonalAccessToken token2 = new PersonalAccessToken();
-            token2.setUserId("admin");
+            token2.setOwnerId("admin");
             token2.setSessionName("app1");
             token2.setHash("admin-222222222222222x22222222222222222222222222222222");
-            token2.setValidFrom(DateUtils.parseDate("2022-06-01 10:00", "YYYY-MM-dd HH:mm"));
-            token2.setValidUntil(DateUtils.parseDate("2022-10-10 12:00", "YYYY-MM-dd HH:mm"));
+            token2.setValidFromDate(DateUtils.parseDate("2022-06-01 10:00", "YYYY-MM-dd HH:mm"));
+            token2.setValidToDate(DateUtils.parseDate("2022-10-10 12:00", "YYYY-MM-dd HH:mm"));
 
             tokens = new HashMap<>();
             tokens.put(token1.getHash(), token1);
@@ -40,12 +40,12 @@ public class FileBasedPersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             PersonalAccessTokenSession session1 = new PersonalAccessTokenSession();
             session1.setUserId("admin");
             session1.setSessionName("app1");
-            session1.setHash("admin-999999999999999x99999999999999999999999999999999");
-            session1.setValidFrom(token1.getValidFrom());
-            session1.setValidUntil(token2.getValidUntil());
+            session1.setSessionHash("admin-999999999999999x99999999999999999999999999999999");
+            session1.setValidFrom(token1.getValidFromDate());
+            session1.setValidUntil(token2.getValidToDate());
 
             sessions = new HashMap<>();
-            sessions.put(session1.getHash(), session1);
+            sessions.put(session1.getSessionHash(), session1);
 
         } catch (Exception e)
         {
