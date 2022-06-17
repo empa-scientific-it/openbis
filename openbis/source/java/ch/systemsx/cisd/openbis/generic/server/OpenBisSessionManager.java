@@ -104,10 +104,10 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     }
 
     @Override protected FullSession<Session> createSession(final String sessionToken, final String userName, final Principal principal,
-            final String remoteHost, final long sessionStart, final int sessionExpirationTime, final boolean isPATSession)
+            final String remoteHost, final long sessionStart, final int sessionExpirationTime, final boolean isPersonalAccessTokenSession)
     {
         FullSession<Session> session =
-                super.createSession(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime, isPATSession);
+                super.createSession(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime, isPersonalAccessTokenSession);
 
         if (session.isPersonalAccessTokenSession())
         {

@@ -106,12 +106,12 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         private long lastActiveTime;
 
-        FullSession(final S session, final boolean isPATSession)
+        FullSession(final S session, final boolean isPersonalAccessTokenSession)
         {
             assert session != null : "Undefined session";
 
             this.session = session;
-            this.isPersonalAccessTokenSession = isPATSession;
+            this.isPersonalAccessTokenSession = isPersonalAccessTokenSession;
             touch();
         }
 
@@ -275,10 +275,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     }
 
     protected FullSession<T> createSession(String sessionToken, String userName, Principal principal, String remoteHost, long sessionStart,
-            int sessionExpirationTime, boolean isPATSession)
+            int sessionExpirationTime, boolean isPersonalAccessTokenSession)
     {
         T session = sessionFactory.create(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime);
-        return new FullSession<>(session, isPATSession);
+        return new FullSession<>(session, isPersonalAccessTokenSession);
     }
 
     private final T createAndStoreSession(final String user, final Principal principal,
