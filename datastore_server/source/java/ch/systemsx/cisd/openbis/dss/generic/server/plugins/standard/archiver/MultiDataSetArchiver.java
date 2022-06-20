@@ -37,6 +37,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -141,6 +143,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
 
+    public static final String CHECK_CONISTENCY = "check-constistency-between-store-and-pathinfo-db";
+
     public static final String CLEANER_PROPS = "cleaner";
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
@@ -171,6 +175,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private ITimeAndWaitingProvider timeProvider;
 
+    private boolean checkConsistency;
+
     public MultiDataSetArchiver(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, SystemTimeProvider.SYSTEM_TIME_PROVIDER, null);
@@ -182,6 +188,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         super(properties, storeRoot, null, null);
         this.timeProvider = timeProvider;
         delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
+        checkConsistency = PropertyUtils.getBoolean(properties, CHECK_CONISTENCY, true);
 
         absoluteMinimumFreeSpaceAtDestination = PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_BYTES, -1L);
         relativeMinimumFreeSpaceAtDestination = PropertyUtils.getInt(properties, MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_PERCENTAGE, -1);
@@ -361,6 +368,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private MultiDataSetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context,
             boolean removeFromDataStore, IMultiDataSetArchiverDBTransaction transaction) throws Exception
     {
+        assertConcistencyBetweenDataStoreAndPathinfoDB(dataSets);
         MultiDataSetProcessingStatuses statuses = new MultiDataSetProcessingStatuses();
 
         // for sharding we use the location of the first datast
@@ -467,6 +475,28 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private boolean needsToWaitForReplication()
     {
         return getFileOperations().isReplicatedArchiveDefined();
+    }
+
+    private void assertConcistencyBetweenDataStoreAndPathinfoDB(List<DatasetDescription> dataSets)
+    {
+        if (checkConsistency)
+        {
+            operationLog.info("Starts consistency check between data store and pathinfo database for "
+                    + CollectionUtils.abbreviate(dataSets, 20));
+            DataSetAndPathInfoDBConsistencyChecker createChecker = createChecker();
+            createChecker.check(dataSets);
+            operationLog.info("Consistency check finished.");
+            if (createChecker.noErrorAndInconsistencyFound() == false)
+            {
+                throw new EnvironmentFailureException("Inconsistency between data store and pathinfo database: "
+                        + createChecker.createReport());
+            }
+        }
+    }
+
+    protected DataSetAndPathInfoDBConsistencyChecker createChecker()
+    {
+        return new DataSetAndPathInfoDBConsistencyChecker(null, null);
     }
 
     private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,

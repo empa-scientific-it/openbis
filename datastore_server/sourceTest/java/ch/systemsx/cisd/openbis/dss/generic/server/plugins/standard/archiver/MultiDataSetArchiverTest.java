@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -51,6 +50,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.H5FolderFlags;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
@@ -86,6 +87,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -140,12 +142,17 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private IMultiDataSetArchiveCleaner cleaner;
 
+        private IHierarchicalContentProvider fileProvider;
+
+        private IHierarchicalContentProvider pathInfoProvider;
+
         public MockMultiDataSetArchiver(Properties properties, File storeRoot,
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
                 IFreeSpaceProvider freeSpaceProvider, ITimeAndWaitingProvider timeProvider,
-                IMultiDataSetArchiveCleaner cleaner)
+                IMultiDataSetArchiveCleaner cleaner,
+                IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
         {
             super(properties, storeRoot, timeProvider, freeSpaceProvider);
             this.transaction = transaction;
@@ -153,6 +160,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             this.readonlyDAO = readonlyDAO;
             this.freeSpaceProvider = freeSpaceProvider;
             this.cleaner = cleaner;
+            this.fileProvider = fileProvider;
+            this.pathInfoProvider = pathInfoProvider;
             setService(openBISService);
             setShareIdManager(shareIdManager);
             setStatusUpdater(statusUpdater);
@@ -186,6 +195,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         IMultiDataSetArchiveCleaner getCleaner()
         {
             return cleaner;
+        }
+
+        @Override
+        protected DataSetAndPathInfoDBConsistencyChecker createChecker()
+        {
+            return new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
         }
     }
 
@@ -271,6 +286,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private MockCleaner cleaner;
 
+    private IHierarchicalContentProvider fileContentProvider;
+
+    private IHierarchicalContentProvider pathinfoContentProvider;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -290,6 +309,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         hierarchicalContentProvider = new SimpleFileContentProvider(share);
         ServiceProviderTestWrapper.addMock(context, IHierarchicalContentProvider.class,
                 hierarchicalContentProvider);
+        fileContentProvider = context.mock(IHierarchicalContentProvider.class, "fileContentProvider");
+        pathinfoContentProvider = context.mock(IHierarchicalContentProvider.class, "pathinfoContentProvider");
         fileOperations = context.mock(IMultiDataSetFileOperationsManager.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         timeProvider = new MockTimeProvider();
@@ -387,6 +408,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testArchiveOneDataSetAndWaitForFreeSpace()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         prepareLockAndReleaseDataSet(ds2);
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFreeSpace(600 * FileUtils.ONE_MB, 100 * FileUtils.ONE_MB, 6);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
@@ -455,6 +477,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testArchiveOneDataSetAndWaitForReplicate()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         prepareLockAndReleaseDataSet(ds2);
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(3 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
@@ -537,6 +560,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         transaction.insertDataset(ds1, container);
         transaction.commit();
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         prepareLockAndReleaseDataSet(ds2);
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(3 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
@@ -636,8 +660,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testArchiveTwoDataSetsWithoutStagingWithFastSanityCheck()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
+        prepareConsistencyCheck(ds1.getDataSetCode());
         prepareLockAndReleaseDataSet(ds1);
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         prepareLockAndReleaseDataSet(ds2);
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
         properties.remove(STAGING_DESTINATION_KEY);
@@ -742,6 +768,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testArchiveTwoDataSetsOneAlreadyArchived()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
+        prepareConsistencyCheck(ds1.getDataSetCode());
         prepareLockAndReleaseDataSet(ds1);
         prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "5");
@@ -811,6 +838,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testArchiveDataSetFails()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         final String containerPath = "123-456.tar";
         prepareFileOperationsGenerateContainerPath(containerPath, ds2);
@@ -836,10 +864,71 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test(dataProvider = "testArchiveDataSetFailsByInconsitenciesDataProvider")
+    public void testArchiveDataSetFailsByInconsitencies(String[] fileContentDefinition,
+            String[] pathinfoContentDefinition, String[] errorMessages)
+    {
+        // Given
+        prepareUpdateShareIdAndSize(ds2, 20);
+        MockContent fileContent = new MockContent(fileContentDefinition);
+        MockContent pathinfoContent = new MockContent(pathinfoContentDefinition);
+        prepareConsistencyCheck(fileContent, pathinfoContent, ds2.getDataSetCode());
+        properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+
+        // When
+        MultiDataSetArchiver archiver = createArchiver(fileOperations);
+        ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
+
+        // Then
+        String errorMessage = String.join("\n- ", errorMessages);
+        assertEquals("[ERROR: \"Inconsistency between data store and pathinfo database: Data sets checked:\n\n"
+                + "[ds2]\n\n"
+                + "Differences found:\n\n"
+                + "Data set ds2:\n"
+                + "- " + errorMessage + "\n\n\"]",
+                status.getErrorStatuses().toString());
+        assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
+        File archiveFile = new File(archive, ds2.getDataSetCode() + ".tar");
+        assertEquals(false, archiveFile.exists());
+        assertEquals("[ds2]: AVAILABLE false\n", statusUpdater.toString());
+        assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
+        context.assertIsSatisfied();
+    }
+
+    @DataProvider
+    public Object[][] testArchiveDataSetFailsByInconsitenciesDataProvider()
+    {
+        return new Object[][] {
+                { new String[] { ":0:0", "a/:0:0", "a/b:34:9" }, new String[] { ":0:0", "a/:0:0", "a/b:34:10" },
+                        new String[] { "'a/b' CRC32 checksum in the file system = 00000009 but in the path info database = 00000010" } },
+                { new String[] { ":0:0", "a/:0:0", "a/b:345:9" }, new String[] { ":0:0", "a/:0:0", "a/b:34:9" },
+                        new String[] { "'a/b' size in the file system = 345 bytes but in the path info database = 34 bytes." } },
+                { new String[] { ":0:0", "a/:0:0", "a/b:34:9" }, new String[] { ":0:0", "a/:0:0" },
+                        new String[] { "'a/b' is on the file system but is not referenced in the path info database" } },
+                { new String[] { ":0:0", "a/:0:0" }, new String[] { ":0:0", "a/:0:0", "a/b:34:9" },
+                        new String[] { "'a/b' is referenced in the path info database but does not exist on the file system" } },
+                { new String[] { ":0:0", "a/:0:0" }, new String[] { ":0:0", "b/:0:0" },
+                        new String[] { "'a' is on the file system but is not referenced in the path info database",
+                                "'b' is referenced in the path info database but does not exist on the file system" } },
+                { new String[] { ":0:0", "a/:0:0" }, new String[] { ":0:0", "b:10:8" },
+                        new String[] { "'a' is on the file system but is not referenced in the path info database",
+                                "'b' is referenced in the path info database but does not exist on the file system" } },
+                { new String[] { ":0:0", "a/:0:0" }, new String[] { ":0:0", "a:10:8" },
+                        new String[] { "'a' is a directory in the file system but a file in the path info database" } },
+        };
+    }
+
+    /*
+     * java.lang.AssertionError: expected:<[ERROR: "Inconsistency between data store and pathinfo database: Data sets checked: [ds2] Differences
+     * found: Data set ds2: - 'a/b' is referenced in the path info database but does not exist on the file system "]> but was:<[ERROR: "Inconsistency
+     * between data store and pathinfo database: Data sets checked: [ds2] Differences found: Data set ds2: - 'a' is on the file system but is not
+     * referenced in the path info database - 'b' is referenced in the path info database but does not exist on the file system "]>
+     */
     @Test
     public void testArchiveDataSetFailsInCaseOfReplication()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         final String containerPath = "123-456.tar";
@@ -870,8 +959,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testUnarchive()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
+        prepareConsistencyCheck(ds1.getDataSetCode());
         prepareLockAndReleaseDataSet(ds1);
         prepareUpdateShareIdAndSize(ds2, 20);
+        prepareConsistencyCheck(ds2.getDataSetCode());
         prepareLockAndReleaseDataSet(ds2);
         prepareFixedFreeSpace(35 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
@@ -879,6 +970,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
         AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Starts consistency check between data store and pathinfo database for [Dataset 'ds1', Dataset 'ds2']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Consistency check finished.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
@@ -951,6 +1044,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void testForceUnarchive()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
+        prepareConsistencyCheck(ds1.getDataSetCode());
         prepareLockAndReleaseDataSet(ds1);
         prepareFixedFreeSpace(35 * FileUtils.ONE_GB);
         properties.setProperty(MultiDataSetArchiver.DELAY_UNARCHIVING, "true");
@@ -1179,6 +1273,26 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             });
     }
 
+    private void prepareConsistencyCheck(String dataSetCode)
+    {
+        IHierarchicalContent fileContent = new MockContent(":0:0", "a/:0:0", "a/b:34:9");
+        prepareConsistencyCheck(fileContent, fileContent, dataSetCode);
+    }
+
+    private void prepareConsistencyCheck(IHierarchicalContent fileContent, IHierarchicalContent pathinfoContent, String dataSetCode)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileContentProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
+                    will(returnValue(fileContent));
+
+                    one(pathinfoContentProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
+                    will(returnValue(pathinfoContent));
+                }
+            });
+    }
+
     private String getFilteredLogContent()
     {
         StringBuilder builder = new StringBuilder();
@@ -1316,7 +1430,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
         return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
-                transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider, cleaner);
+                transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider, cleaner,
+                fileContentProvider, pathinfoContentProvider);
     }
 
     private DatasetDescription dataSet(final String code, String content)
