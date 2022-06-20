@@ -2,13 +2,20 @@ var SettingsManagerUtils = new function() {
     this._instanceSettings = null;
 
     this.getSpaceGroupPrefix = function(spaceCode) {
-        if (this._instanceSettings) {
-            groups = Object.keys(this._instanceSettings).filter(group => spaceCode.startsWith(group));
-            if (groups.length > 0) {
-                return groups[0];
-            }
+        var endOf = spaceCode.indexOf("_");
+        var prefix = null;
+
+        if(endOf === -1) {
+            prefix = "GENERAL";
+        } else {
+            prefix = spaceCode.substring(0, endOf);
         }
-        return "GENERAL";
+
+        if(this._instanceSettings[prefix] === undefined) {
+            prefix = "GENERAL";
+        }
+
+        return prefix;
     }
 
     this._getSpaceSettingsObject = function(spaceCode) {
