@@ -143,7 +143,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
 
-    public static final String CHECK_CONISTENCY = "check-constistency-between-store-and-pathinfo-db";
+    public static final String CHECK_CONISTENCY = "check-consistency-between-store-and-pathinfo-db";
 
     public static final String CLEANER_PROPS = "cleaner";
 
