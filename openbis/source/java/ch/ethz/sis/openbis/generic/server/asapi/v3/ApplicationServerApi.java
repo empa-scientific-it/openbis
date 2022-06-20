@@ -220,13 +220,21 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.SearchOperation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.UpdateOperationExecutionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.CreatePersonalAccessTokensOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.CreatePersonalAccessTokensOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.DeletePersonalAccessTokensOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.get.GetPersonalAccessTokensOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.get.GetPersonalAccessTokensOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.SearchPersonalAccessTokensOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.SearchPersonalAccessTokensOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.UpdatePersonalAccessTokensOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.CreatePersonsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.CreatePersonsOperationResult;
@@ -441,6 +449,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.get.GetSessionInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.get.GetSessionInformationOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SearchSessionInformationOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SearchSessionInformationOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.CreateSpacesOperation;
@@ -765,9 +775,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional public List<PersonalAccessTokenPermId> createPersonalAccessTokens(final String sessionToken,
-            final List<PersonalAccessTokenCreation> newPersonalAccessTokens)
+            final List<PersonalAccessTokenCreation> creations)
     {
-        return null;
+        CreatePersonalAccessTokensOperationResult result = executeOperation(sessionToken, new CreatePersonalAccessTokensOperation(creations));
+        return result.getObjectIds();
     }
 
     @Override
@@ -1105,7 +1116,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(final String sessionToken,
             final List<? extends IPersonalAccessTokenId> personalAccessTokenIds, final PersonalAccessTokenFetchOptions fetchOptions)
     {
-        return null;
+        GetPersonalAccessTokensOperationResult result =
+                executeOperation(sessionToken, new GetPersonalAccessTokensOperation(personalAccessTokenIds, fetchOptions));
+        return result.getObjectMap();
     }
 
     @Override
@@ -1451,7 +1464,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             final List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
             final PersonalAccessTokenDeletionOptions deletionOptions)
     {
-
+        executeOperation(sessionToken, new DeletePersonalAccessTokensOperation(personalAccessTokenIds, deletionOptions));
     }
 
     @Override
@@ -1710,9 +1723,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override @Transactional public void updatePersonalAccessTokens(final String sessionToken,
-            final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+            final List<PersonalAccessTokenUpdate> updates)
     {
-
+        executeOperation(sessionToken, new UpdatePersonalAccessTokensOperation(updates));
     }
 
     @Override
@@ -1745,14 +1758,18 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(final String sessionToken,
             final PersonalAccessTokenSearchCriteria searchCriteria, final PersonalAccessTokenFetchOptions fetchOptions)
     {
-        return null;
+        SearchPersonalAccessTokensOperationResult
+                result = executeOperation(sessionToken, new SearchPersonalAccessTokensOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
     }
 
     @Transactional(readOnly = true)
     @Override public SearchResult<SessionInformation> searchSessionInformation(final String sessionToken,
             final SessionInformationSearchCriteria searchCriteria, final SessionInformationFetchOptions fetchOptions)
     {
-        return null;
+        SearchSessionInformationOperationResult
+                result = executeOperation(sessionToken, new SearchSessionInformationOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
     }
 
     @Override
