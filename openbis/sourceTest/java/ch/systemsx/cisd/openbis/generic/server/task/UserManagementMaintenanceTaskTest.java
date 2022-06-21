@@ -191,6 +191,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "{\"key\":\"AB-c\"},"
                 + "{\"key\":\"ab.C\"},"
                 + "{\"key\":\"AB_C\"},"
+                + "{\"key\":\"ab c\"},"
                 + "]}");
 
         // When
