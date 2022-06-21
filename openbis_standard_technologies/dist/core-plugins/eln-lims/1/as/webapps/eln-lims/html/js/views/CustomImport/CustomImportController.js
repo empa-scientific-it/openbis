@@ -7,11 +7,11 @@ function CustomImportController(parentController) {
         this._view.repaint(views);
     }
 
-    this.importFile = function(customServiceId, callback) {
+    this.importFile = function(dropbox, callback) {
         Util.blockUI();
         var parameters = {
                 "method": "dropDataSet",
-                "dropBoxName": customServiceId,
+                "dropBoxName": dropbox,
                 "fileName": this._model.file
         };
         mainController.serverFacade.createReportFromAggregationService(profile.allDataStores[0].code, parameters, function(response) {
