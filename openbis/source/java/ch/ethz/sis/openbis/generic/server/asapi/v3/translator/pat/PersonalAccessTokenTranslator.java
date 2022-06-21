@@ -18,9 +18,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,27 +30,14 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.QueryType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryDatabaseName;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.IQueryAuthorizationValidator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.IQueryBaseTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.IQueryRegistratorTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.IQueryTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.QueryBaseRecord;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
-import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 
 /**
  * @author pkupczyk
@@ -61,6 +50,9 @@ public class PersonalAccessTokenTranslator extends
 
     @Autowired
     private IPersonTranslator personTranslator;
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Override protected Set<PersonalAccessToken> shouldTranslate(final TranslationContext context, final Collection<PersonalAccessToken> pats,
             final PersonalAccessTokenFetchOptions fetchOptions)
@@ -81,7 +73,7 @@ public class PersonalAccessTokenTranslator extends
 
         for (PersonalAccessToken pat : pats)
         {
-            if (person.getId().equals(pat.getOwnerId()))
+            if (person.getUserId().equals(pat.getOwnerId()))
             {
                 filtered.add(pat);
             }
@@ -114,9 +106,9 @@ public class PersonalAccessTokenTranslator extends
     protected Object getObjectsRelations(TranslationContext context, Collection<PersonalAccessToken> pats,
             PersonalAccessTokenFetchOptions fetchOptions)
     {
-        Collection<Long> ownerIds = new HashSet<>();
-        Collection<Long> registratorIds = new HashSet<>();
-        Collection<Long> modifierIds = new HashSet<>();
+        Collection<String> ownerIds = new HashSet<>();
+        Collection<String> registratorIds = new HashSet<>();
+        Collection<String> modifierIds = new HashSet<>();
 
         for (PersonalAccessToken pat : pats)
         {
@@ -138,18 +130,31 @@ public class PersonalAccessTokenTranslator extends
 
         if (!ownerIds.isEmpty())
         {
-            relations.owners = personTranslator.translate(context, ownerIds, fetchOptions.withOwner());
+            relations.owners = getPersons(context, ownerIds, fetchOptions.withOwner());
         }
         if (!registratorIds.isEmpty())
         {
-            relations.registrators = personTranslator.translate(context, registratorIds, fetchOptions.withRegistrator());
+            relations.registrators = getPersons(context, registratorIds, fetchOptions.withRegistrator());
         }
         if (!modifierIds.isEmpty())
         {
-            relations.modifiers = personTranslator.translate(context, modifierIds, fetchOptions.withModifier());
+            relations.modifiers = getPersons(context, modifierIds, fetchOptions.withModifier());
         }
 
         return relations;
+    }
+
+    private Map<String, Person> getPersons(TranslationContext context, Collection<String> personIds, PersonFetchOptions fetchOptions)
+    {
+        Collection<Long> techIds = daoFactory.getPersonDAO().listByCodes(personIds).stream().map(PersonPE::getId).collect(Collectors.toList());
+        Map<Long, Person> personMap = personTranslator.translate(context, techIds, fetchOptions);
+
+        Map<String, Person> result = new HashMap<>();
+        for (Map.Entry<Long, Person> entry : personMap.entrySet())
+        {
+            result.put(entry.getValue().getUserId(), entry.getValue());
+        }
+        return result;
     }
 
     @Override
@@ -180,11 +185,11 @@ public class PersonalAccessTokenTranslator extends
 
     private static class Relations
     {
-        private Map<Long, Person> owners;
+        private Map<String, Person> owners;
 
-        private Map<Long, Person> registrators;
+        private Map<String, Person> registrators;
 
-        private Map<Long, Person> modifiers;
+        private Map<String, Person> modifiers;
     }
 
 }

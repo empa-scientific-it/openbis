@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchPersonalAccessTokenExecutor extends ISearchObjectExecutor<PersonalAccessTokenSearchCriteria, PersonalAccessToken>
+public interface ISearchSessionInformationOperationExecutor extends ISearchObjectsOperationExecutor
 {
 
 }

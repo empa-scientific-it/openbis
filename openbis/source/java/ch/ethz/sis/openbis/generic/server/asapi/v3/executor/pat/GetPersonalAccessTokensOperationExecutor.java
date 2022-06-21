@@ -48,10 +48,13 @@ public class GetPersonalAccessTokensOperationExecutor
 {
 
     @Autowired
+    private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IPersonalAccessTokenTranslator patTranslator;
+    private IPersonalAccessTokenTranslator translator;
 
     @Override protected Class<? extends GetPersonalAccessTokensOperation> getOperationClass()
     {
@@ -61,6 +64,8 @@ public class GetPersonalAccessTokensOperationExecutor
     @Override protected GetPersonalAccessTokensOperationResult doExecute(final IOperationContext context,
             final GetPersonalAccessTokensOperation operation)
     {
+        authorizationExecutor.canGet(context);
+
         List<? extends IPersonalAccessTokenId> ids = operation.getObjectIds();
         PersonalAccessTokenFetchOptions fetchOptions = operation.getFetchOptions();
 
@@ -97,7 +102,7 @@ public class GetPersonalAccessTokensOperationExecutor
         {
             TranslationContext translationContext = new TranslationContext(context.getSession());
             Map<PersonalAccessToken, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> patsV3 =
-                    patTranslator.translate(translationContext, pats, fetchOptions);
+                    translator.translate(translationContext, pats, fetchOptions);
 
             Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> result = new HashMap<>();
             for (ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken patV3 : patsV3.values())

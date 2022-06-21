@@ -42,7 +42,7 @@ public class DatabaseModificationKind implements Serializable
         GRID_CUSTOM_FILTER, GRID_CUSTOM_COLUMN, SCRIPT, DELETION, POSTREGISTRATION_QUEUE,
         // TODO 2010-02-19, PTR: no easy way to extend current modification notification solution in
         // modules
-        QUERY, METAPROJECT, OPERATION_EXECUTION, SEMANTIC_ANNOTATION
+        QUERY, METAPROJECT, OPERATION_EXECUTION, SEMANTIC_ANNOTATION, PERSONAL_ACCESS_TOKEN
     }
 
     public enum OperationKind implements IsSerializable

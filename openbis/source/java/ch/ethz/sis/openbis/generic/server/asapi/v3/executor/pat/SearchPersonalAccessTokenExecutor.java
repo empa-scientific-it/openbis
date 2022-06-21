@@ -21,27 +21,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DescriptionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NameSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryDatabaseName;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryName;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.DatabaseIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.EntityTypeCodePatternSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QuerySearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QueryTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.SqlSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IQueryAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 
 /**
  * @author pkupczyk
@@ -51,8 +39,53 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
         implements ISearchPersonalAccessTokenExecutor
 {
 
-    @Override protected Matcher<PersonalAccessToken> getMatcher(final ISearchCriteria criteria)
+    @Autowired
+    private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    public List<PersonalAccessToken> search(IOperationContext context, PersonalAccessTokenSearchCriteria criteria)
     {
-        return null;
+        authorizationExecutor.canSearch(context);
+        return super.search(context, criteria);
+    }
+
+    @Override
+    protected List<PersonalAccessToken> listAll()
+    {
+        return daoFactory.getPersonalAccessTokenDAO().listTokens();
+    }
+
+    @Override
+    protected Matcher<PersonalAccessToken> getMatcher(ISearchCriteria criteria)
+    {
+        if (criteria instanceof IdSearchCriteria<?>)
+        {
+            return new IdMatcher();
+        } else
+        {
+            throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
+        }
+    }
+
+    private static class IdMatcher extends SimpleFieldMatcher<PersonalAccessToken>
+    {
+
+        @Override
+        protected boolean isMatching(IOperationContext context, PersonalAccessToken object, ISearchCriteria criteria)
+        {
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof PersonalAccessTokenPermId)
+            {
+                return id.equals(new PersonalAccessTokenPermId(object.getHash()));
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + id.getClass());
+            }
+        }
+
     }
 }
