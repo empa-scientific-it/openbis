@@ -9,7 +9,11 @@ public class PersonalAccessToken
 
     private String sessionName;
 
-    private String ownerId;
+    private Long ownerId;
+
+    private Long registratorId;
+
+    private Long modifierId;
 
     private Date validFromDate;
 
@@ -41,14 +45,34 @@ public class PersonalAccessToken
         this.sessionName = sessionName;
     }
 
-    public String getOwnerId()
+    public Long getOwnerId()
     {
         return ownerId;
     }
 
-    public void setOwnerId(final String ownerId)
+    public void setOwnerId(final Long ownerId)
     {
         this.ownerId = ownerId;
+    }
+
+    public Long getRegistratorId()
+    {
+        return registratorId;
+    }
+
+    public void setRegistratorId(final Long registratorId)
+    {
+        this.registratorId = registratorId;
+    }
+
+    public Long getModifierId()
+    {
+        return modifierId;
+    }
+
+    public void setModifierId(final Long modifierId)
+    {
+        this.modifierId = modifierId;
     }
 
     public Date getValidFromDate()

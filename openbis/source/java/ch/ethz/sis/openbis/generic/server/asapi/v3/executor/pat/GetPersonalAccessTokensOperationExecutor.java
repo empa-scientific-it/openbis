@@ -16,39 +16,96 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetObjectsOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetObjectsOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.get.GetQueriesOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.get.GetQueriesOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.get.GetPersonalAccessTokensOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.get.GetPersonalAccessTokensOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.GetObjectsPEOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IMapQueryByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.query.IQueryTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat.IPersonalAccessTokenTranslator;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class GetPersonalAccessTokensOperationExecutor implements IGetPersonalAccessTokensOperationExecutor
+public class GetPersonalAccessTokensOperationExecutor
+        extends OperationExecutor<GetPersonalAccessTokensOperation, GetPersonalAccessTokensOperationResult>
+        implements IGetPersonalAccessTokensOperationExecutor
 {
 
-    @Override public Map<IOperation, IOperationResult> execute(final IOperationContext context, final List<? extends IOperation> operations)
+    @Autowired
+    private IDAOFactory daoFactory;
+
+    @Autowired
+    private IPersonalAccessTokenTranslator patTranslator;
+
+    @Override protected Class<? extends GetPersonalAccessTokensOperation> getOperationClass()
     {
-        return null;
+        return GetPersonalAccessTokensOperation.class;
     }
 
+    @Override protected GetPersonalAccessTokensOperationResult doExecute(final IOperationContext context,
+            final GetPersonalAccessTokensOperation operation)
+    {
+        List<? extends IPersonalAccessTokenId> ids = operation.getObjectIds();
+        PersonalAccessTokenFetchOptions fetchOptions = operation.getFetchOptions();
+
+        if (ids == null)
+        {
+            throw new UserFailureException("Ids cannot be null");
+        }
+        if (fetchOptions == null)
+        {
+            throw new UserFailureException("Fetch options cannot be null");
+        }
+
+        List<PersonalAccessToken> pats = new ArrayList<>();
+
+        for (IPersonalAccessTokenId id : ids)
+        {
+            if (id instanceof PersonalAccessTokenPermId)
+            {
+                PersonalAccessToken pat = daoFactory.getPersonalAccessTokenDAO().getTokenByHash(((PersonalAccessTokenPermId) id).getPermId());
+                if (pat != null)
+                {
+                    pats.add(pat);
+                }
+            } else
+            {
+                throw new UserFailureException("Unsupported id: " + id.getClass());
+            }
+        }
+
+        if (pats.isEmpty())
+        {
+            return new GetPersonalAccessTokensOperationResult(Collections.emptyMap());
+        } else
+        {
+            TranslationContext translationContext = new TranslationContext(context.getSession());
+            Map<PersonalAccessToken, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> patsV3 =
+                    patTranslator.translate(translationContext, pats, fetchOptions);
+
+            Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> result = new HashMap<>();
+            for (ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken patV3 : patsV3.values())
+            {
+                result.put(patV3.getPermId(), patV3);
+            }
+
+            return new GetPersonalAccessTokensOperationResult(result);
+        }
+    }
 }
