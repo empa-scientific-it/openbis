@@ -17,12 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.util.List;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 public class UserGroup
 {
+    private static Pattern GROUP_KEY_PATTERN = Pattern.compile("[a-zA-Z0-9\\-\\.]+");
+
     private String name;
 
     private String key;
@@ -55,6 +60,14 @@ public class UserGroup
 
     public void setKey(String key)
     {
+        if (StringUtils.isBlank(key))
+        {
+            throw new IllegalArgumentException("Group key is empty.");
+        }
+        if (GROUP_KEY_PATTERN.matcher(key).matches() == false)
+        {
+            throw new IllegalArgumentException("Invalid group key: >" + key + "<. Only letters a-z, A-Z, digits, '-' and '.' are allowed.");
+        }
         this.key = key;
     }
 
