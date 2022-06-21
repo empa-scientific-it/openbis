@@ -33,6 +33,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Level;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -177,6 +178,26 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
         assertEquals("INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Setup plugin \n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Plugin '' initialized. Configuration file: "
                 + configFile.getAbsolutePath(), logRecorder.getLogContent());
+    }
+
+    @Test
+    public void testExecuteFailedBecauseOfInvalidGroupKey()
+    {
+        // Given
+        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks();
+        FileUtilities.writeToFile(configFile, "");
+        task.setUp("", properties);
+        FileUtilities.writeToFile(configFile, "{\"groups\": ["
+                + "{\"key\":\"AB-c\"},"
+                + "{\"key\":\"ab.C\"},"
+                + "{\"key\":\"AB_C\"},"
+                + "]}");
+
+        // When
+        task.execute();
+
+        // Then
+        assertContains("Invalid group key: >AB_C<.", logRecorder.getLogContent());
     }
 
     @Test
