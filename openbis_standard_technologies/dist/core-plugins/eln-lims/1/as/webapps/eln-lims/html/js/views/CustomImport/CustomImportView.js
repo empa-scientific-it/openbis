@@ -67,9 +67,11 @@ function CustomImportView(customImportController, customImportModel) {
                 _this.showError("Drop or choose a file.");
                 return;
             }
-            _this._controller.importFile(serviceId, function() {
+            var definition = definitionsById[serviceId];
+            var dropbox = definition.properties["dropbox-name"];
+            _this._controller.importFile(dropbox, function() {
                 Util.showInfo("Custom import of file '" + _this._model.file 
-                        + "' successfully submitted for service '" + serviceId + "'.");
+                        + "' successfully submitted for service '" + serviceId + "' (dropbox '" + dropbox + "').");
                 mainController._showCustomImportPage();
             });
         }, "Import", null, "save-btn");
