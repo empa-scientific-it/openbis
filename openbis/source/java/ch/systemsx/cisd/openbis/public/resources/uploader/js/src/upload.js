@@ -303,6 +303,10 @@ var Uploader = new function () {
 
 
     function uploadFiles(files) {
+        if (settings.singleFile && files.length > 1) {
+            alert("You can drop only one file.");
+            return false;
+        }
         $(settings.file_list).addClass("visible");
         //$(settings.file_list_clear_button).css("display", "inline");
         if (typeof files === "object" && files.length > 0) {
@@ -323,7 +327,7 @@ var Uploader = new function () {
                     " id=\"form-" + id + "\"" +
                     " enctype=\"multipart/form-data\"" +
                     " method=\"POST\">" +
-                    "<input type=\"file\" multiple name=\"files[]\"" +
+                    "<input type=\"file\" " + (settings.singleFile ? "" : "multiple") + " name=\"files[]\"" +
                     " id=\"fileinput-" + id + "\" />" +
                     "</form>");
         $("#fileinput-" + id)
@@ -389,9 +393,15 @@ var Uploader = new function () {
             
             // pkupczyk: we do not provide listing of uploaded files yet
             //$("h2 > a").attr("href", settings.upload_dir);
-        	
+            var fileOrFilesText = settings.singleFile ? "file" : "files";
+            var buttonLabel = "Select " + fileOrFilesText + " to upload";
+            if (settings.singleFile) {
+                $("#fileinput-button").text(buttonLabel);
+                $("#fileinput").removeAttr("multiple");
+            }
             if (settings.smart_mode) {
-                $("#filedrop-hint").html("Drag and drop the files to upload here or click 'Select files to upload' button.");
+                $("#filedrop-hint").html("Drag and drop the " + fileOrFilesText + " to upload here or click '" 
+                        + buttonLabel + "' to upload' button.");
                 $(settings.file_input)
                     .bind("change", function(event) {
                         uploadFiles(event.target.files);
@@ -428,7 +438,7 @@ var Uploader = new function () {
                 );
             }
             else { // fallback mode
-                $("#filedrop-hint").html("Click 'Select files to upload' button.");
+                $("#filedrop-hint").html("Click '" + buttonLabel + "' button.");
                 generateUploadForm();
             }
             //$(settings.file_list_clear_button).click(clearFileList);

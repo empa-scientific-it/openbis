@@ -50,6 +50,7 @@ function CustomImportView(customImportController, customImportModel) {
             }, {
             main_title: $('<legend>').text('Files Uploader'),
             uploads_title: $('<legend>').text('File list'),
+            singleFile: true,
             ondelete: function(file) {
                 _this._model.file = null;
                 $("#filedrop").show();
