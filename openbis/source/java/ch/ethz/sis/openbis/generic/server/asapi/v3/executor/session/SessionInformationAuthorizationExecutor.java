@@ -18,22 +18,37 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SessionAuthorizationExecutor implements ISessionAuthorizationExecutor
+public class SessionInformationAuthorizationExecutor implements ISessionInformationAuthorizationExecutor
 {
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_SESSION")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_SESSION")
+    public void canSearch(IOperationContext context)
     {
     }
 

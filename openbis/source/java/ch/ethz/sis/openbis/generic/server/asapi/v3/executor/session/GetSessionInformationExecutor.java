@@ -21,9 +21,13 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.session.ISessionInformationTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -33,14 +37,17 @@ public class GetSessionInformationExecutor implements IGetSessionInformationExec
 {
 
     @Autowired
-    private ISessionAuthorizationExecutor authorizationExecutor;
+    private ISessionInformationAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
+    private ISessionInformationTranslator translator;
 
     @Override
     public SessionInformation getInformation(IOperationContext context)
     {
         authorizationExecutor.canGet(context);
 
-        IAuthSession session = null;
+        Session session = null;
 
         try
         {
@@ -50,35 +57,16 @@ public class GetSessionInformationExecutor implements IGetSessionInformationExec
             // Ignore, if session is no longer available and error is thrown
         }
 
-        SessionInformation sessionInfo = null;
         if (session != null)
         {
-            sessionInfo = new SessionInformation();
-            sessionInfo.setUserName(session.getUserName());
-            sessionInfo.setHomeGroupCode(session.tryGetHomeGroupCode());
+            SessionInformationFetchOptions fetchOptions = new SessionInformationFetchOptions();
+            fetchOptions.withPerson();
+            fetchOptions.withCreatorPerson();
 
-            PersonPE personPE = session.tryGetPerson();
-            Person person = new Person();
-            person.setFirstName(personPE.getFirstName());
-            person.setLastName(personPE.getLastName());
-            person.setUserId(personPE.getUserId());
-            person.setEmail(personPE.getEmail());
-            person.setRegistrationDate(personPE.getRegistrationDate());
-            person.setActive(personPE.isActive());
-            sessionInfo.setPerson(person);
-
-            PersonPE creatorPersonPE = session.tryGetCreatorPerson();
-            Person creatorPerson = new Person();
-            creatorPerson.setFirstName(creatorPersonPE.getFirstName());
-            creatorPerson.setLastName(creatorPersonPE.getLastName());
-            creatorPerson.setUserId(creatorPersonPE.getUserId());
-            creatorPerson.setEmail(creatorPersonPE.getEmail());
-            creatorPerson.setRegistrationDate(creatorPersonPE.getRegistrationDate());
-            creatorPerson.setActive(creatorPersonPE.isActive());
-            sessionInfo.setCreatorPerson(creatorPerson);
+            return translator.translate(new TranslationContext(session), session, fetchOptions);
         }
 
-        return sessionInfo;
+        return null;
     }
 
 }

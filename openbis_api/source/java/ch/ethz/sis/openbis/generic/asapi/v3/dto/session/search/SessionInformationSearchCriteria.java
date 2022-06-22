@@ -16,24 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DescriptionSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NameSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.DatabaseIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.EntityTypeCodePatternSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QueryTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.SqlSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.id.ISessionInformationId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.session.search.SessionInformationSearchCriteria")
-public class SessionInformationSearchCriteria extends AbstractCompositeSearchCriteria
+public class SessionInformationSearchCriteria extends AbstractObjectSearchCriteria<ISessionInformationId>
 {
 
     private static final long serialVersionUID = 1L;

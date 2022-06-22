@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
@@ -66,6 +68,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * </p>
      */
     public T getSession(final String sessionToken) throws InvalidSessionException;
+
+    /**
+     * Returns all sessions.
+     */
+    public List<T> getSessions();
 
     /**
      * For given <var>sessionToken</var> return the <code>Session</code> object, or <code>null</code>, if no session exist or the session is not

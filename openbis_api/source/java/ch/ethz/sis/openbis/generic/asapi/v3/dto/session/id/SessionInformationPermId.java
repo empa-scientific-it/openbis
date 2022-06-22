@@ -1,15 +1,15 @@
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.session.id;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.pat.id.PersonalAccessTokenPermId")
-public class PersonalAccessTokenPermId extends ObjectPermId implements IPersonalAccessTokenId
+@JsonObject("as.dto.session.id.SessionInformationPermId")
+public class SessionInformationPermId extends ObjectPermId implements ISessionInformationId
 {
 
     private static final long serialVersionUID = 1L;
 
-    public PersonalAccessTokenPermId(String permId)
+    public SessionInformationPermId(String permId)
     {
         super(permId);
     }
@@ -19,7 +19,7 @@ public class PersonalAccessTokenPermId extends ObjectPermId implements IPersonal
     //
 
     @SuppressWarnings("unused")
-    private PersonalAccessTokenPermId()
+    private SessionInformationPermId()
     {
         super();
     }
