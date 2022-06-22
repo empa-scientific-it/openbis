@@ -15,7 +15,10 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSe
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
 class Acceptor(object):
-    def __init__(self):
+    def __init__(self, settings):
+        self.inventorySpaces = settings.inventorySpaces
+        self.mainMenues = settings.mainMenues
+        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
         self.endingsOfHiddenSpaces = []
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
@@ -27,37 +30,37 @@ class Acceptor(object):
     def hideSpaceEndingWith(self, spaceCodeEnding):
         self.endingsOfHiddenSpaces.append(spaceCodeEnding)
 
-    def acceptSpace(self, section, inventorySpaces, mainMenues, space):
+    def acceptSpace(self, section, space):
         code = space.getCode()
         for ending in self.endingsOfHiddenSpaces:
             if code.endswith(ending):
                 return False
         if section == "Lab Notebook":
-            return not code in inventorySpaces and not self._showStockSpace(code, mainMenues) \
-                and self._showItem(code, mainMenues, "LabNotebook")
+            return not code in self.inventorySpaces and not self._showStockSpace(code) \
+                and self._showItem(code, "LabNotebook")
         elif section == "Inventory":
-            return code in inventorySpaces and not self._showStockSpace(code, mainMenues) \
-                and self._showItem(code, mainMenues, "Inventory")
+            return code in self.inventorySpaces and not self._showStockSpace(code) \
+                and self._showItem(code, "Inventory")
         elif section == "Stock":
-            return code in inventorySpaces and self._showStockSpace(code, mainMenues)
+            return code in self.inventorySpaces and self._showStockSpace(code)
         return True
 
-    def _showStockSpace(self, code, mainMenues):
+    def _showStockSpace(self, code):
         for ending in ["STOCK_CATALOG", "STOCK_ORDERS"]:
             if code.endswith(ending):
-                return self._showItem(code, mainMenues, "Stock")
+                return self._showItem(code, "Stock")
         return False
 
-    def _showItem(self, code, mainMenues, item):
-        group = self._getGroupPrefix(code, mainMenues)
-        if group in mainMenues:
-            mainMenue = mainMenues[group]
+    def _showItem(self, code, item):
+        group = self._getGroupPrefix(code)
+        if group in self.mainMenues:
+            mainMenue = self.mainMenues[group]
             showTerm = "show%s" % item
             return mainMenue[showTerm] if showTerm in mainMenue else False
         return False
     
-    def _getGroupPrefix(self, code, mainMenues):
-        groups = filter(lambda group: code.startswith(group), mainMenues.keys())
+    def _getGroupPrefix(self, code):
+        groups = filter(lambda group: code.startswith(group), self.mainMenues.keys())
         return groups[0] if groups else "GENERAL"
 
     def hideExperimentType(self, typeCode):
@@ -70,7 +73,15 @@ class Acceptor(object):
         self.hiddenSampleTypes[typeCode] = True
 
     def acceptSample(self, sample):
-        return sample.getType().getCode() not in self.hiddenSampleTypes
+        group = self._getGroupPrefix(sample.getSpace().getCode())
+        attributes = self.sampleTypeViewAttributes[group]
+        sampleTypeCode = sample.getType().getCode()
+        if sampleTypeCode in self.hiddenSampleTypes:
+            return False
+        if sampleTypeCode in attributes:
+            attr = attributes[sampleTypeCode]
+            return "SHOW_ON_NAV" in attr and attr["SHOW_ON_NAV"]
+        return False
 
     def hideDataSetType(self, typeCode):
         self.hiddenDataSetTypes[typeCode] = True
@@ -78,8 +89,14 @@ class Acceptor(object):
     def acceptDataSet(self, dataSet):
         return dataSet.getType().getCode() not in self.hiddenDataSetTypes
 
+class Settings(object):
+    def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
+        self.inventorySpaces = inventorySpaces
+        self.mainMenues = mainMenues
+        self.sampleTypeViewAttributes = sampleTypeViewAttributes
+
 def resolve(subPath, context):
-    acceptor = createAcceptor()
+    acceptor = createAcceptor(context)
     if len(subPath) == 0:
         return listSections(context)
     section = subPath[0]
@@ -96,8 +113,8 @@ def resolve(subPath, context):
     if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
 
-def createAcceptor():
-    acceptor = Acceptor()
+def createAcceptor(context):
+    acceptor = Acceptor(getAllSettings(context))
     pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
     for pluginFileName in os.listdir(pluginsFolder):
         file = "%s/%s" % (pluginsFolder, pluginFileName)
@@ -115,29 +132,32 @@ def listSpaces(section, acceptor, context):
     fetchOptions = SpaceFetchOptions()
     spaces = context.getApi().searchSpaces(context.getSessionToken(), SpaceSearchCriteria(), fetchOptions).getObjects()
     response = context.createDirectoryResponse()
-    inventorySpaces, mainMenues = getAllInventorySpacesAndMainMenues(context)
     for space in spaces:
-        if acceptor.acceptSpace(section, inventorySpaces, mainMenues, space):
+        if acceptor.acceptSpace(section, space):
             response.addDirectory(space.getCode(), space.getModificationDate())
     return response
 
-def getAllInventorySpacesAndMainMenues(context):
+def getAllSettings(context):
     criteria = SampleSearchCriteria()
     criteria.withType().withCode().thatEquals("GENERAL_ELN_SETTINGS")
     fetchOptions = SampleFetchOptions()
     fetchOptions.withProperties()
     settingsSamples = context.getApi().searchSamples(context.getSessionToken(), criteria, fetchOptions).getObjects()
-    spaces = set()
+    inventorySpaces = set()
     mainMenues = {}
+    sampleTypeViewAttributes = {}
     for settingsSample in settingsSamples:
         settings = settingsSample.getProperty("$ELN_SETTINGS")
         if settings is not None:
             settings = json.loads(settings)
-            spaces.update(settings["inventorySpaces"])
-            spaces.update(settings["inventorySpacesReadOnly"])
+            inventorySpaces.update(settings["inventorySpaces"])
+            inventorySpaces.update(settings["inventorySpacesReadOnly"])
+            group = settingsSample.getCode().split("_ELN_SETTINGS")[0]
             if "mainMenu" in settings:
-                mainMenues[settingsSample.getCode().split("_ELN_SETTINGS")[0]] = settings["mainMenu"]
-    return (spaces, mainMenues)
+                mainMenues[group] = settings["mainMenu"]
+            if "sampleTypeDefinitionsExtension" in settings:
+                sampleTypeViewAttributes[group] = settings["sampleTypeDefinitionsExtension"]
+    return Settings(inventorySpaces, mainMenues, sampleTypeViewAttributes)
 
 def listProjects(space, acceptor, context):
     searchCriteria = ProjectSearchCriteria()
@@ -228,6 +248,7 @@ def addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
     sampleSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
     fetchOptions = SampleFetchOptions()
     fetchOptions.withType()
+    fetchOptions.withSpace()
     fetchOptions.withProperties()
     fetchOptions.withParents().withExperiment()
     samples = context.getApi().searchSamples(context.getSessionToken(), sampleSearchCriteria, fetchOptions).getObjects()
@@ -244,6 +265,7 @@ def addSampleChildNodes(path, samplePermId, response, acceptor, context):
 
     fetchOptions = SampleFetchOptions()
     fetchOptions.withChildren().withType()
+    fetchOptions.withChildren().withSpace()
     fetchOptions.withChildren().withProperties()
     sampleId = SamplePermId(samplePermId)
     sample = context.getApi().getSamples(context.getSessionToken(), [sampleId], fetchOptions)[sampleId]
@@ -257,7 +279,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
     for childNode in contentNode.getChildNodes():
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
-        filePermId = "%s:%s" % (dataSetCode, childNode.getRelativePath())
+        filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
         context.getCache().putNode(Node("DATASET", filePermId), filePath)
         if response is not None:
             if childNode.isDirectory():
@@ -266,7 +288,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
                 response.addFile(nodeName, childNode)
 
 def getContentNode(permId, context):
-    splittedId = permId.split(":")
+    splittedId = permId.split("::")
     dataSetCode = splittedId[0]
     content = context.getContentProvider().asContent(dataSetCode)
     contentNode = content.tryGetNode(splittedId[1]) if len(splittedId) > 1 else content.getRootNode()
