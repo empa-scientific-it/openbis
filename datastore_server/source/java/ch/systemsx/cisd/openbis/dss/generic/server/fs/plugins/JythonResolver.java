@@ -39,6 +39,7 @@ public class JythonResolver implements IResolverPlugin
     private static final String RESOLVE_FUNCTION_NAME = "resolve";
 
     private static final String SCRIPT_FILENAME_PROPERTY = "script-file";
+    private static final String DEV_MODE_PROPERTY = "ftp.resolver-dev-mode";
 
     private IJythonEvaluator interpreter;
 
@@ -52,15 +53,20 @@ public class JythonResolver implements IResolverPlugin
     @Override
     public void initialize(String pluginName, String code)
     {
-        if (interpreters.containsKey(pluginName) == false)
+        IJythonEvaluator interpreter = interpreters.get(pluginName);
+        if (interpreter == null)
         {
             String scriptPath = PropertyUtils.getMandatoryProperty(DssPropertyParametersUtil.loadServiceProperties(),
                     pluginName + "." + SCRIPT_FILENAME_PROPERTY);
             String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
             String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
-            interpreters.put(pluginName, Evaluator.getFactory().create("", pythonPath, scriptPath, null, scriptString, false));
+            interpreter = Evaluator.getFactory().create("", pythonPath, scriptPath, null, scriptString, false);
+            if (PropertyUtils.getBoolean(DssPropertyParametersUtil.loadServiceProperties(), DEV_MODE_PROPERTY, false) == false)
+            {
+                interpreters.put(pluginName, interpreter);
+            }
         }
-        interpreter = interpreters.get(pluginName);
+        this.interpreter = interpreter;
     }
 
 }
