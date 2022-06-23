@@ -213,15 +213,15 @@ public class XLSExport
         final String sessionToken = applicationServerApi.login("admin", "changeit");
 
         final Collection<ExportablePermId> vocabularies = Stream.of("STORAGE_FORMAT", "DEFAULT_COLLECTION_VIEWS",
-                        "SUPPLIER.PREFERRED_ORDER_METHOD", "$STORAGE_POSITION.STORAGE_BOX_SIZE",
+                        "SUPPLIER.PREFERRED_ORDER_METHOD", "STORAGE_POSITION.STORAGE_BOX_SIZE",
                         "ORDER.ORDER_STATUS", "SUPPLIER.LANGUAGE", "WELL.COLOR_ENCODED_ANNOTATIONS",
-                        "PRODUCT.CURRENCY", "$STORAGE.STORAGE_VALIDATION_LEVEL", "ANTIBODY.DETECTION",
+                        "PRODUCT.CURRENCY", "STORAGE.STORAGE_VALIDATION_LEVEL", "ANTIBODY.DETECTION",
                         "YEAST.BACKGROUND_SPECIFIC_MARKERS", "MEDIA.ORGANISM", "RNA.RNA_BACKBONE", "OLIGO.DIRECTION",
                         "ANTIBODY.CLONALITY", "YEAST.GENETIC_BACKGROUND", "YEAST.MATING_TYPE", "PLASMID.BACKBONE",
                         "ORIGIN", "ANNOTATION.PLASMID_RELATIONSHIP", "CELL_LINE.YES_NO_CHOICE", "RNA.STRAND",
                         "CELL_LINE.CELL_MEDIUM", "ANTIBODY.HOST", "RNA.RNA_TYPE", "CELL_LINE.SPECIES", "STERILIZATION",
                         "LIFE_SCIENCES_TYPES.VERSION", "PLASMID.MARKER", "YEAST.COMMON_MARKERS",
-                        "PCR_PROTOCOL.TEMPLATE", "PLASMID.BACTERIAL_ANTIBIOTIC_RESISTANCE", "$STORAGE_CONDITIONS",
+                        "PCR_PROTOCOL.TEMPLATE", "PLASMID.BACTERIAL_ANTIBIOTIC_RESISTANCE", "STORAGE_CONDITIONS",
                         "YEAST.ENDOGENOUS_PLASMID", "CHECK", "CELL_LINE.CELL_TYPE",
                         "WESTERN_BLOTTING_PROTOCOL.MEMBRANE")
                 .map(code -> new ExportablePermId(ExportableKind.VOCABULARY, new VocabularyPermId(code)))
@@ -252,7 +252,7 @@ public class XLSExport
         exportablePermIds.addAll(sampleTypes);
         exportablePermIds.addAll(experimentTypes);
         exportablePermIds.addAll(dataSetTypes);
-        final ByteArrayOutputStream os = xlsExport.export(applicationServerApi, sessionToken, exportablePermIds, true);
+        final ByteArrayOutputStream os = xlsExport.export(applicationServerApi, sessionToken, exportablePermIds, false);
 
         try (final OutputStream fileOutputStream = new FileOutputStream("test.xlsx"))
         {
