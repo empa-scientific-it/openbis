@@ -39,11 +39,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
 
 public class XLSExportTest
@@ -68,12 +63,6 @@ public class XLSExportTest
                     SampleTypeExpectations.class,
                     Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                             new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))
-                },
-                {
-                    "export-vocabulary.xlsx",
-                    VocabularyExpectations.class,
-                    Collections.singleton(new ExportablePermId(ExportableKind.VOCABULARY,
-                            new VocabularyPermId("ANTIBODY.DETECTION")))
                 },
         };
     }
@@ -123,24 +112,23 @@ public class XLSExportTest
     private static void assertSheetsEqual(final Sheet actual, final Sheet expected)
     {
         final Iterator<Row> actualRowIterator = actual.rowIterator();
-        assertEquals(actual.getFirstRowNum(), expected.getFirstRowNum(),
-                String.format("First row numbers to not match on sheet: '%s'.", actual.getSheetName()));
-        assertEquals(actual.getLastRowNum(), expected.getLastRowNum(),
-                String.format("Last row numbers to not match on sheet: '%s'.", actual.getSheetName()));
-        expected.rowIterator().forEachRemaining(expectedRow -> assertRowsEqual(actualRowIterator.next(), expectedRow));
+        expected.rowIterator().forEachRemaining(expectedRow ->
+        {
+            assertTrue(actualRowIterator.hasNext());
+            assertRowsEqual(actualRowIterator.next(), expectedRow);
+        });
+        assertFalse(actualRowIterator.hasNext());
     }
 
     private static void assertRowsEqual(final Row actual, final Row expected)
     {
         final Iterator<Cell> actualCellIterator = actual.cellIterator();
-        assertEquals(actual.getFirstCellNum(), expected.getFirstCellNum(),
-                String.format("First cell numbers to not match on sheet: '%s', row number (starting from 1): %d.",
-                actual.getSheet().getSheetName(), actual.getRowNum() + 1));
-        assertEquals(actual.getLastCellNum(), expected.getLastCellNum(),
-                String.format("Last cell numbers to not match on sheet: '%s', row number (starting from 1): %d.",
-                actual.getSheet().getSheetName(), actual.getRowNum() + 1));
         expected.cellIterator().forEachRemaining(expectedCell ->
-                assertCellsEqual(actualCellIterator.next(), expectedCell));
+        {
+            assertTrue(actualCellIterator.hasNext());
+            assertCellsEqual(actualCellIterator.next(), expectedCell);
+        });
+        assertFalse(actualCellIterator.hasNext());
     }
 
     private static void assertCellsEqual(final Cell actual, final Cell expected)
@@ -153,36 +141,30 @@ public class XLSExportTest
         {
             case NUMERIC:
             {
-                assertEquals(actual.getNumericCellValue(), expected.getNumericCellValue(), 0.000001,
-                        getErrorMessage(actual));
+                assertEquals(actual.getNumericCellValue(), expected.getNumericCellValue(), 0.000001);
                 break;
             }
             case STRING:
             {
-                assertEquals(actual.getStringCellValue(), expected.getStringCellValue(), getErrorMessage(actual));
+                assertEquals(actual.getStringCellValue(), expected.getStringCellValue());
                 break;
             }
             case FORMULA:
             {
-                assertEquals(actual.getCellFormula(), expected.getCellFormula(), getErrorMessage(actual));
+                assertEquals(actual.getCellFormula(), expected.getCellFormula());
                 break;
             }
             case BOOLEAN:
             {
-                assertEquals(actual.getBooleanCellValue(), expected.getBooleanCellValue(), getErrorMessage(actual));
+                assertEquals(actual.getBooleanCellValue(), expected.getBooleanCellValue());
                 break;
             }
             case ERROR:
             {
-                assertEquals(actual.getErrorCellValue(), expected.getErrorCellValue(), getErrorMessage(actual));
+                assertEquals(actual.getErrorCellValue(), expected.getErrorCellValue());
                 break;
             }
         }
-    }
-
-    private static String getErrorMessage(final Cell cell)
-    {
-        return String.format("Values are not equal at %c:%d.", 'A' + cell.getColumnIndex(), cell.getRowIndex() + 1);
     }
 
     private static class SampleTypeExpectations extends Expectations
@@ -194,7 +176,7 @@ public class XLSExportTest
                     Collections.singletonList(new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))),
                     with(any(SampleTypeFetchOptions.class)));
 
-            will(new CustomAction("getting sample types")
+            will(new CustomAction("execute callback")
             {
 
                 @Override
@@ -277,59 +259,6 @@ public class XLSExportTest
                     propertyAssignments[2].getPlugin().setScript("print(\"Hello world\");");
 
                     return Arrays.asList(propertyAssignments);
-                }
-
-            });
-        }
-
-    }
-
-    private static class VocabularyExpectations extends Expectations
-    {
-
-        public VocabularyExpectations(final IApplicationServerApi api)
-        {
-            allowing(api).getVocabularies(with(SESSION_TOKEN), with(new CollectionMatcher<>(
-                    Collections.singletonList(new VocabularyPermId("ANTIBODY.DETECTION")))),
-                    with(any(VocabularyFetchOptions.class)));
-
-            will(new CustomAction("getting vocabularies")
-            {
-
-                @Override
-                public Object invoke(final Invocation invocation) throws Throwable
-                {
-                    final VocabularyFetchOptions fetchOptions = (VocabularyFetchOptions) invocation.getParameter(2);
-
-                    final Vocabulary vocabulary = new Vocabulary();
-                    vocabulary.setFetchOptions(fetchOptions);
-                    vocabulary.setCode("ANTIBODY.DETECTION");
-                    vocabulary.setDescription("Protein detection system");
-
-                    vocabulary.setTerms(getVocabularyTerms(fetchOptions));
-
-                    return Collections.singletonMap(new EntityTypePermId("ANTIBODY.DETECTION"), vocabulary);
-                }
-
-                private List<VocabularyTerm> getVocabularyTerms(final VocabularyFetchOptions fetchOptions)
-                {
-                    final VocabularyTermFetchOptions vocabularyTermFetchOptions = fetchOptions.withTerms();
-
-                    final VocabularyTerm[] vocabularyTerms = new VocabularyTerm[2];
-
-                    vocabularyTerms[0] = new VocabularyTerm();
-                    vocabularyTerms[0].setFetchOptions(vocabularyTermFetchOptions);
-                    vocabularyTerms[0].setCode("FLUORESCENCE");
-                    vocabularyTerms[0].setLabel("fluorescent probe");
-                    vocabularyTerms[0].setDescription("The antibody is conjugated with a fluorescent probe");
-
-                    vocabularyTerms[1] = new VocabularyTerm();
-                    vocabularyTerms[1].setFetchOptions(vocabularyTermFetchOptions);
-                    vocabularyTerms[1].setCode("HRP");
-                    vocabularyTerms[1].setLabel("horseradish peroxydase");
-                    vocabularyTerms[1].setDescription("The antibody is conjugated with the horseradish peroxydase");
-
-                    return Arrays.asList(vocabularyTerms);
                 }
 
             });
