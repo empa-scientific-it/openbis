@@ -19,10 +19,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
 
-class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
+class SampleTypeWithCyclicDependentSamplesExpectations extends Expectations
 {
 
-    public SampleTypeWithChainedSamplePropertiesExpectations(final IApplicationServerApi api,
+    public SampleTypeWithCyclicDependentSamplesExpectations(final IApplicationServerApi api,
             final boolean exportReferred)
     {
         if (exportReferred)
@@ -98,7 +98,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
 
     private List<PropertyAssignment> getDepartmentPropertyAssignments(final SampleTypeFetchOptions fetchOptions)
     {
-        final PropertyAssignment[] propertyAssignments = new PropertyAssignment[2];
+        final PropertyAssignment[] propertyAssignments = new PropertyAssignment[3];
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions);
@@ -119,6 +119,18 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Address");
         
+        propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions);
+        propertyAssignments[2].getPropertyType().setCode("COURSE");
+        propertyAssignments[2].setMandatory(true);
+        propertyAssignments[2].setShowInEditView(true);
+        propertyAssignments[2].setSection("General info");
+        propertyAssignments[2].getPropertyType().setLabel("Course");
+        propertyAssignments[2].getPropertyType().setDataType(DataType.SAMPLE);
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode("COURSE");
+        propertyAssignments[2].getPropertyType().setSampleType(sampleType);
+        propertyAssignments[2].getPropertyType().setDescription("Course");
+
         return Arrays.asList(propertyAssignments);
     }
 
