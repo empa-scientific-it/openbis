@@ -59,10 +59,10 @@ public class XLSExportTest
     {
         return new Object[][] {
                 {
-                    "export-sample.xlsx",
                     SampleTypeExpectations.class,
                     Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                            new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))
+                            new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
+                    "export-sample.xlsx"
                 },
         };
     }
@@ -81,8 +81,8 @@ public class XLSExportTest
     }
 
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
-    public void testXlsExport(final String expectedResultFileName, final Class<IApplicationServerApi> expectationsClass,
-            final Collection<ExportablePermId> exportablePermIds) throws Exception
+    public void testXlsExport(final Class<IApplicationServerApi> expectationsClass,
+            final Collection<ExportablePermId> exportablePermIds, final String expectedResultFileName) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class)
                 .newInstance(api);
