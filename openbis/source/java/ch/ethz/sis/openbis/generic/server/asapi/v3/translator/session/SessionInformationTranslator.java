@@ -64,11 +64,11 @@ public class SessionInformationTranslator extends
     {
         SessionInformation sessionInformation = new SessionInformation();
 
-        // TODO
-        //sessionInformation.setSessionName();
         sessionInformation.setSessionToken(session.getSessionToken());
         sessionInformation.setUserName(session.getUserName());
         sessionInformation.setHomeGroupCode(session.tryGetHomeGroupCode());
+        sessionInformation.setPersonalAccessTokenSession(session.isPersonalAccessTokenSession());
+        sessionInformation.setPersonalAccessTokenSessionName(session.getPersonalAccessTokenSessionName());
 
         return sessionInformation;
     }

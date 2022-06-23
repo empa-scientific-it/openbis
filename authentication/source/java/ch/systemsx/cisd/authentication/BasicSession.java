@@ -22,7 +22,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
  * Basic session object.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class BasicSession implements Serializable
@@ -43,6 +43,10 @@ public class BasicSession implements Serializable
 
     private int sessionExpirationTime;
 
+    private boolean isPersonalAccessTokenSession;
+
+    private String personalAccessTokenSessionName;
+
     @Deprecated
     public BasicSession()
     {
@@ -52,8 +56,8 @@ public class BasicSession implements Serializable
      * Creates an instance from the specified session token, user name, principal, remoteHost, and session start (in milliseconds since start of the
      * epoch).
      */
-    public BasicSession(String sessionToken, String userName, Principal principal,
-            String remoteHost, long sessionStart, int sessionExpirationTime)
+    public BasicSession(String sessionToken, String userName,
+            Principal principal, String remoteHost, long sessionStart, int sessionExpirationTime)
     {
         assert sessionToken != null : "Given session token can not be null.";
         assert userName != null : "Given user name can not be null.";
@@ -68,6 +72,15 @@ public class BasicSession implements Serializable
         this.remoteHost = remoteHost;
         this.sessionStart = sessionStart;
         this.sessionExpirationTime = sessionExpirationTime;
+    }
+
+    public BasicSession(String sessionToken, String userName,
+            Principal principal, String remoteHost, long sessionStart, int sessionExpirationTime, boolean isPersonalAccessTokenSession,
+            String personalAccessTokenSessionName)
+    {
+        this(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime);
+        this.isPersonalAccessTokenSession = isPersonalAccessTokenSession;
+        this.personalAccessTokenSessionName = personalAccessTokenSessionName;
     }
 
     /**
@@ -124,6 +137,16 @@ public class BasicSession implements Serializable
     public final int getSessionExpirationTime()
     {
         return sessionExpirationTime;
+    }
+
+    public boolean isPersonalAccessTokenSession()
+    {
+        return isPersonalAccessTokenSession;
+    }
+
+    public String getPersonalAccessTokenSessionName()
+    {
+        return personalAccessTokenSessionName;
     }
 
     /**

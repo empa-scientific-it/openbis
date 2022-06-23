@@ -1009,11 +1009,11 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("session", "SessionInformation", SessionInformationFetchOptions.class);
 
-        gen.addSimpleField(boolean.class, "personalAccessTokenSession");
-        gen.addSimpleField(String.class, "sessionName");
         gen.addSimpleField(String.class, "sessionToken");
         gen.addSimpleField(String.class, "userName");
         gen.addSimpleField(String.class, "homeGroupCode");
+        gen.addSimpleField(boolean.class, "personalAccessTokenSession");
+        gen.addSimpleField(String.class, "personalAccessTokenSessionName");
         gen.addFetchedField(Person.class, "person", "Person", PersonFetchOptions.class);
         gen.addFetchedField(Person.class, "creatorPerson", "CreatorPerson", PersonFetchOptions.class);
 

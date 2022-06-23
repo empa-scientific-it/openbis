@@ -37,7 +37,6 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -99,19 +98,16 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         private final S session;
 
-        private final boolean isPersonalAccessTokenSession;
-
         /**
          * The last time when this session has been used (in milliseconds since 1970-01-01).
          */
         private long lastActiveTime;
 
-        FullSession(final S session, final boolean isPersonalAccessTokenSession)
+        public FullSession(final S session)
         {
             assert session != null : "Undefined session";
 
             this.session = session;
-            this.isPersonalAccessTokenSession = isPersonalAccessTokenSession;
             touch();
         }
 
@@ -121,14 +117,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         public S getSession()
         {
             return session;
-        }
-
-        /**
-         * Returns <code>true</code> if the session is a personal access token session.
-         */
-        public boolean isPersonalAccessTokenSession()
-        {
-            return isPersonalAccessTokenSession;
         }
 
         /**
@@ -163,8 +151,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final IAuthenticationService authenticationService;
 
     private final IRemoteHostProvider remoteHostProvider;
-
-    private final IPersonalAccessTokenDAO patDAO;
 
     /**
      * The time after which an inactive session will be expired (in milliseconds).
@@ -235,50 +221,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 throw ex;
             }
         }
-
-        this.patDAO = patDAO;
-    }
-
-    protected void init()
-    {
-        List<PersonalAccessTokenSession> patSessions = patDAO.listSessions();
-
-        synchronized (sessions)
-        {
-            for (PersonalAccessTokenSession patSession : patSessions)
-            {
-                try
-                {
-                    final Principal principal = authenticationService.getPrincipal(patSession.getUserId());
-
-                    if (principal == null)
-                    {
-                        sessions.remove(patSession.getSessionHash());
-                        throw new InvalidSessionException("User '%s' not found by the authentication service.");
-                    } else
-                    {
-                        principal.setAuthenticated(true);
-                    }
-
-                    final FullSession<T> createdSession =
-                            createSession(patSession.getSessionHash(), patSession.getUserId(), principal, getRemoteHost(),
-                                    patSession.getValidFrom().getTime(), (int) (patSession.getValidUntil().getTime() - System.currentTimeMillis()),
-                                    true);
-
-                    sessions.put(createdSession.getSession().getSessionToken(), createdSession);
-                } catch (InvalidSessionException e)
-                {
-                    operationLog.info("Invalid personal access session. Skipping it.", e);
-                }
-            }
-        }
-    }
-
-    protected FullSession<T> createSession(String sessionToken, String userName, Principal principal, String remoteHost, long sessionStart,
-            int sessionExpirationTime, boolean isPersonalAccessTokenSession)
-    {
-        T session = sessionFactory.create(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime);
-        return new FullSession<>(session, isPersonalAccessTokenSession);
     }
 
     private final T createAndStoreSession(final String user, final Principal principal,
@@ -300,8 +242,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             }
 
-            final FullSession<T> createdSession = createSession(sessionToken, user, principal, getRemoteHost(), now,
-                    sessionExpirationPeriodMillis, false);
+            final FullSession<T> createdSession = new FullSession<>(sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
+                    sessionExpirationPeriodMillis));
+
             sessions.put(createdSession.getSession().getSessionToken(), createdSession);
 
             getSessionMonitor().logSessionMonitoringInfo();
@@ -315,7 +258,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         List<FullSession<T>> userSessions = new ArrayList<>();
         for (FullSession<T> session : sessions.values())
         {
-            if (session.isPersonalAccessTokenSession())
+            if (session.getSession().isPersonalAccessTokenSession())
             {
                 continue;
             }
@@ -428,7 +371,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         {
             int sessionsSize = sessions.size();
             long patSessionsSize =
-                    sessions.values().stream().filter(FullSession::isPersonalAccessTokenSession).count();
+                    sessions.values().stream().filter(s -> s.getSession().isPersonalAccessTokenSession()).count();
 
             operationLog.info("All currently active sessions: " + sessionsSize);
             operationLog.info("Personal access token active sessions: " + patSessionsSize);
@@ -483,7 +426,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             return false;
         }
 
-        if (session.isPersonalAccessTokenSession())
+        if (session.getSession().isPersonalAccessTokenSession())
         {
             return session.hasExpired(null);
         } else
@@ -601,6 +544,19 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
         return getSession(sessionToken, true);
+    }
+
+    @Override public List<T> getSessions()
+    {
+        synchronized (sessions)
+        {
+            List<T> result = new ArrayList<>();
+            for (FullSession<T> session : sessions.values())
+            {
+                result.add(session.getSession());
+            }
+            return result;
+        }
     }
 
     @Override

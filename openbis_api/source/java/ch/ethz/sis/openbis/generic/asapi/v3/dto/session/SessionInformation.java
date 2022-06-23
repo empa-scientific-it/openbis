@@ -19,10 +19,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /*
@@ -37,12 +35,6 @@ public class SessionInformation implements Serializable
     private SessionInformationFetchOptions fetchOptions;
 
     @JsonProperty
-    private boolean personalAccessTokenSession;
-
-    @JsonProperty
-    private String sessionName;
-
-    @JsonProperty
     private String sessionToken;
 
     @JsonProperty
@@ -50,6 +42,12 @@ public class SessionInformation implements Serializable
 
     @JsonProperty
     private String homeGroupCode;
+
+    @JsonProperty
+    private boolean personalAccessTokenSession;
+
+    @JsonProperty
+    private String personalAccessTokenSessionName;
 
     @JsonProperty
     private Person person;
@@ -68,32 +66,6 @@ public class SessionInformation implements Serializable
     public void setFetchOptions(SessionInformationFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    public boolean isPersonalAccessTokenSession()
-    {
-        return personalAccessTokenSession;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public void setPersonalAccessTokenSession(boolean personalAccessTokenSession)
-    {
-        this.personalAccessTokenSession = personalAccessTokenSession;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    public String getSessionName()
-    {
-        return sessionName;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public void setSessionName(String sessionName)
-    {
-        this.sessionName = sessionName;
     }
 
     // Method automatically generated with DtoGenerator
@@ -137,12 +109,39 @@ public class SessionInformation implements Serializable
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    public boolean isPersonalAccessTokenSession()
+    {
+        return personalAccessTokenSession;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPersonalAccessTokenSession(boolean personalAccessTokenSession)
+    {
+        this.personalAccessTokenSession = personalAccessTokenSession;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getPersonalAccessTokenSessionName()
+    {
+        return personalAccessTokenSessionName;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPersonalAccessTokenSessionName(String personalAccessTokenSessionName)
+    {
+        this.personalAccessTokenSessionName = personalAccessTokenSessionName;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public Person getPerson()
     {
         if (getFetchOptions() != null && getFetchOptions().hasPerson())
         {
             return person;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Person has not been fetched.");
         }
@@ -161,7 +160,8 @@ public class SessionInformation implements Serializable
         if (getFetchOptions() != null && getFetchOptions().hasCreatorPerson())
         {
             return creatorPerson;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("CreatorPerson has not been fetched.");
         }

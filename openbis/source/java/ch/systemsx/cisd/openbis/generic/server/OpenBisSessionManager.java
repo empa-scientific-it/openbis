@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -32,7 +36,10 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -49,6 +56,9 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 {
     private static final int DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN = 10;
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            OpenBisSessionManager.class);
+
     private static final int parseAsIntOrReturnDefaultValue(String string, int defaultValue)
     {
         try
@@ -60,16 +70,17 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         }
     }
 
-    @Autowired
-    private PlatformTransactionManager txManager;
+    private final IDAOFactory daoFactory;
 
-    private IDAOFactory daoFactory;
+    private final ISessionFactory<Session> sessionFactory;
+
+    private final IAuthenticationService authenticationService;
 
     private String userForAnonymousLogin;
 
     private int maxNumberOfSessionsPerUser;
 
-    private Set<String> usersWithUnrestrictedNumberOfSessions = new HashSet<>();
+    private final Set<String> usersWithUnrestrictedNumberOfSessions = new HashSet<>();
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
@@ -79,6 +90,8 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                 parseAsIntOrReturnDefaultValue(sessionExpirationPeriodMinutesForNoLogin, DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN),
                 tryEmailAsUserName, daoFactory.getPersonalAccessTokenDAO());
         this.daoFactory = daoFactory;
+        this.sessionFactory = sessionFactory;
+        this.authenticationService = authenticationService;
     }
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
@@ -90,40 +103,61 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     }
 
     @PostConstruct
-    @Override protected void init()
+    private void init()
     {
-        TransactionTemplate tmpl = new TransactionTemplate(txManager);
-        tmpl.execute(new TransactionCallbackWithoutResult()
+        List<PersonalAccessTokenSession> patSessions = daoFactory.getPersonalAccessTokenDAO().listSessions();
+
+        synchronized (sessions)
         {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status)
+            for (PersonalAccessTokenSession patSession : patSessions)
             {
-                OpenBisSessionManager.super.init();
+                try
+                {
+                    final Principal principal = authenticationService.getPrincipal(patSession.getUserId());
+
+                    if (principal == null)
+                    {
+                        sessions.remove(patSession.getSessionHash());
+                        operationLog.warn(
+                                String.format(
+                                        "Ignoring a personal access token session because the session's user '%s' was not found by the authentication service.",
+                                        patSession.getUserId()));
+                        continue;
+                    } else
+                    {
+                        principal.setAuthenticated(true);
+                    }
+
+                    PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getUserId());
+
+                    if (person == null)
+                    {
+                        operationLog.warn(
+                                String.format(
+                                        "Ignoring a personal access token session because the session's user '%s' was not found in the openBIS database.",
+                                        patSession.getUserId()));
+                        continue;
+                    }
+
+                    final FullSession<Session> createdSession =
+                            new FullSession<>(sessionFactory.create(patSession.getSessionHash(), patSession.getUserId(), principal, getRemoteHost(),
+                                    patSession.getValidFrom().getTime(), (int) (patSession.getValidUntil().getTime() - System.currentTimeMillis()),
+                                    true, patSession.getSessionName()));
+
+                    HibernateUtils.initialize(person.getAllPersonRoles());
+                    createdSession.getSession().setPerson(person);
+                    createdSession.getSession().setCreatorPerson(person);
+
+                    sessions.put(createdSession.getSession().getSessionToken(), createdSession);
+                } catch (Exception e)
+                {
+                    operationLog.warn(String.format(
+                            "Loading of a personal access token session defined for user '%s' and session name '%s' failed. Ignoring it.",
+                            patSession.getUserId(),
+                            patSession.getSessionName()), e);
+                }
             }
-        });
-    }
-
-    @Override protected FullSession<Session> createSession(final String sessionToken, final String userName, final Principal principal,
-            final String remoteHost, final long sessionStart, final int sessionExpirationTime, final boolean isPersonalAccessTokenSession)
-    {
-        FullSession<Session> session =
-                super.createSession(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime, isPersonalAccessTokenSession);
-
-        if (session.isPersonalAccessTokenSession())
-        {
-            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userName);
-
-            if (person == null)
-            {
-                throw new InvalidSessionException(String.format("User '%s' not found in the database.", userName));
-            }
-
-            HibernateUtils.initialize(person.getAllPersonRoles());
-            session.getSession().setPerson(person);
-            session.getSession().setCreatorPerson(person);
         }
-
-        return session;
     }
 
     @Override
