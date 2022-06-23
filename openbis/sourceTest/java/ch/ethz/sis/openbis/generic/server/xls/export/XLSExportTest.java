@@ -107,14 +107,6 @@ public class XLSExportTest
                                         new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         false
                 },
-                {
-                        "export-sample-type-with-chained-dependent-samples.xlsx",
-                        SampleTypeWithChainedDependentSamplesExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                                        new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true
-                },
         };
     }
 
@@ -131,9 +123,6 @@ public class XLSExportTest
         mockery.assertIsSatisfied();
     }
 
-    /**
-     * @param expectationsClass this class is a generator of mockup data.
-     */
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
     public void testXlsExport(final String expectedResultFileName, final Class<IApplicationServerApi> expectationsClass,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws Exception

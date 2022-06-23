@@ -11,9 +11,11 @@ import org.jmock.lib.action.CustomAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -139,8 +141,12 @@ class SampleTypeWithDependentVocabularyExpectations extends Expectations
 
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[3];
 
-        propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[0] = new PropertyAssignment();
+        propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[0].setPropertyType(new PropertyType());
+        propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[0].setPlugin(new Plugin());
+        propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[0].getPropertyType().setCode("$NAME");
         propertyAssignments[0].setMandatory(false);
         propertyAssignments[0].setShowInEditView(true);
@@ -149,8 +155,12 @@ class SampleTypeWithDependentVocabularyExpectations extends Expectations
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("Name");
 
-        propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[1] = new PropertyAssignment();
+        propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[1].setPropertyType(new PropertyType());
+        propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[1].setPlugin(new Plugin());
+        propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[1].getPropertyType().setCode("$BARCODE");
         propertyAssignments[1].setMandatory(false);
         propertyAssignments[1].setShowInEditView(false);
@@ -159,8 +169,12 @@ class SampleTypeWithDependentVocabularyExpectations extends Expectations
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Custom Barcode");
 
-        propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[2] = new PropertyAssignment();
+        propertyAssignments[2].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[2].setPropertyType(new PropertyType());
+        propertyAssignments[2].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[2].setPlugin(new Plugin());
+        propertyAssignments[2].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[2].getPropertyType().setCode("ANTIBODY.HOST");
         propertyAssignments[2].setMandatory(false);
         propertyAssignments[2].setShowInEditView(true);

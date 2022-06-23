@@ -15,6 +15,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -89,8 +90,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
 
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[2];
 
-        propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[0] = new PropertyAssignment();
+        propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[0].setPropertyType(new PropertyType());
+        propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[0].setPlugin(new Plugin());
+        propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[0].getPropertyType().setCode("FIRST_NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
@@ -99,8 +104,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("First name");
 
-        propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[1] = new PropertyAssignment();
+        propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[1].setPropertyType(new PropertyType());
+        propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[1].setPlugin(new Plugin());
+        propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[1].getPropertyType().setCode("LAST_NAME");
         propertyAssignments[1].setMandatory(true);
         propertyAssignments[1].setShowInEditView(true);
@@ -125,8 +134,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
 
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[5];
 
-        propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[0] = new PropertyAssignment();
+        propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[0].setPropertyType(new PropertyType());
+        propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[0].setPlugin(new Plugin());
+        propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[0].getPropertyType().setCode("$NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
@@ -135,8 +148,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("Name");
 
-        propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[1] = new PropertyAssignment();
+        propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[1].setPropertyType(new PropertyType());
+        propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[1].setPlugin(new Plugin());
+        propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[1].getPropertyType().setCode("OPEN");
         propertyAssignments[1].setMandatory(true);
         propertyAssignments[1].setShowInEditView(true);
@@ -145,9 +162,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
         propertyAssignments[1].getPropertyType().setDataType(DataType.BOOLEAN);
         propertyAssignments[1].getPropertyType().setDescription("Marks the program open for assignment");
 
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions3 =
-                fetchOptions.withPropertyAssignments();
-        propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions3);
+        propertyAssignments[2] = new PropertyAssignment();
+        propertyAssignments[2].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[2].setPropertyType(new PropertyType());
+        propertyAssignments[2].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[2].setPlugin(new Plugin());
+        propertyAssignments[2].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[2].getPropertyType().setCode("START_DATE");
         propertyAssignments[2].setMandatory(true);
         propertyAssignments[2].setShowInEditView(true);
@@ -156,8 +176,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
         propertyAssignments[2].getPropertyType().setDataType(DataType.TIMESTAMP);
         propertyAssignments[2].getPropertyType().setDescription("Start date");
 
-        propertyAssignments[3] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[3] = new PropertyAssignment();
+        propertyAssignments[3].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[3].setPropertyType(new PropertyType());
+        propertyAssignments[3].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[3].setPlugin(new Plugin());
+        propertyAssignments[3].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[3].getPropertyType().setCode("END_DATE");
         propertyAssignments[3].setMandatory(true);
         propertyAssignments[3].setShowInEditView(true);
@@ -166,8 +190,12 @@ class SampleTypeWithDependentSampleExpectations extends Expectations
         propertyAssignments[3].getPropertyType().setDataType(DataType.TIMESTAMP);
         propertyAssignments[3].getPropertyType().setDescription("End date");
 
-        propertyAssignments[4] = PropertyAssignmentFactory.createPropertyAssignment(
-                fetchOptions.withPropertyAssignments());
+        propertyAssignments[4] = new PropertyAssignment();
+        propertyAssignments[4].setFetchOptions(propertyAssignmentFetchOptions);
+        propertyAssignments[4].setPropertyType(new PropertyType());
+        propertyAssignments[4].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+        propertyAssignments[4].setPlugin(new Plugin());
+        propertyAssignments[4].getPlugin().setFetchOptions(pluginFetchOptions);
         propertyAssignments[4].getPropertyType().setCode("TEACHER");
         propertyAssignments[4].setMandatory(false);
         propertyAssignments[4].setShowInEditView(true);

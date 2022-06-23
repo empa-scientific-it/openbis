@@ -53,11 +53,21 @@ class DataSetTypeExpectations extends Expectations
             {
                 final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions =
                         fetchOptions.withPropertyAssignments();
+                final PropertyTypeFetchOptions propertyTypeFetchOptions =
+                        propertyAssignmentFetchOptions.withPropertyType();
+                propertyTypeFetchOptions.withVocabulary();
+
+                final PluginFetchOptions pluginFetchOptions = propertyAssignmentFetchOptions.withPlugin();
+                pluginFetchOptions.withScript();
 
                 final PropertyAssignment[] propertyAssignments = new PropertyAssignment[3];
 
-                propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
-                        propertyAssignmentFetchOptions);
+                propertyAssignments[0] = new PropertyAssignment();
+                propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
+                propertyAssignments[0].setPropertyType(new PropertyType());
+                propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                propertyAssignments[0].setPlugin(new Plugin());
+                propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
                 propertyAssignments[0].getPropertyType().setCode("$NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
@@ -66,8 +76,12 @@ class DataSetTypeExpectations extends Expectations
                 propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
                 propertyAssignments[0].getPropertyType().setDescription("Name");
 
-                propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
-                        propertyAssignmentFetchOptions);
+                propertyAssignments[1] = new PropertyAssignment();
+                propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
+                propertyAssignments[1].setPropertyType(new PropertyType());
+                propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                propertyAssignments[1].setPlugin(new Plugin());
+                propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
                 propertyAssignments[1].getPropertyType().setCode("NOTES");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
@@ -78,8 +92,12 @@ class DataSetTypeExpectations extends Expectations
                 propertyAssignments[1].getPropertyType().setMetaData(
                         Collections.singletonMap("custom_widget", "Word Processor"));
 
-                propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
-                        propertyAssignmentFetchOptions);
+                propertyAssignments[2] = new PropertyAssignment();
+                propertyAssignments[2].setFetchOptions(propertyAssignmentFetchOptions);
+                propertyAssignments[2].setPropertyType(new PropertyType());
+                propertyAssignments[2].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
+                propertyAssignments[2].setPlugin(new Plugin());
+                propertyAssignments[2].getPlugin().setFetchOptions(pluginFetchOptions);
                 propertyAssignments[2].getPropertyType().setCode("$XMLCOMMENTS");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
