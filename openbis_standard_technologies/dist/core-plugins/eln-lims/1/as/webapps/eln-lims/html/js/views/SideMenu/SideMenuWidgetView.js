@@ -852,6 +852,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                             title : sampleLink,
                                             entityType: "SAMPLE",
                                             key : sample.getPermId().getPermId(),
+                                            space : IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()),
                                             folder : true,
                                             lazy : true,
                                             view : "showViewSamplePageFromPermId",
