@@ -1,8 +1,11 @@
 import json
 import os
 
+from java.nio.file import NoSuchFileException
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions import SpaceFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria
@@ -16,6 +19,7 @@ from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
 class Acceptor(object):
     def __init__(self, settings):
+        self.sections = ["Lab Notebook", "Inventory", "Stock"]
         self.inventorySpaces = settings.inventorySpaces
         self.mainMenues = settings.mainMenues
         self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
@@ -26,6 +30,14 @@ class Acceptor(object):
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
+
+    def assertValidSection(self, section):
+        if section not in self.sections:
+            raise NoSuchFileException("Invalid section '%s'." % section)
+
+    def assertValidSpace(self, space):
+        if section not in self.sections:
+            raise NoSuchFileException("Invalid section '%s'." % section)
 
     def hideSpaceEndingWith(self, spaceCodeEnding):
         self.endingsOfHiddenSpaces.append(spaceCodeEnding)
@@ -98,14 +110,20 @@ class Settings(object):
 def resolve(subPath, context):
     acceptor = createAcceptor(context)
     if len(subPath) == 0:
-        return listSections(context)
+        return listSections(acceptor, context)
+
     section = subPath[0]
+    acceptor.assertValidSection(section)
     if len(subPath) == 1:
         return listSpaces(section, acceptor, context)
+
     space = subPath[1]
+    assertValidSpace(space, context)
     if len(subPath) == 2:
         return listProjects(space, acceptor, context)
+
     project = subPath[2]
+    assertValidProject(space, project, context)
     if len(subPath) == 3:
         return listExperiments(section, space, project, acceptor, context)
     if len(subPath) == 4:
@@ -121,11 +139,10 @@ def createAcceptor(context):
         execfile(file, {"acceptor":acceptor})
     return acceptor
 
-def listSections(context):
+def listSections(acceptor, context):
     response = context.createDirectoryResponse()
-    response.addDirectory("Lab Notebook")
-    response.addDirectory("Inventory")
-    response.addDirectory("Stock")
+    for section in acceptor.sections:
+        response.addDirectory(section)
     return response
 
 def listSpaces(section, acceptor, context):
@@ -136,6 +153,22 @@ def listSpaces(section, acceptor, context):
         if acceptor.acceptSpace(section, space):
             response.addDirectory(space.getCode(), space.getModificationDate())
     return response
+
+def assertValidSpace(space, context):
+    if space != space.upper():
+        raise NoSuchFileException("Space '%s' contains lower case characters." % space)
+    fetchOptions = SpaceFetchOptions()
+    id = SpacePermId(space)
+    if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
+        raise NoSuchFileException("Unknown space '%s'." % space)
+
+def assertValidProject(space, project, context):
+    if project != project.upper():
+        raise NoSuchFileException("Project '%s' contains lower case characters." % project)
+    fetchOptions = ProjectFetchOptions()
+    id = ProjectIdentifier(space, project)
+    if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
+        raise NoSuchFileException("Unknown project '%s'." % id)
 
 def getAllSettings(context):
     criteria = SampleSearchCriteria()
@@ -219,10 +252,10 @@ def getNode(subPath, acceptor, context):
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
             else:
-                raise BaseException("Couldn't resolve '%s' because of invalid node type: %s" % (path, nodeType))
+                raise NoSuchFileException("Couldn't resolve '%s' because of invalid node type: %s" % (path, nodeType))
         node = context.getCache().getNode(path)
         if node is None:
-            raise BaseException("Couldn't resolve '%s'" % path)
+            raise NoSuchFileException("Couldn't resolve '%s'" % path)
     return node
 
 def addExperimentNodes(section, space, project, response, acceptor, context):
