@@ -1,13 +1,11 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -23,10 +21,19 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final String permId, int rowNumber)
     {
-        final DataSetType dataSetType = getDataSetType(api, sessionToken, permId);
+        final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
+        final Map<IEntityTypeId, DataSetType> dataSetTypes = api.getDataSetTypes(sessionToken,
+                Collections.singletonList(new EntityTypePermId(permId, EntityKind.DATA_SET)), fetchOptions);
 
-        if (dataSetType != null)
+        assert dataSetTypes.size() <= 1;
+
+        if (dataSetTypes.size() > 0)
         {
+            final DataSetType dataSetType = dataSetTypes.values().iterator().next();
 
             addRow(wb, rowNumber++, true, "DATA_SET_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Validation script");
@@ -43,29 +50,6 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
         {
             return rowNumber;
         }
-    }
-
-    private DataSetType getDataSetType(final IApplicationServerApi api, final String sessionToken, final String permId)
-    {
-        final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
-        final Map<IEntityTypeId, DataSetType> dataSetTypes = api.getDataSetTypes(sessionToken,
-                Collections.singletonList(new EntityTypePermId(permId, EntityKind.DATA_SET)), fetchOptions);
-
-        assert dataSetTypes.size() <= 1;
-
-        final Iterator<DataSetType> iterator = dataSetTypes.values().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    @Override
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
-    {
-        return getDataSetType(api, sessionToken, permId);
     }
 
 }

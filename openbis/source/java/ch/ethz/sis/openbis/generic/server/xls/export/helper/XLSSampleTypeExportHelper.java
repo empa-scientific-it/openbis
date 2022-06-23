@@ -1,20 +1,21 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
 {
@@ -23,9 +24,20 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final String permId, int rowNumber)
     {
-        final SampleType sampleType = getSampleType(api, sessionToken, permId);
-        if (sampleType != null)
+        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
+        final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
+                Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
+
+        assert sampleTypes.size() <= 1;
+
+        if (sampleTypes.size() > 0)
         {
+            final SampleType sampleType = sampleTypes.values().iterator().next();
+
             addRow(wb, rowNumber++, true, "SAMPLE_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Auto generate codes", "Validation script",
                     "Generated Code Prefix");
@@ -48,29 +60,5 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
             return rowNumber;
         }
     }
-
-    private SampleType getSampleType(final IApplicationServerApi api, final String sessionToken, final String permId)
-    {
-        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
-        final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
-                Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
-
-        assert sampleTypes.size() <= 1;
-
-        final Iterator<SampleType> iterator = sampleTypes.values().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
-    {
-        return getSampleType(api, sessionToken, permId);
-    }
-
-
 
 }

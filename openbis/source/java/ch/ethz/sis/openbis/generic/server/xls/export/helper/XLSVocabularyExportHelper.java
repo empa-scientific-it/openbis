@@ -1,13 +1,11 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
@@ -21,10 +19,16 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final String permId, int rowNumber)
     {
-        final Vocabulary vocabulary = getVocabulary(api, sessionToken, permId);
+        final VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
+        fetchOptions.withTerms();
+        final Map<IVocabularyId, Vocabulary> vocabularies = api.getVocabularies(sessionToken,
+                Collections.singletonList(new VocabularyPermId(permId)), fetchOptions);
 
-        if (vocabulary != null)
+        assert vocabularies.size() <= 1;
+
+        if (vocabularies.size() > 0)
         {
+            final Vocabulary vocabulary = vocabularies.values().iterator().next();
 
             addRow(wb, rowNumber++, true, "VOCABULARY_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Description");
@@ -45,26 +49,6 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
             return rowNumber;
         }
 
-    }
-
-    private Vocabulary getVocabulary(final IApplicationServerApi api, final String sessionToken, final String permId)
-    {
-        final VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
-        fetchOptions.withTerms();
-        final Map<IVocabularyId, Vocabulary> vocabularies = api.getVocabularies(sessionToken,
-                Collections.singletonList(new VocabularyPermId(permId)), fetchOptions);
-
-        assert vocabularies.size() <= 1;
-
-        final Iterator<Vocabulary> iterator = vocabularies.values().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    @Override
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
-    {
-        return null;
     }
 
 }
