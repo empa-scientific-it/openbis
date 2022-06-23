@@ -88,16 +88,18 @@ public class XLSExport
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
         // TODO: add references to material properties.
-        return exportablePermIds.stream().flatMap(exportablePermId ->
+        final Collection<ExportablePermId> result = exportablePermIds.stream().flatMap(exportablePermId ->
         {
-            final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
-                    exportablePermId);
-            return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
+            final Set<ExportablePermId> expandedExportablePermIds = new LinkedHashSet<>();
+            addToExpandedExportablePermIds(api, sessionToken, exportablePermId, expandedExportablePermIds);
+            return expandedExportablePermIds.stream();
         }).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return result;
     }
 
-    private Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
-            final String sessionToken, final ExportablePermId exportablePermId)
+    private void addToExpandedExportablePermIds(final IApplicationServerApi api, final String sessionToken,
+            final ExportablePermId exportablePermId, final Set<ExportablePermId> expandedExportablePermIds)
     {
         final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
         if (helper != null)
@@ -107,7 +109,8 @@ public class XLSExport
 
             if (propertyAssignmentsHolder != null)
             {
-                return propertyAssignmentsHolder.getPropertyAssignments().stream().flatMap(propertyAssignment ->
+                expandedExportablePermIds.addAll(
+                        propertyAssignmentsHolder.getPropertyAssignments().stream().flatMap(propertyAssignment ->
                         {
                             final PropertyType propertyType = propertyAssignment.getPropertyType();
                             switch (propertyType.getDataType())
@@ -123,22 +126,20 @@ public class XLSExport
                                             new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                                             new SamplePermId(propertyType.getSampleType().getCode()));
                                     // TODO: add a check to prevent stack overflow exception.
-                                    final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
-                                            getExpandedExportablePermIds(api, sessionToken,
-                                                    samplePropertyExportablePermId);
-                                    return Stream.concat(samplePropertyExpandedExportablePermIds,
-                                            Stream.of(samplePropertyExportablePermId));
+                                    addToExpandedExportablePermIds(api, sessionToken, samplePropertyExportablePermId,
+                                            expandedExportablePermIds);
+                                    return Stream.of(samplePropertyExportablePermId);
                                 }
                                 default:
                                 {
                                     return Stream.empty();
                                 }
                             }
-                        });
+                        }).collect(Collectors.toSet()));
             }
         }
 
-        return Stream.empty();
+        expandedExportablePermIds.add(exportablePermId);
     }
 
     private IXLSExportHelper getHelper(final ExportableKind exportableKind)
