@@ -30,8 +30,6 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
@@ -66,22 +64,16 @@ public class XLSExportTest
     {
         return new Object[][] {
                 {
-                        "export-vocabulary.xlsx",
-                        VocabularyExpectations.class,
-                        Collections.singleton(new ExportablePermId(ExportableKind.VOCABULARY,
-                                new VocabularyPermId("ANTIBODY.DETECTION")))
-                },
-                {
                     "export-sample.xlsx",
                     SampleTypeExpectations.class,
                     Collections.singleton(new ExportablePermId(ExportableKind.SAMPLE_TYPE,
                             new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))
                 },
                 {
-                    "export-experiment.xlsx",
-                    ExperimentTypeExpectations.class,
-                    Collections.singleton(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
-                            new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))
+                    "export-vocabulary.xlsx",
+                    VocabularyExpectations.class,
+                    Collections.singleton(new ExportablePermId(ExportableKind.VOCABULARY,
+                            new VocabularyPermId("ANTIBODY.DETECTION")))
                 },
         };
     }
@@ -193,66 +185,13 @@ public class XLSExportTest
         return String.format("Values are not equal at %c:%d.", 'A' + cell.getColumnIndex(), cell.getRowIndex() + 1);
     }
 
-    private static class VocabularyExpectations extends Expectations
-    {
-
-        public VocabularyExpectations(final IApplicationServerApi api)
-        {
-            allowing(api).getVocabularies(with(SESSION_TOKEN), with(new CollectionMatcher<>(
-                    Collections.singletonList(new VocabularyPermId("ANTIBODY.DETECTION")))),
-                    with(any(VocabularyFetchOptions.class)));
-
-            will(new CustomAction("getting vocabularies")
-            {
-
-                @Override
-                public Object invoke(final Invocation invocation) throws Throwable
-                {
-                    final VocabularyFetchOptions fetchOptions = (VocabularyFetchOptions) invocation.getParameter(2);
-
-                    final Vocabulary vocabulary = new Vocabulary();
-                    vocabulary.setFetchOptions(fetchOptions);
-                    vocabulary.setCode("ANTIBODY.DETECTION");
-                    vocabulary.setDescription("Protein detection system");
-
-                    vocabulary.setTerms(getVocabularyTerms(fetchOptions));
-
-                    return Collections.singletonMap(new EntityTypePermId("ANTIBODY.DETECTION"), vocabulary);
-                }
-
-                private List<VocabularyTerm> getVocabularyTerms(final VocabularyFetchOptions fetchOptions)
-                {
-                    final VocabularyTermFetchOptions vocabularyTermFetchOptions = fetchOptions.withTerms();
-
-                    final VocabularyTerm[] vocabularyTerms = new VocabularyTerm[2];
-
-                    vocabularyTerms[0] = new VocabularyTerm();
-                    vocabularyTerms[0].setFetchOptions(vocabularyTermFetchOptions);
-                    vocabularyTerms[0].setCode("FLUORESCENCE");
-                    vocabularyTerms[0].setLabel("fluorescent probe");
-                    vocabularyTerms[0].setDescription("The antibody is conjugated with a fluorescent probe");
-
-                    vocabularyTerms[1] = new VocabularyTerm();
-                    vocabularyTerms[1].setFetchOptions(vocabularyTermFetchOptions);
-                    vocabularyTerms[1].setCode("HRP");
-                    vocabularyTerms[1].setLabel("horseradish peroxydase");
-                    vocabularyTerms[1].setDescription("The antibody is conjugated with the horseradish peroxydase");
-
-                    return Arrays.asList(vocabularyTerms);
-                }
-
-            });
-        }
-
-    }
-
     private static class SampleTypeExpectations extends Expectations
     {
 
         public SampleTypeExpectations(final IApplicationServerApi api)
         {
             allowing(api).getSampleTypes(with(SESSION_TOKEN), with(new CollectionMatcher<>(
-                            Collections.singletonList(new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))),
+                    Collections.singletonList(new EntityTypePermId("ENTRY", EntityKind.SAMPLE)))),
                     with(any(SampleTypeFetchOptions.class)));
 
             will(new CustomAction("getting sample types")
@@ -345,120 +284,52 @@ public class XLSExportTest
 
     }
 
-    private static class ExperimentTypeExpectations extends Expectations
+    private static class VocabularyExpectations extends Expectations
     {
 
-        public ExperimentTypeExpectations(final IApplicationServerApi api)
+        public VocabularyExpectations(final IApplicationServerApi api)
         {
-            allowing(api).getExperimentTypes(with(SESSION_TOKEN), with(new CollectionMatcher<>(
-                            Collections.singletonList(
-                                    new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))),
-                    with(any(ExperimentTypeFetchOptions.class)));
+            allowing(api).getVocabularies(with(SESSION_TOKEN), with(new CollectionMatcher<>(
+                    Collections.singletonList(new VocabularyPermId("ANTIBODY.DETECTION")))),
+                    with(any(VocabularyFetchOptions.class)));
 
-            will(new CustomAction("getting experiment types")
+            will(new CustomAction("getting vocabularies")
             {
 
                 @Override
                 public Object invoke(final Invocation invocation) throws Throwable
                 {
-                    final ExperimentTypeFetchOptions fetchOptions =
-                            (ExperimentTypeFetchOptions) invocation.getParameter(2);
-                    final PluginFetchOptions pluginFetchOptions = fetchOptions.withValidationPlugin();
+                    final VocabularyFetchOptions fetchOptions = (VocabularyFetchOptions) invocation.getParameter(2);
 
-                    final ExperimentType experimentType = new ExperimentType();
-                    experimentType.setFetchOptions(fetchOptions);
-                    experimentType.setCode("DEFAULT_EXPERIMENT");
-                    experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
+                    final Vocabulary vocabulary = new Vocabulary();
+                    vocabulary.setFetchOptions(fetchOptions);
+                    vocabulary.setCode("ANTIBODY.DETECTION");
+                    vocabulary.setDescription("Protein detection system");
 
-                    final Plugin validationPlugin = new Plugin();
-                    validationPlugin.setScript("def getRenderedProperty(entity, property):\n"
-                            + "    value = entity.property(property)\n"
-                            + "    if value is not None:\n"
-                            + "        return value.renderedValue()\n"
-                            + "\n"
-                            + "def validate(entity, isNew):\n"
-                            + "    start_date = getRenderedProperty(entity, \"START_DATE\")\n"
-                            + "    end_date = getRenderedProperty(entity, \"END_DATE\")\n"
-                            + "    if start_date is not None and end_date is not None and start_date > end_date:\n"
-                            + "        return \"End date cannot be before start date!\"\n");
-                    validationPlugin.setFetchOptions(pluginFetchOptions);
+                    vocabulary.setTerms(getVocabularyTerms(fetchOptions));
 
-                    experimentType.setValidationPlugin(validationPlugin);
-
-                    return Collections.singletonMap(new EntityTypePermId("DEFAULT_EXPERIMENT"), experimentType);
+                    return Collections.singletonMap(new EntityTypePermId("ANTIBODY.DETECTION"), vocabulary);
                 }
 
-                private List<PropertyAssignment> getPropertyAssignments(final ExperimentTypeFetchOptions fetchOptions)
+                private List<VocabularyTerm> getVocabularyTerms(final VocabularyFetchOptions fetchOptions)
                 {
-                    final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions =
-                            fetchOptions.withPropertyAssignments();
-                    final PropertyTypeFetchOptions propertyTypeFetchOptions =
-                            propertyAssignmentFetchOptions.withPropertyType();
-                    propertyTypeFetchOptions.withVocabulary();
+                    final VocabularyTermFetchOptions vocabularyTermFetchOptions = fetchOptions.withTerms();
 
-                    final PluginFetchOptions pluginFetchOptions = propertyAssignmentFetchOptions.withPlugin();
-                    pluginFetchOptions.withScript();
+                    final VocabularyTerm[] vocabularyTerms = new VocabularyTerm[2];
 
-                    final PropertyAssignment[] propertyAssignments = new PropertyAssignment[4];
+                    vocabularyTerms[0] = new VocabularyTerm();
+                    vocabularyTerms[0].setFetchOptions(vocabularyTermFetchOptions);
+                    vocabularyTerms[0].setCode("FLUORESCENCE");
+                    vocabularyTerms[0].setLabel("fluorescent probe");
+                    vocabularyTerms[0].setDescription("The antibody is conjugated with a fluorescent probe");
 
-                    propertyAssignments[0] = new PropertyAssignment();
-                    propertyAssignments[0].setFetchOptions(propertyAssignmentFetchOptions);
-                    propertyAssignments[0].setPropertyType(new PropertyType());
-                    propertyAssignments[0].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
-                    propertyAssignments[0].setPlugin(new Plugin());
-                    propertyAssignments[0].getPlugin().setFetchOptions(pluginFetchOptions);
-                    propertyAssignments[0].getPropertyType().setCode("$NAME");
-                    propertyAssignments[0].setMandatory(false);
-                    propertyAssignments[0].setShowInEditView(true);
-                    propertyAssignments[0].setSection("General info");
-                    propertyAssignments[0].getPropertyType().setLabel("Name");
-                    propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
-                    propertyAssignments[0].getPropertyType().setDescription("Name");
+                    vocabularyTerms[1] = new VocabularyTerm();
+                    vocabularyTerms[1].setFetchOptions(vocabularyTermFetchOptions);
+                    vocabularyTerms[1].setCode("HRP");
+                    vocabularyTerms[1].setLabel("horseradish peroxydase");
+                    vocabularyTerms[1].setDescription("The antibody is conjugated with the horseradish peroxydase");
 
-                    propertyAssignments[1] = new PropertyAssignment();
-                    propertyAssignments[1].setFetchOptions(propertyAssignmentFetchOptions);
-                    propertyAssignments[1].setPropertyType(new PropertyType());
-                    propertyAssignments[1].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
-                    propertyAssignments[1].setPlugin(new Plugin());
-                    propertyAssignments[1].getPlugin().setFetchOptions(pluginFetchOptions);
-                    propertyAssignments[1].getPropertyType().setCode("$DEFAULT_OBJECT_TYPE");
-                    propertyAssignments[1].setMandatory(false);
-                    propertyAssignments[1].setShowInEditView(true);
-                    propertyAssignments[1].setSection("General info");
-                    propertyAssignments[1].getPropertyType().setLabel("Default object type");
-                    propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
-                    propertyAssignments[1].getPropertyType().setDescription(
-                            "Enter the code of the object type for which the collection is used");
-
-                    propertyAssignments[2] = new PropertyAssignment();
-                    propertyAssignments[2].setFetchOptions(propertyAssignmentFetchOptions);
-                    propertyAssignments[2].setPropertyType(new PropertyType());
-                    propertyAssignments[2].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
-                    propertyAssignments[2].setPlugin(new Plugin());
-                    propertyAssignments[2].getPlugin().setFetchOptions(pluginFetchOptions);
-                    propertyAssignments[2].getPropertyType().setCode("NOTES");
-                    propertyAssignments[2].setMandatory(false);
-                    propertyAssignments[2].setShowInEditView(true);
-                    propertyAssignments[2].getPropertyType().setLabel("Notes");
-                    propertyAssignments[2].getPropertyType().setDataType(DataType.MULTILINE_VARCHAR);
-                    propertyAssignments[2].getPropertyType().setDescription("Notes");
-                    propertyAssignments[2].getPropertyType().setMetaData(
-                            Collections.singletonMap("custom_widget", "Word Processor"));
-
-                    propertyAssignments[3] = new PropertyAssignment();
-                    propertyAssignments[3].setFetchOptions(propertyAssignmentFetchOptions);
-                    propertyAssignments[3].setPropertyType(new PropertyType());
-                    propertyAssignments[3].getPropertyType().setFetchOptions(propertyTypeFetchOptions);
-                    propertyAssignments[3].setPlugin(new Plugin());
-                    propertyAssignments[3].getPlugin().setFetchOptions(pluginFetchOptions);
-                    propertyAssignments[3].getPropertyType().setCode("$XMLCOMMENTS");
-                    propertyAssignments[3].setMandatory(false);
-                    propertyAssignments[3].setShowInEditView(false);
-                    propertyAssignments[3].getPropertyType().setLabel("Comments List");
-                    propertyAssignments[3].getPropertyType().setDataType(DataType.XML);
-                    propertyAssignments[3].getPropertyType().setDescription("Comments log");
-
-                    return Arrays.asList(propertyAssignments);
+                    return Arrays.asList(vocabularyTerms);
                 }
 
             });

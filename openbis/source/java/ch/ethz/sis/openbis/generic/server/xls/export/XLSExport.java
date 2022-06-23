@@ -21,7 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
@@ -30,8 +29,6 @@ public class XLSExport
 {
 
     private final IXLSExportHelper sampleTypeExportHelper = new XLSSampleTypeExportHelper();
-
-    private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();
 
     private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
 
@@ -62,8 +59,6 @@ public class XLSExport
                             exportablePermId.getPermId().getPermId(), rowNumber);
                     break;
                 case EXPERIMENT_TYPE:
-                    rowNumber = experimentTypeExportHelper.add(api, sessionToken, wb,
-                            exportablePermId.getPermId().getPermId(), rowNumber);
                     break;
                 case DATASET_TYPE:
                     break;
@@ -173,23 +168,17 @@ public class XLSExport
                 .map(code -> new ExportablePermId(ExportableKind.VOCABULARY, new VocabularyPermId(code)))
                 .collect(Collectors.toList());
 
-        final Collection<ExportablePermId> sampleTypes = Stream.of("UNKNOWN", "STORAGE", "ENTRY", "PUBLICATION",
-                        "STORAGE_POSITION", "SUPPLIER", "ORDER", "REQUEST", "PRODUCT", "GENERAL_ELN_SETTINGS",
-                        "GENERAL_PROTOCOL", "EXPERIMENTAL_STEP", "BACTERIA", "PCR_PROTOCOL", "RNA", "PLASMID", "OLIGO",
-                        "ANTIBODY", "WESTERN_BLOTTING_PROTOCOL", "SOLUTION_BUFFER", "YEAST", "PLANT_SPECIES", "FLY",
-                        "CELL_LINE", "ENZYME", "MEDIA", "CHEMICAL")
+        final Collection<ExportablePermId> sampleTypes = Stream.of("UNKNOWN", "STORAGE", "ENTRY", "PUBLICATION", "STORAGE_POSITION",
+                        "SUPPLIER", "ORDER", "REQUEST", "PRODUCT", "GENERAL_ELN_SETTINGS", "GENERAL_PROTOCOL",
+                        "EXPERIMENTAL_STEP", "BACTERIA", "PCR_PROTOCOL", "RNA", "PLASMID", "OLIGO", "ANTIBODY",
+                        "WESTERN_BLOTTING_PROTOCOL", "SOLUTION_BUFFER", "YEAST", "PLANT_SPECIES", "FLY", "CELL_LINE",
+                        "ENZYME", "MEDIA", "CHEMICAL")
                 .map(code -> new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId(code, SAMPLE)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> experimentTypes = Stream.of("UNKNOWN", "COLLECTION", "DEFAULT_EXPERIMENT")
-                .map(code -> new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
-                        new EntityTypePermId(code, EXPERIMENT)))
                 .collect(Collectors.toList());
 
         final Collection<ExportablePermId> exportablePermIds = new ArrayList<>();
         exportablePermIds.addAll(vocabularies);
         exportablePermIds.addAll(sampleTypes);
-        exportablePermIds.addAll(experimentTypes);
         final ByteArrayOutputStream os = xlsExport.export(applicationServerApi, sessionToken, exportablePermIds, false);
 
         try (final OutputStream fileOutputStream = new FileOutputStream("test.xlsx"))
