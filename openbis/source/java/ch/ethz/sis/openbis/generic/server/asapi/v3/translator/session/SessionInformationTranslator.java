@@ -59,6 +59,12 @@ public class SessionInformationTranslator extends
     private IDAOFactory daoFactory;
 
     @Override
+    protected Object getObjectId(Session input)
+    {
+        return input.getSessionToken();
+    }
+
+    @Override
     protected SessionInformation createObject(TranslationContext context, Session session,
             SessionInformationFetchOptions fetchOptions)
     {
@@ -69,6 +75,7 @@ public class SessionInformationTranslator extends
         sessionInformation.setHomeGroupCode(session.tryGetHomeGroupCode());
         sessionInformation.setPersonalAccessTokenSession(session.isPersonalAccessTokenSession());
         sessionInformation.setPersonalAccessTokenSessionName(session.getPersonalAccessTokenSessionName());
+        sessionInformation.setFetchOptions(new SessionInformationFetchOptions());
 
         return sessionInformation;
     }

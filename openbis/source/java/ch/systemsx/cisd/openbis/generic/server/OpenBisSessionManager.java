@@ -70,6 +70,9 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         }
     }
 
+    @Autowired
+    private PlatformTransactionManager txManager;
+
     private final IDAOFactory daoFactory;
 
     private final ISessionFactory<Session> sessionFactory;
@@ -104,6 +107,19 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 
     @PostConstruct
     private void init()
+    {
+        TransactionTemplate tmpl = new TransactionTemplate(txManager);
+        tmpl.execute(new TransactionCallbackWithoutResult()
+        {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status)
+            {
+                OpenBisSessionManager.this.initPersonalAccessTokens();
+            }
+        });
+    }
+
+    private void initPersonalAccessTokens()
     {
         List<PersonalAccessTokenSession> patSessions = daoFactory.getPersonalAccessTokenDAO().listSessions();
 

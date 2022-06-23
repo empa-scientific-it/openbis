@@ -29,7 +29,7 @@ public class DataStoreServerPersonalAccessTokenInvocationHandler implements IDat
     public DataStoreServerPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         this.invocation = invocation;
-        this.converter = new PersonalAccessTokenConverterFromEncapsulatedService(ServiceProvider.getOpenBISService());
+        this.converter = new PersonalAccessTokenConverterFromEncapsulatedService();
     }
 
     @Override public int getMajorVersion()

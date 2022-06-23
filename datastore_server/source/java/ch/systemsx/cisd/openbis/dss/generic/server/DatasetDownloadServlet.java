@@ -349,7 +349,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
-        sessionIDOrNull = new PersonalAccessTokenConverterFromEncapsulatedService(ServiceProvider.getOpenBISService()).convert(sessionIDOrNull);
+        sessionIDOrNull = new PersonalAccessTokenConverterFromEncapsulatedService().convert(sessionIDOrNull);
 
         String displayMode = getDisplayMode(request);
 

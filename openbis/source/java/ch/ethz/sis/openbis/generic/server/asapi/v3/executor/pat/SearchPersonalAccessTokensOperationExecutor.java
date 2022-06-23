@@ -33,7 +33,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.SearchPersonalAccessT
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.SearchPersonalAccessTokensOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.ISearchQueriesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat.IPersonalAccessTokenTranslator;
@@ -44,7 +43,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat.IPersonalAcces
 @Component
 public class SearchPersonalAccessTokensOperationExecutor extends
         AbstractSearchObjectsOperationExecutor<PersonalAccessToken, ch.systemsx.cisd.authentication.pat.PersonalAccessToken, PersonalAccessTokenSearchCriteria, PersonalAccessTokenFetchOptions>
-        implements ISearchQueriesOperationExecutor
+        implements ISearchPersonalAccessTokensOperationExecutor
 {
 
     @Autowired

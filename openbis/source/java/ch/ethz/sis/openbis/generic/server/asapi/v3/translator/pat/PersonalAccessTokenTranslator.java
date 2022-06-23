@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTran
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 
 /**
  * @author pkupczyk
@@ -54,6 +55,12 @@ public class PersonalAccessTokenTranslator extends
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Override
+    protected Object getObjectId(PersonalAccessToken input)
+    {
+        return input.getHash();
+    }
+
     @Override protected Set<PersonalAccessToken> shouldTranslate(final TranslationContext context, final Collection<PersonalAccessToken> pats,
             final PersonalAccessTokenFetchOptions fetchOptions)
     {
@@ -64,7 +71,7 @@ public class PersonalAccessTokenTranslator extends
             return Collections.emptySet();
         }
 
-        if (person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person))
+        if (person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person) || RoleAssignmentUtils.isETLServer(person))
         {
             return new HashSet<>(pats);
         }

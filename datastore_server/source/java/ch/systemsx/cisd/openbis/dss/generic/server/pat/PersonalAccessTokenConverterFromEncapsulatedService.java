@@ -14,33 +14,43 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInfo
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
 
 public class PersonalAccessTokenConverterFromEncapsulatedService extends AbstractPersonalAccessTokenConverter
 {
 
-    private final IEncapsulatedOpenBISService service;
-
-    public PersonalAccessTokenConverterFromEncapsulatedService(IEncapsulatedOpenBISService service)
-    {
-        this.service = service;
-    }
+    private IEncapsulatedOpenBISService service;
 
     @Override protected PersonalAccessToken getToken(final String tokenHash)
     {
         final IPersonalAccessTokenId id = new PersonalAccessTokenPermId(tokenHash);
         PersonalAccessTokenFetchOptions fetchOptions = new PersonalAccessTokenFetchOptions();
         fetchOptions.withOwner();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
 
         final Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> results =
-                service.getPersonalAccessTokens(Collections.singletonList(id), fetchOptions);
+                getService().getPersonalAccessTokens(Collections.singletonList(id), fetchOptions);
 
         final ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken v3Token = results.get(id);
 
         if (v3Token != null)
         {
             final PersonalAccessToken token = new PersonalAccessToken();
-            token.setOwnerId(v3Token.getOwner().getUserId());
+            token.setHash(v3Token.getHash());
+            if (v3Token.getOwner() != null)
+            {
+                token.setOwnerId(v3Token.getOwner().getUserId());
+            }
+            if (v3Token.getRegistrator() != null)
+            {
+                token.setRegistratorId(v3Token.getRegistrator().getUserId());
+            }
+            if (v3Token.getModifier() != null)
+            {
+                token.setModifierId(v3Token.getModifier().getUserId());
+            }
             token.setSessionName(v3Token.getSessionName());
             token.setValidFromDate(v3Token.getValidFromDate());
             token.setValidToDate(v3Token.getValidToDate());
@@ -60,7 +70,7 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         update.setPersonalAccessTokenId(new PersonalAccessTokenPermId(tokenHash));
         update.setAccessDate(date);
 
-        service.updatePersonalAccessTokens(Collections.singletonList(update));
+        getService().updatePersonalAccessTokens(Collections.singletonList(update));
     }
 
     @Override protected String getSessionToken(final String userId, final String sessionName)
@@ -70,11 +80,12 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         fetchOptions.withPerson();
 
         final SearchResult<SessionInformation>
-                result = service.searchSessionInformation(criteria, fetchOptions);
+                result = getService().searchSessionInformation(criteria, fetchOptions);
 
         for (SessionInformation session : result.getObjects())
         {
-            if (session.isPersonalAccessTokenSession() && session.getPerson().getUserId().equals(userId) && session.getSessionName()
+            if (session.isPersonalAccessTokenSession() && session.getPerson().getUserId().equals(userId)
+                    && session.getPersonalAccessTokenSessionName()
                     .equals(sessionName))
             {
                 return result.getObjects().get(0).getSessionToken();
@@ -82,6 +93,15 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         }
 
         return null;
+    }
+
+    private IEncapsulatedOpenBISService getService()
+    {
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return service;
     }
 
 }
