@@ -106,33 +106,23 @@ public class XLSExport
             switch (exportablePermId.getExportableKind())
             {
                 case SAMPLE_TYPE:
-                {
                     isValid = exportablePermId.getPermId() instanceof EntityTypePermId &&
                             ((EntityTypePermId) exportablePermId.getPermId()).getEntityKind() == SAMPLE;
                     break;
-                }
                 case EXPERIMENT_TYPE:
-                {
                     isValid = exportablePermId.getPermId() instanceof EntityTypePermId &&
                             ((EntityTypePermId) exportablePermId.getPermId()).getEntityKind() == EXPERIMENT;
                     break;
-                }
                 case DATASET_TYPE:
-                {
                     isValid = exportablePermId.getPermId() instanceof EntityTypePermId &&
                             ((EntityTypePermId) exportablePermId.getPermId()).getEntityKind() == DATA_SET;
                     break;
-                }
                 case VOCABULARY:
-                {
                     isValid = exportablePermId.getPermId() instanceof VocabularyPermId;
                     break;
-                }
                 case PROPERTY_TYPE:
-                {
                     isValid = exportablePermId.getPermId() instanceof PropertyTypePermId;
                     break;
-                }
             }
 
             if (isValid == false)
