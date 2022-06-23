@@ -29,7 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 
-public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
+public class XLSSampleTypeExportHelper implements IXLSExportHelper
 {
 
     @Override
@@ -41,6 +41,8 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
         boldFont.setBold(true);
         cellStyle.setFont(boldFont);
 
+        final List<EntityTypePermId> objectPermIds = Collections.singletonList(
+                (EntityTypePermId) exportablePermId.getPermId());
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
@@ -51,8 +53,11 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                         EntityKind.SAMPLE)), fetchOptions);
 
 
-        for (final SampleType sampleType : sampleTypes.values())
+        for (Map.Entry<IEntityTypeId, SampleType> entry : sampleTypes.entrySet())
         {
+            final IEntityTypeId iEntityTypeId = entry.getKey();
+            final SampleType sampleType = entry.getValue();
+
             addRow(wb, rowNumber++, true, "SAMPLE_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Auto generate codes", "Validation script",
                     "Generated Code Prefix");
@@ -86,6 +91,45 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
         }
 
         return rowNumber;
+    }
+
+    private static String mapToJSON(final Map<?, ?> map)
+    {
+        if (map.isEmpty())
+        {
+            return "";
+        } else
+        {
+            try
+            {
+                return new ObjectMapper().writeValueAsString(map);
+            } catch (final JsonProcessingException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static List<EntityTypePermId> toPermIdList(final EntityKind entityKind, final String... codes)
+    {
+        return Arrays.stream(codes).map(code -> new EntityTypePermId(code, entityKind)).collect(Collectors.toList());
+    }
+
+    private static void addRow(final Workbook wb, final int rowNumber, final boolean bold, final String... values)
+    {
+        final CellStyle cellStyle = wb.createCellStyle();
+        final Font font = wb.createFont();
+        font.setBold(bold);
+        cellStyle.setFont(font);
+
+        final Sheet sheet = wb.getSheetAt(0);
+        final Row row = sheet.createRow(rowNumber);
+        for (int i = 0; i < values.length; i++)
+        {
+            final Cell cell = row.createCell(i);
+            cell.setCellStyle(cellStyle);
+            cell.setCellValue(values[i]);
+        }
     }
 
 }
