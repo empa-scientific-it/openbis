@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -70,32 +71,12 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
                     propertyAssignment.getSection(),
-                    propertyType.getLabel(), getFullDataTypeString(propertyType),
+                    propertyType.getLabel(), String.valueOf(propertyType.getDataType()),
                     String.valueOf(vocabulary != null ? vocabulary.getCode() : ""), propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
                     plugin != null ? (plugin.getScript() != null ? plugin.getScript() : "") : "");
         }
         return rowNumber;
-    }
-
-    private String getFullDataTypeString(final PropertyType propertyType)
-    {
-        final String dataTypeString = String.valueOf(propertyType.getDataType());
-        switch (propertyType.getDataType())
-        {
-            case SAMPLE:
-            {
-                return dataTypeString + ':' + propertyType.getSampleType().getCode();
-            }
-            case MATERIAL:
-            {
-                return dataTypeString + ':' + propertyType.getMaterialType().getCode();
-            }
-            default:
-            {
-                return dataTypeString;
-            }
-        }
     }
 
 }

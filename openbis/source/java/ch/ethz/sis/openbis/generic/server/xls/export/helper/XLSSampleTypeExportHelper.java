@@ -55,8 +55,6 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
         propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
-        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
         propertyAssignmentFetchOptions.withPlugin().withScript();
         final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
