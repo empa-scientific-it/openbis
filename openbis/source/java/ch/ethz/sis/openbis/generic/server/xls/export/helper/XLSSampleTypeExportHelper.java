@@ -1,9 +1,20 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -16,28 +27,32 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final String permId, int rowNumber)
+            final ExportablePermId exportablePermId, int rowNumber)
     {
+        final CellStyle cellStyle = wb.createCellStyle();
+        final Font boldFont = wb.createFont();
+        boldFont.setBold(true);
+        cellStyle.setFont(boldFont);
+
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
         propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
         propertyAssignmentFetchOptions.withPlugin().withScript();
         final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
-                Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
+                Collections.singletonList(new EntityTypePermId(exportablePermId.getPermId().getPermId(),
+                        EntityKind.SAMPLE)), fetchOptions);
 
-        assert sampleTypes.size() <= 1;
 
-        if (sampleTypes.size() > 0)
+        for (final SampleType sampleType : sampleTypes.values())
         {
-            final SampleType sampleType = sampleTypes.values().iterator().next();
-
             addRow(wb, rowNumber++, true, "SAMPLE_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Auto generate codes", "Validation script",
                     "Generated Code Prefix");
@@ -68,12 +83,9 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                         mapToJSON(propertyType.getMetaData()),
                         plugin != null ? (plugin.getScript() != null ? plugin.getScript() : "") : "");
             }
-
-            return rowNumber + 1;
-        } else
-        {
-            return rowNumber;
         }
+
+        return rowNumber;
     }
 
 }
