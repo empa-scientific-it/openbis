@@ -16,24 +16,62 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class DeletePersonalAccessTokenExecutor implements IDeletePersonalAccessTokenExecutor
+public class DeletePersonalAccessTokenExecutor
+        extends AbstractDeleteEntityExecutor<Void, IPersonalAccessTokenId, PersonalAccessToken, PersonalAccessTokenDeletionOptions>
+        implements IDeletePersonalAccessTokenExecutor
 {
 
-    @Override public Void delete(final IOperationContext context, final List<? extends IPersonalAccessTokenId> iPersonalAccessTokenIds,
-            final PersonalAccessTokenDeletionOptions personalAccessTokenDeletionOptions)
+    @Autowired
+    private IMapPersonalAccessTokenByIdExecutor mapPersonalAccessTokenByIdExecutor;
+
+    @Autowired
+    private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
+
+    @Override
+    protected Map<IPersonalAccessTokenId, PersonalAccessToken> map(IOperationContext context, List<? extends IPersonalAccessTokenId> entityIds,
+            PersonalAccessTokenDeletionOptions deletionOptions)
     {
+        return mapPersonalAccessTokenByIdExecutor.map(context, entityIds);
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context, IPersonalAccessTokenId entityId, PersonalAccessToken entity)
+    {
+        authorizationExecutor.canDelete(context, entityId, entity);
+    }
+
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, PersonalAccessToken entity)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected Void delete(IOperationContext context, Collection<PersonalAccessToken> tokens, PersonalAccessTokenDeletionOptions deletionOptions)
+    {
+        for (PersonalAccessToken token : tokens)
+        {
+            daoFactory.getPersonalAccessTokenDAO().deleteToken(token.getHash());
+        }
+
         return null;
     }
+
 }

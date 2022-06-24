@@ -18,23 +18,11 @@ public class PersonalAccessTokenCreation implements ICreation, IObjectCreation
 
     private IPersonId ownerId;
 
-    private String hash;
-
     private String sessionName;
 
     private Date validFromDate;
 
     private Date validToDate;
-
-    public String getHash()
-    {
-        return hash;
-    }
-
-    public void setHash(final String hash)
-    {
-        this.hash = hash;
-    }
 
     public String getSessionName()
     {

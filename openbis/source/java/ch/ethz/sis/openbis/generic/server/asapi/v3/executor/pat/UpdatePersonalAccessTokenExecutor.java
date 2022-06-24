@@ -16,31 +16,31 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.QueryType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.QueryUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IMapQueryByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IQueryAuthorizationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IUpdateQueryDatabaseExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IGetPersonsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IMapPersonByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
+import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.query.server.DAO;
 
 /**
@@ -50,9 +50,97 @@ import ch.systemsx.cisd.openbis.plugin.query.server.DAO;
 public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessTokenExecutor
 {
 
+    @Autowired
+    private IDAOFactory daoFactory;
+
+    @Autowired
+    private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
+    private IMapPersonalAccessTokenByIdExecutor mapPersonalAccessTokenByIdExecutor;
+
     @Override public List<PersonalAccessTokenPermId> update(final IOperationContext context,
-            final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+            final List<PersonalAccessTokenUpdate> updates)
     {
-        return null;
+        if (updates == null)
+        {
+            throw new UserFailureException("Updates cannot be null");
+        }
+
+        final PersonPE person = context.getSession().tryGetPerson();
+        final Date now = new Date();
+        final List<PersonalAccessTokenPermId> ids = new ArrayList<>();
+
+        for (PersonalAccessTokenUpdate update : updates)
+        {
+            checkData(context, update);
+
+            Map<IPersonalAccessTokenId, PersonalAccessToken> map =
+                    mapPersonalAccessTokenByIdExecutor.map(context, Collections.singleton(update.getPersonalAccessTokenId()));
+            PersonalAccessToken token = map.get(update.getPersonalAccessTokenId());
+
+            if (token == null)
+            {
+                throw new ObjectNotFoundException(update.getPersonalAccessTokenId());
+            }
+
+            authorizationExecutor.canUpdate(context, update.getPersonalAccessTokenId(), token);
+
+            if (update.getSessionName().isModified())
+            {
+                token.setSessionName(update.getSessionName().getValue());
+            }
+            if (update.getValidFromDate().isModified())
+            {
+                token.setValidFromDate(update.getValidFromDate().getValue());
+            }
+            if (update.getValidToDate().isModified())
+            {
+                token.setValidToDate(update.getValidToDate().getValue());
+            }
+            if (token.getValidFromDate().after(token.getValidToDate()))
+            {
+                throw new UserFailureException("Valid from date cannot be after valid to date.");
+            }
+            if (update.getAccessDate().isModified())
+            {
+                token.setAccessDate(update.getAccessDate().getValue());
+            }
+
+            token.setModifierId(person.getUserId());
+            token.setModificationDate(now);
+
+            daoFactory.getPersonalAccessTokenDAO().updateToken(token);
+
+            ids.add(new PersonalAccessTokenPermId(token.getHash()));
+        }
+
+        return ids;
     }
+
+    private void checkData(final IOperationContext context, final PersonalAccessTokenUpdate update)
+    {
+        if (update.getPersonalAccessTokenId() == null)
+        {
+            throw new UserFailureException("Personal access token id cannot be null.");
+        }
+        if (update.getSessionName() != null && update.getSessionName().isModified() && StringUtils.isEmpty(update.getSessionName().getValue()))
+        {
+            throw new UserFailureException("Session name cannot be empty.");
+        }
+        if (update.getValidFromDate() != null && update.getValidFromDate().isModified() && update.getValidFromDate().getValue() == null)
+        {
+            throw new UserFailureException("Valid from date cannot be null.");
+        }
+        if (update.getValidToDate() != null && update.getValidToDate().isModified() && update.getValidToDate().getValue() == null)
+        {
+            throw new UserFailureException("Valid to date cannot be null.");
+        }
+        if (update.getAccessDate() != null && update.getAccessDate().isModified() && !RoleAssignmentUtils.isETLServer(
+                context.getSession().tryGetPerson()))
+        {
+            throw new UserFailureException("Access date can only be changed by ETL server user.");
+        }
+    }
+
 }

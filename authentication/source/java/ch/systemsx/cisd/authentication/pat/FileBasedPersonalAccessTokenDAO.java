@@ -63,9 +63,19 @@ public class FileBasedPersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return tokens.get(hash);
     }
 
-    @Override public void updateToken(final PersonalAccessToken patToken)
+    @Override public void createToken(final PersonalAccessToken token)
     {
-        tokens.put(patToken.getHash(), patToken);
+        tokens.put(token.getHash(), token);
+    }
+
+    @Override public void updateToken(final PersonalAccessToken token)
+    {
+        tokens.put(token.getHash(), token);
+    }
+
+    @Override public void deleteToken(final String hash)
+    {
+        tokens.remove(hash);
     }
 
     @Override public List<PersonalAccessTokenSession> listSessions()

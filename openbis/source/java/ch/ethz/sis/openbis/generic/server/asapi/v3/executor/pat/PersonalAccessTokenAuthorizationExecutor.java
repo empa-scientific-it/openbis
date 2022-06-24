@@ -96,12 +96,8 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     {
         PersonPE person = context.getSession().tryGetPerson();
 
-        if (person == null)
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
-
-        if (person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person) || person.getUserId().equals(pat.getOwnerId()))
+        if (person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person) || RoleAssignmentUtils.isETLServer(person) || person.getUserId()
+                .equals(pat.getOwnerId()))
         {
             return;
         }

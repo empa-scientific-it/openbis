@@ -9,11 +9,14 @@ public interface IPersonalAccessTokenDAO
 
     PersonalAccessToken getTokenByHash(String hash);
 
-    void updateToken(PersonalAccessToken patToken);
+    void createToken(PersonalAccessToken token);
+
+    void updateToken(PersonalAccessToken token);
+
+    void deleteToken(String hash);
 
     List<PersonalAccessTokenSession> listSessions();
 
     PersonalAccessTokenSession getSessionByUserIdAndSessionName(String userId, String sessionName);
-
 
 }
