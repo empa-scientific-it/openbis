@@ -67,8 +67,7 @@ public class PersonalAccessTokenCreation implements ICreation, IObjectCreation
     @Override
     public String toString()
     {
-        return new ObjectToString(this).append("ownerId", ownerId).append("sessionName", sessionName).append("validFrom", validFromDate)
-                .append("validTo", validToDate).toString();
+        return new ObjectToString(this).append("ownerId", ownerId).append("sessionName", sessionName).toString();
     }
 
 }

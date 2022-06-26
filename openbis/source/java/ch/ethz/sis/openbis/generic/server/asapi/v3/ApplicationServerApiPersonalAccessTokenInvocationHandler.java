@@ -436,7 +436,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     {
         if (converter.shouldConvert(sessionToken))
         {
-            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
         }
         return invocation.proceedWithOriginalArguments();
     }
@@ -1064,7 +1064,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     {
         if (converter.shouldConvert(sessionToken))
         {
-            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
         }
         invocation.proceedWithOriginalArguments();
     }
@@ -1086,7 +1086,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     {
         if (converter.shouldConvert(sessionToken))
         {
-            throw new UserFailureException("Personal access tokens cannot be used to manage persons.");
+            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
         }
         return invocation.proceedWithOriginalArguments();
     }

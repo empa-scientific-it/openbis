@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
 import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
@@ -57,7 +58,12 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PERSONAL_ACCESS_TOKEN)
     public void canCreate(IOperationContext context, PersonalAccessToken pat)
     {
-        canWrite(context, null, pat);
+        if (!canWrite(context, null, pat))
+        {
+            throw new UserFailureException(
+                    String.format("User '%s' is not allowed to create a personal access token for user '%s'",
+                            context.getSession().tryGetPerson().getUserId(), pat.getOwnerId()));
+        }
     }
 
     @Override
@@ -66,7 +72,10 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     @DatabaseUpdateModification(value = ObjectKind.PERSONAL_ACCESS_TOKEN)
     public void canUpdate(IOperationContext context, IPersonalAccessTokenId id, PersonalAccessToken pat)
     {
-        canWrite(context, id, pat);
+        if (!canWrite(context, id, pat))
+        {
+            throw new UnauthorizedObjectAccessException(id);
+        }
     }
 
     @Override
@@ -75,7 +84,10 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PERSONAL_ACCESS_TOKEN)
     public void canDelete(IOperationContext context, IPersonalAccessTokenId id, PersonalAccessToken pat)
     {
-        canWrite(context, id, pat);
+        if (!canWrite(context, id, pat))
+        {
+            throw new UnauthorizedObjectAccessException(id);
+        }
     }
 
     @Override
@@ -92,17 +104,12 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     {
     }
 
-    private void canWrite(IOperationContext context, IPersonalAccessTokenId id, PersonalAccessToken pat)
+    private boolean canWrite(IOperationContext context, IPersonalAccessTokenId id, PersonalAccessToken pat)
     {
         PersonPE person = context.getSession().tryGetPerson();
 
-        if (person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person) || RoleAssignmentUtils.isETLServer(person) || person.getUserId()
-                .equals(pat.getOwnerId()))
-        {
-            return;
-        }
-
-        throw new UnauthorizedObjectAccessException(id);
+        return person.isSystemUser() || RoleAssignmentUtils.isInstanceAdmin(person) || RoleAssignmentUtils.isETLServer(person) || person.getUserId()
+                .equals(pat.getOwnerId());
     }
 
 }

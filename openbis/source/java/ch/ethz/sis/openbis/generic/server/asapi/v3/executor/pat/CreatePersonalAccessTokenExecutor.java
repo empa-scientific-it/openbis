@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -118,9 +119,9 @@ public class CreatePersonalAccessTokenExecutor implements ICreatePersonalAccessT
 
     private void checkData(final PersonalAccessTokenCreation creation)
     {
-        if (creation.getSessionName() == null)
+        if (StringUtils.isEmpty(creation.getSessionName()))
         {
-            throw new UserFailureException("Session name cannot be null.");
+            throw new UserFailureException("Session name cannot be empty.");
         }
 
         if (creation.getValidFromDate() == null)
