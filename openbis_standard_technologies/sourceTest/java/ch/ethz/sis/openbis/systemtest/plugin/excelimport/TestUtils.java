@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +56,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 
-public class TestUtils {
+public class TestUtils
+{
     private static final String TEST_XLS = "TEST-XLS";
 
     private static final String XLS_NAME = "xls_name";
@@ -70,7 +72,8 @@ public class TestUtils {
 
     private static final String XLS_IMPORT_API = "xls-import-api";
 
-    static Vocabulary getVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static Vocabulary getVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         VocabularySearchCriteria criteria = new VocabularySearchCriteria();
         criteria.withId().thatEquals(new VocabularyPermId(code));
         VocabularyFetchOptions fo = new VocabularyFetchOptions();
@@ -78,28 +81,34 @@ public class TestUtils {
 
         SearchResult<Vocabulary> result = v3api.searchVocabularies(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static List<Vocabulary> getAllVocabularies(IApplicationServerInternalApi v3api, String sessionToken) {
+    static List<Vocabulary> getAllVocabularies(IApplicationServerInternalApi v3api, String sessionToken)
+    {
         VocabularySearchCriteria criteria = new VocabularySearchCriteria();
         VocabularyFetchOptions fo = new VocabularyFetchOptions();
         fo.withTerms();
 
         SearchResult<Vocabulary> result = v3api.searchVocabularies(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects();
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static SampleType getSampleType(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static SampleType getSampleType(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
         criteria.withCode().thatEquals(code);
 
@@ -111,14 +120,17 @@ public class TestUtils {
 
         SearchResult<SampleType> result = v3api.searchSampleTypes(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static ExperimentType getExperimentType(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static ExperimentType getExperimentType(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         ExperimentTypeSearchCriteria criteria = new ExperimentTypeSearchCriteria();
         criteria.withCode().thatEquals(code);
 
@@ -130,14 +142,17 @@ public class TestUtils {
 
         SearchResult<ExperimentType> result = v3api.searchExperimentTypes(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static DataSetType getDatasetType(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static DataSetType getDatasetType(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         DataSetTypeSearchCriteria criteria = new DataSetTypeSearchCriteria();
         criteria.withCode().thatEquals(code);
 
@@ -149,14 +164,17 @@ public class TestUtils {
 
         SearchResult<DataSetType> result = v3api.searchDataSetTypes(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static PropertyType getPropertyType(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static PropertyType getPropertyType(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         PropertyTypeSearchCriteria criteria = new PropertyTypeSearchCriteria();
         criteria.withCode().thatEquals(code);
 
@@ -165,14 +183,17 @@ public class TestUtils {
 
         SearchResult<PropertyType> result = v3api.searchPropertyTypes(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static Space getSpace(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static Space getSpace(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();
         criteria.withCode().thatEquals(code);
 
@@ -180,22 +201,27 @@ public class TestUtils {
 
         SearchResult<Space> result = v3api.searchSpaces(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static Project getProject(IApplicationServerInternalApi v3api, String sessionToken, String code) {
+    static Project getProject(IApplicationServerInternalApi v3api, String sessionToken, String code)
+    {
         return getProject(v3api, sessionToken, code, null);
     }
 
-    static Project getProject(IApplicationServerInternalApi v3api, String sessionToken, String code, String spaceId) {
+    static Project getProject(IApplicationServerInternalApi v3api, String sessionToken, String code, String spaceId)
+    {
         ProjectSearchCriteria criteria = new ProjectSearchCriteria();
         criteria.withCode().thatEquals(code);
 
-        if (spaceId != null) {
+        if (spaceId != null)
+        {
             criteria.withSpace().withCode().thatEquals(spaceId);
         }
 
@@ -204,15 +230,18 @@ public class TestUtils {
 
         SearchResult<Project> result = v3api.searchProjects(sessionToken, criteria, fo);
 
-        if (result.getObjects().size() > 0) {
+        if (result.getObjects().size() > 0)
+        {
             return result.getObjects().get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
     static Experiment getExperiment(IApplicationServerInternalApi v3api, String sessionToken, String experimentCode, String projectCode,
-                                    String spaceCode) {
+            String spaceCode)
+    {
         List<IExperimentId> ids = new ArrayList<>();
         ids.add(new ExperimentIdentifier(spaceCode, projectCode, experimentCode));
 
@@ -223,28 +252,38 @@ public class TestUtils {
 
         List<Experiment> result = v3api.getExperiments(sessionToken, ids, fo).values().stream().collect(Collectors.toList());
 
-        if (result.size() > 0) {
+        if (result.size() > 0)
+        {
             return result.get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static Sample getSample(IApplicationServerInternalApi v3api, String sessionToken, String sampleCode, String spaceCode) {
+    static Sample getSample(IApplicationServerInternalApi v3api, String sessionToken, String sampleCode, String spaceCode)
+    {
         List<ISampleId> ids = new ArrayList<>();
         ids.add(new SampleIdentifier(spaceCode, null, null, sampleCode));
 
         return getSamples(v3api, sessionToken, ids);
     }
 
-    static Sample getSampleByPermId(IApplicationServerInternalApi v3api, String sessionToken, String permId) {
+    static Sample getSampleById(IApplicationServerInternalApi v3api, String sessionToken, String id)
+    {
         List<ISampleId> ids = new ArrayList<>();
-        ids.add(new SamplePermId(permId));
-
+        if (id.contains("/"))
+        {
+            ids.add(new SampleIdentifier(id));
+        } else
+        {
+            ids.add(new SamplePermId(id));
+        }
         return getSamples(v3api, sessionToken, ids);
     }
 
-    private static Sample getSamples(IApplicationServerInternalApi v3api, String sessionToken, List<ISampleId> ids) {
+    public static List<Sample> getSamplesById(IApplicationServerInternalApi v3api, String sessionToken, List<ISampleId> ids)
+    {
         SampleFetchOptions fo = new SampleFetchOptions();
         SampleFetchOptions childrenFo = fo.withChildren();
         childrenFo.withSpace();
@@ -260,20 +299,46 @@ public class TestUtils {
 
         List<Sample> result = v3api.getSamples(sessionToken, ids, fo).values().stream().collect(Collectors.toList());
 
-        if (result.size() > 0) {
+        return result;
+    }
+
+    private static Sample getSamples(IApplicationServerInternalApi v3api, String sessionToken, List<ISampleId> ids)
+    {
+        SampleFetchOptions fo = new SampleFetchOptions();
+        SampleFetchOptions childrenFo = fo.withChildren();
+        childrenFo.withSpace();
+        childrenFo.withExperiment();
+        SampleFetchOptions parentsFo = fo.withParents();
+        parentsFo.withSpace();
+        parentsFo.withExperiment();
+        fo.withExperiment();
+        fo.withProject();
+        fo.withProperties();
+        fo.withSpace();
+        fo.withType();
+
+        List<Sample> result = v3api.getSamples(sessionToken, ids, fo).values().stream().collect(Collectors.toList());
+
+        if (result.size() > 0)
+        {
             return result.get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Path... xls_paths) throws IOException {
-        return createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING, xls_paths);
+    static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Path... xls_paths) throws IOException
+    {
+        return createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING, xls_paths).toString();
     }
 
-    static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, UpdateMode updateMode, Path... xls_paths) throws IOException {
+    static List<IObjectId> createFrom(IApplicationServerInternalApi v3api, String sessionToken, UpdateMode updateMode, Path... xls_paths)
+            throws IOException
+    {
         List<byte[]> excels = new ArrayList<>();
-        for (Path xls_path : xls_paths) {
+        for (Path xls_path : xls_paths)
+        {
             byte[] xls = readData(xls_path);
             excels.add(xls);
         }
@@ -281,12 +346,14 @@ public class TestUtils {
         options.withParameter(XLS_PARAM, excels);
         options.withParameter(UPDATE_MODE, updateMode.name());
         options.withParameter(XLS_NAME, TEST_XLS);
-        return (String) v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options);
+        return (List<IObjectId>) v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options);
     }
 
-    static String createFromCsv(IApplicationServerInternalApi v3api, String sessionToken, Path... csv_paths) throws IOException {
+    static String createFromCsv(IApplicationServerInternalApi v3api, String sessionToken, Path... csv_paths) throws IOException
+    {
         List<byte[]> csvs = new ArrayList<>();
-        for (Path csv_path : csv_paths) {
+        for (Path csv_path : csv_paths)
+        {
             byte[] csv = readData(csv_path);
             csvs.add(csv);
         }
@@ -294,18 +361,21 @@ public class TestUtils {
         options.withParameter(CSV_PARAM, csvs);
         options.withParameter(UPDATE_MODE, UpdateMode.IGNORE_EXISTING.name());
         options.withParameter(XLS_NAME, TEST_XLS);
-        return (String) v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options);
+        return v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options).toString();
     }
 
     static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Map<String, String> scripts, Path... xls_paths)
-            throws IOException {
+            throws IOException
+    {
         return TestUtils.createFrom(v3api, sessionToken, scripts, UpdateMode.IGNORE_EXISTING, xls_paths);
     }
 
     static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Map<String, String> scripts, UpdateMode updateMode,
-                             Path... xls_paths) throws IOException {
+            Path... xls_paths) throws IOException
+    {
         List<byte[]> excels = new ArrayList<>();
-        for (Path xls_path : xls_paths) {
+        for (Path xls_path : xls_paths)
+        {
             byte[] xls = readData(xls_path);
             excels.add(xls);
         }
@@ -314,18 +384,21 @@ public class TestUtils {
         options.withParameter(SCRIPTS_PARAM, scripts);
         options.withParameter(UPDATE_MODE, updateMode.name());
         options.withParameter(XLS_NAME, TEST_XLS);
-        return (String) v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options);
+        return v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options).toString();
     }
 
-    static String getValidationScript() {
+    static String getValidationScript()
+    {
         return "def validate(entity, isNew):\n  if isNew:\n    return";
     }
 
-    static String getDynamicScript() {
+    static String getDynamicScript()
+    {
         return "def calculate():\n    return 1";
     }
 
-    static Map<String, String> getValidationPluginMap() {
+    static Map<String, String> getValidationPluginMap()
+    {
         String dynamicScriptString = getValidationScript();
         Map<String, String> scriptsMap = new HashMap<>();
         scriptsMap.put("valid.py", dynamicScriptString);
@@ -333,7 +406,8 @@ public class TestUtils {
         return scriptsMap;
     }
 
-    static Map<String, String> getDynamicPluginMap() {
+    static Map<String, String> getDynamicPluginMap()
+    {
         String dynamicScriptString = getDynamicScript();
         Map<String, String> scriptsMap = new HashMap<>();
         scriptsMap.put("dynamic/dynamic.py", dynamicScriptString);
@@ -341,21 +415,25 @@ public class TestUtils {
         return scriptsMap;
     }
 
-    static VocabularyPermId createVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code, String description) {
+    static VocabularyPermId createVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code, String description)
+    {
         List<VocabularyCreation> newVocabularies = new ArrayList<>();
         VocabularyCreation creation = new VocabularyCreation();
         creation.setCode(code);
         creation.setDescription(description);
         newVocabularies.add(creation);
         List<VocabularyPermId> vocabularies = v3api.createVocabularies(sessionToken, newVocabularies);
-        if (vocabularies.size() > 0) {
+        if (vocabularies.size() > 0)
+        {
             return vocabularies.get(0);
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    static String extractSamplePermIdFromResults(String result) {
+    static String extractSamplePermIdFromResults(String result)
+    {
         // Note this will work only if we created single sample!!
         int indexOfSamples = result.indexOf("CreateSamplesOperationResult");
         int permIdStart = indexOfSamples + "CreateSamplesOperationResult".length();
@@ -366,13 +444,16 @@ public class TestUtils {
     }
 
     static List<PropertyAssignment> extractAndSortPropertyAssignmentsPerGivenPropertyName(IEntityType rawData, List<String> propertyNames)
-            throws Exception {
+            throws Exception
+    {
         List<PropertyAssignment> propertyAssignments = rawData.getPropertyAssignments();
-        List<PropertyAssignment> sortedPropertyAssignments = propertyNames.stream().map(propertyName -> {
+        List<PropertyAssignment> sortedPropertyAssignments = propertyNames.stream().map(propertyName ->
+        {
             return propertyAssignments.stream().filter(prop -> prop.getPropertyType().getPermId().toString().equals(propertyName)).findFirst().get();
         }).collect(Collectors.toList());
 
-        if (sortedPropertyAssignments.stream().anyMatch(Objects::isNull)) {
+        if (sortedPropertyAssignments.stream().anyMatch(Objects::isNull))
+        {
             throw new Exception("Some properties are missing"
                     + "\nFollowing properties are expected " + Arrays.toString(propertyNames.toArray())
                     + "\n Available properties are: " + Arrays.toString(propertyAssignments.toArray()));
@@ -381,9 +462,11 @@ public class TestUtils {
         return sortedPropertyAssignments;
     }
 
-    private static byte[] readData(Path xls_path) throws IOException {
+    private static byte[] readData(Path xls_path) throws IOException
+    {
         String path = xls_path.toString();
-        try (InputStream resourceAsStream = TestUtils.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream resourceAsStream = TestUtils.class.getClassLoader().getResourceAsStream(path))
+        {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             IOUtils.copy(resourceAsStream, byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();
