@@ -47,20 +47,26 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testUpdate()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
+        creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
+        creation.setSessionName("test session name");
+        creation.setValidFromDate(new Date(1));
+        creation.setValidToDate(new Date(2));
+
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
 
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(token.getPermId());
         update.setSessionName("updated session name");
-        update.setValidFromDate(new Date(token.getValidFromDate().getTime() + DateUtils.MILLIS_PER_DAY));
-        update.setValidToDate(new Date(token.getValidToDate().getTime() + DateUtils.MILLIS_PER_DAY));
+        update.setValidFromDate(new Date(3));
+        update.setValidToDate(new Date(4));
 
-        PersonalAccessToken updated = updateToken(TEST_USER, PASSWORD, update);
+        PersonalAccessToken updated = updateToken(INSTANCE_ADMIN_USER, PASSWORD, update);
 
         assertEquals(updated.getPermId(), token.getPermId());
-        assertEquals(updated.getOwner().getUserId(), token.getOwner().getUserId());
-        assertEquals(updated.getRegistrator().getUserId(), token.getRegistrator().getUserId());
-        assertEquals(updated.getModifier().getUserId(), TEST_USER);
+        assertEquals(updated.getOwner().getUserId(), TEST_GROUP_OBSERVER);
+        assertEquals(updated.getRegistrator().getUserId(), TEST_USER);
+        assertEquals(updated.getModifier().getUserId(), INSTANCE_ADMIN_USER);
         assertEquals(updated.getValidFromDate(), update.getValidFromDate().getValue());
         assertEquals(updated.getValidToDate(), update.getValidToDate().getValue());
         assertEquals(updated.getRegistrationDate(), token.getRegistrationDate());

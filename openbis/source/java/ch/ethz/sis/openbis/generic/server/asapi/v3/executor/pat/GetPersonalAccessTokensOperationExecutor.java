@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,13 +102,23 @@ public class GetPersonalAccessTokensOperationExecutor
         } else
         {
             TranslationContext translationContext = new TranslationContext(context.getSession());
-            Map<PersonalAccessToken, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> patsV3 =
+
+            Map<PersonalAccessToken, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> tokenToV3TokenMap =
                     translator.translate(translationContext, pats, fetchOptions);
 
-            Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> result = new HashMap<>();
-            for (ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken patV3 : patsV3.values())
+            Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> idToV3TokenMap = new HashMap<>();
+            for (ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken v3Token : tokenToV3TokenMap.values())
             {
-                result.put(patV3.getPermId(), patV3);
+                idToV3TokenMap.put(v3Token.getPermId(), v3Token);
+            }
+
+            Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> result = new LinkedHashMap<>();
+            for (IPersonalAccessTokenId id : ids)
+            {
+                if (idToV3TokenMap.containsKey(id))
+                {
+                    result.put(id, idToV3TokenMap.get(id));
+                }
             }
 
             return new GetPersonalAccessTokensOperationResult(result);
