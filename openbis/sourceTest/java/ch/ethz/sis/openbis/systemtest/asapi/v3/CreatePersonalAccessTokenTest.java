@@ -99,11 +99,11 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     public void testCreateWithOwnerIdSetToMyselfAsInstanceAdmin()
     {
         PersonalAccessTokenCreation creation = testCreation();
-        creation.setOwnerId(new PersonPermId(TEST_USER));
+        creation.setOwnerId(new PersonPermId(INSTANCE_ADMIN_USER));
 
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+        PersonalAccessToken token = createToken(INSTANCE_ADMIN_USER, PASSWORD, creation);
 
-        assertEquals(token.getOwner().getUserId(), TEST_USER);
+        assertEquals(token.getOwner().getUserId(), INSTANCE_ADMIN_USER);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         PersonalAccessTokenCreation creation = testCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+        PersonalAccessToken token = createToken(INSTANCE_ADMIN_USER, PASSWORD, creation);
 
         assertEquals(token.getOwner().getUserId(), TEST_GROUP_OBSERVER);
     }

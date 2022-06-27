@@ -120,6 +120,8 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
 
     private void checkData(final IOperationContext context, final PersonalAccessTokenUpdate update)
     {
+        PersonPE person = context.getSession().tryGetPerson();
+
         if (update.getPersonalAccessTokenId() == null)
         {
             throw new UserFailureException("Personal access token id cannot be null.");
@@ -136,10 +138,10 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
         {
             throw new UserFailureException("Valid to date cannot be null.");
         }
-        if (update.getAccessDate() != null && update.getAccessDate().isModified() && !RoleAssignmentUtils.isETLServer(
-                context.getSession().tryGetPerson()))
+        if (update.getAccessDate() != null && update.getAccessDate().isModified() && !person.isSystemUser() && !RoleAssignmentUtils.isETLServer(
+                person))
         {
-            throw new UserFailureException("Access date can only be changed by ETL server user.");
+            throw new UserFailureException("Access date can only be changed by system user or ETL server user.");
         }
     }
 

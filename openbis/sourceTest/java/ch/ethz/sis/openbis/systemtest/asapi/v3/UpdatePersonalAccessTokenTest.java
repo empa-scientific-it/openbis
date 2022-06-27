@@ -69,6 +69,46 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     }
 
     @Test
+    public void testUpdateByOwner()
+    {
+        testUpdateBy(TEST_GROUP_OBSERVER, TEST_GROUP_OBSERVER);
+    }
+
+    @Test
+    public void testUpdateByNonOwnerETLServerUser()
+    {
+        testUpdateBy(TEST_GROUP_OBSERVER, TEST_INSTANCE_ETLSERVER);
+    }
+
+    @Test
+    public void testUpdateByNonOwnerInstanceAdminUser()
+    {
+        testUpdateBy(TEST_GROUP_OBSERVER, INSTANCE_ADMIN_USER);
+    }
+
+    @Test
+    public void testUpdateByNonOwnerRegularUser()
+    {
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                testUpdateBy(TEST_USER, TEST_GROUP_OBSERVER);
+            }
+        }, null);
+    }
+
+    private void testUpdateBy(String ownerId, String updaterId)
+    {
+        PersonalAccessToken token = createToken(ownerId, PASSWORD, testCreation());
+        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
+        update.setPersonalAccessTokenId(token.getPermId());
+        update.setSessionName("updated session name");
+        updateToken(updaterId, PASSWORD, update);
+    }
+
+    @Test
     public void testUpdateWithRegularSessionTokenAsSessionToken()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -203,6 +243,49 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
                 updateToken(TEST_USER, PASSWORD, update);
             }
         }, "Valid from date cannot be after valid to date");
+    }
+
+    @Test
+    public void testUpdateWithAccessDateByETLServerUser()
+    {
+        testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, TEST_INSTANCE_ETLSERVER);
+    }
+
+    @Test
+    public void testUpdateWithAccessDateByInstanceAdminUser()
+    {
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override public void execute()
+            {
+                testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, INSTANCE_ADMIN_USER);
+            }
+        }, "Access date can only be changed by system user or ETL server user");
+    }
+
+    @Test
+    public void testUpdateWithAccessDateByRegularUser()
+    {
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override public void execute()
+            {
+                testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, TEST_GROUP_OBSERVER);
+            }
+        }, "Access date can only be changed by system user or ETL server user");
+    }
+
+    private void testUpdateWithAccessDateBy(String ownerId, String updaterId)
+    {
+        PersonalAccessToken token = createToken(ownerId, PASSWORD, testCreation());
+
+        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
+        update.setPersonalAccessTokenId(token.getPermId());
+        update.setAccessDate(new Date());
+
+        PersonalAccessToken updated = updateToken(updaterId, PASSWORD, update);
+
+        assertEquals(updated.getAccessDate(), update.getAccessDate().getValue());
     }
 
     @Test
