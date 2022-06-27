@@ -6,6 +6,7 @@ import static org.testng.Assert.assertNotNull;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -37,7 +38,7 @@ public class ImportFromExcelTest extends AbstractImportTest
         FILES_DIR = f.substring(0, f.length() - ImportExperimentTypesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class)
     @DirtiesContext
     public void testFileWithManyBlankRowsWasParsed() throws Exception
     {

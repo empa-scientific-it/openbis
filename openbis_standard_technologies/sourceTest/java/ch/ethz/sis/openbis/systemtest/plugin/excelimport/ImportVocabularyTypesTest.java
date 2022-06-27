@@ -165,7 +165,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_CODE)));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = RuntimeException.class)
     public void shouldThrowExceptionIfNoTermCode() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_CODE)));
