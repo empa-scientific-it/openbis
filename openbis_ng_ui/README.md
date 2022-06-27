@@ -1,20 +1,18 @@
 # openBIS - next generation UI
 
-## Setting up the environment
+## Development of NG UI
 
-1. Install latest version of VirtualBox (https://www.virtualbox.org)
-
-2. Install latest version of Vagrant (https://www.vagrantup.com/downloads.html)
-
-3. vagrant plugin install vagrant-vbguest vagrant-notify-forwarder vagrant-disksize
-
-4. Relative to the current folder: cd env/dev
-
-5. vagrant up
-
-6. Start openBIS in your Eclipse - it should be running at http://localhost:8888/openbis-test. Make sure you can log in with credentials 'admin / password'.
-
-7. openBIS next generation UI is now running at http://localhost:8124
+1. Generate openBIS JS bundle by running in command line
+   1. cd /<OPENBIS_PROJECT_ROOT>/openbis_standard_technologies
+   2. ./gradlew :bundleOpenbisStaticResources
+2. Start openBIS in your chosen IDE (NG UI assumes it will run at: http://localhost:8888/openbis-test/):
+   1. run openBISDevelopementEnvironmentASPrepare gradle task
+   2. run openBISDevelopementEnvironmentASStart gradle task
+3. In command line do:
+   1. cd /<OPENBIS_PROJECT_ROOT>/openbis_ng_ui
+   2. npm install
+   3. npm run dev
+4. Open in your chosen browser a url: http://localhost:8124/ng-ui-path
 
 ## Setting up IntelliJ Idea
 
@@ -24,40 +22,4 @@
 
 Install "ESLint" and "Prettier - Code formatter" extensions.
 
-## Login into Vagrant to see the dev server output
 
-1. vagrant ssh
-
-2. screen -r
-
-## Additional info for Linux users
-
-On Ubuntu (and maybe on other Linux distributions, too), you might get errors like this when running "vagrant up":
-
-terminate called after throwing an instance of 'std::runtime_error'
-what(): Could not add watch
-
-This situation will prevent the development environment from working properly. The reason for the error is https://github.com/mhallin/vagrant-notify-forwarder/issues/5. It can be fixed by increasing the maximum number of watches on the host system. On Ubuntu, this is done like this:
-
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
-## "Jest" automated tests
-
-Running tests
-
-npm run test
-
-Debugging tests
-
-1. execute in command line:
-
-
-    node --inspect-brk ./node_modules/.bin/jest --runInBand
-
-2. put the following snippet of code in a line where the debugger should stop:
-
-
-    /*eslint no-debugger: 0*/
-    debugger
-
-3. open "chrome://inspect" in Chrome and choose "Open dedicated DevTools for Node" to start debugging
