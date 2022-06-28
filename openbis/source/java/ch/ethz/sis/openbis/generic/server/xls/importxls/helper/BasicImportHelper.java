@@ -81,8 +81,9 @@ public abstract class BasicImportHelper extends AbstractImportHelper
 
         } catch (Exception e)
         {
-            throw new UserFailureException(
-                    "Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with message: " + e.getMessage());
+            UserFailureException userFailureException = new UserFailureException(
+                    "Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with class " + e.getClass().getSimpleName() + "message: " + e.getMessage());
+            userFailureException.setStackTrace(e.getStackTrace());
         }
     }
 }
