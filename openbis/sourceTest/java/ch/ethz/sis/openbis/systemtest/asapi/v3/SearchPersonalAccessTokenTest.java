@@ -16,15 +16,12 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,12 +29,10 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -55,6 +50,19 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @BeforeMethod
     private void createTokens()
     {
+        // delete existing tokens created by other tests
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SearchResult<PersonalAccessToken> result =
+                v3api.searchPersonalAccessTokens(sessionToken, new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
+
+        PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
+        options.setReason("cleaning up before test");
+
+        v3api.deletePersonalAccessTokens(sessionToken, result.getObjects().stream().map(PersonalAccessToken::getPermId).collect(Collectors.toList()),
+                options);
+
+        // create new tests tokens
         PersonalAccessTokenCreation creation1 = testCreation();
         creation1.setSessionName("test session name 1");
 
@@ -72,12 +80,116 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testSearch()
     {
+        testSearch(TEST_USER, new PersonalAccessTokenSearchCriteria(), token1.getHash(), token2.getHash(), token3.getHash());
+    }
+
+    @Test
+    public void testSearchWithRegularSessionTokenAsSessionToken()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SearchResult<PersonalAccessToken> result =
                 v3api.searchPersonalAccessTokens(sessionToken, new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
 
         assertEquals(result.getObjects().size(), 3);
+    }
+
+    @Test
+    public void testSearchWithPersonalAccessTokenAsSessionToken()
+    {
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.searchPersonalAccessTokens(token1.getHash(), new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
+            }
+        }, "Personal access tokens cannot be used to manage personal access tokens");
+    }
+
+    @Test
+    public void testSearchWithPermIds()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(token1.getPermId());
+        criteria.withId().thatEquals(token2.getPermId());
+
+        testSearch(TEST_USER, criteria, token1.getHash(), token2.getHash());
+    }
+
+    @Test
+    public void testSearchWithNonexistentIds()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(token1.getPermId());
+        criteria.withId().thatEquals(token2.getPermId());
+        criteria.withId().thatEquals(new PersonalAccessTokenPermId("IDONTEXIST"));
+
+        testSearch(TEST_USER, criteria, token1.getHash(), token2.getHash());
+    }
+
+    @Test
+    public void testSearchWithDuplicatedIds()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new PersonalAccessTokenPermId(token1.getHash()));
+        criteria.withId().thatEquals(new PersonalAccessTokenPermId(token1.getHash()));
+
+        testSearch(TEST_USER, criteria, token1.getHash());
+    }
+
+    @Test
+    public void testSearchWithUnauthorizedIds()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(token1.getPermId());
+        criteria.withId().thatEquals(token2.getPermId());
+        criteria.withId().thatEquals(token3.getPermId());
+
+        testSearch(TEST_USER, criteria, token1.getHash(), token2.getHash(), token3.getHash());
+        testSearch(TEST_GROUP_OBSERVER, criteria, token3.getHash());
+    }
+
+    @Test
+    public void testLogging()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withId().thatEquals(token1.getPermId());
+
+        PersonalAccessTokenFetchOptions fo = new PersonalAccessTokenFetchOptions();
+        fo.withOwner();
+        fo.withRegistrator();
+        fo.withModifier();
+
+        v3api.searchPersonalAccessTokens(sessionToken, criteria, fo);
+
+        assertAccessLog(
+                "search-personal-access-tokens  SEARCH_CRITERIA:\n'PERSONAL_ACCESS_TOKEN\n    with id '" + token1.getHash() + "'\n'\n"
+                        + "FETCH_OPTIONS:\n'PersonalAccessToken\n    with Owner\n    with Registrator\n    with Modifier\n'");
+    }
+
+    private void testSearch(String user, PersonalAccessTokenSearchCriteria criteria, String... expectedHashes)
+    {
+        String sessionToken = v3api.login(user, PASSWORD);
+
+        SearchResult<PersonalAccessToken> result =
+                v3api.searchPersonalAccessTokens(sessionToken, criteria, new PersonalAccessTokenFetchOptions());
+
+        Set<String> actualHashes = new HashSet<String>();
+        for (PersonalAccessToken token : result.getObjects())
+        {
+            actualHashes.add(token.getHash());
+        }
+
+        assertCollectionContainsOnly(actualHashes, expectedHashes);
+
+        v3api.logout(sessionToken);
     }
 
 }
