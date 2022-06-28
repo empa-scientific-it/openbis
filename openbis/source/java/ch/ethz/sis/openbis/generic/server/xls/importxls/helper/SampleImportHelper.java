@@ -152,6 +152,8 @@ public class SampleImportHelper extends BasicImportHelper
             creation.setExperimentId(new ExperimentIdentifier(ImportUtils.experimentIdentifierNormalizer(experiment)));
         }
         injectOwner(creation);
+
+        // Start - Special case - Sample Variables
         if (parents != null && !parents.isEmpty())
         {
             List<ISampleId> parentIds = new ArrayList<>();
@@ -184,6 +186,7 @@ public class SampleImportHelper extends BasicImportHelper
             }
             creation.setChildIds(childrenIds);
         }
+        // End - Special case - Sample Variables
 
         for (String key : header.keySet())
         {
@@ -214,8 +217,6 @@ public class SampleImportHelper extends BasicImportHelper
         fetchOptions.withChildren();
         fetchOptions.withParents();
 
-        Sample originSample = delayedExecutor.getSample(sampleId, fetchOptions);
-
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
 
@@ -233,14 +234,23 @@ public class SampleImportHelper extends BasicImportHelper
             update.setExperimentId(new ExperimentIdentifier(ImportUtils.experimentIdentifierNormalizer(experiment)));
         }
 
+        // Start - Special case -> Remove parents / children & Special case -> Sample Variables
+        Sample originSample = delayedExecutor.getSample(sampleId, fetchOptions);
         Set<SampleIdentifier> parentIds = new HashSet<>();
         if (parents != null && !parents.isEmpty())
         {
             for (String parent : parents.split("\n"))
             {
-                SampleIdentifier parentId = new SampleIdentifier(parent);
-                update.getParentIds().add(parentId);
-                parentIds.add(parentId);
+                if (parent.startsWith("$"))
+                {
+                    update.getParentIds().add(new IdentifierVariable(parent));
+                } else
+                {
+                    ImportUtils.sampleIdentifierNormalizer(parent);
+                    SampleIdentifier parentId = new SampleIdentifier(parent);
+                    update.getParentIds().add(parentId);
+                    parentIds.add(parentId);
+                }
             }
         }
         for (Sample parent : originSample.getParents())
@@ -250,14 +260,22 @@ public class SampleImportHelper extends BasicImportHelper
                 update.getParentIds().remove(parent.getIdentifier());
             }
         }
+
         Set<SampleIdentifier> childrenIds = new HashSet<>();
         if (children != null && !children.isEmpty())
         {
             for (String child : children.split("\n"))
             {
-                SampleIdentifier childId = new SampleIdentifier(child);
-                update.getChildIds().add(childId);
-                childrenIds.add(childId);
+                if (child.startsWith("$"))
+                {
+                    update.getChildIds().add(new IdentifierVariable(child));
+                } else
+                {
+                    ImportUtils.sampleIdentifierNormalizer(child);
+                    SampleIdentifier childId = new SampleIdentifier(child);
+                    update.getChildIds().add(childId);
+                    childrenIds.add(childId);
+                }
             }
         }
         for (Sample child : originSample.getChildren())
@@ -267,6 +285,7 @@ public class SampleImportHelper extends BasicImportHelper
                 update.getChildIds().remove(child.getIdentifier());
             }
         }
+        // End - Special case -> Remove parents / children & Special case -> Sample Variables
 
         for (String key : header.keySet())
         {

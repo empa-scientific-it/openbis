@@ -53,9 +53,18 @@ public class PropertyTypeSearcher
     {
         if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
         {
+            // First we try to code match, codes have priority
             for (VocabularyTerm term : propertyType.getVocabulary().getTerms())
             {
-                if ((term.getLabel() != null && term.getLabel().equals(value)) || term.getCode().equals(value))
+                if (term.getCode().equals(value))
+                {
+                    return term.getCode();
+                }
+            }
+            // If we can't match by code we try to match by label
+            for (VocabularyTerm term : propertyType.getVocabulary().getTerms())
+            {
+                if (term.getLabel() != null && term.getLabel().equals(value))
                 {
                     return term.getCode();
                 }
