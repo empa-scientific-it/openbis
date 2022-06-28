@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,25 +26,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.create.QueryCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IMapPersonByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
 /**
  * @author pkupczyk
@@ -80,7 +71,6 @@ public class CreatePersonalAccessTokenExecutor implements ICreatePersonalAccessT
             checkData(creation);
 
             PersonalAccessToken token = new PersonalAccessToken();
-            token.setHash(new TokenGenerator().getNewToken(now.getTime()));
             token.setSessionName(creation.getSessionName());
 
             if (creation.getOwnerId() == null)
@@ -109,9 +99,9 @@ public class CreatePersonalAccessTokenExecutor implements ICreatePersonalAccessT
 
             authorizationExecutor.canCreate(context, token);
 
-            daoFactory.getPersonalAccessTokenDAO().createToken(token);
+            PersonalAccessToken createdToken = daoFactory.getPersonalAccessTokenDAO().createToken(token);
 
-            ids.add(new PersonalAccessTokenPermId(token.getHash()));
+            ids.add(new PersonalAccessTokenPermId(createdToken.getHash()));
         }
 
         return ids;

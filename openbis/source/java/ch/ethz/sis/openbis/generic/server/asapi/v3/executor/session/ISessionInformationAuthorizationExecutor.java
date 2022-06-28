@@ -16,10 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 
 /**
  * @author pkupczyk

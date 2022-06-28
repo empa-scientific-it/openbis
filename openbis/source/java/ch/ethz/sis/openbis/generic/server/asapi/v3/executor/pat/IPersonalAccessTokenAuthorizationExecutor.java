@@ -17,12 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
-import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
  * @author pkupczyk

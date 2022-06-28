@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.authentication.pat;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
 

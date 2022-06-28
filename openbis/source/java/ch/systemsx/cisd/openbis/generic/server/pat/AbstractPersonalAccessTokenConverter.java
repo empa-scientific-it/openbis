@@ -2,7 +2,7 @@ package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 public abstract class AbstractPersonalAccessTokenConverter

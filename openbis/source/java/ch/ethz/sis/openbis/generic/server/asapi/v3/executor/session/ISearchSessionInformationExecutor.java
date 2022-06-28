@@ -16,11 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**

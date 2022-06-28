@@ -29,7 +29,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
  * @author pkupczyk

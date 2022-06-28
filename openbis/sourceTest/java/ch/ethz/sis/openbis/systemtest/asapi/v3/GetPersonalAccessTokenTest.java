@@ -283,4 +283,21 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
         assertRegistratorNotFetched(fetchedToken);
     }
 
+    @Test
+    public void testLogging()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PersonalAccessTokenFetchOptions fo = new PersonalAccessTokenFetchOptions();
+        fo.withOwner();
+        fo.withRegistrator();
+        fo.withModifier();
+
+        v3api.getPersonalAccessTokens(sessionToken, Arrays.asList(token1.getPermId(), token2.getPermId()), fo);
+
+        assertAccessLog(
+                "get-personal-access-tokens  PERSONAL_ACCESS_TOKEN_IDS('[" + token1.getHash() + ", " + token2.getHash()
+                        + "]') FETCH_OPTIONS('PersonalAccessToken\n    with Owner\n    with Registrator\n    with Modifier\n')");
+    }
+
 }

@@ -372,7 +372,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                                 return null;
                             }
                         }),
-                        30, daoFactory.getPersonalAccessTokenDAO()),
+                        30),
                 managedPropertyEvaluatorFactory, null, null);
     }
 

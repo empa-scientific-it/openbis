@@ -2,9 +2,9 @@ package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessTokenSession;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 
 public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessTokenConverter
 {
@@ -36,7 +36,7 @@ public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessT
         PersonalAccessTokenSession session = dao.getSessionByUserIdAndSessionName(userId, sessionName);
         if (session != null)
         {
-            return session.getSessionHash();
+            return session.getHash();
         } else
         {
             return null;

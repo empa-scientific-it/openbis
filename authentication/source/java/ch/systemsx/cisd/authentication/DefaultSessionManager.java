@@ -36,7 +36,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -166,11 +165,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
             final ILogMessagePrefixGenerator<T> prefixGenerator,
             final IAuthenticationService authenticationService,
-            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
-            final IPersonalAccessTokenDAO patDAO)
+            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes)
     {
         this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider,
-                sessionExpirationPeriodMinutes, 0, false, patDAO);
+                sessionExpirationPeriodMinutes, 0, false);
     }
 
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
@@ -178,7 +176,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             final IAuthenticationService authenticationService,
             final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
             final int sessionExpirationPeriodMinutesNoLogin,
-            final boolean tryEmailAsUserName, final IPersonalAccessTokenDAO patDAO)
+            final boolean tryEmailAsUserName)
     {
 
         assert sessionFactory != null : "Missing session factory.";
@@ -187,7 +185,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         assert remoteHostProvider != null : "Missing remote host provider.";
         assert sessionExpirationPeriodMinutes >= 0 : "Session experation time has to be a positive value: "
                 + sessionExpirationPeriodMinutes; // == 0 is for unit test
-        assert patDAO != null : "Missing personal access token dao.";
 
         this.sessionFactory = sessionFactory;
         this.prefixGenerator = prefixGenerator;

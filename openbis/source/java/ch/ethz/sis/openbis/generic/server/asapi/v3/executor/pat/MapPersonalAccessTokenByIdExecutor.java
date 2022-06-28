@@ -22,19 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.AbstractMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IQueryAuthorizationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.pat.ListPersonalAccessTokenByPermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.query.ListQueryByName;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.query.ListQueryByTechId;
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.authentication.pat.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
 /**
  * @author pkupczyk

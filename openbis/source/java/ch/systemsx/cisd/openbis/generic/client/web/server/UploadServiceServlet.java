@@ -39,7 +39,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.pat.FileBasedPersonalAccessTokenDAO;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;

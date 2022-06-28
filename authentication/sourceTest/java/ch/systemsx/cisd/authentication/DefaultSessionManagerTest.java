@@ -36,7 +36,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.authentication.pat.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -83,8 +82,6 @@ public class DefaultSessionManagerTest
 
     private ISessionActionListener sessionActionListener;
 
-    private IPersonalAccessTokenDAO personalAccessTokenDAO;
-
     private void assertExceptionMessageForInvalidSessionToken(final UserFailureException ex)
     {
         final String message = ex.getMessage();
@@ -102,14 +99,11 @@ public class DefaultSessionManagerTest
         remoteHostProvider = context.mock(IRemoteHostProvider.class);
         principalProvider = context.mock(IPrincipalProvider.class);
         sessionActionListener = context.mock(ISessionActionListener.class);
-        personalAccessTokenDAO = context.mock(IPersonalAccessTokenDAO.class);
         sequence = context.sequence("sequence");
         context.checking(new Expectations()
             {
                 {
                     one(authenticationService).check();
-                    allowing(personalAccessTokenDAO).listSessions();
-                    will(returnValue(Collections.emptyList()));
                 }
             });
         sessionManager = createSessionManager(SESSION_EXPIRATION_PERIOD_MINUTES);
@@ -126,7 +120,7 @@ public class DefaultSessionManagerTest
             Map<String, Integer> maxNumberOfSessionByUser)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
-                remoteHostProvider, sessionExpiration, 0, true, personalAccessTokenDAO)
+                remoteHostProvider, sessionExpiration, 0, true)
             {
 
                 @Override

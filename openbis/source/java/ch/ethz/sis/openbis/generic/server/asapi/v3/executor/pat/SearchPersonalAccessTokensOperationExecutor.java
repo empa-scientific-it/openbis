@@ -42,7 +42,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat.IPersonalAcces
  */
 @Component
 public class SearchPersonalAccessTokensOperationExecutor extends
-        AbstractSearchObjectsOperationExecutor<PersonalAccessToken, ch.systemsx.cisd.authentication.pat.PersonalAccessToken, PersonalAccessTokenSearchCriteria, PersonalAccessTokenFetchOptions>
+        AbstractSearchObjectsOperationExecutor<PersonalAccessToken, ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken, PersonalAccessTokenSearchCriteria, PersonalAccessTokenFetchOptions>
         implements ISearchPersonalAccessTokensOperationExecutor
 {
 
@@ -58,14 +58,14 @@ public class SearchPersonalAccessTokensOperationExecutor extends
         return SearchPersonalAccessTokensOperation.class;
     }
 
-    @Override protected List<ch.systemsx.cisd.authentication.pat.PersonalAccessToken> doSearch(final IOperationContext context,
+    @Override protected List<ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken> doSearch(final IOperationContext context,
             final PersonalAccessTokenSearchCriteria criteria, final PersonalAccessTokenFetchOptions fetchOptions)
     {
         return searchExecutor.search(context, criteria);
     }
 
-    @Override protected Map<ch.systemsx.cisd.authentication.pat.PersonalAccessToken, PersonalAccessToken> doTranslate(
-            final TranslationContext translationContext, final Collection<ch.systemsx.cisd.authentication.pat.PersonalAccessToken> pats,
+    @Override protected Map<ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken, PersonalAccessToken> doTranslate(
+            final TranslationContext translationContext, final Collection<ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken> pats,
             final PersonalAccessTokenFetchOptions fetchOptions)
     {
         return translator.translate(translationContext, pats, fetchOptions);
@@ -78,7 +78,7 @@ public class SearchPersonalAccessTokensOperationExecutor extends
     }
 
     @Override
-    protected ILocalSearchManager<PersonalAccessTokenSearchCriteria, PersonalAccessToken, ch.systemsx.cisd.authentication.pat.PersonalAccessToken> getSearchManager()
+    protected ILocalSearchManager<PersonalAccessTokenSearchCriteria, PersonalAccessToken, ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken> getSearchManager()
     {
         throw new RuntimeException("This method is not implemented yet.");
     }
