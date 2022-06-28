@@ -162,6 +162,7 @@ public class SampleImportHelper extends BasicImportHelper
                     parentIds.add(new IdentifierVariable(parent));
                 } else
                 {
+                    ImportUtils.sampleIdentifierNormalizer(parent);
                     parentIds.add(new SampleIdentifier(parent));
                 }
             }
@@ -177,6 +178,7 @@ public class SampleImportHelper extends BasicImportHelper
                     childrenIds.add(new IdentifierVariable(child));
                 } else
                 {
+                    ImportUtils.sampleIdentifierNormalizer(child);
                     childrenIds.add(new SampleIdentifier(child));
                 }
             }
