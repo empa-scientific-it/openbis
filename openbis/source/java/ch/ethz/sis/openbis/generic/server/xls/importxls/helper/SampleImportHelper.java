@@ -127,7 +127,7 @@ public class SampleImportHelper extends BasicImportHelper
             throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
         }
 
-        if (variable != null && !variable.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
+        if (variable != null && !variable.isEmpty() && !variable.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
         {
             throw new UserFailureException("Variables should start with " + PropertyTypeSearcher.VARIABLE_PREFIX);
         }
