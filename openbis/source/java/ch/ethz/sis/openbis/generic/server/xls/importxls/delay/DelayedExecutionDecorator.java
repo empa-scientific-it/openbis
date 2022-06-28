@@ -87,7 +87,7 @@ public class DelayedExecutionDecorator
 
     Map<IObjectId, List<DelayedExecution>> delayedExecutions;
 
-    Map<String, PropertyType> propertyTypeCache = new HashMap<>();
+    Map<String, PropertyType> propertyTypeCache;
 
     public DelayedExecutionDecorator(String sessionToken, IApplicationServerApi v3)
     {
@@ -96,6 +96,7 @@ public class DelayedExecutionDecorator
         this.ids = new LinkedHashSet<>();
         this.resolvedVariables = new HashMap<>();
         this.delayedExecutions = new HashMap<>();
+        this.propertyTypeCache = new HashMap<>();
     }
 
     private void addIdsAndExecuteDelayed(IObjectId id, ImportTypes importTypes, String variable)

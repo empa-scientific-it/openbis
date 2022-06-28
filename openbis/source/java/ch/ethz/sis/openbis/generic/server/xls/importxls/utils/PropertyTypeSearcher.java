@@ -55,7 +55,7 @@ public class PropertyTypeSearcher
         {
             for (VocabularyTerm term : propertyType.getVocabulary().getTerms())
             {
-                if (term.getLabel().equals(value) || term.getCode().equals(value))
+                if ((term.getLabel() != null && term.getLabel().equals(value)) || term.getCode().equals(value))
                 {
                     return term.getCode();
                 }
