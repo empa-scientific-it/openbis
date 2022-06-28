@@ -152,7 +152,7 @@ public class DelayedExecutionDecorator
             }
             for (DelayedExecution delayedExecution : delayedExecutionsAsList)
             {
-                errors.add("page: " + delayedExecution.getPage() + " line: " + delayedExecution.getLine() + " failed waiting on the creation of "
+                errors.add("page: " + (delayedExecution.getPage() + 1) + " line: " + (delayedExecution.getLine() + 1) + " failed waiting on the creation of "
                         + delayedExecution.getDependencies());
             }
             throw new UserFailureException(errors.toString());

@@ -27,4 +27,9 @@ public class IdentifierVariable implements ISampleId {
     public int hashCode() {
         return Objects.hash(variable);
     }
+
+    @Override
+    public String toString() {
+        return "Identifier Variable:" + variable;
+    }
 }
