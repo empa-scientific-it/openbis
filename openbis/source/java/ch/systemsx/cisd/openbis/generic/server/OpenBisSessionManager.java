@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -115,7 +113,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             protected void doInTransactionWithoutResult(TransactionStatus status)
             {
                 OpenBisSessionManager.this.createPersonalAccessTokenSessions();
-                OpenBisSessionManager.this.observePersonalAccessTokens();
+                OpenBisSessionManager.this.observePersonalAccessTokenSessions();
             }
         });
     }
@@ -187,7 +185,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         }
     }
 
-    private void observePersonalAccessTokens()
+    private void observePersonalAccessTokenSessions()
     {
         daoFactory.getPersonalAccessTokenDAO().addListener(new IPersonalAccessTokenDAO.Listener()
         {

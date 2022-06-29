@@ -141,10 +141,17 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
             if (newSession == null)
             {
-                Date now = new Date();
+                PersonalAccessTokenSession existingSession =
+                        getSessionByUserIdAndSessionName(existingSessions.values(), token.getOwnerId(), token.getSessionName());
 
                 newSession = new PersonalAccessTokenSession();
-                newSession.setHash(new TokenGenerator().getNewToken(now.getTime()));
+                if (existingSession != null)
+                {
+                    newSession.setHash(existingSession.getHash());
+                } else
+                {
+                    newSession.setHash(new TokenGenerator().getNewToken(new Date().getTime()));
+                }
                 newSession.setName(token.getSessionName());
                 newSession.setOwnerId(token.getOwnerId());
                 newSession.setValidFromDate(token.getValidFromDate());
