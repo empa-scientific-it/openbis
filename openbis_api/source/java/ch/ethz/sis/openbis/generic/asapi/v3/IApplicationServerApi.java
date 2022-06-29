@@ -795,9 +795,7 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Updates personal access tokens basing on the provided {@code PersonalAccessTokenUpdate} objects.
      * <ul>
-     * Required access rights:
-     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
-     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
+     * Required access rights: {@code ETL_SERVER}
      * </ul>
      *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PersonalAccessTokenUpdate} objects, insufficient access rights etc.

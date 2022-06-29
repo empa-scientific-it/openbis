@@ -22,16 +22,11 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -57,27 +52,30 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
 
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(token.getPermId());
-        update.setSessionName("updated session name");
-        update.setValidFromDate(new Date(3));
-        update.setValidToDate(new Date(4));
+        update.setAccessDate(new Date());
 
-        PersonalAccessToken updated = updateToken(INSTANCE_ADMIN_USER, PASSWORD, update);
+        PersonalAccessToken updated = updateToken(TEST_INSTANCE_ETLSERVER, PASSWORD, update);
 
         assertEquals(updated.getPermId(), token.getPermId());
         assertEquals(updated.getOwner().getUserId(), TEST_GROUP_OBSERVER);
         assertEquals(updated.getRegistrator().getUserId(), TEST_USER);
-        assertEquals(updated.getModifier().getUserId(), INSTANCE_ADMIN_USER);
-        assertEquals(updated.getValidFromDate(), update.getValidFromDate().getValue());
-        assertEquals(updated.getValidToDate(), update.getValidToDate().getValue());
+        assertEquals(updated.getModifier().getUserId(), TEST_INSTANCE_ETLSERVER);
         assertEquals(updated.getRegistrationDate(), token.getRegistrationDate());
         assertToday(token.getModificationDate());
-        assertNull(token.getAccessDate());
+        assertEquals(updated.getAccessDate(), update.getAccessDate().getValue());
     }
 
     @Test
     public void testUpdateByOwner()
     {
-        testUpdateBy(TEST_GROUP_OBSERVER, TEST_GROUP_OBSERVER);
+        assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                testUpdateBy(TEST_GROUP_OBSERVER, TEST_GROUP_OBSERVER);
+            }
+        });
     }
 
     @Test
@@ -95,34 +93,33 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testUpdateByNonOwnerRegularUser()
     {
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertAuthorizationFailureException(new IDelegatedAction()
         {
             @Override
             public void execute()
             {
                 testUpdateBy(TEST_USER, TEST_GROUP_OBSERVER);
             }
-        }, null);
+        });
     }
 
     private void testUpdateBy(String ownerId, String updaterId)
     {
-        PersonalAccessToken token = createToken(ownerId, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(ownerId, PASSWORD, tokenCreation());
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(token.getPermId());
-        update.setSessionName("updated session name");
         updateToken(updaterId, PASSWORD, update);
     }
 
     @Test
     public void testUpdateWithRegularSessionTokenAsSessionToken()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
 
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(token.getPermId());
-        update.setSessionName("updated session name");
+        update.setAccessDate(new Date());
 
         v3api.updatePersonalAccessTokens(sessionToken, Arrays.asList(update));
     }
@@ -130,11 +127,10 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testUpdateWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(token.getPermId());
-        update.setSessionName("updated session name");
 
         assertUserFailureException(new IDelegatedAction()
         {
@@ -155,7 +151,7 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         {
             @Override public void execute()
             {
-                updateToken(TEST_USER, PASSWORD, update);
+                updateToken(TEST_INSTANCE_ETLSERVER, PASSWORD, update);
             }
         }, "Personal access token id cannot be null");
     }
@@ -170,137 +166,16 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         {
             @Override public void execute()
             {
-                updateToken(TEST_USER, PASSWORD, update);
+                updateToken(TEST_INSTANCE_ETLSERVER, PASSWORD, update);
             }
         }, update.getPersonalAccessTokenId());
     }
 
     @Test
-    public void testUpdateWithSessionNameNull()
-    {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
-
-        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
-        update.setPersonalAccessTokenId(token.getPermId());
-        update.setSessionName(null);
-
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                updateToken(TEST_USER, PASSWORD, update);
-            }
-        }, "Session name cannot be empty");
-    }
-
-    @Test
-    public void testUpdateWithValidFromNull()
-    {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
-
-        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
-        update.setPersonalAccessTokenId(token.getPermId());
-        update.setValidFromDate(null);
-
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                updateToken(TEST_USER, PASSWORD, update);
-            }
-        }, "Valid from date cannot be null");
-    }
-
-    @Test
-    public void testUpdateWithValidToNull()
-    {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
-
-        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
-        update.setPersonalAccessTokenId(token.getPermId());
-        update.setValidToDate(null);
-
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                updateToken(TEST_USER, PASSWORD, update);
-            }
-        }, "Valid to date cannot be null");
-    }
-
-    @Test
-    public void testUpdateWithValidFromAfterValidTo()
-    {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
-
-        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
-        update.setPersonalAccessTokenId(token.getPermId());
-        update.setValidFromDate(new Date(2));
-        update.setValidToDate(new Date(1));
-
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override public void execute()
-            {
-                updateToken(TEST_USER, PASSWORD, update);
-            }
-        }, "Valid from date cannot be after valid to date");
-    }
-
-    @Test
-    public void testUpdateWithAccessDateByETLServerUser()
-    {
-        testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, TEST_INSTANCE_ETLSERVER);
-    }
-
-    @Test
-    public void testUpdateWithAccessDateByInstanceAdminUser()
-    {
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override public void execute()
-            {
-                testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, INSTANCE_ADMIN_USER);
-            }
-        }, "Access date can only be changed by system user or ETL server user");
-    }
-
-    @Test
-    public void testUpdateWithAccessDateByRegularUser()
-    {
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override public void execute()
-            {
-                testUpdateWithAccessDateBy(TEST_INSTANCE_OBSERVER, TEST_GROUP_OBSERVER);
-            }
-        }, "Access date can only be changed by system user or ETL server user");
-    }
-
-    private void testUpdateWithAccessDateBy(String ownerId, String updaterId)
-    {
-        PersonalAccessToken token = createToken(ownerId, PASSWORD, testCreation());
-
-        PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
-        update.setPersonalAccessTokenId(token.getPermId());
-        update.setAccessDate(new Date());
-
-        PersonalAccessToken updated = updateToken(updaterId, PASSWORD, update);
-
-        assertEquals(updated.getAccessDate(), update.getAccessDate().getValue());
-    }
-
-    @Test
     public void testLogging()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        PersonalAccessToken token1 = createToken(TEST_USER, PASSWORD, testCreation());
-        PersonalAccessToken token2 = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token1 = createToken(TEST_USER, PASSWORD, tokenCreation());
+        PersonalAccessToken token2 = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         PersonalAccessTokenUpdate update1 = new PersonalAccessTokenUpdate();
         update1.setPersonalAccessTokenId(token1.getPermId());
@@ -308,6 +183,7 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         PersonalAccessTokenUpdate update2 = new PersonalAccessTokenUpdate();
         update2.setPersonalAccessTokenId(token2.getPermId());
 
+        String sessionToken = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
         v3api.updatePersonalAccessTokens(sessionToken, Arrays.asList(update1, update2));
 
         assertAccessLog(

@@ -7,6 +7,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 
 public interface IPersonalAccessTokenDAO
 {
+
     PersonalAccessToken createToken(PersonalAccessToken creation);
 
     void updateToken(PersonalAccessToken update);
@@ -20,5 +21,16 @@ public interface IPersonalAccessTokenDAO
     List<PersonalAccessTokenSession> listSessions();
 
     PersonalAccessTokenSession getSessionByUserIdAndSessionName(String userId, String sessionName);
+
+    void addListener(Listener listener);
+
+    interface Listener
+    {
+        void onSessionCreated(PersonalAccessTokenSession session);
+
+        void onSessionUpdated(PersonalAccessTokenSession session);
+
+        void onSessionDeleted(PersonalAccessTokenSession session);
+    }
 
 }

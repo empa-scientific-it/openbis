@@ -63,13 +63,13 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
                 options);
 
         // create new tests tokens
-        PersonalAccessTokenCreation creation1 = testCreation();
+        PersonalAccessTokenCreation creation1 = tokenCreation();
         creation1.setSessionName("test session name 1");
 
-        PersonalAccessTokenCreation creation2 = testCreation();
+        PersonalAccessTokenCreation creation2 = tokenCreation();
         creation2.setSessionName("test session name 2");
 
-        PersonalAccessTokenCreation creation3 = testCreation();
+        PersonalAccessTokenCreation creation3 = tokenCreation();
         creation3.setSessionName("test session name 3");
 
         token1 = createToken(TEST_USER, PASSWORD, creation1);

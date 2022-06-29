@@ -54,15 +54,11 @@ public class PersonalAccessTokenAuthorizationExecutor implements IPersonalAccess
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PERSONAL_ACCESS_TOKEN")
     @DatabaseUpdateModification(value = ObjectKind.PERSONAL_ACCESS_TOKEN)
     public void canUpdate(IOperationContext context, IPersonalAccessTokenId id, PersonalAccessToken pat)
     {
-        if (!canWrite(context, id, pat))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
     }
 
     @Override

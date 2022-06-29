@@ -24,15 +24,6 @@ public class PersonalAccessTokenUpdate implements IUpdate, IObjectUpdate<IPerson
     private IPersonalAccessTokenId personalAccessTokenId;
 
     @JsonProperty
-    private FieldUpdateValue<String> sessionName = new FieldUpdateValue<String>();
-
-    @JsonProperty
-    private FieldUpdateValue<Date> validFromDate = new FieldUpdateValue<Date>();
-
-    @JsonProperty
-    private FieldUpdateValue<Date> validToDate = new FieldUpdateValue<Date>();
-
-    @JsonProperty
     private FieldUpdateValue<Date> accessDate = new FieldUpdateValue<Date>();
 
     @Override
@@ -52,42 +43,6 @@ public class PersonalAccessTokenUpdate implements IUpdate, IObjectUpdate<IPerson
     public void setPersonalAccessTokenId(IPersonalAccessTokenId personalAccessTokenId)
     {
         this.personalAccessTokenId = personalAccessTokenId;
-    }
-
-    @JsonIgnore
-    public FieldUpdateValue<String> getSessionName()
-    {
-        return sessionName;
-    }
-
-    @JsonIgnore
-    public void setSessionName(String sessionName)
-    {
-        this.sessionName.setValue(sessionName);
-    }
-
-    @JsonIgnore
-    public FieldUpdateValue<Date> getValidFromDate()
-    {
-        return validFromDate;
-    }
-
-    @JsonIgnore
-    public void setValidFromDate(Date validFromDate)
-    {
-        this.validFromDate.setValue(validFromDate);
-    }
-
-    @JsonIgnore
-    public FieldUpdateValue<Date> getValidToDate()
-    {
-        return validToDate;
-    }
-
-    @JsonIgnore
-    public void setValidToDate(Date validToDate)
-    {
-        this.validToDate.setValue(validToDate);
     }
 
     @JsonIgnore

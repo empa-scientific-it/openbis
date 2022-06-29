@@ -42,7 +42,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreate()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
 
         PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
 
@@ -64,7 +64,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        List<PersonalAccessTokenPermId> ids = v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(testCreation()));
+        List<PersonalAccessTokenPermId> ids = v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(tokenCreation()));
 
         assertEquals(ids.size(), 1);
     }
@@ -72,14 +72,14 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         assertUserFailureException(new IDelegatedAction()
         {
             @Override
             public void execute()
             {
-                v3api.createPersonalAccessTokens(token.getHash(), Arrays.asList(testCreation()));
+                v3api.createPersonalAccessTokens(token.getHash(), Arrays.asList(tokenCreation()));
             }
         }, "Personal access tokens cannot be used to manage personal access tokens");
     }
@@ -87,7 +87,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithOwnerIdNull()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(null);
 
         PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
@@ -98,7 +98,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithOwnerIdSetToMyselfAsInstanceAdmin()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(INSTANCE_ADMIN_USER));
 
         PersonalAccessToken token = createToken(INSTANCE_ADMIN_USER, PASSWORD, creation);
@@ -109,7 +109,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithOwnerIdSetToMyselfAsRegularUser()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
         PersonalAccessToken token = createToken(TEST_GROUP_OBSERVER, PASSWORD, creation);
@@ -120,7 +120,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithOwnerIdSetToSomebodyElseAsInstanceAdmin()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
         PersonalAccessToken token = createToken(INSTANCE_ADMIN_USER, PASSWORD, creation);
@@ -135,7 +135,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         {
             @Override public void execute()
             {
-                PersonalAccessTokenCreation creation = testCreation();
+                PersonalAccessTokenCreation creation = tokenCreation();
                 creation.setOwnerId(new PersonPermId(TEST_USER));
 
                 createToken(TEST_GROUP_OBSERVER, PASSWORD, creation);
@@ -151,7 +151,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             @Override
             public void execute()
             {
-                PersonalAccessTokenCreation creation = testCreation();
+                PersonalAccessTokenCreation creation = tokenCreation();
                 creation.setSessionName(null);
                 createToken(TEST_USER, PASSWORD, creation);
             }
@@ -166,7 +166,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             @Override
             public void execute()
             {
-                PersonalAccessTokenCreation creation = testCreation();
+                PersonalAccessTokenCreation creation = tokenCreation();
                 creation.setValidFromDate(null);
                 createToken(TEST_USER, PASSWORD, creation);
             }
@@ -181,7 +181,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             @Override
             public void execute()
             {
-                PersonalAccessTokenCreation creation = testCreation();
+                PersonalAccessTokenCreation creation = tokenCreation();
                 creation.setValidToDate(null);
                 createToken(TEST_USER, PASSWORD, creation);
             }
@@ -196,7 +196,7 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             @Override
             public void execute()
             {
-                PersonalAccessTokenCreation creation = testCreation();
+                PersonalAccessTokenCreation creation = tokenCreation();
                 creation.setValidFromDate(new Date(2));
                 creation.setValidToDate(new Date(1));
                 createToken(TEST_USER, PASSWORD, creation);
@@ -209,11 +209,11 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
         creation.setSessionName("LOG_TEST_1");
 
-        PersonalAccessTokenCreation creation2 = testCreation();
+        PersonalAccessTokenCreation creation2 = tokenCreation();
         creation2.setSessionName("LOG_TEST_2");
 
         v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(creation, creation2));

@@ -40,46 +40,4 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUp
 public class AbstractPersonalAccessTokenTest extends AbstractTest
 {
 
-    protected PersonalAccessTokenCreation testCreation()
-    {
-        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
-        creation.setSessionName("test session");
-        creation.setValidFromDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
-        creation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
-        return creation;
-    }
-
-    protected PersonalAccessToken createToken(String user, String password, PersonalAccessTokenCreation creation)
-    {
-        String sessionToken = v3api.login(user, password);
-
-        List<PersonalAccessTokenPermId> ids = v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(creation));
-        assertEquals(ids.size(), 1);
-
-        return getToken(user, password, ids.get(0));
-    }
-
-    protected PersonalAccessToken updateToken(String user, String password, PersonalAccessTokenUpdate update)
-    {
-        String sessionToken = v3api.login(user, password);
-
-        v3api.updatePersonalAccessTokens(sessionToken, Arrays.asList(update));
-
-        return getToken(user, password, update.getPersonalAccessTokenId());
-    }
-
-    protected PersonalAccessToken getToken(String user, String password, IPersonalAccessTokenId tokenId)
-    {
-        String sessionToken = v3api.login(user, password);
-
-        PersonalAccessTokenFetchOptions fetchOptions = new PersonalAccessTokenFetchOptions();
-        fetchOptions.withOwner();
-        fetchOptions.withRegistrator();
-        fetchOptions.withModifier();
-
-        Map<IPersonalAccessTokenId, PersonalAccessToken> map = v3api.getPersonalAccessTokens(sessionToken, Arrays.asList(tokenId), fetchOptions);
-
-        return map.get(tokenId);
-    }
-
 }

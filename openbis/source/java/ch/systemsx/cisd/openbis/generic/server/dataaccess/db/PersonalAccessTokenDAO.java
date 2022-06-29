@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     private final Map<String, PersonalAccessToken> tokens = new HashMap<>();
 
     private final Map<String, PersonalAccessTokenSession> sessions = new HashMap<>();
+
+    private final List<Listener> listeners = new ArrayList<>();
 
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
@@ -35,6 +38,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         token.setAccessDate(creation.getAccessDate());
 
         tokens.put(token.getHash(), token);
+
         recalculateSessions();
 
         return token;
@@ -46,23 +50,12 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         if (token != null)
         {
-            if (update.getSessionName() != null)
-            {
-                token.setSessionName(update.getSessionName());
-            }
-            if (update.getValidFromDate() != null)
-            {
-                token.setValidFromDate(update.getValidFromDate());
-            }
-            if (update.getValidToDate() != null)
-            {
-                token.setValidToDate(update.getValidToDate());
-            }
             if (update.getAccessDate() != null)
             {
                 token.setAccessDate(update.getAccessDate());
             }
             tokens.put(token.getHash(), token);
+
             recalculateSessions();
         }
     }
@@ -70,6 +63,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Override public synchronized void deleteToken(final String hash)
     {
         tokens.remove(hash);
+
         recalculateSessions();
     }
 
@@ -90,7 +84,13 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
-        for (PersonalAccessTokenSession session : sessions.values())
+        return getSessionByUserIdAndSessionName(sessions.values(), userId, sessionName);
+    }
+
+    private PersonalAccessTokenSession getSessionByUserIdAndSessionName(final Collection<PersonalAccessTokenSession> sessions, final String userId,
+            final String sessionName)
+    {
+        for (PersonalAccessTokenSession session : sessions)
         {
             if (session.getOwnerId().equals(userId) && session.getName().equals(sessionName))
             {
@@ -100,37 +100,93 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return null;
     }
 
+    @Override public synchronized void addListener(final Listener listener)
+    {
+        listeners.add(listener);
+    }
+
+    private void notifySessionCreated(final PersonalAccessTokenSession session)
+    {
+        for (Listener listener : listeners)
+        {
+            listener.onSessionCreated(session);
+        }
+    }
+
+    private void notifySessionUpdated(final PersonalAccessTokenSession session)
+    {
+        for (Listener listener : listeners)
+        {
+            listener.onSessionUpdated(session);
+        }
+    }
+
+    private void notifySessionDeleted(final PersonalAccessTokenSession session)
+    {
+        for (Listener listener : listeners)
+        {
+            listener.onSessionDeleted(session);
+        }
+    }
+
     private synchronized void recalculateSessions()
     {
+        Map<String, PersonalAccessTokenSession> existingSessions = new HashMap<>(sessions);
         Map<String, PersonalAccessTokenSession> newSessions = new HashMap<>();
 
         for (PersonalAccessToken token : tokens.values())
         {
-            PersonalAccessTokenSession session = getSessionByUserIdAndSessionName(token.getOwnerId(), token.getSessionName());
+            PersonalAccessTokenSession newSession =
+                    getSessionByUserIdAndSessionName(newSessions.values(), token.getOwnerId(), token.getSessionName());
 
-            if (session == null)
+            if (newSession == null)
             {
                 Date now = new Date();
 
-                session = new PersonalAccessTokenSession();
-                session.setHash(new TokenGenerator().getNewToken(now.getTime()));
-                session.setName(token.getSessionName());
-                session.setOwnerId(token.getOwnerId());
-                session.setValidFromDate(token.getValidFromDate());
-                session.setValidToDate(token.getValidToDate());
-                session.setAccessDate(token.getAccessDate());
+                newSession = new PersonalAccessTokenSession();
+                newSession.setHash(new TokenGenerator().getNewToken(now.getTime()));
+                newSession.setName(token.getSessionName());
+                newSession.setOwnerId(token.getOwnerId());
+                newSession.setValidFromDate(token.getValidFromDate());
+                newSession.setValidToDate(token.getValidToDate());
+                newSession.setAccessDate(token.getAccessDate());
             } else
             {
-                session.setValidFromDate(getEarlierDate(token.getValidFromDate(), session.getValidFromDate()));
-                session.setValidToDate(getLaterDate(token.getValidToDate(), session.getValidToDate()));
-                session.setAccessDate(getLaterDate(token.getAccessDate(), session.getAccessDate()));
+                newSession.setValidFromDate(getEarlierDate(token.getValidFromDate(), newSession.getValidFromDate()));
+                newSession.setValidToDate(getLaterDate(token.getValidToDate(), newSession.getValidToDate()));
+                newSession.setAccessDate(getLaterDate(token.getAccessDate(), newSession.getAccessDate()));
             }
 
-            newSessions.put(session.getHash(), session);
+            newSessions.put(newSession.getHash(), newSession);
         }
 
         sessions.clear();
         sessions.putAll(newSessions);
+
+        for (PersonalAccessTokenSession newSession : newSessions.values())
+        {
+            PersonalAccessTokenSession existingSession = existingSessions.get(newSession.getHash());
+
+            if (existingSession != null)
+            {
+                if (!existingSession.getValidFromDate().equals(newSession.getValidFromDate()) || !existingSession.getValidToDate()
+                        .equals(newSession.getValidToDate()))
+                {
+                    notifySessionUpdated(newSession);
+                }
+            } else
+            {
+                notifySessionCreated(newSession);
+            }
+        }
+
+        for (PersonalAccessTokenSession session : existingSessions.values())
+        {
+            if (!newSessions.containsKey(session.getHash()))
+            {
+                notifySessionDeleted(session);
+            }
+        }
     }
 
     private Date getEarlierDate(Date date1, Date date2)

@@ -53,13 +53,13 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @BeforeMethod
     private void createTokens()
     {
-        PersonalAccessTokenCreation creation1 = testCreation();
+        PersonalAccessTokenCreation creation1 = tokenCreation();
         creation1.setSessionName("test session name 1");
 
-        PersonalAccessTokenCreation creation2 = testCreation();
+        PersonalAccessTokenCreation creation2 = tokenCreation();
         creation2.setSessionName("test session name 2");
 
-        PersonalAccessTokenCreation creation3 = testCreation();
+        PersonalAccessTokenCreation creation3 = tokenCreation();
         creation3.setSessionName("test session name 3");
 
         token1 = createToken(TEST_USER, PASSWORD, creation1);
@@ -70,7 +70,7 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithRegularSessionTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<IPersonalAccessTokenId, PersonalAccessToken> map =
@@ -82,7 +82,7 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         assertUserFailureException(new IDelegatedAction()
         {
@@ -217,7 +217,7 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithOwnerFetched()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
         PersonalAccessToken createdToken = createToken(TEST_USER, PASSWORD, creation);
@@ -238,7 +238,7 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithRegistratorFetched()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
         PersonalAccessToken createdToken = createToken(TEST_USER, PASSWORD, creation);
@@ -259,14 +259,13 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithModifierFetched()
     {
-        PersonalAccessTokenCreation creation = testCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
 
         PersonalAccessToken createdToken = createToken(TEST_USER, PASSWORD, creation);
 
         PersonalAccessTokenUpdate update = new PersonalAccessTokenUpdate();
         update.setPersonalAccessTokenId(createdToken.getPermId());
-        update.setSessionName("test session name");
 
         PersonalAccessToken updatedToken = updateToken(INSTANCE_ADMIN_USER, PASSWORD, update);
 

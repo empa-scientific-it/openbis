@@ -39,7 +39,7 @@ public class DeletePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testDelete()
     {
-        PersonalAccessToken beforeToken = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken beforeToken = createToken(TEST_USER, PASSWORD, tokenCreation());
         assertNotNull(beforeToken);
 
         PersonalAccessToken afterToken = deleteToken(TEST_USER, PASSWORD, beforeToken.getPermId());
@@ -79,14 +79,14 @@ public class DeletePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
 
     private void testDeleteBy(String ownerId, String updaterId)
     {
-        PersonalAccessToken token = createToken(ownerId, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(ownerId, PASSWORD, tokenCreation());
         deleteToken(updaterId, PASSWORD, token.getPermId());
     }
 
     @Test
     public void testDeleteWithRegularSessionTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
         options.setReason("It is just a test");
@@ -100,7 +100,7 @@ public class DeletePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testDeleteWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
         options.setReason("It is just a test");
@@ -124,24 +124,12 @@ public class DeletePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testLogging()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, testCreation());
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
 
         deleteToken(TEST_USER, PASSWORD, token.getPermId());
 
         assertAccessLog("delete-personal-access-tokens  PERSONAL_ACCESS_TOKEN_IDS('[" + token.getHash()
                 + "]') DELETION_OPTIONS('PersonalAccessTokenDeletionOptions[reason=It is just a test]')");
-    }
-
-    protected PersonalAccessToken deleteToken(String user, String password, IPersonalAccessTokenId tokenId)
-    {
-        String sessionToken = v3api.login(user, password);
-
-        PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
-        options.setReason("It is just a test");
-
-        v3api.deletePersonalAccessTokens(sessionToken, Arrays.asList(tokenId), options);
-
-        return getToken(user, password, tokenId);
     }
 
 }

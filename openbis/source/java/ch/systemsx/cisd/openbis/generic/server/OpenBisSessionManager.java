@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -111,12 +114,13 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status)
             {
-                OpenBisSessionManager.this.initPersonalAccessTokens();
+                OpenBisSessionManager.this.createPersonalAccessTokenSessions();
+                OpenBisSessionManager.this.observePersonalAccessTokens();
             }
         });
     }
 
-    private void initPersonalAccessTokens()
+    private void createPersonalAccessTokenSessions()
     {
         List<PersonalAccessTokenSession> patSessions = daoFactory.getPersonalAccessTokenDAO().listSessions();
 
@@ -124,54 +128,99 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         {
             for (PersonalAccessTokenSession patSession : patSessions)
             {
-                try
+                FullSession<Session> session = createPersonalAccessSession(patSession);
+                if (session != null)
                 {
-                    final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
-
-                    if (principal == null)
-                    {
-                        sessions.remove(patSession.getHash());
-                        operationLog.warn(
-                                String.format(
-                                        "Ignoring a personal access token session because the session's user '%s' was not found by the authentication service.",
-                                        patSession.getOwnerId()));
-                        continue;
-                    } else
-                    {
-                        principal.setAuthenticated(true);
-                    }
-
-                    PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
-
-                    if (person == null)
-                    {
-                        operationLog.warn(
-                                String.format(
-                                        "Ignoring a personal access token session because the session's user '%s' was not found in the openBIS database.",
-                                        patSession.getOwnerId()));
-                        continue;
-                    }
-
-                    final FullSession<Session> createdSession =
-                            new FullSession<>(sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
-                                    patSession.getValidFromDate().getTime(),
-                                    (int) (patSession.getValidToDate().getTime() - System.currentTimeMillis()),
-                                    true, patSession.getName()));
-
-                    HibernateUtils.initialize(person.getAllPersonRoles());
-                    createdSession.getSession().setPerson(person);
-                    createdSession.getSession().setCreatorPerson(person);
-
-                    sessions.put(createdSession.getSession().getSessionToken(), createdSession);
-                } catch (Exception e)
-                {
-                    operationLog.warn(String.format(
-                            "Loading of a personal access token session defined for user '%s' and session name '%s' failed. Ignoring it.",
-                            patSession.getOwnerId(),
-                            patSession.getName()), e);
+                    sessions.put(session.getSession().getSessionToken(), session);
                 }
             }
         }
+    }
+
+    private FullSession<Session> createPersonalAccessSession(PersonalAccessTokenSession patSession)
+    {
+        try
+        {
+            final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+
+            if (principal == null)
+            {
+                operationLog.warn(
+                        String.format(
+                                "Ignoring a personal access token session because the session's user '%s' was not found by the authentication service.",
+                                patSession.getOwnerId()));
+                return null;
+            } else
+            {
+                principal.setAuthenticated(true);
+            }
+
+            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
+
+            if (person == null)
+            {
+                operationLog.warn(
+                        String.format(
+                                "Ignoring a personal access token session because the session's user '%s' was not found in the openBIS database.",
+                                patSession.getOwnerId()));
+                return null;
+            }
+
+            final FullSession<Session> createdSession =
+                    new FullSession<>(sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
+                            patSession.getValidFromDate().getTime(),
+                            (int) (patSession.getValidToDate().getTime() - System.currentTimeMillis()),
+                            true, patSession.getName()));
+
+            HibernateUtils.initialize(person.getAllPersonRoles());
+            createdSession.getSession().setPerson(person);
+            createdSession.getSession().setCreatorPerson(person);
+            return createdSession;
+
+        } catch (Exception e)
+        {
+            operationLog.warn(String.format(
+                    "Creating of a personal access token session defined for user '%s' and session name '%s' failed.",
+                    patSession.getOwnerId(),
+                    patSession.getName()), e);
+            return null;
+        }
+    }
+
+    private void observePersonalAccessTokens()
+    {
+        daoFactory.getPersonalAccessTokenDAO().addListener(new IPersonalAccessTokenDAO.Listener()
+        {
+            @Override public void onSessionCreated(final PersonalAccessTokenSession patSession)
+            {
+                synchronized (sessions)
+                {
+                    FullSession<Session> session = createPersonalAccessSession(patSession);
+                    if (session != null)
+                    {
+                        sessions.put(session.getSession().getSessionToken(), session);
+                    }
+                }
+            }
+
+            @Override public void onSessionUpdated(final PersonalAccessTokenSession patSession)
+            {
+                synchronized (sessions)
+                {
+                    FullSession<Session> session = createPersonalAccessSession(patSession);
+                    if (session != null)
+                    {
+                        sessions.put(session.getSession().getSessionToken(), session);
+                    }
+                }
+            }
+
+            @Override public void onSessionDeleted(final PersonalAccessTokenSession patSession)
+            {
+                closeSession(patSession.getHash());
+            }
+
+        });
     }
 
     @Override

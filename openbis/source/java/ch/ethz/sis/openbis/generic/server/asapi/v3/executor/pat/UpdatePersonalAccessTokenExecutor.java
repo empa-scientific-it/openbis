@@ -80,22 +80,6 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
 
             authorizationExecutor.canUpdate(context, update.getPersonalAccessTokenId(), token);
 
-            if (update.getSessionName().isModified())
-            {
-                token.setSessionName(update.getSessionName().getValue());
-            }
-            if (update.getValidFromDate().isModified())
-            {
-                token.setValidFromDate(update.getValidFromDate().getValue());
-            }
-            if (update.getValidToDate().isModified())
-            {
-                token.setValidToDate(update.getValidToDate().getValue());
-            }
-            if (token.getValidFromDate().after(token.getValidToDate()))
-            {
-                throw new UserFailureException("Valid from date cannot be after valid to date.");
-            }
             if (update.getAccessDate().isModified())
             {
                 token.setAccessDate(update.getAccessDate().getValue());
@@ -114,28 +98,9 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
 
     private void checkData(final IOperationContext context, final PersonalAccessTokenUpdate update)
     {
-        PersonPE person = context.getSession().tryGetPerson();
-
         if (update.getPersonalAccessTokenId() == null)
         {
             throw new UserFailureException("Personal access token id cannot be null.");
-        }
-        if (update.getSessionName() != null && update.getSessionName().isModified() && StringUtils.isEmpty(update.getSessionName().getValue()))
-        {
-            throw new UserFailureException("Session name cannot be empty.");
-        }
-        if (update.getValidFromDate() != null && update.getValidFromDate().isModified() && update.getValidFromDate().getValue() == null)
-        {
-            throw new UserFailureException("Valid from date cannot be null.");
-        }
-        if (update.getValidToDate() != null && update.getValidToDate().isModified() && update.getValidToDate().getValue() == null)
-        {
-            throw new UserFailureException("Valid to date cannot be null.");
-        }
-        if (update.getAccessDate() != null && update.getAccessDate().isModified() && !person.isSystemUser() && !RoleAssignmentUtils.isETLServer(
-                person))
-        {
-            throw new UserFailureException("Access date can only be changed by system user or ETL server user.");
         }
     }
 
