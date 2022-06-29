@@ -20,14 +20,18 @@ def get_update_mode(parameters):
 
 def get_import_options(parameters):
     options = ImportOptions()
-
     experiments_by_type = parameters.get('experiments_by_type', None)
+    options.setExperimentsByType(experiments_by_type)
     spaces_by_type = parameters.get('spaces_by_type', None)
+    options.setSpacesByType(spaces_by_type)
     definitions_only = parameters.get('definitions_only', False)
+    options.setDefinitionsOnly(definitions_only)
     disallow_creations = parameters.get("disallow_creations", False)
+    options.setDisallowEntityCreations(disallow_creations)
     ignore_versioning = parameters.get('ignore_versioning', False)
+    options.setIgnoreVersioning(ignore_versioning)
     render_result = parameters.get('render_result', True)
-
+    options.setRenderResult(render_result)
     return options
 
 
