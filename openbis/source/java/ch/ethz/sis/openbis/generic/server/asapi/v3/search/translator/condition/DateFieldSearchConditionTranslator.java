@@ -25,11 +25,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.u
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 import java.util.List;
 import java.util.Map;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITH_TZ;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MODIFICATION_TIMESTAMP_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.REGISTRATION_TIMESTAMP_COLUMN;
@@ -216,8 +218,10 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
         }
 
         sqlBuilder.append(SP).append(LP);
-        TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases, dataTypeStrings);
-        sqlBuilder.append(RP);
+        TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder,
+                aliases.get(tableMapper.getValuesTable()).getSubTableAlias());
+        sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP)
+                .append(SQ).append(String.join(SQ + COMMA + SP + SQ, dataTypeStrings)).append(SQ).append(RP);
 
         sqlBuilder.append(SP).append(AND).append(SP);
 
