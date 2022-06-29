@@ -39,7 +39,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         tokens.put(token.getHash(), token);
 
-        recalculateSessions();
+        recalculateSession(token.getOwnerId(), token.getSessionName());
 
         return token;
     }
@@ -55,16 +55,17 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                 token.setAccessDate(update.getAccessDate());
             }
             tokens.put(token.getHash(), token);
-
-            recalculateSessions();
         }
     }
 
     @Override public synchronized void deleteToken(final String hash)
     {
-        tokens.remove(hash);
+        PersonalAccessToken token = tokens.remove(hash);
 
-        recalculateSessions();
+        if (token != null)
+        {
+            recalculateSession(token.getOwnerId(), token.getSessionName());
+        }
     }
 
     @Override public synchronized List<PersonalAccessToken> listTokens()
@@ -84,13 +85,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
-        return getSessionByUserIdAndSessionName(sessions.values(), userId, sessionName);
-    }
-
-    private PersonalAccessTokenSession getSessionByUserIdAndSessionName(final Collection<PersonalAccessTokenSession> sessions, final String userId,
-            final String sessionName)
-    {
-        for (PersonalAccessTokenSession session : sessions)
+        for (PersonalAccessTokenSession session : sessions.values())
         {
             if (session.getOwnerId().equals(userId) && session.getName().equals(sessionName))
             {
@@ -129,69 +124,57 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
-    private synchronized void recalculateSessions()
+    private synchronized void recalculateSession(String ownerId, String sessionName)
     {
-        Map<String, PersonalAccessTokenSession> existingSessions = new HashMap<>(sessions);
-        Map<String, PersonalAccessTokenSession> newSessions = new HashMap<>();
+        PersonalAccessTokenSession existingSession = getSessionByUserIdAndSessionName(ownerId, sessionName);
+        PersonalAccessTokenSession newSession = null;
 
         for (PersonalAccessToken token : tokens.values())
         {
-            PersonalAccessTokenSession newSession =
-                    getSessionByUserIdAndSessionName(newSessions.values(), token.getOwnerId(), token.getSessionName());
-
-            if (newSession == null)
+            if (token.getOwnerId().equals(ownerId) && token.getSessionName().equals(sessionName))
             {
-                PersonalAccessTokenSession existingSession =
-                        getSessionByUserIdAndSessionName(existingSessions.values(), token.getOwnerId(), token.getSessionName());
-
-                newSession = new PersonalAccessTokenSession();
-                if (existingSession != null)
+                if (newSession == null)
                 {
-                    newSession.setHash(existingSession.getHash());
+                    newSession = new PersonalAccessTokenSession();
+                    if (existingSession != null)
+                    {
+                        newSession.setHash(existingSession.getHash());
+                    } else
+                    {
+                        newSession.setHash(new TokenGenerator().getNewToken(new Date().getTime()));
+                    }
+                    newSession.setName(token.getSessionName());
+                    newSession.setOwnerId(token.getOwnerId());
+                    newSession.setValidFromDate(token.getValidFromDate());
+                    newSession.setValidToDate(token.getValidToDate());
+                    newSession.setAccessDate(token.getAccessDate());
                 } else
                 {
-                    newSession.setHash(new TokenGenerator().getNewToken(new Date().getTime()));
+                    newSession.setValidFromDate(getEarlierDate(token.getValidFromDate(), newSession.getValidFromDate()));
+                    newSession.setValidToDate(getLaterDate(token.getValidToDate(), newSession.getValidToDate()));
+                    newSession.setAccessDate(getLaterDate(token.getAccessDate(), newSession.getAccessDate()));
                 }
-                newSession.setName(token.getSessionName());
-                newSession.setOwnerId(token.getOwnerId());
-                newSession.setValidFromDate(token.getValidFromDate());
-                newSession.setValidToDate(token.getValidToDate());
-                newSession.setAccessDate(token.getAccessDate());
-            } else
-            {
-                newSession.setValidFromDate(getEarlierDate(token.getValidFromDate(), newSession.getValidFromDate()));
-                newSession.setValidToDate(getLaterDate(token.getValidToDate(), newSession.getValidToDate()));
-                newSession.setAccessDate(getLaterDate(token.getAccessDate(), newSession.getAccessDate()));
             }
-
-            newSessions.put(newSession.getHash(), newSession);
         }
 
-        sessions.clear();
-        sessions.putAll(newSessions);
-
-        for (PersonalAccessTokenSession newSession : newSessions.values())
+        if (existingSession == null)
         {
-            PersonalAccessTokenSession existingSession = existingSessions.get(newSession.getHash());
-
-            if (existingSession != null)
+            if (newSession != null)
             {
-                if (!existingSession.getValidFromDate().equals(newSession.getValidFromDate()) || !existingSession.getValidToDate()
-                        .equals(newSession.getValidToDate()))
-                {
-                    notifySessionUpdated(newSession);
-                }
-            } else
-            {
+                sessions.put(newSession.getHash(), newSession);
                 notifySessionCreated(newSession);
             }
-        }
-
-        for (PersonalAccessTokenSession session : existingSessions.values())
+        } else
         {
-            if (!newSessions.containsKey(session.getHash()))
+            if (newSession == null)
             {
-                notifySessionDeleted(session);
+                sessions.remove(existingSession.getHash());
+                notifySessionDeleted(existingSession);
+            } else if (!existingSession.getValidFromDate().equals(newSession.getValidFromDate()) || !existingSession.getValidToDate()
+                    .equals(newSession.getValidToDate()))
+            {
+                sessions.put(newSession.getHash(), newSession);
+                notifySessionUpdated(newSession);
             }
         }
     }

@@ -28,87 +28,114 @@ public class PersonalAccessTokenDAOTest
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO();
         dao.addListener(listener);
 
-        PersonalAccessToken creation1 = new PersonalAccessToken();
-        creation1.setOwnerId("test owner");
-        creation1.setSessionName("test session");
-        creation1.setValidFromDate(new Date(1));
-        creation1.setValidToDate(new Date(2));
+        PersonalAccessToken tokenCreationA1 = new PersonalAccessToken();
+        tokenCreationA1.setOwnerId("test owner");
+        tokenCreationA1.setSessionName("test session A");
+        tokenCreationA1.setValidFromDate(new Date(1));
+        tokenCreationA1.setValidToDate(new Date(2));
 
-        PersonalAccessToken token1 = dao.createToken(creation1);
+        PersonalAccessToken tokenCreationB1 = new PersonalAccessToken();
+        tokenCreationB1.setOwnerId("test owner");
+        tokenCreationB1.setSessionName("test session B");
+        tokenCreationB1.setValidFromDate(new Date(10));
+        tokenCreationB1.setValidToDate(new Date(20));
 
-        assertNotSame(creation1, token1);
-        assertNotNull(token1.getHash());
-        assertEquals(token1.getOwnerId(), creation1.getOwnerId());
-        assertEquals(token1.getSessionName(), creation1.getSessionName());
-        assertEquals(token1.getValidFromDate(), creation1.getValidFromDate());
-        assertEquals(token1.getValidToDate(), creation1.getValidToDate());
-        assertNull(token1.getAccessDate());
+        // create token A1
+        PersonalAccessToken tokenA1 = dao.createToken(tokenCreationA1);
+        assertToken(tokenA1, tokenCreationA1);
 
-        PersonalAccessTokenSession session1 = dao.getSessionByUserIdAndSessionName("test owner", "test session");
-        AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), session1);
+        // create token B1
+        PersonalAccessToken tokenB1 = dao.createToken(tokenCreationB1);
+        assertToken(tokenB1, tokenCreationB1);
 
-        assertNotNull(session1.getHash());
-        assertNotEquals(session1.getHash(), token1.getHash());
-        assertEquals(session1.getOwnerId(), token1.getOwnerId());
-        assertEquals(session1.getName(), token1.getSessionName());
-        assertEquals(session1.getValidFromDate(), token1.getValidFromDate());
-        assertEquals(session1.getValidToDate(), token1.getValidToDate());
-        assertNull(session1.getAccessDate());
+        PersonalAccessTokenSession sessionA1 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
+        assertSession(sessionA1, tokenA1);
 
-        PersonalAccessToken creation2 = new PersonalAccessToken();
-        creation2.setOwnerId("test owner");
-        creation2.setSessionName("test session");
-        creation2.setValidFromDate(new Date(2));
-        creation2.setValidToDate(new Date(3));
+        PersonalAccessTokenSession sessionB1 = dao.getSessionByUserIdAndSessionName(tokenCreationB1.getOwnerId(), tokenCreationB1.getSessionName());
+        assertSession(sessionB1, tokenB1);
 
-        PersonalAccessToken token2 = dao.createToken(creation2);
+        AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenA1, tokenB1);
+        AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionA1, sessionB1);
 
-        assertNotSame(creation2, token2);
-        assertNotNull(token2.getHash());
-        assertEquals(token2.getOwnerId(), creation2.getOwnerId());
-        assertEquals(token2.getSessionName(), creation2.getSessionName());
-        assertEquals(token2.getValidFromDate(), creation2.getValidFromDate());
-        assertEquals(token2.getValidToDate(), creation2.getValidToDate());
-        assertNull(token2.getAccessDate());
+        PersonalAccessToken tokenCreationA2 = new PersonalAccessToken();
+        tokenCreationA2.setOwnerId(tokenCreationA1.getOwnerId());
+        tokenCreationA2.setSessionName(tokenCreationA1.getSessionName());
+        tokenCreationA2.setValidFromDate(new Date(2));
+        tokenCreationA2.setValidToDate(new Date(3));
 
-        PersonalAccessTokenSession session2 = dao.getSessionByUserIdAndSessionName("test owner", "test session");
+        // create token A2
+        PersonalAccessToken tokenA2 = dao.createToken(tokenCreationA2);
+        assertToken(tokenA2, tokenCreationA2);
 
-        assertEquals(session2.getHash(), session1.getHash());
-        assertEquals(session2.getOwnerId(), session1.getOwnerId());
-        assertEquals(session2.getName(), session1.getName());
-        assertEquals(session2.getValidFromDate(), token1.getValidFromDate());
-        assertEquals(session2.getValidToDate(), token2.getValidToDate());
-        assertNull(session2.getAccessDate());
+        PersonalAccessTokenSession sessionA2 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
+        assertSession(sessionA2, sessionA1, tokenA1.getValidFromDate(), tokenA2.getValidToDate());
 
-        dao.deleteToken(token1.getHash());
+        AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenA1, tokenA2, tokenB1);
+        AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionA2, sessionB1);
 
-        PersonalAccessTokenSession session3 = dao.getSessionByUserIdAndSessionName("test owner", "test session");
+        // delete token A1
+        dao.deleteToken(tokenA1.getHash());
 
-        assertEquals(session3.getHash(), session2.getHash());
-        assertEquals(session3.getOwnerId(), session2.getOwnerId());
-        assertEquals(session3.getName(), session2.getName());
-        assertEquals(session3.getValidFromDate(), token2.getValidFromDate());
-        assertEquals(session3.getValidToDate(), token2.getValidToDate());
-        assertNull(session3.getAccessDate());
+        PersonalAccessTokenSession sessionA3 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
+        assertSession(sessionA3, sessionA2, tokenA2.getValidFromDate(), tokenA2.getValidToDate());
 
-        dao.deleteToken(token2.getHash());
+        AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenA2, tokenB1);
+        AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionA3, sessionB1);
 
-        PersonalAccessTokenSession session4 = dao.getSessionByUserIdAndSessionName("test owner", "test session");
-        assertNull(session4);
+        // delete token A2
+        dao.deleteToken(tokenA2.getHash());
 
-        listener.assertCreatedSessions(session1);
-        listener.assertUpdatedSessions(session2, session3);
-        listener.assertDeletedSessions(session3);
+        AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenB1);
+        AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionB1);
+
+        PersonalAccessTokenSession sessionA4 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
+        assertNull(sessionA4);
+
+        listener.assertCreatedSessions(sessionA1, sessionB1);
+        listener.assertUpdatedSessions(sessionA2, sessionA3);
+        listener.assertDeletedSessions(sessionA3);
+    }
+
+    private void assertToken(PersonalAccessToken token, PersonalAccessToken creation)
+    {
+        assertNotSame(token, creation);
+        assertNotNull(token.getHash());
+        assertEquals(token.getOwnerId(), creation.getOwnerId());
+        assertEquals(token.getSessionName(), creation.getSessionName());
+        assertEquals(token.getValidFromDate(), creation.getValidFromDate());
+        assertEquals(token.getValidToDate(), creation.getValidToDate());
+        assertNull(token.getAccessDate());
+    }
+
+    private void assertSession(PersonalAccessTokenSession session, PersonalAccessToken token)
+    {
+        assertNotNull(session.getHash());
+        assertNotEquals(session.getHash(), token.getHash());
+        assertEquals(session.getOwnerId(), token.getOwnerId());
+        assertEquals(session.getName(), token.getSessionName());
+        assertEquals(session.getValidFromDate(), token.getValidFromDate());
+        assertEquals(session.getValidToDate(), token.getValidToDate());
+        assertNull(session.getAccessDate());
+    }
+
+    private void assertSession(PersonalAccessTokenSession session, PersonalAccessTokenSession previousSession, Date validFrom, Date validTo)
+    {
+        assertEquals(session.getHash(), previousSession.getHash());
+        assertEquals(session.getOwnerId(), previousSession.getOwnerId());
+        assertEquals(session.getName(), previousSession.getName());
+        assertEquals(session.getValidFromDate(), validFrom);
+        assertEquals(session.getValidToDate(), validTo);
+        assertNull(session.getAccessDate());
     }
 
     private static class TestListener implements IPersonalAccessTokenDAO.Listener
     {
 
-        private List<PersonalAccessTokenSession> createdSessions = new ArrayList<>();
+        private final List<PersonalAccessTokenSession> createdSessions = new ArrayList<>();
 
-        private List<PersonalAccessTokenSession> updatedSessions = new ArrayList<>();
+        private final List<PersonalAccessTokenSession> updatedSessions = new ArrayList<>();
 
-        private List<PersonalAccessTokenSession> deletedSessions = new ArrayList<>();
+        private final List<PersonalAccessTokenSession> deletedSessions = new ArrayList<>();
 
         @Override public void onSessionCreated(final PersonalAccessTokenSession session)
         {
