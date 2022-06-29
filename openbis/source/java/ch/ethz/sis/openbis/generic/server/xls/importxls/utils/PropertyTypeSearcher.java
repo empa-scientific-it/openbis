@@ -1,11 +1,15 @@
 package ch.ethz.sis.openbis.generic.server.xls.importxls.utils;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.LongDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ShortDateFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import org.apache.poi.ss.usermodel.DateUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +17,10 @@ import java.util.Map;
 
 public class PropertyTypeSearcher
 {
+
+    public static final SimpleDateFormat timestampFormatter = new SimpleDateFormat(new LongDateFormat().getFormat());
+
+    public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(new ShortDateFormat().getFormat());
 
     public static final String VARIABLE_PREFIX = "$";
 
@@ -69,7 +77,29 @@ public class PropertyTypeSearcher
                     return term.getCode();
                 }
             }
+        } else if (propertyType.getDataType() == DataType.TIMESTAMP) { // Converts native excel timestamps
+            if (value != null && isDouble(value)) {
+                value = timestampFormatter.format(DateUtil.getJavaDate(Double.parseDouble(value)));
+            }
+        } else if (propertyType.getDataType() == DataType.DATE) { // Converts native excel dates
+            if (value != null && isDouble(value)) {
+                value = dateFormatter.format(DateUtil.getJavaDate(Double.parseDouble(value)));
+            }
         }
         return value;
     }
+
+    private static boolean isDouble(String string)
+    {
+        try
+        {
+            Double.parseDouble(string);
+        }
+        catch (NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
+    }
+
 }
