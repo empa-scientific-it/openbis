@@ -168,7 +168,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         operationExecutionDAO =
                 new OperationExecutionDAO(sessionFactory, historyCreator);
         semanticAnnotationDAO = new SemanticAnnotationDAO(sessionFactory, historyCreator);
-        personalAccessTokenDAO = new PersonalAccessTokenDAO();
+        personalAccessTokenDAO = new PersonalAccessTokenDAO(configurer.getResolvedProps());
     }
 
     //

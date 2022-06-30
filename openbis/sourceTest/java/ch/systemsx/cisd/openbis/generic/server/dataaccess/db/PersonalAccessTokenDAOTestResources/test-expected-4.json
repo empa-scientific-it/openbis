@@ -1,0 +1,46 @@
+{
+  "tokens": {
+    "token-2": {
+      "hash": "token-2",
+      "sessionName": "test session B",
+      "ownerId": "test owner",
+      "registratorId": null,
+      "modifierId": null,
+      "validFromDate": 10,
+      "validToDate": 20,
+      "registrationDate": null,
+      "modificationDate": null,
+      "accessDate": null
+    },
+    "token-3": {
+      "hash": "token-3",
+      "sessionName": "test session A",
+      "ownerId": "test owner",
+      "registratorId": null,
+      "modifierId": null,
+      "validFromDate": 2,
+      "validToDate": 3,
+      "registrationDate": null,
+      "modificationDate": null,
+      "accessDate": null
+    }
+  },
+  "sessions": {
+    "session-1": {
+      "ownerId": "test owner",
+      "name": "test session A",
+      "hash": "session-1",
+      "validFromDate": 2,
+      "validToDate": 3,
+      "accessDate": null
+    },
+    "session-2": {
+      "ownerId": "test owner",
+      "name": "test session B",
+      "hash": "session-2",
+      "validFromDate": 10,
+      "validToDate": 20,
+      "accessDate": null
+    }
+  }
+}

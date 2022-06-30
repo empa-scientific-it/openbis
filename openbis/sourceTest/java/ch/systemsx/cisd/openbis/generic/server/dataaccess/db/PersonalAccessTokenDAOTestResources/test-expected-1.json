@@ -1,0 +1,27 @@
+{
+    "tokens" : {
+      "token-1" : {
+        "hash" : "token-1",
+        "sessionName" : "test session A",
+        "ownerId" : "test owner",
+        "registratorId" : null,
+        "modifierId" : null,
+        "validFromDate" : 1,
+        "validToDate" : 2,
+        "registrationDate" : null,
+        "modificationDate" : null,
+        "accessDate" : null
+      }
+    },
+    "sessions" : {
+      "session-1" : {
+        "ownerId" : "test owner",
+        "name" : "test session A",
+        "hash" : "session-1",
+        "validFromDate" : 1,
+        "validToDate" : 2,
+        "accessDate" : null
+      }
+    }
+  }
+  

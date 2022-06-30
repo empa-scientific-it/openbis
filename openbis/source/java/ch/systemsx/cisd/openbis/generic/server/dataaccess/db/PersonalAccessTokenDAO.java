@@ -1,12 +1,22 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
@@ -15,18 +25,63 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 {
 
-    private final Map<String, PersonalAccessToken> tokens = new HashMap<>();
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PersonalAccessTokenDAO.class);
 
-    private final Map<String, PersonalAccessTokenSession> sessions = new HashMap<>();
+    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH = "personal-access-tokens-file-path";
+
+    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT = "personal-access-tokens.json";
+
+    private final Properties properties;
+
+    private final HashGenerator generator;
+
+    private Map<String, PersonalAccessToken> tokens = new HashMap<>();
+
+    private Map<String, PersonalAccessTokenSession> sessions = new HashMap<>();
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private final List<Listener> listeners = new ArrayList<>();
 
+    public PersonalAccessTokenDAO(final Properties properties)
+    {
+        this(properties, new HashGenerator()
+        {
+
+            @Override public String generateTokenHash()
+            {
+                return new TokenGenerator().getNewToken(System.currentTimeMillis());
+            }
+
+            @Override public String generateSessionHash()
+            {
+                return new TokenGenerator().getNewToken(System.currentTimeMillis());
+            }
+        });
+    }
+
+    PersonalAccessTokenDAO(final Properties properties, final HashGenerator generator)
+    {
+        if (properties == null)
+        {
+            throw new IllegalArgumentException("Properties cannot be null");
+        }
+
+        if (generator == null)
+        {
+            throw new IllegalArgumentException("Hash generator cannot be null");
+        }
+
+        this.properties = properties;
+        this.generator = generator;
+
+        loadFromFile();
+    }
+
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
-        Date now = new Date();
-
         PersonalAccessToken token = new PersonalAccessToken();
-        token.setHash(new TokenGenerator().getNewToken(now.getTime()));
+        token.setHash(generator.generateTokenHash());
         token.setSessionName(creation.getSessionName());
         token.setOwnerId(creation.getOwnerId());
         token.setRegistratorId(creation.getRegistratorId());
@@ -40,6 +95,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         tokens.put(token.getHash(), token);
 
         recalculateSession(token.getOwnerId(), token.getSessionName());
+        saveInFile();
 
         return token;
     }
@@ -55,6 +111,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                 token.setAccessDate(update.getAccessDate());
             }
             tokens.put(token.getHash(), token);
+
+            recalculateSession(token.getOwnerId(), token.getSessionName());
+            saveInFile();
         }
     }
 
@@ -65,6 +124,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         if (token != null)
         {
             recalculateSession(token.getOwnerId(), token.getSessionName());
+            saveInFile();
         }
     }
 
@@ -141,7 +201,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                         newSession.setHash(existingSession.getHash());
                     } else
                     {
-                        newSession.setHash(new TokenGenerator().getNewToken(new Date().getTime()));
+                        newSession.setHash(generator.generateSessionHash());
                     }
                     newSession.setName(token.getSessionName());
                     newSession.setOwnerId(token.getOwnerId());
@@ -170,8 +230,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             {
                 sessions.remove(existingSession.getHash());
                 notifySessionDeleted(existingSession);
-            } else if (!existingSession.getValidFromDate().equals(newSession.getValidFromDate()) || !existingSession.getValidToDate()
-                    .equals(newSession.getValidToDate()))
+            } else if (!Objects.equals(existingSession.getValidFromDate(), newSession.getValidFromDate()) || !Objects.equals(
+                    existingSession.getValidToDate(), newSession.getValidToDate()) || !Objects.equals(existingSession.getAccessDate(),
+                    newSession.getAccessDate()))
             {
                 sessions.put(newSession.getHash(), newSession);
                 notifySessionUpdated(newSession);
@@ -199,6 +260,63 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         {
             return date1 != null ? date1 : date2;
         }
+    }
+
+    private String getFilePath()
+    {
+        return properties.getProperty(PERSONAL_ACCESS_TOKENS_FILE_PATH, PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT);
+    }
+
+    private void loadFromFile()
+    {
+        File file = new File(getFilePath());
+
+        if (file.exists())
+        {
+            try
+            {
+                FileContent content = mapper.readValue(file, FileContent.class);
+                tokens = content.tokens;
+                sessions = content.sessions;
+            } catch (IOException e)
+            {
+                operationLog.error("Loading of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
+            }
+        }
+    }
+
+    private void saveInFile()
+    {
+        File file = new File(getFilePath());
+
+        try
+        {
+            FileContent content = new FileContent();
+            content.tokens = tokens;
+            content.sessions = sessions;
+            mapper.writeValue(file, content);
+        } catch (IOException e)
+        {
+            operationLog.error("Saving of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
+        }
+    }
+
+    private static class FileContent
+    {
+
+        @JsonProperty
+        public Map<String, PersonalAccessToken> tokens;
+
+        @JsonProperty
+        public Map<String, PersonalAccessTokenSession> sessions;
+
+    }
+
+    public interface HashGenerator
+    {
+        String generateTokenHash();
+
+        String generateSessionHash();
     }
 
 }

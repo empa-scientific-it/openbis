@@ -1,0 +1,26 @@
+{
+  "tokens": {
+    "token-2": {
+      "hash": "token-2",
+      "sessionName": "test session B",
+      "ownerId": "test owner",
+      "registratorId": null,
+      "modifierId": null,
+      "validFromDate": 10,
+      "validToDate": 20,
+      "registrationDate": null,
+      "modificationDate": null,
+      "accessDate": null
+    }
+  },
+  "sessions": {
+    "session-2": {
+      "ownerId": "test owner",
+      "name": "test session B",
+      "hash": "session-2",
+      "validFromDate": 10,
+      "validToDate": 20,
+      "accessDate": null
+    }
+  }
+}
