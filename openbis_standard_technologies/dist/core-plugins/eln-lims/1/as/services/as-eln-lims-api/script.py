@@ -264,10 +264,10 @@ def getSamplesImportTemplate(context, parameters):
         _create_cell(row, 0, type_style, sampleTypePermId)
         row = sheet.createRow(row_index + 3)
         cell_index = _create_cell(row, 0, header_style, "$")
-        cell_index = _create_cell(row, cell_index, header_style, "Code")
         if importMode == "UPDATE":
             cell_index = _create_cell(row, cell_index, header_style, "Identifier")
         if templateType == "GENERAL":
+            cell_index = _create_cell(row, cell_index, header_style, "Code")
             cell_index = _create_cell(row, cell_index, header_style, "Experiment")
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
