@@ -880,6 +880,8 @@ class Openbis:
 
     """
 
+    token: str
+
     def __init__(
         self,
         url=None,
@@ -937,7 +939,6 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
-        self.token = None
         if (
             token is not None
         ):  # We try to set the token, during initialisation instead of errors, a message is printed
@@ -946,12 +947,12 @@ class Openbis:
             except:
                 pass
         else:
-            self.token = self._get_saved_token()
-
-        if not self.is_token_valid():
-            print("Session is no longer valid. Please log in again.")
-        else:
-            print("Session restored: " + self.token)
+            try:
+                token = self._get_saved_token()
+                self.token = token
+            except ValueError:
+                print(token)
+                pass
 
     def _get_username(self):
         if self.token:
@@ -959,6 +960,14 @@ class Openbis:
             username = match.groupdict()["username"]
             return username
         return ""
+
+    @property
+    def token(self):
+        return self.__dict__.get("token")
+
+    @token.setter
+    def token(self, token: str):
+        self.set_token(token, save_token=True)
 
     def __dir__(self):
         return [
@@ -4085,10 +4094,12 @@ class Openbis:
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
+        if not token:
+            return
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
-            self.token = token
+            self.__dict__["token"] = token
         if save_token:
             self._save_token_to_disk()
 
