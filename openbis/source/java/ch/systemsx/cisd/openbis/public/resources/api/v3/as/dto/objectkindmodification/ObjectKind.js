@@ -11,7 +11,7 @@ define([ "stjs", "as/dto/common/Enum" ], function(stjs, Enum) {
 		                  "EXPERIMENT_TYPE", "MATERIAL_TYPE", "DATASET_TYPE", "FILE_FORMAT_TYPE", "PROJECT", 
 		                  "SPACE", "PROPERTY_TYPE", "PROPERTY_TYPE_ASSIGNMENT", "VOCABULARY", "VOCABULARY_TERM", 
 		                  "ROLE_ASSIGNMENT", "PERSON", "GRID_CUSTOM_FILTER", "GRID_CUSTOM_COLUMN", "SCRIPT", 
-		                  "DELETION", "POSTREGISTRATION_QUEUE", "QUERY", "METAPROJECT" ]);
+		                  "DELETION", "POSTREGISTRATION_QUEUE", "QUERY", "METAPROJECT", "PERSONAL_ACCESS_TOKEN" ]);
 	};
 	stjs.extend(ObjectKind, Enum, [ Enum ], function(constructor, prototype) {
 	}, {});
