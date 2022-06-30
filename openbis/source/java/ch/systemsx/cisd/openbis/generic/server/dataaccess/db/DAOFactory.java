@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.Resource;
-
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -37,6 +39,33 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventsSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISemanticAnnotationDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -117,7 +146,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final ISemanticAnnotationDAO semanticAnnotationDAO;
 
-    private final IPersonalAccessTokenDAO personalAccessTokenDAO;
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     private DatabaseConfigurationContext context;
 
@@ -168,7 +197,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         operationExecutionDAO =
                 new OperationExecutionDAO(sessionFactory, historyCreator);
         semanticAnnotationDAO = new SemanticAnnotationDAO(sessionFactory, historyCreator);
-        personalAccessTokenDAO = new PersonalAccessTokenDAO(configurer.getResolvedProps());
     }
 
     //
@@ -376,6 +404,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public void afterPropertiesSet() throws Exception
     {
         Properties serviceProperties = configurer.getResolvedProps();
+        personalAccessTokenDAO = new PersonalAccessTokenDAO(serviceProperties);
         hibernateSearchDAO.setProperties(serviceProperties);
         SamplePE.projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         Connection connection = null;
