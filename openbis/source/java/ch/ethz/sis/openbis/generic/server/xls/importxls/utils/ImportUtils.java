@@ -86,6 +86,17 @@ public class ImportUtils
         return identifier;
     }
 
+    public static ISampleId buildSampleIdentifier(String identifier)
+    {
+        if (identifier == null || identifier.isEmpty())
+        {
+            return null;
+        }
+        sampleIdentifierNormalizer(identifier); // To validate the sample identifier
+        return new SampleIdentifier(identifier);
+
+    }
+
     public static ISampleId buildSampleIdentifier(String code, String space, String project)
     {
         if (code == null || code.isEmpty())
