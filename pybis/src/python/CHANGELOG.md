@@ -2,6 +2,7 @@
 
 - throw error when invalid token is assigned
 - to not show an error message if stored token is invalid (just do not use it)
+- fixed a bug which led to missing parents and children
 
 ## Changes with pybis-1.31.6
 
