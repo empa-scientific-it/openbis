@@ -135,7 +135,15 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                     var jsField = jsTypeDescription[javaField.name]
                     if (jsField) {
                         var javaFieldType = getSimpleClassName(javaField.type)
-                        var jsFieldType = _.isObject(jsField) ? jsField.name : jsField
+                        var jsFieldType = null;
+
+                        if(_.isFunction(jsField)){
+                            jsFieldType = jsField();
+                        }else if(_.isObject(jsField)){
+                            jsFieldType = jsField.name
+                        }else{
+                            jsFieldType = jsField
+                        }
 
                         if (javaFieldType !== jsFieldType) {
                             var errorResult =
