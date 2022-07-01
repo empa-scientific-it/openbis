@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class PropertyTypeSearcher
@@ -22,7 +21,7 @@ public class PropertyTypeSearcher
 
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(new ShortDateFormat().getFormat());
 
-    public static final String VARIABLE_PREFIX = "$";
+    public static final String VARIABLE_PREFIX = Attribute.$.getCellName();
 
     private Map<String, PropertyType> code2PropertyType;
 
@@ -36,15 +35,21 @@ public class PropertyTypeSearcher
         for (PropertyAssignment propertyAssignment : assignment)
         {
             PropertyType propertyType = propertyAssignment.getPropertyType();
-            code2PropertyType.put(propertyType.getCode().toLowerCase(Locale.ROOT), propertyType);
-            label2PropertyType.put(propertyType.getLabel().toLowerCase(Locale.ROOT), propertyType);
+            code2PropertyType.put(propertyType.getCode(), propertyType);
+            label2PropertyType.put(propertyType.getLabel(), propertyType);
         }
+    }
+
+    public Map<String, PropertyType> getCode2PropertyType() {
+        return code2PropertyType;
+    }
+
+    public Map<String, PropertyType> getLabel2PropertyType() {
+        return label2PropertyType;
     }
 
     public PropertyType findPropertyType(String code)
     {
-        code = code.toLowerCase(Locale.ROOT);
-
         if (code2PropertyType.containsKey(code))
         {
             return code2PropertyType.get(code);

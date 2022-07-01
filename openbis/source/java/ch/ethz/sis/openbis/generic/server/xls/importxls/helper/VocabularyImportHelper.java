@@ -29,28 +29,28 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "vocabulary";
+        return "Vocabulary";
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TYPE.getType(), code));
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         VersionUtils.updateVersion(version, versions, ImportTypes.VOCABULARY_TYPE.getType(), code);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "code");
+        String vocabularyCode = getValueByColumnName(header, values, "Code");
         VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
 
         VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
@@ -60,8 +60,8 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
+        String vocabularyCode = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
 
         VocabularyCreation create = new VocabularyCreation();
         create.setCode(vocabularyCode);
@@ -72,8 +72,8 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
+        String vocabularyCode = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
 
         VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
 
@@ -85,8 +85,8 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "version");
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "description");
+        checkKeyExistence(header, "Version");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Description");
     }
 }

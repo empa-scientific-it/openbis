@@ -29,20 +29,20 @@ public class SpaceImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "space";
+        return "Space";
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
-        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("code", code, false));
+        String code = getValueByColumnName(header, values, "Code");
+        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("Code", code, false));
         return delayedExecutor.getSpace(spaceId, new SpaceFetchOptions()) != null;
     }
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = ImportUtils.valueNormalizer("code", getValueByColumnName(header, values, "code"), false);
-        String description = getValueByColumnName(header, values, "description");
+        String code = ImportUtils.valueNormalizer("Code", getValueByColumnName(header, values, "Code"), false);
+        String description = getValueByColumnName(header, values, "Description");
 
         if (options.getDisallowEntityCreations())
         {
@@ -58,9 +58,9 @@ public class SpaceImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("code", code, false));
-        String description = getValueByColumnName(header, values, "description");
+        String code = getValueByColumnName(header, values, "Code");
+        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("Code", code, false));
+        String description = getValueByColumnName(header, values, "Description");
 
         SpaceUpdate update = new SpaceUpdate();
         update.setSpaceId(spaceId);
@@ -74,6 +74,6 @@ public class SpaceImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "code");
+        checkKeyExistence(header, "Code");
     }
 }

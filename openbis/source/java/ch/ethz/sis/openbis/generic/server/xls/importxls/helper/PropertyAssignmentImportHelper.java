@@ -59,11 +59,11 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String mandatory = getValueByColumnName(header, values, "mandatory");
-        String showInEditViews = getValueByColumnName(header, values, "show in edit views");
-        String section = getValueByColumnName(header, values, "section");
-        String script = getValueByColumnName(header, values, "dynamic script");
+        String code = getValueByColumnName(header, values, "Code");
+        String mandatory = getValueByColumnName(header, values, "Mandatory");
+        String showInEditViews = getValueByColumnName(header, values, "Show in edit views");
+        String section = getValueByColumnName(header, values, "Section");
+        String script = getValueByColumnName(header, values, "Dynamic script");
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -139,10 +139,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "mandatory");
-        checkKeyExistence(header, "show in edit views");
-        checkKeyExistence(header, "section");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Mandatory");
+        checkKeyExistence(header, "Show in edit views");
+        checkKeyExistence(header, "Section");
     }
 
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end, ImportTypes importTypes)
@@ -150,7 +150,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         this.importTypes = importTypes;
 
         Map<String, Integer> header = parseHeader(page.get(start), false);
-        String code = getValueByColumnName(header, page.get(start + 1), "code");
+        String code = getValueByColumnName(header, page.get(start + 1), "Code");
 
         switch (importTypes)
         {

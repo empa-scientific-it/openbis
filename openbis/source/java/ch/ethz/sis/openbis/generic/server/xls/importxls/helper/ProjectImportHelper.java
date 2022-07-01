@@ -31,16 +31,16 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "project";
+        return "Project";
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String space = getValueByColumnName(header, values, "space");
+        String code = getValueByColumnName(header, values, "Code");
+        String space = getValueByColumnName(header, values, "Space");
 
-        String normalizedCode = ImportUtils.valueNormalizer("code", code, false);
-        String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
+        String normalizedCode = ImportUtils.valueNormalizer("Code", code, false);
+        String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
 
         final ProjectIdentifier projectIdentifier = new ProjectIdentifier(normalizedSpace, normalizedCode);
         return delayedExecutor.getProject(projectIdentifier, new ProjectFetchOptions()) != null;
@@ -48,12 +48,12 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String space = getValueByColumnName(header, values, "space");
-        String description = getValueByColumnName(header, values, "description");
+        String code = getValueByColumnName(header, values, "Code");
+        String space = getValueByColumnName(header, values, "Space");
+        String description = getValueByColumnName(header, values, "Description");
 
-        String normalizedCode = ImportUtils.valueNormalizer("code", code, false);
-        String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
+        String normalizedCode = ImportUtils.valueNormalizer("Code", code, false);
+        String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
 
         if (options.getDisallowEntityCreations())
         {
@@ -70,9 +70,9 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "identifier");
-        String space = getValueByColumnName(header, values, "space");
-        String description = getValueByColumnName(header, values, "description");
+        String identifier = getValueByColumnName(header, values, "Identifier");
+        String space = getValueByColumnName(header, values, "Space");
+        String description = getValueByColumnName(header, values, "Description");
 
         if (identifier == null || identifier.isEmpty())
         {
@@ -92,7 +92,7 @@ public class ProjectImportHelper extends BasicImportHelper
         // Space is only needed to "MOVE" the project
         if (space != null && !space.isEmpty())
         {
-            String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
+            String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
             update.setSpaceId(new SpacePermId(normalizedSpace));
         }
 
@@ -101,7 +101,7 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "space");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Space");
     }
 }

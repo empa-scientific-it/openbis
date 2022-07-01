@@ -30,28 +30,28 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "sample type";
+        return "Sample type";
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.SAMPLE_TYPE.getType(), code));
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         VersionUtils.updateVersion(version, versions, ImportTypes.SAMPLE_TYPE.getType(), code);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
+        String code = getValueByColumnName(header, values, "Code");
         EntityTypePermId id = new EntityTypePermId(code);
 
         return delayedExecutor.getSampleType(id, new SampleTypeFetchOptions()) != null;
@@ -59,11 +59,11 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
-        String script = getValueByColumnName(header, values, "validation script");
-        String autoGenerateCode = getValueByColumnName(header, values, "auto generate codes");
-        String generatedCodePrefix = getValueByColumnName(header, values, "generated code prefix");
+        String code = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
+        String script = getValueByColumnName(header, values, "Validation script");
+        String autoGenerateCode = getValueByColumnName(header, values, "Auto generate codes");
+        String generatedCodePrefix = getValueByColumnName(header, values, "Generated code prefix");
 
         SampleTypeCreation creation = new SampleTypeCreation();
 
@@ -84,11 +84,11 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
-        String script = getValueByColumnName(header, values, "validation script");
-        String autoGenerateCode = getValueByColumnName(header, values, "auto generate codes");
-        String generatedCodePrefix = getValueByColumnName(header, values, "generated code prefix");
+        String code = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
+        String script = getValueByColumnName(header, values, "Validation script");
+        String autoGenerateCode = getValueByColumnName(header, values, "Auto generate codes");
+        String generatedCodePrefix = getValueByColumnName(header, values, "Generated code prefix");
 
         SampleTypeUpdate update = new SampleTypeUpdate();
         EntityTypePermId permId = new EntityTypePermId(code);
@@ -109,8 +109,8 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "version");
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "auto generate codes");
+        checkKeyExistence(header, "Version");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Auto generate codes");
     }
 }

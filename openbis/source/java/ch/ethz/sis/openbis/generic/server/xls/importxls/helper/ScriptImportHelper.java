@@ -37,7 +37,7 @@ public class ScriptImportHelper extends BasicImportHelper
 
     private String getScriptName(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
+        String code = getValueByColumnName(header, values, "Code");
         String script = getValueByColumnName(header, values, scriptType.getColumnName());
         if (script == null || script.isEmpty())
         {
@@ -88,7 +88,7 @@ public class ScriptImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "code");
+        checkKeyExistence(header, "Code");
         switch (scriptType)
         {
             case DYNAMIC_SCRIPT:

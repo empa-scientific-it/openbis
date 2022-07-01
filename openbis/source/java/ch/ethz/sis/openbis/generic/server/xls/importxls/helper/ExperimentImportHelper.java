@@ -36,7 +36,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private PropertyTypeSearcher propertyTypeSearcher;
 
-    private static final Set<String> experimentAttributes = new HashSet<>(Arrays.asList("$", "identifier", "code", "project"));
+    private static final Set<String> experimentAttributes = new HashSet<>(Arrays.asList("$", "Identifier", "Code", "Project"));
 
     public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
@@ -54,7 +54,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
             lineIndex++;
 
-            String experimentType = getValueByColumnName(header, page.get(lineIndex), "experiment type");
+            String experimentType = getValueByColumnName(header, page.get(lineIndex), "Experiment type");
             entityTypePermId = new EntityTypePermId(experimentType);
 
             // first check that experiment type exist.
@@ -79,15 +79,15 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "experiment";
+        return "Experiment";
     }
 
     private ExperimentIdentifier getIdentifier(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String project = getValueByColumnName(header, values, "project");
+        String code = getValueByColumnName(header, values, "Code");
+        String project = getValueByColumnName(header, values, "Project");
 
-        code = ImportUtils.valueNormalizer("code", code, false);
+        code = ImportUtils.valueNormalizer("Code", code, false);
         project = ImportUtils.projectIdentifierNormalizer(project);
 
         return new ExperimentIdentifier(project + "/" + code);
@@ -110,8 +110,8 @@ public class ExperimentImportHelper extends BasicImportHelper
     {
         ExperimentCreation creation = new ExperimentCreation();
 
-        String code = getValueByColumnName(header, values, "code");
-        String project = getValueByColumnName(header, values, "project");
+        String code = getValueByColumnName(header, values, "Code");
+        String project = getValueByColumnName(header, values, "Project");
 
         if (options.getDisallowEntityCreations())
         {
@@ -119,7 +119,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         }
 
         creation.setTypeId(entityTypePermId);
-        creation.setCode(ImportUtils.valueNormalizer("code", code, false));
+        creation.setCode(ImportUtils.valueNormalizer("Code", code, false));
         creation.setProjectId(getProjectIdentifier(project));
 
         for (String key : header.keySet())
@@ -137,8 +137,8 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "identifier");
-        String project = getValueByColumnName(header, values, "project");
+        String identifier = getValueByColumnName(header, values, "Identifier");
+        String project = getValueByColumnName(header, values, "Project");
 
         if (identifier == null || identifier.isEmpty())
         {
@@ -170,7 +170,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "project");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Project");
     }
 }

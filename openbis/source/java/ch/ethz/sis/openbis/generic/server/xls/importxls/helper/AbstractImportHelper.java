@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.importxls.helper;
 
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.Attribute;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public abstract class AbstractImportHelper
             if (header.get(i) != null && !header.get(i).trim().isEmpty())
             {
                 // The case of letters in header rows is ignored.
-                String key = header.get(i).trim().toLowerCase();
+                String key = header.get(i).trim();
                 if (headerMap.containsKey(key))
                 {
                     throw new UserFailureException("Repeated headers are not allowed.");
@@ -52,9 +53,18 @@ public abstract class AbstractImportHelper
 
     protected static void checkKeyExistence(Map<String, Integer> header, String key)
     {
-        if (!header.containsKey(key))
+        String keyFix = Character.toUpperCase(key.charAt(0)) + key.substring(1);
+        if (!header.containsKey(key) && !header.containsKey(keyFix))
         {
             throw new UserFailureException("Header should contain '" + key + "'.");
+        }
+    }
+
+    protected static void checkKeyExistence(Map<String, Integer> header, Attribute attribute)
+    {
+        if (!header.containsKey(attribute.getCellName()))
+        {
+            throw new UserFailureException("Header should contain '" + attribute.getCellName() + "'.");
         }
     }
 

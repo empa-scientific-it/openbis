@@ -40,8 +40,8 @@ public class SampleImportHelper extends BasicImportHelper
 
     private PropertyTypeSearcher propertyTypeSearcher;
 
-    private static final Set<String> sampleAttributes = new HashSet<>(Arrays.asList("$", "identifier", "code", "space", "project",
-            "experiment", "auto generate code", "parents", "children"));
+    private static final Set<String> sampleAttributes = new HashSet<>(Arrays.asList("$", "Identifier", "Code", "Space", "Project",
+            "Experiment", "Auto generate code", "Parents", "Children"));
 
     public SampleImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
@@ -59,7 +59,7 @@ public class SampleImportHelper extends BasicImportHelper
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
             lineIndex++;
 
-            sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), "sample type"));
+            sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), "Sample type"));
 
             // first check that sample type exist.
             SampleTypeFetchOptions fetchTypeOptions = new SampleTypeFetchOptions();
@@ -94,10 +94,10 @@ public class SampleImportHelper extends BasicImportHelper
         fetchOptions.withParents();
         fetchOptions.withProperties();
 
-        String code = getValueByColumnName(header, values, "code");
-        String space = getValueByColumnName(header, values, "space");
-        String project = getValueByColumnName(header, values, "project");
-        String identifier = getValueByColumnName(header, values, "identifier"); // Only used for updates
+        String code = getValueByColumnName(header, values, "Code");
+        String space = getValueByColumnName(header, values, "Space");
+        String project = getValueByColumnName(header, values, "Project");
+        String identifier = getValueByColumnName(header, values, "Identifier"); // Only used for updates
 
         ISampleId sampleId;
         if (identifier != null && !identifier.isEmpty()) {
@@ -120,14 +120,14 @@ public class SampleImportHelper extends BasicImportHelper
         SampleCreation creation = new SampleCreation();
         creation.setTypeId(sampleType);
 
-        String code = getValueByColumnName(header, values, "code");
+        String code = getValueByColumnName(header, values, "Code");
         String variable = getValueByColumnName(header, values, "$");
-        String autoGenerateCode = getValueByColumnName(header, values, "auto generate code");
-        String space = getValueByColumnName(header, values, "space");
-        String project = getValueByColumnName(header, values, "project");
-        String experiment = getValueByColumnName(header, values, "experiment");
-        String parents = getValueByColumnName(header, values, "parents");
-        String children = getValueByColumnName(header, values, "children");
+        String autoGenerateCode = getValueByColumnName(header, values, "Auto generate code");
+        String space = getValueByColumnName(header, values, "Space");
+        String project = getValueByColumnName(header, values, "Project");
+        String experiment = getValueByColumnName(header, values, "Experiment");
+        String parents = getValueByColumnName(header, values, "Parents");
+        String children = getValueByColumnName(header, values, "Children");
 
         if (options.getDisallowEntityCreations())
         {
@@ -140,7 +140,7 @@ public class SampleImportHelper extends BasicImportHelper
         }
         if (code != null && !code.isEmpty())
         {
-            creation.setCode(ImportUtils.valueNormalizer("code", code, false));
+            creation.setCode(ImportUtils.valueNormalizer("Code", code, false));
         }
         if (autoGenerateCode != null && !autoGenerateCode.isEmpty())
         {
@@ -148,7 +148,7 @@ public class SampleImportHelper extends BasicImportHelper
         }
         if (space != null && !space.isEmpty())
         {
-            creation.setSpaceId(new SpacePermId(ImportUtils.valueNormalizer("space", space, false)));
+            creation.setSpaceId(new SpacePermId(ImportUtils.valueNormalizer("Space", space, false)));
         }
         if (project != null && !project.isEmpty() && options.getAllowProjectSamples()) // Projects can only be set in project samples are enabled
         {
@@ -210,13 +210,13 @@ public class SampleImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "identifier");
+        String identifier = getValueByColumnName(header, values, "Identifier");
         String variable = getValueByColumnName(header, values, "$");
-        String space = getValueByColumnName(header, values, "space");
-        String project = getValueByColumnName(header, values, "project");
-        String experiment = getValueByColumnName(header, values, "experiment");
-        String parents = getValueByColumnName(header, values, "parents");
-        String children = getValueByColumnName(header, values, "children");
+        String space = getValueByColumnName(header, values, "Space");
+        String project = getValueByColumnName(header, values, "Project");
+        String experiment = getValueByColumnName(header, values, "Experiment");
+        String parents = getValueByColumnName(header, values, "Parents");
+        String children = getValueByColumnName(header, values, "Children");
 
         if (identifier == null || identifier.isEmpty()) {
             throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a sample to update.");
@@ -234,7 +234,7 @@ public class SampleImportHelper extends BasicImportHelper
         // Space, project and experiment are used to "MOVE", only set if present since all values can't be null
         if (space != null && !space.isEmpty())
         {
-            String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
+            String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
             update.setSpaceId(new SpacePermId(normalizedSpace));
         }
         if (project != null && !project.isEmpty())

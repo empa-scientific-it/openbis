@@ -39,12 +39,12 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override
     protected void validateLine(Map<String, Integer> header, List<String> values) {
-        String code = getValueByColumnName(header, values, "code");
-        String propertyLabel = getValueByColumnName(header, values, "property label");
-        String description = getValueByColumnName(header, values, "description");
-        String dataType = getValueByColumnName(header, values, "data type");
-        String vocabularyCode = getValueByColumnName(header, values, "vocabulary code");
-        String metadata = getValueByColumnName(header, values, "metadata");
+        String code = getValueByColumnName(header, values, "Code");
+        String propertyLabel = getValueByColumnName(header, values, "Property label");
+        String description = getValueByColumnName(header, values, "Description");
+        String dataType = getValueByColumnName(header, values, "Data type");
+        String vocabularyCode = getValueByColumnName(header, values, "Vocabulary code");
+        String metadata = getValueByColumnName(header, values, "Metadata");
 
         String propertyData = code + propertyLabel + description + dataType + vocabularyCode + metadata;
         if (this.propertyCache.get(code) == null)
@@ -64,23 +64,23 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String newVersion = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String newVersion = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         return VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code));
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         VersionUtils.updateVersion(version, versions, ImportTypes.PROPERTY_TYPE.getType(), code);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
+        String code = getValueByColumnName(header, values, "Code");
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
         fetchOptions.withVocabulary().withTerms().withVocabulary();
 
@@ -90,12 +90,12 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String propertyLabel = getValueByColumnName(header, values, "property label");
-        String description = getValueByColumnName(header, values, "description");
-        String dataType = getValueByColumnName(header, values, "data type");
-        String vocabularyCode = getValueByColumnName(header, values, "vocabulary code");
-        String metadata = getValueByColumnName(header, values, "metadata");
+        String code = getValueByColumnName(header, values, "Code");
+        String propertyLabel = getValueByColumnName(header, values, "Property label");
+        String description = getValueByColumnName(header, values, "Description");
+        String dataType = getValueByColumnName(header, values, "Data type");
+        String vocabularyCode = getValueByColumnName(header, values, "Vocabulary Code");
+        String metadata = getValueByColumnName(header, values, "Metadata");
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -127,10 +127,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String propertyLabel = getValueByColumnName(header, values, "property label");
-        String description = getValueByColumnName(header, values, "description");
-        String metadata = getValueByColumnName(header, values, "metadata");
+        String code = getValueByColumnName(header, values, "Code");
+        String propertyLabel = getValueByColumnName(header, values, "Property label");
+        String description = getValueByColumnName(header, values, "Description");
+        String metadata = getValueByColumnName(header, values, "Metadata");
 
         PropertyTypePermId propertyTypePermId = new PropertyTypePermId(code);
 
@@ -148,10 +148,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "version");
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "property label");
-        checkKeyExistence(header, "description");
-        checkKeyExistence(header, "data type");
+        checkKeyExistence(header, "Version");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Property label");
+        checkKeyExistence(header, "Description");
+        checkKeyExistence(header, "Data type");
     }
 }

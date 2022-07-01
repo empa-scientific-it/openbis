@@ -32,20 +32,20 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {
         Map<String, Integer> header = parseHeader(page.get(start), false);
-        vocabularyCode = getValueByColumnName(header, page.get(start + 1), "code");
+        vocabularyCode = getValueByColumnName(header, page.get(start + 1), "Code");
 
         super.importBlock(page, pageIndex, start + 2, end);
     }
 
     @Override protected String getTypeName()
     {
-        return "vocabulary term";
+        return "Vocabulary term";
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String termVersion = getValueByColumnName(header, values, "version");
-        String termCode = getValueByColumnName(header, values, "code");
+        String termVersion = getValueByColumnName(header, values, "Version");
+        String termCode = getValueByColumnName(header, values, "Code");
 
         return VersionUtils.isNewVersion(termVersion,
                 VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, termCode));
@@ -53,15 +53,15 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String termVersion = getValueByColumnName(header, values, "version");
-        String termCode = getValueByColumnName(header, values, "code");
+        String termVersion = getValueByColumnName(header, values, "Version");
+        String termCode = getValueByColumnName(header, values, "Code");
 
         VersionUtils.updateVersion(termVersion, versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, termCode);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String termCode = getValueByColumnName(header, values, "code");
+        String termCode = getValueByColumnName(header, values, "Code");
         VocabularyTermPermId termId = new VocabularyTermPermId(termCode, vocabularyCode);
 
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
@@ -72,9 +72,9 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String termCode = getValueByColumnName(header, values, "code");
-        String termLabel = getValueByColumnName(header, values, "label");
-        String termDescription = getValueByColumnName(header, values, "description");
+        String termCode = getValueByColumnName(header, values, "Code");
+        String termLabel = getValueByColumnName(header, values, "Label");
+        String termDescription = getValueByColumnName(header, values, "Description");
 
         VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
 
@@ -89,9 +89,9 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String termCode = getValueByColumnName(header, values, "code");
-        String termLabel = getValueByColumnName(header, values, "label");
-        String termDescription = getValueByColumnName(header, values, "description");
+        String termCode = getValueByColumnName(header, values, "Code");
+        String termLabel = getValueByColumnName(header, values, "Label");
+        String termDescription = getValueByColumnName(header, values, "Description");
 
         VocabularyTermPermId termId = new VocabularyTermPermId(termCode, vocabularyCode);
 
@@ -105,9 +105,9 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "version");
-        checkKeyExistence(header, "code");
-        checkKeyExistence(header, "label");
-        checkKeyExistence(header, "description");
+        checkKeyExistence(header, "Version");
+        checkKeyExistence(header, "Code");
+        checkKeyExistence(header, "Label");
+        checkKeyExistence(header, "Description");
     }
 }

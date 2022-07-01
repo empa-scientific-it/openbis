@@ -30,28 +30,28 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
 
     @Override protected String getTypeName()
     {
-        return "experiment type";
+        return "Experiment type";
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.EXPERIMENT_TYPE.getType(), code));
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "version");
-        String code = getValueByColumnName(header, values, "code");
+        String version = getValueByColumnName(header, values, "Version");
+        String code = getValueByColumnName(header, values, "Code");
 
         VersionUtils.updateVersion(version, versions, ImportTypes.EXPERIMENT_TYPE.getType(), code);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "code");
+        String code = getValueByColumnName(header, values, "Code");
         EntityTypePermId id = new EntityTypePermId(code);
 
         return delayedExecutor.getExperimentType(id, new ExperimentTypeFetchOptions()) != null;
@@ -59,9 +59,9 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
-        String script = getValueByColumnName(header, values, "validation script");
+        String code = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
+        String script = getValueByColumnName(header, values, "Validation script");
 
         ExperimentTypeCreation creation = new ExperimentTypeCreation();
 
@@ -77,9 +77,9 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
-        String description = getValueByColumnName(header, values, "description");
-        String script = getValueByColumnName(header, values, "validation script");
+        String code = getValueByColumnName(header, values, "Code");
+        String description = getValueByColumnName(header, values, "Description");
+        String script = getValueByColumnName(header, values, "Validation script");
 
         ExperimentTypeUpdate update = new ExperimentTypeUpdate();
         EntityTypePermId permId = new EntityTypePermId(code);
@@ -96,7 +96,7 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "version");
-        checkKeyExistence(header, "code");
+        checkKeyExistence(header, "Version");
+        checkKeyExistence(header, "Code");
     }
 }
