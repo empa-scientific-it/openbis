@@ -1,6 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.xls.importxls.helper;
 
-import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.Attribute;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.HashMap;
@@ -57,14 +56,6 @@ public abstract class AbstractImportHelper
         if (!header.containsKey(key) && !header.containsKey(keyFix))
         {
             throw new UserFailureException("Header should contain '" + key + "'.");
-        }
-    }
-
-    protected static void checkKeyExistence(Map<String, Integer> header, Attribute attribute)
-    {
-        if (!header.containsKey(attribute.getCellName()))
-        {
-            throw new UserFailureException("Header should contain '" + attribute.getCellName() + "'.");
         }
     }
 
