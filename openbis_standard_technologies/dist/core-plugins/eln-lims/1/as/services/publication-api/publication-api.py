@@ -45,7 +45,7 @@ def insertPublication(context, parameters):
 
     v3 = context.applicationService
 
-    sampleId = createPublicationSample(parameters, sessionToken, v3).get(0)
+    sampleId = createPublicationSamples(parameters, sessionToken, v3).get(0)
     createDataSet(parameters, sessionToken, v3, sampleId)
 
     result = HashMap()
@@ -60,7 +60,8 @@ def createDataSet(parameters, sessionToken, v3, sampleId):
         openBISRelatedIdentifiers = openBISRelatedIdentifiersString.split(',')
         identifiers = ArrayList(len(openBISRelatedIdentifiers))
         for identifier in openBISRelatedIdentifiers:
-            identifiers.add(DataSetPermId(identifier))
+            if (not identifier.startswith('GROUP:')):
+                identifiers.add(DataSetPermId(identifier))
         dataSetIds = v3.getDataSets(sessionToken, identifiers, DataSetFetchOptions()).keys()
         operationLog.debug('Found %d data sets.' % len(dataSetIds))
     else:
@@ -87,7 +88,20 @@ def getDefaultDataStoreCode(v3, sessionToken):
     return searchResult.objects.get(0).code
 
 
-def createPublicationSample(parameters, sessionToken, v3):
+def getGroupsForRelatedIdentifiers(parameters):
+    groups = []
+    openBISRelatedIdentifiersString = parameters.get('openBISRelatedIdentifiers')
+    allIdentifiers = openBISRelatedIdentifiersString.split(',')
+    # operationLog.info('allIdentifiers: %s' % allIdentifiers)
+    for identifier in allIdentifiers:
+        if identifier.startswith('GROUP:'):
+            groups.append(identifier[6:])
+    # operationLog.info('groups: %s' % groups)
+    return groups
+
+
+def createPublicationSamples(parameters, sessionToken, v3):
+    groupCodes = getGroupsForRelatedIdentifiers(parameters)
     publicationOrganization = parameters.get('publicationOrganization')
     if publicationOrganization is None:
         raise ValueError('publicationOrganization parameter is None.')
@@ -112,14 +126,32 @@ def createPublicationSample(parameters, sessionToken, v3):
     if publicationIdentifier is None:
         raise ValueError('publicationIdentifier parameter is None.')
 
-    sampleCreation = SampleCreation()
-    sampleCreation.setTypeId(EntityTypePermId('PUBLICATION'))
-    sampleCreation.setExperimentId(ExperimentIdentifier('/PUBLICATIONS/PUBLIC_REPOSITORIES/PUBLICATIONS_COLLECTION'))
-    sampleCreation.setSpaceId(SpacePermId('PUBLICATIONS'))
-    sampleCreation.setProperty('$NAME', name)
-    sampleCreation.setProperty('$PUBLICATION.ORGANIZATION', publicationOrganization)
-    sampleCreation.setProperty('$PUBLICATION.TYPE', publicationType)
-    sampleCreation.setProperty('$PUBLICATION.IDENTIFIER', publicationIdentifier)
-    sampleCreation.setProperty('$PUBLICATION.URL', publicationURL)
-    sampleCreation.setProperty('$PUBLICATION.DESCRIPTION', publicationDescription)
-    return v3.createSamples(sessionToken, [sampleCreation])
+    publicationIdentifier = parameters.get('publicationIdentifier')
+    if publicationIdentifier is None:
+        raise ValueError('publicationIdentifier parameter is None.')
+
+    sampleCreations = []
+    for groupCode in groupCodes:
+        # operationLog.info('Processing group code %s' % groupCode)
+        sampleCreation = SampleCreation()
+        sampleCreation.setTypeId(EntityTypePermId('PUBLICATION'))
+        if groupCode == "GENERAL":
+            groupPrefix = ""
+        else:
+            groupPrefix = groupCode + "_"
+        sampleCreation.setExperimentId(ExperimentIdentifier('/' + groupPrefix + 'PUBLICATIONS/' + groupPrefix
+                + 'PUBLIC_REPOSITORIES/' + groupPrefix + 'PUBLICATIONS_COLLECTION'))
+        sampleCreation.setSpaceId(SpacePermId(groupPrefix + 'PUBLICATIONS'))
+        sampleCreation.setProperty('$NAME', name)
+        sampleCreation.setProperty('$PUBLICATION.ORGANIZATION', publicationOrganization)
+        sampleCreation.setProperty('$PUBLICATION.TYPE', publicationType)
+        sampleCreation.setProperty('$PUBLICATION.IDENTIFIER', publicationIdentifier)
+        sampleCreation.setProperty('$PUBLICATION.URL', publicationURL)
+        sampleCreation.setProperty('$PUBLICATION.DESCRIPTION', publicationDescription)
+
+        # TODO: Remove
+        # sampleCreation.setProperty('PUBLICATION.YEAR', '2022')
+        sampleCreations.append(sampleCreation)
+
+    # operationLog.info('Creating samples, sampleCreations: %s' % sampleCreations)
+    return v3.createSamples(sessionToken, sampleCreations)

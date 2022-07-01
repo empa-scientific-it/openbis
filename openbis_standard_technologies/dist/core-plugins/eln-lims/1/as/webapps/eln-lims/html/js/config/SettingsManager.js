@@ -1,6 +1,10 @@
 var SettingsManagerUtils = new function() {
     this._instanceSettings = null;
 
+	this.getGroups = function() {
+		return Object.keys(this._instanceSettings);
+	}
+
     this.getSpaceGroupPrefix = function(spaceCode) {
         var endOf = spaceCode.indexOf("_");
         var prefix = null;
