@@ -218,6 +218,10 @@ public class SampleImportHelper extends BasicImportHelper
         String parents = getValueByColumnName(header, values, "parents");
         String children = getValueByColumnName(header, values, "children");
 
+        if (identifier == null || identifier.isEmpty()) {
+            throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a sample to update.");
+        }
+
         ISampleId sampleId = ImportUtils.buildSampleIdentifier(identifier);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -227,6 +231,7 @@ public class SampleImportHelper extends BasicImportHelper
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
 
+        // Space, project and experiment are used to "MOVE", only set if present since all values can't be null
         if (space != null && !space.isEmpty())
         {
             String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
