@@ -23,7 +23,7 @@ public abstract class AbstractImportHelper
             if (header.get(i) != null && !header.get(i).trim().isEmpty())
             {
                 // The case of letters in header rows is ignored.
-                String key = header.get(i).trim().toLowerCase(Locale.ROOT);
+                String key = header.get(i).trim().toLowerCase();
                 if (headerMap.containsKey(key))
                 {
                     throw new UserFailureException("Repeated headers are not allowed.");

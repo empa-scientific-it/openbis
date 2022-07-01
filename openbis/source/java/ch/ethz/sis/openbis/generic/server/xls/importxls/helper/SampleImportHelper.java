@@ -40,7 +40,7 @@ public class SampleImportHelper extends BasicImportHelper
 
     private PropertyTypeSearcher propertyTypeSearcher;
 
-    private static final HashSet<String> sampleAttributes = new HashSet<>(Arrays.asList("$", "identifier", "code", "space", "project",
+    private static final Set<String> sampleAttributes = new HashSet<>(Arrays.asList("$", "identifier", "code", "space", "project",
             "experiment", "auto generate code", "parents", "children"));
 
     public SampleImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)

@@ -11,6 +11,8 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +70,17 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "code");
+        String identifier = getValueByColumnName(header, values, "identifier");
         String space = getValueByColumnName(header, values, "space");
         String description = getValueByColumnName(header, values, "description");
 
-        String normalizedCode = ImportUtils.valueNormalizer("code", code, false);
-        String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
-        final ProjectIdentifier projectIdentifier = new ProjectIdentifier(normalizedSpace, normalizedCode);
+        if (identifier == null || identifier.isEmpty())
+        {
+            throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a project to update.");
+        }
+
+        ImportUtils.projectIdentifierNormalizer(identifier);
+        final ProjectIdentifier projectIdentifier = new ProjectIdentifier(identifier);
 
         ProjectUpdate update = new ProjectUpdate();
         update.setProjectId(projectIdentifier);
@@ -82,7 +88,13 @@ public class ProjectImportHelper extends BasicImportHelper
         {
             update.setDescription(description);
         }
-        update.setSpaceId(new SpacePermId(normalizedSpace));
+
+        // Space is only needed to "MOVE" the project
+        if (space != null && !space.isEmpty())
+        {
+            String normalizedSpace = ImportUtils.valueNormalizer("space", space, false);
+            update.setSpaceId(new SpacePermId(normalizedSpace));
+        }
 
         delayedExecutor.updateProject(update, page, line);
     }

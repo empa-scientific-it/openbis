@@ -6,6 +6,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -16,9 +17,12 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher.getPropertyValue;
 
@@ -31,6 +35,8 @@ public class ExperimentImportHelper extends BasicImportHelper
     private final DelayedExecutionDecorator delayedExecutor;
 
     private PropertyTypeSearcher propertyTypeSearcher;
+
+    private static final Set<String> experimentAttributes = new HashSet<>(Arrays.asList("$", "identifier", "code", "project"));
 
     public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
@@ -87,12 +93,9 @@ public class ExperimentImportHelper extends BasicImportHelper
         return new ExperimentIdentifier(project + "/" + code);
     }
 
-    private ProjectIdentifier getProjectIdentifier(Map<String, Integer> header, List<String> values)
+    private ProjectIdentifier getProjectIdentifier(String project)
     {
-        String project = getValueByColumnName(header, values, "project");
-        project = ImportUtils.projectIdentifierNormalizer(project);
-
-        return new ProjectIdentifier(project);
+        return new ProjectIdentifier(ImportUtils.projectIdentifierNormalizer(project));
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
@@ -108,7 +111,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         ExperimentCreation creation = new ExperimentCreation();
 
         String code = getValueByColumnName(header, values, "code");
-        code = ImportUtils.valueNormalizer("code", code, false);
+        String project = getValueByColumnName(header, values, "project");
 
         if (options.getDisallowEntityCreations())
         {
@@ -116,12 +119,12 @@ public class ExperimentImportHelper extends BasicImportHelper
         }
 
         creation.setTypeId(entityTypePermId);
-        creation.setCode(code);
-        creation.setProjectId(getProjectIdentifier(header, values));
+        creation.setCode(ImportUtils.valueNormalizer("code", code, false));
+        creation.setProjectId(getProjectIdentifier(project));
 
         for (String key : header.keySet())
         {
-            if (!key.equals("code") && !key.equals("project"))
+            if (!experimentAttributes.contains(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
@@ -134,15 +137,27 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        ExperimentUpdate update = new ExperimentUpdate();
-        ExperimentIdentifier identifier = getIdentifier(header, values);
-        update.setExperimentId(identifier);
-        update.setProjectId(getProjectIdentifier(header, values));
+        String identifier = getValueByColumnName(header, values, "identifier");
+        String project = getValueByColumnName(header, values, "project");
 
+        if (identifier == null || identifier.isEmpty())
+        {
+            throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a experiment to update.");
+        }
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        IExperimentId experimentId = new ExperimentIdentifier(identifier);
+        update.setExperimentId(experimentId);
+
+        // Project is used to "MOVE", only set if present since can't be null
+        if (project != null && !project.isEmpty())
+        {
+            update.setProjectId(getProjectIdentifier(project));
+        }
         Map<String, String> properties = new HashMap<>();
         for (String key : header.keySet())
         {
-            if (!key.equals("code") && !key.equals("project"))
+            if (!experimentAttributes.contains(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
