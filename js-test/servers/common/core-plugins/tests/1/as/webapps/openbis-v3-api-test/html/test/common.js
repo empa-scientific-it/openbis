@@ -50,6 +50,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ExternalDmsCreation = dtos.ExternalDmsCreation;
 		this.WebAppSettingCreation = dtos.WebAppSettingCreation;
 		this.QueryCreation = dtos.QueryCreation;
+		this.PersonalAccessTokenCreation = dtos.PersonalAccessTokenCreation;
 		this.ExternalDmsAddressType = require('as/dto/externaldms/ExternalDmsAddressType');
 		this.SpaceUpdate = dtos.SpaceUpdate;
 		this.ProjectUpdate = dtos.ProjectUpdate;
@@ -73,6 +74,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.AuthorizationGroupUpdate = dtos.AuthorizationGroupUpdate;
 		this.PersonUpdate = dtos.PersonUpdate;
 		this.QueryUpdate = dtos.QueryUpdate;
+		this.PersonalAccessTokenUpdate = dtos.PersonalAccessTokenUpdate;
 		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
 		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
 		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
@@ -87,6 +89,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.RoleAssignmentDeletionOptions = dtos.RoleAssignmentDeletionOptions;
 		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
 		this.QueryDeletionOptions = dtos.QueryDeletionOptions;
+		this.PersonalAccessTokenDeletionOptions = dtos.PersonalAccessTokenDeletionOptions;
 		this.PersonDeletionOptions = dtos.PersonDeletionOptions;
 		this.PersonPermId = dtos.PersonPermId;
 		this.Me = dtos.Me;
@@ -113,6 +116,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.QueryName = dtos.QueryName;
 		this.QueryType = require('as/dto/query/QueryType');
 		this.QueryDatabaseName = dtos.QueryDatabaseName;
+		this.PersonalAccessTokenPermId = dtos.PersonalAccessTokenPermId;
 		this.SpaceSearchCriteria = dtos.SpaceSearchCriteria;
 		this.ProjectSearchCriteria = dtos.ProjectSearchCriteria;
 		this.ExperimentSearchCriteria = dtos.ExperimentSearchCriteria;
@@ -138,6 +142,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SemanticAnnotationSearchCriteria = dtos.SemanticAnnotationSearchCriteria;
 		this.QuerySearchCriteria = dtos.QuerySearchCriteria;
 		this.QueryDatabaseSearchCriteria = dtos.QueryDatabaseSearchCriteria;
+		this.PersonalAccessTokenSearchCriteria = dtos.PersonalAccessTokenSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
@@ -161,6 +166,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
 		this.QueryFetchOptions = dtos.QueryFetchOptions;
 		this.QueryDatabaseFetchOptions = dtos.QueryDatabaseFetchOptions;
+		this.PersonalAccessTokenFetchOptions = dtos.PersonalAccessTokenFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
         this.EventFetchOptions = dtos.EventFetchOptions;
@@ -264,6 +270,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateQueriesOperation = dtos.CreateQueriesOperation;
 		this.CreateCodesOperation = dtos.CreateCodesOperation;
 		this.CreatePermIdsOperation = dtos.CreatePermIdsOperation;
+		this.CreatePersonalAccessTokensOperation = dtos.CreatePersonalAccessTokensOperation;
 
 		this.UpdateSpacesOperation = dtos.UpdateSpacesOperation;
 		this.UpdateProjectsOperation = dtos.UpdateProjectsOperation;
@@ -286,6 +293,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
 		this.UpdateSemanticAnnotationsOperation = dtos.UpdateSemanticAnnotationsOperation;
 		this.UpdateQueriesOperation = dtos.UpdateQueriesOperation;
+		this.UpdatePersonalAccessTokensOperation = dtos.UpdatePersonalAccessTokensOperation;
 
 		this.GetSpacesOperation = dtos.GetSpacesOperation;
 		this.GetProjectsOperation = dtos.GetProjectsOperation;
@@ -299,6 +307,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetOperationExecutionsOperation = dtos.GetOperationExecutionsOperation;
 		this.GetQueriesOperation = dtos.GetQueriesOperation;
 		this.GetQueryDatabasesOperation = dtos.GetQueryDatabasesOperation;
+		this.GetPersonalAccessTokensOperation = dtos.GetPersonalAccessTokensOperation;
 
 		this.SearchSpacesOperation = dtos.SearchSpacesOperation;
 		this.SearchProjectsOperation = dtos.SearchProjectsOperation;
@@ -334,6 +343,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchSemanticAnnotationsOperation = dtos.SearchSemanticAnnotationsOperation;
 		this.SearchQueriesOperation = dtos.SearchQueriesOperation;
 		this.SearchQueryDatabasesOperation = dtos.SearchQueryDatabasesOperation;
+		this.SearchPersonalAccessTokensOperation = dtos.SearchPersonalAccessTokensOperation;
+		this.SearchSessionInformationOperation = dtos.SearchSessionInformationOperation;
 
 		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
 		this.DeleteProjectsOperation = dtos.DeleteProjectsOperation;
@@ -357,6 +368,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteSemanticAnnotationsOperation = dtos.DeleteSemanticAnnotationsOperation;
 		this.DeleteQueriesOperation = dtos.DeleteQueriesOperation;
 		this.DeletePersonsOperation = dtos.DeletePersonsOperation;
+		this.DeletePersonalAccessTokensOperation = dtos.DeletePersonalAccessTokensOperation;
 
 		this.RevertDeletionsOperation = dtos.RevertDeletionsOperation;
 		this.ConfirmDeletionsOperation = dtos.ConfirmDeletionsOperation;
@@ -744,6 +756,17 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.createPersonalAccessToken = function(facade) {
+			var c = this;
+			var creation = new dtos.PersonalAccessTokenCreation();
+			creation.setSessionName(c.generateId("PERSONAL_ACCESS_TOKEN"));
+			creation.setValidFromDate(new Date(1).getTime());
+			creation.setValidToDate(new Date(2).getTime());
+			return facade.createPersonalAccessTokens([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+
 		this.findSpace = function(facade, id) {
 			var c = this;
 			return facade.getSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
@@ -908,6 +931,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.findPersonalAccessToken = function(facade, id) {
+			var c = this;
+			return facade.getPersonalAccessTokens([ id ], c.createPersonalAccessTokenFetchOptions()).then(function(pats) {
+				return pats[id];
+			});
+		}.bind(this);
+
 		this.deleteSpace = function(facade, id) {
 			var c = this;
 			var options = new dtos.SpaceDeletionOptions();
@@ -1061,6 +1091,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var options = new dtos.QueryDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteQueries([ id ], options);
+		}.bind(this);
+
+		this.deletePersonalAccessToken = function(facade, id) {
+			var c = this;
+			var options = new dtos.PersonalAccessTokenDeletionOptions();
+			options.setReason("test reason");
+			return facade.deletePersonalAccessTokens([ id ], options);
 		}.bind(this);
 
 		this.deletePerson = function(facade, id) {
@@ -1359,6 +1396,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.createQueryFetchOptions = function() {
 			var fo = new dtos.QueryFetchOptions();
 			fo.withRegistrator();
+			return fo;
+		};
+
+		this.createPersonalAccessTokenFetchOptions = function() {
+			var fo = new dtos.PersonalAccessTokenFetchOptions();
+			fo.withOwner();
+			fo.withRegistrator();
+			fo.withModifier();
 			return fo;
 		};
 

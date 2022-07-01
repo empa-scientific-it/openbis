@@ -888,6 +888,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			});
 		});
 
+		QUnit.test("getPersonalAccessTokens()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.PersonalAccessTokenFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+
+			var fCreate = function(facade) {
+				return $.when(c.createPersonalAccessToken(facade), c.createPersonalAccessToken(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getPersonalAccessTokens(permIds, fo);
+			}
+
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getPersonalAccessTokens(permIds, new c.PersonalAccessTokenFetchOptions());
+			}
+
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+
 	}
 
 	return function() {
