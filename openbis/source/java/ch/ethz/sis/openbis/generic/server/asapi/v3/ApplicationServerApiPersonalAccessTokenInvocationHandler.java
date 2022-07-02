@@ -247,20 +247,23 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenConverter;
-import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
 
 public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements IApplicationServerInternalApi
 {
 
     private final IPersonalAccessTokenInvocation invocation;
 
-    private final AbstractPersonalAccessTokenConverter converter;
+    private final IPersonalAccessTokenConfig config;
+
+    private final IPersonalAccessTokenConverter converter;
 
     public ApplicationServerApiPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         this.invocation = invocation;
-        this.converter = new PersonalAccessTokenConverterFromDAO(CommonServiceProvider.getDAOFactory().getPersonalAccessTokenDAO());
+        this.config = CommonServiceProvider.getPersonalAccessTokenConfig();
+        this.converter = CommonServiceProvider.getPersonalAccessTokenConverter();
     }
 
     @Override public int getMajorVersion()
@@ -430,6 +433,8 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public List<PersonalAccessTokenPermId> createPersonalAccessTokens(final String sessionToken,
             final List<PersonalAccessTokenCreation> newPersonalAccessTokens)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (converter.shouldConvert(sessionToken))
         {
             throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
@@ -548,6 +553,8 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public void updatePersonalAccessTokens(final String sessionToken, final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (converter.shouldConvert(sessionToken))
         {
             throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
@@ -703,6 +710,8 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(final String sessionToken,
             final List<? extends IPersonalAccessTokenId> personalAccessTokenIds, final PersonalAccessTokenFetchOptions fetchOptions)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (converter.shouldConvert(sessionToken))
         {
             throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
@@ -1054,6 +1063,8 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public void deletePersonalAccessTokens(final String sessionToken, final List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
             final PersonalAccessTokenDeletionOptions deletionOptions)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (converter.shouldConvert(sessionToken))
         {
             throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
@@ -1076,6 +1087,8 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(final String sessionToken,
             final PersonalAccessTokenSearchCriteria searchCriteria, final PersonalAccessTokenFetchOptions fetchOptions)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (converter.shouldConvert(sessionToken))
         {
             throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
@@ -1183,6 +1196,14 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public List<String> createCodes(final String sessionToken, final String prefix, final EntityKind entityKind, final int count)
     {
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    private void checkPersonalAccessTokensEnabled()
+    {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            throw new UserFailureException("Personal access tokens are disabled");
+        }
     }
 
 }

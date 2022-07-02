@@ -5,8 +5,10 @@ import java.util.Date;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
-public abstract class AbstractPersonalAccessTokenConverter
+public abstract class AbstractPersonalAccessTokenConverter implements IPersonalAccessTokenConverter
 {
+
+    abstract protected IPersonalAccessTokenConfig getConfig();
 
     abstract protected PersonalAccessToken getToken(String tokenHash);
 
@@ -16,6 +18,11 @@ public abstract class AbstractPersonalAccessTokenConverter
 
     public boolean shouldConvert(String sessionTokenOrPAT)
     {
+        if (!getConfig().arePersonalAccessTokensEnabled())
+        {
+            return false;
+        }
+
         if (sessionTokenOrPAT == null)
         {
             return false;
@@ -27,6 +34,11 @@ public abstract class AbstractPersonalAccessTokenConverter
 
     public String convert(String sessionTokenOrPAT)
     {
+        if (!getConfig().arePersonalAccessTokensEnabled())
+        {
+            return sessionTokenOrPAT;
+        }
+
         if (sessionTokenOrPAT == null)
         {
             return null;

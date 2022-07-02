@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalConte
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.VirtualHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetAwareHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -349,7 +348,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
-        sessionIDOrNull = new PersonalAccessTokenConverterFromEncapsulatedService().convert(sessionIDOrNull);
+        sessionIDOrNull = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionIDOrNull);
 
         String displayMode = getDisplayMode(request);
 

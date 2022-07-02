@@ -45,7 +45,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenConverterFromDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SessionConstants;
@@ -82,8 +81,7 @@ public final class UploadServiceServlet extends AbstractController
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
-    @Private
-    UploadServiceServlet(ISessionFilesSetter sessionFilesSetter, IOpenBisSessionManager sessionManager,
+    @Private UploadServiceServlet(ISessionFilesSetter sessionFilesSetter, IOpenBisSessionManager sessionManager,
             ISessionWorkspaceProvider sessionWorkspaceProvider)
     {
         // super(UploadedFilesBean.class);
@@ -170,8 +168,7 @@ public final class UploadServiceServlet extends AbstractController
             HttpSession session = request.getSession(false);
             String sessionToken = request.getParameter("sessionID");
 
-            sessionToken =
-                    new PersonalAccessTokenConverterFromDAO(CommonServiceProvider.getDAOFactory().getPersonalAccessTokenDAO()).convert(sessionToken);
+            sessionToken = CommonServiceProvider.getPersonalAccessTokenConverter().convert(sessionToken);
 
             // If no session is found, the user from an API have a chance to give the sessionID
             if (session == null && sessionToken != null && !sessionToken.isEmpty())

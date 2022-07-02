@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
@@ -12,6 +15,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -20,7 +24,16 @@ import ch.systemsx.cisd.openbis.generic.server.pat.AbstractPersonalAccessTokenCo
 public class PersonalAccessTokenConverterFromEncapsulatedService extends AbstractPersonalAccessTokenConverter
 {
 
+    @Autowired
+    private IPersonalAccessTokenConfig config;
+
+    @Autowired
     private IEncapsulatedOpenBISService service;
+
+    @Override protected IPersonalAccessTokenConfig getConfig()
+    {
+        return config;
+    }
 
     @Override protected PersonalAccessToken getToken(final String tokenHash)
     {
@@ -31,7 +44,7 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         fetchOptions.withModifier();
 
         final Map<IPersonalAccessTokenId, ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken> results =
-                getService().getPersonalAccessTokens(Collections.singletonList(id), fetchOptions);
+                service.getPersonalAccessTokens(Collections.singletonList(id), fetchOptions);
 
         final ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken v3Token = results.get(id);
 
@@ -70,7 +83,7 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         update.setPersonalAccessTokenId(new PersonalAccessTokenPermId(tokenHash));
         update.setAccessDate(date);
 
-        getService().updatePersonalAccessTokens(Collections.singletonList(update));
+        service.updatePersonalAccessTokens(Collections.singletonList(update));
     }
 
     @Override protected String getSessionToken(final String userId, final String sessionName)
@@ -82,7 +95,7 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         criteria.withPersonalAccessTokenSessionName().thatEquals(sessionName);
 
         final SearchResult<SessionInformation>
-                result = getService().searchSessionInformation(criteria, new SessionInformationFetchOptions());
+                result = service.searchSessionInformation(criteria, new SessionInformationFetchOptions());
 
         if (result.getObjects().size() > 0)
         {
@@ -90,15 +103,6 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         }
 
         return null;
-    }
-
-    private IEncapsulatedOpenBISService getService()
-    {
-        if (service == null)
-        {
-            service = ServiceProvider.getOpenBISService();
-        }
-        return service;
     }
 
 }

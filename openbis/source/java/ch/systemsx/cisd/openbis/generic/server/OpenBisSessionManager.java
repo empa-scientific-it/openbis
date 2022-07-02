@@ -106,15 +106,10 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     @PostConstruct
     private void init()
     {
-        TransactionTemplate tmpl = new TransactionTemplate(txManager);
-        tmpl.execute(new TransactionCallbackWithoutResult()
+        executeInTransaction(() ->
         {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status)
-            {
-                OpenBisSessionManager.this.createPersonalAccessTokenSessions();
-                OpenBisSessionManager.this.observePersonalAccessTokenSessions();
-            }
+            OpenBisSessionManager.this.createPersonalAccessTokenSessions();
+            OpenBisSessionManager.this.observePersonalAccessTokenSessions();
         });
     }
 
@@ -191,33 +186,55 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
         {
             @Override public void onSessionCreated(final PersonalAccessTokenSession patSession)
             {
-                synchronized (sessions)
+                executeInTransaction(() ->
                 {
-                    FullSession<Session> session = createPersonalAccessSession(patSession);
-                    if (session != null)
+                    synchronized (sessions)
                     {
-                        sessions.put(session.getSession().getSessionToken(), session);
+                        FullSession<Session> session = createPersonalAccessSession(patSession);
+                        if (session != null)
+                        {
+                            sessions.put(session.getSession().getSessionToken(), session);
+                        }
                     }
-                }
+                });
             }
 
             @Override public void onSessionUpdated(final PersonalAccessTokenSession patSession)
             {
-                synchronized (sessions)
+                executeInTransaction(() ->
                 {
-                    FullSession<Session> session = createPersonalAccessSession(patSession);
-                    if (session != null)
+                    synchronized (sessions)
                     {
-                        sessions.put(session.getSession().getSessionToken(), session);
+                        FullSession<Session> session = createPersonalAccessSession(patSession);
+                        if (session != null)
+                        {
+                            sessions.put(session.getSession().getSessionToken(), session);
+                        }
                     }
-                }
+                });
             }
 
             @Override public void onSessionDeleted(final PersonalAccessTokenSession patSession)
             {
-                closeSession(patSession.getHash());
+                executeInTransaction(() ->
+                {
+                    closeSession(patSession.getHash());
+                });
             }
 
+        });
+    }
+
+    private void executeInTransaction(Runnable runnable)
+    {
+        TransactionTemplate tmpl = new TransactionTemplate(txManager);
+        tmpl.execute(new TransactionCallbackWithoutResult()
+        {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status)
+            {
+                runnable.run();
+            }
         });
     }
 

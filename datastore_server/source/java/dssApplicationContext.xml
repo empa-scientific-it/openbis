@@ -265,6 +265,8 @@
 
     <!-- // Personal Access Tokens conversion -->
     <bean class="ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenAdvisor"/>
+    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConfigFromEncapsulatedService"/>
+    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService"/>
 
     <!-- 
         // FTP server

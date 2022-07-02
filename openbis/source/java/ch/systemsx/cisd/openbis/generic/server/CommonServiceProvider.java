@@ -26,6 +26,8 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
@@ -70,6 +72,16 @@ public class CommonServiceProvider
                 (MailClientParameters) applicationContext
                         .getBean(ResourceNames.MAIL_CLIENT_PARAMETERS);
         return new MailClient(mailClientParameters);
+    }
+
+    public static IPersonalAccessTokenConfig getPersonalAccessTokenConfig()
+    {
+        return applicationContext.getBean(IPersonalAccessTokenConfig.class);
+    }
+
+    public static IPersonalAccessTokenConverter getPersonalAccessTokenConverter()
+    {
+        return applicationContext.getBean(IPersonalAccessTokenConverter.class);
     }
 
     public static IApplicationServerInternalApi getApplicationServerApi()

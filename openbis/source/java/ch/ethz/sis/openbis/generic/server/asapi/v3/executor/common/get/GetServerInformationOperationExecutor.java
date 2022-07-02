@@ -29,15 +29,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperationResult;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -56,6 +55,9 @@ public class GetServerInformationOperationExecutor
     @Autowired
     private IGetServerPublicInformationOperationExecutor getPublicInformationExecutor;
 
+    @Autowired
+    private IPersonalAccessTokenConfig personalAccessTokenConfig;
+
     @Override
     protected Class<? extends GetServerInformationOperation> getOperationClass()
     {
@@ -68,11 +70,13 @@ public class GetServerInformationOperationExecutor
         Map<String, String> info = new TreeMap<>();
         info.putAll(getPublicInformation(context));
 
+
         info.put("api-version", server.getMajorVersion() + "." + server.getMinorVersion());
         info.put("project-samples-enabled", Boolean.toString(CommonServiceProvider.getCommonServer().isProjectSamplesEnabled(null)));
         info.put("archiving-configured", Boolean.toString(CommonServiceProvider.getCommonServer().isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
         info.put("create-continuous-sample-codes", configurer.getResolvedProps().getProperty(Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY));
+        info.put(Constants.PERSONAL_ACCESS_TOKENS_ENABLED_KEY, Boolean.toString(personalAccessTokenConfig.arePersonalAccessTokensEnabled()));
         info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
 
         return new GetServerInformationOperationResult(info);
