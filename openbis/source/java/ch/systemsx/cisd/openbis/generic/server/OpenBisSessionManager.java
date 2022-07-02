@@ -167,7 +167,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             final FullSession<Session> createdSession =
                     new FullSession<>(sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
                             patSession.getValidFromDate().getTime(),
-                            (int) (patSession.getValidToDate().getTime() - System.currentTimeMillis()),
+                            (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
                             true, patSession.getName()));
 
             HibernateUtils.initialize(person.getAllPersonRoles());

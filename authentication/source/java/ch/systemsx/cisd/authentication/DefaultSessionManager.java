@@ -131,8 +131,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         boolean hasExpired(Long sessionExpirationTimeOrNull)
         {
-            long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
-            return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
+            if (getSession().isPersonalAccessTokenSession())
+            {
+                return System.currentTimeMillis() > session.getSessionStart() + session.getSessionExpirationTime();
+            } else
+            {
+                long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
+                return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
+            }
         }
 
     }
@@ -423,14 +429,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             return false;
         }
 
-        if (session.getSession().isPersonalAccessTokenSession())
-        {
-            return session.hasExpired(null);
-        } else
-        {
-            Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
-            return session.hasExpired(expTimeOrNull);
-        }
+        Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
+        return session.hasExpired(expTimeOrNull);
     }
 
     private void logAuthenticed(final T session, final long timeToLoginMillis)

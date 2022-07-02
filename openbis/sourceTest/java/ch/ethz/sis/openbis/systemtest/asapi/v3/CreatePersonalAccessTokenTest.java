@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -26,10 +27,14 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -57,6 +62,28 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         assertToday(token.getRegistrationDate());
         assertToday(token.getModificationDate());
         assertNull(token.getAccessDate());
+
+        assertTrue(v3api.isSessionActive(token.getHash()));
+
+        SessionInformation sessionInformation = v3api.getSessionInformation(token.getHash());
+        assertNotNull(sessionInformation);
+        assertNull(sessionInformation.getSessionToken());
+        assertEquals(sessionInformation.getUserName(), TEST_USER);
+        assertEquals(sessionInformation.getPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getCreatorPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getHomeGroupCode(), "CISD");
+        assertTrue(sessionInformation.isPersonalAccessTokenSession());
+        assertEquals(sessionInformation.getPersonalAccessTokenSessionName(), token.getSessionName());
+
+        SearchResult<SessionInformation> results =
+                v3api.searchSessionInformation(token.getHash(), new SessionInformationSearchCriteria(), new SessionInformationFetchOptions());
+
+        assertTrue(results.getObjects().size() > 0);
+
+        for (SessionInformation result : results.getObjects())
+        {
+            assertNull(result.getSessionToken());
+        }
     }
 
     @Test

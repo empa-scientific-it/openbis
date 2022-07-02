@@ -42,11 +42,8 @@ public class UpdatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testUpdate()
     {
-        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
+        PersonalAccessTokenCreation creation = tokenCreation();
         creation.setOwnerId(new PersonPermId(TEST_GROUP_OBSERVER));
-        creation.setSessionName("test session name");
-        creation.setValidFromDate(new Date(1));
-        creation.setValidToDate(new Date(2));
 
         PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
 

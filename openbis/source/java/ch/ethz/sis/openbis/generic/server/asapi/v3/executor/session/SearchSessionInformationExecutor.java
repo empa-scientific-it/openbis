@@ -26,11 +26,15 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.id.SessionInformationPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.UserNameSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -68,6 +72,15 @@ public class SearchSessionInformationExecutor extends AbstractSearchObjectManual
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
+        } else if (criteria instanceof UserNameSearchCriteria)
+        {
+            return new UserNameMatcher();
+        } else if (criteria instanceof PersonalAccessTokenSessionSearchCriteria)
+        {
+            return new PersonalAccessTokenSessionMatcher();
+        } else if (criteria instanceof PersonalAccessTokenSessionNameSearchCriteria)
+        {
+            return new PersonalAccessTokenSessionNameMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -76,7 +89,6 @@ public class SearchSessionInformationExecutor extends AbstractSearchObjectManual
 
     private static class IdMatcher extends SimpleFieldMatcher<Session>
     {
-
         @Override
         protected boolean isMatching(IOperationContext context, Session object, ISearchCriteria criteria)
         {
@@ -93,6 +105,39 @@ public class SearchSessionInformationExecutor extends AbstractSearchObjectManual
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());
             }
         }
-
     }
+
+    private static class UserNameMatcher extends StringFieldMatcher<Session>
+    {
+        @Override protected String getFieldValue(final Session object)
+        {
+            return object.getUserName();
+        }
+    }
+
+    private static class PersonalAccessTokenSessionMatcher extends SimpleFieldMatcher<Session>
+    {
+        @Override
+        protected boolean isMatching(IOperationContext context, Session object, ISearchCriteria criteria)
+        {
+            Boolean flag = ((PersonalAccessTokenSessionSearchCriteria) criteria).getFieldValue();
+
+            if (flag == null)
+            {
+                return true;
+            } else
+            {
+                return flag == object.isPersonalAccessTokenSession();
+            }
+        }
+    }
+
+    private static class PersonalAccessTokenSessionNameMatcher extends StringFieldMatcher<Session>
+    {
+        @Override protected String getFieldValue(final Session object)
+        {
+            return object.getPersonalAccessTokenSessionName();
+        }
+    }
+
 }

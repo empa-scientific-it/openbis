@@ -38,7 +38,7 @@ public class SessionInformationAuthorizationExecutor implements ISessionInformat
     }
 
     @Override
-    @RolesAllowed({ RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_SESSION")
     public void canSearch(IOperationContext context)
     {

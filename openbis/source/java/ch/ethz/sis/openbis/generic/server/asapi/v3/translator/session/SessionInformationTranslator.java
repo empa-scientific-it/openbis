@@ -18,7 +18,9 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.session;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,10 +28,12 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -47,6 +51,33 @@ public class SessionInformationTranslator extends
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Override protected Set<Session> shouldTranslate(final TranslationContext context, final Collection<Session> inputs,
+            final SessionInformationFetchOptions fetchOptions)
+    {
+        PersonPE person = context.getSession().tryGetPerson();
+
+        boolean isSystemUser = person.isSystemUser();
+        boolean isInstanceAdmin = RoleAssignmentUtils.isInstanceAdmin(person);
+        boolean isETLServer = RoleAssignmentUtils.isETLServer(person);
+
+        if (isSystemUser || isInstanceAdmin || isETLServer)
+        {
+            return new HashSet<>(inputs);
+        }
+
+        Set<Session> filtered = new HashSet<>();
+
+        for (Session input : inputs)
+        {
+            if (person.getUserId().equals(input.getUserName()))
+            {
+                filtered.add(input);
+            }
+        }
+
+        return filtered;
+    }
+
     @Override
     protected Object getObjectId(Session input)
     {
@@ -58,8 +89,10 @@ public class SessionInformationTranslator extends
             SessionInformationFetchOptions fetchOptions)
     {
         SessionInformation sessionInformation = new SessionInformation();
-
-        sessionInformation.setSessionToken(session.getSessionToken());
+        if (!context.getSession().isPersonalAccessTokenSession())
+        {
+            sessionInformation.setSessionToken(session.getSessionToken());
+        }
         sessionInformation.setUserName(session.getUserName());
         sessionInformation.setHomeGroupCode(session.tryGetHomeGroupCode());
         sessionInformation.setPersonalAccessTokenSession(session.isPersonalAccessTokenSession());

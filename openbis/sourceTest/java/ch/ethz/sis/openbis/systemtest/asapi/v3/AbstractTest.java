@@ -1676,7 +1676,7 @@ public class AbstractTest extends SystemTestCase
     protected PersonalAccessTokenCreation tokenCreation()
     {
         PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
-        creation.setSessionName("test session");
+        creation.setSessionName("test session " + UUID.randomUUID());
         creation.setValidFromDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
         creation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
         return creation;

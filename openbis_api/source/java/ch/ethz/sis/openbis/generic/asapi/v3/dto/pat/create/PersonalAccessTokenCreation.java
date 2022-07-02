@@ -24,6 +24,10 @@ public class PersonalAccessTokenCreation implements ICreation, IObjectCreation
 
     private Date validToDate;
 
+    public PersonalAccessTokenCreation()
+    {
+    }
+
     public String getSessionName()
     {
         return sessionName;

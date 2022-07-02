@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NameSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.id.ISessionInformationId;
@@ -33,6 +34,21 @@ public class SessionInformationSearchCriteria extends AbstractObjectSearchCriter
 
     public SessionInformationSearchCriteria()
     {
+    }
+
+    public UserNameSearchCriteria withUserName()
+    {
+        return with(new UserNameSearchCriteria());
+    }
+
+    public PersonalAccessTokenSessionSearchCriteria withPersonalAccessTokenSession()
+    {
+        return with(new PersonalAccessTokenSessionSearchCriteria());
+    }
+
+    public PersonalAccessTokenSessionNameSearchCriteria withPersonalAccessTokenSessionName()
+    {
+        return with(new PersonalAccessTokenSessionNameSearchCriteria());
     }
 
     public SessionInformationSearchCriteria withOrOperator()

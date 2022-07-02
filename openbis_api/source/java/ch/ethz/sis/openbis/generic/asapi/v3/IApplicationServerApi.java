@@ -1999,7 +1999,9 @@ public interface IApplicationServerApi extends IRpcService
      * {@code SessionInformationFetchOptions}.
      * </p>
      * <p>
-     * Required access rights: {@code ETL_SERVER}
+     * Required access rights:
+     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
+     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
      * </p>
      *
      * @throws UserFailureException in case of any problems

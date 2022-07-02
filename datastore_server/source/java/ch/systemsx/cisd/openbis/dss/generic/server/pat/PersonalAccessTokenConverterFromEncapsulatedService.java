@@ -76,20 +76,17 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
     @Override protected String getSessionToken(final String userId, final String sessionName)
     {
         final SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
-        final SessionInformationFetchOptions fetchOptions = new SessionInformationFetchOptions();
-        fetchOptions.withPerson();
+        criteria.withAndOperator();
+        criteria.withUserName().thatEquals(userId);
+        criteria.withPersonalAccessTokenSession().thatEquals(true);
+        criteria.withPersonalAccessTokenSessionName().thatEquals(sessionName);
 
         final SearchResult<SessionInformation>
-                result = getService().searchSessionInformation(criteria, fetchOptions);
+                result = getService().searchSessionInformation(criteria, new SessionInformationFetchOptions());
 
-        for (SessionInformation session : result.getObjects())
+        if (result.getObjects().size() > 0)
         {
-            if (session.isPersonalAccessTokenSession() && session.getPerson().getUserId().equals(userId)
-                    && session.getPersonalAccessTokenSessionName()
-                    .equals(sessionName))
-            {
-                return result.getObjects().get(0).getSessionToken();
-            }
+            return result.getObjects().get(0).getSessionToken();
         }
 
         return null;

@@ -1,14 +1,16 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsAtLeast;
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -17,152 +19,273 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.id.SessionInformationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
-import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 public class SearchSessionInformationTest extends AbstractTest
 {
+
+    private String sessionToken1;
+
+    private String sessionToken2;
+
+    private String sessionToken3;
+
+    private PersonalAccessToken pat1;
+
+    private PersonalAccessToken pat2;
+
+    @BeforeMethod
+    private void createSessions()
+    {
+        sessionToken1 = v3api.login(TEST_USER, PASSWORD);
+        sessionToken2 = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+        sessionToken3 = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
+
+        pat1 = createToken(TEST_USER, PASSWORD, tokenCreation());
+        pat2 = createToken(TEST_GROUP_OBSERVER, PASSWORD, tokenCreation());
+    }
+
     @SuppressWarnings("null")
     @Test
     public void testSearch()
     {
-        PersonalAccessToken personalAccessToken = createToken(TEST_USER, PASSWORD, tokenCreation());
-
-        SessionInformationFetchOptions fo = new SessionInformationFetchOptions();
-        fo.withPerson();
-
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SearchResult<SessionInformation> result =
-                v3api.searchSessionInformation(sessionToken, new SessionInformationSearchCriteria(), fo);
-        SessionInformation sessionInformation = getSessionInformation(result.getObjects(), sessionToken);
-        SessionInformation personalAccessTokenSessionInformation =
-                getPersonalAccessTokenSessionInformation(result.getObjects(), personalAccessToken.getOwner().getUserId(),
-                        personalAccessToken.getSessionName());
+        SessionInformation sessionInformation = searchSessionInformation(TEST_USER, sessionToken1);
+        SessionInformation patSessionInformation =
+                searchPersonalAccessTokenSessionInformation(TEST_USER, pat1.getOwner().getUserId(), pat1.getSessionName());
 
         assertNotNull(sessionInformation);
-        assertNotNull(personalAccessTokenSessionInformation);
+        assertEquals(sessionInformation.getSessionToken(), sessionToken1);
+        assertEquals(sessionInformation.getUserName(), TEST_USER);
+        assertEquals(sessionInformation.getPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getCreatorPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getHomeGroupCode(), "CISD");
+        assertFalse(sessionInformation.isPersonalAccessTokenSession());
+        assertNull(sessionInformation.getPersonalAccessTokenSessionName());
 
-        deleteToken(TEST_USER, PASSWORD, personalAccessToken.getPermId());
+        assertNotNull(patSessionInformation);
+        assertNotNull(patSessionInformation.getSessionToken());
+        assertEquals(patSessionInformation.getUserName(), TEST_USER);
+        assertEquals(patSessionInformation.getPerson().getUserId(), TEST_USER);
+        assertEquals(patSessionInformation.getCreatorPerson().getUserId(), TEST_USER);
+        assertEquals(patSessionInformation.getHomeGroupCode(), "CISD");
+        assertTrue(patSessionInformation.isPersonalAccessTokenSession());
+        assertEquals(patSessionInformation.getPersonalAccessTokenSessionName(), pat1.getSessionName());
 
-        result =
-                v3api.searchSessionInformation(sessionToken, new SessionInformationSearchCriteria(), fo);
-        sessionInformation = getSessionInformation(result.getObjects(), sessionToken);
-        personalAccessTokenSessionInformation =
-                getPersonalAccessTokenSessionInformation(result.getObjects(), personalAccessToken.getOwner().getUserId(),
-                        personalAccessToken.getSessionName());
+        deleteToken(TEST_USER, PASSWORD, pat1.getPermId());
+
+        sessionInformation = searchSessionInformation(TEST_USER, sessionToken1);
+        patSessionInformation = searchPersonalAccessTokenSessionInformation(TEST_USER, pat1.getOwner().getUserId(), pat1.getSessionName());
 
         assertNotNull(sessionInformation);
-        assertNull(personalAccessTokenSessionInformation);
+        assertEquals(sessionInformation.getSessionToken(), sessionToken1);
+        assertEquals(sessionInformation.getUserName(), TEST_USER);
+        assertEquals(sessionInformation.getPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getCreatorPerson().getUserId(), TEST_USER);
+        assertEquals(sessionInformation.getHomeGroupCode(), "CISD");
+        assertFalse(sessionInformation.isPersonalAccessTokenSession());
+        assertNull(sessionInformation.getPersonalAccessTokenSessionName());
+
+        assertNull(patSessionInformation);
+
+        v3api.logout(sessionToken1);
+
+        sessionInformation = searchSessionInformation(TEST_USER, sessionToken1);
+        patSessionInformation = searchPersonalAccessTokenSessionInformation(TEST_USER, pat1.getOwner().getUserId(), pat1.getSessionName());
+
+        assertNull(sessionInformation);
+        assertNull(patSessionInformation);
     }
 
     @Test
     public void testSearchWithRegularSessionTokenAsSessionToken()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         SearchResult<SessionInformation> result =
-                v3api.searchSessionInformation(sessionToken, new SessionInformationSearchCriteria(), new SessionInformationFetchOptions());
+                v3api.searchSessionInformation(sessionToken1, new SessionInformationSearchCriteria(), new SessionInformationFetchOptions());
 
         assertTrue(result.getObjects().size() > 0);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertNotNull(sessionInformation.getSessionToken());
+        }
     }
 
     @Test
     public void testSearchWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(pat1.getHash(), new SessionInformationSearchCriteria(), new SessionInformationFetchOptions());
 
-        assertUserFailureException(new IDelegatedAction()
+        assertTrue(result.getObjects().size() > 0);
+
+        for (SessionInformation sessionInformation : result.getObjects())
         {
-            @Override
-            public void execute()
-            {
-                v3api.searchSessionInformation(token.getHash(), new SessionInformationSearchCriteria(), new SessionInformationFetchOptions());
-            }
-        }, "Personal access tokens cannot be used to get session information");
+            assertNull(sessionInformation.getSessionToken());
+        }
     }
 
     @Test
     public void testSearchByETLServerUser()
     {
-        testSearchBy(TEST_INSTANCE_ETLSERVER);
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken1));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken2));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken3));
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat1.getSessionName());
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat2.getSessionName());
+
+        String sessionToken = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
+
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertEquals(result.getObjects().size(), 5);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertNotNull(sessionInformation.getSessionToken());
+        }
     }
 
     @Test
     public void testSearchByInstanceAdminUser()
     {
-        testSearchBy(INSTANCE_ADMIN_USER);
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken1));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken2));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken3));
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat1.getSessionName());
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat2.getSessionName());
+
+        String sessionToken = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
+
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertEquals(result.getObjects().size(), 5);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertNotNull(sessionInformation.getSessionToken());
+        }
     }
 
     @Test
     public void testSearchByRegularUser()
     {
-        assertAuthorizationFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                testSearchBy(TEST_GROUP_OBSERVER);
-            }
-        });
-    }
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken1));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken2));
+        criteria.withId().thatEquals(new SessionInformationPermId(sessionToken3));
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat1.getSessionName());
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat2.getSessionName());
 
-    private void testSearchBy(String userId)
-    {
-        testSearch(userId, new SessionInformationSearchCriteria());
+        String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertEquals(result.getObjects().size(), 2);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertNotNull(sessionInformation.getSessionToken());
+        }
     }
 
     @Test
     public void testSearchWithPermIds()
     {
-        String sessionToken1 = v3api.login(TEST_USER, PASSWORD);
-        String sessionToken2 = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
-        String sessionToken3 = v3api.login(TEST_INSTANCE_ETLSERVER, PASSWORD);
-
         SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
         criteria.withOrOperator();
         criteria.withId().thatEquals(new SessionInformationPermId(sessionToken1));
         criteria.withId().thatEquals(new SessionInformationPermId(sessionToken2));
         criteria.withId().thatEquals(new SessionInformationPermId(sessionToken3));
 
-        testSearch(TEST_USER, criteria, sessionToken1, sessionToken2, sessionToken3);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SearchResult<SessionInformation> result = v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertContainsOnly(result, sessionToken1, sessionToken2, sessionToken3);
     }
 
     @Test
     public void testSearchWithNonexistentIds()
     {
-        String sessionToken1 = v3api.login(TEST_USER, PASSWORD);
-        String sessionToken2 = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
-
         SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
         criteria.withOrOperator();
         criteria.withId().thatEquals(new SessionInformationPermId(sessionToken1));
         criteria.withId().thatEquals(new SessionInformationPermId(sessionToken2));
         criteria.withId().thatEquals(new SessionInformationPermId("IDONTEXIST"));
 
-        testSearch(TEST_USER, criteria, sessionToken1, sessionToken2);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SearchResult<SessionInformation> result = v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertContainsOnly(result, sessionToken1, sessionToken2);
     }
 
-    private void testSearch(String user, SessionInformationSearchCriteria criteria, String... expectedSessionTokens)
+    @Test
+    public void testSearchWithUserName()
     {
-        String sessionToken = v3api.login(user, PASSWORD);
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withUserName().thatEquals(TEST_USER);
 
-        SearchResult<SessionInformation> result =
-                v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SearchResult<SessionInformation> result = v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
 
-        Set<String> actualSessionTokens = new HashSet<String>();
+        assertTrue(result.getObjects().size() > 0);
+
         for (SessionInformation sessionInformation : result.getObjects())
         {
-            actualSessionTokens.add(sessionInformation.getSessionToken());
+            assertEquals(sessionInformation.getUserName(), TEST_USER);
         }
-
-        assertCollectionContainsAtLeast(actualSessionTokens, expectedSessionTokens);
-
-        v3api.logout(sessionToken);
     }
 
-    private SessionInformation getSessionInformation(List<SessionInformation> sessionInformationList, String sessionToken)
+    @Test
+    public void testSearchWithPersonalAccessTokenSession()
     {
-        for (SessionInformation sessionInformation : sessionInformationList)
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withPersonalAccessTokenSession().thatEquals(true);
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SearchResult<SessionInformation> result = v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertTrue(result.getObjects().size() > 0);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertTrue(sessionInformation.isPersonalAccessTokenSession());
+        }
+    }
+
+    @Test
+    public void testSearchWithPersonalAccessTokenSessionName()
+    {
+        SessionInformationSearchCriteria criteria = new SessionInformationSearchCriteria();
+        criteria.withPersonalAccessTokenSessionName().thatEquals(pat1.getSessionName());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SearchResult<SessionInformation> result = v3api.searchSessionInformation(sessionToken, criteria, new SessionInformationFetchOptions());
+
+        assertTrue(result.getObjects().size() > 0);
+
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            assertEquals(sessionInformation.getPersonalAccessTokenSessionName(), pat1.getSessionName());
+        }
+    }
+
+    private SessionInformation searchSessionInformation(String userId, String sessionToken)
+    {
+        SessionInformationFetchOptions fo = new SessionInformationFetchOptions();
+        fo.withPerson();
+        fo.withCreatorPerson();
+
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(v3api.login(userId, PASSWORD), new SessionInformationSearchCriteria(), fo);
+
+        for (SessionInformation sessionInformation : result.getObjects())
         {
             if (sessionToken.equals(sessionInformation.getSessionToken()))
             {
@@ -173,10 +296,17 @@ public class SearchSessionInformationTest extends AbstractTest
         return null;
     }
 
-    private SessionInformation getPersonalAccessTokenSessionInformation(List<SessionInformation> sessionInformationList, String ownerId,
+    private SessionInformation searchPersonalAccessTokenSessionInformation(String userId, String ownerId,
             String sessionName)
     {
-        for (SessionInformation sessionInformation : sessionInformationList)
+        SessionInformationFetchOptions fo = new SessionInformationFetchOptions();
+        fo.withPerson();
+        fo.withCreatorPerson();
+
+        SearchResult<SessionInformation> result =
+                v3api.searchSessionInformation(v3api.login(userId, PASSWORD), new SessionInformationSearchCriteria(), fo);
+
+        for (SessionInformation sessionInformation : result.getObjects())
         {
             if (ownerId.equals(sessionInformation.getPerson().getUserId()) && sessionName.equals(
                     sessionInformation.getPersonalAccessTokenSessionName()))
@@ -186,6 +316,17 @@ public class SearchSessionInformationTest extends AbstractTest
         }
 
         return null;
+    }
+
+    private void assertContainsOnly(SearchResult<SessionInformation> result, String... expectedSessionTokens)
+    {
+        Set<String> actualSessionTokens = new HashSet<String>();
+        for (SessionInformation sessionInformation : result.getObjects())
+        {
+            actualSessionTokens.add(sessionInformation.getSessionToken());
+        }
+
+        assertCollectionContainsOnly(actualSessionTokens, expectedSessionTokens);
     }
 
 }

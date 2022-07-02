@@ -189,11 +189,7 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
-        creation.setSessionName("test session");
-        creation.setValidFromDate(new Date(1));
-        creation.setValidToDate(new Date(2));
-
+        PersonalAccessTokenCreation creation = tokenCreation();
         PersonalAccessToken createdToken = createToken(TEST_USER, PASSWORD, creation);
 
         Map<IPersonalAccessTokenId, PersonalAccessToken> map =

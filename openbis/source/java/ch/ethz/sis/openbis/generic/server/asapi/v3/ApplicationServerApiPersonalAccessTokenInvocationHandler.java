@@ -305,11 +305,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public SessionInformation getSessionInformation(final String sessionToken)
     {
-        if (converter.shouldConvert(sessionToken))
-        {
-            throw new UserFailureException("Personal access tokens cannot be used to get session information.");
-        }
-        return invocation.proceedWithOriginalArguments();
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public boolean isSessionActive(final String sessionToken)
@@ -918,11 +914,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public SearchResult<SessionInformation> searchSessionInformation(final String sessionToken,
             final SessionInformationSearchCriteria searchCriteria, final SessionInformationFetchOptions fetchOptions)
     {
-        if (converter.shouldConvert(sessionToken))
-        {
-            throw new UserFailureException("Personal access tokens cannot be used to get session information.");
-        }
-        return invocation.proceedWithOriginalArguments();
+        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     @Override public void deleteSpaces(final String sessionToken, final List<? extends ISpaceId> spaceIds, final SpaceDeletionOptions deletionOptions)
