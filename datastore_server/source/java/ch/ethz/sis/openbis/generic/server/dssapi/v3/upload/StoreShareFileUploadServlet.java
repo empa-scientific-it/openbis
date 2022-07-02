@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.Utils;
+import ch.systemsx.cisd.openbis.dss.generic.server.pat.PersonalAccessTokenConverterFromEncapsulatedService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
@@ -130,7 +131,9 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
         public String getSessionId()
         {
-            return request.getParameter(SESSION_ID_PARAM);
+            String sessionId = request.getParameter(SESSION_ID_PARAM);
+            sessionId = new PersonalAccessTokenConverterFromEncapsulatedService().convert(sessionId);
+            return sessionId;
         }
 
         public String getDataSetType()

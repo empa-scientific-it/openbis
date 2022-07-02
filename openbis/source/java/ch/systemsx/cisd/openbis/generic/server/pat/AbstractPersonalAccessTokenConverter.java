@@ -27,6 +27,11 @@ public abstract class AbstractPersonalAccessTokenConverter
 
     public String convert(String sessionTokenOrPAT)
     {
+        if (sessionTokenOrPAT == null)
+        {
+            return null;
+        }
+
         PersonalAccessToken patToken = getToken(sessionTokenOrPAT);
 
         if (patToken == null)
