@@ -294,7 +294,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             FileContent content = new FileContent();
             content.tokens = tokens;
             content.sessions = sessions;
-            mapper.writeValue(file, content);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(file, content);
         } catch (IOException e)
         {
             operationLog.error("Saving of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
