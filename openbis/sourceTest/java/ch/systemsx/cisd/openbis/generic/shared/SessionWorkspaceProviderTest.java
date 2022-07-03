@@ -5,13 +5,50 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
 
 public class SessionWorkspaceProviderTest extends AbstractFileSystemTestCase
 {
+
+    private Mockery mockery;
+
+    private IPersonalAccessTokenConverter converter;
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        mockery = new Mockery();
+        converter = mockery.mock(IPersonalAccessTokenConverter.class);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(converter).convert(with(any(String.class)));
+                will(new CustomAction("return unchanged")
+                {
+                    @Override public Object invoke(Invocation invocation) throws Throwable
+                    {
+                        return invocation.getParameter(0);
+                    }
+                });
+            }
+        });
+    }
+
+    @AfterMethod
+    public void afterMethod()
+    {
+        mockery.assertIsSatisfied();
+    }
 
     @Test
     public void testGetSessionWorkspace() throws Exception
@@ -19,7 +56,7 @@ public class SessionWorkspaceProviderTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
-        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties);
+        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties, converter);
         provider.init();
 
         Map<String, File> sessionWorkspaces = provider.getSessionWorkspaces();
@@ -40,7 +77,7 @@ public class SessionWorkspaceProviderTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
-        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties);
+        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties, converter);
         provider.init();
 
         Map<String, File> sessionWorkspaces = provider.getSessionWorkspaces();
@@ -64,7 +101,7 @@ public class SessionWorkspaceProviderTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(SessionWorkspaceProvider.SESSION_WORKSPACE_ROOT_DIR_KEY, workingDirectory.getPath());
 
-        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties);
+        SessionWorkspaceProvider provider = new SessionWorkspaceProvider(properties, converter);
         provider.init();
 
         File workspace1 = provider.getSessionWorkspace("token1");
