@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher.VARIABLE_PREFIX;
 import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher.getPropertyValue;
 
 public class SampleImportHelper extends BasicImportHelper
@@ -134,13 +135,13 @@ public class SampleImportHelper extends BasicImportHelper
             throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
         }
 
-        if (variable != null && !variable.isEmpty() && !variable.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
+        if (variable != null && !variable.isEmpty() && !variable.startsWith(VARIABLE_PREFIX))
         {
-            throw new UserFailureException("Variables should start with " + PropertyTypeSearcher.VARIABLE_PREFIX);
+            throw new UserFailureException("Variables should start with " + VARIABLE_PREFIX);
         }
         if (code != null && !code.isEmpty())
         {
-            creation.setCode(ImportUtils.valueNormalizer("Code", code, false));
+            creation.setCode(code);
         }
         if (autoGenerateCode != null && !autoGenerateCode.isEmpty())
         {
@@ -148,15 +149,15 @@ public class SampleImportHelper extends BasicImportHelper
         }
         if (space != null && !space.isEmpty())
         {
-            creation.setSpaceId(new SpacePermId(ImportUtils.valueNormalizer("Space", space, false)));
+            creation.setSpaceId(new SpacePermId(space));
         }
         if (project != null && !project.isEmpty() && options.getAllowProjectSamples()) // Projects can only be set in project samples are enabled
         {
-            creation.setProjectId(new ProjectIdentifier(ImportUtils.projectIdentifierNormalizer(project)));
+            creation.setProjectId(new ProjectIdentifier(project));
         }
         if (experiment != null && !experiment.isEmpty())
         {
-            creation.setExperimentId(new ExperimentIdentifier(ImportUtils.experimentIdentifierNormalizer(experiment)));
+            creation.setExperimentId(new ExperimentIdentifier(experiment));
         }
         injectOwner(creation);
 
@@ -166,12 +167,11 @@ public class SampleImportHelper extends BasicImportHelper
             List<ISampleId> parentIds = new ArrayList<>();
             for (String parent : parents.split("\n"))
             {
-                if (parent.startsWith("$"))
+                if (parent.startsWith(VARIABLE_PREFIX))
                 {
                     parentIds.add(new IdentifierVariable(parent));
                 } else
                 {
-                    ImportUtils.sampleIdentifierNormalizer(parent);
                     parentIds.add(new SampleIdentifier(parent));
                 }
             }
@@ -182,12 +182,11 @@ public class SampleImportHelper extends BasicImportHelper
             List<ISampleId> childrenIds = new ArrayList<>();
             for (String child : children.split("\n"))
             {
-                if (child.startsWith("$"))
+                if (child.startsWith(VARIABLE_PREFIX))
                 {
                     childrenIds.add(new IdentifierVariable(child));
                 } else
                 {
-                    ImportUtils.sampleIdentifierNormalizer(child);
                     childrenIds.add(new SampleIdentifier(child));
                 }
             }
@@ -234,16 +233,15 @@ public class SampleImportHelper extends BasicImportHelper
         // Space, project and experiment are used to "MOVE", only set if present since all values can't be null
         if (space != null && !space.isEmpty())
         {
-            String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
-            update.setSpaceId(new SpacePermId(normalizedSpace));
+            update.setSpaceId(new SpacePermId(space));
         }
         if (project != null && !project.isEmpty())
         {
-            update.setProjectId(new ProjectIdentifier(ImportUtils.projectIdentifierNormalizer(project)));
+            update.setProjectId(new ProjectIdentifier(project));
         }
         if (experiment != null && !experiment.isEmpty())
         {
-            update.setExperimentId(new ExperimentIdentifier(ImportUtils.experimentIdentifierNormalizer(experiment)));
+            update.setExperimentId(new ExperimentIdentifier(experiment));
         }
 
         // Start - Special case -> Remove parents / children & Special case -> Sample Variables
@@ -253,12 +251,11 @@ public class SampleImportHelper extends BasicImportHelper
         {
             for (String parent : parents.split("\n"))
             {
-                if (parent.startsWith("$"))
+                if (parent.startsWith(VARIABLE_PREFIX))
                 {
                     update.getParentIds().add(new IdentifierVariable(parent));
                 } else
                 {
-                    ImportUtils.sampleIdentifierNormalizer(parent);
                     SampleIdentifier parentId = new SampleIdentifier(parent);
                     update.getParentIds().add(parentId);
                     parentIds.add(parentId);
@@ -278,12 +275,11 @@ public class SampleImportHelper extends BasicImportHelper
         {
             for (String child : children.split("\n"))
             {
-                if (child.startsWith("$"))
+                if (child.startsWith(VARIABLE_PREFIX))
                 {
                     update.getChildIds().add(new IdentifierVariable(child));
                 } else
                 {
-                    ImportUtils.sampleIdentifierNormalizer(child);
                     SampleIdentifier childId = new SampleIdentifier(child);
                     update.getChildIds().add(childId);
                     childrenIds.add(childId);
@@ -304,7 +300,7 @@ public class SampleImportHelper extends BasicImportHelper
             if (!sampleAttributes.contains(key))
             {
                 String value = getValueByColumnName(header, values, key);
-                if (value != null && (value.equals("--DELETE--") || value.equals("__DELETE__")))
+                if (value != null && (value.isEmpty() || value.equals("--DELETE--") || value.equals("__DELETE__")))
                 {
                     value = null;
                 }

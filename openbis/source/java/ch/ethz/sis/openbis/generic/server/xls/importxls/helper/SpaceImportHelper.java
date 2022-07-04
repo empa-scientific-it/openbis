@@ -35,13 +35,13 @@ public class SpaceImportHelper extends BasicImportHelper
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, "Code");
-        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("Code", code, false));
+        final ISpaceId spaceId = new SpacePermId(code);
         return delayedExecutor.getSpace(spaceId, new SpaceFetchOptions()) != null;
     }
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = ImportUtils.valueNormalizer("Code", getValueByColumnName(header, values, "Code"), false);
+        String code = getValueByColumnName(header, values, "Code");
         String description = getValueByColumnName(header, values, "Description");
 
         if (options.getDisallowEntityCreations())
@@ -59,7 +59,7 @@ public class SpaceImportHelper extends BasicImportHelper
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
         String code = getValueByColumnName(header, values, "Code");
-        final ISpaceId spaceId = new SpacePermId(ImportUtils.valueNormalizer("Code", code, false));
+        final ISpaceId spaceId = new SpacePermId(code);
         String description = getValueByColumnName(header, values, "Description");
 
         SpaceUpdate update = new SpaceUpdate();

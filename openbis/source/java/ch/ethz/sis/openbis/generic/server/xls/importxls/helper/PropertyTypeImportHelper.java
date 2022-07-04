@@ -18,7 +18,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class PropertyTypeImportHelper extends BasicImportHelper

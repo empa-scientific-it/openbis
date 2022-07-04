@@ -12,7 +12,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.VersionUtils;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class SampleTypeImportHelper extends BasicImportHelper

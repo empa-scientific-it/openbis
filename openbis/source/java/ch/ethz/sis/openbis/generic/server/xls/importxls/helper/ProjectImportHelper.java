@@ -56,18 +56,15 @@ public class ProjectImportHelper extends BasicImportHelper
         String space = getValueByColumnName(header, values, "Space");
         String description = getValueByColumnName(header, values, "Description");
 
-        String normalizedCode = ImportUtils.valueNormalizer("Code", code, false);
-        String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
-
         if (options.getDisallowEntityCreations())
         {
             throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
         }
 
         ProjectCreation creation = new ProjectCreation();
-        creation.setCode(normalizedCode);
+        creation.setCode(code);
         creation.setDescription(description);
-        creation.setSpaceId(new SpacePermId(normalizedSpace));
+        creation.setSpaceId(new SpacePermId(space));
 
         delayedExecutor.createProject(creation, page, line);
     }
@@ -83,7 +80,6 @@ public class ProjectImportHelper extends BasicImportHelper
             throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a project to update.");
         }
 
-        ImportUtils.projectIdentifierNormalizer(identifier);
         final ProjectIdentifier projectIdentifier = new ProjectIdentifier(identifier);
 
         ProjectUpdate update = new ProjectUpdate();
@@ -96,8 +92,7 @@ public class ProjectImportHelper extends BasicImportHelper
         // Space is only needed to "MOVE" the project
         if (space != null && !space.isEmpty())
         {
-            String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
-            update.setSpaceId(new SpacePermId(normalizedSpace));
+            update.setSpaceId(new SpacePermId(space));
         }
 
         delayedExecutor.updateProject(update, page, line);

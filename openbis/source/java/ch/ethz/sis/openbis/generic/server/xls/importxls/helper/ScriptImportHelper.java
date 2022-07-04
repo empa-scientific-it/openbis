@@ -12,7 +12,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class ScriptImportHelper extends BasicImportHelper

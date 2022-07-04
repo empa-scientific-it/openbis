@@ -11,7 +11,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.VersionUtils;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class VocabularyTermImportHelper extends BasicImportHelper

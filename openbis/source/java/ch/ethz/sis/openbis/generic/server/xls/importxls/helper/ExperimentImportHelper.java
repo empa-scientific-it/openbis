@@ -86,16 +86,7 @@ public class ExperimentImportHelper extends BasicImportHelper
     {
         String code = getValueByColumnName(header, values, "Code");
         String project = getValueByColumnName(header, values, "Project");
-
-        code = ImportUtils.valueNormalizer("Code", code, false);
-        project = ImportUtils.projectIdentifierNormalizer(project);
-
         return new ExperimentIdentifier(project + "/" + code);
-    }
-
-    private ProjectIdentifier getProjectIdentifier(String project)
-    {
-        return new ProjectIdentifier(ImportUtils.projectIdentifierNormalizer(project));
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
@@ -119,8 +110,8 @@ public class ExperimentImportHelper extends BasicImportHelper
         }
 
         creation.setTypeId(entityTypePermId);
-        creation.setCode(ImportUtils.valueNormalizer("Code", code, false));
-        creation.setProjectId(getProjectIdentifier(project));
+        creation.setCode(code);
+        creation.setProjectId(new ProjectIdentifier(project));
 
         for (String key : header.keySet())
         {
@@ -152,7 +143,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         // Project is used to "MOVE", only set if present since can't be null
         if (project != null && !project.isEmpty())
         {
-            update.setProjectId(getProjectIdentifier(project));
+            update.setProjectId(new ProjectIdentifier(project));
         }
         Map<String, String> properties = new HashMap<>();
         for (String key : header.keySet())

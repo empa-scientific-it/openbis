@@ -8,9 +8,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.IdentifierVariable;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.Locale;
 import java.util.UUID;
 
 public class ImportUtils
@@ -20,79 +18,12 @@ public class ImportUtils
         return property.startsWith("$");
     }
 
-    public static String valueNormalizer(String key, String value, boolean dollarPrefixAllowed)
-    {
-        if (value == null || value.isEmpty())
-        {
-            throw new UserFailureException(String.format("%s should not be empty.", key));
-        }
-        value = value.toUpperCase();
-        if (value.startsWith("$") && !dollarPrefixAllowed)
-        {
-            throw new UserFailureException(String.format("%s starts with '$': %s", key, value));
-        }
-        if (!value.matches("\\$?[A-Z0-9_\\-.]+$"))
-        {
-            String leadingDollarTest = value.startsWith("$") ? " after the leasing $" : "";
-
-            throw new UserFailureException(String.format("%s contains an invalid character. Only digits, letter, '-', '_', and '.' are allowed%s: %s",
-                    key, leadingDollarTest, value));
-        }
-        return value;
-    }
-
-    public static String projectIdentifierNormalizer(String projectId)
-    {
-        if (projectId == null)
-        {
-            return projectId;
-        }
-
-        if (!projectId.matches("(/[A-Z0-9_\\-.]+){2}$"))
-        {
-            throw new UserFailureException("Invalid project identifier");
-        }
-
-        return projectId;
-    }
-
-    public static String experimentIdentifierNormalizer(String experimentId)
-    {
-        if (experimentId == null)
-        {
-            return experimentId;
-        }
-
-        if (!experimentId.matches("(/[A-Z0-9_\\-.]+){3}$"))
-        {
-            throw new UserFailureException("Invalid experiment identifier");
-        }
-
-        return experimentId;
-    }
-
-    public static String sampleIdentifierNormalizer(String identifier)
-    {
-        if (identifier == null)
-        {
-            return identifier;
-        }
-
-        if (!identifier.matches("(/[A-Z0-9_\\-.]+){1,3}(:[A-Z0-9_\\-.]+)?$"))
-        {
-            throw new UserFailureException("Invalid sample identifier");
-        }
-
-        return identifier;
-    }
-
     public static ISampleId buildSampleIdentifier(String identifier)
     {
         if (identifier == null || identifier.isEmpty())
         {
             return null;
         }
-        sampleIdentifierNormalizer(identifier); // To validate the sample identifier
         return new SampleIdentifier(identifier);
 
     }
@@ -106,7 +37,6 @@ public class ImportUtils
 
         if (project != null && !project.trim().isEmpty())
         {
-            projectIdentifierNormalizer(project); // To validate the project identifier
             project = project.split("/")[2];
         } else
         {
