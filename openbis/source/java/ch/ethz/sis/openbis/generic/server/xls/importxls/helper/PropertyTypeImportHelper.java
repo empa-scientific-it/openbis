@@ -13,7 +13,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.handler.JSONHandler;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
-import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeCache;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.VersionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -63,7 +63,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     private final Map<String, String> propertyCache;
 
-    private final AttributeCache<Attribute> attributeCache;
+    private final AttributeValidator<Attribute> attributeValidator;
 
     public PropertyTypeImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, Map<String, Integer> versions)
     {
@@ -71,7 +71,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         this.versions = versions;
         this.delayedExecutor = delayedExecutor;
         this.propertyCache = new HashMap<>();
-        this.attributeCache = new AttributeCache<>(Attribute.class);
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
     @Override
@@ -188,6 +188,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> headers)
     {
-        attributeCache.validateHeaders(Attribute.values(), headers);
+        attributeValidator.validateHeaders(Attribute.values(), headers);
     }
 }

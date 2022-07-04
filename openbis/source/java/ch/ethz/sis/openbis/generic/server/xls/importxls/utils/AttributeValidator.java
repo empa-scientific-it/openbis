@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class AttributeCache<E extends IAttribute> {
+public class AttributeValidator<E extends IAttribute> {
     private final Set<String> headerNames;
 
-    public AttributeCache(Class<E> attributeClass) {
+    public AttributeValidator(Class<E> attributeClass) {
         Set<String> headerNamesBuilder = new HashSet<>();
         for (E attribute:attributeClass.getEnumConstants()) {
             headerNamesBuilder.add(attribute.getHeaderName());
