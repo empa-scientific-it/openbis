@@ -376,7 +376,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             long patSessionsSize =
                     sessions.values().stream().filter(s -> s.getSession().isPersonalAccessTokenSession()).count();
 
-            operationLog.info("All currently active sessions: " + sessionsSize);
+            operationLog.info("All currently active sessions (regular sessions and personal access token sessions): " + sessionsSize);
             operationLog.info("Personal access token active sessions: " + patSessionsSize);
 
             if (sessionsSize > sessionNotifyThreshold)
@@ -390,10 +390,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 for (FullSession<T> fullSession : sessions.values())
                 {
                     T session = fullSession.getSession();
-                    session.getSessionStart();
-                    session.getUserName();
-                    session.getRemoteHost();
-                    session.isAnonymous();
                     String message =
                             String.format(
                                     "Session %s:\n  User %s%s from %s\n  Started at %s, will expire in %d seconds.",
@@ -487,16 +483,30 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private void logSessionExpired(final T session)
     {
-        if (operationLog.isInfoEnabled())
+        if (session.isPersonalAccessTokenSession())
         {
-            operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
-                    + "after %d minutes of inactivity.", LOGOUT_PREFIX, session.getSessionToken(),
-                    session.getUserName(), sessionExpirationPeriodMillis
-                            / DateUtils.MILLIS_PER_MINUTE));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("%sExpiring a personal access token session '%s' for user '%s'. It has been valid for %d minutes.",
+                        LOGOUT_PREFIX, session.getSessionToken(), session.getUserName(),
+                        session.getSessionExpirationTime() / DateUtils.MILLIS_PER_MINUTE));
+            }
+            final String prefix = prefixGenerator.createPrefix(session);
+            authenticationLog.info(prefix + ": personal_access_token_session_expired  [valid for "
+                    + DurationFormatUtils.formatDuration(session.getSessionExpirationTime(), "H:mm:ss.SSS") + "]");
+        } else
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
+                                + "after %d minutes of inactivity.", LOGOUT_PREFIX, session.getSessionToken(),
+                        session.getUserName(), sessionExpirationPeriodMillis
+                                / DateUtils.MILLIS_PER_MINUTE));
+            }
+            final String prefix = prefixGenerator.createPrefix(session);
+            authenticationLog.info(prefix + ": session_expired  [inactive "
+                    + DurationFormatUtils.formatDuration(sessionExpirationPeriodMillis, "H:mm:ss.SSS") + "]");
         }
-        final String prefix = prefixGenerator.createPrefix(session);
-        authenticationLog.info(prefix + ": session_expired  [inactive "
-                + DurationFormatUtils.formatDuration(sessionExpirationPeriodMillis, "H:mm:ss.SSS") + "]");
     }
 
     private void logLogout(final T session)
