@@ -93,7 +93,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String propertyLabel = getValueByColumnName(header, values, "Property label");
         String description = getValueByColumnName(header, values, "Description");
         String dataType = getValueByColumnName(header, values, "Data type");
-        String vocabularyCode = getValueByColumnName(header, values, "Vocabulary Code");
+        String vocabularyCode = getValueByColumnName(header, values, "Vocabulary code");
         String metadata = getValueByColumnName(header, values, "Metadata");
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
