@@ -417,6 +417,21 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    public boolean isSessionActive(final String sessionToken)
+    {
+        synchronized (sessions)
+        {
+            final FullSession<T> session = sessions.get(sessionToken);
+            if (session != null)
+            {
+                return !doSessionExpiration(session);
+            } else
+            {
+                return false;
+            }
+        }
+    }
+
     private boolean isSessionUnavailable(final FullSession<T> session)
     {
         return session == null || doSessionExpiration(session);

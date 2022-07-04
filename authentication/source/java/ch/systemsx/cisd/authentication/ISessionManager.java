@@ -35,7 +35,7 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
 
     /**
      * Opens a new session with given <code>user</code> and given <code>password</code>.
-     * 
+     *
      * @return A session token that is used afterwards to get the <code>Session</code> object, or <code>null</code>, if the user could not be
      *         authenticated.
      */
@@ -45,6 +45,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * Opens a new session for specified user and principal provider.
      */
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider);
+
+    /**
+     * Returns <code>true</code> if the specified session is active (not expired).
+     */
+    public boolean isSessionActive(String sessionToken);
 
     /**
      * Closes session by removing given <code>sessionToken</code> from active sessions.

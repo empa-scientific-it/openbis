@@ -1658,7 +1658,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional(readOnly = true)
     public boolean isSessionActive(String sessionToken)
     {
-        return tryGetSession(sessionToken) != null;
+        return sessionManager.isSessionActive(sessionToken);
     }
 
     @Override
