@@ -36,13 +36,17 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
+        String identifier = getValueByColumnName(header, values, "Identifier");
         String code = getValueByColumnName(header, values, "Code");
         String space = getValueByColumnName(header, values, "Space");
 
-        String normalizedCode = ImportUtils.valueNormalizer("Code", code, false);
-        String normalizedSpace = ImportUtils.valueNormalizer("Space", space, false);
+        ProjectIdentifier projectIdentifier = null;
+        if (identifier != null && !identifier.isEmpty()) {
+            projectIdentifier = new ProjectIdentifier(identifier);
+        } else {
+            projectIdentifier = new ProjectIdentifier(space, code);
+        }
 
-        final ProjectIdentifier projectIdentifier = new ProjectIdentifier(normalizedSpace, normalizedCode);
         return delayedExecutor.getProject(projectIdentifier, new ProjectFetchOptions()) != null;
     }
 
