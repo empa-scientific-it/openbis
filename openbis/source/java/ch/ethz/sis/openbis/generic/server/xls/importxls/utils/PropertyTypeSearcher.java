@@ -21,6 +21,10 @@ public class PropertyTypeSearcher
 
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(new ShortDateFormat().getFormat());
 
+    public static final String SAMPLE_DATA_TYPE_PREFIX = "SAMPLE";
+
+    public static final String SAMPLE_DATA_TYPE_MANDATORY_TYPE = ":";
+
     public static final String VARIABLE_PREFIX = "$";
 
     private Map<String, PropertyType> code2PropertyType;

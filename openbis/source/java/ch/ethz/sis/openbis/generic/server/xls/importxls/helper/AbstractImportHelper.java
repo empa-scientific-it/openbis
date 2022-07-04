@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.importxls.helper;
 
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.HashMap;
@@ -56,6 +57,19 @@ public abstract class AbstractImportHelper
         {
             throw new UserFailureException("Header should contain '" + key + "'.");
         }
+    }
+
+    protected static String getValueByColumnName(Map<String, Integer> header, List<String> values, IAttribute columnName)
+    {
+        if (header.containsKey(columnName.getHeaderName()))
+        {
+            int column = header.get(columnName.getHeaderName());
+            if (column < values.size())
+            {
+                return values.get(column);
+            }
+        }
+        return null;
     }
 
     protected static String getValueByColumnName(Map<String, Integer> header, List<String> values, String columnName)
