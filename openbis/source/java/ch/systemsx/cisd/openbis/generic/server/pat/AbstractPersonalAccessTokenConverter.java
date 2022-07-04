@@ -18,12 +18,7 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
 
     public boolean shouldConvert(String sessionTokenOrPAT)
     {
-        if (!getConfig().arePersonalAccessTokensEnabled())
-        {
-            return false;
-        }
-
-        if (sessionTokenOrPAT == null)
+        if (!getConfig().arePersonalAccessTokensEnabled() || !isPersonalAccessTokenFormatValid(sessionTokenOrPAT))
         {
             return false;
         }
@@ -34,14 +29,9 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
 
     public String convert(String sessionTokenOrPAT)
     {
-        if (!getConfig().arePersonalAccessTokensEnabled())
+        if (!getConfig().arePersonalAccessTokensEnabled() || !isPersonalAccessTokenFormatValid(sessionTokenOrPAT))
         {
             return sessionTokenOrPAT;
-        }
-
-        if (sessionTokenOrPAT == null)
-        {
-            return null;
         }
 
         PersonalAccessToken patToken = getToken(sessionTokenOrPAT);
@@ -76,6 +66,11 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
                 return patSessionToken;
             }
         }
+    }
+
+    private boolean isPersonalAccessTokenFormatValid(String sessionTokenOrPAT)
+    {
+        return sessionTokenOrPAT != null && sessionTokenOrPAT.startsWith("$pat-");
     }
 
 }

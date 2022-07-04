@@ -52,7 +52,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
             @Override public String generateTokenHash(String user)
             {
-                return generateSessionHash(user);
+                return "$pat-" + user + "-" + generator.getNewToken(System.currentTimeMillis(), 'x');
             }
 
             @Override public String generateSessionHash(String user)
