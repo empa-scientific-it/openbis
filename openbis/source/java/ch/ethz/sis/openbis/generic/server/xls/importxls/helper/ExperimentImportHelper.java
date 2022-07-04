@@ -13,21 +13,41 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
-import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher.getPropertyValue;
 
 public class ExperimentImportHelper extends BasicImportHelper
 {
+    private enum Attribute implements IAttribute {
+        Identifier("Identifier", false),
+        Code("Code", true),
+        Project("Project", true);
+
+        private final String headerName;
+
+        private final boolean mandatory;
+
+        Attribute(String headerName, boolean mandatory) {
+            this.headerName = headerName;
+            this.mandatory = mandatory;
+        }
+
+        public String getHeaderName() {
+            return headerName;
+        }
+        public boolean isMandatory() {
+            return mandatory;
+        }
+    }
+
     private EntityTypePermId entityTypePermId;
 
     private final ImportOptions options;
@@ -36,13 +56,14 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private PropertyTypeSearcher propertyTypeSearcher;
 
-    private static final Set<String> experimentAttributes = new HashSet<>(Arrays.asList("$", "Identifier", "Code", "Project"));
+    private final AttributeValidator<Attribute> attributeValidator;
 
     public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
         super(mode);
         this.options = options;
         this.delayedExecutor = delayedExecutor;
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
@@ -63,7 +84,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             ExperimentType type = delayedExecutor.getExperimentType(entityTypePermId, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Experiment type " + experimentType + " is not exist.");
+                throw new UserFailureException("Experiment type " + experimentType + " doesn't exist.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
@@ -84,8 +105,8 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private ExperimentIdentifier getIdentifier(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "Code");
-        String project = getValueByColumnName(header, values, "Project");
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String project = getValueByColumnName(header, values, Attribute.Project);
         return new ExperimentIdentifier(project + "/" + code);
     }
 
@@ -101,8 +122,8 @@ public class ExperimentImportHelper extends BasicImportHelper
     {
         ExperimentCreation creation = new ExperimentCreation();
 
-        String code = getValueByColumnName(header, values, "Code");
-        String project = getValueByColumnName(header, values, "Project");
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String project = getValueByColumnName(header, values, Attribute.Project);
 
         if (options.getDisallowEntityCreations())
         {
@@ -115,7 +136,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
         for (String key : header.keySet())
         {
-            if (!experimentAttributes.contains(key))
+            if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
@@ -128,8 +149,8 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "Identifier");
-        String project = getValueByColumnName(header, values, "Project");
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+        String project = getValueByColumnName(header, values, Attribute.Project);
 
         if (identifier == null || identifier.isEmpty())
         {
@@ -148,7 +169,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         Map<String, String> properties = new HashMap<>();
         for (String key : header.keySet())
         {
-            if (!experimentAttributes.contains(key))
+            if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
@@ -161,7 +182,6 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "Code");
-        checkKeyExistence(header, "Project");
+        attributeValidator.validateHeaders(Attribute.values(), propertyTypeSearcher, header);
     }
 }

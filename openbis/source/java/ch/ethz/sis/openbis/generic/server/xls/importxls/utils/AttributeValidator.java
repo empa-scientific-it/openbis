@@ -1,5 +1,4 @@
 package ch.ethz.sis.openbis.generic.server.xls.importxls.utils;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.Collections;
@@ -28,16 +27,36 @@ public class AttributeValidator<E extends IAttribute> {
 
     public void validateHeaders(E[] attributes, Map<String, Integer> headers) {
         for (String header:headers.keySet()) {
-            if(!this.isHeader(header)) {
-                throw new UserFailureException("Header " + header + " is not an attribute.");
+            if(this.isHeader(header)) {
+                continue;
             }
+            throw new UserFailureException("Header '" + header + "' is not an attribute.");
         }
 
         for (IAttribute attribute: attributes) {
-            if (attribute.isMandatory() && !headers.keySet().contains(attribute.getHeaderName())) {
+            if (attribute.isMandatory() && !headers.containsKey(attribute.getHeaderName())) {
+                throw new UserFailureException("Header '" + attribute.getHeaderName() + "' is missing.");
+            }
+        }
+    }
+    public void validateHeaders(E[] attributes, PropertyTypeSearcher propertyTypeSearcher, Map<String, Integer> headers) {
+        for (String header:headers.keySet()) {
+            if(this.isHeader(header)) {
+               continue;
+            }
+            if (propertyTypeSearcher.getCode2PropertyType().containsKey(header)) {
+                continue;
+            }
+            if (propertyTypeSearcher.getLabel2PropertyType().containsKey(header)) {
+                continue;
+            }
+            throw new UserFailureException("Header '" + header + "' is neither an attribute, property code or property label.");
+        }
+
+        for (IAttribute attribute: attributes) {
+            if (attribute.isMandatory() && !headers.containsKey(attribute.getHeaderName())) {
                 throw new UserFailureException("Header " + attribute.getHeaderName() + " is missing.");
             }
         }
     }
-
 }
