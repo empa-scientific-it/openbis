@@ -51,7 +51,8 @@ public class SessionTokenManager
     {
         if (sessionTokens.contains(sessionToken) == false)
         {
-            throw new InvalidAuthenticationException("Invalid session token.");
+            throw new InvalidAuthenticationException(String.format("Invalid session token. [sessionToken=%s, sessionTokens=%s]",
+                    sessionToken, sessionTokens));
         }
     }
 }
