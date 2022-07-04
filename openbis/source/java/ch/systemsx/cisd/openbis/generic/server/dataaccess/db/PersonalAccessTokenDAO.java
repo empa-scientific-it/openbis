@@ -48,14 +48,16 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         this(properties, new HashGenerator()
         {
 
-            @Override public String generateTokenHash()
+            private TokenGenerator generator = new TokenGenerator();
+
+            @Override public String generateTokenHash(String user)
             {
-                return new TokenGenerator().getNewToken(System.currentTimeMillis());
+                return generateSessionHash(user);
             }
 
-            @Override public String generateSessionHash()
+            @Override public String generateSessionHash(String user)
             {
-                return new TokenGenerator().getNewToken(System.currentTimeMillis());
+                return user + "-" + generator.getNewToken(System.currentTimeMillis(), 'x');
             }
         });
     }
@@ -81,7 +83,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
         PersonalAccessToken token = new PersonalAccessToken();
-        token.setHash(generator.generateTokenHash());
+        token.setHash(generator.generateTokenHash(creation.getOwnerId()));
         token.setSessionName(creation.getSessionName());
         token.setOwnerId(creation.getOwnerId());
         token.setRegistratorId(creation.getRegistratorId());
@@ -201,7 +203,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                         newSession.setHash(existingSession.getHash());
                     } else
                     {
-                        newSession.setHash(generator.generateSessionHash());
+                        newSession.setHash(generator.generateSessionHash(ownerId));
                     }
                     newSession.setName(token.getSessionName());
                     newSession.setOwnerId(token.getOwnerId());
@@ -314,9 +316,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     public interface HashGenerator
     {
-        String generateTokenHash();
+        String generateTokenHash(String user);
 
-        String generateSessionHash();
+        String generateSessionHash(String user);
     }
 
 }

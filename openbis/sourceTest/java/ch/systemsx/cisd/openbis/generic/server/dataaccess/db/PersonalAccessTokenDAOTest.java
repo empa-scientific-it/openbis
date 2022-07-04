@@ -218,12 +218,12 @@ public class PersonalAccessTokenDAOTest
 
         private int sessionCounter = 1;
 
-        @Override public String generateTokenHash()
+        @Override public String generateTokenHash(String user)
         {
             return "token-" + tokenCounter++;
         }
 
-        @Override public String generateSessionHash()
+        @Override public String generateSessionHash(String user)
         {
             return "session-" + sessionCounter++;
         }
