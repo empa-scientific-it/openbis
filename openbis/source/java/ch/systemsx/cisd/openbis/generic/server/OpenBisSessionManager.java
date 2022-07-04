@@ -34,6 +34,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -218,10 +219,22 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             {
                 executeInTransaction(() ->
                 {
-                    closeSession(patSession.getHash());
+                    synchronized (sessions)
+                    {
+                        try
+                        {
+                            Session session = getSession(patSession.getHash());
+                            if (session != null)
+                            {
+                                closeSession(patSession.getHash());
+                            }
+                        } catch (InvalidSessionException e)
+                        {
+                            // do nothing
+                        }
+                    }
                 });
             }
-
         });
     }
 
