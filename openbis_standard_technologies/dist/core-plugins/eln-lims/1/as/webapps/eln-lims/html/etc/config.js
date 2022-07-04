@@ -50,5 +50,5 @@ var PLUGINS_CONFIGURATION = {
 };
 
 var options = {
-    showResearchCollectionExportBuilder: false
+    showResearchCollectionExportBuilder: true
 };

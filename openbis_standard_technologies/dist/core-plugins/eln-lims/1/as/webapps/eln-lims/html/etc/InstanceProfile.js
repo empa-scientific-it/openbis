@@ -17,6 +17,6 @@ $.extend(InstanceProfile.prototype, StandardProfile.prototype, {
 		this.hideSectionsByDefault = true;
         this.minBarcodeLength = 15;
         this.docuBaseUrl = "https://unlimited.ethz.ch/display/openBISDoc2010";
-        this.showUserManagementConfig = false;
+        this.showUserManagementConfig = true;
 }
 })	
