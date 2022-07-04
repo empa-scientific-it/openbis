@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.task.CacheClearanceMaintenanceTask;
+import ch.systemsx.cisd.openbis.generic.server.task.SessionCleanUpMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.StatisticsCollectionMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask;
@@ -97,6 +98,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     operationExecutionConfig.getMarkTimedOutOrDeletedTaskName(),
                     false,
                     operationExecutionConfig.getMarkTimedOutOrDeletedTaskInterval());
+        }
+
+        if (false == isTaskConfigured(tasks, SessionCleanUpMaintenanceTask.class))
+        {
+            tasks = addTask(tasks,
+                    SessionCleanUpMaintenanceTask.class,
+                    SessionCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
+                    false,
+                    SessionCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
         }
 
         if (false == isTaskConfigured(tasks, SessionWorkspaceCleanUpMaintenanceTask.class))
