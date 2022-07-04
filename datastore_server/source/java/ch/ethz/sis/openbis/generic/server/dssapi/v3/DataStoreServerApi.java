@@ -459,6 +459,6 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
     @Override public Object createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
-        return new DataStoreServerPersonalAccessTokenInvocationHandler(invocation);
+        return new DataStoreServerApiPersonalAccessTokenInvocationHandler(invocation);
     }
 }

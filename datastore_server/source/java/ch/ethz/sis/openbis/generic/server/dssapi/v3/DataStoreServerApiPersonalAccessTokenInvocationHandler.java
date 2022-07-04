@@ -19,11 +19,11 @@ import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
 
-public class DataStoreServerPersonalAccessTokenInvocationHandler implements IDataStoreServerApi
+public class DataStoreServerApiPersonalAccessTokenInvocationHandler implements IDataStoreServerApi
 {
     private final IPersonalAccessTokenInvocation invocation;
 
-    public DataStoreServerPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
+    public DataStoreServerApiPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         this.invocation = invocation;
     }
