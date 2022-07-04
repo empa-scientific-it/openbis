@@ -124,6 +124,11 @@ public class XLSImport
                 }
                 lineNumber++;
 
+                if (options.getDisallowEntityCreations() && blockType.isMetadata())
+                {
+                    throw new UserFailureException("Entity creations disallowed but found at page " + (pageNumber + 1) + " and line " + (lineNumber + 1) + " with block type " + blockType);
+                }
+
                 switch (blockType)
                 {
                     case VOCABULARY_TYPE:

@@ -8,25 +8,50 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
-import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 public class ProjectImportHelper extends BasicImportHelper
 {
+    private enum Attribute implements IAttribute {
+        Identifier("Identifier", false),
+        Code("Code", true),
+        Space("Space", true),
+        Description("Description", false);
+
+        private final String headerName;
+
+        private final boolean mandatory;
+
+        Attribute(String headerName, boolean mandatory) {
+            this.headerName = headerName;
+            this.mandatory = mandatory;
+        }
+
+        public String getHeaderName() {
+            return headerName;
+        }
+        public boolean isMandatory() {
+            return mandatory;
+        }
+    }
+
     private final ImportOptions options;
 
     private final DelayedExecutionDecorator delayedExecutor;
+
+    private final AttributeValidator<Attribute> attributeValidator;
 
     public ProjectImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
         super(mode);
         this.options = options;
         this.delayedExecutor = delayedExecutor;
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
     @Override protected String getTypeName()
@@ -36,11 +61,11 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String identifier = getValueByColumnName(header, values, "Identifier");
-        String code = getValueByColumnName(header, values, "Code");
-        String space = getValueByColumnName(header, values, "Space");
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String space = getValueByColumnName(header, values, Attribute.Space);
 
-        ProjectIdentifier projectIdentifier = null;
+        ProjectIdentifier projectIdentifier;
         if (identifier != null && !identifier.isEmpty()) {
             projectIdentifier = new ProjectIdentifier(identifier);
         } else {
@@ -52,14 +77,9 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "Code");
-        String space = getValueByColumnName(header, values, "Space");
-        String description = getValueByColumnName(header, values, "Description");
-
-        if (options.getDisallowEntityCreations())
-        {
-            throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
-        }
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String space = getValueByColumnName(header, values, Attribute.Space);
+        String description = getValueByColumnName(header, values, Attribute.Description);
 
         ProjectCreation creation = new ProjectCreation();
         creation.setCode(code);
@@ -71,9 +91,9 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "Identifier");
-        String space = getValueByColumnName(header, values, "Space");
-        String description = getValueByColumnName(header, values, "Description");
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+        String space = getValueByColumnName(header, values, Attribute.Space);
+        String description = getValueByColumnName(header, values, Attribute.Description);
 
         if (identifier == null || identifier.isEmpty())
         {
@@ -100,7 +120,6 @@ public class ProjectImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "Code");
-        checkKeyExistence(header, "Space");
+        attributeValidator.validateHeaders(Attribute.values(), header);
     }
 }

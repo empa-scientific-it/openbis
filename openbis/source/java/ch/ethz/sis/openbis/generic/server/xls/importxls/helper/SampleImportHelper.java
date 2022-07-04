@@ -130,11 +130,6 @@ public class SampleImportHelper extends BasicImportHelper
         String parents = getValueByColumnName(header, values, "Parents");
         String children = getValueByColumnName(header, values, "Children");
 
-        if (options.getDisallowEntityCreations())
-        {
-            throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
-        }
-
         if (variable != null && !variable.isEmpty() && !variable.startsWith(VARIABLE_PREFIX))
         {
             throw new UserFailureException("Variables should start with " + VARIABLE_PREFIX);

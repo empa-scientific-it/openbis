@@ -125,11 +125,6 @@ public class ExperimentImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String project = getValueByColumnName(header, values, Attribute.Project);
 
-        if (options.getDisallowEntityCreations())
-        {
-            throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
-        }
-
         creation.setTypeId(entityTypePermId);
         creation.setCode(code);
         creation.setProjectId(new ProjectIdentifier(project));

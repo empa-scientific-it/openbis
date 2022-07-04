@@ -44,11 +44,6 @@ public class SpaceImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, "Code");
         String description = getValueByColumnName(header, values, "Description");
 
-        if (options.getDisallowEntityCreations())
-        {
-            throw new UserFailureException("Entity creations disallowed but found at line: " + line + " [" + getTypeName() + "]");
-        }
-
         SpaceCreation creation = new SpaceCreation();
         creation.setCode(code);
         creation.setDescription(description);
