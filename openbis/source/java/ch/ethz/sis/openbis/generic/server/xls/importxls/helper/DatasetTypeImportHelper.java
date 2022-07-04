@@ -22,7 +22,7 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         Version("Version", true),
         Code("Code", true),
         Description("Description", true),
-        ValidationScript("Validation script", false);
+        ValidationScript("Validation script", true);
 
         private final String headerName;
 
