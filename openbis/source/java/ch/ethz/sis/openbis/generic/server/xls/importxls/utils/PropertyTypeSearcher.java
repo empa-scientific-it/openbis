@@ -21,7 +21,7 @@ public class PropertyTypeSearcher
 
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(new ShortDateFormat().getFormat());
 
-    public static final String VARIABLE_PREFIX = Attribute.$.getCellName();
+    public static final String VARIABLE_PREFIX = "$";
 
     private Map<String, PropertyType> code2PropertyType;
 
