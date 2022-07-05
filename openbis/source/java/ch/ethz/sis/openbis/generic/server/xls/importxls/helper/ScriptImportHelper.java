@@ -10,14 +10,15 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ScriptTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.List;
 import java.util.Map;
 
 public class ScriptImportHelper extends BasicImportHelper
 {
-    private ScriptTypes scriptType = ScriptTypes.UNKNOWN;
+    private static final String OWNER_CODE = "Code";
+
+    private ScriptTypes scriptType = null;
 
     private final Map<String, String> scripts;
 
@@ -37,7 +38,7 @@ public class ScriptImportHelper extends BasicImportHelper
 
     private String getScriptName(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, "Code");
+        String code = getValueByColumnName(header, values, OWNER_CODE);
         String script = getValueByColumnName(header, values, scriptType.getColumnName());
         if (script == null || script.isEmpty())
         {
@@ -71,7 +72,14 @@ public class ScriptImportHelper extends BasicImportHelper
         PluginCreation creation = new PluginCreation();
         creation.setName(getScriptName(header, values));
         creation.setScript(this.scripts.get(scriptPath));
-        creation.setPluginType(scriptType.equals(ScriptTypes.VALIDATION_SCRIPT) ? PluginType.ENTITY_VALIDATION : PluginType.DYNAMIC_PROPERTY);
+        switch (scriptType) {
+            case VALIDATION_SCRIPT:
+                creation.setPluginType(PluginType.ENTITY_VALIDATION);
+                break;
+            case DYNAMIC_SCRIPT:
+                creation.setPluginType(PluginType.DYNAMIC_PROPERTY);
+                break;
+        }
         delayedExecutor.createPlugin(creation);
     }
 
@@ -88,17 +96,8 @@ public class ScriptImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        checkKeyExistence(header, "Code");
-        switch (scriptType)
-        {
-            case DYNAMIC_SCRIPT:
-            case VALIDATION_SCRIPT:
-                checkKeyExistence(header, scriptType.getColumnName());
-                break;
-            case UNKNOWN:
-            default:
-                throw new UserFailureException("Unknown script type");
-        }
+        checkKeyExistence(header, OWNER_CODE);
+        checkKeyExistence(header, scriptType.getColumnName());
     }
 
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end, ScriptTypes scriptType)
@@ -109,6 +108,6 @@ public class ScriptImportHelper extends BasicImportHelper
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {
-        throw new UserFailureException("This method is not allowed to be used.");
+        throw new IllegalStateException("This method should have never been called.");
     }
 }

@@ -35,6 +35,8 @@ import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTyp
 
 public class SampleImportHelper extends BasicImportHelper
 {
+    private static final String SAMPLE_TYPE_FIELD = "Sample type";
+
     private enum Attribute implements IAttribute {
         $("$", false),
         Identifier("Identifier", false),
@@ -90,7 +92,7 @@ public class SampleImportHelper extends BasicImportHelper
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
             lineIndex++;
 
-            sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), "Sample type"));
+            sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));
 
             // first check that sample type exist.
             SampleTypeFetchOptions fetchTypeOptions = new SampleTypeFetchOptions();
@@ -345,7 +347,7 @@ public class SampleImportHelper extends BasicImportHelper
 
     @Override protected void validateHeader(Map<String, Integer> header)
     {
-        // nothing to validate
+        attributeValidator.validateHeaders(Attribute.values(), propertyTypeSearcher, header);
     }
 
     private void injectOwner(SampleCreation creation)

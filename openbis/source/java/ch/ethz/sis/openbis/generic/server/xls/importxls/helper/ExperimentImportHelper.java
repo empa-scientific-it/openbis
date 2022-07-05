@@ -27,6 +27,8 @@ import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTyp
 
 public class ExperimentImportHelper extends BasicImportHelper
 {
+    private static final String EXPERIMENT_TYPE_FIELD = "Experiment type";
+
     private enum Attribute implements IAttribute {
         Identifier("Identifier", false),
         Code("Code", true),
@@ -76,7 +78,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
             lineIndex++;
 
-            String experimentType = getValueByColumnName(header, page.get(lineIndex), "Experiment type");
+            String experimentType = getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD);
             entityTypePermId = new EntityTypePermId(experimentType);
 
             // first check that experiment type exist.

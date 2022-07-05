@@ -10,17 +10,17 @@ import java.util.Set;
 
 public class DelayedExecution
 {
-    private IObjectId identifier;
+    private final IObjectId identifier;
 
-    private String variable;
+    private final String variable;
 
-    private Serializable creationOrUpdate;
+    private final Serializable creationOrUpdate;
 
-    private Set<IObjectId> dependencies;
+    private final Set<IObjectId> dependencies;
 
-    private int page;
+    private final int page;
 
-    private int line;
+    private final int line;
 
     public DelayedExecution(String variable, IObjectId identifier, Serializable creationOrUpdate, int page, int line)
     {

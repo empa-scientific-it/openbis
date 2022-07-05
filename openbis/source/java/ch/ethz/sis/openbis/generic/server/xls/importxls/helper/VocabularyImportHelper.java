@@ -7,6 +7,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.VersionUtils;
 
@@ -15,15 +17,40 @@ import java.util.Map;
 
 public class VocabularyImportHelper extends BasicImportHelper
 {
+    private enum Attribute implements IAttribute {
+        Version("Version", true),
+        Code("Code", true),
+        Description("Description", true);
+
+        private final String headerName;
+
+        private final boolean mandatory;
+
+        Attribute(String headerName, boolean mandatory) {
+            this.headerName = headerName;
+            this.mandatory = mandatory;
+        }
+
+        public String getHeaderName() {
+            return headerName;
+        }
+        public boolean isMandatory() {
+            return mandatory;
+        }
+    }
+
     private final DelayedExecutionDecorator delayedExecutor;
 
     private final Map<String, Integer> versions;
+
+    private final AttributeValidator<Attribute> attributeValidator;
 
     public VocabularyImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, Map<String, Integer> versions)
     {
         super(mode);
         this.versions = versions;
         this.delayedExecutor = delayedExecutor;
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
     @Override protected ImportTypes getTypeName()
@@ -33,24 +60,24 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "Version");
-        String code = getValueByColumnName(header, values, "Code");
+        String version = getValueByColumnName(header, values, Attribute.Version);
+        String code = getValueByColumnName(header, values, Attribute.Code);
 
         return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TYPE.getType(), code));
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, "Version");
-        String code = getValueByColumnName(header, values, "Code");
+        String version = getValueByColumnName(header, values, Attribute.Version);
+        String code = getValueByColumnName(header, values, Attribute.Code);
 
         VersionUtils.updateVersion(version, versions, ImportTypes.VOCABULARY_TYPE.getType(), code);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "Code");
-        VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        VocabularyPermId vocabularyPermId = new VocabularyPermId(code);
 
         VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
         fetchOptions.withTerms().withVocabulary();
@@ -59,22 +86,22 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "Code");
-        String description = getValueByColumnName(header, values, "Description");
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String description = getValueByColumnName(header, values, Attribute.Description);
 
         VocabularyCreation create = new VocabularyCreation();
-        create.setCode(vocabularyCode);
-        create.setManagedInternally(ImportUtils.isInternalNamespace(vocabularyCode));
+        create.setCode(code);
+        create.setManagedInternally(ImportUtils.isInternalNamespace(code));
         create.setDescription(description);
         delayedExecutor.createVocabulary(create);
     }
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String vocabularyCode = getValueByColumnName(header, values, "Code");
-        String description = getValueByColumnName(header, values, "Description");
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String description = getValueByColumnName(header, values, Attribute.Description);
 
-        VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
+        VocabularyPermId vocabularyPermId = new VocabularyPermId(code);
 
         VocabularyUpdate update = new VocabularyUpdate();
         update.setVocabularyId(vocabularyPermId);
@@ -82,10 +109,8 @@ public class VocabularyImportHelper extends BasicImportHelper
         delayedExecutor.updateVocabulary(update);
     }
 
-    @Override protected void validateHeader(Map<String, Integer> header)
+    @Override protected void validateHeader(Map<String, Integer> headers)
     {
-        checkKeyExistence(header, "Version");
-        checkKeyExistence(header, "Code");
-        checkKeyExistence(header, "Description");
+        attributeValidator.validateHeaders(Attribute.values(), headers);
     }
 }
