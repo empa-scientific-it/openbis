@@ -177,7 +177,7 @@ public class SessionInformation implements Serializable
     @Override
     public String toString()
     {
-        return "Session Information " + userName;
+        return "SessionInformation[userName=" + userName + "]";
     }
 
 }

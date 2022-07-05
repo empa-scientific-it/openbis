@@ -1017,7 +1017,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField(Person.class, "person", "Person", PersonFetchOptions.class);
         gen.addFetchedField(Person.class, "creatorPerson", "CreatorPerson", PersonFetchOptions.class);
 
-        gen.setToStringMethod("\"Session Information \" + userName");
+        gen.setToStringMethod("\"SessionInformation[userName=\" + userName + \"]\"");
 
         return gen;
     }
