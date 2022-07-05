@@ -5,7 +5,9 @@ import ch.systemsx.cisd.authentication.SessionTokenHash;
 public class PersonalAccessTokenHash
 {
 
-    private static final String PREFIX = "!pat-";
+    // The prefix needs to contain at least one character that is disallowed in a username.
+    // Thanks to that we can distinguish a pat token from a regular session token.
+    private static final String PREFIX = "$pat-";
 
     private final String hash;
 
