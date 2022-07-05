@@ -85,7 +85,7 @@ public final class UploadServiceServlet extends AbstractController
     private IPersonalAccessTokenConverter personalAccessTokenConverter;
 
     @Private UploadServiceServlet(ISessionFilesSetter sessionFilesSetter, IOpenBisSessionManager sessionManager,
-            ISessionWorkspaceProvider sessionWorkspaceProvider)
+            ISessionWorkspaceProvider sessionWorkspaceProvider, IPersonalAccessTokenConverter personalAccessTokenConverter)
     {
         // super(UploadedFilesBean.class);
         setSynchronizeOnSession(true);
@@ -93,11 +93,12 @@ public final class UploadServiceServlet extends AbstractController
         this.sessionFilesSetter = sessionFilesSetter;
         this.sessionManager = sessionManager;
         this.sessionWorkspaceProvider = sessionWorkspaceProvider;
+        this.personalAccessTokenConverter = personalAccessTokenConverter;
     }
 
     public UploadServiceServlet()
     {
-        this(new SessionFilesSetter(), null, null);
+        this(new SessionFilesSetter(), null, null, null);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
