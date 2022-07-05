@@ -129,9 +129,14 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
         if (fullPropertyName == null)
         {
             sqlBuilder.append(SP).append(AND).append(SP);
-            TranslatorUtils.appendDataTypesSubselectCondition(tableMapper, sqlBuilder, aliases,
-                    DataTypeCode.VARCHAR.toString(), DataTypeCode.MULTILINE_VARCHAR.toString(),
-                    DataTypeCode.HYPERLINK.toString(), DataTypeCode.XML.toString());
+            sqlBuilder.append(LP);
+            TranslatorUtils.appendDataTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
+            sqlBuilder.append(RP).append(SP).append(IN).append(SP).append(LP)
+                    .append(SQ).append(String.join(SQ + COMMA + SP + SQ,
+                            Arrays.asList(DataTypeCode.VARCHAR.toString(), DataTypeCode.MULTILINE_VARCHAR.toString(),
+                                    DataTypeCode.HYPERLINK.toString(), DataTypeCode.XML.toString())
+                                    .toArray(new String[0])))
+                    .append(SQ).append(RP);
         }
 
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);

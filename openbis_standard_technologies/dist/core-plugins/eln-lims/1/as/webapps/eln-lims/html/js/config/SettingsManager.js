@@ -139,6 +139,7 @@ function SettingsManager(serverFacade) {
 				SettingsManagerUtils._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
 			} else {
+				alert("User has no access to the ELN Settings, please contact your administrator.");
 				callback();
 			}
 		}).bind(this))

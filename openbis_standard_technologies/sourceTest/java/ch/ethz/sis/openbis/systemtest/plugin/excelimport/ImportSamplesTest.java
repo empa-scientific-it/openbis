@@ -1,11 +1,14 @@
 package ch.ethz.sis.openbis.systemtest.plugin.excelimport;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -22,6 +25,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
+import static org.testng.Assert.*;
+
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
@@ -36,19 +41,27 @@ public class ImportSamplesTest extends AbstractImportTest
 
     private static final String SAMPLES_SAMPLE_TYPE_ELSWHERE = "samples/sample_type_elsewhere.xls";
 
+    private static final String SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC = "samples/sample_type_elsewhere_cyclic.xls";
+
+    private static final String SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC_WRONG_TYPE = "samples/sample_type_elsewhere_cyclic_wrong_type.xls";
+
     private static final String SAMPLES_SPACE_PROJECT_EXPERIMENT_ELSEWHERE = "samples/space_project_experiment_elsewhere.xls";
 
     private static final String SPACE = "samples/space.xls";
 
     private static final String SAMPLE_TYPE = "samples/sample_type.xls";
 
+    private static final String SAMPLE_TYPE_CYCLIC = "samples/sample_type_cyclic.xls";
+
+    private static final String SAMPLE_TYPE_CYCLIC_FIX_TYPE = "samples/sample_type_cyclic_fix_type.xls";
+
     private static final String VOCABULARY_TYPE = "samples/vocab_type.xls";
 
-    private static final String CHILD_AS_CODE = "samples/child_as_code.xls";
+    private static final String CHILD_AS_IDENTIFIER = "samples/child_as_code.xls";
 
     private static final String CHILD_AS_DOLLARTAG = "samples/child_as_dollartag.xls";
 
-    private static final String PARENT_AS_CODE = "samples/parent_as_code.xls";
+    private static final String PARENT_AS_IDENTIFIER = "samples/parent_as_code.xls";
 
     private static final String PARENT_AS_DOLLARTAG = "samples/parent_as_dollartag.xls";
 
@@ -152,8 +165,8 @@ public class ImportSamplesTest extends AbstractImportTest
 
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
+                Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)),
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
         // WHEN
         Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
         // THEN
@@ -164,6 +177,68 @@ public class ImportSamplesTest extends AbstractImportTest
     public void shouldThrowExceptionIfSpaceDoesntExist() throws IOException
     {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
+    }
+
+    @Test
+    @DirtiesContext
+    public void testSamplesAreCreatedWhenSampleTypeCyclicOnServer() throws IOException
+    {
+        // the Excel contains internally managed property types which can be only manipulated by the system user
+        String sessionToken = v3api.loginAsSystem();
+
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken,
+                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC)));
+        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
+        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(6), (SampleIdentifier)ids.get(7), (SampleIdentifier)ids.get(8));
+        // WHEN
+        List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
+        Set<String> differentCyclicAssignments = new HashSet<>();
+        for (Sample sample:samples) {
+            differentCyclicAssignments.add(sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
+        }
+        // THEN
+        assertEquals(samples.size(), 3);
+        assertEquals(differentCyclicAssignments.size(), 2);
+    }
+
+    @Test
+    @DirtiesContext
+    public void testSamplesAreCreatedWhenSampleTypeCyclicOnServerFixType() throws IOException
+    {
+        // the Excel contains internally managed property types which can be only manipulated by the system user
+        String sessionToken = v3api.loginAsSystem();
+
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken,
+                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE)));
+        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
+        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(6), (SampleIdentifier)ids.get(7), (SampleIdentifier)ids.get(8));
+        // WHEN
+        List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
+        Set<String> differentCyclicAssignments = new HashSet<>();
+        for (Sample sample:samples) {
+            differentCyclicAssignments.add(sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
+        }
+        // THEN
+        assertEquals(samples.size(), 3);
+        assertEquals(differentCyclicAssignments.size(), 2);
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    @DirtiesContext
+    public void testSamplesAreCreatedWhenSampleTypeCyclicOnServerFixTypeWrongType() throws IOException
+    {
+        // the Excel contains internally managed property types which can be only manipulated by the system user
+        String sessionToken = v3api.loginAsSystem();
+
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken,
+                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE)));
+        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC_WRONG_TYPE)));
     }
 
     @Test
@@ -193,8 +268,8 @@ public class ImportSamplesTest extends AbstractImportTest
 
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE)));
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE)),
+                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE)));
         // WHEN
         Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
         // THEN
@@ -203,14 +278,14 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesChildrenAreAssignedWhenAddressedByCodeInXls() throws IOException
+    public void testSamplesChildrenAreAssignedWhenAddressedByIdentifierInXls() throws IOException
     {
         // the Excel contains internally managed property types which can be only manipulated by the system user
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_CODE)));
+                Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_IDENTIFIER)));
         // WHEN
         Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
         // THEN
@@ -223,14 +298,14 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesParentsAreAssignedWhenAddressedByCodeInXls() throws IOException
+    public void testSamplesParentsAreAssignedWhenAddressedByIdentifierInXls() throws IOException
     {
         // the Excel contains internally managed property types which can be only manipulated by the system user
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_CODE)));
+                Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_IDENTIFIER)));
         // WHEN
         Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
         // THEN
@@ -306,11 +381,13 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        String result = TestUtils.createFrom(v3api, sessionToken,
+
+        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING,
                 Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_LEVEL)));
-        String permId = TestUtils.extractSamplePermIdFromResults(result);
+        String permId = result.get(result.size() - 1).toString();
+
         // WHEN
-        Sample sample = TestUtils.getSampleByPermId(v3api, sessionToken, permId);
+        Sample sample = TestUtils.getSampleById(v3api, sessionToken, permId);
         // THEN
         assertNotNull(sample.getCode());
         assertEquals(sample.getType().getCode(), "ANTIBODY");
@@ -324,11 +401,12 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        String result = TestUtils.createFrom(v3api, sessionToken,
+        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING,
                 Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_TYPE_LEVEL)));
-        String permId = TestUtils.extractSamplePermIdFromResults(result);
+
+        String permId = result.get(result.size() - 1).toString();
         // WHEN
-        Sample sample = TestUtils.getSampleByPermId(v3api, sessionToken, permId);
+        Sample sample = TestUtils.getSampleById(v3api, sessionToken, permId);
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getType().getCode(), "ANTIBODY");
