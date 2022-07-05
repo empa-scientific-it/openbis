@@ -1,8 +1,8 @@
 import base64
 from ch.systemsx.cisd.common.exceptions import UserFailureException
-from ch.ethz.sis.openbis.generic.server.xls.importxls import XLSImport
-from ch.ethz.sis.openbis.generic.server.xls.importxls import ImportOptions
-from ch.ethz.sis.openbis.generic.server.xls.importxls.enums import ImportModes
+from ch.ethz.sis.openbis.generic.server.xls.importer import XLSImport
+from ch.ethz.sis.openbis.generic.server.xls.importer import ImportOptions
+from ch.ethz.sis.openbis.generic.server.xls.importer.enums import ImportModes
 from java.util import ArrayList
 
 def get_update_mode(parameters):
