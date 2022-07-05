@@ -111,11 +111,11 @@ public class SessionInformationTranslator extends
 
         for (Session session : sessions)
         {
-            if (fetchOptions.hasPerson() && session.tryGetPerson() != null)
+            if (fetchOptions.hasPerson() && session.tryGetPerson() != null && session.tryGetPerson().getId() != null)
             {
                 personIds.add(session.tryGetPerson().getId());
             }
-            if (fetchOptions.hasCreatorPerson() && session.tryGetCreatorPerson() != null)
+            if (fetchOptions.hasCreatorPerson() && session.tryGetCreatorPerson() != null && session.tryGetCreatorPerson().getId() != null)
             {
                 creatorIds.add(session.tryGetCreatorPerson().getId());
             }
