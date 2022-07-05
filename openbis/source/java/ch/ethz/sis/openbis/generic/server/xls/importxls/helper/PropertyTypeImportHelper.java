@@ -95,9 +95,9 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         }
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "property";
+        return ImportTypes.PROPERTY_TYPE;
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)

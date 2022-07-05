@@ -13,6 +13,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher;
@@ -98,9 +99,9 @@ public class ExperimentImportHelper extends BasicImportHelper
         super.importBlock(page, pageIndex, lineIndex, end);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "Experiment";
+        return ImportTypes.EXPERIMENT;
     }
 
     private ExperimentIdentifier getIdentifier(Map<String, Integer> header, List<String> values)

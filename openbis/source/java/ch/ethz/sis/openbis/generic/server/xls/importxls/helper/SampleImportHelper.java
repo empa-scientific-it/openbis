@@ -17,6 +17,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.IdentifierVariable;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -82,9 +83,9 @@ public class SampleImportHelper extends BasicImportHelper
         super.importBlock(page, pageIndex, start + 2, end);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "sample";
+        return ImportTypes.SAMPLE;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

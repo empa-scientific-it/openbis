@@ -8,6 +8,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -54,9 +55,9 @@ public class ProjectImportHelper extends BasicImportHelper
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "Project";
+        return ImportTypes.PROJECT;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

@@ -2,6 +2,7 @@ package ch.ethz.sis.openbis.generic.server.xls.importxls.helper;
 
 import ch.ethz.sis.openbis.generic.server.xls.importxls.XLSImport;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -21,7 +22,7 @@ public abstract class BasicImportHelper extends AbstractImportHelper
         this.mode = mode;
     }
 
-    protected abstract String getTypeName();
+    protected abstract ImportTypes getTypeName();
 
     protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {

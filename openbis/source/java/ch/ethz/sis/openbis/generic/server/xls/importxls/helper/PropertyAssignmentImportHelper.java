@@ -21,8 +21,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,37 @@ import java.util.stream.Collectors;
 
 public class PropertyAssignmentImportHelper extends BasicImportHelper
 {
+
+    private enum Attribute implements IAttribute {
+        Version("Version", true),
+        Code("Code", true),
+        Mandatory("Mandatory", true),
+        ShowInEditViews("Show in edit views", true),
+        Section("Section", true),
+        PropertyLabel("Property label", true),
+        DataType("Data type", true),
+        VocabularyCode("Vocabulary code", true),
+        Description("Description", true),
+        Metadata("Metadata", false),
+        DynamicScript("Dynamic script", false);
+
+        private final String headerName;
+
+        private final boolean mandatory;
+
+        Attribute(String headerName, boolean mandatory) {
+            this.headerName = headerName;
+            this.mandatory = mandatory;
+        }
+
+        public String getHeaderName() {
+            return headerName;
+        }
+        public boolean isMandatory() {
+            return mandatory;
+        }
+    }
+
     private final DelayedExecutionDecorator delayedExecutor;
 
     private ImportTypes importTypes;
@@ -40,15 +72,18 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     private EntityTypePermId permId;
 
+    private AttributeValidator<Attribute> attributeValidator;
+
     public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode)
     {
         super(mode);
         this.delayedExecutor = delayedExecutor;
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "property assignment";
+        return ImportTypes.PROPERTY_TYPE;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
@@ -56,13 +91,13 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         return false;
     }
 
-    @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
+    @Override protected void createObject(Map<String, Integer> headers, List<String> values, int page, int line)
     {
-        String code = getValueByColumnName(header, values, "Code");
-        String mandatory = getValueByColumnName(header, values, "Mandatory");
-        String showInEditViews = getValueByColumnName(header, values, "Show in edit views");
-        String section = getValueByColumnName(header, values, "Section");
-        String script = getValueByColumnName(header, values, "Dynamic script");
+        String code = getValueByColumnName(headers, values, Attribute.Code);
+        String mandatory = getValueByColumnName(headers, values, Attribute.Mandatory);
+        String showInEditViews = getValueByColumnName(headers, values, Attribute.ShowInEditViews);
+        String section = getValueByColumnName(headers, values, Attribute.Section);
+        String script = getValueByColumnName(headers, values, Attribute.DynamicScript);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -136,12 +171,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         }
     }
 
-    @Override protected void validateHeader(Map<String, Integer> header)
+    @Override protected void validateHeader(Map<String, Integer> headers)
     {
-        checkKeyExistence(header, "Code");
-        checkKeyExistence(header, "Mandatory");
-        checkKeyExistence(header, "Show in edit views");
-        checkKeyExistence(header, "Section");
+        attributeValidator.validateHeaders(Attribute.values(), headers);
     }
 
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end, ImportTypes importTypes)
@@ -149,7 +181,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         this.importTypes = importTypes;
 
         Map<String, Integer> header = parseHeader(page.get(start), false);
-        String code = getValueByColumnName(header, page.get(start + 1), "Code");
+        String code = getValueByColumnName(header, page.get(start + 1), Attribute.Code);
 
         switch (importTypes)
         {
@@ -170,6 +202,6 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {
-        throw new UserFailureException("This method is not allowed to be used.");
+        throw new IllegalStateException("This method should have never been called.");
     }
 }

@@ -8,6 +8,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -27,9 +28,9 @@ public class SpaceImportHelper extends BasicImportHelper
         this.delayedExecutor = delayedExecutor;
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "Space";
+        return ImportTypes.SPACE;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

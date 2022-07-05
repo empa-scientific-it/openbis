@@ -55,9 +55,9 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "Experiment type";
+        return ImportTypes.EXPERIMENT_TYPE;
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)

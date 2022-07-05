@@ -7,6 +7,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ScriptTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -29,9 +30,9 @@ public class ScriptImportHelper extends BasicImportHelper
         this.delayedExecutor = delayedExecutor;
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return scriptType.getColumnName();
+        return ImportTypes.SCRIPT;
     }
 
     private String getScriptName(Map<String, Integer> header, List<String> values)

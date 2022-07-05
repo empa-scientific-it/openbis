@@ -36,9 +36,9 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         super.importBlock(page, pageIndex, start + 2, end);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "Vocabulary term";
+        return ImportTypes.VOCABULARY_TERM;
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)

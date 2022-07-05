@@ -55,9 +55,9 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
-    @Override protected String getTypeName()
+    @Override protected ImportTypes getTypeName()
     {
-        return "dataset";
+        return ImportTypes.DATASET_TYPE;
     }
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
