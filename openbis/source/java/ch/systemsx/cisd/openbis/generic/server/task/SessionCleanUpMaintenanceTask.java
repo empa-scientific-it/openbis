@@ -35,7 +35,7 @@ public class SessionCleanUpMaintenanceTask implements IMaintenanceTask
 
     public static final String DEFAULT_MAINTENANCE_TASK_NAME = "session-clean-up-task";
 
-    public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 120;
+    public static final int DEFAULT_MAINTENANCE_TASK_INTERVAL = 3600;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SessionCleanUpMaintenanceTask.class);
