@@ -18,12 +18,13 @@ import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.DelayedExecutionDe
 import ch.ethz.sis.openbis.generic.server.xls.importxls.delay.IdentifierVariable;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,34 @@ import static ch.ethz.sis.openbis.generic.server.xls.importxls.utils.PropertyTyp
 
 public class SampleImportHelper extends BasicImportHelper
 {
+    private enum Attribute implements IAttribute {
+        $("$", false),
+        Identifier("Identifier", false),
+        Code("Code", false),
+        Space("Space", false),
+        Project("Project", false),
+        Experiment("Experiment", false),
+        AutoGenerateCode("Auto generate code", false),
+        Parents("Parents", false),
+        Children("Children", false);
+
+        private final String headerName;
+
+        private final boolean mandatory;
+
+        Attribute(String headerName, boolean mandatory) {
+            this.headerName = headerName;
+            this.mandatory = mandatory;
+        }
+
+        public String getHeaderName() {
+            return headerName;
+        }
+        public boolean isMandatory() {
+            return mandatory;
+        }
+    }
+
     private EntityTypePermId sampleType;
 
     private final ImportOptions options;
@@ -42,14 +71,14 @@ public class SampleImportHelper extends BasicImportHelper
 
     private PropertyTypeSearcher propertyTypeSearcher;
 
-    private static final Set<String> sampleAttributes = new HashSet<>(Arrays.asList("$", "Identifier", "Code", "Space", "Project",
-            "Experiment", "Auto generate code", "Parents", "Children"));
+    private final AttributeValidator<Attribute> attributeValidator;
 
     public SampleImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
         super(mode);
         this.options = options;
         this.delayedExecutor = delayedExecutor;
+        this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
@@ -96,10 +125,10 @@ public class SampleImportHelper extends BasicImportHelper
         fetchOptions.withParents();
         fetchOptions.withProperties();
 
-        String code = getValueByColumnName(header, values, "Code");
-        String space = getValueByColumnName(header, values, "Space");
-        String project = getValueByColumnName(header, values, "Project");
-        String identifier = getValueByColumnName(header, values, "Identifier"); // Only used for updates
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier); // Only used for updates
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String space = getValueByColumnName(header, values, Attribute.Space);
+        String project = getValueByColumnName(header, values, Attribute.Project);
 
         ISampleId sampleId;
         if (identifier != null && !identifier.isEmpty()) {
@@ -122,19 +151,20 @@ public class SampleImportHelper extends BasicImportHelper
         SampleCreation creation = new SampleCreation();
         creation.setTypeId(sampleType);
 
-        String code = getValueByColumnName(header, values, "Code");
-        String variable = getValueByColumnName(header, values, "$");
-        String autoGenerateCode = getValueByColumnName(header, values, "Auto generate code");
-        String space = getValueByColumnName(header, values, "Space");
-        String project = getValueByColumnName(header, values, "Project");
-        String experiment = getValueByColumnName(header, values, "Experiment");
-        String parents = getValueByColumnName(header, values, "Parents");
-        String children = getValueByColumnName(header, values, "Children");
+        String variable = getValueByColumnName(header, values, Attribute.$);
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String autoGenerateCode = getValueByColumnName(header, values, Attribute.AutoGenerateCode);
+        String space = getValueByColumnName(header, values, Attribute.Space);
+        String project = getValueByColumnName(header, values, Attribute.Project);
+        String experiment = getValueByColumnName(header, values, Attribute.Experiment);
+        String parents = getValueByColumnName(header, values, Attribute.Parents);
+        String children = getValueByColumnName(header, values, Attribute.Children);
 
         if (variable != null && !variable.isEmpty() && !variable.startsWith(VARIABLE_PREFIX))
         {
             throw new UserFailureException("Variables should start with " + VARIABLE_PREFIX);
         }
+
         if (code != null && !code.isEmpty())
         {
             creation.setCode(code);
@@ -192,7 +222,7 @@ public class SampleImportHelper extends BasicImportHelper
 
         for (String key : header.keySet())
         {
-            if (!sampleAttributes.contains(key))
+            if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
@@ -205,13 +235,18 @@ public class SampleImportHelper extends BasicImportHelper
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        String identifier = getValueByColumnName(header, values, "Identifier");
-        String variable = getValueByColumnName(header, values, "$");
-        String space = getValueByColumnName(header, values, "Space");
-        String project = getValueByColumnName(header, values, "Project");
-        String experiment = getValueByColumnName(header, values, "Experiment");
-        String parents = getValueByColumnName(header, values, "Parents");
-        String children = getValueByColumnName(header, values, "Children");
+        String variable = getValueByColumnName(header, values, Attribute.$);
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+        String space = getValueByColumnName(header, values, Attribute.Space);
+        String project = getValueByColumnName(header, values, Attribute.Project);
+        String experiment = getValueByColumnName(header, values, Attribute.Experiment);
+        String parents = getValueByColumnName(header, values, Attribute.Parents);
+        String children = getValueByColumnName(header, values, Attribute.Children);
+
+        if (variable != null && !variable.isEmpty() && !variable.startsWith(VARIABLE_PREFIX))
+        {
+            throw new UserFailureException("Variables should start with " + VARIABLE_PREFIX);
+        }
 
         if (identifier == null || identifier.isEmpty()) {
             throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a sample to update.");
@@ -293,7 +328,7 @@ public class SampleImportHelper extends BasicImportHelper
 
         for (String key : header.keySet())
         {
-            if (!sampleAttributes.contains(key))
+            if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
                 if (value != null && (value.isEmpty() || value.equals("--DELETE--") || value.equals("__DELETE__")))

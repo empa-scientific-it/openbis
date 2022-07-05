@@ -73,17 +73,11 @@ public class ImportSpacesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_CODE)));
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class)
     @DirtiesContext
     public void shouldCreateSpaceWhenNoDescription() throws IOException
     {
-        // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_DESCRIPTION)));
-        // WHEN
-        Space space = TestUtils.getSpace(v3api, sessionToken, "TEST_SPACE");
-        // THEN
-        assertEquals(space.getCode(), "TEST_SPACE");
-        assertEquals(space.getDescription(), null);
     }
 
 }
