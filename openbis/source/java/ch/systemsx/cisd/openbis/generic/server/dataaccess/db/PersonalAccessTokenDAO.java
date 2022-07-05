@@ -15,11 +15,13 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.systemsx.cisd.authentication.SessionTokenHash;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 
 public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
@@ -52,12 +54,12 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
             @Override public String generateTokenHash(String user)
             {
-                return "$pat-" + user + "-" + generator.getNewToken(System.currentTimeMillis(), 'x');
+                return PersonalAccessTokenHash.create(user, System.currentTimeMillis()).toString();
             }
 
             @Override public String generateSessionHash(String user)
             {
-                return user + "-" + generator.getNewToken(System.currentTimeMillis(), 'x');
+                return SessionTokenHash.create(user, System.currentTimeMillis()).toString();
             }
         });
     }

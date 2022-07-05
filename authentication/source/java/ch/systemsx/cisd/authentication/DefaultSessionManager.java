@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
@@ -71,11 +70,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private static final String LOGIN_PREFIX_TEMPLATE = "(%dms) LOGIN: ";
 
-    private static final char SESSION_TOKEN_SEPARATOR = '-';
-
-    // should be different than SESSION_TOKEN_SEPARATOR
-    private static final char TIMESTAMP_TOKEN_SEPARATOR = 'x';
-
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH,
             DefaultSessionManager.class);
 
@@ -84,8 +78,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DefaultSessionManager.class);
-
-    private static final TokenGenerator tokenGenerator = new TokenGenerator();
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
@@ -229,9 +221,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final T createAndStoreSession(final String user, final Principal principal,
             final long now)
     {
-        final String sessionToken =
-                user + SESSION_TOKEN_SEPARATOR
-                        + tokenGenerator.getNewToken(now, TIMESTAMP_TOKEN_SEPARATOR);
+        final String sessionToken = SessionTokenHash.create(user, now).toString();
+
         synchronized (sessions)
         {
             int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
@@ -536,30 +527,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public boolean isAWellFormedSessionToken(String sessionTokenOrNull)
     {
-        if (sessionTokenOrNull == null)
-        {
-            return false;
-        }
-        final String[] splittedToken =
-                StringUtils.split(sessionTokenOrNull, SESSION_TOKEN_SEPARATOR);
-        if (splittedToken.length < 2)
-        {
-            return false;
-        }
-        String[] splittedTimeStampToken =
-                StringUtils.split(splittedToken[1], TIMESTAMP_TOKEN_SEPARATOR);
-        if (splittedTimeStampToken.length < 2)
-        {
-            return false;
-        }
-        try
-        {
-            Long.parseLong(splittedTimeStampToken[0]);
-        } catch (NumberFormatException ex)
-        {
-            return false;
-        }
-        return splittedTimeStampToken[1].length() == 32;
+        return SessionTokenHash.isValid(sessionTokenOrNull);
     }
 
     @Override
@@ -598,18 +566,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         synchronized (sessions)
         {
-            final String[] splittedToken = StringUtils.split(sessionToken, SESSION_TOKEN_SEPARATOR);
-            if (splittedToken.length < 2)
-            {
-                final String msg =
-                        "Session token '" + sessionToken + "' is malformed. Please login again.";
-                if (authenticationLog.isInfoEnabled())
-                {
-                    authenticationLog.info(msg);
-                }
-                throw new InvalidSessionException(msg);
-            }
             final FullSession<T> session = sessions.get(sessionToken);
+            
             if (session == null)
             {
                 final String msg =

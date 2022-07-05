@@ -2,8 +2,9 @@ package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
 
 public abstract class AbstractPersonalAccessTokenConverter implements IPersonalAccessTokenConverter
 {
@@ -18,7 +19,7 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
 
     public boolean shouldConvert(String sessionTokenOrPAT)
     {
-        if (!getConfig().arePersonalAccessTokensEnabled() || !isPersonalAccessTokenFormatValid(sessionTokenOrPAT))
+        if (!getConfig().arePersonalAccessTokensEnabled() || !PersonalAccessTokenHash.isValid(sessionTokenOrPAT))
         {
             return false;
         }
@@ -29,7 +30,7 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
 
     public String convert(String sessionTokenOrPAT)
     {
-        if (!getConfig().arePersonalAccessTokensEnabled() || !isPersonalAccessTokenFormatValid(sessionTokenOrPAT))
+        if (!getConfig().arePersonalAccessTokensEnabled() || !PersonalAccessTokenHash.isValid(sessionTokenOrPAT))
         {
             return sessionTokenOrPAT;
         }
@@ -66,11 +67,6 @@ public abstract class AbstractPersonalAccessTokenConverter implements IPersonalA
                 return patSessionToken;
             }
         }
-    }
-
-    private boolean isPersonalAccessTokenFormatValid(String sessionTokenOrPAT)
-    {
-        return sessionTokenOrPAT != null && sessionTokenOrPAT.startsWith("$pat-");
     }
 
 }
