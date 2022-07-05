@@ -26,8 +26,8 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**

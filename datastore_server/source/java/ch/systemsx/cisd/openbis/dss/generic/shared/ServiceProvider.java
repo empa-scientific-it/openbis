@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.dssapi.v3.DataStoreServerApiJsonServer
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;

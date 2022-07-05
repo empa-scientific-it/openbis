@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExec
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 /**

@@ -1,10 +1,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.pat;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 public class PersonalAccessTokenConfigFromEncapsulatedService implements IPersonalAccessTokenConfig

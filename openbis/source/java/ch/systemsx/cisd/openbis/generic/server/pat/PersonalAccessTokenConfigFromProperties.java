@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 
 @Component
 public class PersonalAccessTokenConfigFromProperties implements IPersonalAccessTokenConfig

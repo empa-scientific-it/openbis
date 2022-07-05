@@ -9,6 +9,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
+import ch.systemsx.cisd.openbis.generic.shared.pat.AbstractPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 
 @Component
 public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessTokenConverter

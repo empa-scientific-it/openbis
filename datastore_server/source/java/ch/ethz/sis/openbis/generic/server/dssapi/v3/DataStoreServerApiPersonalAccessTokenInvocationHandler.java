@@ -17,7 +17,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 public class DataStoreServerApiPersonalAccessTokenInvocationHandler implements IDataStoreServerApi
 {

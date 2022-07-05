@@ -247,8 +247,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConfig;
-import ch.systemsx.cisd.openbis.generic.server.pat.IPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements IApplicationServerInternalApi
 {

@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.server.pat;
+package ch.systemsx.cisd.openbis.generic.shared.pat;
 
 import java.util.Date;
 
