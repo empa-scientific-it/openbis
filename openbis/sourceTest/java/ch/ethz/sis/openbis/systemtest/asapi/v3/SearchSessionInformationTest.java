@@ -308,7 +308,9 @@ public class SearchSessionInformationTest extends AbstractTest
 
         for (SessionInformation sessionInformation : result.getObjects())
         {
-            if (ownerId.equals(sessionInformation.getPerson().getUserId()) && sessionName.equals(
+            String sessionInformationUserId = sessionInformation.getPerson() != null ? sessionInformation.getPerson().getUserId() : null;
+            
+            if (ownerId.equals(sessionInformationUserId) && sessionName.equals(
                     sessionInformation.getPersonalAccessTokenSessionName()))
             {
                 return sessionInformation;
