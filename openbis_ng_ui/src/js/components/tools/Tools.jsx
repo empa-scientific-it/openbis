@@ -79,7 +79,8 @@ class Tools extends React.PureComponent {
           messages.ENTITY_VALIDATION_PLUGINS
         ),
         [objectType.QUERY]: messages.get(messages.QUERIES),
-        [objectType.HISTORY]: messages.get(messages.HISTORY)
+        [objectType.HISTORY]: messages.get(messages.HISTORY),
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT)
       }
       label = labels[object.id]
     } else {
@@ -96,7 +97,8 @@ class Tools extends React.PureComponent {
         [objectType.QUERY]: messages.get(messages.QUERY) + ': ',
         [objectType.HISTORY]: messages.get(messages.HISTORY) + ': ',
         [objectType.IMPORT]: messages.get(messages.IMPORT) + ': ',
-        [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
+        [objectType.SEARCH]: messages.get(messages.SEARCH) + ': ',
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT) + ': '
       }
 
       let suffix = object.id
