@@ -32,7 +32,6 @@ import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExport
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 
 public class XLSExport
