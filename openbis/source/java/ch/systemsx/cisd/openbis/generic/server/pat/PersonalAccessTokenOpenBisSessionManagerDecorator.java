@@ -2,7 +2,9 @@ package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -13,7 +15,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionActionListener;
@@ -28,12 +29,16 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenBisSessionManager
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PersonalAccessTokenOpenBisSessionManagerDecorator.class);
+
+    @Autowired
+    private IPersonalAccessTokenConfig config;
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -48,6 +53,8 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     private IAuthenticationService authenticationService;
 
     private final IOpenBisSessionManager sessionManager;
+
+    private final Map<String, Session> sessions = new HashMap<>();
 
     public PersonalAccessTokenOpenBisSessionManagerDecorator(IOpenBisSessionManager sessionManager)
     {
@@ -91,6 +98,11 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
     @Override public boolean isSessionActive(final String sessionToken)
     {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            return sessionManager.isSessionActive(sessionToken);
+        }
+
         PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
         if (patSession == null)
@@ -105,26 +117,60 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
     @Override public void expireSession(final String sessionToken) throws InvalidSessionException
     {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            sessionManager.expireSession(sessionToken);
+        }
+
         PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
             sessionManager.expireSession(sessionToken);
+        } else
+        {
+            closeSession(sessionToken);
         }
     }
 
     @Override public void closeSession(final String sessionToken) throws InvalidSessionException
     {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            sessionManager.closeSession(sessionToken);
+        }
+
         PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
             sessionManager.closeSession(sessionToken);
+        } else
+        {
+            synchronized (sessions)
+            {
+                Date now = new Date();
+
+                if (now.after(patSession.getValidToDate()))
+                {
+                    Session session = getSessionForPATSession(patSession);
+                    if (session != null)
+                    {
+                        session.cleanup();
+                        sessions.remove(session.getSessionToken());
+                    }
+                }
+            }
         }
     }
 
     @Override public Session getSession(final String sessionToken) throws InvalidSessionException
     {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            return sessionManager.getSession(sessionToken);
+        }
+
         PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
         if (patSession == null)
@@ -132,21 +178,27 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.getSession(sessionToken);
         } else
         {
-            Date now = new Date();
-            if (now.after(patSession.getValidFromDate()) && now.before(patSession.getValidToDate()))
+            synchronized (sessions)
             {
-                DefaultSessionManager.FullSession<Session> fullSession = createPersonalAccessSession(patSession);
-                if (fullSession != null)
+                Session session = tryGetSession(sessionToken);
+                if (session != null)
                 {
-                    return fullSession.getSession();
+                    return session;
+                } else
+                {
+                    throw new InvalidSessionException("Invalid personal access token session");
                 }
             }
-            throw new InvalidSessionException("Invalid personal access token session");
         }
     }
 
     @Override public Session tryGetSession(final String sessionToken)
     {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            return sessionManager.tryGetSession(sessionToken);
+        }
+
         PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
         if (patSession == null)
@@ -154,42 +206,72 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.tryGetSession(sessionToken);
         } else
         {
-            Date now = new Date();
-            if (now.after(patSession.getValidFromDate()) && now.before(patSession.getValidToDate()))
+            synchronized (sessions)
             {
-                DefaultSessionManager.FullSession<Session> fullSession = createPersonalAccessSession(patSession);
-                if (fullSession != null)
+                if (isSessionActive(sessionToken))
                 {
-                    return fullSession.getSession();
+                    return getOrCreateSessionForPATSession(patSession);
+                } else
+                {
+                    return null;
                 }
             }
-            return null;
         }
     }
 
     @Override public List<Session> getSessions()
     {
-        List<Session> sessions = new ArrayList<>(sessionManager.getSessions());
-
-        for (PersonalAccessTokenSession patSession : daoFactory.getPersonalAccessTokenDAO().listSessions())
+        if (!config.arePersonalAccessTokensEnabled())
         {
-            DefaultSessionManager.FullSession<Session> fullSession = createPersonalAccessSession(patSession);
-            if (fullSession != null)
-            {
-                sessions.add(fullSession.getSession());
-            }
+            return sessionManager.getSessions();
         }
 
-        return sessions;
+        List<Session> allSessions = new ArrayList<>(sessionManager.getSessions());
+
+        synchronized (sessions)
+        {
+            for (PersonalAccessTokenSession patSession : daoFactory.getPersonalAccessTokenDAO().listSessions())
+            {
+                if (isSessionActive(patSession.getHash()))
+                {
+                    Session session = getOrCreateSessionForPATSession(patSession);
+                    if (session != null)
+                    {
+                        allSessions.add(session);
+                    }
+                }
+            }
+            }
+
+        return allSessions;
     }
 
-    private DefaultSessionManager.FullSession<Session> createPersonalAccessSession(PersonalAccessTokenSession patSession)
+    private Session getSessionForPATSession(PersonalAccessTokenSession patSession)
+    {
+        return sessions.get(patSession.getHash());
+    }
+
+    private Session getOrCreateSessionForPATSession(PersonalAccessTokenSession patSession)
+    {
+        Session session = getSessionForPATSession(patSession);
+        if (session == null)
+        {
+            session = createSessionForPATSession(patSession);
+            if (session != null)
+            {
+                sessions.put(session.getSessionToken(), session);
+            }
+        }
+        return session;
+    }
+
+    private Session createSessionForPATSession(PersonalAccessTokenSession patSession)
     {
         TransactionTemplate tmpl = new TransactionTemplate(transactionManager);
-        return tmpl.execute(new TransactionCallback<DefaultSessionManager.FullSession<Session>>()
+        return tmpl.execute(new TransactionCallback<Session>()
         {
             @Override
-            public DefaultSessionManager.FullSession<Session> doInTransaction(TransactionStatus status)
+            public Session doInTransaction(TransactionStatus status)
             {
                 try
                 {
@@ -214,18 +296,16 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
                         return null;
                     }
 
-                    final DefaultSessionManager.FullSession<Session> createdSession =
-                            new DefaultSessionManager.FullSession<>(
-                                    sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
-                                            patSession.getValidFromDate().getTime(),
-                                            (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
-                                            true, patSession.getName()));
+                    final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
+                            patSession.getValidFromDate().getTime(),
+                            (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
+                            true, patSession.getName());
 
                     HibernateUtils.initialize(person.getAllPersonRoles());
-                    createdSession.getSession().setPerson(person);
-                    createdSession.getSession().setCreatorPerson(person);
+                    session.setPerson(person);
+                    session.setCreatorPerson(person);
 
-                    return createdSession;
+                    return session;
 
                 } catch (Exception e)
                 {
