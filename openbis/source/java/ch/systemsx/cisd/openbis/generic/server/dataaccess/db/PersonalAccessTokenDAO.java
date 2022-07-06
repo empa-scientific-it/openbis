@@ -49,9 +49,6 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     {
         this(properties, new HashGenerator()
         {
-
-            private TokenGenerator generator = new TokenGenerator();
-
             @Override public String generateTokenHash(String user)
             {
                 return PersonalAccessTokenHash.create(user, System.currentTimeMillis()).toString();
