@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.session;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,9 +31,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAss
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.PersonQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -121,14 +123,17 @@ public class SessionInformationTranslator extends
             }
         }
 
+        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
         Relations relations = new Relations();
 
         if (!personIds.isEmpty())
         {
+            personIds = query.getPersonIds(new LongOpenHashSet(personIds));
             relations.persons = personTranslator.translate(context, personIds, fetchOptions.withPerson());
         }
         if (!creatorIds.isEmpty())
         {
+            creatorIds = query.getPersonIds(new LongOpenHashSet(creatorIds));
             relations.creators = personTranslator.translate(context, creatorIds, fetchOptions.withCreatorPerson());
         }
 
