@@ -77,4 +77,13 @@ public class PersonalAccessTokenSession
         this.accessDate = accessDate;
     }
 
+    @Override public String toString()
+    {
+        return "PersonalAccessTokenSession{" +
+                "ownerId='" + ownerId + '\'' +
+                ", name='" + name + '\'' +
+                ", validFromDate=" + validFromDate +
+                ", validToDate=" + validToDate +
+                '}';
+    }
 }

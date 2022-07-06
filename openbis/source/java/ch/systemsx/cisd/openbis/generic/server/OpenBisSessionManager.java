@@ -36,6 +36,7 @@ import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -123,8 +124,10 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             for (PersonalAccessTokenSession patSession : patSessions)
             {
                 FullSession<Session> session = createPersonalAccessSession(patSession);
-                if (session != null)
+
+                if (session != null && isSessionActive(session.getSession().getSessionToken()))
                 {
+                    operationLog.info("Created a personal access token session (" + patSession + ")");
                     sessions.put(session.getSession().getSessionToken(), session);
                 }
             }
@@ -139,10 +142,8 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 
             if (principal == null)
             {
-                operationLog.warn(
-                        String.format(
-                                "Ignoring a personal access token session because the session's user '%s' was not found by the authentication service.",
-                                patSession.getOwnerId()));
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found by the authentication service.");
                 return null;
             } else
             {
@@ -153,10 +154,8 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 
             if (person == null)
             {
-                operationLog.warn(
-                        String.format(
-                                "Ignoring a personal access token session because the session's user '%s' was not found in the openBIS database.",
-                                patSession.getOwnerId()));
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found in the openBIS database.");
                 return null;
             }
 
@@ -169,14 +168,12 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             HibernateUtils.initialize(person.getAllPersonRoles());
             createdSession.getSession().setPerson(person);
             createdSession.getSession().setCreatorPerson(person);
+
             return createdSession;
 
         } catch (Exception e)
         {
-            operationLog.warn(String.format(
-                    "Creating of a personal access token session defined for user '%s' and session name '%s' failed.",
-                    patSession.getOwnerId(),
-                    patSession.getName()), e);
+            operationLog.warn("Creation of a personal access token session (" + patSession + ") failed.", e);
             return null;
         }
     }
@@ -194,6 +191,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                         FullSession<Session> session = createPersonalAccessSession(patSession);
                         if (session != null)
                         {
+                            operationLog.info("Created a personal access token session (" + patSession + ")");
                             sessions.put(session.getSession().getSessionToken(), session);
                         }
                     }
@@ -209,6 +207,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                         FullSession<Session> session = createPersonalAccessSession(patSession);
                         if (session != null)
                         {
+                            operationLog.info("Updated a personal access token session (" + patSession + ")");
                             sessions.put(session.getSession().getSessionToken(), session);
                         }
                     }
@@ -226,6 +225,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                             Session session = getSession(patSession.getHash());
                             if (session != null)
                             {
+                                operationLog.info("Deleted a personal access token session (" + patSession + ")");
                                 closeSession(patSession.getHash());
                             }
                         } catch (InvalidSessionException e)

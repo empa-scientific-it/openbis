@@ -409,13 +409,18 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         synchronized (sessions)
         {
             final FullSession<T> session = sessions.get(sessionToken);
-            if (session != null)
-            {
-                return !doSessionExpiration(session);
-            } else
-            {
-                return false;
-            }
+            return isSessionActive(session);
+        }
+    }
+
+    protected boolean isSessionActive(final FullSession<T> session)
+    {
+        if (session != null)
+        {
+            return !doSessionExpiration(session);
+        } else
+        {
+            return false;
         }
     }
 
