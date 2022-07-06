@@ -82,7 +82,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
-    protected static final class FullSession<S extends BasicSession>
+    public static final class FullSession<S extends BasicSession>
     {
         /**
          * Session data.

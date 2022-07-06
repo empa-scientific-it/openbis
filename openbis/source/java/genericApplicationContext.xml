@@ -115,69 +115,72 @@
 	</bean>
 
 	<bean id="dss-factory"
-		class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory" />
+		  class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
 
 	<bean id="authentication-service"
-		class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
-		<constructor-arg ref="${authentication-service}" />
+		  class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
+		<constructor-arg ref="${authentication-service}"/>
 	</bean>
 
-	<bean id="session-manager"
-		class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
+	<bean id="session-factory" class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
+		<constructor-arg ref="dao-factory"/>
+		<constructor-arg ref="dss-factory"/>
+		<constructor-arg ref="session-workspace-provider"/>
+	</bean>
+
+	<bean id="session-manager" class="ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenOpenBisSessionManagerDecorator">
 		<constructor-arg>
-			<bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
-				<constructor-arg ref="dao-factory" />
-				<constructor-arg ref="dss-factory" />
-				<constructor-arg ref="session-workspace-provider" />
+			<bean class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
+				<constructor-arg ref="session-factory"/>
+				<constructor-arg>
+					<bean
+							class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator"/>
+				</constructor-arg>
+				<constructor-arg ref="authentication-service"/>
+				<constructor-arg>
+					<bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
+						<constructor-arg ref="request-context-provider"/>
+					</bean>
+				</constructor-arg>
+				<!-- The time after which an inactive session is expired by the service
+                    (in minutes). -->
+				<constructor-arg value="${session-timeout}"/>
+				<constructor-arg value="${session-timeout-no-login}"/>
+				<!-- Enable login with email addresses -->
+				<constructor-arg value="true"/>
+				<constructor-arg ref="dao-factory"/>
+				<property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
+				<property name="maxNumberOfSessionsPerUser" value="${max-number-of-sessions-per-user}"/>
+				<property name="usersWithUnrestrictedNumberOfSessions" value="${users-with-unrestricted-number-of-sessions}"/>
 			</bean>
 		</constructor-arg>
-		<constructor-arg>
-			<bean
-				class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator" />
-		</constructor-arg>
-		<constructor-arg ref="authentication-service" />
-		<constructor-arg>
-			<bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
-				<constructor-arg ref="request-context-provider" />
-			</bean>
-		</constructor-arg>
-		<!-- The time after which an inactive session is expired by the service
-			(in minutes). -->
-		<constructor-arg value="${session-timeout}" />
-		<constructor-arg value="${session-timeout-no-login}" />
-		<!-- Enable login with email addresses -->
-		<constructor-arg value="true" />
-		<constructor-arg ref="dao-factory" />
-		<property name="userForAnonymousLogin" value="${user-for-anonymous-login}" />
-		<property name="maxNumberOfSessionsPerUser" value="${max-number-of-sessions-per-user}" />
-		<property name="usersWithUnrestrictedNumberOfSessions" value="${users-with-unrestricted-number-of-sessions}" />
 	</bean>
 
 	<bean id="display-settings-provider"
-		class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider" />
+		  class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider"/>
 
 	<bean id="remote-host-validator"
-		class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
-		<constructor-arg value="${accepted-remote-hosts-for-identity-change}" />
+		  class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
+		<constructor-arg value="${accepted-remote-hosts-for-identity-change}"/>
 	</bean>
 
 
-    <bean id="entity-history-creator"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator">
-        <property name="enabled" value="${entity-history.enabled}"/>
-    </bean>
+	<bean id="entity-history-creator"
+		  class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator">
+		<property name="enabled" value="${entity-history.enabled}"/>
+	</bean>
 
 	<bean id="common-business-object-factory"
-		class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
-		<constructor-arg ref="dao-factory" />
-		<constructor-arg ref="dss-factory" />
-		<constructor-arg ref="relationship-service" />
-		<constructor-arg ref="entity-operation-checker" />
-		<constructor-arg ref="service-conversation-client-manager" />
-		<constructor-arg ref="managed-property-evaluator-factory" />
-		<constructor-arg ref="multiplexer" />
-		<constructor-arg ref="jython-evaluator-pool" />
-		<constructor-arg ref="entity-history-creator" />
+		  class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
+		<constructor-arg ref="dao-factory"/>
+		<constructor-arg ref="dss-factory"/>
+		<constructor-arg ref="relationship-service"/>
+		<constructor-arg ref="entity-operation-checker"/>
+		<constructor-arg ref="service-conversation-client-manager"/>
+		<constructor-arg ref="managed-property-evaluator-factory"/>
+		<constructor-arg ref="multiplexer"/>
+		<constructor-arg ref="jython-evaluator-pool"/>
+		<constructor-arg ref="entity-history-creator"/>
 	</bean>
 
 	<bean id="last-modification-state"
