@@ -83,18 +83,18 @@ public class XLSImport
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.versions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
 
-        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, versions);
-        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, versions);
-        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, versions);
-        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, versions);
-        this.datasetHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, versions);
+        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, versions);
+        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
+        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.datasetHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, versions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
         this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
         this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options);
-        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, versions);
-        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode);
-        this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, scripts);
+        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options);
+        this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
     }
 
     public List<IObjectId> importXLS(byte xls[])
@@ -123,11 +123,6 @@ public class XLSImport
                             "Exception at page " + (pageNumber + 1) + " and line " + (lineNumber + 1) + " with message: " + e.getMessage());
                 }
                 lineNumber++;
-
-                if (options.getDisallowEntityCreations() && blockType.isMetadata())
-                {
-                    throw new UserFailureException("Entity creations disallowed but found at page " + (pageNumber + 1) + " and line " + (lineNumber + 1) + " with block type " + blockType);
-                }
 
                 switch (blockType)
                 {

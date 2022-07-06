@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.XLSImport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
@@ -17,9 +18,12 @@ public abstract class BasicImportHelper extends AbstractImportHelper
 
     protected final ImportModes mode;
 
-    public BasicImportHelper(ImportModes mode)
+    protected final ImportOptions options;
+
+    public BasicImportHelper(ImportModes mode, ImportOptions options)
     {
         this.mode = mode;
+        this.options = options;
     }
 
     protected abstract ImportTypes getTypeName();
@@ -56,6 +60,10 @@ public abstract class BasicImportHelper extends AbstractImportHelper
                 {
                     if (!isObjectExist(header, page.get(lineIndex)))
                     {
+                        if (options.getDisallowEntityCreations() && getTypeName().isMetadata())
+                        {
+                            throw new UserFailureException("Entity creations disallowed but found with block type: " + getTypeName());
+                        }
                         createObject(header, page.get(lineIndex), pageIndex, lineIndex);
                         updateVersion(header, page.get(lineIndex));
                     } else

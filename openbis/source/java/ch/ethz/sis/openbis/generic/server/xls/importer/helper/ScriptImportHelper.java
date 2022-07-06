@@ -5,6 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
@@ -24,9 +25,9 @@ public class ScriptImportHelper extends BasicImportHelper
 
     private final DelayedExecutionDecorator delayedExecutor;
 
-    public ScriptImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, Map<String, String> scripts)
+    public ScriptImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, String> scripts)
     {
-        super(mode);
+        super(mode, options);
         this.scripts = scripts;
         this.delayedExecutor = delayedExecutor;
     }

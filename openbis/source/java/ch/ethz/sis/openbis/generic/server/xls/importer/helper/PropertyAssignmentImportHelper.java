@@ -18,6 +18,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
@@ -74,9 +75,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     private AttributeValidator<Attribute> attributeValidator;
 
-    public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode)
+    public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
-        super(mode);
+        super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }

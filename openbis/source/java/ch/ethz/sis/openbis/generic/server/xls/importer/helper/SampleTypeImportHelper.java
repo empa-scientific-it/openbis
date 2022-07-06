@@ -5,6 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
@@ -49,9 +50,9 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     private final AttributeValidator<Attribute> attributeValidator;
 
-    public SampleTypeImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, Map<String, Integer> versions)
+    public SampleTypeImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, Integer> versions)
     {
-        super(mode);
+        super(mode, options);
         this.versions = versions;
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);

@@ -67,8 +67,6 @@ public class SampleImportHelper extends BasicImportHelper
 
     private EntityTypePermId sampleType;
 
-    private final ImportOptions options;
-
     private final DelayedExecutionDecorator delayedExecutor;
 
     private PropertyTypeSearcher propertyTypeSearcher;
@@ -77,8 +75,7 @@ public class SampleImportHelper extends BasicImportHelper
 
     public SampleImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
-        super(mode);
-        this.options = options;
+        super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }

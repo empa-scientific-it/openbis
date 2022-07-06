@@ -53,8 +53,6 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private EntityTypePermId entityTypePermId;
 
-    private final ImportOptions options;
-
     private final DelayedExecutionDecorator delayedExecutor;
 
     private PropertyTypeSearcher propertyTypeSearcher;
@@ -63,8 +61,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
-        super(mode);
-        this.options = options;
+        super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
