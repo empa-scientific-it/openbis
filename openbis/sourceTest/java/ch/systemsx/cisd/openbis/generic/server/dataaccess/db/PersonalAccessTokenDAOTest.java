@@ -40,10 +40,7 @@ public class PersonalAccessTokenDAOTest
         properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
 
         TestGenerator generator = new TestGenerator();
-        TestListener listener = new TestListener();
-
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
-        dao.addListener(listener);
 
         PersonalAccessToken tokenCreationA1 = new PersonalAccessToken();
         tokenCreationA1.setOwnerId("test owner");
@@ -113,10 +110,6 @@ public class PersonalAccessTokenDAOTest
         PersonalAccessTokenSession sessionA4 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
         assertNull(sessionA4);
 
-        listener.assertCreatedSessions(sessionA1, sessionB1);
-        listener.assertUpdatedSessions(sessionA2, sessionA3);
-        listener.assertDeletedSessions(sessionA3);
-
         file.delete();
     }
 
@@ -170,46 +163,6 @@ public class PersonalAccessTokenDAOTest
     {
         TestResources resources = new TestResources(getClass());
         return resources.getResourceFile(fileName);
-    }
-
-    private static class TestListener implements IPersonalAccessTokenDAO.Listener
-    {
-
-        private final List<PersonalAccessTokenSession> createdSessions = new ArrayList<>();
-
-        private final List<PersonalAccessTokenSession> updatedSessions = new ArrayList<>();
-
-        private final List<PersonalAccessTokenSession> deletedSessions = new ArrayList<>();
-
-        @Override public void onSessionCreated(final PersonalAccessTokenSession session)
-        {
-            createdSessions.add(session);
-        }
-
-        @Override public void onSessionUpdated(final PersonalAccessTokenSession session)
-        {
-            updatedSessions.add(session);
-        }
-
-        @Override public void onSessionDeleted(final PersonalAccessTokenSession session)
-        {
-            deletedSessions.add(session);
-        }
-
-        void assertCreatedSessions(PersonalAccessTokenSession... expectedSessions)
-        {
-            AssertionUtil.assertCollectionContainsOnly(createdSessions, expectedSessions);
-        }
-
-        void assertUpdatedSessions(PersonalAccessTokenSession... expectedSessions)
-        {
-            AssertionUtil.assertCollectionContainsOnly(updatedSessions, expectedSessions);
-        }
-
-        void assertDeletedSessions(PersonalAccessTokenSession... expectedSessions)
-        {
-            AssertionUtil.assertCollectionContainsOnly(deletedSessions, expectedSessions);
-        }
     }
 
     private static class TestGenerator implements HashGenerator

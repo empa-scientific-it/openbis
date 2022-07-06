@@ -123,17 +123,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         boolean hasExpired(Long sessionExpirationTimeOrNull)
         {
-            if (getSession().isPersonalAccessTokenSession())
-            {
-                return System.currentTimeMillis() > session.getSessionStart() + session.getSessionExpirationTime();
-            } else
-            {
                 long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
                 return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
             }
         }
-
-    }
 
     private final ISessionFactory<T> sessionFactory;
 
@@ -228,7 +221,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
             if (maxNumberOfSessions > 0)
             {
-                List<FullSession<T>> openSessions = getOpenSessionsForClosing(user);
+                List<FullSession<T>> openSessions = getOpenSessionsFor(user);
                 while (openSessions.size() >= maxNumberOfSessions)
                 {
                     FullSession<T> session = openSessions.remove(0);
@@ -236,26 +229,23 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             }
 
-            final FullSession<T> createdSession = new FullSession<>(sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
-                    sessionExpirationPeriodMillis));
-
+            final T session =
+                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
+                            sessionExpirationPeriodMillis);
+            final FullSession<T> createdSession = new FullSession<T>(session);
             sessions.put(createdSession.getSession().getSessionToken(), createdSession);
 
             getSessionMonitor().logSessionMonitoringInfo();
 
-            return createdSession.getSession();
+            return session;
         }
     }
 
-    private List<FullSession<T>> getOpenSessionsForClosing(String user)
+    private List<FullSession<T>> getOpenSessionsFor(String user)
     {
         List<FullSession<T>> userSessions = new ArrayList<>();
         for (FullSession<T> session : sessions.values())
         {
-            if (session.getSession().isPersonalAccessTokenSession())
-            {
-                continue;
-            }
             if (session.getSession().getUserName().equals(user))
             {
                 userSessions.add(session);
@@ -364,11 +354,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         public void logSessionMonitoringInfo()
         {
             int sessionsSize = sessions.size();
-            long patSessionsSize =
-                    sessions.values().stream().filter(s -> s.getSession().isPersonalAccessTokenSession()).count();
 
-            operationLog.info("All currently active sessions (regular sessions and personal access token sessions): " + sessionsSize);
-            operationLog.info("Personal access token active sessions: " + patSessionsSize);
+            operationLog.info("Currently active sessions: " + sessionsSize);
 
             if (sessionsSize > sessionNotifyThreshold)
             {
@@ -381,6 +368,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 for (FullSession<T> fullSession : sessions.values())
                 {
                     T session = fullSession.getSession();
+                    session.getSessionStart();
+                    session.getUserName();
+                    session.getRemoteHost();
+                    session.isAnonymous();
                     String message =
                             String.format(
                                     "Session %s:\n  User %s%s from %s\n  Started at %s, will expire in %d seconds.",
@@ -409,18 +400,13 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         synchronized (sessions)
         {
             final FullSession<T> session = sessions.get(sessionToken);
-            return isSessionActive(session);
-        }
-    }
-
-    protected boolean isSessionActive(final FullSession<T> session)
-    {
-        if (session != null)
-        {
-            return !doSessionExpiration(session);
-        } else
-        {
-            return false;
+            if (session != null)
+            {
+                return !doSessionExpiration(session);
+            } else
+            {
+                return false;
+            }
         }
     }
 
@@ -431,13 +417,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private boolean doSessionExpiration(final FullSession<T> session)
     {
-        if (session == null)
-        {
-            return false;
-        }
-
         Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
-        return session.hasExpired(expTimeOrNull);
+        return session != null && session.hasExpired(expTimeOrNull);
     }
 
     private void logAuthenticed(final T session, final long timeToLoginMillis)
@@ -479,19 +460,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private void logSessionExpired(final T session)
     {
-        if (session.isPersonalAccessTokenSession())
-        {
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("%sExpiring a personal access token session '%s' for user '%s'. It has been valid for %d minutes.",
-                        LOGOUT_PREFIX, session.getSessionToken(), session.getUserName(),
-                        session.getSessionExpirationTime() / DateUtils.MILLIS_PER_MINUTE));
-            }
-            final String prefix = prefixGenerator.createPrefix(session);
-            authenticationLog.info(prefix + ": personal_access_token_session_expired  [valid for "
-                    + DurationFormatUtils.formatDuration(session.getSessionExpirationTime(), "H:mm:ss.SSS") + "]");
-        } else
-        {
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
@@ -503,7 +471,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             authenticationLog.info(prefix + ": session_expired  [inactive "
                     + DurationFormatUtils.formatDuration(sessionExpirationPeriodMillis, "H:mm:ss.SSS") + "]");
         }
-    }
 
     private void logLogout(final T session)
     {

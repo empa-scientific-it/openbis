@@ -244,6 +244,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.pat.IPersonalAccessTokenInvocation;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
@@ -313,7 +314,13 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
 
     @Override public boolean isSessionActive(final String sessionToken)
     {
-        return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        try
+        {
+            return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+        } catch (InvalidSessionException e)
+        {
+            return false;
+        }
     }
 
     @Override public List<SpacePermId> createSpaces(final String sessionToken, final List<SpaceCreation> newSpaces)

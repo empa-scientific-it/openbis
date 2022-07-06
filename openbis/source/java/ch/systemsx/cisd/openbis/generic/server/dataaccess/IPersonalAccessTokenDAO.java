@@ -20,17 +20,8 @@ public interface IPersonalAccessTokenDAO
 
     List<PersonalAccessTokenSession> listSessions();
 
+    PersonalAccessTokenSession getSessionByHash(String hash);
+
     PersonalAccessTokenSession getSessionByUserIdAndSessionName(String userId, String sessionName);
-
-    void addListener(Listener listener);
-
-    interface Listener
-    {
-        void onSessionCreated(PersonalAccessTokenSession session);
-
-        void onSessionUpdated(PersonalAccessTokenSession session);
-
-        void onSessionDeleted(PersonalAccessTokenSession session);
-    }
 
 }

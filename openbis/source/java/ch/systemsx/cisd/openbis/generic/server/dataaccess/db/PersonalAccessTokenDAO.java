@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.systemsx.cisd.authentication.SessionTokenHash;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
@@ -42,8 +41,6 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     private Map<String, PersonalAccessTokenSession> sessions = new HashMap<>();
 
     private final ObjectMapper mapper = new ObjectMapper();
-
-    private final List<Listener> listeners = new ArrayList<>();
 
     public PersonalAccessTokenDAO(final Properties properties)
     {
@@ -144,6 +141,11 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return new ArrayList<>(sessions.values());
     }
 
+    @Override public PersonalAccessTokenSession getSessionByHash(final String hash)
+    {
+        return sessions.get(hash);
+    }
+
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
         for (PersonalAccessTokenSession session : sessions.values())
@@ -154,35 +156,6 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             }
         }
         return null;
-    }
-
-    @Override public synchronized void addListener(final Listener listener)
-    {
-        listeners.add(listener);
-    }
-
-    private void notifySessionCreated(final PersonalAccessTokenSession session)
-    {
-        for (Listener listener : listeners)
-        {
-            listener.onSessionCreated(session);
-        }
-    }
-
-    private void notifySessionUpdated(final PersonalAccessTokenSession session)
-    {
-        for (Listener listener : listeners)
-        {
-            listener.onSessionUpdated(session);
-        }
-    }
-
-    private void notifySessionDeleted(final PersonalAccessTokenSession session)
-    {
-        for (Listener listener : listeners)
-        {
-            listener.onSessionDeleted(session);
-        }
     }
 
     private synchronized void recalculateSession(String ownerId, String sessionName)
@@ -218,26 +191,12 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             }
         }
 
-        if (existingSession == null)
+        if (newSession != null)
         {
-            if (newSession != null)
-            {
-                sessions.put(newSession.getHash(), newSession);
-                notifySessionCreated(newSession);
-            }
-        } else
+            sessions.put(newSession.getHash(), newSession);
+        } else if (existingSession != null)
         {
-            if (newSession == null)
-            {
-                sessions.remove(existingSession.getHash());
-                notifySessionDeleted(existingSession);
-            } else if (!Objects.equals(existingSession.getValidFromDate(), newSession.getValidFromDate()) || !Objects.equals(
-                    existingSession.getValidToDate(), newSession.getValidToDate()) || !Objects.equals(existingSession.getAccessDate(),
-                    newSession.getAccessDate()))
-            {
-                sessions.put(newSession.getHash(), newSession);
-                notifySessionUpdated(newSession);
-            }
+            sessions.remove(existingSession.getHash());
         }
     }
 

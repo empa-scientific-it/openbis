@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
@@ -35,9 +35,6 @@ import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
@@ -46,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -105,148 +103,144 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                 sessionExpirationPeriodMinutesForNoLogin, false, daoFactory);
     }
 
-    @PostConstruct
-    private void init()
+    @Override public boolean isSessionActive(final String sessionToken)
     {
-        executeInTransaction(() ->
+        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+
+        if (patSession == null)
         {
-            OpenBisSessionManager.this.createPersonalAccessTokenSessions();
-            OpenBisSessionManager.this.observePersonalAccessTokenSessions();
-        });
-    }
-
-    private void createPersonalAccessTokenSessions()
-    {
-        List<PersonalAccessTokenSession> patSessions = daoFactory.getPersonalAccessTokenDAO().listSessions();
-
-        synchronized (sessions)
+            return super.isSessionActive(sessionToken);
+        } else
         {
-            for (PersonalAccessTokenSession patSession : patSessions)
-            {
-                FullSession<Session> session = createPersonalAccessSession(patSession);
-
-                if (session != null && isSessionActive(session.getSession().getSessionToken()))
-                {
-                    operationLog.info("Created a personal access token session (" + patSession + ")");
-                    sessions.put(session.getSession().getSessionToken(), session);
-                }
-            }
+            Date now = new Date();
+            return now.after(patSession.getValidFromDate()) && now.before(patSession.getValidToDate());
         }
     }
 
-    private FullSession<Session> createPersonalAccessSession(PersonalAccessTokenSession patSession)
+    @Override public void expireSession(final String sessionToken) throws InvalidSessionException
     {
-        try
+        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+
+        if (patSession == null)
         {
-            final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+            super.expireSession(sessionToken);
+        }
+    }
 
-            if (principal == null)
-            {
-                operationLog.warn("Ignoring a personal access token session (" + patSession
-                        + ") because the session's owner was not found by the authentication service.");
-                return null;
-            } else
-            {
-                principal.setAuthenticated(true);
-            }
+    @Override public void closeSession(final String sessionToken) throws InvalidSessionException
+    {
+        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
 
-            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
-
-            if (person == null)
-            {
-                operationLog.warn("Ignoring a personal access token session (" + patSession
-                        + ") because the session's owner was not found in the openBIS database.");
-                return null;
-            }
-
-            final FullSession<Session> createdSession =
-                    new FullSession<>(sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
-                            patSession.getValidFromDate().getTime(),
-                            (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
-                            true, patSession.getName()));
-
-            HibernateUtils.initialize(person.getAllPersonRoles());
-            createdSession.getSession().setPerson(person);
-            createdSession.getSession().setCreatorPerson(person);
-
-            return createdSession;
-
-        } catch (Exception e)
+        if (patSession == null)
         {
-            operationLog.warn("Creation of a personal access token session (" + patSession + ") failed.", e);
+            super.closeSession(sessionToken);
+        }
+    }
+
+    @Override public Session getSession(final String sessionToken) throws InvalidSessionException
+    {
+        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+
+        if (patSession == null)
+        {
+            return super.getSession(sessionToken);
+        } else
+        {
+            Date now = new Date();
+            if (now.after(patSession.getValidFromDate()) && now.before(patSession.getValidToDate()))
+            {
+                FullSession<Session> fullSession = createPersonalAccessSession(patSession);
+                if (fullSession != null)
+                {
+                    return fullSession.getSession();
+                }
+            }
+            throw new InvalidSessionException("Invalid personal access token session");
+        }
+    }
+
+    @Override public Session tryGetSession(final String sessionToken)
+    {
+        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+
+        if (patSession == null)
+        {
+            return super.tryGetSession(sessionToken);
+        } else
+        {
+            FullSession<Session> fullSession = createPersonalAccessSession(patSession);
+            if (fullSession != null)
+            {
+                return fullSession.getSession();
+            }
             return null;
         }
     }
 
-    private void observePersonalAccessTokenSessions()
+    @Override public List<Session> getSessions()
     {
-        daoFactory.getPersonalAccessTokenDAO().addListener(new IPersonalAccessTokenDAO.Listener()
+        List<Session> sessions = new ArrayList<>(super.getSessions());
+
+        for (PersonalAccessTokenSession patSession : daoFactory.getPersonalAccessTokenDAO().listSessions())
         {
-            @Override public void onSessionCreated(final PersonalAccessTokenSession patSession)
+            FullSession<Session> fullSession = createPersonalAccessSession(patSession);
+            if (fullSession != null)
             {
-                executeInTransaction(() ->
-                {
-                    synchronized (sessions)
-                    {
-                        FullSession<Session> session = createPersonalAccessSession(patSession);
-                        if (session != null)
-                        {
-                            operationLog.info("Created a personal access token session (" + patSession + ")");
-                            sessions.put(session.getSession().getSessionToken(), session);
-                        }
-                    }
-                });
+                sessions.add(fullSession.getSession());
             }
+        }
 
-            @Override public void onSessionUpdated(final PersonalAccessTokenSession patSession)
-            {
-                executeInTransaction(() ->
-                {
-                    synchronized (sessions)
-                    {
-                        FullSession<Session> session = createPersonalAccessSession(patSession);
-                        if (session != null)
-                        {
-                            operationLog.info("Updated a personal access token session (" + patSession + ")");
-                            sessions.put(session.getSession().getSessionToken(), session);
-                        }
-                    }
-                });
-            }
-
-            @Override public void onSessionDeleted(final PersonalAccessTokenSession patSession)
-            {
-                executeInTransaction(() ->
-                {
-                    synchronized (sessions)
-                    {
-                        try
-                        {
-                            Session session = getSession(patSession.getHash());
-                            if (session != null)
-                            {
-                                operationLog.info("Deleted a personal access token session (" + patSession + ")");
-                                closeSession(patSession.getHash());
-                            }
-                        } catch (InvalidSessionException e)
-                        {
-                            // do nothing
-                        }
-                    }
-                });
-            }
-        });
+        return sessions;
     }
 
-    private void executeInTransaction(Runnable runnable)
+    private FullSession<Session> createPersonalAccessSession(PersonalAccessTokenSession patSession)
     {
         TransactionTemplate tmpl = new TransactionTemplate(txManager);
-        tmpl.execute(new TransactionCallbackWithoutResult()
+        return tmpl.execute(new TransactionCallback<FullSession<Session>>()
         {
             @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status)
+            public FullSession<Session> doInTransaction(TransactionStatus status)
             {
-                runnable.run();
+                try
+                {
+                    final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+
+                    if (principal == null)
+                    {
+                        operationLog.warn("Ignoring a personal access token session (" + patSession
+                                + ") because the session's owner was not found by the authentication service.");
+                        return null;
+                    } else
+                    {
+                        principal.setAuthenticated(true);
+                    }
+
+                    PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
+
+                    if (person == null)
+                    {
+                        operationLog.warn("Ignoring a personal access token session (" + patSession
+                                + ") because the session's owner was not found in the openBIS database.");
+                        return null;
+                    }
+
+                    final FullSession<Session> createdSession =
+                            new FullSession<>(sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
+                                    patSession.getValidFromDate().getTime(),
+                                    (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
+                                    true, patSession.getName()));
+
+                    HibernateUtils.initialize(person.getAllPersonRoles());
+                    createdSession.getSession().setPerson(person);
+                    createdSession.getSession().setCreatorPerson(person);
+
+                    return createdSession;
+
+                } catch (Exception e)
+                {
+                    operationLog.warn("Creation of a personal access token session (" + patSession + ") failed.", e);
+                    return null;
+                }
             }
         });
     }

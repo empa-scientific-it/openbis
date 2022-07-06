@@ -19,12 +19,14 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -183,6 +185,30 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
                 createToken(TEST_USER, PASSWORD, creation);
             }
         }, "Session name cannot be empty");
+    }
+
+    @Test
+    public void testCreateWithValidFromDateInTheFuture()
+    {
+        PersonalAccessTokenCreation creation = tokenCreation();
+        creation.setValidFromDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
+        creation.setValidToDate(new Date(System.currentTimeMillis() + 2 * DateUtils.MILLIS_PER_DAY));
+
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+
+        assertFalse(v3api.isSessionActive(token.getHash()));
+    }
+
+    @Test
+    public void testCreateWithValidToDateInThePast()
+    {
+        PersonalAccessTokenCreation creation = tokenCreation();
+        creation.setValidFromDate(new Date(System.currentTimeMillis() - 2 * DateUtils.MILLIS_PER_DAY));
+        creation.setValidToDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
+
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+
+        assertFalse(v3api.isSessionActive(token.getHash()));
     }
 
     @Test
