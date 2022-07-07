@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotSame;
@@ -7,28 +8,44 @@ import static org.testng.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.TestResources;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.PersonalAccessTokenDAO.HashGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 public class PersonalAccessTokenDAOTest
 {
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private BufferedAppender logRecorder;
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
+    }
+
+    @AfterMethod
+    public void afterMethod(Method method)
+    {
+        logRecorder.reset();
+    }
 
     @Test
     public void test() throws IOException
@@ -42,17 +59,8 @@ public class PersonalAccessTokenDAOTest
         TestGenerator generator = new TestGenerator();
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
 
-        PersonalAccessToken tokenCreationA1 = new PersonalAccessToken();
-        tokenCreationA1.setOwnerId("test owner");
-        tokenCreationA1.setSessionName("test session A");
-        tokenCreationA1.setValidFromDate(new Date(1));
-        tokenCreationA1.setValidToDate(new Date(2));
-
-        PersonalAccessToken tokenCreationB1 = new PersonalAccessToken();
-        tokenCreationB1.setOwnerId("test owner");
-        tokenCreationB1.setSessionName("test session B");
-        tokenCreationB1.setValidFromDate(new Date(10));
-        tokenCreationB1.setValidToDate(new Date(20));
+        PersonalAccessToken tokenCreationA1 = tokenCreation("test owner", "test session A", new Date(5), new Date(10));
+        PersonalAccessToken tokenCreationB1 = tokenCreation("test owner", "test session B", new Date(10), new Date(20));
 
         // create token A1
         PersonalAccessToken tokenA1 = dao.createToken(tokenCreationA1);
@@ -73,11 +81,8 @@ public class PersonalAccessTokenDAOTest
         AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenA1, tokenB1);
         AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionA1, sessionB1);
 
-        PersonalAccessToken tokenCreationA2 = new PersonalAccessToken();
-        tokenCreationA2.setOwnerId(tokenCreationA1.getOwnerId());
-        tokenCreationA2.setSessionName(tokenCreationA1.getSessionName());
-        tokenCreationA2.setValidFromDate(new Date(2));
-        tokenCreationA2.setValidToDate(new Date(3));
+        PersonalAccessToken tokenCreationA2 =
+                tokenCreation(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName(), new Date(10), new Date(15));
 
         // create token A2
         PersonalAccessToken tokenA2 = dao.createToken(tokenCreationA2);
@@ -111,6 +116,53 @@ public class PersonalAccessTokenDAOTest
         assertNull(sessionA4);
 
         file.delete();
+    }
+
+    @Test
+    public void testWithNonExistentFile()
+    {
+        File file = getFile("i-do-not-exist.json");
+
+        Properties properties = new Properties();
+        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
+
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+
+        assertEquals(dao.listTokens().size(), 0);
+        assertEquals(dao.listSessions().size(), 0);
+    }
+
+    @Test
+    public void testWithIncorrectFile()
+    {
+        File file = getFile("test-incorrect.json");
+
+        Properties properties = new Properties();
+        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
+
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+
+        assertEquals(dao.listTokens().size(), 0);
+        assertEquals(dao.listSessions().size(), 0);
+
+        assertContains("ERROR OPERATION.PersonalAccessTokenDAO - Loading of personal access tokens file failed.",
+                logRecorder.getLogContent());
+    }
+
+    private PersonalAccessToken tokenCreation(String ownerId, String sessionName, Date validFrom, Date validTo)
+    {
+        PersonalAccessToken creation = new PersonalAccessToken();
+        creation.setOwnerId(ownerId);
+        creation.setRegistratorId("test registrator");
+        creation.setModifierId("test modifier");
+        creation.setSessionName(sessionName);
+        creation.setValidFromDate(validFrom);
+        creation.setValidToDate(validTo);
+        creation.setRegistrationDate(new Date(1));
+        creation.setModificationDate(new Date(1));
+        return creation;
     }
 
     private void assertToken(PersonalAccessToken token, String hash, PersonalAccessToken creation)

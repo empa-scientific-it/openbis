@@ -68,8 +68,6 @@ public class CreatePersonalAccessTokenExecutor implements ICreatePersonalAccessT
 
         for (PersonalAccessTokenCreation creation : creations)
         {
-            checkData(creation);
-
             PersonalAccessToken token = new PersonalAccessToken();
             token.setSessionName(creation.getSessionName());
 
@@ -105,29 +103,6 @@ public class CreatePersonalAccessTokenExecutor implements ICreatePersonalAccessT
         }
 
         return ids;
-    }
-
-    private void checkData(final PersonalAccessTokenCreation creation)
-    {
-        if (StringUtils.isEmpty(creation.getSessionName()))
-        {
-            throw new UserFailureException("Session name cannot be empty.");
-        }
-
-        if (creation.getValidFromDate() == null)
-        {
-            throw new UserFailureException("Valid from date cannot be null.");
-        }
-
-        if (creation.getValidToDate() == null)
-        {
-            throw new UserFailureException("Valid to date cannot be null.");
-        }
-
-        if (creation.getValidFromDate().after(creation.getValidToDate()))
-        {
-            throw new UserFailureException("Valid from date cannot be after valid to date.");
-        }
     }
 
 }
