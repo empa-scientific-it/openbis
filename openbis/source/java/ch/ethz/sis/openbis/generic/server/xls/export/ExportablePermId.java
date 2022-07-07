@@ -50,4 +50,10 @@ public class ExportablePermId
         return result;
     }
 
+    @Override
+    public String toString()
+    {
+        return exportableKind + " (" + permId + ")";
+    }
+    
 }

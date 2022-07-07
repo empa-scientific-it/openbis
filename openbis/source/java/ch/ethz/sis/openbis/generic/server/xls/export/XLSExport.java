@@ -3,6 +3,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DATA_SET;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -11,8 +12,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,25 +28,28 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssig
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 
 public class XLSExport
 {
 
-    private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
-
     private final IXLSExportHelper sampleTypeExportHelper = new XLSSampleTypeExportHelper();
 
     private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();
 
     private final IXLSExportHelper dataSetTypeExportHelper = new XLSDataSetTypeExportHelper();
+
+    private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
+
+    private final IXLSExportHelper spaceExportHelper = new XLSSpaceExportHelper();
 
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
@@ -58,13 +64,19 @@ public class XLSExport
             exportablePermIds = expandReference(api, sessionToken, exportablePermIds);
         }
 
-        exportablePermIds = sort(exportablePermIds);
+        final Collection<Collection<ExportablePermId>> groupedExportablePermIds =
+                group(exportablePermIds);
 
         final Workbook wb = new XSSFWorkbook();
         wb.createSheet();
         int rowNumber = 0;
-        for (final ExportablePermId exportablePermId : exportablePermIds)
+
+        // !!!!!!!!!!!!! Iterate over grouped perm IDs (to support spaces to be exported in one bunch, for example)
+        // when only 1 perm ID is required throw an exception in the helper.
+        for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
+            final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
+
             final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
             if (helper != null)
             {
@@ -172,6 +184,10 @@ public class XLSExport
             {
                 return vocabularyExportHelper;
             }
+            case SPACE:
+            {
+                return spaceExportHelper;
+            }
             default:
             {
                 return null;
@@ -179,10 +195,37 @@ public class XLSExport
         }
     }
 
-    private Collection<ExportablePermId> sort(final Collection<ExportablePermId> exportablePermIds)
+    Collection<Collection<ExportablePermId>> group(final Collection<ExportablePermId> exportablePermIds)
     {
-        // TODO: implement.
-        return exportablePermIds;
+        final Map<ExportableKind, Collection<ExportablePermId>> groupMap = new EnumMap<>(ExportableKind.class);
+        final Collection<Collection<ExportablePermId>> result = new ArrayList<>(exportablePermIds.size());
+        for (final ExportablePermId permId : exportablePermIds)
+        {
+            final ExportableKind exportableKind = permId.getExportableKind();
+            if (MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind))
+            {
+                result.add(Collections.singletonList(permId));
+            } else
+            {
+                final Collection<ExportablePermId> foundGroup = groupMap.get(exportableKind);
+                final Collection<ExportablePermId> group;
+
+                if (foundGroup == null)
+                {
+                    group = new ArrayList<>();
+                    groupMap.put(exportableKind, group);
+                } else
+                {
+                    group = foundGroup;
+                }
+
+                group.add(permId);
+            }
+        }
+
+        result.addAll(groupMap.values());
+
+        return result;
     }
 
     private boolean isValid(final Collection<ExportablePermId> exportablePermIds)
@@ -213,6 +256,11 @@ public class XLSExport
                 case VOCABULARY:
                 {
                     isValid = exportablePermId.getPermId() instanceof VocabularyPermId;
+                    break;
+                }
+                case SPACE:
+                {
+                    isValid = exportablePermId.getPermId() instanceof SpacePermId;
                     break;
                 }
                 case PROPERTY_TYPE:
