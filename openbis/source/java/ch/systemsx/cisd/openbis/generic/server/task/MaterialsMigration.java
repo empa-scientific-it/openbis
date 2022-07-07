@@ -121,15 +121,22 @@ public class MaterialsMigration implements IMaintenanceTask {
     public static void doMaterialsMigration() throws Exception {
         info("doMaterialsMigration","start");
         IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = v3.loginAsSystem();
-        if (doMaterialsMigrationInsertNew) {
-            doMaterialsMigrationInsertNew(sessionToken, v3);
+        String sessionToken = null;
+        try {
+            sessionToken = v3.loginAsSystem();
+            if (doMaterialsMigrationInsertNew) {
+                doMaterialsMigrationInsertNew(sessionToken, v3);
+            }
+            doMaterialsMigrationValidation(sessionToken, v3);
+            if (doMaterialsMigrationDeleteOld) {
+                doMaterialsMigrationDeleteOld(sessionToken, v3);
+            }
+        } catch (Throwable throwable) {
+            if (sessionToken != null) {
+                v3.logout(sessionToken);
+            }
+            throw throwable;
         }
-        doMaterialsMigrationValidation(sessionToken, v3);
-        if (doMaterialsMigrationDeleteOld) {
-            doMaterialsMigrationDeleteOld(sessionToken, v3);
-        }
-        v3.logout(sessionToken);
     }
 
     private static void doMaterialsMigrationInsertNew(String sessionToken, IApplicationServerApi v3) throws Exception {
