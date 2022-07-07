@@ -151,6 +151,23 @@ public class PersonalAccessTokenDAOTest
                 logRecorder.getLogContent());
     }
 
+    @Test
+    public void testWithTokensOnly() throws IOException
+    {
+        File file = getFile("test-tokens-only.json");
+
+        Properties properties = new Properties();
+        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
+
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+
+        assertEquals(dao.listTokens().size(), 3);
+        assertEquals(dao.listSessions().size(), 2);
+
+        assertJsonFile(file.getName(), "test-tokens-only-with-generated-sessions.json");
+    }
+
     private PersonalAccessToken tokenCreation(String ownerId, String sessionName, Date validFrom, Date validTo)
     {
         PersonalAccessToken creation = new PersonalAccessToken();

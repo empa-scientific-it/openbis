@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -108,8 +109,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         checkToken(token);
         tokens.put(token.getHash(), token);
-
-        recalculateSessions();
+        sessions = recalculateSessions(tokens.values(), sessions.values());
         saveInFile();
 
         return token;
@@ -128,8 +128,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
             checkToken(token);
             tokens.put(token.getHash(), token);
-
-            recalculateSessions();
+            sessions = recalculateSessions(tokens.values(), sessions.values());
             saveInFile();
         }
     }
@@ -140,7 +139,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         if (token != null)
         {
-            recalculateSessions();
+            sessions = recalculateSessions(tokens.values(), sessions.values());
             saveInFile();
         }
     }
@@ -237,17 +236,18 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
-    private synchronized void recalculateSessions()
+    private synchronized Map<String, PersonalAccessTokenSession> recalculateSessions(Collection<PersonalAccessToken> tokens,
+            Collection<PersonalAccessTokenSession> sessions)
     {
         Map<Pair<String, String>, PersonalAccessTokenSession> existingSessionsByOwnerAndName = new HashMap<>();
         Map<Pair<String, String>, PersonalAccessTokenSession> newSessionsByOwnerAndName = new HashMap<>();
 
-        for (PersonalAccessTokenSession existingSession : sessions.values())
+        for (PersonalAccessTokenSession session : sessions)
         {
-            existingSessionsByOwnerAndName.put(new ImmutablePair<>(existingSession.getOwnerId(), existingSession.getName()), existingSession);
+            existingSessionsByOwnerAndName.put(new ImmutablePair<>(session.getOwnerId(), session.getName()), session);
         }
 
-        for (PersonalAccessToken token : tokens.values())
+        for (PersonalAccessToken token : tokens)
         {
             Pair<String, String> key = new ImmutablePair<>(token.getOwnerId(), token.getSessionName());
             PersonalAccessTokenSession existingSession = existingSessionsByOwnerAndName.get(key);
@@ -278,7 +278,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             newSessionsByOwnerAndName.put(key, newSession);
         }
 
-        sessions.clear();
+        Map<String, PersonalAccessTokenSession> result = new HashMap<>();
 
         for (PersonalAccessTokenSession newSession : newSessionsByOwnerAndName.values())
         {
@@ -287,12 +287,14 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
             if (existingSession == null || !EqualsBuilder.reflectionEquals(existingSession, newSession))
             {
-                sessions.put(newSession.getHash(), newSession);
+                result.put(newSession.getHash(), newSession);
             } else
             {
-                sessions.put(existingSession.getHash(), existingSession);
+                result.put(existingSession.getHash(), existingSession);
             }
         }
+
+        return result;
     }
 
     private static Date getEarlierDate(Date date1, Date date2)
@@ -371,9 +373,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                     }
                 }
 
-                tokens = newTokens;
-                sessions = newSessions;
-                recalculateSessions();
+                newSessions = recalculateSessions(newTokens.values(), newSessions.values());
 
                 for (PersonalAccessToken newToken : newTokens.values())
                 {
@@ -384,6 +384,11 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                 {
                     checkSession(newSession);
                 }
+
+                tokens = newTokens;
+                sessions = newSessions;
+
+                saveInFile();
             } catch (Exception e)
             {
                 operationLog.error("Loading of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
