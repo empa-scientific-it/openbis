@@ -214,7 +214,7 @@ public class UserManager
                 + (StringUtils.isBlank(message) ? ". " : " (reason: " + message + "). ") + "Template schema: " + templateSchema);
     }
 
-    public void setDeactivateUnknwonUsers(boolean deactivateUnknownUsers)
+    public void setDeactivateUnknownUsers(boolean deactivateUnknownUsers)
     {
         this.deactivateUnknownUsers = deactivateUnknownUsers;
     }

@@ -2094,7 +2094,7 @@ public class UserManagerTest extends AbstractTest
             UserManager userManager = new UserManager(authenticationService, service, shareIdsMappingFile, logger, report);
             userManager.setGlobalSpaces(globalSpaces);
             userManager.setCommon(commonSpacesByRole, commonSamples, commonExperiments);
-            userManager.setDeactivateUnknwonUsers(deactivateUnknownUsers);
+            userManager.setDeactivateUnknownUsers(deactivateUnknownUsers);
             return userManager;
         }
 
