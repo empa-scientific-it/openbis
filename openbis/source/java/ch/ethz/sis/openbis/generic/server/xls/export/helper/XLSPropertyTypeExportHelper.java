@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.Collection;
+
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -10,7 +12,7 @@ public class XLSPropertyTypeExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final String permId, int rowNumber)
+            final Collection<String> permIds, int rowNumber)
     {
         // TODO: this is a special case, should be treated separately.
         return 0;

@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,8 +72,6 @@ public class XLSExport
         wb.createSheet();
         int rowNumber = 0;
 
-        // !!!!!!!!!!!!! Iterate over grouped perm IDs (to support spaces to be exported in one bunch, for example)
-        // when only 1 perm ID is required throw an exception in the helper.
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
             final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
@@ -80,7 +79,9 @@ public class XLSExport
             final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
             if (helper != null)
             {
-                rowNumber = helper.add(api, sessionToken, wb, exportablePermId.getPermId().getPermId(), rowNumber);
+                final List<String> permIds = exportablePermIdGroup.stream()
+                        .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
+                rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber);
             }
         }
 

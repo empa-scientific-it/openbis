@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,9 +20,10 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final String permId, int rowNumber)
+            final Collection<String> permIds, int rowNumber)
     {
-        final Vocabulary vocabulary = getVocabulary(api, sessionToken, permId);
+        assert permIds.size() == 1;
+        final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.iterator().next());
 
         if (vocabulary != null)
         {

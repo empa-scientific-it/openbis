@@ -1,8 +1,10 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -18,19 +20,16 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final String permId, int rowNumber)
+            final Collection<String> permIds, int rowNumber)
     {
-        final Space space = getSpace(api, sessionToken, permId);
+        final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
 
-        if (space != null)
-        {
+        addRow(wb, rowNumber++, true, "SPACE");
+        addRow(wb, rowNumber++, true, "Code", "Description");
 
-            addRow(wb, rowNumber++, true, "SPACE");
-            addRow(wb, rowNumber++, true, "Code", "Description");
-
-            addRow(wb, rowNumber++, false, "1", space.getCode(), space.getDescription());
-
-            addRow(wb, rowNumber++, true, "Version", "Code", "Label", "Description");
+//            addRow(wb, rowNumber++, false, "1", spaces.getCode(), spaces.getDescription());
+//
+//            addRow(wb, rowNumber++, true, "Version", "Code", "Label", "Description");
 
 //            for (final SpaceTerm spaceTerm : space.getTerms())
 //            {
@@ -38,24 +37,14 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
 //                        spaceTerm.getDescription());
 //            }
 
-            return rowNumber + 1;
-        } else
-        {
-            return rowNumber;
-        }
-
+        return rowNumber + 1;
     }
 
-    private Space getSpace(final IApplicationServerApi api, final String sessionToken, final String permId)
+    private Collection<Space> getSpaces(final IApplicationServerApi api, final String sessionToken,
+            final Collection<String> permIds)
     {
-        final SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
-        final Map<ISpaceId, Space> spaces = api.getSpaces(sessionToken,
-                Collections.singletonList(new SpacePermId(permId)), fetchOptions);
-
-        assert spaces.size() <= 1;
-
-        final Iterator<Space> iterator = spaces.values().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
+        final List<SpacePermId> spacePermIds = permIds.stream().map(SpacePermId::new).collect(Collectors.toList());
+        return api.getSpaces(sessionToken, spacePermIds, new SpaceFetchOptions()).values();
     }
 
     @Override
