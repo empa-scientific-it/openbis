@@ -27,15 +27,10 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
         addRow(wb, rowNumber++, true, "SPACE");
         addRow(wb, rowNumber++, true, "Code", "Description");
 
-//            addRow(wb, rowNumber++, false, "1", spaces.getCode(), spaces.getDescription());
-//
-//            addRow(wb, rowNumber++, true, "Version", "Code", "Label", "Description");
-
-//            for (final SpaceTerm spaceTerm : space.getTerms())
-//            {
-//                addRow(wb, rowNumber++, false, "1", spaceTerm.getCode(), spaceTerm.getLabel(),
-//                        spaceTerm.getDescription());
-//            }
+        for (final Space space : spaces)
+        {
+            addRow(wb, rowNumber++, false, space.getCode(), space.getDescription());
+        }
 
         return rowNumber + 1;
     }
