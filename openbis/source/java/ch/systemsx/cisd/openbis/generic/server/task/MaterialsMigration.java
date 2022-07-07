@@ -106,11 +106,20 @@ public class MaterialsMigration implements IMaintenanceTask {
     }
 
     @Override
-    public void execute() {
+    public void execute()
+    {
+        IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
+        String sessionToken = null;
         try {
-            doMaterialsMigration();
-        } catch (Exception e) {
-            operationLog.error(MaterialsMigration.class.getSimpleName(), e);
+            sessionToken = v3.loginAsSystem();
+            v3.loginAsSystem();
+            doMaterialsMigration(v3, sessionToken);
+        } catch (Exception exception) {
+            operationLog.error(MaterialsMigration.class.getSimpleName(), exception);
+            if (sessionToken != null) {
+                v3.logout(sessionToken);
+            }
+            throw exception;
         }
     }
 
@@ -118,28 +127,19 @@ public class MaterialsMigration implements IMaintenanceTask {
         operationLog.info(MaterialsMigration.class.getSimpleName() + " : " + method + " - " + message);
     }
 
-    public static void doMaterialsMigration() throws Exception {
+    public static void doMaterialsMigration(IApplicationServerInternalApi v3, String sessionToken) {
         info("doMaterialsMigration","start");
-        IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = null;
-        try {
-            sessionToken = v3.loginAsSystem();
-            if (doMaterialsMigrationInsertNew) {
-                doMaterialsMigrationInsertNew(sessionToken, v3);
-            }
-            doMaterialsMigrationValidation(sessionToken, v3);
-            if (doMaterialsMigrationDeleteOld) {
-                doMaterialsMigrationDeleteOld(sessionToken, v3);
-            }
-        } catch (Throwable throwable) {
-            if (sessionToken != null) {
-                v3.logout(sessionToken);
-            }
-            throw throwable;
+        sessionToken = v3.loginAsSystem();
+        if (doMaterialsMigrationInsertNew) {
+            doMaterialsMigrationInsertNew(sessionToken, v3);
+        }
+        doMaterialsMigrationValidation(sessionToken, v3);
+        if (doMaterialsMigrationDeleteOld) {
+            doMaterialsMigrationDeleteOld(sessionToken, v3);
         }
     }
 
-    private static void doMaterialsMigrationInsertNew(String sessionToken, IApplicationServerApi v3) throws Exception {
+    private static void doMaterialsMigrationInsertNew(String sessionToken, IApplicationServerApi v3) {
         info("doMaterialsMigrationInsertNew","start");
         createSpace(sessionToken, v3);
         createExperimentType(sessionToken, v3);
@@ -765,7 +765,7 @@ public class MaterialsMigration implements IMaintenanceTask {
         }
     }
 
-    private static void doMaterialsMigrationDeleteOld(String sessionToken, IApplicationServerApi v3) throws Exception {
+    private static void doMaterialsMigrationDeleteOld(String sessionToken, IApplicationServerApi v3) {
         info("doMaterialsMigrationDeleteOld","");
         unassignMaterialProperties(sessionToken, v3);
         removeMaterialProperties(sessionToken, v3);
