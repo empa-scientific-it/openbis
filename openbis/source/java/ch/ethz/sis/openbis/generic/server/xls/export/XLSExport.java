@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 public class XLSExport
 {
 
+    // TODO: those entities that have types should have columns which correspond to their types
+
     private final IXLSExportHelper sampleTypeExportHelper = new XLSSampleTypeExportHelper();
 
     private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();

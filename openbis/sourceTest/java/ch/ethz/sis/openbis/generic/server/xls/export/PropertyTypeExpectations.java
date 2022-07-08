@@ -53,6 +53,7 @@ class PropertyTypeExpectations extends Expectations
 
                 propertyTypes[0] = new PropertyType();
                 propertyTypes[0].setFetchOptions(fetchOptions);
+                propertyTypes[0].setPermId(new PropertyTypePermId("ANNOTATION.SYSTEM.COMMENTS"));
                 propertyTypes[0].setCode("ANNOTATION.SYSTEM.COMMENTS");
                 propertyTypes[0].setLabel("Comments");
                 propertyTypes[0].setDataType(DataType.MULTILINE_VARCHAR);
@@ -62,6 +63,7 @@ class PropertyTypeExpectations extends Expectations
 
                 propertyTypes[1] = new PropertyType();
                 propertyTypes[1].setFetchOptions(fetchOptions);
+                propertyTypes[1].setPermId(new PropertyTypePermId("ANNOTATION.SYSTEM.QUANTITY"));
                 propertyTypes[1].setCode("ANNOTATION.SYSTEM.QUANTITY");
                 propertyTypes[1].setLabel("Quantity");
                 propertyTypes[1].setDataType(DataType.VARCHAR);
@@ -71,6 +73,7 @@ class PropertyTypeExpectations extends Expectations
 
                 propertyTypes[2] = new PropertyType();
                 propertyTypes[2].setFetchOptions(fetchOptions);
+                propertyTypes[2].setPermId(new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_ANNOTATION"));
                 propertyTypes[2].setCode("ANNOTATION.SYSTEM.PLASMID_ANNOTATION");
                 propertyTypes[2].setLabel("Plasmid Annotation");
                 propertyTypes[2].setDataType(DataType.VARCHAR);
@@ -83,6 +86,7 @@ class PropertyTypeExpectations extends Expectations
 
                 propertyTypes[3] = new PropertyType();
                 propertyTypes[3].setFetchOptions(fetchOptions);
+                propertyTypes[3].setPermId(new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP"));
                 propertyTypes[3].setCode("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP");
                 propertyTypes[3].setLabel("Plasmid Relationship");
                 propertyTypes[3].setDataType(DataType.CONTROLLEDVOCABULARY);
