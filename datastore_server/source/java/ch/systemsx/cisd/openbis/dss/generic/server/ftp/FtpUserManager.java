@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -65,6 +66,7 @@ public class FtpUserManager implements UserManager
             String sessionToken = getSessionToken(key, user, password);
             if (sessionToken != null)
             {
+                sessionToken = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionToken);
                 SessionContextDTO session = service.tryGetSession(sessionToken);
                 if (session == null)
                 {
