@@ -87,12 +87,24 @@ public class StatisticsCollectionMaintenanceTask implements IMaintenanceTask
     @Override
     public void execute()
     {
+        String sessionToken = null;
+        try {
+            sessionToken = applicationServerApi.loginAsSystem();
+            applicationServerApi.loginAsSystem();
+            execute(sessionToken);
+        } catch (Exception exception) {
+            if (sessionToken != null) {
+                applicationServerApi.logout(sessionToken);
+            }
+            throw exception;
+        }
+    }
+
+    public void execute(String sessionToken)
+    {
         if (shouldExecute())
         {
             notificationLog.info("Statistics collection execution started.");
-
-            // Obtain session token from openBIS
-            final String sessionToken = applicationServerApi.loginAsSystem();
 
             final long personsCount = getPersonsCount(sessionToken);
 

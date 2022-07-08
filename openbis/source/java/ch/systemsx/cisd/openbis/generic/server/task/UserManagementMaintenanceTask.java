@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
  */
 public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
 {
-    static final String DEACTIVATE_UNKOWN_USERS_PROPERTY = "deactivate-unknown-users";
+    static final String DEACTIVATE_UNKNOWN_USERS_PROPERTY = "deactivate-unknown-users";
 
     static final String AUDIT_LOG_FILE_PATH_PROPERTY = "audit-log-file-path";
 
@@ -85,7 +85,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
     @Override
     protected void setUpSpecific(Properties properties)
     {
-        deactivateUnknownUsers = PropertyUtils.getBoolean(properties, DEACTIVATE_UNKOWN_USERS_PROPERTY, true);
+        deactivateUnknownUsers = PropertyUtils.getBoolean(properties, DEACTIVATE_UNKNOWN_USERS_PROPERTY, true);
         auditLogFile = new File(properties.getProperty(AUDIT_LOG_FILE_PATH_PROPERTY, DEFAULT_AUDIT_LOG_FILE_PATH));
         if (auditLogFile.isDirectory())
         {
@@ -277,7 +277,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         IAuthenticationService authenticationService = (IAuthenticationService) CommonServiceProvider.tryToGetBean("authentication-service");
         UserManager userManager = new UserManager(authenticationService, CommonServiceProvider.getApplicationServerApi(),
                 shareIdsMappingFile, logger, report);
-        userManager.setDeactivateUnknwonUsers(deactivateUnknownUsers);
+        userManager.setDeactivateUnknownUsers(deactivateUnknownUsers);
         return userManager;
     }
 }

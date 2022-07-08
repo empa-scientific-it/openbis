@@ -100,12 +100,11 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "CYTOFLEX_S_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "CYTOFLEX_S_WELL": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true,
-            "SHOW_ON_NAV_FOR_PARENT_TYPES": ["CYTOFLEX_S_PLATE"]
+            "SHOW_ON_NAV": true
         },
         "FACS_ARIA_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -117,7 +116,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "FACS_ARIA_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "INFLUX_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -129,7 +128,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "INFLUX_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "LSR_FORTESSA_PLATE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -145,12 +144,11 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "LSR_FORTESSA_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "LSR_FORTESSA_WELL": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true,
-            "SHOW_ON_NAV_FOR_PARENT_TYPES": ["LSR_FORTESSA_PLATE"]
+            "SHOW_ON_NAV": true
         },
         "MOFLO_XDP_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -162,7 +160,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "MOFLO_XDP_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "S3E_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -170,7 +168,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "S3E_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "S3E_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -186,7 +184,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "SONY_SH800S_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         },
         "SONY_MA900_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -198,7 +196,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "SONY_MA900_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": false
+            "SHOW_ON_NAV": true
         }
     },
     dataSetTypeDefinitionsExtension: {

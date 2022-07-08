@@ -259,7 +259,7 @@ def getSamplesImportTemplate(context, parameters):
         row = sheet.createRow(row_index)
         _create_cell(row, 0, kind_style, "SAMPLE")
         row = sheet.createRow(row_index + 1)
-        _create_cell(row, 0, None, "Sample Type")
+        _create_cell(row, 0, None, "Sample type")
         row = sheet.createRow(row_index + 2)
         _create_cell(row, 0, type_style, sampleTypePermId)
         row = sheet.createRow(row_index + 3)

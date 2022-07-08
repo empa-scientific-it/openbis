@@ -94,12 +94,26 @@ public class ArchivingByRequestTask extends AbstractGroupMaintenanceTask
     public void execute()
     {
         IApplicationServerInternalApi service = getService();
-        if (MaintenanceTaskUtils.areAllDataStoreServersRunning(service) == false)
+        String sessionToken = null;
+        try {
+            sessionToken = service.loginAsSystem();
+            service.loginAsSystem();
+            execute(service, sessionToken);
+        } catch (Exception exception) {
+            if (sessionToken != null) {
+                service.logout(sessionToken);
+            }
+            throw exception;
+        }
+    }
+
+    public void execute(IApplicationServerInternalApi service, String sessionToken)
+    {
+        if (MaintenanceTaskUtils.areAllDataStoreServersRunning(service, sessionToken) == false)
         {
             operationLog.info("Not executed because DSS isn't running (yet).");
             return;
         }
-        String sessionToken = service.loginAsSystem();
         List<DataSet> dataSets = getDataSetsToBeArchived(service, sessionToken);
         operationLog.info(dataSets.size() + " data sets to be archived.");
         Map<String, List<DataSet>> dataSetsByGroups = getDataSetsByGroups(getGroups(), dataSets);

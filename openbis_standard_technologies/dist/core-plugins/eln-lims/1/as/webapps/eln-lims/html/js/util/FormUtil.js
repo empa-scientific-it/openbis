@@ -2307,7 +2307,7 @@ var FormUtil = new function() {
 	}
 	
 	this._createFormFieldId = function(key) {
-		return 'freezing-form-' + key.replace("+", "-");
+		return 'freezing-form-' + key.replace("+", "-").replace(/\./g, "-");
 	}
 	
 	this.showFreezingError = function(error) {

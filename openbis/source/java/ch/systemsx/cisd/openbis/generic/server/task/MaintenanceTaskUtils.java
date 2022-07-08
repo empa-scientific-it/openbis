@@ -31,14 +31,13 @@ public class MaintenanceTaskUtils
 {
     private static final File STARTED_FILE = new File("SERVER_STARTED");
 
-    public static boolean areAllDataStoreServersRunning(IApplicationServerInternalApi service)
+    public static boolean areAllDataStoreServersRunning(IApplicationServerInternalApi service, String sessionToken)
     {
         if (STARTED_FILE.exists() == false)
         {
             return false;
         }
         long startUpTimestampOfAS = STARTED_FILE.lastModified();
-        String sessionToken = service.loginAsSystem();
         DataStoreSearchCriteria searchCriteria = new DataStoreSearchCriteria();
         DataStoreFetchOptions fetchOptions = new DataStoreFetchOptions();
         List<DataStore> dataStores = service.searchDataStores(sessionToken, searchCriteria, fetchOptions).getObjects();
