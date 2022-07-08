@@ -389,6 +389,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                 sessions = newSessions;
 
                 saveInFile();
+
+                operationLog.info("Personal access tokens file successfully loaded. Number of tokens: " + newTokens.size()
+                        + ". Number of sessions: " + newSessions.size() + ". File path: " + file.getAbsolutePath());
             } catch (Exception e)
             {
                 operationLog.error("Loading of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
