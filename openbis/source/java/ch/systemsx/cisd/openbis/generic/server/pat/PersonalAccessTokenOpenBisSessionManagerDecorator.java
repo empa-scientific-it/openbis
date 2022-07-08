@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -89,6 +90,11 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     @Override public void updateAllSessions()
     {
         sessionManager.updateAllSessions();
+
+        synchronized (sessions)
+        {
+            OpenBisSessionManager.updateSessions(daoFactory, sessions.values());
+        }
     }
 
     @Override public String getUserForAnonymousLogin()
