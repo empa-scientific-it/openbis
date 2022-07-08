@@ -4,6 +4,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureExc
 import base64
 import json
 import re
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator as AttributeValidator
+import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -272,10 +274,15 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
             if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
-                cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                if not attributeValidator.isHeader(propertyAssignment.getPropertyType().getLabel()):
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                else:
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getCode())
+
         max_number_of_columns = max(max_number_of_columns, cell_index)
         row_index += 6
         for i in range(max_number_of_columns):

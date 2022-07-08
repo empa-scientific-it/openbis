@@ -37,7 +37,7 @@ public class SampleImportHelper extends BasicImportHelper
 {
     private static final String SAMPLE_TYPE_FIELD = "Sample type";
 
-    private enum Attribute implements IAttribute {
+    public enum Attribute implements IAttribute {
         $("$", false),
         Identifier("Identifier", false),
         Code("Code", false),
