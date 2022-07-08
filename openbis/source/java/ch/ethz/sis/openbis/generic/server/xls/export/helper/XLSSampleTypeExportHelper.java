@@ -30,9 +30,8 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
         {
             addRow(wb, rowNumber++, true, "SAMPLE_TYPE");
             addRow(wb, rowNumber++, true, "Version", "Code", "Auto generate codes", "Validation script",
-                    "Generated Code Prefix");
+                    "Generated code prefix");
 
-            // TODO: what to put to validation script?
             final Plugin validationPlugin = sampleType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getScript() != null ? validationPlugin.getScript() : "") : "";

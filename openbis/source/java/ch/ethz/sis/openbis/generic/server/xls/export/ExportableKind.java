@@ -11,9 +11,6 @@ public enum ExportableKind
 //    USER, GROUP
 
     public static final Set<ExportableKind>
-            MASTER_DATA_EXPORTABLE_KINDS = EnumSet.of(SAMPLE_TYPE, EXPERIMENT_TYPE, DATASET_TYPE, PROPERTY_TYPE, VOCABULARY);
-
-    public static final Set<ExportableKind>
-            METADATA_EXPORTABLE_KINDS = EnumSet.of(SPACE, PROJECT, EXPERIMENT, SAMPLE);
+            MASTER_DATA_EXPORTABLE_KINDS = EnumSet.of(SAMPLE_TYPE, EXPERIMENT_TYPE, DATASET_TYPE, VOCABULARY);
 
 }

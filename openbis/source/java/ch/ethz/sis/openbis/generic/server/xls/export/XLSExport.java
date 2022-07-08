@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSPropertyTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
@@ -47,6 +48,8 @@ public class XLSExport
     private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();
 
     private final IXLSExportHelper dataSetTypeExportHelper = new XLSDataSetTypeExportHelper();
+
+    private final IXLSExportHelper propertyTypeExportHelper = new XLSPropertyTypeExportHelper();
 
     private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
 
@@ -74,15 +77,10 @@ public class XLSExport
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
-            final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
-
-            final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
-            if (helper != null)
-            {
-                final List<String> permIds = exportablePermIdGroup.stream()
-                        .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-                rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber);
-            }
+            final IXLSExportHelper helper = getHelper(exportablePermIdGroup.iterator().next().getExportableKind());
+            final List<String> permIds = exportablePermIdGroup.stream()
+                    .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
+            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber);
         }
 
         return wb;
@@ -180,6 +178,10 @@ public class XLSExport
             case DATASET_TYPE:
             {
                 return dataSetTypeExportHelper;
+            }
+            case PROPERTY_TYPE:
+            {
+                return propertyTypeExportHelper;
             }
             case VOCABULARY:
             {

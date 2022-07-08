@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -75,6 +76,20 @@ public class XLSExportTest
                         ExperimentTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
+                        true
+                },
+                {
+                        "export-property-type.xlsx",
+                        PropertyTypeExpectations.class,
+                        List.of(
+                                new ExportablePermId(PROPERTY_TYPE,
+                                        new PropertyTypePermId("ANNOTATION.SYSTEM.COMMENTS")),
+                                new ExportablePermId(PROPERTY_TYPE,
+                                        new PropertyTypePermId("ANNOTATION.SYSTEM.QUANTITY")),
+                                new ExportablePermId(PROPERTY_TYPE,
+                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_ANNOTATION")),
+                                new ExportablePermId(PROPERTY_TYPE,
+                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP"))),
                         true
                 },
                 {

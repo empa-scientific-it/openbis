@@ -21,7 +21,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
-            "Show in edit views", "Section", "Property label", "Data type", "Vocabulary Code", "Description",
+            "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
 
     protected String mapToJSON(final Map<?, ?> map)
