@@ -1,16 +1,36 @@
 import React from 'react'
+import autoBind from 'auto-bind'
 import Link from '@material-ui/core/Link'
 import logger from '@src/js/common/logger.js'
 import messages from '@src/js/common/messages.js'
 import Header from '@src/js/components/common/form/Header.jsx'
-import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
+import Message from '@src/js/components/common/form/Message.jsx'
+import Container from '@src/js/components/common/form/Container.jsx'
+import ComponentContext from '@src/js/components/common/ComponentContext.js'
+import ActiveUserReportFacade from '@src/js/components/tools/form/activeUserReport/ActiveUserReportFacade.js'
+import ActiveUserReportController from '@src/js/components/tools/form/activeUserReport/ActiveUserReportController.js'
 
 class ActiveUserReportForm extends React.PureComponent {
+  constructor(props) {
+    super(props)
+    autoBind(this)
+
+    this.state = {}
+    if (this.props.controller) {
+      this.controller = this.props.controller
+    } else {
+      this.controller = new ActiveUserReportController(new ActiveUserReportFacade())
+    }
+
+    this.controller.init(new ComponentContext(this))
+  }
+
   render() {
     logger.log(logger.DEBUG, 'ActiveUserReportForm.render')
 
     const { activeUsersCount, classes } = this.props
+    const { result } = this.state
 
     return (
       <Container>
@@ -22,12 +42,27 @@ class ActiveUserReportForm extends React.PureComponent {
           {". "}
           <br/><br/>
         </span>
-        <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} styles={{ root: classes.button }} onClick={this.sendReport}/>
+        <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} styles={{ root: classes.button }} onClick={this.controller.sendReport}/>
+        <br/>
+        {this.renderResult()}
       </Container>
     )
   }
 
-  sendReport() {
+  renderResult() {
+    const { result } = this.state
+
+    if (result === undefined) {
+      return <Container></Container>
+    }
+
+    return (
+      <Container>
+        <Message type={result.success ? 'success' : 'error'}>
+          {result.success ? messages.get(messages.ACTIVE_USERS_REPORT_EMAIL_SENT_CONFIRMATION) : result.output.message}
+        </Message>
+      </Container>
+    )
   }
 }
 

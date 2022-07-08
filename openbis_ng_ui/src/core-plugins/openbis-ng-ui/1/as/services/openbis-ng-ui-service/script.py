@@ -1,3 +1,6 @@
+from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
+
+
 def process(context, parameters):
     method = parameters.get("method");
     result = None;
@@ -10,4 +13,10 @@ def process(context, parameters):
 
 def sendCountActiveUsersEmail(context, parameters):
     # use CustomASServiceCode
-    return True
+    try:
+        sessionToken = context.getSessionToken()
+        server = CommonServiceProvider.getCommonServer()
+        server.sendCountActiveUsersEmail(sessionToken)
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    return {"status": "OK"}
