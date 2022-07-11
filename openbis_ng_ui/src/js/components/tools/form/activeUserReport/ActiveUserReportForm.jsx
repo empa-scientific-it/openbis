@@ -29,7 +29,7 @@ class ActiveUserReportForm extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'ActiveUserReportForm.render')
 
-    const { activeUsersCount, classes } = this.props
+    const { activeUsersCount } = this.props
     const { result } = this.state
 
     return (
@@ -42,7 +42,7 @@ class ActiveUserReportForm extends React.PureComponent {
           {". "}
           <br/><br/>
         </span>
-        <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} styles={{ root: classes.button }} onClick={this.controller.sendReport}/>
+        <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} onClick={this.controller.sendReport}/>
         <br/>
         {this.renderResult()}
       </Container>

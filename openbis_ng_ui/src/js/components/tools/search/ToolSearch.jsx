@@ -334,7 +334,7 @@ class ToolSearch extends React.Component {
       const { classes } = this.props
       return (
         <div className={classes.grid}>
-          <ActiveUserReportForm activeUsersCount={this.state.activeUsersCount} classes={classes} />
+          <ActiveUserReportForm activeUsersCount={this.state.activeUsersCount} />
         </div>
       )
     } else {
