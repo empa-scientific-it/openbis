@@ -403,16 +403,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         for (FileSession newSession : newSessionsByOwnerAndName.values())
         {
-            FileSession existingSession =
-                    existingSessionsByOwnerAndName.get(new ImmutablePair<>(newSession.ownerId, newSession.name));
-
-            if (existingSession == null || !EqualsBuilder.reflectionEquals(existingSession, newSession))
-            {
-                result.put(newSession.hash, newSession);
-            } else
-            {
-                result.put(existingSession.hash, existingSession);
-            }
+            result.put(newSession.hash, newSession);
         }
 
         return result;
@@ -547,6 +538,11 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                             throw new UserFailureException("Registrator id cannot be null.");
                         }
 
+                        if (fileToken.modifierId == null)
+                        {
+                            throw new UserFailureException("Modifier id cannot be null.");
+                        }
+
                         if (fileToken.validFromDate == null)
                         {
                             throw new UserFailureException("Valid from date cannot be null.");
@@ -560,6 +556,16 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                         if (fileToken.validFromDate.after(fileToken.validToDate))
                         {
                             throw new UserFailureException("Valid from date cannot be after valid to date.");
+                        }
+
+                        if (fileToken.registrationDate == null)
+                        {
+                            throw new UserFailureException("Registration date cannot be null.");
+                        }
+
+                        if (fileToken.modificationDate == null)
+                        {
+                            throw new UserFailureException("Modification date cannot be null.");
                         }
 
                         newTokens.put(fileToken.hash, fileToken);
