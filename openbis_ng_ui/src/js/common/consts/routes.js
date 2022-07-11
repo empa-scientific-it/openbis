@@ -222,6 +222,11 @@ const routes = {
     page: pages.TOOLS,
     type: objectTypes.IMPORT
   }),
+  ACTIVE_USERS_REPORT: new Route('/active-users-report', {
+    page: pages.TOOLS,
+    type: objectTypes.OVERVIEW,
+    id: objectTypes.ACTIVE_USERS_REPORT
+  }),
   DEFAULT: new DefaultRoute()
 }
 

@@ -7,6 +7,7 @@ import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import AppController from '@src/js/components/AppController.js'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
+import ActiveUserReportForm from '@src/js/components/tools/form/activeUserReport/ActiveUserReportForm.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import ids from '@src/js/common/consts/ids.js'
@@ -43,7 +44,8 @@ class ToolSearch extends React.Component {
       await Promise.all([
         this.loadDynamicPropertyPlugins(),
         this.loadEntityValidationPlugins(),
-        this.loadQueries()
+        this.loadQueries(),
+        this.loadActiveUsersCount()
       ])
       this.setState(() => ({
         loaded: true
@@ -163,6 +165,23 @@ class ToolSearch extends React.Component {
     })
   }
 
+  async loadActiveUsersCount() {
+    if (!this.shouldLoad(objectTypes.ACTIVE_USERS_REPORT)) {
+      return
+    }
+
+    const result = await openbis.searchPersons(
+      new openbis.PersonSearchCriteria(),
+      new openbis.PersonFetchOptions()
+    )
+
+    const activeUsersCount = result.objects.filter(user => {return user.active == true}).length
+
+    this.setState({
+      activeUsersCount
+    })
+  }
+
   shouldLoad(objectType) {
     return this.props.objectType === objectType || !this.props.objectType
   }
@@ -199,6 +218,7 @@ class ToolSearch extends React.Component {
         {this.renderDynamicPropertyPlugins()}
         {this.renderEntityValidationPlugins()}
         {this.renderQueries()}
+        {this.renderActiveUsersReport()}
       </GridContainer>
     )
   }
@@ -302,6 +322,19 @@ class ToolSearch extends React.Component {
               objectTypes.QUERY
             )}
           />
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderActiveUsersReport() {
+    if (this.shouldRender(objectTypes.ACTIVE_USERS_REPORT, this.state.activeUsersCount)) {
+      const { classes } = this.props
+      return (
+        <div className={classes.grid}>
+          <ActiveUserReportForm activeUsersCount={this.state.activeUsersCount} classes={classes} />
         </div>
       )
     } else {
