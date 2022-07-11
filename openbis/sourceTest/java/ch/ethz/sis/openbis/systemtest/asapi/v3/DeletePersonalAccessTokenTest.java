@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.junit.Assert.assertNull;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 
@@ -28,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
  * @author pkupczyk
@@ -91,8 +93,19 @@ public class DeletePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
         options.setReason("It is just a test");
 
+        assertNotNull(v3api.getSessionInformation(token.getHash()));
+
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         v3api.deletePersonalAccessTokens(sessionToken, Arrays.asList(token.getPermId()), options);
+
+        try
+        {
+            v3api.getSessionInformation(token.getHash());
+            fail();
+        } catch (InvalidSessionException e)
+        {
+            // expected
+        }
 
         assertNull(getToken(TEST_USER, PASSWORD, token.getPermId()));
     }
