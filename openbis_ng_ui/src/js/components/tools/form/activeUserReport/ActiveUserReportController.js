@@ -1,4 +1,5 @@
 import autoBind from 'auto-bind'
+import ErrorObject from '@src/js/components/common/error/ErrorObject.js'
 
 export default class ActiveUserReportController {
   constructor(facade) {
@@ -28,7 +29,7 @@ export default class ActiveUserReportController {
       this.context.setState({
         result: {
           success: false,
-          output: new ErrorObject(error).toString()
+          output: new ErrorObject(error).getMessage()
         }
       })
     } finally {

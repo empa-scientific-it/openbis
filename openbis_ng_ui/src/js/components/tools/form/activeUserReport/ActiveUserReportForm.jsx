@@ -59,7 +59,7 @@ class ActiveUserReportForm extends React.PureComponent {
     return (
       <Container>
         <Message type={result.success ? 'success' : 'error'}>
-          {result.success ? messages.get(messages.ACTIVE_USERS_REPORT_EMAIL_SENT_CONFIRMATION) : result.output.message}
+          {result.success ? messages.get(messages.ACTIVE_USERS_REPORT_EMAIL_SENT_CONFIRMATION) : result.output}
         </Message>
       </Container>
     )
