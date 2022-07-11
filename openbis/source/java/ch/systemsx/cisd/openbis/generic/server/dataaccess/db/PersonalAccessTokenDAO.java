@@ -1,13 +1,11 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -18,6 +16,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,7 +26,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
@@ -40,15 +43,17 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT = "personal-access-tokens.json";
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+
+    private final IPersonDAO personDAO;
 
     private final Properties properties;
 
     private final HashGenerator generator;
 
-    private Map<String, PersonalAccessToken> tokens = new HashMap<>();
+    private Map<String, FileToken> fileTokens = new LinkedHashMap<>();
 
-    private Map<String, PersonalAccessTokenSession> sessions = new HashMap<>();
+    private Map<String, FileSession> fileSessions = new LinkedHashMap<>();
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -59,9 +64,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         String generateSessionHash(String user);
     }
 
-    public PersonalAccessTokenDAO(final Properties properties)
+    public PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties)
     {
-        this(properties, new HashGenerator()
+        this(personDAO, properties, new HashGenerator()
         {
             @Override public String generateTokenHash(String user)
             {
@@ -75,8 +80,13 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         });
     }
 
-    PersonalAccessTokenDAO(final Properties properties, final HashGenerator generator)
+    PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties, final HashGenerator generator)
     {
+        if (personDAO == null)
+        {
+            throw new IllegalArgumentException("Person DAO cannot be null");
+        }
+
         if (properties == null)
         {
             throw new IllegalArgumentException("Properties cannot be null");
@@ -87,6 +97,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             throw new IllegalArgumentException("Hash generator cannot be null");
         }
 
+        this.personDAO = personDAO;
         this.properties = properties;
         this.generator = generator;
 
@@ -95,206 +106,383 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
-        PersonalAccessToken token = new PersonalAccessToken();
-        token.setHash(generator.generateTokenHash(creation.getOwnerId()));
-        token.setSessionName(creation.getSessionName());
-        token.setOwnerId(creation.getOwnerId());
-        token.setRegistratorId(creation.getRegistratorId());
-        token.setModifierId(creation.getRegistratorId());
-        token.setValidFromDate(creation.getValidFromDate());
-        token.setValidToDate(creation.getValidToDate());
-        token.setRegistrationDate(creation.getRegistrationDate());
-        token.setModificationDate(creation.getModificationDate());
-        token.setAccessDate(creation.getAccessDate());
+        if (StringUtils.isEmpty(creation.getSessionName()))
+        {
+            throw new UserFailureException("Session name cannot be empty.");
+        }
 
-        checkToken(token);
-        tokens.put(token.getHash(), token);
-        sessions = recalculateSessions(tokens.values(), sessions.values());
+        if (StringUtils.isEmpty(creation.getOwnerId()))
+        {
+            throw new UserFailureException("Owner id cannot be empty.");
+        }
+
+        PersonPE owner = getUser(creation.getOwnerId());
+        if (owner == null)
+        {
+            throw new UserFailureException("Owner with id: " + creation.getOwnerId() + " does not exist.");
+        }
+
+        if (StringUtils.isEmpty(creation.getRegistratorId()))
+        {
+            throw new UserFailureException("Registrator id cannot be empty.");
+        }
+
+        PersonPE registrator = getUser(creation.getRegistratorId());
+
+        if (registrator == null)
+        {
+            throw new UserFailureException("Registrator with id: " + creation.getRegistratorId() + " does not exist.");
+        }
+
+        if (StringUtils.isEmpty(creation.getModifierId()))
+        {
+            throw new UserFailureException("Modifier id cannot be empty.");
+        }
+
+        PersonPE modifier = getUser(creation.getModifierId());
+
+        if (modifier == null)
+        {
+            throw new UserFailureException("Modifier with id: " + creation.getModifierId() + " does not exist.");
+        }
+
+        if (creation.getValidFromDate() == null)
+        {
+            throw new UserFailureException("Valid from date cannot be null.");
+        }
+
+        if (creation.getValidToDate() == null)
+        {
+            throw new UserFailureException("Valid to date cannot be null.");
+        }
+
+        if (creation.getValidFromDate().after(creation.getValidToDate()))
+        {
+            throw new UserFailureException("Valid from date cannot be after valid to date.");
+        }
+
+        if (creation.getRegistrationDate() == null)
+        {
+            throw new UserFailureException("Registration date cannot be null.");
+        }
+
+        if (creation.getModificationDate() == null)
+        {
+            throw new UserFailureException("Modification date cannot be null.");
+        }
+
+        FileToken fileToken = new FileToken();
+        fileToken.hash = generator.generateTokenHash(creation.getOwnerId());
+        fileToken.sessionName = creation.getSessionName();
+        fileToken.ownerId = owner.getId();
+        fileToken.registratorId = registrator.getId();
+        fileToken.modifierId = modifier.getId();
+        fileToken.validFromDate = creation.getValidFromDate();
+        fileToken.validToDate = creation.getValidToDate();
+        fileToken.registrationDate = creation.getRegistrationDate();
+        fileToken.modificationDate = creation.getModificationDate();
+
+        fileTokens.put(fileToken.hash, fileToken);
+        fileSessions = calculateSessions(fileTokens.values(), fileSessions.values());
         saveInFile();
 
-        return token;
+        return getTokenByHash(fileToken.hash);
     }
 
     @Override public synchronized void updateToken(final PersonalAccessToken update)
     {
-        PersonalAccessToken token = getTokenByHash(update.getHash());
+        if (update == null)
+        {
+            throw new UserFailureException("Update cannot be null.");
+        }
 
-        if (token != null)
+        if (StringUtils.isEmpty(update.getHash()))
+        {
+            throw new UserFailureException("Hash cannot be empty.");
+        }
+
+        if (StringUtils.isEmpty(update.getModifierId()))
+        {
+            throw new UserFailureException("Modifier id cannot be empty.");
+        }
+
+        PersonPE modifier = getUser(update.getModifierId());
+
+        if (modifier == null)
+        {
+            throw new UserFailureException("Modifier with id: " + update.getModifierId() + " does not exist.");
+        }
+
+        if (update.getModificationDate() == null)
+        {
+            throw new UserFailureException("Modification date cannot be null.");
+        }
+
+        FileToken fileToken = fileTokens.get(update.getHash());
+
+        if (fileToken != null)
         {
             if (update.getAccessDate() != null)
             {
-                token.setAccessDate(update.getAccessDate());
+                fileToken.accessDate = update.getAccessDate();
             }
+            fileToken.modifierId = modifier.getId();
+            fileToken.modificationDate = update.getModificationDate();
 
-            checkToken(token);
-            tokens.put(token.getHash(), token);
-            sessions = recalculateSessions(tokens.values(), sessions.values());
+            fileTokens.put(fileToken.hash, fileToken);
+            fileSessions = calculateSessions(fileTokens.values(), fileSessions.values());
             saveInFile();
         }
     }
 
     @Override public synchronized void deleteToken(final String hash)
     {
-        PersonalAccessToken token = tokens.remove(hash);
-
-        if (token != null)
+        if (StringUtils.isEmpty(hash))
         {
-            sessions = recalculateSessions(tokens.values(), sessions.values());
+            throw new UserFailureException("Hash cannot be empty.");
+        }
+
+        FileToken fileToken = fileTokens.remove(hash);
+
+        if (fileToken != null)
+        {
+            fileSessions = calculateSessions(fileTokens.values(), fileSessions.values());
             saveInFile();
         }
     }
 
     @Override public synchronized List<PersonalAccessToken> listTokens()
     {
-        return new ArrayList<>(tokens.values());
+        List<PersonalAccessToken> tokens = new ArrayList<>();
+
+        for (FileToken fileToken : fileTokens.values())
+        {
+            PersonalAccessToken token = convert(fileToken);
+
+            if (token != null)
+            {
+                tokens.add(token);
+            }
+        }
+
+        return tokens;
     }
 
     @Override public synchronized PersonalAccessToken getTokenByHash(final String hash)
     {
-        return tokens.get(hash);
+        if (StringUtils.isEmpty(hash))
+        {
+            throw new UserFailureException("Hash cannot be empty.");
+        }
+
+        FileToken fileToken = fileTokens.get(hash);
+
+        if (fileToken == null)
+        {
+            return null;
+        }
+
+        return convert(fileToken);
     }
 
     @Override public synchronized List<PersonalAccessTokenSession> listSessions()
     {
-        return new ArrayList<>(sessions.values());
+        List<PersonalAccessTokenSession> sessions = new ArrayList<>();
+
+        for (FileSession fileSession : fileSessions.values())
+        {
+            PersonalAccessTokenSession session = convert(fileSession);
+
+            if (session != null)
+            {
+                sessions.add(session);
+            }
+        }
+
+        return sessions;
     }
 
     @Override public PersonalAccessTokenSession getSessionByHash(final String hash)
     {
-        return sessions.get(hash);
+        if (StringUtils.isEmpty(hash))
+        {
+            throw new UserFailureException("Hash cannot be empty.");
+        }
+
+        FileSession fileSession = fileSessions.get(hash);
+
+        if (fileSession == null)
+        {
+            return null;
+        }
+
+        return convert(fileSession);
     }
 
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
-        for (PersonalAccessTokenSession session : sessions.values())
+        if (StringUtils.isEmpty(userId))
         {
-            if (session.getOwnerId().equals(userId) && session.getName().equals(sessionName))
-            {
-                return session;
-            }
+            throw new UserFailureException("User id cannot be empty.");
         }
-        return null;
-    }
 
-    private void checkToken(PersonalAccessToken token)
-    {
-        if (StringUtils.isEmpty(token.getHash()))
-        {
-            throw new UserFailureException("Hash cannot be empty.");
-        }
-        if (StringUtils.isEmpty(token.getSessionName()))
+        if (StringUtils.isEmpty(sessionName))
         {
             throw new UserFailureException("Session name cannot be empty.");
         }
-        if (StringUtils.isEmpty(token.getOwnerId()))
+
+        PersonPE user = getUser(userId);
+
+        if (user == null)
         {
-            throw new UserFailureException("Owner id cannot be empty.");
+            return null;
         }
-        if (StringUtils.isEmpty(token.getRegistratorId()))
+
+        for (FileSession fileSession : fileSessions.values())
         {
-            throw new UserFailureException("Registrator id cannot be empty.");
+            if (fileSession.ownerId.equals(user.getId()) && fileSession.name.equals(sessionName))
+            {
+                return convert(fileSession);
+            }
         }
-        if (StringUtils.isEmpty(token.getModifierId()))
-        {
-            throw new UserFailureException("Modifier id cannot be empty.");
-        }
-        if (token.getValidFromDate() == null)
-        {
-            throw new UserFailureException("Valid from date cannot be null.");
-        }
-        if (token.getValidToDate() == null)
-        {
-            throw new UserFailureException("Valid to date cannot be null.");
-        }
-        if (token.getValidFromDate().after(token.getValidToDate()))
-        {
-            throw new UserFailureException("Valid from date cannot be after valid to date.");
-        }
-        if (token.getRegistrationDate() == null)
-        {
-            throw new UserFailureException("Registration date cannot be null.");
-        }
-        if (token.getModificationDate() == null)
-        {
-            throw new UserFailureException("Modification date cannot be null.");
-        }
+
+        return null;
     }
 
-    private void checkSession(PersonalAccessTokenSession session)
+    private synchronized Map<String, FileSession> calculateSessions(Collection<FileToken> tokens,
+            Collection<FileSession> sessions)
     {
-        if (StringUtils.isEmpty(session.getOwnerId()))
-        {
-            throw new UserFailureException("Owner id cannot be empty.");
-        }
-        if (StringUtils.isEmpty(session.getName()))
-        {
-            throw new UserFailureException("Name cannot be empty.");
-        }
-        if (StringUtils.isEmpty(session.getHash()))
-        {
-            throw new UserFailureException("Hash cannot be empty.");
-        }
-    }
+        Map<Pair<Long, String>, FileSession> existingSessionsByOwnerAndName = new HashMap<>();
+        Map<Pair<Long, String>, FileSession> newSessionsByOwnerAndName = new HashMap<>();
 
-    private synchronized Map<String, PersonalAccessTokenSession> recalculateSessions(Collection<PersonalAccessToken> tokens,
-            Collection<PersonalAccessTokenSession> sessions)
-    {
-        Map<Pair<String, String>, PersonalAccessTokenSession> existingSessionsByOwnerAndName = new HashMap<>();
-        Map<Pair<String, String>, PersonalAccessTokenSession> newSessionsByOwnerAndName = new HashMap<>();
-
-        for (PersonalAccessTokenSession session : sessions)
+        for (FileSession session : sessions)
         {
-            existingSessionsByOwnerAndName.put(new ImmutablePair<>(session.getOwnerId(), session.getName()), session);
+            existingSessionsByOwnerAndName.put(new ImmutablePair<>(session.ownerId, session.name), session);
         }
 
-        for (PersonalAccessToken token : tokens)
+        for (FileToken token : tokens)
         {
-            Pair<String, String> key = new ImmutablePair<>(token.getOwnerId(), token.getSessionName());
-            PersonalAccessTokenSession existingSession = existingSessionsByOwnerAndName.get(key);
-            PersonalAccessTokenSession newSession = newSessionsByOwnerAndName.get(key);
+            Pair<Long, String> key = new ImmutablePair<>(token.ownerId, token.sessionName);
+            FileSession existingSession = existingSessionsByOwnerAndName.get(key);
+            FileSession newSession = newSessionsByOwnerAndName.get(key);
 
             if (newSession == null)
             {
-                newSession = new PersonalAccessTokenSession();
+                newSession = new FileSession();
                 if (existingSession != null)
                 {
-                    newSession.setHash(existingSession.getHash());
+                    newSession.hash = existingSession.hash;
                 } else
                 {
-                    newSession.setHash(generator.generateSessionHash(token.getOwnerId()));
+                    PersonPE owner = getUser(token.ownerId);
+
+                    if (owner == null)
+                    {
+                        continue;
+                    } else
+                    {
+                        newSession.hash = generator.generateSessionHash(owner.getUserId());
+                    }
                 }
-                newSession.setName(token.getSessionName());
-                newSession.setOwnerId(token.getOwnerId());
-                newSession.setValidFromDate(token.getValidFromDate());
-                newSession.setValidToDate(token.getValidToDate());
-                newSession.setAccessDate(token.getAccessDate());
+                newSession.name = token.sessionName;
+                newSession.ownerId = token.ownerId;
+                newSession.validFromDate = token.validFromDate;
+                newSession.validToDate = token.validToDate;
+                newSession.accessDate = token.accessDate;
             } else
             {
-                newSession.setValidFromDate(getEarlierDate(token.getValidFromDate(), newSession.getValidFromDate()));
-                newSession.setValidToDate(getLaterDate(token.getValidToDate(), newSession.getValidToDate()));
-                newSession.setAccessDate(getLaterDate(token.getAccessDate(), newSession.getAccessDate()));
+                newSession.validFromDate = getEarlierDate(token.validFromDate, newSession.validFromDate);
+                newSession.validToDate = getLaterDate(token.validToDate, newSession.validToDate);
+                newSession.accessDate = getLaterDate(token.accessDate, newSession.accessDate);
             }
 
             newSessionsByOwnerAndName.put(key, newSession);
         }
 
-        Map<String, PersonalAccessTokenSession> result = new HashMap<>();
+        Map<String, FileSession> result = new LinkedHashMap<>();
 
-        for (PersonalAccessTokenSession newSession : newSessionsByOwnerAndName.values())
+        for (FileSession newSession : newSessionsByOwnerAndName.values())
         {
-            PersonalAccessTokenSession existingSession =
-                    existingSessionsByOwnerAndName.get(new ImmutablePair<>(newSession.getOwnerId(), newSession.getName()));
+            FileSession existingSession =
+                    existingSessionsByOwnerAndName.get(new ImmutablePair<>(newSession.ownerId, newSession.name));
 
             if (existingSession == null || !EqualsBuilder.reflectionEquals(existingSession, newSession))
             {
-                result.put(newSession.getHash(), newSession);
+                result.put(newSession.hash, newSession);
             } else
             {
-                result.put(existingSession.getHash(), existingSession);
+                result.put(existingSession.hash, existingSession);
             }
         }
 
         return result;
+    }
+
+    private PersonalAccessToken convert(FileToken fileToken)
+    {
+        PersonPE owner = getUser(fileToken.ownerId);
+
+        if (owner == null)
+        {
+            return null;
+        }
+
+        PersonPE registrator = getUser(fileToken.registratorId);
+        PersonPE modifier = getUser(fileToken.modifierId);
+
+        PersonalAccessToken token = new PersonalAccessToken();
+        token.setHash(fileToken.hash);
+        token.setSessionName(fileToken.sessionName);
+        token.setOwnerId(owner.getUserId());
+        token.setRegistratorId(registrator != null ? registrator.getUserId() : null);
+        token.setModifierId(modifier != null ? modifier.getUserId() : null);
+        token.setValidFromDate(fileToken.validFromDate);
+        token.setValidToDate(fileToken.validToDate);
+        token.setRegistrationDate(fileToken.registrationDate);
+        token.setModificationDate(fileToken.modificationDate);
+        token.setAccessDate(fileToken.accessDate);
+
+        return token;
+    }
+
+    private PersonalAccessTokenSession convert(FileSession fileSession)
+    {
+        PersonPE owner = getUser(fileSession.ownerId);
+
+        if (owner == null)
+        {
+            return null;
+        }
+
+        PersonalAccessTokenSession session = new PersonalAccessTokenSession();
+        session.setOwnerId(owner.getUserId());
+        session.setName(fileSession.name);
+        session.setHash(fileSession.hash);
+        session.setValidFromDate(fileSession.validFromDate);
+        session.setValidToDate(fileSession.validToDate);
+        session.setAccessDate(fileSession.accessDate);
+
+        return session;
+    }
+
+    private PersonPE getUser(Long userTechId)
+    {
+        if (userTechId != null)
+        {
+            return personDAO.tryGetByTechId(new TechId(userTechId));
+        }
+
+        return null;
+    }
+
+    private PersonPE getUser(String userId)
+    {
+        if (userId != null)
+        {
+            return personDAO.tryFindPersonByUserId(userId);
+        }
+
+        return null;
     }
 
     private static Date getEarlierDate(Date date1, Date date2)
@@ -319,25 +507,6 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
-    private static String formatDate(Date date)
-    {
-        if (date != null)
-        {
-            return DATE_FORMAT.format(date);
-        }
-
-        return null;
-    }
-
-    private static Date parseDate(String str) throws ParseException
-    {
-        if (str != null && str.trim().length() > 0)
-        {
-            return DATE_FORMAT.parse(str);
-        }
-        return null;
-    }
-
     private String getFilePath()
     {
         return properties.getProperty(PERSONAL_ACCESS_TOKENS_FILE_PATH, PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT);
@@ -353,40 +522,75 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             {
                 FileContent content = mapper.readValue(file, FileContent.class);
 
-                Map<String, PersonalAccessToken> newTokens = new HashMap<>();
+                Map<String, FileToken> newTokens = new HashMap<>();
                 if (content.tokens != null)
                 {
                     for (FileToken fileToken : content.tokens)
                     {
-                        PersonalAccessToken newToken = FileToken.create(fileToken);
-                        newTokens.put(newToken.getHash(), newToken);
+                        if (fileToken.ownerId == null)
+                        {
+                            throw new UserFailureException("Owner id cannot be null.");
+                        }
+
+                        if (StringUtils.isEmpty(fileToken.sessionName))
+                        {
+                            throw new UserFailureException("Session name cannot be empty.");
+                        }
+
+                        if (StringUtils.isEmpty(fileToken.hash))
+                        {
+                            throw new UserFailureException("Hash cannot be empty.");
+                        }
+
+                        if (fileToken.registratorId == null)
+                        {
+                            throw new UserFailureException("Registrator id cannot be null.");
+                        }
+
+                        if (fileToken.validFromDate == null)
+                        {
+                            throw new UserFailureException("Valid from date cannot be null.");
+                        }
+
+                        if (fileToken.validToDate == null)
+                        {
+                            throw new UserFailureException("Valid to date cannot be null.");
+                        }
+
+                        if (fileToken.validFromDate.after(fileToken.validToDate))
+                        {
+                            throw new UserFailureException("Valid from date cannot be after valid to date.");
+                        }
+
+                        newTokens.put(fileToken.hash, fileToken);
                     }
                 }
 
-                Map<String, PersonalAccessTokenSession> newSessions = new HashMap<>();
+                Map<String, FileSession> newSessions = new HashMap<>();
                 if (content.sessions != null)
                 {
                     for (FileSession fileSession : content.sessions)
                     {
-                        PersonalAccessTokenSession newSession = FileSession.create(fileSession);
-                        newSessions.put(newSession.getHash(), newSession);
+                        if (fileSession.ownerId == null)
+                        {
+                            throw new UserFailureException("Owner id cannot be null.");
+                        }
+                        if (StringUtils.isEmpty(fileSession.name))
+                        {
+                            throw new UserFailureException("Name cannot be empty.");
+                        }
+                        if (StringUtils.isEmpty(fileSession.hash))
+                        {
+                            throw new UserFailureException("Hash cannot be empty.");
+                        }
+                        newSessions.put(fileSession.hash, fileSession);
                     }
                 }
 
-                newSessions = recalculateSessions(newTokens.values(), newSessions.values());
+                newSessions = calculateSessions(newTokens.values(), newSessions.values());
 
-                for (PersonalAccessToken newToken : newTokens.values())
-                {
-                    checkToken(newToken);
-                }
-
-                for (PersonalAccessTokenSession newSession : newSessions.values())
-                {
-                    checkSession(newSession);
-                }
-
-                tokens = newTokens;
-                sessions = newSessions;
+                fileTokens = newTokens;
+                fileSessions = newSessions;
 
                 saveInFile();
 
@@ -395,8 +599,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             } catch (Exception e)
             {
                 operationLog.error("Loading of personal access tokens file failed. File path: " + file.getAbsolutePath(), e);
-                tokens = new HashMap<>();
-                sessions = new HashMap<>();
+                fileTokens = new HashMap<>();
+                fileSessions = new HashMap<>();
             }
         }
     }
@@ -407,21 +611,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
         try
         {
-            List<FileToken> fileTokens = new ArrayList<>();
-            for (PersonalAccessToken token : tokens.values())
-            {
-                fileTokens.add(FileToken.create(token));
-            }
-
-            List<FileSession> fileSessions = new ArrayList<>();
-            for (PersonalAccessTokenSession session : sessions.values())
-            {
-                fileSessions.add(FileSession.create(session));
-            }
-
             FileContent content = new FileContent();
-            content.tokens = fileTokens;
-            content.sessions = fileSessions;
+            content.tokens = new ArrayList<>(fileTokens.values());
+            content.sessions = new ArrayList<>(fileSessions.values());
 
             mapper.writerWithDefaultPrettyPrinter().writeValue(file, content);
         } catch (Exception e)
@@ -444,85 +636,50 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @JsonObject("FileToken")
     private static class FileToken
     {
-        public String ownerId;
+        public Long ownerId;
 
         public String sessionName;
 
         public String hash;
 
-        public String registratorId;
+        public Long registratorId;
 
-        public String modifierId;
+        public Long modifierId;
 
-        public String validFromDate;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
+        public Date validFromDate;
 
-        public String validToDate;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
+        public Date validToDate;
 
-        public String registrationDate;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
+        public Date registrationDate;
 
-        public String modificationDate;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
+        public Date modificationDate;
 
-        public String accessDate;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
+        public Date accessDate;
 
-        public static PersonalAccessToken create(FileToken fileToken) throws ParseException
-        {
-            PersonalAccessToken token = new PersonalAccessToken();
-            token.setOwnerId(fileToken.ownerId);
-            token.setSessionName(fileToken.sessionName);
-            token.setHash(fileToken.hash);
-            token.setRegistratorId(fileToken.registratorId);
-            token.setModifierId(fileToken.modifierId);
-            token.setValidFromDate(parseDate(fileToken.validFromDate));
-            token.setValidToDate(parseDate(fileToken.validToDate));
-            token.setRegistrationDate(parseDate(fileToken.registrationDate));
-            token.setModificationDate(parseDate(fileToken.modificationDate));
-            token.setAccessDate(parseDate(fileToken.accessDate));
-            return token;
-        }
-
-        public static FileToken create(PersonalAccessToken token)
-        {
-            FileToken fileToken = new FileToken();
-            fileToken.ownerId = token.getOwnerId();
-            fileToken.sessionName = token.getSessionName();
-            fileToken.hash = token.getHash();
-            fileToken.registratorId = token.getRegistratorId();
-            fileToken.modifierId = token.getModifierId();
-            fileToken.validFromDate = formatDate(token.getValidFromDate());
-            fileToken.validToDate = formatDate(token.getValidToDate());
-            fileToken.registrationDate = formatDate(token.getRegistrationDate());
-            fileToken.modificationDate = formatDate(token.getModificationDate());
-            fileToken.accessDate = formatDate(token.getAccessDate());
-            return fileToken;
-        }
     }
 
     @JsonObject("FileSession")
     private static class FileSession
     {
-        public String ownerId;
+        public Long ownerId;
 
         public String name;
 
         public String hash;
 
-        public static PersonalAccessTokenSession create(FileSession fileSession)
-        {
-            PersonalAccessTokenSession session = new PersonalAccessTokenSession();
-            session.setOwnerId(fileSession.ownerId);
-            session.setName(fileSession.name);
-            session.setHash(fileSession.hash);
-            return session;
-        }
+        @JsonIgnore
+        public Date validFromDate;
 
-        public static FileSession create(PersonalAccessTokenSession session)
-        {
-            FileSession fileSession = new FileSession();
-            fileSession.ownerId = session.getOwnerId();
-            fileSession.name = session.getName();
-            fileSession.hash = session.getHash();
-            return fileSession;
-        }
+        @JsonIgnore
+        public Date validToDate;
+
+        @JsonIgnore
+        public Date accessDate;
     }
 
 }

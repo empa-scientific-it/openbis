@@ -9,11 +9,14 @@ import static org.testng.Assert.assertNull;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -24,7 +27,10 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.TestResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.PersonalAccessTokenDAO.HashGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
@@ -35,16 +41,63 @@ public class PersonalAccessTokenDAOTest
 
     private BufferedAppender logRecorder;
 
+    private Mockery mockery;
+
+    private IPersonDAO personDAO;
+
+    private static final PersonPE TEST_OWNER_USER;
+
+    private static final PersonPE TEST_REGISTRATOR_USER;
+
+    private static final PersonPE TEST_MODIFIER_USER;
+
+    private static final PersonPE OTHER_USER;
+
+    static
+    {
+        TEST_OWNER_USER = new PersonPE();
+        TEST_OWNER_USER.setId(1000L);
+        TEST_OWNER_USER.setUserId("test owner");
+
+        TEST_REGISTRATOR_USER = new PersonPE();
+        TEST_REGISTRATOR_USER.setId(2000L);
+        TEST_REGISTRATOR_USER.setUserId("test registrator");
+
+        TEST_MODIFIER_USER = new PersonPE();
+        TEST_MODIFIER_USER.setId(3000L);
+        TEST_MODIFIER_USER.setUserId("test modifier");
+
+        OTHER_USER = new PersonPE();
+        OTHER_USER.setId(4000L);
+        OTHER_USER.setUserId("other user");
+    }
+
     @BeforeMethod
     public void beforeMethod()
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
+        mockery = new Mockery();
+        personDAO = mockery.mock(IPersonDAO.class);
+        mockery.checking(new Expectations()
+        {
+            {
+                for (PersonPE user : Arrays.asList(TEST_OWNER_USER, TEST_MODIFIER_USER, TEST_REGISTRATOR_USER, OTHER_USER))
+                {
+                    allowing(personDAO).tryFindPersonByUserId(with(user.getUserId()));
+                    will(returnValue(user));
+
+                    allowing(personDAO).tryGetByTechId(new TechId(user.getId()));
+                    will(returnValue(user));
+                }
+            }
+        });
     }
 
     @AfterMethod
     public void afterMethod(Method method)
     {
         logRecorder.reset();
+        mockery.assertIsSatisfied();
     }
 
     @Test
@@ -57,7 +110,7 @@ public class PersonalAccessTokenDAOTest
         properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
 
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         PersonalAccessToken tokenCreationA1 = tokenCreation("test owner", "test session A", new Date(5), new Date(10));
         PersonalAccessToken tokenCreationB1 = tokenCreation("test owner", "test session B", new Date(10), new Date(20));
@@ -127,7 +180,7 @@ public class PersonalAccessTokenDAOTest
         properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
 
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -142,7 +195,7 @@ public class PersonalAccessTokenDAOTest
         properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
 
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -160,7 +213,7 @@ public class PersonalAccessTokenDAOTest
         properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
 
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 3);
         assertEquals(dao.listSessions().size(), 2);

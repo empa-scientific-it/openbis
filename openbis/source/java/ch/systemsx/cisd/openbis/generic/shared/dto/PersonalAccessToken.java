@@ -2,6 +2,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class PersonalAccessToken
 {
 
@@ -124,4 +127,25 @@ public class PersonalAccessToken
     {
         this.accessDate = accessDate;
     }
+
+    @Override public boolean equals(final Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override public String toString()
+    {
+        return "PersonalAccessToken{" +
+                "ownerId='" + ownerId + '\'' +
+                ", sessionName='" + sessionName + '\'' +
+                ", validFromDate=" + validFromDate +
+                ", validToDate=" + validToDate +
+                '}';
+    }
+
 }

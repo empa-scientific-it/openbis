@@ -2,6 +2,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class PersonalAccessTokenSession
 {
 
@@ -75,6 +79,16 @@ public class PersonalAccessTokenSession
     public void setAccessDate(final Date accessDate)
     {
         this.accessDate = accessDate;
+    }
+
+    @Override public boolean equals(final Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override public String toString()
