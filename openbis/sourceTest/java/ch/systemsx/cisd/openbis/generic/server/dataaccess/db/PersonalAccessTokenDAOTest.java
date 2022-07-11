@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNull;
 
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -89,6 +91,12 @@ public class PersonalAccessTokenDAOTest
                     allowing(personDAO).tryGetByTechId(new TechId(user.getId()));
                     will(returnValue(user));
                 }
+
+                allowing(personDAO).tryFindPersonByUserId(with(any(String.class)));
+                will(returnValue(null));
+
+                allowing(personDAO).tryGetByTechId(with(any(TechId.class)), with(any(String[].class)));
+                will(returnValue(null));
             }
         });
     }
@@ -101,15 +109,11 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
-    public void test() throws IOException
+    public void testWithEmptyFile() throws IOException
     {
-        File file = getFile("test-personal-access-tokens.json");
-        file.delete();
-
-        Properties properties = new Properties();
-        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
-
+        Properties properties = properties("test-empty.json");
         TestGenerator generator = new TestGenerator();
+
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         PersonalAccessToken tokenCreationA1 = tokenCreation("test owner", "test session A", new Date(5), new Date(10));
@@ -118,12 +122,12 @@ public class PersonalAccessTokenDAOTest
         // create token A1
         PersonalAccessToken tokenA1 = dao.createToken(tokenCreationA1);
         assertToken(tokenA1, "token-1", tokenCreationA1);
-        assertJsonFile(file.getName(), "test-expected-1.json");
+        assertJsonFile("test-expected-1.json");
 
         // create token B1
         PersonalAccessToken tokenB1 = dao.createToken(tokenCreationB1);
         assertToken(tokenB1, "token-2", tokenCreationB1);
-        assertJsonFile(file.getName(), "test-expected-2.json");
+        assertJsonFile("test-expected-2.json");
 
         PersonalAccessTokenSession sessionA1 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
         assertSession(sessionA1, "session-1", tokenA1);
@@ -140,7 +144,7 @@ public class PersonalAccessTokenDAOTest
         // create token A2
         PersonalAccessToken tokenA2 = dao.createToken(tokenCreationA2);
         assertToken(tokenA2, "token-3", tokenCreationA2);
-        assertJsonFile(file.getName(), "test-expected-3.json");
+        assertJsonFile("test-expected-3.json");
 
         PersonalAccessTokenSession sessionA2 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
         assertSession(sessionA2, sessionA1, tokenA1.getValidFromDate(), tokenA2.getValidToDate());
@@ -150,7 +154,7 @@ public class PersonalAccessTokenDAOTest
 
         // delete token A1
         dao.deleteToken(tokenA1.getHash());
-        assertJsonFile(file.getName(), "test-expected-4.json");
+        assertJsonFile("test-expected-4.json");
 
         PersonalAccessTokenSession sessionA3 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
         assertSession(sessionA3, sessionA2, tokenA2.getValidFromDate(), tokenA2.getValidToDate());
@@ -160,26 +164,21 @@ public class PersonalAccessTokenDAOTest
 
         // delete token A2
         dao.deleteToken(tokenA2.getHash());
-        assertJsonFile(file.getName(), "test-expected-5.json");
+        assertJsonFile("test-expected-5.json");
 
         AssertionUtil.assertCollectionContainsOnly(dao.listTokens(), tokenB1);
         AssertionUtil.assertCollectionContainsOnly(dao.listSessions(), sessionB1);
 
         PersonalAccessTokenSession sessionA4 = dao.getSessionByUserIdAndSessionName(tokenCreationA1.getOwnerId(), tokenCreationA1.getSessionName());
         assertNull(sessionA4);
-
-        file.delete();
     }
 
     @Test
-    public void testWithNonExistentFile()
+    public void testWithNonExistentFile() throws IOException
     {
-        File file = getFile("i-do-not-exist.json");
-
-        Properties properties = new Properties();
-        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
-
+        Properties properties = properties("i-do-not-exist.json");
         TestGenerator generator = new TestGenerator();
+
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 0);
@@ -187,14 +186,11 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
-    public void testWithIncorrectFile()
+    public void testWithIncorrectFile() throws IOException
     {
-        File file = getFile("test-incorrect.json");
-
-        Properties properties = new Properties();
-        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
-
+        Properties properties = properties("test-incorrect.json");
         TestGenerator generator = new TestGenerator();
+
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 0);
@@ -205,20 +201,51 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
-    public void testWithTokensOnly() throws IOException
+    public void testWithFileWithTokensOnly() throws IOException
     {
-        File file = getFile("test-tokens-only.json");
-
-        Properties properties = new Properties();
-        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
-
+        Properties properties = properties("test-tokens-only.json");
         TestGenerator generator = new TestGenerator();
+
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
 
         assertEquals(dao.listTokens().size(), 3);
         assertEquals(dao.listSessions().size(), 2);
 
-        assertJsonFile(file.getName(), "test-tokens-only-with-generated-sessions.json");
+        assertJsonFile("test-tokens-only-with-generated-sessions.json");
+    }
+
+    @Test
+    public void testWithFileWithUnknownUsers() throws IOException
+    {
+        Properties properties = properties("test-unknown-users.json");
+        TestGenerator generator = new TestGenerator();
+
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+
+        assertNull(dao.getTokenByHash("token-1"));
+        assertNotNull(dao.getTokenByHash("token-2"));
+
+        assertNull(dao.getSessionByHash("session-1"));
+        assertNotNull(dao.getSessionByHash("session-2"));
+
+        assertEquals(dao.listTokens().size(), 1);
+        assertEquals(dao.listSessions().size(), 1);
+
+        assertJsonFile("test-unknown-users.json");
+    }
+
+    private Properties properties(String initialJsonFileName) throws IOException
+    {
+        File initialFile = getFile(initialJsonFileName);
+        File file = getFile("test.json");
+        file.delete();
+        if (initialFile.exists())
+        {
+            FileUtils.copyFile(initialFile, file);
+        }
+        Properties properties = new Properties();
+        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
+        return properties;
     }
 
     private PersonalAccessToken tokenCreation(String ownerId, String sessionName, Date validFrom, Date validTo)
@@ -267,9 +294,9 @@ public class PersonalAccessTokenDAOTest
         assertNull(session.getAccessDate());
     }
 
-    private void assertJsonFile(String actualFileName, String expectedFileName) throws IOException
+    private void assertJsonFile(String expectedFileName) throws IOException
     {
-        File actualFile = getFile(actualFileName);
+        File actualFile = getFile("test.json");
         File expectedFile = getFile(expectedFileName);
 
         String actualContent = FileUtilities.loadToString(actualFile);

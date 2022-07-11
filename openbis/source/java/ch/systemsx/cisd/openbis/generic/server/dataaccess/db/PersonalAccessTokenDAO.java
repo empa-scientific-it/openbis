@@ -522,7 +522,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             {
                 FileContent content = mapper.readValue(file, FileContent.class);
 
-                Map<String, FileToken> newTokens = new HashMap<>();
+                Map<String, FileToken> newTokens = new LinkedHashMap<>();
                 if (content.tokens != null)
                 {
                     for (FileToken fileToken : content.tokens)
@@ -566,7 +566,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                     }
                 }
 
-                Map<String, FileSession> newSessions = new HashMap<>();
+                Map<String, FileSession> newSessions = new LinkedHashMap<>();
                 if (content.sessions != null)
                 {
                     for (FileSession fileSession : content.sessions)
