@@ -10,10 +10,7 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
@@ -47,9 +44,6 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     @Autowired
     private ISessionFactory<Session> sessionFactory;
 
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-
     @Resource(name = ComponentNames.AUTHENTICATION_SERVICE)
     private IAuthenticationService authenticationService;
 
@@ -62,31 +56,37 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         this.sessionManager = sessionManager;
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public String tryToOpenSession(final String user, final String password)
     {
         return sessionManager.tryToOpenSession(user, password);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public String tryToOpenSession(final String userID, final IPrincipalProvider principalProvider)
     {
         return sessionManager.tryToOpenSession(userID, principalProvider);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public boolean isAWellFormedSessionToken(final String sessionTokenOrNull)
     {
         return sessionManager.isAWellFormedSessionToken(sessionTokenOrNull);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public void addListener(final ISessionActionListener listener)
     {
         sessionManager.addListener(listener);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public String getRemoteHost()
     {
         return sessionManager.getRemoteHost();
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public void updateAllSessions()
     {
         sessionManager.updateAllSessions();
@@ -97,11 +97,13 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public String getUserForAnonymousLogin()
     {
         return sessionManager.getUserForAnonymousLogin();
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public boolean isSessionActive(final String sessionToken)
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -121,6 +123,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public void expireSession(final String sessionToken) throws InvalidSessionException
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -139,6 +142,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public void closeSession(final String sessionToken) throws InvalidSessionException
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -170,6 +174,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public Session getSession(final String sessionToken) throws InvalidSessionException
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -198,6 +203,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public Session tryGetSession(final String sessionToken)
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -225,6 +231,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public List<Session> getSessions()
     {
         if (!config.arePersonalAccessTokensEnabled())
@@ -247,7 +254,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
                     }
                 }
             }
-            }
+        }
 
         return allSessions;
     }
@@ -273,53 +280,45 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
     private Session createSessionForPATSession(PersonalAccessTokenSession patSession)
     {
-        TransactionTemplate tmpl = new TransactionTemplate(transactionManager);
-        return tmpl.execute(new TransactionCallback<Session>()
+        try
         {
-            @Override
-            public Session doInTransaction(TransactionStatus status)
+            final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+
+            if (principal == null)
             {
-                try
-                {
-                    final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
-
-                    if (principal == null)
-                    {
-                        operationLog.warn("Ignoring a personal access token session (" + patSession
-                                + ") because the session's owner was not found by the authentication service.");
-                        return null;
-                    } else
-                    {
-                        principal.setAuthenticated(true);
-                    }
-
-                    PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
-
-                    if (person == null)
-                    {
-                        operationLog.warn("Ignoring a personal access token session (" + patSession
-                                + ") because the session's owner was not found in the openBIS database.");
-                        return null;
-                    }
-
-                    final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
-                            patSession.getValidFromDate().getTime(),
-                            (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
-                            true, patSession.getName());
-
-                    HibernateUtils.initialize(person.getAllPersonRoles());
-                    session.setPerson(person);
-                    session.setCreatorPerson(person);
-
-                    return session;
-
-                } catch (Exception e)
-                {
-                    operationLog.warn("Creation of a personal access token session (" + patSession + ") failed.", e);
-                    return null;
-                }
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found by the authentication service.");
+                return null;
+            } else
+            {
+                principal.setAuthenticated(true);
             }
-        });
+
+            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
+
+            if (person == null)
+            {
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found in the openBIS database.");
+                return null;
+            }
+
+            final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
+                    patSession.getValidFromDate().getTime(),
+                    (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
+                    true, patSession.getName());
+
+            HibernateUtils.initialize(person.getAllPersonRoles());
+            session.setPerson(person);
+            session.setCreatorPerson(person);
+
+            return session;
+
+        } catch (Exception e)
+        {
+            operationLog.warn("Creation of a personal access token session (" + patSession + ") failed.", e);
+            return null;
+        }
     }
 
 }

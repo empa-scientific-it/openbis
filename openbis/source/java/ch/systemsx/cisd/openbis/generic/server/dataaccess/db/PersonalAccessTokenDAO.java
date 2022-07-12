@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,6 +28,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -34,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
 
+@Component
 public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 {
 
@@ -64,9 +69,10 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         String generateSessionHash(String user);
     }
 
-    public PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties)
+    @Autowired
+    public PersonalAccessTokenDAO(final IDAOFactory daoFactory, final ExposablePropertyPlaceholderConfigurer configurer)
     {
-        this(personDAO, properties, new HashGenerator()
+        this(daoFactory.getPersonDAO(), configurer.getResolvedProps(), new HashGenerator()
         {
             @Override public String generateTokenHash(String user)
             {
@@ -80,7 +86,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         });
     }
 
-    PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties, final HashGenerator generator)
+    PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties,
+            final HashGenerator generator)
     {
         if (personDAO == null)
         {
@@ -104,6 +111,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         loadFromFile();
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
         if (StringUtils.isEmpty(creation.getSessionName()))
@@ -189,6 +197,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return getTokenByHash(fileToken.hash);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized void updateToken(final PersonalAccessToken update)
     {
         if (update == null)
@@ -235,6 +244,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized void deleteToken(final String hash)
     {
         if (StringUtils.isEmpty(hash))
@@ -251,6 +261,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized List<PersonalAccessToken> listTokens()
     {
         List<PersonalAccessToken> tokens = new ArrayList<>();
@@ -268,6 +279,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return tokens;
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessToken getTokenByHash(final String hash)
     {
         if (StringUtils.isEmpty(hash))
@@ -285,6 +297,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return convert(fileToken);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized List<PersonalAccessTokenSession> listSessions()
     {
         List<PersonalAccessTokenSession> sessions = new ArrayList<>();
@@ -302,6 +315,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return sessions;
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public PersonalAccessTokenSession getSessionByHash(final String hash)
     {
         if (StringUtils.isEmpty(hash))
@@ -319,6 +333,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         return convert(fileSession);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
         if (StringUtils.isEmpty(userId))

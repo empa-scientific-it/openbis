@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -146,6 +147,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final ISemanticAnnotationDAO semanticAnnotationDAO;
 
+    @Autowired
     private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     private DatabaseConfigurationContext context;
@@ -404,7 +406,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public void afterPropertiesSet() throws Exception
     {
         Properties serviceProperties = configurer.getResolvedProps();
-        personalAccessTokenDAO = new PersonalAccessTokenDAO(getPersonDAO(), serviceProperties);
         hibernateSearchDAO.setProperties(serviceProperties);
         SamplePE.projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         Connection connection = null;
