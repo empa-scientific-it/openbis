@@ -53,25 +53,29 @@ public class PersonalAccessTokenDAOTest
 
     private static final PersonPE TEST_MODIFIER_USER;
 
-    private static final PersonPE OTHER_USER;
+    private static final PersonPE INACTIVE_USER;
 
     static
     {
         TEST_OWNER_USER = new PersonPE();
         TEST_OWNER_USER.setId(1000L);
         TEST_OWNER_USER.setUserId("test owner");
+        TEST_OWNER_USER.setActive(true);
 
         TEST_REGISTRATOR_USER = new PersonPE();
         TEST_REGISTRATOR_USER.setId(2000L);
         TEST_REGISTRATOR_USER.setUserId("test registrator");
+        TEST_REGISTRATOR_USER.setActive(true);
 
         TEST_MODIFIER_USER = new PersonPE();
         TEST_MODIFIER_USER.setId(3000L);
         TEST_MODIFIER_USER.setUserId("test modifier");
+        TEST_MODIFIER_USER.setActive(true);
 
-        OTHER_USER = new PersonPE();
-        OTHER_USER.setId(4000L);
-        OTHER_USER.setUserId("other user");
+        INACTIVE_USER = new PersonPE();
+        INACTIVE_USER.setId(4000L);
+        INACTIVE_USER.setUserId("inactive user");
+        INACTIVE_USER.setActive(false);
     }
 
     @BeforeMethod
@@ -83,7 +87,7 @@ public class PersonalAccessTokenDAOTest
         mockery.checking(new Expectations()
         {
             {
-                for (PersonPE user : Arrays.asList(TEST_OWNER_USER, TEST_MODIFIER_USER, TEST_REGISTRATOR_USER, OTHER_USER))
+                for (PersonPE user : Arrays.asList(TEST_OWNER_USER, TEST_MODIFIER_USER, TEST_REGISTRATOR_USER, INACTIVE_USER))
                 {
                     allowing(personDAO).tryFindPersonByUserId(with(user.getUserId()));
                     will(returnValue(user));
@@ -232,6 +236,26 @@ public class PersonalAccessTokenDAOTest
         assertEquals(dao.listSessions().size(), 1);
 
         assertJsonFile("test-unknown-users.json");
+    }
+
+    @Test
+    public void testWithFileWithInactiveUsers() throws IOException
+    {
+        Properties properties = properties("test-inactive-users.json");
+        TestGenerator generator = new TestGenerator();
+
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+
+        assertNull(dao.getTokenByHash("token-1"));
+        assertNotNull(dao.getTokenByHash("token-2"));
+
+        assertNull(dao.getSessionByHash("session-1"));
+        assertNotNull(dao.getSessionByHash("session-2"));
+
+        assertEquals(dao.listTokens().size(), 1);
+        assertEquals(dao.listSessions().size(), 1);
+
+        assertJsonFile("test-inactive-users.json");
     }
 
     private Properties properties(String initialJsonFileName) throws IOException
