@@ -47,7 +47,7 @@ public class MainShufle {
 // Used for development
             String AS_URL = OPENBIS_LOCAL_DEV + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
             String DSS_URL = DSS_LOCAL_DEV + "/datastore_server" + IDataStoreServerApi.SERVICE_URL;
-            doTheWork(true, AS_URL, DSS_URL, "migration", "");
+            doTheWork(false, AS_URL, DSS_URL, "migration", "");
 //            System.out.println("Example: java -jar microscopy_migration_tool.jar https://openbis-as-domain.ethz.ch https://openbis-dss-domain.ethz.ch user password");
         }
     }
@@ -139,6 +139,7 @@ public class MainShufle {
                         throw new RuntimeException("Found with less than 2 parents: " + itemToFix.getIdentifier());
                     }
                     sampleUpdate.getParentIds().remove(experiment.getPermId());
+                    System.out.println("[UPDATE] " + itemToFix.getPermId() + " [REMOVE PARENT] " + experiment.getPermId());
                     sampleUpdates.add(sampleUpdate);
                 }
 
