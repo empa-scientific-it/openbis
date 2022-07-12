@@ -475,7 +475,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     {
         if (userTechId != null)
         {
-            return personDAO.tryGetByTechId(new TechId(userTechId));
+            PersonPE user = personDAO.tryGetByTechId(new TechId(userTechId));
+            return user != null && user.isActive() ? user : null;
         }
 
         return null;
@@ -485,7 +486,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     {
         if (userId != null)
         {
-            return personDAO.tryFindPersonByUserId(userId);
+            PersonPE user = personDAO.tryFindPersonByUserId(userId);
+            return user != null && user.isActive() ? user : null;
         }
 
         return null;
