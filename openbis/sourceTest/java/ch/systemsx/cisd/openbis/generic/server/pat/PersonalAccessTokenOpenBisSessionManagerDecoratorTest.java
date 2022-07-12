@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformatio
 import ch.systemsx.cisd.authentication.SessionTokenHash;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
@@ -35,7 +36,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     private IApplicationServerApi v3api;
 
     @Autowired
-    private PersonalAccessTokenOpenBisSessionManagerDecorator sessionManager;
+    private IOpenBisSessionManager sessionManager;
 
     @Test
     public void testWithUnknownSession()
