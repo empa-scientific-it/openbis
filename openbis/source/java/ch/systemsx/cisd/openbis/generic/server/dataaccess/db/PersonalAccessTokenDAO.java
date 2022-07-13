@@ -46,7 +46,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH = "personal-access-tokens-file-path";
 
-    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT = "personal-access-tokens.json";
+    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT = "../../../personal-access-tokens.json";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
