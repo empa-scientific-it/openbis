@@ -134,6 +134,4 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      */
     public ISemanticAnnotationDAO getSemanticAnnotationDAO();
 
-    public IPersonalAccessTokenDAO getPersonalAccessTokenDAO();
-
 }

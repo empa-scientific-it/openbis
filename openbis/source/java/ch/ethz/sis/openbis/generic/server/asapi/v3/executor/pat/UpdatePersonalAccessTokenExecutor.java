@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +30,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
  * @author pkupczyk
@@ -45,7 +43,7 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Autowired
     private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
@@ -88,7 +86,7 @@ public class UpdatePersonalAccessTokenExecutor implements IUpdatePersonalAccessT
             token.setModifierId(person.getUserId());
             token.setModificationDate(now);
 
-            daoFactory.getPersonalAccessTokenDAO().updateToken(token);
+            personalAccessTokenDAO.updateToken(token);
 
             ids.add(new PersonalAccessTokenPermId(token.getHash()));
         }

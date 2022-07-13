@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -59,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -146,9 +144,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private final IOperationExecutionDAO operationExecutionDAO;
 
     private final ISemanticAnnotationDAO semanticAnnotationDAO;
-
-    @Autowired
-    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     private DatabaseConfigurationContext context;
 
@@ -370,11 +365,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public ISemanticAnnotationDAO getSemanticAnnotationDAO()
     {
         return semanticAnnotationDAO;
-    }
-
-    @Override public IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
-    {
-        return personalAccessTokenDAO;
     }
 
     private static String projectConstraintFunction =

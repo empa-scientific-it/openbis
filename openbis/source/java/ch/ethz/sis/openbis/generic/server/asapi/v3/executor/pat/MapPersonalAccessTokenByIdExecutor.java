@@ -28,7 +28,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.pat.ListPersonalAccessTokenByPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
  * @author pkupczyk
@@ -38,6 +37,7 @@ public class MapPersonalAccessTokenByIdExecutor extends AbstractMapObjectByIdExe
         implements IMapPersonalAccessTokenByIdExecutor
 {
 
+    @Autowired
     private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Autowired
@@ -53,12 +53,6 @@ public class MapPersonalAccessTokenByIdExecutor extends AbstractMapObjectByIdExe
     protected void addListers(IOperationContext context, List<IListObjectById<? extends IPersonalAccessTokenId, PersonalAccessToken>> listers)
     {
         listers.add(new ListPersonalAccessTokenByPermId(personalAccessTokenDAO));
-    }
-
-    @Autowired
-    private void setDAOFactory(IDAOFactory daoFactory)
-    {
-        personalAccessTokenDAO = daoFactory.getPersonalAccessTokenDAO();
     }
 
 }

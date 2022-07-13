@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
@@ -42,6 +43,9 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
     @Autowired
     private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
 
+    @Autowired
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
+
     @Override
     public List<PersonalAccessToken> search(IOperationContext context, PersonalAccessTokenSearchCriteria criteria)
     {
@@ -52,7 +56,7 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
     @Override
     protected List<PersonalAccessToken> listAll()
     {
-        return daoFactory.getPersonalAccessTokenDAO().listTokens();
+        return personalAccessTokenDAO.listTokens();
     }
 
     @Override

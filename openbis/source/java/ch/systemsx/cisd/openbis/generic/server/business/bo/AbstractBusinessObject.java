@@ -68,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -621,11 +620,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final ISemanticAnnotationDAO getSemanticAnnotationDAO()
     {
         return daoFactory.getSemanticAnnotationDAO();
-    }
-
-    @Override public IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
-    {
-        return daoFactory.getPersonalAccessTokenDAO();
     }
 
     @Override

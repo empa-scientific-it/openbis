@@ -5,7 +5,6 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
@@ -20,7 +19,7 @@ public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessT
     private IPersonalAccessTokenConfig config;
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Override protected IPersonalAccessTokenConfig getConfig()
     {
@@ -56,6 +55,6 @@ public class PersonalAccessTokenConverterFromDAO extends AbstractPersonalAccessT
 
     public IPersonalAccessTokenDAO getPersonalAccessTokenDAO()
     {
-        return daoFactory.getPersonalAccessTokenDAO();
+        return personalAccessTokenDAO;
     }
 }

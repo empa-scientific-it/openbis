@@ -35,9 +35,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.pat.IPersonalAccessTokenTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
  * @author pkupczyk
@@ -52,7 +52,7 @@ public class GetPersonalAccessTokensOperationExecutor
     private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Autowired
     private IPersonalAccessTokenTranslator translator;
@@ -85,7 +85,7 @@ public class GetPersonalAccessTokensOperationExecutor
         {
             if (id instanceof PersonalAccessTokenPermId)
             {
-                PersonalAccessToken pat = daoFactory.getPersonalAccessTokenDAO().getTokenByHash(((PersonalAccessTokenPermId) id).getPermId());
+                PersonalAccessToken pat = personalAccessTokenDAO.getTokenByHash(((PersonalAccessTokenPermId) id).getPermId());
                 if (pat != null)
                 {
                     pats.add(pat);

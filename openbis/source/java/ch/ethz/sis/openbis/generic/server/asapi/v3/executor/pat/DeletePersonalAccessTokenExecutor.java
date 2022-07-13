@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
@@ -43,6 +44,9 @@ public class DeletePersonalAccessTokenExecutor
 
     @Autowired
     private IPersonalAccessTokenAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Override
     protected Map<IPersonalAccessTokenId, PersonalAccessToken> map(IOperationContext context, List<? extends IPersonalAccessTokenId> entityIds,
@@ -68,7 +72,7 @@ public class DeletePersonalAccessTokenExecutor
     {
         for (PersonalAccessToken token : tokens)
         {
-            daoFactory.getPersonalAccessTokenDAO().deleteToken(token.getHash());
+            personalAccessTokenDAO.deleteToken(token.getHash());
         }
 
         return null;

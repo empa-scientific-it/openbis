@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
@@ -40,6 +41,9 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IPersonalAccessTokenDAO personalAccessTokenDAO;
 
     @Autowired
     private ISessionFactory<Session> sessionFactory;
@@ -111,7 +115,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.isSessionActive(sessionToken);
         }
 
-        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
@@ -131,7 +135,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             sessionManager.expireSession(sessionToken);
         }
 
-        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
@@ -150,7 +154,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             sessionManager.closeSession(sessionToken);
         }
 
-        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
@@ -182,7 +186,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.getSession(sessionToken);
         }
 
-        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
@@ -211,7 +215,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.tryGetSession(sessionToken);
         }
 
-        PersonalAccessTokenSession patSession = daoFactory.getPersonalAccessTokenDAO().getSessionByHash(sessionToken);
+        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
         if (patSession == null)
         {
@@ -243,7 +247,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
         synchronized (sessions)
         {
-            for (PersonalAccessTokenSession patSession : daoFactory.getPersonalAccessTokenDAO().listSessions())
+            for (PersonalAccessTokenSession patSession : personalAccessTokenDAO.listSessions())
             {
                 if (isSessionActive(patSession.getHash()))
                 {
