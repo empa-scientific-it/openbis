@@ -35,12 +35,21 @@ function NewProductsController() {
 			for(var trIdx = 0; trIdx < $trList.length; trIdx++) {
 				var $productRow = $($trList[trIdx]);
 				var $productProperties = $($productRow.children());
-				var sampleIdentifier = IdentifierUtil.getSampleIdentifier(sample.spaceCode, "PRODUCTS", codePrefix + nextCodeNumber);
+
+				var groupPrefix = SettingsManagerUtils.getSpaceGroupPrefix(sample.spaceCode);
+				if(groupPrefix == 'GENERAL') {
+				    groupPrefix == '';
+				} else {
+					groupPrefix = groupPrefix + "_";
+				}
+
+				var sampleIdentifier = IdentifierUtil.getSampleIdentifier(groupPrefix + "STOCK_CATALOG", groupPrefix + "PRODUCTS", codePrefix + nextCodeNumber);
+
 				var newProduct = {
 						permId : "PERM_ID_PLACEHOLDER_FOR" + sampleIdentifier,
 						sampleTypeCode : "PRODUCT",
-						experimentIdentifierOrNull : "/" + sample.spaceCode + "/PRODUCTS/PRODUCT_COLLECTION",
-						identifier : sampleIdentifier, 
+						experimentIdentifierOrNull : "/" + groupPrefix + "STOCK_CATALOG/" + groupPrefix + "PRODUCTS/" + groupPrefix + "PRODUCT_COLLECTION",
+						identifier : sampleIdentifier,
 						code : codePrefix + nextCodeNumber,
 						parentsIdentifiers : [$($($productProperties[4]).children()[0]).val()],
 						properties : {
