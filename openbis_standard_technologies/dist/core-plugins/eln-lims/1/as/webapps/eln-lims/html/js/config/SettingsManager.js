@@ -1,5 +1,10 @@
 var SettingsManagerUtils = new function() {
+    this._defaultProfile = null;
     this._instanceSettings = null;
+
+    this.getDefaultProfile = function() {
+        return this._defaultProfile;
+    }
 
     this.getSpaceGroupPrefix = function(spaceCode) {
         var endOf = spaceCode.indexOf("_");
@@ -136,6 +141,9 @@ function SettingsManager(serverFacade) {
 				    settingsByPrefix[prefix] = settingsObjects[vOIdx];
 				}
 				//
+				if(!SettingsManagerUtils._defaultProfile) { // Save the default profile containing the configuration given by plugins
+				    SettingsManagerUtils._defaultProfile = JSON.parse(JSON.stringify(profile));
+				}
 				SettingsManagerUtils._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
 			} else {

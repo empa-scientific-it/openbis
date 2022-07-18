@@ -468,7 +468,11 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var $sampleTypeFieldset = this._getFieldset($div, displayName, "settings-section-sampletype-" + sampleType.code, true);
 			$fieldset.append($div);
 
+            var defaultSampleTypeSettings = SettingsManagerUtils.getDefaultProfile().sampleTypeDefinitionsExtension[sampleType.code];
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
+			if(!sampleTypeSettings && defaultSampleTypeSettings) { // Sets the default profile configuration given by plugins
+			    sampleTypeSettings = defaultSampleTypeSettings;
+			}
 
 			// Checkboxes for miscellaneous options
 			// isProtocol
