@@ -7,4 +7,12 @@ export default class ActiveUserReportFacade {
     serviceOptions.withParameter('method', 'sendCountActiveUsersEmail')
     return openbis.executeService(serviceId, serviceOptions)
   }
+
+  async loadActiveUsersCount() {
+    const result = await openbis.searchPersons(
+      new openbis.PersonSearchCriteria(),
+      new openbis.PersonFetchOptions()
+    )
+    return result.objects.filter(user => {return user.active == true}).length
+  }
 }

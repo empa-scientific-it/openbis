@@ -1,5 +1,6 @@
 import autoBind from 'auto-bind'
 import ErrorObject from '@src/js/components/common/error/ErrorObject.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class ActiveUserReportController {
   constructor(facade) {
@@ -36,6 +37,23 @@ export default class ActiveUserReportController {
       await this.context.setState({
         loading: false
       })
+    }
+  }
+
+  async loadActiveUsersCount() {
+    try {
+      await this.context.setState({
+        loading: true
+      })
+
+      const activeUsersCount = await this.facade.loadActiveUsersCount()
+
+      await this.context.setState({
+        loading: false,
+        activeUsersCount: activeUsersCount
+      })
+    } catch (error) {
+      AppController.getInstance().errorChange(error)
     }
   }
 }

@@ -35,17 +35,24 @@ class ActiveUserReportForm extends React.PureComponent {
     this.controller.init(new ComponentContext(this))
   }
 
+  componentDidMount() {
+    this.controller.loadActiveUsersCount()
+  }
+
   render() {
     logger.log(logger.DEBUG, 'ActiveUserReportForm.render')
+    if (this.state.activeUsersCount === undefined) {
+      return <Container></Container>
+    }
 
-    const { activeUsersCount, classes } = this.props
+    const { classes } = this.props
     const { result } = this.state
 
     return (
       <Container>
         <Header>{messages.get(messages.ACTIVE_USERS_REPORT)}</Header>
         <div className={classes.message}>
-          <Message>{messages.get(messages.ACTIVE_USERS_REPORT_DIALOG, activeUsersCount)}</Message>
+          <Message>{messages.get(messages.ACTIVE_USERS_REPORT_DIALOG, this.state.activeUsersCount)}</Message>
           <div>&nbsp;</div>
           <Link href="mailto:cisd.helpdesk@bsse.ethz.ch" target="_blank">{messages.get(messages.HELPDESK)}</Link>{". "}
         </div>

@@ -1,39 +1,46 @@
-import ActiveUserReportFormComponentTest from '@srcTest/js/components/tools/form/activeUserReport/ActiveUserReportFormComponentTest.js'
+import ComponentContext from '@srcTest/js/components/common/ComponentContext.js'
+import ActiveUserReportController from '@src/js/components/tools/form/activeUserReport/ActiveUserReportController.js'
+import ActiveUserReportFacade from '@src/js/components/tools/form/activeUserReport/ActiveUserReportFacade.js'
 
-let common = null
+jest.mock('@src/js/components/tools/form/activeUserReport/ActiveUserReportFacade.js')
+
+const SUITE = 'ActiveUserReportFormComponentTest'
+
+let facade = null
+let context = null
+let controller = null
 
 beforeEach(() => {
-  common = new ActiveUserReportFormComponentTest()
-  common.beforeEach()
+  facade = new ActiveUserReportFacade()
+  context = new ComponentContext()
+  controller = new ActiveUserReportController(facade)
+  controller.init(context)
 })
 
-describe(ActiveUserReportFormComponentTest.SUITE, () => {
+describe(SUITE, () => {
   test('sendReport', testSendReport)
+  test('loadActiveUsersCount', testLoadActiveUsersCount)
 })
 
 async function testSendReport() {
-  const report = await common.mount({ activeUsersCount: "2"})
-
-  report.expectJSON({
-    title: "Active Users Report",
-    button: {
-      enabled: true,
-      "label": "Send Report"
-    },
-    message: null
-  })
-
-  expect(common.context.getState()).toMatchObject({})
-
   const good = {"status": "OK"}
-  common.facade.sendReport.mockReturnValue(Promise.resolve(good))
-  await common.controller.sendReport()
+  facade.sendReport.mockReturnValue(Promise.resolve(good))
+  await controller.sendReport()
 
-  expect(common.context.getState()).toMatchObject({result: {success: true, output: good}})
+  expect(context.getState()).toMatchObject({result: {success: true, output: good}})
 
   const bad = {"status": "error", "message": "bad output"}
-  common.facade.sendReport.mockReturnValue(Promise.resolve(bad))
-  await common.controller.sendReport()
+  facade.sendReport.mockReturnValue(Promise.resolve(bad))
+  await controller.sendReport()
 
-  expect(common.context.getState()).toMatchObject({result: {success: false, output: bad}})
+  expect(context.getState()).toMatchObject({result: {success: false, output: bad}})
+}
+
+async function testLoadActiveUsersCount() {
+  const one = {"activeUsersCount": 1}
+
+  facade.loadActiveUsersCount.mockReturnValue(Promise.resolve(1))
+  await controller.loadActiveUsersCount()
+
+  expect(context.getState()).toMatchObject(one)
 }

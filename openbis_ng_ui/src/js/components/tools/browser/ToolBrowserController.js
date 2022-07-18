@@ -158,7 +158,7 @@ export default class ToolBrowserController extends BrowserController {
           id: 'activeUsersReport',
           text: messages.get(messages.ACTIVE_USERS_REPORT),
           object: {
-            type: objectType.OVERVIEW,
+            type: objectType.ACTIVE_USERS_REPORT,
             id: objectType.ACTIVE_USERS_REPORT
           },
           canAdd: false

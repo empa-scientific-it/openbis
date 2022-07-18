@@ -224,7 +224,7 @@ const routes = {
   }),
   ACTIVE_USERS_REPORT: new Route('/active-users-report', {
     page: pages.TOOLS,
-    type: objectTypes.OVERVIEW,
+    type: objectTypes.ACTIVE_USERS_REPORT,
     id: objectTypes.ACTIVE_USERS_REPORT
   }),
   DEFAULT: new DefaultRoute()
