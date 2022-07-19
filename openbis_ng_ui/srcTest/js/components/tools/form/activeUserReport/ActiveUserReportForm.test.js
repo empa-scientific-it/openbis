@@ -20,6 +20,7 @@ beforeEach(() => {
 describe(SUITE, () => {
   test('sendReport', testSendReport)
   test('loadActiveUsersCount', testLoadActiveUsersCount)
+  test('loadOpenbisSupportEmail', testLoadOpenbisSupportEmail)
 })
 
 async function testSendReport() {
@@ -43,4 +44,20 @@ async function testLoadActiveUsersCount() {
   await controller.loadActiveUsersCount()
 
   expect(context.getState()).toMatchObject(one)
+}
+
+async function testLoadOpenbisSupportEmail() {
+  const withoutEmail = {"openbisSupportEmail": null}
+
+  facade.loadOpenbisSupportEmail.mockReturnValue(Promise.resolve(null))
+  await controller.loadOpenbisSupportEmail()
+
+  expect(context.getState()).toMatchObject(withoutEmail)
+
+  const withEmail = {"openbisSupportEmail": "test.com"}
+
+  facade.loadOpenbisSupportEmail.mockReturnValue(Promise.resolve("test.com"))
+  await controller.loadOpenbisSupportEmail()
+
+  expect(context.getState()).toMatchObject(withEmail)
 }
