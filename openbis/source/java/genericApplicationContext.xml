@@ -386,7 +386,7 @@
 		<constructor-arg ref="dynamic-property-calculator-factory" />
 		<constructor-arg ref="managed-property-evaluator-factory" />
 		<constructor-arg ref="concurrent-operation-limiter" />
-		<property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
+		<property name="openbisSupportEmail" value="${openbis.support.email}" />
 		<property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
 	</bean>
 

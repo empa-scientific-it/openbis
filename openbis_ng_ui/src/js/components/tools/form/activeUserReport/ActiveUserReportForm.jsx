@@ -36,7 +36,21 @@ class ActiveUserReportForm extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.controller.loadActiveUsersCount()
+    this.load()
+  }
+
+  async load() {
+    try {
+      await Promise.all([
+        this.controller.loadActiveUsersCount(),
+        this.controller.loadOpenbisSupportEmail()
+      ])
+      this.setState(() => ({
+        loaded: true
+      }))
+    } catch (error) {
+      AppController.getInstance().errorChange(error)
+    }
   }
 
   render() {
@@ -54,13 +68,25 @@ class ActiveUserReportForm extends React.PureComponent {
         <div className={classes.message}>
           <Message>{messages.get(messages.ACTIVE_USERS_REPORT_DIALOG, this.state.activeUsersCount)}</Message>
           <div>&nbsp;</div>
-          <Link href="mailto:cisd.helpdesk@bsse.ethz.ch" target="_blank">{messages.get(messages.HELPDESK)}</Link>{". "}
+          {this.renderEmailLink()}{". "}
         </div>
         <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} onClick={this.controller.sendReport} styles={{ root: classes.button }}/>
         <div className={classes.message}>
           {this.renderResult()}
         </div>
       </Container>
+    )
+  }
+
+  renderEmailLink() {
+    if (this.state.openbisSupportEmail === undefined || this.state.openbisSupportEmail === null) {
+      return (
+        <Message>{messages.get(messages.SUPPORT)}</Message>
+      )
+    }
+    let href = "mailto:" + this.state.openbisSupportEmail
+    return (
+      <Link href={href} target="_blank">{messages.get(messages.SUPPORT)}</Link>
     )
   }
 

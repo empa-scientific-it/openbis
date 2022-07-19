@@ -15,4 +15,10 @@ export default class ActiveUserReportFacade {
     )
     return result.objects.filter(user => {return user.active == true}).length
   }
+
+  async loadOpenbisSupportEmail() {
+    const serverInformation = await openbis.getServerPublicInformation()
+    console.log(serverInformation)
+    return serverInformation ? serverInformation['openbis.support.email'] : null
+  }
 }

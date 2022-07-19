@@ -57,6 +57,7 @@ public class GetServerPublicInformationOperationExecutor
                 configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LINK));
         info.put("authentication-service.switch-aai.label",
                 configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LABEL));
+        info.put("openbis.support.email", configurer.getResolvedProps().getProperty(ComponentNames.OPENBIS_SUPPORT_EMAIL));
         return new GetServerPublicInformationOperationResult(info);
     }
 

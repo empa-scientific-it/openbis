@@ -42,15 +42,22 @@ export default class ActiveUserReportController {
 
   async loadActiveUsersCount() {
     try {
-      await this.context.setState({
-        loading: true
-      })
-
       const activeUsersCount = await this.facade.loadActiveUsersCount()
 
       await this.context.setState({
-        loading: false,
         activeUsersCount: activeUsersCount
+      })
+    } catch (error) {
+      AppController.getInstance().errorChange(error)
+    }
+  }
+
+  async loadOpenbisSupportEmail() {
+    try {
+      const openbisSupportEmail = await this.facade.loadOpenbisSupportEmail()
+
+      await this.context.setState({
+        openbisSupportEmail: openbisSupportEmail
       })
     } catch (error) {
       AppController.getInstance().errorChange(error)
