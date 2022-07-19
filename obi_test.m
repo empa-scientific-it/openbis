@@ -15,6 +15,7 @@ end
 
 %% 1. Login to openBIS
 url = 'https://127.0.0.1'; % URL of test server
+% url = 'https://openbis-training.ethz.ch/';
 user = 'hluetcke'; % user name for test server
 % enter password on command line (only works with bash shells!)
 disp('Enter openBIS password:')
