@@ -876,10 +876,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			c.createFacadeAndLogin().then(function(facade) {
 				return facade.getServerPublicInformation().then(function(serverInformation) {
 					c.assertTrue(serverInformation != null);
-					c.assertEqual(Object.keys(serverInformation).length, 3);
+					c.assertEqual(Object.keys(serverInformation).length, 4);
 					c.assertEqual(serverInformation["authentication-service"], "dummy-authentication-service", "authentication-service");
 					c.assertEqual(serverInformation["authentication-service.switch-aai.link"], "testSwitchAaiLink", "authentication-service.switch-aai.link");
 					c.assertEqual(serverInformation["authentication-service.switch-aai.label"], "testSwitchAaiLabel", "authentication-service.switch-aai.label");
+					c.assertEqual(serverInformation["openbis.support.email"], "cisd.helpdesk@bsse.ethz.ch", "openbis.support.email");
 					c.finish();
 				});
 			}).fail(function(error) {
