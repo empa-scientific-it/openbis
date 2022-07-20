@@ -22,6 +22,7 @@ const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
 const QUERY = 'query'
 const HISTORY = 'history'
 const IMPORT = 'import'
+const ACTIVE_USERS_REPORT = 'activeUsersReport'
 
 const SEARCH = 'search'
 const OVERVIEW = 'overview'
@@ -51,5 +52,6 @@ export default {
   HISTORY,
   IMPORT,
   SEARCH,
-  OVERVIEW
+  OVERVIEW,
+  ACTIVE_USERS_REPORT
 }

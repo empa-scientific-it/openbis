@@ -1,9 +1,14 @@
 var SettingsManagerUtils = new function() {
+    this._defaultProfile = null;
     this._instanceSettings = null;
 
 	this.getGroups = function() {
 		return Object.keys(this._instanceSettings);
 	}
+
+    this.getDefaultProfile = function() {
+        return this._defaultProfile;
+    }
 
     this.getSpaceGroupPrefix = function(spaceCode) {
         var endOf = spaceCode.indexOf("_");

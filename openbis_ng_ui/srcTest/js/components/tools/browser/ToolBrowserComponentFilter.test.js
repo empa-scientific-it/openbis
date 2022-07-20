@@ -66,7 +66,8 @@ async function testFilter() {
       { level: 1, text: 'Deletion' },
       { level: 1, text: 'Freezing' },
       { level: 0, text: 'Import' },
-      { level: 1, text: 'All' }
+      { level: 1, text: 'All' },
+      { level: 0, text: 'Active Users Report' }
     ]
   })
 }

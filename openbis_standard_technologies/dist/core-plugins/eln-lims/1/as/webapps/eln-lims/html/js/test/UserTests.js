@@ -1,5 +1,19 @@
 var UserTests = new function() {
 
+    this.userManager = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = new EventExecutor(5);
+
+            Promise.resolve().then(() => TestUtil.deleteCookies("suitename"))
+                             .then(() => TestUtil.login("testid", "pass"))
+                             .then(() => UserTests.inventorySpaceForTestUser())
+                             .then(() => e.sleep(1000))
+                             .then(() => TestUtil.testPassed(e))
+                             .then(() => resolve())
+                             .catch(error => TestUtil.reportError(e, error, reject));
+        });
+    }
+
     this.inventorySpaceForTestUser = function() {
         return new Promise(function executor(resolve, reject) {
             var e = new EventExecutor(5);

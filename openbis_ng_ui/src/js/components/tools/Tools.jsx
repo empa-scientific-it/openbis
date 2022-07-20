@@ -12,6 +12,7 @@ import QueryForm from '@src/js/components/tools/form/query/QueryForm.jsx'
 import HistoryForm from '@src/js/components/tools/form/history/HistoryForm.jsx'
 import ImportForm from '@src/js/components/tools/form/import/ImportForm.jsx'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
+import ActiveUserReportForm from '@src/js/components/tools/form/activeUserReport/ActiveUserReportForm.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 
@@ -60,6 +61,8 @@ class Tools extends React.PureComponent {
       return <ImportForm object={object} />
     } else if (object.type === objectType.SEARCH) {
       return <ToolSearch searchText={object.id} />
+    } else if (object.type === objectType.ACTIVE_USERS_REPORT) {
+      return <ActiveUserReportForm />
     } else if (object.type === objectType.OVERVIEW) {
       return <ToolSearch objectType={object.id} />
     }
@@ -79,7 +82,8 @@ class Tools extends React.PureComponent {
           messages.ENTITY_VALIDATION_PLUGINS
         ),
         [objectType.QUERY]: messages.get(messages.QUERIES),
-        [objectType.HISTORY]: messages.get(messages.HISTORY)
+        [objectType.HISTORY]: messages.get(messages.HISTORY),
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT)
       }
       label = labels[object.id]
     } else {
@@ -96,7 +100,8 @@ class Tools extends React.PureComponent {
         [objectType.QUERY]: messages.get(messages.QUERY) + ': ',
         [objectType.HISTORY]: messages.get(messages.HISTORY) + ': ',
         [objectType.IMPORT]: messages.get(messages.IMPORT) + ': ',
-        [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
+        [objectType.SEARCH]: messages.get(messages.SEARCH) + ': ',
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT)
       }
 
       let suffix = object.id
@@ -111,6 +116,8 @@ class Tools extends React.PureComponent {
         if (object.id === ImportType.ALL) {
           suffix = messages.get(messages.ALL)
         }
+      } else if (object.type === objectType.ACTIVE_USERS_REPORT) {
+        suffix = ""
       }
 
       label = prefixes[object.type] + suffix

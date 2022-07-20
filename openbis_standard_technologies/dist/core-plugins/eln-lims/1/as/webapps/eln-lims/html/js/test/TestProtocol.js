@@ -25,10 +25,7 @@ var TestProtocol = new function () {
     this.startUserTests = function() {
         testChain = Promise.resolve();
                  //5. User Manager (end of test)
-        testChain.then(() => TestUtil.deleteCookies("suitename"))
-                 .then(() => TestUtil.login("testid", "pass"))
-                 .then(() => UserTests.inventorySpaceForTestUser())
-                 .then(() => TestUtil.testPassed(5))
+        testChain.then(() => UserTests.userManager(5))
                  //6. Sample Form - Creation
                  .then(() => UserTests.creationSampleForm())
                  //7. Sample Form - Edit: Add a Photo and Parents/Children

@@ -3,6 +3,7 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -171,6 +172,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
+        String dataType = getValueByColumnName(header, values, Attribute.DataType);
+        String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
 
         PropertyTypePermId propertyTypePermId = new PropertyTypePermId(code);
@@ -180,6 +183,29 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         update.setLabel(propertyLabel);
         update.setDescription(description);
 
+        PropertyTypeFetchOptions propertyTypeFetchOptions = new PropertyTypeFetchOptions();
+        propertyTypeFetchOptions.withVocabulary();
+        propertyTypeFetchOptions.withSampleType();
+        PropertyType propertyType = delayedExecutor.getPropertyType(propertyTypePermId, propertyTypeFetchOptions);
+        if (vocabularyCode != null && !vocabularyCode.isEmpty())
+        {
+            if (vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
+            {
+                throw new UserFailureException("Vocabulary types can't be updated.");
+            }
+        }
+        if (dataType != null && !dataType.isEmpty())
+        {
+            String currentDataType = propertyType.getDataType().name();
+            if (propertyType.getDataType() == DataType.SAMPLE && propertyType.getSampleType() != null)
+            {
+                currentDataType += ":" + propertyType.getSampleType().getCode();
+            }
+            if (dataType.equals(currentDataType) == false)
+            {
+                update.convertToDataType(DataType.valueOf(dataType));
+            }
+        }
         if (metadata != null && !metadata.isEmpty())
         {
             update.getMetaData().add(JSONHandler.parseMetaData(metadata));

@@ -53,4 +53,6 @@ public final class ComponentNames
     public static final String PROPERTIES_BATCH_MANAGER = "properties-batch-manager";
     
     public static final String JYTHON_EVALUATOR_POOL = "jython-evaluator-pool";
+
+    public static final String OPENBIS_SUPPORT_EMAIL = "openbis.support.email";
 }

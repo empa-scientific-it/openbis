@@ -35,7 +35,6 @@ from texttable import Texttable
 from . import data_set as pbds
 from .dataset import DataSet
 from .definitions import (
-    fetch_option,
     get_definition_for_entity,
     get_fetchoption_for_entity,
     get_fetchoptions,
@@ -880,6 +879,8 @@ class Openbis:
 
     """
 
+    token: str
+
     def __init__(
         self,
         url=None,
@@ -937,7 +938,6 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
-        self.token = None
         if (
             token is not None
         ):  # We try to set the token, during initialisation instead of errors, a message is printed
@@ -946,12 +946,12 @@ class Openbis:
             except:
                 pass
         else:
-            self.token = self._get_saved_token()
-
-        if not self.is_token_valid():
-            print("Session is no longer valid. Please log in again.")
-        else:
-            print("Session restored: " + self.token)
+            try:
+                token = self._get_saved_token()
+                self.token = token
+            except ValueError:
+                print(token)
+                pass
 
     def _get_username(self):
         if self.token:
@@ -959,6 +959,14 @@ class Openbis:
             username = match.groupdict()["username"]
             return username
         return ""
+
+    @property
+    def token(self):
+        return self.__dict__.get("token")
+
+    @token.setter
+    def token(self, token: str):
+        self.set_token(token, save_token=True)
 
     def __dir__(self):
         return [
@@ -1608,9 +1616,9 @@ class Openbis:
             "@type": "as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions"
         }
         for option in ["roleAssignments", "users", "registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
-        fetchopts["users"]["space"] = fetch_option["space"]
+        fetchopts["users"]["space"] = get_fetchoption_for_entity("space")
 
         request = {
             "method": "getAuthorizationGroups",
@@ -1671,11 +1679,11 @@ class Openbis:
         search_criteria["criteria"] = sub_crit
 
         method_name = get_method_for_entity(entity, "search")
-        fetchopts = fetch_option[entity]
+        fetchopts = get_fetchoption_for_entity(entity)
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["space", "project", "user", "authorizationGroup", "registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": method_name,
@@ -1713,9 +1721,9 @@ class Openbis:
     def get_role_assignment(self, techId, only_data=False):
         """Fetches one assigned role by its techId."""
 
-        fetchopts = fetch_option["roleAssignment"]
+        fetchopts = get_fetchoption_for_entity("roleAssignment")
         for option in ["space", "project", "user", "authorizationGroup", "registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "getRoleAssignments",
@@ -1828,11 +1836,11 @@ class Openbis:
         search_criteria["criteria"] = criteria
         search_criteria["operator"] = "AND"
 
-        fetchopts = fetch_option["authorizationGroup"]
+        fetchopts = get_fetchoption_for_entity("authorizationGroup")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["roleAssignments", "registrator", "users"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         request = {
             "method": "searchAuthorizationGroups",
             "params": [self.token, search_criteria, fetchopts],
@@ -1882,11 +1890,11 @@ class Openbis:
         """Get openBIS users"""
 
         search_criteria = get_search_criteria("person", **search_args)
-        fetchopts = fetch_option["person"]
+        fetchopts = get_fetchoption_for_entity("person")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["space"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         request = {
             "method": "searchPersons",
             "params": [self.token, search_criteria, fetchopts],
@@ -1938,7 +1946,7 @@ class Openbis:
 
         fetchopts = {"@type": "as.dto.person.fetchoptions.PersonFetchOptions"}
         for option in ["roleAssignments", "space"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "getPersons",
@@ -1971,7 +1979,7 @@ class Openbis:
 
         method = get_method_for_entity("space", "search")
         search_criteria = _subcriteria_for_code(code, "space")
-        fetchopts = fetch_option["space"]
+        fetchopts = get_fetchoption_for_entity("space")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         request = {
@@ -2022,7 +2030,7 @@ class Openbis:
 
         fetchopts = {"@type": "as.dto.space.fetchoptions.SpaceFetchOptions"}
         for option in ["registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         method = get_method_for_entity("space", "get")
 
@@ -2158,7 +2166,7 @@ class Openbis:
         }
 
         # build the various fetch options
-        fetchopts = copy.deepcopy(fetch_option["sample"])
+        fetchopts = get_fetchoption_for_entity("sample")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
 
@@ -2175,13 +2183,13 @@ class Openbis:
         if self.get_server_information().project_samples_enabled:
             options.append("project")
         for option in options:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         for relation in ["parents", "children", "components", "container"]:
             if relation in attrs:
-                fetchopts[relation] = fetch_option["sample"]
+                fetchopts[relation] = get_fetchoption_for_entity("sample")
 
         if props is not None:
-            fetchopts["properties"] = fetch_option["properties"]
+            fetchopts["properties"] = get_fetchoption_for_entity("properties")
 
         request = {
             "method": "searchSamples",
@@ -2343,7 +2351,7 @@ class Openbis:
         search_criteria["criteria"] = sub_criteria
         search_criteria["operator"] = "AND"
 
-        fetchopts = fetch_option["experiment"]
+        fetchopts = get_fetchoption_for_entity("experiment")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
 
@@ -2351,7 +2359,7 @@ class Openbis:
             attrs = []
         options = self._get_fetchopts_for_attrs(attrs)
         for option in ["tags", "properties", "registrator", "modifier"] + options:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "searchExperiments",
@@ -2584,7 +2592,7 @@ class Openbis:
         fetchopts["count"] = count
         for relation in ["parents", "children", "components", "containers"]:
             if relation in attrs:
-                fetchopts[relation] = fetch_option["dataSet"]
+                fetchopts[relation] = get_fetchoption_for_entity("dataSet")
 
         for option in [
             "tags",
@@ -2597,9 +2605,9 @@ class Openbis:
             "registrator",
             "modifier",
         ]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
-        fetchopts["experiment"]["project"] = fetch_option["project"]
+        fetchopts["experiment"]["project"] = get_fetchoption_for_entity("project")
 
         if kind:
             kind = kind.upper()
@@ -2655,7 +2663,7 @@ class Openbis:
         if experiment:
             return experiment
 
-        fetchopts = fetch_option["experiment"]
+        fetchopts = get_fetchoption_for_entity("experiment")
 
         search_request = _type_for_id(code, "experiment")
         for option in [
@@ -2667,10 +2675,12 @@ class Openbis:
             "registrator",
             "modifier",
         ]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         if withAttachments:
-            fetchopts["attachments"] = fetch_option["attachmentsWithContent"]
+            fetchopts["attachments"] = get_fetchoption_for_entity(
+                "attachmentsWithContent"
+            )
 
         request = {
             "method": "getExperiments",
@@ -2765,8 +2775,8 @@ class Openbis:
 
     def get_deletions(self, start_with=None, count=None):
         search_criteria = {"@type": "as.dto.deletion.search.DeletionSearchCriteria"}
-        fetchopts = fetch_option["deletion"]
-        fetchoptsDeleted = fetch_option["deletedObjects"]
+        fetchopts = get_fetchoption_for_entity("deletion")
+        fetchoptsDeleted = get_fetchoption_for_entity("deletedObjects")
         fetchoptsDeleted["from"] = start_with
         fetchoptsDeleted["count"] = count
         fetchopts["deletedObjects"] = fetchoptsDeleted
@@ -2799,7 +2809,7 @@ class Openbis:
     def _gen_fetchoptions(self, options, foType):
         fo = {"@type": foType}
         for option in options:
-            fo[option] = fetch_option[option]
+            fo[option] = get_fetchoption_for_entity(option)
         return fo
 
     def get_project(self, projectId, only_data=False, use_cache=True):
@@ -2878,7 +2888,7 @@ class Openbis:
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["registrator", "modifier", "leader"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "searchProjects",
@@ -2951,7 +2961,7 @@ class Openbis:
 
         fo = {"@type": foType}
         for option in options:
-            fo[option] = fetch_option[option]
+            fo[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": method_name,
@@ -3010,7 +3020,7 @@ class Openbis:
             "@type"
         ] = "as.dto.vocabulary.search.VocabularyTermSearchCriteria"
 
-        fetchopts = fetch_option["vocabularyTerm"]
+        fetchopts = get_fetchoption_for_entity("vocabularyTerm")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
 
@@ -3113,11 +3123,11 @@ class Openbis:
             "operator": "AND",
         }
 
-        fetchopts = fetch_option["vocabulary"]
+        fetchopts = get_fetchoption_for_entity("vocabulary")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "searchVocabularies",
@@ -3169,7 +3179,7 @@ class Openbis:
         entity = "vocabulary"
         method_name = get_method_for_entity(entity, "get")
         objectIds = _type_for_id(code.upper(), entity)
-        fetchopts = fetch_option[entity]
+        fetchopts = get_fetchoption_for_entity(entity)
 
         request = {
             "method": method_name,
@@ -3200,11 +3210,11 @@ class Openbis:
         search_criteria = get_search_type_for_entity("tag", "AND")
 
         criteria = []
-        fetchopts = fetch_option["tag"]
+        fetchopts = get_fetchoption_for_entity("tag")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         for option in ["owner"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         if code:
             criteria.append(_criteria_for_code(code))
         search_criteria["criteria"] = criteria
@@ -3237,9 +3247,9 @@ class Openbis:
                 return tag
             identifiers.append(_type_for_id(permId, "tag"))
 
-        fetchopts = fetch_option["tag"]
+        fetchopts = get_fetchoption_for_entity("tag")
         for option in ["owner"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         request = {
             "method": "getTags",
             "params": [self.token, identifiers, fetchopts],
@@ -3487,9 +3497,9 @@ class Openbis:
         search_criteria = get_search_type_for_entity("plugin", "AND")
         search_criteria["criteria"] = criteria
 
-        fetchopts = fetch_option["plugin"]
+        fetchopts = get_fetchoption_for_entity("plugin")
         for option in ["registrator"]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
         fetchopts["from"] = start_with
         fetchopts["count"] = count
 
@@ -3548,13 +3558,13 @@ class Openbis:
 
     def get_plugin(self, permId, only_data=False, with_script=True):
         search_request = _type_for_id(permId, "plugin")
-        fetchopts = fetch_option["plugin"]
+        fetchopts = get_fetchoption_for_entity("plugin")
         options = ["registrator"]
         if with_script:
             options.append("script")
 
         for option in options:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "getPlugins",
@@ -3667,10 +3677,10 @@ class Openbis:
                 {"permId": c.upper(), "@type": "as.dto.property.id.PropertyTypePermId"}
             )
 
-        fetchopts = fetch_option["propertyType"]
+        fetchopts = get_fetchoption_for_entity("propertyType")
         options = ["vocabulary", "materialType", "semanticAnnotations", "registrator"]
         for option in options:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "getPropertyTypes",
@@ -3704,7 +3714,7 @@ class Openbis:
             )
 
     def get_property_types(self, code=None, start_with=None, count=None):
-        fetchopts = fetch_option["propertyType"]
+        fetchopts = get_fetchoption_for_entity("propertyType")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
         search_criteria = get_search_criteria("propertyType", code=code)
@@ -3993,9 +4003,11 @@ class Openbis:
             search_request = _gen_search_criteria(
                 {entity.lower(): entity + "Type", "operator": "AND", "code": type_name}
             )
-            fetch_options["propertyAssignments"] = fetch_option["propertyAssignments"]
+            fetch_options["propertyAssignments"] = get_fetchoption_for_entity(
+                "propertyAssignments"
+            )
             if self.get_server_information().api_version > "3.3":
-                fetch_options["validationPlugin"] = fetch_option["plugin"]
+                fetch_options["validationPlugin"] = get_fetchoption_for_entity("plugin")
 
         request = {
             "method": method_name,
@@ -4085,10 +4097,12 @@ class Openbis:
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
+        if not token:
+            return
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
-            self.token = token
+            self.__dict__["token"] = token
         if save_token:
             self._save_token_to_disk()
 
@@ -4114,7 +4128,7 @@ class Openbis:
         else:
             identifiers.append(_type_for_id(permIds, "dataset"))
 
-        fetchopts = fetch_option["dataSet"]
+        fetchopts = get_fetchoption_for_entity("dataSet")
 
         for option in [
             "tags",
@@ -4127,7 +4141,7 @@ class Openbis:
             "registrator",
             "modifier",
         ]:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         request = {
             "method": "getDataSets",
@@ -4346,7 +4360,7 @@ class Openbis:
         else:
             identifiers.append(_type_for_id(sample_ident, "sample"))
 
-        fetchopts = fetch_option["sample"]
+        fetchopts = get_fetchoption_for_entity("sample")
         options = [
             "tags",
             "properties",
@@ -4360,10 +4374,12 @@ class Openbis:
         if self.get_server_information().project_samples_enabled:
             options.append("project")
         for option in options:
-            fetchopts[option] = fetch_option[option]
+            fetchopts[option] = get_fetchoption_for_entity(option)
 
         if withAttachments:
-            fetchopts["attachments"] = fetch_option["attachmentsWithContent"]
+            fetchopts["attachments"] = get_fetchoption_for_entity(
+                "attachmentsWithContent"
+            )
 
         for key in ["parents", "children", "container", "components"]:
             fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}

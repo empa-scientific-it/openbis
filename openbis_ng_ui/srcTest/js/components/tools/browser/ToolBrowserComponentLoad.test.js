@@ -27,7 +27,8 @@ async function testLoad() {
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
-      { level: 0, text: 'Import' }
+      { level: 0, text: 'Import' },
+      { level: 0, text: 'Active Users Report' }
     ]
   })
 }
