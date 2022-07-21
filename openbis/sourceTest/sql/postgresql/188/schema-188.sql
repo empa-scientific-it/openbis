@@ -869,21 +869,21 @@ BEGIN
   RETURN CURR_SEQ_VAL;
 END;
 $$;
-CREATE FUNCTION safe_double(s text) RETURNS double precision
+CREATE OR REPLACE FUNCTION safe_double(s text) RETURNS double precision
     LANGUAGE plpgsql STRICT
     AS $$
 BEGIN
-RETURN s::double precision;
-EXCEPTION WHEN OTHERS THEN
-    RETURN NULL;
+    RETURN s::double precision;
+    EXCEPTION WHEN OTHERS THEN
+        RETURN NULL;
 END; $$;
-CREATE FUNCTION safe_timestamp(s text) RETURNS timestamp with time zone
+CREATE OR REPLACE FUNCTION safe_timestamp(s text) RETURNS timestamp with time zone
     LANGUAGE plpgsql STRICT
     AS $$
 BEGIN
-RETURN s::timestamp with time zone;
-EXCEPTION WHEN OTHERS THEN
-    RETURN NULL;
+    RETURN s::timestamp with time zone;
+    EXCEPTION WHEN OTHERS THEN
+        RETURN NULL;
 END; $$;
 CREATE FUNCTION sample_fill_code_unique_check() RETURNS trigger
     LANGUAGE plpgsql
