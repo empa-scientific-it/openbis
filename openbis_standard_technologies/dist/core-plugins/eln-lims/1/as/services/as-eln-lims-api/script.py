@@ -42,11 +42,26 @@ def process(context, parameters):
     elif method == "doSpacesBelongToDisabledUsers":
         result = doSpacesBelongToDisabledUsers(context, parameters);
     elif method == "trashStorageSamplesWithoutParents":
-        result = trashStorageSamplesWithoutParents(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = trashStorageSamplesWithoutParents(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "isValidStoragePositionToInsertUpdate":
-        result = isValidStoragePositionToInsertUpdate(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = isValidStoragePositionToInsertUpdate(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "setCustomWidgetSettings":
-        result = setCustomWidgetSettings(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = setCustomWidgetSettings(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "getUserManagementMaintenanceTaskConfig":
         result = getUserManagementMaintenanceTaskConfig(context, parameters)
     elif method == "saveUserManagementMaintenanceTaskConfig":
@@ -431,7 +446,7 @@ def _isInstanceAdmin(context):
             return True
     return False
 
-def setCustomWidgetSettings(context, parameters):
+def setCustomWidgetSettings(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update import PropertyTypeUpdate
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id import PropertyTypePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue import ListUpdateActionAdd
@@ -439,7 +454,6 @@ def setCustomWidgetSettings(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions import PropertyTypeFetchOptions
 
     widgetSettingsById = {PropertyTypePermId(ws["Property Type"]):ws for ws in parameters.get("widgetSettings")}
-    sessionToken = context.applicationService.loginAsSystem();
     searchCriteria = PropertyTypeSearchCriteria()
     fetchOptions = PropertyTypeFetchOptions()
     ptus = [];
@@ -456,10 +470,9 @@ def setCustomWidgetSettings(context, parameters):
         ptus.append(ptu);
 
     context.applicationService.updatePropertyTypes(sessionToken, ptus);
-    context.applicationService.logout(sessionToken);
     return True
 
-def isValidStoragePositionToInsertUpdate(context, parameters):
+def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
     from ch.systemsx.cisd.common.exceptions import UserFailureException
@@ -479,7 +492,6 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
     if storageCode is None:
         raise UserFailureException("Storage code missing");
 
-    sessionToken = context.applicationService.loginAsSystem();
     searchCriteria = SampleSearchCriteria();
     searchCriteria.withCode().thatEquals(storageCode);
     searchCriteria.withType().withCode().thatEquals("STORAGE");
@@ -586,7 +598,6 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass
-    context.applicationService.logout(sessionToken);
     return True
 
 def getServiceProperty(context, parameters):
@@ -650,7 +661,7 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
 
-def trashStorageSamplesWithoutParents(context, parameters):
+def trashStorageSamplesWithoutParents(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete import SampleDeletionOptions
@@ -662,7 +673,6 @@ def trashStorageSamplesWithoutParents(context, parameters):
     fetchOptions = SampleFetchOptions();
     fetchOptions.withType();
     fetchOptions.withParents();
-    sessionToken = context.applicationService.loginAsSystem();
     samplesMapByPermId = context.applicationService.getSamples(sessionToken, permIds, fetchOptions);
     for permId in permIds:
         sample = samplesMapByPermId[permId];
@@ -676,5 +686,4 @@ def trashStorageSamplesWithoutParents(context, parameters):
     deleteOptions = SampleDeletionOptions();
     deleteOptions.setReason(parameters.get("reason"));
     deletionId = context.applicationService.deleteSamples(sessionToken, permIds, deleteOptions);
-    context.applicationService.logout(sessionToken);
     return True

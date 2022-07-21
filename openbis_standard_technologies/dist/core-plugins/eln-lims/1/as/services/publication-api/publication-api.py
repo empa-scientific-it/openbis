@@ -40,18 +40,16 @@ def process(context, parameters):
 
 
 def insertPublication(context, parameters):
-    transaction = context.applicationService
-    sessionToken = transaction.loginAsSystem()
-
     v3 = context.applicationService
-
-    sampleId = createPublicationSample(parameters, sessionToken, v3).get(0)
-    createDataSet(parameters, sessionToken, v3, sampleId)
-
+    sessionToken = None
     result = HashMap()
-    result.put('status','OK')
-
-    transaction.logout(sessionToken)
+    try:
+        sessionToken = v3.loginAsSystem()
+        sampleId = createPublicationSample(parameters, sessionToken, v3).get(0)
+        createDataSet(parameters, sessionToken, v3, sampleId)
+        result.put('status','OK')
+    finally:
+        v3.logout(sessionToken)
     return result
 
 
