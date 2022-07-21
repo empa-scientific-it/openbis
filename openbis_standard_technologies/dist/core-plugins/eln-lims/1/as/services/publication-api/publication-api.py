@@ -50,6 +50,8 @@ def insertPublication(context, parameters):
 
     result = HashMap()
     result.put('status','OK')
+
+    transaction.logout(sessionToken)
     return result
 
 

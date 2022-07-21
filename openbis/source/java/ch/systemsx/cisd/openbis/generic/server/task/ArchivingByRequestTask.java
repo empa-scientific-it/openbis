@@ -97,7 +97,6 @@ public class ArchivingByRequestTask extends AbstractGroupMaintenanceTask
         String sessionToken = null;
         try {
             sessionToken = service.loginAsSystem();
-            service.loginAsSystem();
             execute(service, sessionToken);
         } catch (Exception exception) {
             if (sessionToken != null) {

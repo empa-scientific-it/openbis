@@ -245,9 +245,10 @@ public class UserManager
 
     public void manage(Set<String> knownUsers)
     {
+        String sessionToken = null;
         try
         {
-            String sessionToken = service.loginAsSystem();
+            sessionToken = service.loginAsSystem();
 
             List<AuthorizationGroup> groupsToBeRemoved = getGroupsToBeRemoved(sessionToken);
             updateMappingFile();
@@ -265,12 +266,20 @@ public class UserManager
                 manageGroup(sessionToken, groupCode, users, currentState, report);
             }
             updateHomeSpaces(sessionToken, currentState, report);
-
-            service.logout(sessionToken);
         } catch (Throwable e)
         {
             report.addErrorMessage("Error: " + e.toString());
             logger.log(LogLevel.ERROR, "", e);
+        } finally
+        {
+            try
+            {
+                service.logout(sessionToken);
+            } catch (Throwable e)
+            {
+                report.addErrorMessage("Error: " + e.toString());
+                logger.log(LogLevel.ERROR, "", e);
+            }
         }
     }
 

@@ -23,3 +23,4 @@ def validate(entity, isNew):
         .withParameter("sampleCode", entity.samplePE().getCode()) \
         .withParameter("sampleProperties", properties);
     v3.executeCustomASService(sessionToken, id, options);
+    v3.logout(sessionToken);

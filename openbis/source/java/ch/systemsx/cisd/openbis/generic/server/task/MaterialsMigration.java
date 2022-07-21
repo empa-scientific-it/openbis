@@ -112,7 +112,6 @@ public class MaterialsMigration implements IMaintenanceTask {
         String sessionToken = null;
         try {
             sessionToken = v3.loginAsSystem();
-            v3.loginAsSystem();
             doMaterialsMigration(v3, sessionToken);
         } catch (Exception exception) {
             operationLog.error(MaterialsMigration.class.getSimpleName(), exception);
@@ -129,7 +128,6 @@ public class MaterialsMigration implements IMaintenanceTask {
 
     public static void doMaterialsMigration(IApplicationServerInternalApi v3, String sessionToken) {
         info("doMaterialsMigration","start");
-        sessionToken = v3.loginAsSystem();
         if (doMaterialsMigrationInsertNew) {
             doMaterialsMigrationInsertNew(sessionToken, v3);
         }
