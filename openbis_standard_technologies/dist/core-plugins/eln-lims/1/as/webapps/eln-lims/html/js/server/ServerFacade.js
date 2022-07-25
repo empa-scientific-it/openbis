@@ -1960,6 +1960,12 @@ function ServerFacade(openbisServer) {
                                 case "ARCHIVING_REQUESTED":
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;
+                                case "PARENTS":
+                                    criteria.withParents().withCode().thatContains(attributeValue);
+                                    break;
+                                case "CHILDREN":
+                                    criteria.withChildren().withCode().thatContains(attributeValue);
+                                    break;
                             }
                         }
 

@@ -180,11 +180,14 @@ var SampleDataGridUtil = new function() {
                 label : 'Parents',
                 property : 'parents',
                 isExportable: true,
-                filterable: false,
+                filterable: true,
                 sortable : false,
                 truncate: true,
                 getValue : function(params) {
                     return _this.getRelatedSamples(params.row.parents, params);
+                },
+                filter : function(data, filter) {
+                    return _this.filterRelatedSamples(data.parents, filter);
                 },
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.parents, isLinksDisabled);
@@ -195,11 +198,14 @@ var SampleDataGridUtil = new function() {
                 label : 'Children',
                 property : 'children',
                 isExportable: false,
-                filterable: false,
+                filterable: true,
                 sortable : false,
                 truncate: true,
                 getValue : function(params) {
                     return _this.getRelatedSamples(params.row.children, params);
+                },
+                filter : function(data, filter) {
+                    return _this.filterRelatedSamples(data.children, filter);
                 },
                 render : function(data, grid) {
                     return _this.renderRelatedSamples(data.children, isLinksDisabled);
@@ -367,6 +373,18 @@ var SampleDataGridUtil = new function() {
         return output;
     }
 
+    this.filterRelatedSamples = function(samples, filter) {
+        var isMatch = false;
+        if (samples) {
+            for (var idx = 0; idx < samples.length; idx++) {
+                var sample = samples[idx];
+                var id = sample.getIdentifier().getIdentifier();
+                isMatch = isMatch || id.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+            }
+        }
+        return isMatch;
+    }
+
 	this.getDataListDynamic = function(criteria, withExperiment) {
 		return function(callback, options) {
 			var callbackForSearch = function(result) {
@@ -479,77 +497,80 @@ var SampleDataGridUtil = new function() {
                 subCriteria: [mainSubcriteria, gridSubcriteria]
             }
 
-            if(options){
+            if(options) {
                 if(options.searchMode === "GLOBAL_FILTER") {
-                    if(options.globalSearch.text !== null){
+                    if(options.globalSearch.text !== null) {
                         gridSubcriteria.logicalOperator = options.globalSearch.operator
 
                         var tokens = options.globalSearch.text.toLowerCase().split(/[ ,]+/)
-                        tokens.forEach(function(token){
+                        tokens.forEach(function(token) {
                             gridSubcriteria.rules[Util.guid()] = { type : "All", name : "", value : token };
                         })
                     }
-                }else if(options.searchMode === "COLUMN_FILTERS"){
-                    for(var field in options.searchMap){
+                } else if (options.searchMode === "COLUMN_FILTERS") {
+                    for (var field in options.searchMap) {
                         var search = options.searchMap[field] || ""
 
-                        if(_.isString(search)){
+                        if (_.isString(search)) {
                             search = search.trim()
                         }
-
-                        if(field === "sampleTypeCode"){
+                        if (field === "sampleTypeCode") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SAMPLE_TYPE", value : search, operator: "thatContains" };
-                        }else if(field === "default_space"){
+                        } else if (field === "default_space") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SPACE", value : search, operator: "thatContains" };
-                        }else if(field === "experiment"){
+                        } else if(field === "experiment") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_IDENTIFIER", value : search, operator: "thatContains" };
-                        }else if(field === "code"){
+                        } else if (field === "code") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
-                        }else if(field === "identifier"){
+                        } else if (field === "identifier") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
-                        }else if(field === "registrator"){
+                        } else if (field === "registrator") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
-                        }else if(field === "registrationDate"){
-                            if(search.from && search.from.value){
+                        } else if (field === "registrationDate") {
+                            if (search.from && search.from.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
+                            if (search.to && search.to.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
-                        }else if(field === "modifier"){
+                        } else if (field === "modifier") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
-                        }else if(field === "modificationDate"){
-                            if(search.from && search.from.value){
+                        } else if (field === "modificationDate") {
+                            if (search.from && search.from.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
+                            if (search.to && search.to.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
-                        }else{
+                        } else if (field === "parents") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PARENTS", value : search, operator: "thatContains" };
+                        } else if (field === "children") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CHILDREN", value : search, operator: "thatContains" };
+                        } else {
                             var column = options.columnMap[field]
                             var dataType = null
 
-                            if(column && column.metadata){
+                            if (column && column.metadata) {
                                 dataType = column.metadata.dataType
                             }
 
-                            if(dataType === "DATE" || dataType === "TIMESTAMP"){
-                                if(search.from && search.from.value){
+                            if (dataType === "DATE" || dataType === "TIMESTAMP") {
+                                if (search.from && search.from.value) {
                                     gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
                                 }
-                                if(search.to && search.to.value){
+                                if (search.to && search.to.value) {
                                     gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                                 }
                             } else {
                                 var operator = null
 
-                                if(dataType === "INTEGER" || dataType === "REAL"){
+                                if (dataType === "INTEGER" || dataType === "REAL") {
                                     operator = "thatEqualsNumber"
-                                }else if(dataType === "BOOLEAN"){
+                                } else if (dataType === "BOOLEAN") {
                                     operator = "thatEqualsBoolean"
-                                }else if(dataType === "CONTROLLEDVOCABULARY"){
+                                } else if (dataType === "CONTROLLEDVOCABULARY") {
                                     operator = "thatEqualsString"
-                                }else{
+                                } else {
                                     operator = "thatContainsString"
                                 }
     
