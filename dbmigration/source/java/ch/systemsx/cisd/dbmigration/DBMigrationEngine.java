@@ -190,6 +190,7 @@ public final class DBMigrationEngine
     {
         final File file = new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH);
         final Integer ftsDocumentVersionFromFile = readVersionFromFile(file);
+        operationLog.info("Deciding application of full text search scripts, found: " + ftsDocumentVersionFromFile + " available: " + fullTextSearchDocumentVersion);
         if (fullTextSearchDocumentVersion != null && (ftsDocumentVersionFromFile == null
                 || Integer.parseInt(fullTextSearchDocumentVersion) > ftsDocumentVersionFromFile))
         {
