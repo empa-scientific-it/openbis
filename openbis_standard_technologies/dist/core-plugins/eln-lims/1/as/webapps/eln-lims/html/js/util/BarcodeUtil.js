@@ -1,7 +1,6 @@
 var BarcodeUtil = new function() {
     var barcodeTimeout = false;
     var barcodeReader = "";
-    var barcodePattern = /^[-0-9]+$/;
     var _this = this;
 
     var readSample = function(action) {
@@ -70,7 +69,7 @@ var BarcodeUtil = new function() {
     }
 
     this.getBarcodePattern = function() {
-        return barcodePattern;
+        return profile.barcodePattern ? profile.barcodePattern : /^[-0-9]+$/;
     }
 
     this.isValidBarcode = function(barcode) {
