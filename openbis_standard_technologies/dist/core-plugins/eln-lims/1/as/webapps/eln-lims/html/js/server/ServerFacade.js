@@ -1962,9 +1962,11 @@ function ServerFacade(openbisServer) {
                                     break;
                                 case "PARENTS":
                                     criteria.withParents().withCode().thatContains(attributeValue);
+                                    criteria.withParents().withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                                 case "CHILDREN":
                                     criteria.withChildren().withCode().thatContains(attributeValue);
+                                    criteria.withChildren().withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                             }
                         }

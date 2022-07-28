@@ -379,7 +379,9 @@ var SampleDataGridUtil = new function() {
             for (var idx = 0; idx < samples.length; idx++) {
                 var sample = samples[idx];
                 var id = sample.getIdentifier().getIdentifier();
+                var name = sample.properties[profile.propertyReplacingCode];
                 isMatch = isMatch || id.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+                isMatch = isMatch || name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
             }
         }
         return isMatch;
