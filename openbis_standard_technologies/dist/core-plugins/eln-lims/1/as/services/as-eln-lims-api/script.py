@@ -531,17 +531,31 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
 
     # 4. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX
     if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
-        # 4.1 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
+        # 4.1 Check that a box with the same name only exist on the given storage and rack position
+        searchCriteriaOtherBox = SampleSearchCriteria();
+        searchCriteriaOtherBox.withType().withCode().thatEquals("STORAGE_POSITION");
+        searchCriteriaOtherBox.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
+        otherBoxSubcriteria = searchCriteriaOtherBox.withSubcriteria();
+        otherBoxSubcriteria.negate();
+        otherBoxSubcriteria.withType().withCode().thatEquals("STORAGE_POSITION");
+        otherBoxSubcriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+        otherBoxSubcriteria.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
+        otherBoxSubcriteria.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
+        sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, SampleFetchOptions()).getObjects();
+        if not sampleSearchResults.isEmpty():
+            raise UserFailureException("You entered the name of an already existing box on a different place - Box Name: " + str(storageBoxName));
+
+        # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
         searchCriteriaStorageRack = SampleSearchCriteria();
         searchCriteriaStorageRack.withType().withCode().thatEquals("STORAGE_POSITION");
-        searchCriteriaStorageRack.withProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+        searchCriteriaStorageRack.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
         searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
         searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
         searchCriteriaStorageRackResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageRack, fetchOptions).getObjects();
         storageRackBoxes = {storageBoxName};
         for sample in searchCriteriaStorageRackResults:
             storageRackBoxes.add(sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME"));
-        # 4.2 $STORAGE.BOX_NUM is only checked in is configured
+        # 4.3 $STORAGE.BOX_NUM is only checked in is configured
         storageBoxNum = storage.getProperty("$STORAGE.BOX_NUM");
         if storageBoxNum is not None:
             storageBoxNumAsInt = int(storageBoxNum);
@@ -576,7 +590,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         for storageBoxSubPosition in storageBoxPosition.split(" "):
             searchCriteriaStorageBoxPosition = SampleSearchCriteria();
             searchCriteriaStorageBoxPosition.withType().withCode().thatEquals("STORAGE_POSITION");
-            searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
             searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
             searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
 
@@ -584,8 +598,8 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                 searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
             else: # Patch for Lucene
                 import org.apache.lucene.queryparser.classic.QueryParserBase as QueryParserBase
-                searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
-            searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
+                searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
+            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
             searchCriteriaStorageBoxResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageBoxPosition, fetchOptions).getObjects();
             # 5.1 If the given box position dont exists (the list is empty), is new
             for sample in searchCriteriaStorageBoxResults:
