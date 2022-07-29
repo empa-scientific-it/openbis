@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.task;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
@@ -61,6 +63,8 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
     private BufferedAppender logRecorder;
 
     private File configFile;
+
+    private File backUpPath;
 
     private Properties properties;
 
@@ -99,6 +103,7 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
                 }
             });
         configFile = new File(workingDirectory, "config.json");
+        backUpPath = new File(workingDirectory, "backUp");
         properties = new Properties();
         properties.setProperty(UsageReportingTask.CONFIGURATION_FILE_PATH_PROPERTY, configFile.getPath());
         properties.setProperty(PluginUtils.EMAIL_ADDRESSES_KEY, "a1@bc.de, a2@bc.de");
@@ -419,6 +424,59 @@ public class UsageReportingTaskTest extends AbstractFileSystemTestCase
         assertEquals("text/plain", attachmentRecorder.getRecordedObjects().get(0).getContentType());
         assertEquals("text/plain", attachmentRecorder.getRecordedObjects().get(1).getContentType());
         assertEquals(2, attachmentRecorder.getRecordedObjects().size());
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "boolean")
+    public void testDailyReportWithBackUp(boolean intervalSpecified) throws IOException
+    {
+        // Given
+        UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
+        task.user("u1").space("A").newExperiments(2).newDataSets(1);
+        task.user("u1").space("C").newSamples(1);
+        task.user("u2").space("B").newExperiments(2);
+        task.user("u2").space("A1").newSamples(2).newDataSets(5);
+        task.user("u3").space("B").newExperiments(3);
+        task.user("u4");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "1 d", "21:42");
+        properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.OUTSIDE_GROUP_ONLY.name());
+        properties.setProperty(UsageReportingTask.PATH_TO_SAVE_REPORT, backUpPath.getAbsolutePath());
+        task.setUp("", properties);
+
+        backUpPath.mkdirs();
+        assertEquals(0, Files.list(backUpPath.toPath()).collect(Collectors.toList()).size());
+
+        // When
+        task.execute();
+
+        // Then
+        assertEquals(1, Files.list(backUpPath.toPath()).collect(Collectors.toList()).size());
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "boolean")
+    public void testDailyReportWithPrefix(boolean intervalSpecified) throws IOException
+    {
+        // Given
+        UsageReportingTaskWithMocks task = new UsageReportingTaskWithMocks(mailClient).time(new Date(12345));
+        task.user("u1").space("A").newExperiments(2).newDataSets(1);
+        task.user("u1").space("C").newSamples(1);
+        task.user("u2").space("B").newExperiments(2);
+        task.user("u2").space("A1").newSamples(2).newDataSets(5);
+        task.user("u3").space("B").newExperiments(3);
+        task.user("u4");
+        setIntervalOrRunSchedule(properties, intervalSpecified, "1 d", "21:42");
+        properties.setProperty(UsageReportingTask.USER_REPORTING_KEY, UsageReportingTask.UserReportingType.OUTSIDE_GROUP_ONLY.name());
+        properties.setProperty(UsageReportingTask.TITLE_NAME_PREFIX, "Title Prefix:");
+        properties.setProperty(UsageReportingTask.REPORT_NAME_PREFIX, "test_report_prefix");
+        task.setUp("", properties);
+
+        // When
+        task.execute();
+
+        // Then
+        assertRecorders(fileNameRecorder, "test_report_prefix_usage_report_1969-12-31_1970-01-01.tsv", 2);
+        assertRecorders(subjectRecorder, "Title Prefix: Usage report for the period from 1969-12-31 until 1970-01-01", 2);
         context.assertIsSatisfied();
     }
 

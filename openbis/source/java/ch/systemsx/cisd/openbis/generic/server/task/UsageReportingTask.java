@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import org.apache.commons.lang3.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -89,6 +91,12 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
 
     static final String COUNT_ALL_ENTITIES_KEY = "count-all-entities";
 
+    static final String TITLE_NAME_PREFIX = "title-name-prefix";
+
+    static final String REPORT_NAME_PREFIX = "report-name-prefix";
+
+    static final String PATH_TO_SAVE_REPORT = "path-to-save-report";
+
     static final String DELIM = "\t";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -104,6 +112,12 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
     private boolean countAllEntities;
 
     private Set<String> spacesToBeIgnored;
+
+    private String titleNamePrefix;
+
+    private String reportNamePrefix;
+
+    private String pathToSaveReport;
 
     public UsageReportingTask()
     {
@@ -128,6 +142,9 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
         spacesToBeIgnored = new HashSet<>(PropertyUtils.getList(properties, "spaces-to-be-ignored"));
         userReportingType = UserReportingType.valueOf(properties.getProperty(USER_REPORTING_KEY, UserReportingType.ALL.name()));
         countAllEntities = PropertyUtils.getBoolean(properties, COUNT_ALL_ENTITIES_KEY, false);
+        titleNamePrefix = PropertyUtils.getProperty(properties, TITLE_NAME_PREFIX);
+        reportNamePrefix = PropertyUtils.getProperty(properties, REPORT_NAME_PREFIX);
+        pathToSaveReport = PropertyUtils.getProperty(properties, PATH_TO_SAVE_REPORT);
     }
 
     @Override
@@ -179,9 +196,23 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
 
     private void sendReport(String fromDateString, String untilDateString, String report)
     {
+        String subject = "";
+        String fileName = "";
+
+        if (titleNamePrefix != null && !titleNamePrefix.isEmpty())
+        {
+            subject = titleNamePrefix + " ";
+        }
+        if (reportNamePrefix != null && !reportNamePrefix.isEmpty())
+        {
+            fileName = reportNamePrefix + "_";
+            fileName = fileName.toLowerCase().replace(" ", "_");
+        }
+
+        subject = subject + "Usage report for the period from " + fromDateString + " until " + untilDateString;
+        fileName = fileName + "usage_report_" + fromDateString + "_" + untilDateString + ".tsv";
+
         IMailClient mailClient = getMailClient();
-        String subject = "Usage report for the period from " + fromDateString + " until " + untilDateString;
-        String fileName = "usage_report_" + fromDateString + "_" + untilDateString + ".tsv";
         try
         {
             for (EMailAddress eMailAddress : eMailAddresses)
@@ -189,6 +220,7 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
                 mailClient.sendEmailMessageWithAttachment(subject, "The usage report can be found in the attached TSV file.",
                         fileName, new DataHandler(new ByteArrayDataSource(report, "text/plain")), null, null, eMailAddress);
             }
+            backUpReport(fileName, report);
         } catch (IOException e)
         {
             notificationLog.error("Couldn't sent usage report:" + e);
@@ -251,6 +283,18 @@ public class UsageReportingTask extends AbstractGroupMaintenanceTask
 
         addInfos(builder, period, individualInfos, false);
         return builder.toString();
+    }
+
+    private void backUpReport(String fileName, String content)
+    {
+        if (pathToSaveReport == null || pathToSaveReport.isEmpty())
+        {
+            return;
+        }
+        File reportFile = new File(pathToSaveReport + File.separator + fileName);
+        reportFile.getParentFile().mkdirs();
+        FileUtilities.writeToFile(reportFile, content);
+        operationLog.info("Backup usage report path: " + reportFile.getAbsolutePath());
     }
 
     private void handleUsageAndGroupInfos(UsageAndGroupsInfo usageAndGroupsInfo, Map<String, GroupInfo> groupInfos,
