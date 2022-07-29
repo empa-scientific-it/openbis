@@ -543,7 +543,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         otherBoxSubcriteria.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
         sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, SampleFetchOptions()).getObjects();
         if not sampleSearchResults.isEmpty():
-            raise UserFailureException("You entered the name of an already existing box on a different place - Box Name: " + str(storageBoxName));
+            raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName));
 
         # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
         searchCriteriaStorageRack = SampleSearchCriteria();
