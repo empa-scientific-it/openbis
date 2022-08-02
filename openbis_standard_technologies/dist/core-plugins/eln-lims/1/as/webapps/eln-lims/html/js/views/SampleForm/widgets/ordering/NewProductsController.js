@@ -38,7 +38,7 @@ function NewProductsController() {
 
 				var groupPrefix = SettingsManagerUtils.getSpaceGroupPrefix(sample.spaceCode);
 				if(groupPrefix == 'GENERAL') {
-				    groupPrefix == '';
+				    groupPrefix = '';
 				} else {
 					groupPrefix = groupPrefix + "_";
 				}
