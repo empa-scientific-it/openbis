@@ -249,6 +249,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	this._createDescriptionSection = function(hideShowOptionsModel) {
 		hideShowOptionsModel.push({
 			forceToShow : this._projectFormModel.mode === FormMode.CREATE,
+			showByDefault : true,
 			label : "Description",
 			section : "#project-description"
 		});
