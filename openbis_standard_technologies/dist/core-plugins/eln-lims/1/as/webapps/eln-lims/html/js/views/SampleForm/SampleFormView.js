@@ -976,7 +976,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
 																			annotations,
-																			this._sampleFormModel.sample.spaceCode);
+																			this._sampleFormModel.sample.spaceCode,
+																			function() {
+                                                                                _this._sampleFormModel.isFormDirty = true;
+                                                                            });
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -1037,7 +1040,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations,
-															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull),
+															function() {
+                                                                _this._sampleFormModel.isFormDirty = true;
+                                                            });
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}

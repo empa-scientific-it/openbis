@@ -46,9 +46,10 @@ var EmptyLinksController = {
         }
 };
 
-function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj, spaceCode) {
+function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj, spaceCode, setDirty) {
 	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType, sampleTypeCode, stateObj, spaceCode);
 	var linksView = new LinksView(this, linksModel);
+	var dirtyCallback = setDirty;
 	
 	this.init = function($container) {
 		linksView.repaint($container);
@@ -172,6 +173,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
 			if(results.length > 0) {
 				linksView.updateSample(results[0], true, isInit);
+				dirtyCallback();
 				Util.unblockUI();
 			}
 		});
