@@ -302,7 +302,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ displayName: "Unarchiving Helper", title : unarchivingHelperLink, entityType: "UNARCHIVING_HELPER", key : "UNARCHIVING_HELPER", folder : false, lazy : false, view : "showUnarchivingHelperPage", icon : "glyphicon glyphicon-open" });
         }
 
-        if (profile.customImportDefinitions.length > 0) {
+        if (profile.customImportDefinitions && profile.customImportDefinitions.length > 0) {
             var customImportLink = _this.getLinkForNode("Custom Import", "CUSTOM_IMPORT", "showCustomImportPage", null, null);
             treeModelUtils.push({ displayName: "Custom Import", title : customImportLink, entityType: "CUSTOM_IMPORT", key : "CUSTOM_IMPORT", folder : false, lazy : false, view : "showCustomImportPage", icon : "glyphicon glyphicon-import" });
         }
@@ -826,22 +826,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     } else {
                                         sampleIcon = "fa fa-file";
                                     }
-                                    var parentTypeCode = samples[0].type.code;
-                                    // showOnNavForParentTypes is only set by Plugins and they are merged at startup, this can't be by group configuration right now
-                                    var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
-                                    var showSampleOnNav = false;
-                                    if(!showOnNavForParentTypes) {
-                                        showSampleOnNav = true;
-                                    } else {
-                                        for(var ptIdx = 0; ptIdx < showOnNavForParentTypes.length; ptIdx++) {
-                                            if(parentTypeCode === showOnNavForParentTypes[ptIdx]) {
-                                                showSampleOnNav = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if(showSampleOnNav) {
+                                    var sampleTypeOnNav = profile.showOnNavForSpace(IdentifierUtil.getSpaceCodeFromIdentifier(sample.getIdentifier().getIdentifier()), sample.type.code);
+                                    if(sampleTypeOnNav) {
                                         var sampleDisplayName = sample.code;
                                         if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
                                                 sampleDisplayName = sample.properties[profile.propertyReplacingCode];
