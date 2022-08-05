@@ -115,7 +115,7 @@ class AttrHolder:
             elif attr.endswith("Date"):
                 self.__dict__["_" + attr] = format_timestamp(data.get(attr))
 
-            elif attr in ["registrator", "modifier", "dataProducer"]:
+            elif attr in ["registrator", "modifier", "dataProducer", "owner"]:
                 self.__dict__["_" + attr] = extract_person(data.get(attr))
 
             else:

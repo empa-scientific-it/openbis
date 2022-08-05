@@ -106,6 +106,14 @@ def openbis_definitions(entity):
             "delete": {"@type": "as.dto.dataset.delete.DataSetTypeDeletionOptions"},
             "identifier": "typeId",
         },
+        "personalAccessToken": {
+            "attrs_new": "sessionName validFromDate validToDate accessDate".split(),
+            "attrs_up": "".split(),
+            "attrs": "permId sessionName validFromDate validToDate accessDate owner registrator registrationDate modifier modificationDate".split(),
+            "search": {"@type": "as.dto.pat.search.PersonalAccessTokenSearchCriteria"},
+            "delete": {"@type": "as.dto.pat.delete.PersonalAccessTokenDeletionOptions"},
+            "identifier": "permId",
+        },
         "experimentType": {
             "attrs_new": "code description validationPlugin".split(),
             "attrs_up": "description modificationDate validationPlugin".split(),
@@ -296,6 +304,9 @@ get_definition_for_entity = openbis_definitions  # Alias
 
 
 fetch_option = {
+    "personalAccessToken": {
+        "@type": "as.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions"
+    },
     "space": {"@type": "as.dto.space.fetchoptions.SpaceFetchOptions"},
     "project": {
         "@type": "as.dto.project.fetchoptions.ProjectFetchOptions",

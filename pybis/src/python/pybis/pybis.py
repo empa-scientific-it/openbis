@@ -11,18 +11,17 @@ Work with openBIS using Python.
 from __future__ import print_function
 
 import copy
-import errno
 import json
-import logging
 import os
-import random
 import re
 import subprocess
 import sys
 import time
+from xml.dom import NotSupportedErr
 import zlib
 from collections import defaultdict, namedtuple
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from urllib.parse import quote, urljoin, urlparse
 
 import pandas as pd
@@ -31,6 +30,7 @@ import urllib3
 from pandas import DataFrame, Series
 from tabulate import tabulate
 from texttable import Texttable
+from typing import Optional
 
 from . import data_set as pbds
 from .dataset import DataSet
@@ -116,6 +116,7 @@ def get_search_type_for_entity(entity, operator=None):
         {'@type': 'as.dto.space.search.SpaceSearchCriteria'}
     """
     search_criteria = {
+        "personalAccessToken": "as.dto.pat.search.PersonalAccessTokenSearchCriteria",
         "space": "as.dto.space.search.SpaceSearchCriteria",
         "userId": "as.dto.person.search.UserIdSearchCriteria",
         "email": "as.dto.person.search.EmailSearchCriteria",
@@ -169,6 +170,8 @@ def _type_for_id(ident, entity):
             return {"permId": ident, "@type": "as.dto.tag.id.TagPermId"}
         else:
             return {"code": ident, "@type": "as.dto.tag.id.TagCode"}
+    if entity == "personalAccessToken":
+        return {"permId": ident, "@type": "as.dto.pat.id.PersonalAccessTokenPermId"}
 
     entities = {
         "sample": "Sample",
@@ -938,6 +941,7 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
+        self.token = None
         if (
             token is not None
         ):  # We try to set the token, during initialisation instead of errors, a message is printed
@@ -1016,6 +1020,8 @@ class Openbis:
             "get_object_types()",
             "get_property_types()",
             "get_property_type()",
+            "get_personal_access_tokens()",
+            "get_personal_access_token()",
             "new_property_type()",
             "get_semantic_annotations()",
             "get_semantic_annotation()",
@@ -1054,6 +1060,7 @@ class Openbis:
             "new_material_type()",
             "new_semantic_annotation()",
             "new_transaction()",
+            "create_personal_access_token()",
             "set_token()",
         ]
 
@@ -1886,6 +1893,143 @@ class Openbis:
             df_initializer=create_data_frame,
         )
 
+    def create_personal_access_token(
+        self, sessionName: str, validFrom: datetime = None, validTo: datetime = None
+    ) -> str:
+        """Creates a new personal access token (PAT)"""
+
+        if validFrom is None:
+            validFrom = datetime.now()
+        if validTo is None:
+            validTo = datetime.now() + relativedelta(years=1)
+
+        entity = "personalAccessToken"
+        request = {
+            "method": get_method_for_entity(entity, "create"),
+            "params": [
+                self.token,
+                {
+                    "@type": "as.dto.pat.create.PersonalAccessTokenCreation",
+                    "sessionName": sessionName,
+                    "validFromDate": int(validFrom.timestamp() * 1000),
+                    "validToDate": int(validTo.timestamp() * 1000),
+                },
+            ],
+        }
+        try:
+            resp = self._post_request(self.as_v3, request)
+        except ValueError as exc:
+            raise NotSupportedErr(
+                "Your openBIS instance does not support personal access tokens. Please upgrade your server and activate them."
+            )
+        try:
+            token = resp[0]["permId"]
+            return token
+        except KeyError:
+            pass
+            # if "error" in resp and resp["error"]["message"] == "method not found":
+
+    def get_personal_access_tokens(
+        self, permId=None, start_with=None, count=None, **search_args
+    ):
+        """Get Personal Access Tokens"""
+        entity = "personalAccessToken"
+
+        search_criteria = get_search_criteria(entity, **search_args)
+        if permId:
+            sub_crit = _subcriteria_for_permid(permids=permId, entity=entity)
+            search_criteria["criteria"].append(sub_crit)
+        fetchopts = get_fetchoption_for_entity(entity)
+        fetchopts["from"] = start_with
+        fetchopts["count"] = count
+
+        for person in ["owner", "registrator", "modifier"]:
+            fetchopts[person] = get_fetchoption_for_entity(person)
+        request = {
+            "method": get_method_for_entity(entity, "search"),
+            "params": [self.token, search_criteria, fetchopts],
+        }
+        try:
+            resp = self._post_request(self.as_v3, request)
+        except ValueError:
+            raise NotSupportedErr(
+                "This method is not supported by your openBIS instance."
+            )
+
+        defs = get_definition_for_entity(entity)
+
+        def create_data_frame(attrs, props, response):
+            attrs = defs["attrs"]
+            objects = response["objects"]
+            if len(objects) == 0:
+                persons = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+
+                pats = DataFrame(objects)
+                pats["permId"] = pats["permId"].map(extract_permid)
+                for date in [
+                    "validFromDate",
+                    "validToDate",
+                    "accessDate",
+                    "registrationDate",
+                    "modificationDate",
+                ]:
+                    pats[date] = pats[date].map(format_timestamp)
+                for person in ["owner", "registrator", "modifier"]:
+                    pats[person] = pats[person].map(extract_person)
+            return pats[attrs]
+
+        return Things(
+            openbis_obj=self,
+            entity=entity,
+            identifier_name="permId",
+            single_item_method=self.get_personal_access_token,
+            start_with=start_with,
+            count=count,
+            totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame,
+        )
+
+    def get_personal_access_token(self, permId, only_data=False):
+        entity = "personalAccessToken"
+        identifiers = []
+        only_one = True
+        if isinstance(permId, list):
+            only_one = False
+            for ident in permId:
+                identifiers.append(_type_for_id(ident, entity))
+        else:
+            identifiers.append(_type_for_id(permId, entity))
+
+        defs = get_definition_for_entity(entity)
+        fetchopts = get_fetchoption_for_entity(entity)
+        for person in ["owner", "registrator", "modifier"]:
+            fetchopts[person] = get_fetchoption_for_entity(person)
+        request = {
+            "method": get_method_for_entity(entity, "get"),
+            "params": [self.token, identifiers, fetchopts],
+        }
+        resp = self._post_request(self.as_v3, request)
+        if only_one:
+            if len(resp) == 0:
+                raise ValueError(f"no such {entity} found: {permId}")
+
+            parse_jackson(resp)
+            for permId in resp:
+                if only_data:
+                    return resp[permId]
+                else:
+                    return PersonalAccessToken(
+                        openbis_obj=self,
+                        data=resp[permId],
+                        # single_item_method_name=self.get_personal_access_token,
+                        # count=len(resp),
+                        # totalCount=len(resp),
+                        # response=resp,
+                    )
+
     def get_persons(self, start_with=None, count=None, **search_args):
         """Get openBIS users"""
 
@@ -2107,10 +2251,6 @@ class Openbis:
                         b) property is not defined for this sampleType
         """
 
-        logger = logging.getLogger("get_samples")
-        logger.setLevel(logging.CRITICAL)
-        logger.addHandler(logging.StreamHandler(sys.stdout))
-
         if collection is not None:
             experiment = collection
         if attrs is None:
@@ -2200,23 +2340,11 @@ class Openbis:
             ],
         }
 
-        time1 = now()
-        logger.debug("get_samples posting request")
         resp = self._post_request(self.as_v3, request)
 
-        time2 = now()
-
-        logger.debug(f"get_samples got response. Delay: {time2 - time1}")
         parse_jackson(resp)
 
-        time3 = now()
-
         response = resp["objects"]
-        logger.debug(f"get_samples got JSON. Delay: {time3 - time2}")
-
-        time4 = now()
-
-        logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
 
         result = self._sample_list_for_response(
             response=response,
@@ -2228,9 +2356,6 @@ class Openbis:
             parsed=True,
         )
 
-        time5 = now()
-
-        logger.debug(f"get_samples computed final result. Delay: {time5 - time4}")
         return result
 
     get_objects = get_samples  # Alias
@@ -4420,23 +4545,8 @@ class Openbis:
         totalCount=0,
         parsed=False,
     ):
-        logger = logging.getLogger("_sample_list_for_response")
-        logger.setLevel(logging.CRITICAL)
-        logger.disabled = True
-        logger.addHandler(logging.StreamHandler(sys.stdout))
-
-        time1 = now()
-
-        logger.debug("_sample_list_for_response before parsing JSON")
         if not parsed:
             parse_jackson(response)
-
-        time2 = now()
-
-        logger.debug(f"_sample_list_for_response got response. Delay: {time2 - time1}")
-
-        time6 = now()
-        logger.debug("_sample_list_for_response computing result.")
 
         def create_data_frame(attrs, props, response):
             """returns a Things object, containing a DataFrame plus additional information"""
@@ -4448,12 +4558,6 @@ class Openbis:
                     return obj.get(attribute_to_extract, "")
 
                 return return_attribute
-
-            logger = logging.getLogger("create_data_frame")
-            logger.setLevel(logging.CRITICAL)
-            logger.addHandler(logging.StreamHandler(sys.stdout))
-
-            time2 = now()
 
             if attrs is None:
                 attrs = []
@@ -4479,10 +4583,6 @@ class Openbis:
                     display_attrs.append(prop)
                 samples = DataFrame(columns=display_attrs)
             else:
-                time3 = now()
-                logger.debug(
-                    f"createDataFrame computing attributes. Delay: {time3 - time2}"
-                )
 
                 samples = DataFrame(response)
                 for attr in attrs:
@@ -4515,11 +4615,6 @@ class Openbis:
                 samples["permId"] = samples["permId"].map(extract_permid)
                 samples["type"] = samples["type"].map(extract_nested_permid)
 
-                time4 = now()
-                logger.debug(
-                    f"_sample_list_for_response computed attributes. Delay: {time4 - time3}"
-                )
-
                 for prop in props:
                     if prop == "*":
                         # include all properties in dataFrame.
@@ -4545,10 +4640,6 @@ class Openbis:
                                 samples.loc[i, prop.upper()] = ""
                         display_attrs.append(prop.upper())
 
-                time5 = now()
-                logger.debug(
-                    f"_sample_list_for_response computed properties. Delay: {time5 - time4}"
-                )
             return samples[display_attrs]
 
         def create_objects(response):
@@ -4577,10 +4668,6 @@ class Openbis:
             props=props,
         )
 
-        time7 = now()
-        logger.debug(
-            f"_sample_list_for_response computed result. Delay: {time7 - time6}"
-        )
         return result
 
     @staticmethod
@@ -5143,4 +5230,12 @@ class PropertyType(
 
 
 class Plugin(OpenBisObject, entity="plugin", single_item_method_name="get_plugin"):
+    pass
+
+
+class PersonalAccessToken(
+    OpenBisObject,
+    entity="personalAccessToken",
+    single_item_method_name="get_personal_access_token",
+):
     pass
