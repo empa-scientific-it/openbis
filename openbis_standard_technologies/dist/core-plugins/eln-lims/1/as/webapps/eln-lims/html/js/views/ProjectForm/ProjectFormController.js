@@ -42,12 +42,14 @@ function ProjectFormController(mainController, mode, project) {
 							_this._projectFormModel.rights = rightsByIds[id];
 							_this._projectFormModel.experimentRights = rightsByIds[dummyId];
 							_this._projectFormView.repaint(views);
+							Util.unblockUI();
 						});
 					});
 				});
 			});
 		} else {
 			_this._projectFormView.repaint(views);
+			Util.unblockUI();
 		}
 	}
 

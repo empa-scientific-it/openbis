@@ -2106,14 +2106,14 @@ var FormUtil = new function() {
 
     		$("#sampleTypeDropdown").on("change", function(event) {
     			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-    			var argsMap = {
-    					"sampleTypeCode" : sampleTypeCode,
-    					"experimentIdentifier" : experimentIdentifier
-    			}
-
-    			var argsMapStr = JSON.stringify(argsMap);
-    			Util.unblockUI();
-    			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+                Util.blockUI();
+                setTimeout(function() {
+                    var argsMap = {
+                        "sampleTypeCode" : sampleTypeCode,
+                        "experimentIdentifier" : experimentIdentifier
+                    };
+                    mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+                }, 100);
     		});
 
     		$("#sampleTypeDropdownCancel").on("click", function(event) {

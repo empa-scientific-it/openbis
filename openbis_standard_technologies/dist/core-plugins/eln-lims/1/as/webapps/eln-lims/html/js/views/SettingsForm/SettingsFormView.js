@@ -167,13 +167,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var experimentIdentifier = profile.getStorageConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
 
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-			var argsMap = {
-					"sampleTypeCode" : "STORAGE",
-					"experimentIdentifier" : experimentIdentifier
-			}
-			var argsMapStr = JSON.stringify(argsMap);
-			Util.unblockUI();
-			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+            Util.blockUI();
+            setTimeout(function() {
+                var argsMap = {
+                    "sampleTypeCode" : "STORAGE",
+                    "experimentIdentifier" : experimentIdentifier
+                };
+                mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+            }, 100);
 		}, "New Storage");
 
 		$fieldset.append($("<p>").append($addBtn));

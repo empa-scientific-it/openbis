@@ -116,12 +116,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				//Edit
 				if(this._sampleFormModel.mode === FormMode.VIEW) {
 					var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-						var args = {
-								permIdOrIdentifier : _this._sampleFormModel.sample.permId,
-								paginationInfo : _this._sampleFormModel.paginationInfo
-						}
-
-						mainController.changeView('showEditSamplePageFromPermId', args);
+					    Util.blockUI();
+                        setTimeout(function() {
+                            var args = {
+                                    permIdOrIdentifier : _this._sampleFormModel.sample.permId,
+                                    paginationInfo : _this._sampleFormModel.paginationInfo
+                            };
+                            mainController.changeView('showEditSamplePageFromPermId', args);
+                        }, 100);
 					}, "Edit", null, "edit-btn");
 					if(toolbarConfig.EDIT) {
 						toolbarModel.push({ component : $editButton, tooltip: null });

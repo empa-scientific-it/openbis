@@ -60,6 +60,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			if (_this._allowedToEdit()) {
 				//Edit Button
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				    Util.blockUI();
 					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 				}, "Edit", null, "dataset-edit-btn");
 				if(toolbarConfig.EDIT) {

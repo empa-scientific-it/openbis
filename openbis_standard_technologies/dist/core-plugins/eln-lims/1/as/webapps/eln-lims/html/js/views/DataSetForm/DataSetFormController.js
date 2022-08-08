@@ -52,11 +52,13 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 										mainController.openbisV3.getRights(ids, null).done(function(rightsByIds) {
 											_this._dataSetFormModel.rights = rightsByIds[datasetPermId];
 											_this._dataSetFormView.repaint(views);
+											Util.unblockUI();
 										});
 									});
 							});
 						} else {
 							_this._dataSetFormView.repaint(views);
+							Util.unblockUI();
 						}
 					});
 		});

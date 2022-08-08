@@ -81,6 +81,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			if(_this._allowedToEdit()) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				    Util.blockUI();
 					_this._projectFormController.enableEditing();
 				}, "Edit", null, "edit-btn");
 				toolbarModel.push({ component : $editBtn });
