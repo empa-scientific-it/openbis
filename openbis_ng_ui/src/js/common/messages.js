@@ -1,5 +1,6 @@
 // prettier-ignore
 const keys = {
+  ACCESS: 'ACCESS',
   ACTIONS: 'ACTIONS',
   ACTIVATE_USER: 'ACTIVATE_USER',
   ACTIVE: 'ACTIVE',
@@ -142,6 +143,7 @@ const keys = {
   PARAMETERS: 'PARAMETERS',
   PARENTS: 'PARENTS',
   PASSWORD: 'PASSWORD',
+  PERSONAL_ACCESS_TOKENS: 'PERSONAL_ACCESS_TOKENS',
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLUGIN: 'PLUGIN',
   PLUGIN_IS_DISABLED: 'PLUGIN_IS_DISABLED',
@@ -236,6 +238,7 @@ const keys = {
 
 // prettier-ignore
 const messages_en = {
+  [keys.ACCESS]: 'Access',
   [keys.ACTIONS]: 'Actions',
   [keys.ACTIVATE_USER]: 'Activate user',
   [keys.ACTIVE]: 'Active',
@@ -378,6 +381,7 @@ const messages_en = {
   [keys.PARAMETERS]: 'Parameters',
   [keys.PARENTS]: 'Parents',
   [keys.PASSWORD]: 'Password',
+  [keys.PERSONAL_ACCESS_TOKENS]: 'Personal Access Tokens',
   [keys.PLAIN_TEXT]: 'Plain Text',
   [keys.PLUGIN]: 'Plugin',
   [keys.PLUGIN_IS_DISABLED]: 'The plugin is disabled.',

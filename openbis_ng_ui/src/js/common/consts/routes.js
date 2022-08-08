@@ -214,6 +214,11 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.QUERY
   }),
+  PERSONAL_ACCESS_TOKEN_OVERVIEW: new Route('/personal-access-token-overview', {
+    page: pages.TOOLS,
+    type: objectTypes.OVERVIEW,
+    id: objectTypes.PERSONAL_ACCESS_TOKEN
+  }),
   HISTORY: new Route('/history/:id', {
     page: pages.TOOLS,
     type: objectTypes.HISTORY

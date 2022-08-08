@@ -108,6 +108,19 @@ export default class ToolBrowserController extends BrowserController {
         }
       ]
 
+      const accessNodes = [
+        {
+          id: 'access/personalAccessTokens',
+          text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
+          object: {
+            type: objectType.OVERVIEW,
+            id: objectType.PERSONAL_ACCESS_TOKEN
+          },
+          canMatchFilter: true,
+          canRemove: false
+        }
+      ]
+
       let nodes = [
         {
           id: 'dynamicPropertyPlugins',
@@ -152,6 +165,12 @@ export default class ToolBrowserController extends BrowserController {
           id: 'import',
           text: messages.get(messages.IMPORT),
           children: importNodes,
+          canAdd: false
+        },
+        {
+          id: 'access',
+          text: messages.get(messages.ACCESS),
+          children: accessNodes,
           canAdd: false
         }
       ]

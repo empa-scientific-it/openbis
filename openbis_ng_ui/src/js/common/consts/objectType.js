@@ -19,6 +19,7 @@ const USER = 'user'
 const USER_GROUP = 'userGroup'
 const DYNAMIC_PROPERTY_PLUGIN = 'dynamicPropertyPlugin'
 const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
+const PERSONAL_ACCESS_TOKEN = 'personalAccessToken'
 const QUERY = 'query'
 const HISTORY = 'history'
 const IMPORT = 'import'
@@ -47,6 +48,7 @@ export default {
   USER_GROUP,
   DYNAMIC_PROPERTY_PLUGIN,
   ENTITY_VALIDATION_PLUGIN,
+  PERSONAL_ACCESS_TOKEN,
   QUERY,
   HISTORY,
   IMPORT,

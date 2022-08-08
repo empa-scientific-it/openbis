@@ -9,6 +9,7 @@ import ToolBrowser from '@src/js/components/tools/browser/ToolBrowser.jsx'
 import ToolSearch from '@src/js/components/tools/search/ToolSearch.jsx'
 import PluginForm from '@src/js/components/tools/form/plugin/PluginForm.jsx'
 import QueryForm from '@src/js/components/tools/form/query/QueryForm.jsx'
+import PersonalAccessTokenForm from '@src/js/components/tools/form/pat/PersonalAccessTokenForm.jsx'
 import HistoryForm from '@src/js/components/tools/form/history/HistoryForm.jsx'
 import ImportForm from '@src/js/components/tools/form/import/ImportForm.jsx'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
@@ -61,7 +62,11 @@ class Tools extends React.PureComponent {
     } else if (object.type === objectType.SEARCH) {
       return <ToolSearch searchText={object.id} />
     } else if (object.type === objectType.OVERVIEW) {
-      return <ToolSearch objectType={object.id} />
+      if (object.id === objectType.PERSONAL_ACCESS_TOKEN) {
+        return <PersonalAccessTokenForm />
+      } else {
+        return <ToolSearch objectType={object.id} />
+      }
     }
   }
 
@@ -79,6 +84,9 @@ class Tools extends React.PureComponent {
           messages.ENTITY_VALIDATION_PLUGINS
         ),
         [objectType.QUERY]: messages.get(messages.QUERIES),
+        [objectType.PERSONAL_ACCESS_TOKEN]: messages.get(
+          messages.PERSONAL_ACCESS_TOKENS
+        ),
         [objectType.HISTORY]: messages.get(messages.HISTORY)
       }
       label = labels[object.id]
