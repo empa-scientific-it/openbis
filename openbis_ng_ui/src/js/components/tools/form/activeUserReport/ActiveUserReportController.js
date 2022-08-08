@@ -15,14 +15,15 @@ export default class ActiveUserReportController {
   async sendReport() {
     try {
       await this.context.setState({
-        loading: true
+        loading: true,
+        result: null
       })
 
       const output = await this.facade.sendReport()
 
       this.context.setState({
         result: {
-          success: output.status == "OK",
+          success: output.status === 'OK',
           output: output
         }
       })

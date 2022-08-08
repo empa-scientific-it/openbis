@@ -11,6 +11,7 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import ActiveUserReportFacade from '@src/js/components/tools/form/activeUserReport/ActiveUserReportFacade.js'
 import ActiveUserReportController from '@src/js/components/tools/form/activeUserReport/ActiveUserReportController.js'
+import AppController from '@src/js/components/AppController.js'
 
 const styles = theme => ({
   message: {
@@ -29,7 +30,9 @@ class ActiveUserReportForm extends React.PureComponent {
     if (this.props.controller) {
       this.controller = this.props.controller
     } else {
-      this.controller = new ActiveUserReportController(new ActiveUserReportFacade())
+      this.controller = new ActiveUserReportController(
+        new ActiveUserReportFacade()
+      )
     }
 
     this.controller.init(new ComponentContext(this))
@@ -59,47 +62,64 @@ class ActiveUserReportForm extends React.PureComponent {
       return <Container></Container>
     }
 
+    const { loading } = this.state
     const { classes } = this.props
-    const { result } = this.state
 
     return (
       <Container>
         <Header>{messages.get(messages.ACTIVE_USERS_REPORT)}</Header>
         <div className={classes.message}>
-          <Message>{messages.get(messages.ACTIVE_USERS_REPORT_DIALOG, this.state.activeUsersCount)}</Message>
+          <Message>
+            {messages.get(
+              messages.ACTIVE_USERS_REPORT_DIALOG,
+              this.state.activeUsersCount
+            )}
+          </Message>
           <div>&nbsp;</div>
-          {this.renderEmailLink()}{". "}
+          {this.renderEmailLink()}
+          {'. '}
         </div>
-        <Button name='sendReport' label={messages.get(messages.SEND_REPORT)} onClick={this.controller.sendReport} styles={{ root: classes.button }}/>
-        <div className={classes.message}>
-          {this.renderResult()}
-        </div>
+        <Button
+          name='sendReport'
+          disabled={loading}
+          label={messages.get(messages.SEND_REPORT)}
+          onClick={this.controller.sendReport}
+          styles={{ root: classes.button }}
+        />
+        <div className={classes.message}>{this.renderResult()}</div>
       </Container>
     )
   }
 
   renderEmailLink() {
-    if (this.state.openbisSupportEmail === undefined || this.state.openbisSupportEmail === null) {
-      return (
-        <Message>{messages.get(messages.SUPPORT)}</Message>
-      )
+    if (
+      this.state.openbisSupportEmail === undefined ||
+      this.state.openbisSupportEmail === null
+    ) {
+      return <Message>{messages.get(messages.SUPPORT)}</Message>
     }
-    let href = "mailto:" + this.state.openbisSupportEmail
+    let href = 'mailto:' + this.state.openbisSupportEmail
     return (
-      <Link href={href} target="_blank">{messages.get(messages.SUPPORT)}</Link>
+      <Message>
+        <Link href={href} target='_blank'>
+          {messages.get(messages.SUPPORT)}
+        </Link>
+      </Message>
     )
   }
 
   renderResult() {
     const { result } = this.state
 
-    if (result === undefined) {
+    if (result === null || result === undefined) {
       return <Container></Container>
     }
 
     return (
       <Message type={result.success ? 'success' : 'error'}>
-        {result.success ? messages.get(messages.ACTIVE_USERS_REPORT_EMAIL_SENT_CONFIRMATION) : result.output}
+        {result.success
+          ? messages.get(messages.ACTIVE_USERS_REPORT_EMAIL_SENT_CONFIRMATION)
+          : result.output}
       </Message>
     )
   }

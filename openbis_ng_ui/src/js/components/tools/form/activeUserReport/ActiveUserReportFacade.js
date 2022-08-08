@@ -13,7 +13,9 @@ export default class ActiveUserReportFacade {
       new openbis.PersonSearchCriteria(),
       new openbis.PersonFetchOptions()
     )
-    return result.objects.filter(user => {return user.active == true}).length
+    return result.objects.filter(user => {
+      return user.active === true
+    }).length
   }
 
   async loadOpenbisSupportEmail() {

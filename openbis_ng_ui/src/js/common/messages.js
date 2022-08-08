@@ -443,7 +443,7 @@ const messages_en = {
   [keys.SHOW_STACK_TRACE]: 'Show stack trace',
   [keys.SHOW_ALL]: 'Show All',
   [keys.SPACE]: 'Space',
-  [keys.SUPPORT]: 'Openbis Support',
+  [keys.SUPPORT]: 'openBIS Support',
   [keys.SQL]: 'SQL',
   [keys.SUBCODES_UNIQUE]: 'Unique Subcodes',
   [keys.TERMS]: 'Terms',
