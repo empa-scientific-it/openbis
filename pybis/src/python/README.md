@@ -88,6 +88,8 @@ o = Openbis(os.environ['OPENBIS_HOST'])
 o.login(os.environ['OPENBIS_USERNAME'], os.environ['OPENBIS_PASSWORD'])
 ```
 
+As an even better alternative, you should use personal access tokens (PAT) to avoid username/password altogether. See below.
+
 ### Verify certificate
 
 By default, your SSL-Certification is being verified. If you have a test-instance with a self-signed certificate, you'll need to turn off this verification explicitly:
@@ -106,6 +108,54 @@ print(f"Session is active: {o.is_session_active()} and token is {o.token}")
 o.logout()
 print(f"Session is active: {o.is_session_active()"}
 ```
+
+### Personal access token (PAT)
+
+As an alternative to login every time you run a script, you can create tokens which
+
+* once issued, do **not need username or password**
+* are **much longer valid** (default is one year)
+* **survive restarts** of an openBIS instance
+
+To create a token, you first need a valid session (either through classic login (see above) or by assigning a valid session token:
+
+```
+from pyBIS import Openbis
+o = Openbis('https://test-openbis-instance.com')
+o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+```
+
+Then you can create a new token and use it the same way as a session token:
+
+```
+pat = o.create_personal_access_token(sessionName="Project A"))
+o.set_token(pat)
+```
+
+**Note:** Most operations are permitted using the PAT, except:
+
+* all operations on personal access tokens itself
+* i.e. create, list, delete operations on tokens
+
+
+To get a list of all currently available tokens:
+
+```
+o.get_personal_access_tokens()
+```
+
+To delete the first token shown in the list:
+
+```
+o.get_personal_access_tokens()[0].delete('no specific reason')
+```
+
+Or delete any specific: token:
+
+```
+o.get_token("$pat-your_username-220804233700046xCA2B5FFE4C57595598489490AA665239").delete('another no-reason')
+```
+
 
 ### Caching
 
