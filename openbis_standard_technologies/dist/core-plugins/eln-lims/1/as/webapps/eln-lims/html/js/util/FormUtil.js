@@ -372,9 +372,9 @@ var FormUtil = new function() {
         return visibleObjectTypesForSpace;
     }
 
-	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode) {
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode, withEmptyOption) {
 	    var visibleObjectTypeCodesForSpace = null;
-	    if(spaceCode) {
+	    if (spaceCode) {
 	        visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
 	    }
 		var sampleTypes = this.profile.getAllSampleTypes();
@@ -385,6 +385,10 @@ var FormUtil = new function() {
 		}
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
+		if (withEmptyOption) {
+		    $component.append($("<option>").attr('value', '').text('(empty)'));
+		}
+
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
 			
