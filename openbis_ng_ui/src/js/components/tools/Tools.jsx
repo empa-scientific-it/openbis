@@ -63,7 +63,7 @@ class Tools extends React.PureComponent {
       return <ToolSearch searchText={object.id} />
     } else if (object.type === objectType.OVERVIEW) {
       if (object.id === objectType.PERSONAL_ACCESS_TOKEN) {
-        return <PersonalAccessTokenForm />
+        return <PersonalAccessTokenForm object={object} />
       } else {
         return <ToolSearch objectType={object.id} />
       }

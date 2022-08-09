@@ -82,6 +82,10 @@ class Facade {
     return this.promise(this.v3.searchPlugins(criteria, fo))
   }
 
+  searchPersonalAccessTokens(criteria, fo) {
+    return this.promise(this.v3.searchPersonalAccessTokens(criteria, fo))
+  }
+
   searchQueries(criteria, fo) {
     return this.promise(this.v3.searchQueries(criteria, fo))
   }

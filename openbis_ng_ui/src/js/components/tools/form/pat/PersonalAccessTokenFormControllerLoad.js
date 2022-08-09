@@ -1,0 +1,65 @@
+import _ from 'lodash'
+import PageMode from '@src/js/components/common/page/PageMode.js'
+import FormValidator from '@src/js/components/common/form/FormValidator.js'
+import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import AppController from '@src/js/components/AppController.js'
+
+export default class PersonalAccessTokenFormControllerLoad {
+  constructor(controller) {
+    this.controller = controller
+    this.context = controller.context
+    this.facade = controller.facade
+  }
+
+  async execute() {
+    await this.context.setState({
+      loading: true,
+      mode: PageMode.VIEW,
+      validate: FormValidator.MODE_BASIC
+    })
+
+    try {
+      const loadedPats = await this.facade.loadPats()
+      const pats = loadedPats.map(loadedPat => this._createPat(loadedPat))
+      const selection = this._createSelection(pats)
+
+      return this.context.setState({
+        pats,
+        selection,
+        original: {
+          pats: pats.map(pat => pat.original)
+        }
+      })
+    } catch (error) {
+      AppController.getInstance().errorChange(error)
+    } finally {
+      this.controller.changed(false)
+      this.context.setState({
+        loadId: _.uniqueId('load'),
+        loaded: true,
+        loading: false
+      })
+    }
+  }
+
+  _createPat(loadedPat) {
+    const pat = {
+      id: _.get(loadedPat, 'hash'),
+      hash: FormUtil.createField({
+        value: _.get(loadedPat, 'hash', null),
+        enabled: false
+      }),
+      sessionName: FormUtil.createField({
+        value: _.get(loadedPat, 'sessionName', null),
+        enabled: false
+      }),
+      original: _.cloneDeep(loadedPat)
+    }
+    return pat
+  }
+
+  _createSelection() {
+    // TODO
+    return null
+  }
+}
