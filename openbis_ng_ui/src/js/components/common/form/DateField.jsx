@@ -7,6 +7,7 @@ import {
   KeyboardDateTimePicker
 } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
+import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -116,7 +117,9 @@ class DateField extends React.PureComponent {
 
   renderView() {
     const { label, value } = this.props
-    return <FormFieldView label={label} value={value} />
+    return (
+      <FormFieldView label={label} value={value ? date.format(value) : null} />
+    )
   }
 
   renderEdit() {

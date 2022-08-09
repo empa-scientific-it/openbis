@@ -4,12 +4,14 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import PersonalAccessTokenFormController from '@src/js/components/tools/form/pat/PersonalAccessTokenFormController.js'
 import PersonalAccessTokenFormFacade from '@src/js/components/tools/form/pat/PersonalAccessTokenFormFacade.js'
 import PersonalAccessTokenFormParameters from '@src/js/components/tools/form/pat/PersonalAccessTokenFormParameters.jsx'
 import PersonalAccessTokenFormButtons from '@src/js/components/tools/form/pat/PersonalAccessTokenFormButtons.jsx'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
+import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
 
 const columns = [
@@ -17,6 +19,40 @@ const columns = [
     name: 'sessionName',
     label: messages.get(messages.SESSION_NAME),
     getValue: ({ row }) => row.sessionName.value
+  },
+  {
+    name: 'validFrom',
+    label: messages.get(messages.VALID_FROM),
+    getValue: ({ row }) => {
+      return date.format(row.validFrom.value)
+    },
+    renderFilter: ({ value, onChange }) => {
+      return <DateRangeField value={value} onChange={onChange} />
+    },
+    matchesValue: ({ row, filter }) => {
+      return date.inRange(
+        row.validFrom.value,
+        filter.from ? filter.from.value : null,
+        filter.to ? filter.to.value : null
+      )
+    }
+  },
+  {
+    name: 'validTo',
+    label: messages.get(messages.VALID_TO),
+    getValue: ({ row }) => {
+      return date.format(row.validTo.value)
+    },
+    renderFilter: ({ value, onChange }) => {
+      return <DateRangeField value={value} onChange={onChange} />
+    },
+    matchesValue: ({ row, filter }) => {
+      return date.inRange(
+        row.validTo.value,
+        filter.from ? filter.from.value : null,
+        filter.to ? filter.to.value : null
+      )
+    }
   }
 ]
 

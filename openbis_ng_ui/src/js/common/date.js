@@ -1,9 +1,19 @@
-function format(millis) {
-  if (millis === null) {
+import _ from 'lodash'
+
+function format(value) {
+  if (value === null) {
     return ''
   }
 
-  var date = new Date(millis)
+  var date = null
+
+  if (_.isDate(value)) {
+    date = value
+  } else if (_.isNumber(value)) {
+    date = new Date(value)
+  } else {
+    throw new Error('Incorrect date: ' + value)
+  }
 
   const year = String(date.getFullYear()).padStart(4, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -17,11 +27,22 @@ function format(millis) {
   )
 }
 
+function inRange(value, from, to) {
+  if (from && value && value.getTime() < from.getTime()) {
+    return false
+  }
+  if (to && value && value.getTime() > to.getTime()) {
+    return false
+  }
+  return true
+}
+
 function timezone() {
   return -(new Date().getTimezoneOffset() / 60)
 }
 
 export default {
   format,
-  timezone
+  timezone,
+  inRange
 }

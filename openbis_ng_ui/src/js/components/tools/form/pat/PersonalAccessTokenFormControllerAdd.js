@@ -13,7 +13,9 @@ export default class PersonalAccessTokenFormControllerAdd {
 
     const newPat = {
       id: _.uniqueId('pat-'),
-      sessionName: FormUtil.createField({})
+      sessionName: FormUtil.createField({}),
+      validFrom: FormUtil.createField({}),
+      validTo: FormUtil.createField({})
     }
 
     const newPats = Array.from(pats)

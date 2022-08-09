@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
+import DateField from '@src/js/components/common/form/DateField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -18,7 +19,9 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     super(props)
     this.state = {}
     this.references = {
-      sessionName: React.createRef()
+      sessionName: React.createRef(),
+      validFrom: React.createRef(),
+      validTo: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -85,6 +88,8 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
         <Header>{messages.get(messages.PERSONAL_ACCESS_TOKEN)}</Header>
         {this.renderMessageVisible(pat)}
         {this.renderSessionName(pat)}
+        {this.renderValidFrom(pat)}
+        {this.renderValidTo(pat)}
       </Container>
     )
   }
@@ -121,6 +126,60 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
           reference={this.references.sessionName}
           label={messages.get(messages.SESSION_NAME)}
           name='sessionName'
+          mandatory={true}
+          error={error}
+          disabled={!enabled}
+          value={value}
+          mode={mode}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        />
+      </div>
+    )
+  }
+
+  renderValidFrom(pat) {
+    const { visible, enabled, error, value } = { ...pat.validFrom }
+
+    if (!visible) {
+      return null
+    }
+
+    const { mode, classes } = this.props
+    return (
+      <div className={classes.field}>
+        <DateField
+          reference={this.references.validFrom}
+          label={messages.get(messages.VALID_FROM)}
+          name='validFrom'
+          mandatory={true}
+          error={error}
+          disabled={!enabled}
+          value={value}
+          mode={mode}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        />
+      </div>
+    )
+  }
+
+  renderValidTo(pat) {
+    const { visible, enabled, error, value } = { ...pat.validTo }
+
+    if (!visible) {
+      return null
+    }
+
+    const { mode, classes } = this.props
+    return (
+      <div className={classes.field}>
+        <DateField
+          reference={this.references.validTo}
+          label={messages.get(messages.VALID_TO)}
+          name='validTo'
           mandatory={true}
           error={error}
           disabled={!enabled}
