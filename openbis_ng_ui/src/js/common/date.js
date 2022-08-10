@@ -28,11 +28,16 @@ function format(value) {
 }
 
 function inRange(value, from, to) {
-  if (from && value && value.getTime() < from.getTime()) {
-    return false
-  }
-  if (to && value && value.getTime() > to.getTime()) {
-    return false
+  if (from || to) {
+    if (value === null || value === undefined) {
+      return false
+    }
+    if (from && value.getTime() < from.getTime()) {
+      return false
+    }
+    if (to && value.getTime() > to.getTime()) {
+      return false
+    }
   }
   return true
 }

@@ -20,8 +20,8 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     this.state = {}
     this.references = {
       sessionName: React.createRef(),
-      validFrom: React.createRef(),
-      validTo: React.createRef()
+      validFromDate: React.createRef(),
+      validToDate: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -88,8 +88,8 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
         <Header>{messages.get(messages.PERSONAL_ACCESS_TOKEN)}</Header>
         {this.renderMessageVisible(pat)}
         {this.renderSessionName(pat)}
-        {this.renderValidFrom(pat)}
-        {this.renderValidTo(pat)}
+        {this.rendervalidFromDate(pat)}
+        {this.rendervalidToDate(pat)}
       </Container>
     )
   }
@@ -139,8 +139,8 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     )
   }
 
-  renderValidFrom(pat) {
-    const { visible, enabled, error, value } = { ...pat.validFrom }
+  rendervalidFromDate(pat) {
+    const { visible, enabled, error, value } = { ...pat.validFromDate }
 
     if (!visible) {
       return null
@@ -150,9 +150,9 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     return (
       <div className={classes.field}>
         <DateField
-          reference={this.references.validFrom}
+          reference={this.references.validFromDate}
           label={messages.get(messages.VALID_FROM)}
-          name='validFrom'
+          name='validFromDate'
           mandatory={true}
           error={error}
           disabled={!enabled}
@@ -166,8 +166,8 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     )
   }
 
-  renderValidTo(pat) {
-    const { visible, enabled, error, value } = { ...pat.validTo }
+  rendervalidToDate(pat) {
+    const { visible, enabled, error, value } = { ...pat.validToDate }
 
     if (!visible) {
       return null
@@ -177,9 +177,9 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
     return (
       <div className={classes.field}>
         <DateField
-          reference={this.references.validTo}
+          reference={this.references.validToDate}
           label={messages.get(messages.VALID_TO)}
-          name='validTo'
+          name='validToDate'
           mandatory={true}
           error={error}
           disabled={!enabled}

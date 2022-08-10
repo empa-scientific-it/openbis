@@ -43,8 +43,10 @@ export default class PersonalAccessTokenFormControllerLoad {
   }
 
   _createPat(loadedPat) {
-    let validFrom = _.get(loadedPat, 'validFromDate', null)
-    let validTo = _.get(loadedPat, 'validToDate', null)
+    const validFromDate = _.get(loadedPat, 'validFromDate', null)
+    const validToDate = _.get(loadedPat, 'validToDate', null)
+    const registrationDate = _.get(loadedPat, 'registrationDate', null)
+    const accessDate = _.get(loadedPat, 'accessDate', null)
 
     const pat = {
       id: _.get(loadedPat, 'hash'),
@@ -56,12 +58,28 @@ export default class PersonalAccessTokenFormControllerLoad {
         value: _.get(loadedPat, 'sessionName', null),
         enabled: false
       }),
-      validFrom: FormUtil.createField({
-        value: validFrom ? new Date(validFrom) : null,
+      validFromDate: FormUtil.createField({
+        value: validFromDate ? new Date(validFromDate) : null,
         enabled: false
       }),
-      validTo: FormUtil.createField({
-        value: validTo ? new Date(validTo) : null,
+      validToDate: FormUtil.createField({
+        value: validToDate ? new Date(validToDate) : null,
+        enabled: false
+      }),
+      owner: FormUtil.createField({
+        value: loadedPat.owner ? loadedPat.owner.userId : null,
+        enabled: false
+      }),
+      registrator: FormUtil.createField({
+        value: loadedPat.registrator ? loadedPat.registrator.userId : null,
+        enabled: false
+      }),
+      registrationDate: FormUtil.createField({
+        value: registrationDate ? new Date(registrationDate) : null,
+        enabled: false
+      }),
+      accessDate: FormUtil.createField({
+        value: accessDate ? new Date(accessDate) : null,
         enabled: false
       }),
       original: _.cloneDeep(loadedPat)

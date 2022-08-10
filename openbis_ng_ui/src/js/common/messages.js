@@ -1,6 +1,7 @@
 // prettier-ignore
 const keys = {
   ACCESS: 'ACCESS',
+  ACCESS_DATE: 'ACCESS_DATE',
   ACTIONS: 'ACTIONS',
   ACTIVATE_USER: 'ACTIVATE_USER',
   ACTIVE: 'ACTIVE',
@@ -87,6 +88,7 @@ const keys = {
   GLOBAL_FILTER: 'GLOBAL_FILTER',
   GROUP: 'GROUP',
   GROUPS: 'GROUPS',
+  HASH: 'HASH',
   HIDE: 'HIDE',
   HIDE_ALL: 'HIDE_ALL',
   HIDE_DETAILS: 'HIDE_DETAILS',
@@ -172,6 +174,7 @@ const keys = {
   QUERY_TYPE: 'QUERY_TYPE',
   REASON: 'REASON',
   REGISTRATOR: 'REGISTRATOR',
+  REGISTRATION_DATE: 'REGISTRATION_DATE',
   REMOVE: 'REMOVE',
   REMOVE_TERM: 'REMOVE_TERM',
   REMOVE_TOKEN: 'REMOVE_TOKEN',
@@ -245,6 +248,7 @@ const keys = {
 // prettier-ignore
 const messages_en = {
   [keys.ACCESS]: 'Access',
+  [keys.ACCESS_DATE]: 'Access Date',
   [keys.ACTIONS]: 'Actions',
   [keys.ACTIVATE_USER]: 'Activate user',
   [keys.ACTIVE]: 'Active',
@@ -331,6 +335,7 @@ const messages_en = {
   [keys.GLOBAL_FILTER]: 'Global Filter',
   [keys.GROUPS]: 'Groups',
   [keys.GROUP]: 'Group',
+  [keys.HASH]: 'Hash',
   [keys.HIDE]: 'hide',
   [keys.HIDE_ALL]: 'Hide All',
   [keys.HIDE_DETAILS]: 'Hide details',
@@ -416,6 +421,7 @@ const messages_en = {
   [keys.QUERY_TYPE]: 'Query Type',
   [keys.REASON]: 'Reason',
   [keys.REGISTRATOR]: 'Registrator',
+  [keys.REGISTRATION_DATE]: 'Registration Date',
   [keys.REMOVE]: 'Remove',
   [keys.REMOVE_TERM]: 'Remove Term',
   [keys.REMOVE_TOKEN]: 'Remove Token',

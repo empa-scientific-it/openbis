@@ -5,6 +5,7 @@ import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
+import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import PersonalAccessTokenFormController from '@src/js/components/tools/form/pat/PersonalAccessTokenFormController.js'
 import PersonalAccessTokenFormFacade from '@src/js/components/tools/form/pat/PersonalAccessTokenFormFacade.js'
 import PersonalAccessTokenFormParameters from '@src/js/components/tools/form/pat/PersonalAccessTokenFormParameters.jsx'
@@ -16,44 +17,35 @@ import logger from '@src/js/common/logger.js'
 
 const columns = [
   {
+    name: 'hash',
+    label: messages.get(messages.HASH),
+    getValue: ({ row }) => row.hash.value
+  },
+  {
     name: 'sessionName',
     label: messages.get(messages.SESSION_NAME),
     getValue: ({ row }) => row.sessionName.value
   },
+  dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
+  dateColumn('validToDate', messages.get(messages.VALID_TO)),
   {
-    name: 'validFrom',
-    label: messages.get(messages.VALID_FROM),
-    getValue: ({ row }) => {
-      return date.format(row.validFrom.value)
-    },
-    renderFilter: ({ value, onChange }) => {
-      return <DateRangeField value={value} onChange={onChange} />
-    },
-    matchesValue: ({ row, filter }) => {
-      return date.inRange(
-        row.validFrom.value,
-        filter.from ? filter.from.value : null,
-        filter.to ? filter.to.value : null
-      )
+    name: 'owner',
+    label: messages.get(messages.OWNER),
+    getValue: ({ row }) => row.owner.value,
+    renderValue: ({ value }) => {
+      return <UserLink userId={value} />
     }
   },
   {
-    name: 'validTo',
-    label: messages.get(messages.VALID_TO),
-    getValue: ({ row }) => {
-      return date.format(row.validTo.value)
-    },
-    renderFilter: ({ value, onChange }) => {
-      return <DateRangeField value={value} onChange={onChange} />
-    },
-    matchesValue: ({ row, filter }) => {
-      return date.inRange(
-        row.validTo.value,
-        filter.from ? filter.from.value : null,
-        filter.to ? filter.to.value : null
-      )
+    name: 'registrator',
+    label: messages.get(messages.REGISTRATOR),
+    getValue: ({ row }) => row.registrator.value,
+    renderValue: ({ value }) => {
+      return <UserLink userId={value} />
     }
-  }
+  },
+  dateColumn('registrationDate', messages.get(messages.REGISTRATION_DATE)),
+  dateColumn('accessDate', messages.get(messages.ACCESS_DATE))
 ]
 
 class PersonalAccessTokenForm extends React.PureComponent {
@@ -170,6 +162,26 @@ class PersonalAccessTokenForm extends React.PureComponent {
         onRemove={controller.handleRemove}
       />
     )
+  }
+}
+
+function dateColumn(name, message) {
+  return {
+    name: name,
+    label: message,
+    getValue: ({ row }) => {
+      return date.format(row[name].value)
+    },
+    renderFilter: ({ value, onChange }) => {
+      return <DateRangeField value={value} onChange={onChange} />
+    },
+    matchesValue: ({ row, filter }) => {
+      return date.inRange(
+        row[name].value,
+        filter.from ? filter.from.value : null,
+        filter.to ? filter.to.value : null
+      )
+    }
   }
 }
 
