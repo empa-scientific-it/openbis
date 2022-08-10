@@ -81,9 +81,9 @@ export default class PersonalAccessTokenFormControllerLoad {
       accessDate: FormUtil.createField({
         value: accessDate ? new Date(accessDate) : null,
         enabled: false
-      }),
-      original: _.cloneDeep(loadedPat)
+      })
     }
+    pat.original = _.cloneDeep(pat)
     return pat
   }
 

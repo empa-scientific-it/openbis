@@ -46,6 +46,7 @@ export default class PersonalAccessTokenFormControllerSave {
       const options = new openbis.SynchronousOperationExecutionOptions()
       options.setExecuteInOrder(true)
       await this.facade.executeOperations(operations, options)
+      await this.controller.load()
     } catch (error) {
       AppController.getInstance().errorChange(error)
     } finally {
@@ -62,6 +63,12 @@ export default class PersonalAccessTokenFormControllerSave {
   _createPatOperation(pat) {
     const creation = new openbis.PersonalAccessTokenCreation()
     creation.setSessionName(pat.sessionName.value)
+    if (pat.validFromDate.value) {
+      creation.setValidFromDate(pat.validFromDate.value.getTime())
+    }
+    if (pat.validToDate.value) {
+      creation.setValidToDate(pat.validToDate.value.getTime())
+    }
     return new openbis.CreatePersonalAccessTokensOperation([creation])
   }
 
