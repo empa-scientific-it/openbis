@@ -12,6 +12,19 @@ export default class PersonalAccessTokenFormControllerLoad {
   }
 
   async execute() {
+    return Promise.all([this._loadDictionaries(), this._loadPats()])
+  }
+
+  async _loadDictionaries() {
+    const [users] = await Promise.all([this.facade.loadUsers()])
+    await this.context.setState(() => ({
+      dictionaries: {
+        users
+      }
+    }))
+  }
+
+  async _loadPats() {
     await this.context.setState({
       loading: true,
       mode: PageMode.VIEW,

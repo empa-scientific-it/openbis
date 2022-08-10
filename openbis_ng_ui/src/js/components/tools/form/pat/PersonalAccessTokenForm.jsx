@@ -17,18 +17,6 @@ import logger from '@src/js/common/logger.js'
 
 const columns = [
   {
-    name: 'hash',
-    label: messages.get(messages.HASH),
-    getValue: ({ row }) => row.hash.value
-  },
-  {
-    name: 'sessionName',
-    label: messages.get(messages.SESSION_NAME),
-    getValue: ({ row }) => row.sessionName.value
-  },
-  dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
-  dateColumn('validToDate', messages.get(messages.VALID_TO)),
-  {
     name: 'owner',
     label: messages.get(messages.OWNER),
     getValue: ({ row }) => row.owner.value,
@@ -36,6 +24,18 @@ const columns = [
       return <UserLink userId={value} />
     }
   },
+  {
+    name: 'sessionName',
+    label: messages.get(messages.SESSION_NAME),
+    getValue: ({ row }) => row.sessionName.value
+  },
+  {
+    name: 'hash',
+    label: messages.get(messages.HASH),
+    getValue: ({ row }) => row.hash.value
+  },
+  dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
+  dateColumn('validToDate', messages.get(messages.VALID_TO)),
   {
     name: 'registrator',
     label: messages.get(messages.REGISTRATOR),

@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
+import AppController from '@src/js/components/AppController.js'
 
 export default class PersonalAccessTokenFormControllerAdd {
   constructor(controller) {
@@ -13,14 +14,16 @@ export default class PersonalAccessTokenFormControllerAdd {
 
     const newPat = {
       id: _.uniqueId('pat-'),
-      hash: FormUtil.createField({}),
+      hash: FormUtil.createField({ visible: false }),
       sessionName: FormUtil.createField({}),
       validFromDate: FormUtil.createField({}),
       validToDate: FormUtil.createField({}),
-      owner: FormUtil.createField({}),
-      registrator: FormUtil.createField({}),
-      registrationDate: FormUtil.createField({}),
-      accessDate: FormUtil.createField({})
+      owner: FormUtil.createField({
+        value: AppController.getInstance().getUser()
+      }),
+      registrator: FormUtil.createField({ visible: false }),
+      registrationDate: FormUtil.createField({ visible: false }),
+      accessDate: FormUtil.createField({ visible: false })
     }
 
     const newPats = Array.from(pats)
@@ -32,7 +35,7 @@ export default class PersonalAccessTokenFormControllerAdd {
       selection: {
         params: {
           id: newPat.id,
-          part: 'code'
+          part: 'sessionName'
         }
       }
     }))

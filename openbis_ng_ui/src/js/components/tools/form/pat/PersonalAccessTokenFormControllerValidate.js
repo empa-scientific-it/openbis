@@ -37,6 +37,7 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
   }
 
   _validatePat(validator, pat) {
+    validator.validateNotEmpty(pat, 'owner', messages.get(messages.OWNER))
     validator.validateNotEmpty(
       pat,
       'sessionName',

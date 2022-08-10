@@ -85,4 +85,9 @@ export default class PersonalAccessTokenFormController {
   getObject() {
     return this.object
   }
+
+  getDictionaries() {
+    const { dictionaries } = this.context.getState()
+    return dictionaries || {}
+  }
 }
