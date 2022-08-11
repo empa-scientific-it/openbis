@@ -37,7 +37,14 @@ then
 	usage
 fi
 
-"$BIN_DIR/build/tag.sh" master S${1}.${HOT_FIX_NUMBER}
+# create sprint branch
+if [ ${HOT_FIX_NUMBER} -eq 0 ]
+then
+	"$BIN_DIR/build/branch.sh" S${1}.x
+	if [ $? -ne 0 ];then exit 1; fi	
+fi
+
+"$BIN_DIR/build/tag.sh" S${1}.x S${1}.${HOT_FIX_NUMBER}
 if [ $? -ne 0 ];then exit 1; fi	
 
 "$BIN_DIR/build/build.sh" S${1}.x S${1}.${HOT_FIX_NUMBER}
