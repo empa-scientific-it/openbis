@@ -118,7 +118,11 @@ class PersonalAccessTokenForm extends React.PureComponent {
           header={messages.get(messages.PERSONAL_ACCESS_TOKENS)}
           columns={columns}
           rows={pats}
-          sort='sessionName'
+          sortings={[
+            { columnName: 'owner' },
+            { columnName: 'sessionName' },
+            { columnName: 'validFromDate' }
+          ]}
           selectable={true}
           selectedRowId={selection ? selection.params.id : null}
           onSelectedRowChange={this.handleSelectedRowChange}

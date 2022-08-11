@@ -30,7 +30,16 @@ export default class GridController {
 
     let sortings = []
 
-    if (props.sort) {
+    if (props.sortings) {
+      props.sortings.forEach(sorting => {
+        sortings.push({
+          columnName: sorting.columnName,
+          sortDirection: sorting.sortDirection
+            ? sorting.sortDirection
+            : GridSortingOptions.ASC
+        })
+      })
+    } else if (props.sort) {
       sortings.push({
         columnName: props.sort,
         sortDirection: props.sortDirection
