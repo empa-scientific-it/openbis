@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
@@ -179,12 +180,16 @@ function dateColumn(name, message) {
     renderFilter: ({ value, onChange }) => {
       return <DateRangeField value={value} onChange={onChange} />
     },
-    matchesValue: ({ row, filter }) => {
-      return date.inRange(
-        row[name].value,
-        filter.from ? filter.from.value : null,
-        filter.to ? filter.to.value : null
-      )
+    matchesValue: ({ row, value, filter, defaultMatches }) => {
+      if (_.isString(filter)) {
+        return defaultMatches(value, filter)
+      } else {
+        return date.inRange(
+          row[name].value,
+          filter.from ? filter.from.value : null,
+          filter.to ? filter.to.value : null
+        )
+      }
     }
   }
 }
