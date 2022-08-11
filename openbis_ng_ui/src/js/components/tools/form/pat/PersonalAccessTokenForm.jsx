@@ -178,7 +178,9 @@ function dateColumn(name, message) {
       return date.format(row[name].value)
     },
     renderFilter: ({ value, onChange }) => {
-      return <DateRangeField value={value} onChange={onChange} />
+      return (
+        <DateRangeField value={value} variant='standard' onChange={onChange} />
+      )
     },
     matchesValue: ({ row, value, filter, defaultMatches }) => {
       if (_.isString(filter)) {

@@ -176,7 +176,13 @@ class HistoryGrid extends React.PureComponent {
             getValue: ({ row }) =>
               date.format(row.entityRegistrationDate.value),
             renderFilter: ({ value, onChange }) => {
-              return <DateRangeField value={value} onChange={onChange} />
+              return (
+                <DateRangeField
+                  value={value}
+                  variant='standard'
+                  onChange={onChange}
+                />
+              )
             }
           },
           {
@@ -216,7 +222,13 @@ class HistoryGrid extends React.PureComponent {
             sortable: true,
             getValue: ({ row }) => date.format(row.registrationDate.value),
             renderFilter: ({ value, onChange }) => {
-              return <DateRangeField value={value} onChange={onChange} />
+              return (
+                <DateRangeField
+                  value={value}
+                  variant='standard'
+                  onChange={onChange}
+                />
+              )
             }
           }
         ]}

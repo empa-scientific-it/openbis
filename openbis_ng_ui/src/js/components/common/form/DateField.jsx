@@ -25,6 +25,7 @@ const styles = theme => ({
 class DateField extends React.PureComponent {
   static defaultProps = {
     mode: 'edit',
+    variant: 'filled',
     dateTime: true
   }
 
@@ -123,20 +124,22 @@ class DateField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { dateTime, name, value, classes } = this.props
+    const { dateTime, name, value, variant, disabled, classes } = this.props
 
     if (dateTime) {
       return (
         <div className={classes.container}>
           <KeyboardDateTimePicker
             name={name}
-            variant='inline'
             ampm={false}
             label={this.renderEditLabel()}
             value={value}
             onChange={this.handleChange}
             onBlur={this.handleBlur}
             format={'yyyy-MM-dd HH:mm:ss'}
+            fullWidth={true}
+            inputVariant={variant}
+            disabled={disabled}
             TextFieldComponent={this.renderEditInput}
           />
         </div>
@@ -146,12 +149,14 @@ class DateField extends React.PureComponent {
         <div className={classes.container}>
           <KeyboardDatePicker
             name={name}
-            variant='inline'
             label={this.renderEditLabel()}
             value={value}
             onChange={this.handleChange}
             onBlur={this.handleBlur}
             format={'yyyy-MM-dd'}
+            fullWidth={true}
+            inputVariant={variant}
+            disabled={disabled}
             TextFieldComponent={this.renderEditInput}
           />
         </div>
