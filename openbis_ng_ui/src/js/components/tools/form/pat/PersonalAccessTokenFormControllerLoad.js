@@ -100,8 +100,55 @@ export default class PersonalAccessTokenFormControllerLoad {
     return pat
   }
 
-  _createSelection() {
-    // TODO
-    return null
+  _createSelection(newPats) {
+    const { selection: oldSelection, pats: oldPats } = this.context.getState()
+
+    if (!oldSelection) {
+      return null
+    } else {
+      const oldPat = _.find(
+        oldPats,
+        oldPat => oldPat.id === oldSelection.params.id
+      )
+      if (oldPat.hash.value) {
+        const newPat = _.find(
+          newPats,
+          newPat => newPat.hash.value === oldPat.hash.value
+        )
+        if (newPat) {
+          return {
+            params: {
+              id: newPat.id
+            }
+          }
+        } else {
+          return null
+        }
+      } else {
+        const getValue = function (pat) {
+          return {
+            owner: _.trim(pat.owner.value),
+            sessionName: _.trim(pat.sessionName.value),
+            validFrom: pat.validFromDate.value,
+            validTo: pat.validToDate.value
+          }
+        }
+        const oldValue = getValue(oldPat)
+        newPats = _.filter(newPats, newPat => {
+          const newValue = getValue(newPat)
+          return _.isEqual(oldValue, newValue)
+        })
+
+        if (newPats.length === 1) {
+          return {
+            params: {
+              id: newPats[0].id
+            }
+          }
+        } else {
+          return null
+        }
+      }
+    }
   }
 }
