@@ -2,6 +2,8 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
+import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
+import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import {
   KeyboardDatePicker,
   KeyboardDateTimePicker
@@ -51,7 +53,7 @@ class DateField extends React.PureComponent {
   }
 
   handleBlur(event) {
-    const { name, dateTime, onChange } = this.props
+    const { name, dateTime, onChange, onBlur } = this.props
 
     if (event.target.value === null || event.target.value === undefined) {
       return
@@ -99,6 +101,10 @@ class DateField extends React.PureComponent {
           }
         })
       }
+
+      if (onBlur) {
+        onBlur()
+      }
     }
   }
 
@@ -124,49 +130,60 @@ class DateField extends React.PureComponent {
   }
 
   renderEdit() {
-    const { dateTime, name, value, variant, disabled, classes } = this.props
+    const { dateTime, name, value, error, variant, disabled, classes } =
+      this.props
 
     if (dateTime) {
       return (
-        <div className={classes.container}>
-          <KeyboardDateTimePicker
-            name={name}
-            ampm={false}
-            label={this.renderEditLabel()}
-            value={value}
-            onChange={this.handleChange}
-            onBlur={this.handleBlur}
-            format={'yyyy-MM-dd HH:mm:ss'}
-            fullWidth={true}
-            inputVariant={variant}
-            disabled={disabled}
-            TextFieldComponent={this.renderEditInput}
-          />
-        </div>
+        <FormFieldContainer error={error}>
+          <div className={classes.container}>
+            <KeyboardDateTimePicker
+              name={name}
+              ampm={false}
+              label={this.renderEditLabel()}
+              value={value}
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              onClose={this.props.onBlur}
+              format={'yyyy-MM-dd HH:mm:ss'}
+              fullWidth={true}
+              variant='inline'
+              inputVariant={variant}
+              disabled={disabled}
+              error={!!error}
+              TextFieldComponent={this.renderEditInput}
+            />
+          </div>
+        </FormFieldContainer>
       )
     } else {
       return (
-        <div className={classes.container}>
-          <KeyboardDatePicker
-            name={name}
-            label={this.renderEditLabel()}
-            value={value}
-            onChange={this.handleChange}
-            onBlur={this.handleBlur}
-            format={'yyyy-MM-dd'}
-            fullWidth={true}
-            inputVariant={variant}
-            disabled={disabled}
-            TextFieldComponent={this.renderEditInput}
-          />
-        </div>
+        <FormFieldContainer error={error}>
+          <div className={classes.container}>
+            <KeyboardDatePicker
+              name={name}
+              label={this.renderEditLabel()}
+              value={value}
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              onClose={this.props.onBlur}
+              format={'yyyy-MM-dd'}
+              fullWidth={true}
+              variant='inline'
+              inputVariant={variant}
+              disabled={disabled}
+              error={!!error}
+              TextFieldComponent={this.renderEditInput}
+            />
+          </div>
+        </FormFieldContainer>
       )
     }
   }
 
   renderEditLabel() {
-    const { label, classes } = this.props
-    return <span className={classes.label}>{label}</span>
+    const { label, mandatory } = this.props
+    return <FormFieldLabel label={label} mandatory={mandatory} />
   }
 
   renderEditInput(params) {
