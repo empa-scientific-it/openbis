@@ -33,6 +33,7 @@ class DateField extends React.PureComponent {
 
   constructor(props) {
     super(props)
+    this.inputContainerReference = React.createRef()
     this.handleChange = this.handleChange.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
     this.renderEditInput = this.renderEditInput.bind(this)
@@ -106,6 +107,10 @@ class DateField extends React.PureComponent {
         onBlur()
       }
     }
+  }
+
+  componentDidMount() {
+    this.fixReference()
   }
 
   render() {
@@ -190,17 +195,40 @@ class DateField extends React.PureComponent {
     const { classes } = this.props
 
     return (
-      <TextField
-        {...params}
-        InputProps={{
-          ...params.InputProps,
-          classes: {
-            ...params.InputProps.classes,
-            input: classes.input
-          }
-        }}
-      />
+      <div ref={this.inputContainerReference}>
+        <TextField
+          {...params}
+          InputProps={{
+            ...params.InputProps,
+            classes: {
+              ...params.InputProps.classes,
+              input: classes.input
+            }
+          }}
+        />
+      </div>
     )
+  }
+
+  fixReference() {
+    // hack to set the input reference (setting it normally via inputRef of TextField tag breaks the date popup location)
+    const { reference } = this.props
+    if (reference) {
+      reference.current = {
+        focus: () => {
+          if (
+            this.inputContainerReference &&
+            this.inputContainerReference.current
+          ) {
+            const inputs =
+              this.inputContainerReference.current.getElementsByTagName('input')
+            if (inputs && inputs.length === 1) {
+              inputs[0].focus()
+            }
+          }
+        }
+      }
+    }
   }
 }
 
