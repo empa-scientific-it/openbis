@@ -24,6 +24,7 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
       })
 
       if (this.controller.gridController) {
+        await this.controller.gridController.load()
         await this.controller.gridController.showRow(firstError.object.id)
       }
     }

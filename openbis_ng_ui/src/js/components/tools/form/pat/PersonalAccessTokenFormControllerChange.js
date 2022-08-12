@@ -20,11 +20,6 @@ export default class PersonalAccessTokenFormControllerChange {
       }
     })
 
-    if (this.gridController) {
-      await this.gridController.load()
-      await this.gridController.showRow(params.id)
-    }
-
     await this.controller.changed(true)
   }
 }

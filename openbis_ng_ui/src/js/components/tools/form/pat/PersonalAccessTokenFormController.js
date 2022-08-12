@@ -7,6 +7,7 @@ import PersonalAccessTokenFormControllerAdd from '@src/js/components/tools/form/
 import PersonalAccessTokenFormControllerRemove from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerRemove.js'
 import PersonalAccessTokenFormControllerValidate from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerValidate.js'
 import PersonalAccessTokenFormControllerChange from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerChange.js'
+import PersonalAccessTokenFormControllerBlur from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerBlur.js'
 import PersonalAccessTokenFormControllerSelectionChange from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerSelectionChange.js'
 import PersonalAccessTokenFormControllerSave from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerSave.js'
 import pages from '@src/js/common/consts/pages.js'
@@ -61,7 +62,7 @@ export default class PersonalAccessTokenFormController {
   }
 
   handleBlur() {
-    return this.validate()
+    return new PersonalAccessTokenFormControllerBlur(this).execute()
   }
 
   handleSelectionChange(params) {
