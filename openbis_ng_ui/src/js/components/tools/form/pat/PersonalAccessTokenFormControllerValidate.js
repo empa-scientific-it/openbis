@@ -43,5 +43,15 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
       'sessionName',
       messages.get(messages.SESSION_NAME)
     )
+    validator.validateNotEmpty(
+      pat,
+      'validFromDate',
+      messages.get(messages.VALID_FROM)
+    )
+    validator.validateNotEmpty(
+      pat,
+      'validToDate',
+      messages.get(messages.VALID_TO)
+    )
   }
 }
