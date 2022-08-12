@@ -276,53 +276,75 @@ public class SampleImportHelper extends BasicImportHelper
 
         // Start - Special case -> Remove parents / children & Special case -> Sample Variables
         Sample originSample = delayedExecutor.getSample(sampleId, fetchOptions);
-        Set<SampleIdentifier> parentIds = new HashSet<>();
-        if (parents != null && !parents.isEmpty())
+
+        if (parents == null || parents.isEmpty())
         {
-            for (String parent : parents.split("\n"))
+            // Skip empty values to avoid deleting by mistake
+        } else
+        {
+            Set<SampleIdentifier> parentIds = new HashSet<>();
+            if (parents.equals("--DELETE--") || parents.equals("__DELETE__"))
             {
-                if (parent.startsWith(VARIABLE_PREFIX))
+                // Delete missing = all
+            } else // Delete missing
+            {
+                for (String parent : parents.split("\n"))
                 {
-                    update.getParentIds().add(new IdentifierVariable(parent));
-                } else
-                {
-                    SampleIdentifier parentId = new SampleIdentifier(parent);
-                    update.getParentIds().add(parentId);
-                    parentIds.add(parentId);
+                    if (parent.startsWith(VARIABLE_PREFIX))
+                    {
+                        update.getParentIds().add(new IdentifierVariable(parent));
+                    } else
+                    {
+                        SampleIdentifier parentId = new SampleIdentifier(parent);
+                        update.getParentIds().add(parentId);
+                        parentIds.add(parentId);
+                    }
                 }
             }
-        }
-        for (Sample parent : originSample.getParents())
-        {
-            if (!parentIds.contains(parent.getIdentifier()))
+
+            for (Sample parent : originSample.getParents())
             {
-                update.getParentIds().remove(parent.getIdentifier());
+                if (!parentIds.contains(parent.getIdentifier()))
+                {
+                    update.getParentIds().remove(parent.getIdentifier());
+                }
             }
         }
 
-        Set<SampleIdentifier> childrenIds = new HashSet<>();
-        if (children != null && !children.isEmpty())
+        if (children == null || children.isEmpty())
         {
-            for (String child : children.split("\n"))
+            // Skip empty values to avoid deleting by mistake
+        } else
+        {
+            Set<SampleIdentifier> childrenIds = new HashSet<>();
+            if (children.equals("--DELETE--") || children.equals("__DELETE__"))
             {
-                if (child.startsWith(VARIABLE_PREFIX))
+                // Delete missing = all
+            } else // Delete missing
+            {
+                for (String child : children.split("\n"))
                 {
-                    update.getChildIds().add(new IdentifierVariable(child));
-                } else
+                    if (child.startsWith(VARIABLE_PREFIX))
+                    {
+                        update.getChildIds().add(new IdentifierVariable(child));
+                    } else
+                    {
+                        SampleIdentifier childId = new SampleIdentifier(child);
+                        update.getChildIds().add(childId);
+                        childrenIds.add(childId);
+                    }
+                }
+            }
+
+            for (Sample child : originSample.getChildren())
+            {
+                if (!childrenIds.contains(child.getIdentifier()))
                 {
-                    SampleIdentifier childId = new SampleIdentifier(child);
-                    update.getChildIds().add(childId);
-                    childrenIds.add(childId);
+                    update.getChildIds().remove(child.getIdentifier());
                 }
             }
         }
-        for (Sample child : originSample.getChildren())
-        {
-            if (!childrenIds.contains(child.getIdentifier()))
-            {
-                update.getChildIds().remove(child.getIdentifier());
-            }
-        }
+
         // End - Special case -> Remove parents / children & Special case -> Sample Variables
 
         for (String key : header.keySet())
