@@ -104,7 +104,9 @@ class DateField extends React.PureComponent {
       }
 
       if (onBlur) {
-        onBlur()
+        setTimeout(() => {
+          onBlur()
+        }, 1)
       }
     }
   }
