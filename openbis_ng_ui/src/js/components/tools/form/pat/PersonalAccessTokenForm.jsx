@@ -18,6 +18,12 @@ import logger from '@src/js/common/logger.js'
 
 const columns = [
   {
+    name: 'hash',
+    label: messages.get(messages.HASH),
+    getValue: ({ row }) => row.hash.value,
+    nowrap: true
+  },
+  {
     name: 'owner',
     label: messages.get(messages.OWNER),
     getValue: ({ row }) => row.owner.value,
@@ -29,11 +35,6 @@ const columns = [
     name: 'sessionName',
     label: messages.get(messages.SESSION_NAME),
     getValue: ({ row }) => row.sessionName.value
-  },
-  {
-    name: 'hash',
-    label: messages.get(messages.HASH),
-    getValue: ({ row }) => row.hash.value
   },
   dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
   dateColumn('validToDate', messages.get(messages.VALID_TO)),
@@ -104,6 +105,7 @@ class PersonalAccessTokenForm extends React.PureComponent {
         renderMainPanel={() => this.renderMainPanel()}
         renderAdditionalPanel={() => this.renderAdditionalPanel()}
         renderButtons={() => this.renderButtons()}
+        additionalPanelWidth={550}
       />
     )
   }

@@ -90,9 +90,9 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
       <Container>
         <Header>{messages.get(messages.PERSONAL_ACCESS_TOKEN)}</Header>
         {this.renderMessageVisible(pat)}
+        {this.renderHash(pat)}
         {this.renderOwner(pat)}
         {this.renderSessionName(pat)}
-        {this.renderHash(pat)}
         {this.renderValidFromDate(pat)}
         {this.renderValidToDate(pat)}
         {this.renderRegistrator(pat)}
