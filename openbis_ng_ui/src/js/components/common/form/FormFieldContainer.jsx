@@ -7,9 +7,7 @@ import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  container: {
-    overflow: 'hidden'
-  },
+  container: {},
   subcontainer: {
     display: 'flex',
     flexDirection: 'row',
