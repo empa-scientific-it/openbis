@@ -330,9 +330,9 @@ public class SampleImportHelper extends BasicImportHelper
             if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
-                if (value != null && value.isEmpty()) { // Skip empty values to avoid deleting by mistake
+                if (value == null || value.isEmpty()) { // Skip empty values to avoid deleting by mistake
                     continue;
-                } else if (value != null && (value.equals("--DELETE--") || value.equals("__DELETE__"))) // Do explicit delete
+                } else if (value.equals("--DELETE--") || value.equals("__DELETE__")) // Do explicit delete
                 {
                     value = null;
                 } else { // Normal behaviour, set value
