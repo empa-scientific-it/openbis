@@ -8,7 +8,7 @@ export default class PersonalAccessTokenFormControllerBlur {
   async execute() {
     const { selection } = this.context.getState()
 
-    this.controller.validate()
+    await this.controller.validate()
 
     setTimeout(async () => {
       if (this.gridController) {

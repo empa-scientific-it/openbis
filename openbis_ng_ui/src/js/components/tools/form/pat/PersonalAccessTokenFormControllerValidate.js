@@ -16,11 +16,9 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
     const { pats } = this.context.getState()
 
     if (pats.includes(firstError.object)) {
-      await this.setSelection({
-        params: {
-          id: firstError.object.id,
-          part: firstError.name
-        }
+      await this.controller.handleSelectionChange({
+        id: firstError.object.id,
+        part: firstError.name
       })
 
       if (this.controller.gridController) {

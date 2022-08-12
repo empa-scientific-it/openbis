@@ -13,7 +13,7 @@ export default class PersonalAccessTokenFormControllerSelectionChange {
       }
     }
 
-    this.context.setState(state => ({
+    await this.context.setState(state => ({
       ...state,
       selection
     }))
