@@ -1961,12 +1961,16 @@ function ServerFacade(openbisServer) {
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;
                                 case "PARENTS":
-                                    criteria.withParents().withCode().thatContains(attributeValue);
-                                    criteria.withParents().withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
+                                    var parentsCriteria = criteria.withParents();
+                                    parentsCriteria.withOrOperator();
+                                    parentsCriteria.withCode().thatContains(attributeValue);
+                                    parentsCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                                 case "CHILDREN":
-                                    criteria.withChildren().withCode().thatContains(attributeValue);
-                                    criteria.withChildren().withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
+                                    var childrenCriteria = criteria.withChildren();
+                                    childrenCriteria.withOrOperator();
+                                    childrenCriteria.withCode().thatContains(attributeValue);
+                                    childrenCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                             }
                         }
