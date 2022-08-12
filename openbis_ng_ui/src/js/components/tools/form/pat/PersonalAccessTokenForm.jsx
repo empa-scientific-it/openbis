@@ -6,7 +6,9 @@ import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
+import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import Message from '@src/js/components/common/form/Message.jsx'
 import PersonalAccessTokenFormController from '@src/js/components/tools/form/pat/PersonalAccessTokenFormController.js'
 import PersonalAccessTokenFormFacade from '@src/js/components/tools/form/pat/PersonalAccessTokenFormFacade.js'
 import PersonalAccessTokenFormParameters from '@src/js/components/tools/form/pat/PersonalAccessTokenFormParameters.jsx'
@@ -15,6 +17,10 @@ import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
+
+const NOT_YET_VALID = '0'
+const VALID = '1'
+const INVALID = '2'
 
 const columns = [
   {
@@ -38,6 +44,69 @@ const columns = [
   },
   dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
   dateColumn('validToDate', messages.get(messages.VALID_TO)),
+  {
+    name: 'valid',
+    label: messages.get(messages.VALID),
+    getValue: ({ row }) => {
+      if (!row.validFromDate.value || !row.validToDate.value) {
+        return null
+      }
+
+      const now = new Date()
+      const validFrom = row.validFromDate.value
+      const validTo = row.validToDate.value
+
+      if (validFrom <= validTo) {
+        if (validTo < now) {
+          return INVALID
+        } else if (now < validFrom) {
+          return NOT_YET_VALID
+        } else {
+          return VALID
+        }
+      } else {
+        return INVALID
+      }
+    },
+    renderValue: ({ value }) => {
+      if (value === NOT_YET_VALID) {
+        return (
+          <Message type='info'>{messages.get(messages.NOT_YET_VALID)}</Message>
+        )
+      } else if (value === VALID) {
+        return <Message type='success'>{messages.get(messages.VALID)}</Message>
+      } else if (value === INVALID) {
+        return <Message type='error'>{messages.get(messages.INVALID)}</Message>
+      }
+    },
+    renderFilter: ({ value, onChange }) => {
+      return (
+        <SelectField
+          label={messages.get(messages.VALID)}
+          value={value}
+          emptyOption={{}}
+          sort={false}
+          options={[
+            {
+              value: NOT_YET_VALID,
+              label: messages.get(messages.NOT_YET_VALID)
+            },
+            {
+              value: VALID,
+              label: messages.get(messages.VALID)
+            },
+            {
+              value: INVALID,
+              label: messages.get(messages.INVALID)
+            }
+          ]}
+          onChange={onChange}
+          variant='standard'
+        />
+      )
+    },
+    nowrap: true
+  },
   {
     name: 'registrator',
     label: messages.get(messages.REGISTRATOR),
