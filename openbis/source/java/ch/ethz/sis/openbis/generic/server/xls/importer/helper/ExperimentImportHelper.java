@@ -161,17 +161,24 @@ public class ExperimentImportHelper extends BasicImportHelper
         {
             update.setProjectId(new ProjectIdentifier(project));
         }
-        Map<String, String> properties = new HashMap<>();
+
         for (String key : header.keySet())
         {
             if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
+                if (value != null && value.isEmpty()) { // Skip empty values to avoid deleting by mistake
+                    continue;
+                } else if (value != null && (value.equals("--DELETE--") || value.equals("__DELETE__"))) // Do explicit delete
+                {
+                    value = null;
+                } else { // Normal behaviour, set value
+                }
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
-                properties.put(propertyType.getCode(), getPropertyValue(propertyType, value));
+                update.setProperty(propertyType.getCode(), getPropertyValue(propertyType, value));
             }
         }
-        update.setProperties(properties);
+
         delayedExecutor.updateExperiment(update, page, line);
     }
 
