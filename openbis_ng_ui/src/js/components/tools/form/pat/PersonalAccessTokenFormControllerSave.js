@@ -62,6 +62,9 @@ export default class PersonalAccessTokenFormControllerSave {
 
   _createPatOperation(pat) {
     const creation = new openbis.PersonalAccessTokenCreation()
+    if (pat.owner.value) {
+      creation.setOwnerId(new openbis.PersonPermId(pat.owner.value))
+    }
     creation.setSessionName(pat.sessionName.value)
     if (pat.validFromDate.value) {
       creation.setValidFromDate(pat.validFromDate.value.getTime())
