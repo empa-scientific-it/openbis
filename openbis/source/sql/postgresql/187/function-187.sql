@@ -3507,10 +3507,10 @@ DECLARE cvt RECORD;
 BEGIN
     IF NEW.cvte_id IS NOT NULL THEN
         SELECT code, label INTO STRICT cvt FROM controlled_vocabulary_terms WHERE id = NEW.cvte_id;
-        NEW.tsvector_document := to_tsvector('english', LOWER(cvt.code)) ||
-                                 to_tsvector('english', coalesce(LOWER(cvt.label), ''));
+        NEW.tsvector_document := to_tsvector('english', LOWER(left(cvt.code, 1048576))) ||
+                                 to_tsvector('english', coalesce(LOWER(left(cvt.label, 1048576)), ''));
     ELSE
-        NEW.tsvector_document := to_tsvector('english', coalesce(LOWER(NEW.value), ''));
+        NEW.tsvector_document := to_tsvector('english', coalesce(LOWER(left(NEW.value, 1048576)), ''));
     END IF;
     RETURN NEW;
 END

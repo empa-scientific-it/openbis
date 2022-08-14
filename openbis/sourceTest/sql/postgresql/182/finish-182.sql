@@ -998,6 +998,7 @@ CREATE TRIGGER experiment_frozen_check_on_update_attachment BEFORE UPDATE ON att
 CREATE TRIGGER experiment_project_relationship_frozen_check BEFORE UPDATE ON experiments_all FOR EACH ROW WHEN ((((new.proj_id)::bigint <> (old.proj_id)::bigint) AND (new.proj_frozen OR old.proj_frozen))) EXECUTE PROCEDURE raise_exception_frozen_project_relationship('experiment');
 CREATE TRIGGER experiment_properties_tsvector_document BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE properties_tsvector_document_trigger();
 CREATE TRIGGER experiment_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
+CREATE TRIGGER experiments_all_in_project_tsvector_document AFTER UPDATE ON projects FOR EACH ROW EXECUTE PROCEDURE experiments_all_in_project_tsvector_document_trigger();
 CREATE TRIGGER experiments_all_tsvector_document BEFORE INSERT OR UPDATE ON experiments_all FOR EACH ROW EXECUTE PROCEDURE experiments_all_tsvector_document_trigger();
 CREATE TRIGGER external_data_storage_format_check BEFORE INSERT OR UPDATE ON external_data FOR EACH ROW EXECUTE PROCEDURE external_data_storage_format_check();
 CREATE TRIGGER material_properties_tsvector_document BEFORE INSERT OR UPDATE ON material_properties FOR EACH ROW EXECUTE PROCEDURE properties_tsvector_document_trigger();
