@@ -1957,6 +1957,12 @@ function ServerFacade(openbisServer) {
                                 case "PHYSICAL_STATUS":
                                     criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
                                     break;
+                                case "PRESENT_IN_ARCHIVE":
+                                    criteria.withPhysicalData().withPresentInArchive().thatEquals(attributeValue);
+                                    break;
+                                case "STORAGE_CONFIRMATION":
+                                    criteria.withPhysicalData().withStorageConfirmation().thatEquals(attributeValue);
+                                    break;
                                 case "ARCHIVING_REQUESTED":
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;

@@ -143,6 +143,8 @@ function AdvancedSearchController(mainController, forceSearch) {
                     if (entity.physicalData) {
                         rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
                         rowData.status = entity.physicalData.status;
+                        rowData.presentInArchive = entity.physicalData.presentInArchive;
+                        rowData.storageConfirmation = entity.physicalData.storageConfirmation;
                         rowData.archivingRequested = entity.physicalData.archivingRequested;
                     }
 
@@ -253,7 +255,13 @@ function AdvancedSearchController(mainController, forceSearch) {
                             if(search.to && search.to.value){
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
-                        }else{
+                        } else if (field === "status") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PHYSICAL_STATUS", value : search };
+                        } else if(field === "presentInArchive") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PRESENT_IN_ARCHIVE", value : search };
+                        } else if(field === "storageConfirmation") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "STORAGE_CONFIRMATION", value : search };
+                        } else {
                             var column = options.columnMap[field]
                             var dataType = null
 

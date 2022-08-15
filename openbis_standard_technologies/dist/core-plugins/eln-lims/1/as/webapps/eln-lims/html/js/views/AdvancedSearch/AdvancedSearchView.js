@@ -388,7 +388,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                                     { value : "thatIsEarlierThanOrEqualToDate",      label : "thatIsEarlierThanOrEqualTo (Date)" },
                                     { value : "thatIsEarlierThanDate",               label : "thatIsEarlierThan (Date)" }
                                   ];
-            } else if (dataType === "TYPE" || dataType === "BOOLEAN") {
+            } else if (dataType === "TYPE" || dataType === "BOOLEAN" || dataType === "ARCHIVING_STATUS") {
                 operatorOptions = [];
             } else if (dataType === "PERSON") {
                 operatorOptions = [ { value : "thatEqualsUserId",                    label : "thatEqualsUserId (UserId)", selected : true },
@@ -516,6 +516,26 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         $container.append($valueDropdown);
     }
 
+    this._addArchivingStatusDropdownField = function($container, uuid) {
+        var _this = this;
+        var statuses = [
+            {value : "AVAILABLE", label: "AVAILABLE"},
+            {value : "LOCKED", label: "LOCKED"},
+            {value : "ARCHIVED", label: "ARCHIVED"},
+            {value : "UNARCHIVE_PENDING", label: "UNARCHIVE_PENDING"},
+            {value : "ARCHIVE_PENDING", label: "ARCHIVE_PENDING"},
+            {value : "BACKUP_PENDING", label: "BACKUP_PENDING"},
+        ];
+        var $valueDropdown = FormUtil.getDropdown(statuses, "Select a value");
+        $valueDropdown.change(function() {
+            _this._advancedSearchModel.criteria.rules[uuid].type = "Attribute";
+            _this._advancedSearchModel.criteria.rules[uuid].name = "PHYSICAL_STATUS";
+            _this._advancedSearchModel.criteria.rules[uuid].value = $valueDropdown.val();
+        });
+        _this._injectValue($valueDropdown, uuid);
+        $container.append($valueDropdown);
+    }
+
     this._addVocabularyDropdownField = function($container, uuid, vocabularyCode) {
         var _this = this;
         require([ "as/dto/vocabulary/id/VocabularyPermId", "as/dto/vocabulary/fetchoptions/VocabularyFetchOptions" ],
@@ -591,6 +611,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             this._addUserDropdownField($container, uuid);
         } else if (dataType === "TYPE") {
             this._addEntityTypeDropdownField($container, uuid, ruleName);
+        } else if (dataType === "ARCHIVING_STATUS") {
+            this._addArchivingStatusDropdownField($container, uuid);
         } else {
             $container.append(this._createValueField(uuid));
         }
@@ -705,6 +727,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 ruleName === "ATTR.DATA_SET_TYPE") {
             return "TYPE";
         }
+        if (ruleName === "ATTR.PRESENT_IN_ARCHIVE" || ruleName === "ATTR.STORAGE_CONFIRMATION") {
+            return "BOOLEAN";
+        }
+        if (ruleName === "ATTR.STATUS") {
+            return "ARCHIVING_STATUS";
+        }
         var propertyType = this._getPropertyType(uuid);
         return propertyType ? propertyType.dataType : null;
     }
@@ -787,6 +815,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code [ATTR.CODE]" },
 				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type [ATTR.DATA_SET_TYPE]" },
+				         { value : "ATTR.STATUS", label : "Archiving status [ATTR.STATUS]" },
+				         { value : "ATTR.PRESENT_IN_ARCHIVE", label : "Present in archive [ATTR.PRESENT_IN_ARCHIVE]" },
+				         { value : "ATTR.STORAGE_CONFIRMATION", label : "Storage confirmation [ATTR.STORAGE_CONFIRMATION]" },
 //				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
@@ -1019,6 +1050,45 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
+
+			if (criteria.entityKind === "DATASET") {
+                columns.push({
+                    label : 'Archiving status',
+                    property : 'status',
+                    isExportable: false,
+                    filterable: !isGlobalSearch,
+                    sortable : false,
+                    renderFilter : function(params) {
+                        return FormUtil.renderArchivingStatusGridFilter(params);
+                    },
+                });
+                columns.push({
+                    label : 'Present in archive',
+                    property : 'presentInArchive',
+                    isExportable: false,
+                    filterable: !isGlobalSearch,
+                    sortable : false,
+                    renderFilter : function(params) {
+                        return FormUtil.renderBooleanGridFilter(params);
+                    },
+                    render : function(data) {
+                        return data.presentInArchive == true ? "true" : "false"
+                    }
+                });
+                columns.push({
+                    label : 'Storage confirmation',
+                    property : 'storageConfirmation',
+                    isExportable: false,
+                    filterable: !isGlobalSearch,
+                    sortable : false,
+                    renderFilter : function(params) {
+                        return FormUtil.renderBooleanGridFilter(params);
+                    },
+                    render : function(data) {
+                        return data.storageConfirmation == true ? "true" : "false"
+                    }
+                });
+            }
 
 			columns = columns.concat(_this.additionalColumns);
 

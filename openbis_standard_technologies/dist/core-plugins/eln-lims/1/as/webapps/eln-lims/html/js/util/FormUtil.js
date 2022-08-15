@@ -2418,6 +2418,24 @@ var FormUtil = new function() {
         })
     }
 
+    this.renderArchivingStatusGridFilter = function(params) {
+        return React.createElement(window.NgUiGrid.default.SelectField, {
+            label: 'Filter',
+            variant: 'standard',
+            value: params.value,
+            emptyOption: {},
+            options: [
+                {value: "AVAILABLE"},
+                {value: "LOCKED"},
+                {value: "ARCHIVED"},
+                {value: "UNARCHIVE_PENDING"},
+                {value: "ARCHIVE_PENDING"},
+                {value: "BACKUP_PENDING"}
+            ],
+            onChange: params.onChange
+        })
+    }
+
     this.renderVocabularyGridFilter = function(params, vocabulary){
         var options = []
 
