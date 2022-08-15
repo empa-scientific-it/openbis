@@ -37,10 +37,6 @@ public class Constants
 
     public static final String CREATE_CONTINUOUS_SAMPLES_CODES_KEY = "create-continuous-sample-codes";
 
-    public static final String PERSONAL_ACCESS_TOKENS_ENABLED_KEY = "personal-access-tokens-enabled";
-
-    public static final boolean PERSONAL_ACCESS_TOKENS_ENABLED_DEFAULT = false;
-
     public static final String SUB_DIR_KEY = "sub-directory";
 
     public static final String SWITCH_AAI_LINK = "switch-aai.link";

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 public class PersonalAccessTokenDAOTest
@@ -46,6 +48,8 @@ public class PersonalAccessTokenDAOTest
     private Mockery mockery;
 
     private IPersonDAO personDAO;
+
+    private static final long TEST_VALIDITY_PERIOD = 365 * 24 * 60 * 60;
 
     private static final PersonPE TEST_OWNER_USER;
 
@@ -113,12 +117,32 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
+    public void testWithMaxValidityPeriod() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config("test-empty.json", 60 * 60);
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        PersonalAccessToken creation1 = tokenCreation("test owner", "test session", new Date(0), new Date(2 * 60 * 60 * 1000));
+        PersonalAccessToken creation2 = tokenCreation("test owner", "test session", new Date(0), new Date(59 * 60 * 1000));
+
+        PersonalAccessToken token1 = dao.createToken(creation1);
+        PersonalAccessToken token2 = dao.createToken(creation2);
+
+        assertEquals(token1.getValidFromDate(), creation1.getValidFromDate());
+        assertEquals(token1.getValidToDate(), new Date(60 * 60 * 1000));
+
+        assertEquals(token2.getValidFromDate(), creation2.getValidFromDate());
+        assertEquals(token2.getValidToDate(), creation2.getValidToDate());
+    }
+
+    @Test
     public void testWithEmptyFile() throws IOException
     {
-        Properties properties = properties("test-empty.json");
+        IPersonalAccessTokenConfig config = config("test-empty.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         PersonalAccessToken tokenCreationA1 = tokenCreation("test owner", "test session A", new Date(5), new Date(10));
         PersonalAccessToken tokenCreationB1 = tokenCreation("test owner", "test session B", new Date(10), new Date(20));
@@ -180,10 +204,10 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithNonExistentFile() throws IOException
     {
-        Properties properties = properties("i-do-not-exist.json");
+        IPersonalAccessTokenConfig config = config("i-do-not-exist.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -192,10 +216,10 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithIncorrectFile() throws IOException
     {
-        Properties properties = properties("test-incorrect.json");
+        IPersonalAccessTokenConfig config = config("test-incorrect.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -207,10 +231,10 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithTokensOnly() throws IOException
     {
-        Properties properties = properties("test-tokens-only.json");
+        IPersonalAccessTokenConfig config = config("test-tokens-only.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         assertEquals(dao.listTokens().size(), 3);
         assertEquals(dao.listSessions().size(), 2);
@@ -221,10 +245,10 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithUnknownUsers() throws IOException
     {
-        Properties properties = properties("test-unknown-users.json");
+        IPersonalAccessTokenConfig config = config("test-unknown-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         assertNull(dao.getTokenByHash("token-1"));
         assertNotNull(dao.getTokenByHash("token-2"));
@@ -241,10 +265,10 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithInactiveUsers() throws IOException
     {
-        Properties properties = properties("test-inactive-users.json");
+        IPersonalAccessTokenConfig config = config("test-inactive-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(personDAO, properties, generator);
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
         assertNull(dao.getTokenByHash("token-1"));
         assertNotNull(dao.getTokenByHash("token-2"));
@@ -258,8 +282,10 @@ public class PersonalAccessTokenDAOTest
         assertJsonFile("test-inactive-users.json");
     }
 
-    private Properties properties(String initialJsonFileName) throws IOException
+    private IPersonalAccessTokenConfig config(String initialJsonFileName, long maxValidityPeriod) throws IOException
     {
+        IPersonalAccessTokenConfig config = mockery.mock(IPersonalAccessTokenConfig.class);
+
         File initialFile = getFile(initialJsonFileName);
         File file = getFile("test.json");
         file.delete();
@@ -267,9 +293,19 @@ public class PersonalAccessTokenDAOTest
         {
             FileUtils.copyFile(initialFile, file);
         }
-        Properties properties = new Properties();
-        properties.setProperty(PersonalAccessTokenDAO.PERSONAL_ACCESS_TOKENS_FILE_PATH, file.getAbsolutePath());
-        return properties;
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(config).getPersonalAccessTokensFilePath();
+                will(returnValue(file.getAbsolutePath()));
+
+                allowing(config).getPersonalAccessTokensMaxValidityPeriod();
+                will(returnValue(maxValidityPeriod));
+            }
+        });
+
+        return config;
     }
 
     private PersonalAccessToken tokenCreation(String ownerId, String sessionName, Date validFrom, Date validTo)

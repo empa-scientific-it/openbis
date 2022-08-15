@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -28,7 +27,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
@@ -37,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenHash;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessTokenSession;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 
 @Component
 public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
@@ -44,15 +43,11 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PersonalAccessTokenDAO.class);
 
-    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH = "personal-access-tokens-file-path";
-
-    public static final String PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT = "../../../personal-access-tokens.json";
-
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
-    private final IPersonDAO personDAO;
+    private final IPersonalAccessTokenConfig config;
 
-    private final Properties properties;
+    private final IPersonDAO personDAO;
 
     private final HashGenerator generator;
 
@@ -70,9 +65,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     }
 
     @Autowired
-    public PersonalAccessTokenDAO(final IDAOFactory daoFactory, final ExposablePropertyPlaceholderConfigurer configurer)
+    public PersonalAccessTokenDAO(final IPersonalAccessTokenConfig config, final IDAOFactory daoFactory)
     {
-        this(daoFactory.getPersonDAO(), configurer.getResolvedProps(), new HashGenerator()
+        this(config, daoFactory.getPersonDAO(), new HashGenerator()
         {
             @Override public String generateTokenHash(String user)
             {
@@ -86,17 +81,17 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         });
     }
 
-    PersonalAccessTokenDAO(final IPersonDAO personDAO, final Properties properties,
+    PersonalAccessTokenDAO(final IPersonalAccessTokenConfig config, final IPersonDAO personDAO,
             final HashGenerator generator)
     {
+        if (config == null)
+        {
+            throw new IllegalArgumentException("Config cannot be null");
+        }
+
         if (personDAO == null)
         {
             throw new IllegalArgumentException("Person DAO cannot be null");
-        }
-
-        if (properties == null)
-        {
-            throw new IllegalArgumentException("Properties cannot be null");
         }
 
         if (generator == null)
@@ -104,8 +99,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             throw new IllegalArgumentException("Hash generator cannot be null");
         }
 
+        this.config = config;
         this.personDAO = personDAO;
-        this.properties = properties;
         this.generator = generator;
 
         loadFromFile();
@@ -186,7 +181,18 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         fileToken.registratorId = registrator.getId();
         fileToken.modifierId = modifier.getId();
         fileToken.validFromDate = creation.getValidFromDate();
-        fileToken.validToDate = creation.getValidToDate();
+
+        long maxValidityPeriod = config.getPersonalAccessTokensMaxValidityPeriod() * 1000;
+        long validityPeriod = creation.getValidToDate().getTime() - creation.getValidFromDate().getTime();
+
+        if (validityPeriod < maxValidityPeriod)
+        {
+            fileToken.validToDate = creation.getValidToDate();
+        } else
+        {
+            fileToken.validToDate = new Date(creation.getValidFromDate().getTime() + maxValidityPeriod);
+        }
+
         fileToken.registrationDate = creation.getRegistrationDate();
         fileToken.modificationDate = creation.getModificationDate();
 
@@ -515,14 +521,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         }
     }
 
-    private String getFilePath()
-    {
-        return properties.getProperty(PERSONAL_ACCESS_TOKENS_FILE_PATH, PERSONAL_ACCESS_TOKENS_FILE_PATH_DEFAULT);
-    }
-
     private synchronized void loadFromFile()
     {
-        File file = new File(getFilePath());
+        File file = new File(config.getPersonalAccessTokensFilePath());
 
         if (file.exists())
         {
@@ -630,7 +631,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
 
     private synchronized void saveInFile()
     {
-        File file = new File(getFilePath());
+        File file = new File(config.getPersonalAccessTokensFilePath());
 
         try
         {

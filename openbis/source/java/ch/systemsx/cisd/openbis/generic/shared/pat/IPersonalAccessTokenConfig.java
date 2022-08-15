@@ -5,4 +5,8 @@ public interface IPersonalAccessTokenConfig
 
     public boolean arePersonalAccessTokensEnabled();
 
+    public String getPersonalAccessTokensFilePath();
+
+    public long getPersonalAccessTokensMaxValidityPeriod();
+
 }
