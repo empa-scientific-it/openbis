@@ -128,7 +128,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		this._subtitle.empty();
 		this._subtitle.append("Terms from vocabulary " + vocabulary.code);
 
-		var $back = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;", "id" : "back-to-vocabularies"}).append("Back to Vocabularies");
+		var $back = $("<a>", { "class" : "btn btn-default", "style" : "margin-top: 10px;", "id" : "back-to-vocabularies"}).append("⇦ Back");
         $back.click(function() {
             _this._showVocabularies();
         });
