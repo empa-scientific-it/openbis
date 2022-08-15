@@ -30,6 +30,10 @@ class Facade {
     return this.promise(this.v3.getSessionInformation())
   }
 
+  getServerInformation() {
+    return this.promise(this.v3.getServerInformation())
+  }
+
   getServerPublicInformation() {
     return this.promise(this.v3.getServerPublicInformation())
   }

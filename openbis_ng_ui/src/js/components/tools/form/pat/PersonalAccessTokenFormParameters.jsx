@@ -5,8 +5,10 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateField from '@src/js/components/common/form/DateField.jsx'
+import AppController from '@src/js/components/AppController.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
+import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -95,6 +97,7 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
         {this.renderSessionName(pat)}
         {this.renderValidFromDate(pat)}
         {this.renderValidToDate(pat)}
+        {this.renderMessageMaxValidityPeriod(pat)}
         {this.renderRegistrator(pat)}
         {this.renderRegistrationDate(pat)}
         {this.renderAccessDate(pat)}
@@ -111,6 +114,31 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
           <Message type='warning'>
             {messages.get(
               messages.OBJECT_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING
+            )}
+          </Message>
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderMessageMaxValidityPeriod(pat) {
+    const { classes } = this.props
+
+    const maxValidityPeriod = AppController.getInstance().getServerInformation()
+      ? AppController.getInstance().getServerInformation()[
+          'personal-access-tokens-max-validity-period'
+        ]
+      : null
+
+    if (!pat.original && maxValidityPeriod) {
+      return (
+        <div className={classes.field}>
+          <Message type='info'>
+            {messages.get(
+              messages.PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD,
+              date.duration(maxValidityPeriod * 1000)
             )}
           </Message>
         </div>

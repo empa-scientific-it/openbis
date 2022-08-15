@@ -47,6 +47,7 @@ const keys = {
   DATA_TYPE_NOT_SELECTED_FOR_PREVIEW: 'DATA_TYPE_NOT_SELECTED_FOR_PREVIEW',
   DATA_TYPE_NOT_SUPPORTED: 'DATA_TYPE_NOT_SUPPORTED',
   DATE: 'DATE',
+  DAY_OR_DAYS: 'DAY_OR_DAYS',
   DEACTIVATE_USER: 'DEACTIVATE_USER',
   DELETION: 'DELETION',
   DELETIONS: 'DELETIONS',
@@ -95,6 +96,7 @@ const keys = {
   HIDE_STACK_TRACE: 'HIDE_STACK_TRACE',
   HISTORY: 'HISTORY',
   HOME_SPACE: 'HOME_SPACE',
+  HOUR_OR_HOURS: 'HOUR_OR_HOURS',
   IGNORE_EXISTING: 'IGNORE_EXISTING',
   IMPORT: 'IMPORT',
   IMPORT_SUCCEEDED: 'IMPORT_SUCCEEDED',
@@ -116,6 +118,7 @@ const keys = {
   MATERIAL_TYPE: 'MATERIAL_TYPE',
   MATERIAL_TYPES: 'MATERIAL_TYPES',
   META_DATA: 'META_DATA',
+  MINUTE_OR_MINUTES: 'MINUTE_OR_MINUTES',
   MORE: 'MORE',
   NAME: 'NAME',
   NEW_COLLECTION_TYPE: 'NEW_COLLECTION_TYPE',
@@ -150,6 +153,7 @@ const keys = {
   PASSWORD: 'PASSWORD',
   PERSONAL_ACCESS_TOKEN: 'PERSONAL_ACCESS_TOKEN',
   PERSONAL_ACCESS_TOKENS: 'PERSONAL_ACCESS_TOKENS',
+  PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD: 'PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD',
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLUGIN: 'PLUGIN',
   PLUGIN_IS_DISABLED: 'PLUGIN_IS_DISABLED',
@@ -196,6 +200,7 @@ const keys = {
   SCOPE: 'SCOPE',
   SCRIPT: 'SCRIPT',
   SEARCH: 'SEARCH',
+  SECOND_OR_SECONDS: 'SECOND_OR_SECONDS',
   SECTION: 'SECTION',
   SECTION_IS_NOT_USED: 'SECTION_IS_NOT_USED',
   SECTION_IS_USED: 'SECTION_IS_USED',
@@ -245,7 +250,8 @@ const keys = {
   XML_SCHEMA: 'XML_SCHEMA',
   XLS_FILE: 'XLS_FILE',
   XLS_FILE_DESCRIPTION: 'XLS_FILE_DESCRIPTION',
-  XSLT_SCRIPT: 'XSLT_SCRIPT'
+  XSLT_SCRIPT: 'XSLT_SCRIPT',
+  YEAR_OR_YEARS: 'YEAR_OR_YEARS'
 }
 
 // prettier-ignore
@@ -297,6 +303,7 @@ const messages_en = {
   [keys.DATA_TYPE_NOT_SELECTED_FOR_PREVIEW]: 'Please select a data type to display the field preview.',
   [keys.DATA_TYPE_NOT_SUPPORTED]: 'The selected data type is not supported yet.',
   [keys.DATE]: 'Date',
+  [keys.DAY_OR_DAYS]: '${0} day(s)',
   [keys.DEACTIVATE_USER]: 'Deactivate user',
   [keys.DELETION]: 'Deletion',
   [keys.DELETIONS]: 'Deletions',
@@ -345,6 +352,7 @@ const messages_en = {
   [keys.HIDE_STACK_TRACE]: 'Hide stack trace',
   [keys.HISTORY]: 'History',
   [keys.HOME_SPACE]: 'Home Space',
+  [keys.HOUR_OR_HOURS]: '${0} hour(s)',
   [keys.IGNORE_EXISTING]: 'Ignore if exists',
   [keys.IMPORT]: 'Import',
   [keys.IMPORT_SUCCEEDED]: 'Successfully imported data.',
@@ -367,6 +375,7 @@ const messages_en = {
   [keys.MATERIAL_TYPE]: 'Material Type',
   [keys.META_DATA]: 'Meta Data',
   [keys.MORE]: 'More',
+  [keys.MINUTE_OR_MINUTES]: '${0} minute(s)',
   [keys.NAME]: 'Name',
   [keys.NEW_COLLECTION_TYPE]: 'New Collection Type',
   [keys.NEW_DATA_SET_TYPE]: 'New Data Set Type',
@@ -400,6 +409,7 @@ const messages_en = {
   [keys.PASSWORD]: 'Password',
   [keys.PERSONAL_ACCESS_TOKEN]: 'Personal Access Token',
   [keys.PERSONAL_ACCESS_TOKENS]: 'Personal Access Tokens',
+  [keys.PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD]: 'Maximum validity period is: ${0}',
   [keys.PLAIN_TEXT]: 'Plain Text',
   [keys.PLUGIN]: 'Plugin',
   [keys.PLUGIN_IS_DISABLED]: 'The plugin is disabled.',
@@ -446,6 +456,7 @@ const messages_en = {
   [keys.SCOPE]: 'Scope',
   [keys.SCRIPT]: 'Script',
   [keys.SEARCH]: 'Search',
+  [keys.SECOND_OR_SECONDS]: '${0} second(s)',
   [keys.SECTION]: 'Section',
   [keys.SECTION_IS_NOT_USED]: 'This section contains only property assignments which are not yet used by any entities of "${0}" type.',
   [keys.SECTION_IS_USED]: 'This section contains property assignments which are already used by existing entities of "${0}" type. Removing it is also going to remove ${1} existing property value(s) - data will be lost! Are you sure you want to proceed?',
@@ -496,6 +507,7 @@ const messages_en = {
   [keys.XLS_FILE]: 'XLS File',
   [keys.XLS_FILE_DESCRIPTION]: 'Excel file that contains the data to import. The import accepts both master data (i.e. entity types, property types and vocabulary types) as well as entities (i.e. spaces, projects, collections and objects).',
   [keys.XSLT_SCRIPT]: 'XSLT Script',
+  [keys.YEAR_OR_YEARS]: '${0} year(s)'
 }
 
 export default {
