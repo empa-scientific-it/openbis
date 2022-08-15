@@ -8,7 +8,8 @@ usage()
   exit 1
 }
 
-function move_to_file_server {
+move_to_file_server() 
+{
   echo "Moving new openBIS components to file server"
   
   OPENBIS_PATH=~openbis@d/fileserver/sprint_builds/openBIS
