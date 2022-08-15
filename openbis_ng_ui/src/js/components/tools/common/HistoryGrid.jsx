@@ -44,15 +44,15 @@ class HistoryGrid extends React.PureComponent {
         filterName === 'registrationDate' ||
         filterName === 'entityRegistrationDate'
       ) {
-        if (filterValue.from && filterValue.from.value) {
+        if (filterValue.from && filterValue.from.dateObject) {
           criteria['with' + _.upperFirst(filterName)]()
             .withTimeZone(date.timezone())
-            .thatIsLaterThanOrEqualTo(filterValue.from.valueString)
+            .thatIsLaterThanOrEqualTo(filterValue.from.dateString)
         }
-        if (filterValue.to && filterValue.to.value) {
+        if (filterValue.to && filterValue.to.dateObject) {
           criteria['with' + _.upperFirst(filterName)]()
             .withTimeZone(date.timezone())
-            .thatIsEarlierThanOrEqualTo(filterValue.to.valueString)
+            .thatIsEarlierThanOrEqualTo(filterValue.to.dateString)
         }
       } else {
         criteria['with' + _.upperFirst(filterName)]().thatContains(filterValue)

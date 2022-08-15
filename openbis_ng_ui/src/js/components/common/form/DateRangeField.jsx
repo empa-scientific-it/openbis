@@ -30,10 +30,7 @@ class DateRangeField extends React.PureComponent {
 
     if (onChange) {
       const newValue = value ? { ...value } : {}
-      newValue[field] = {
-        value: event.target.value,
-        valueString: event.target.valueString
-      }
+      newValue[field] = event.target.value
 
       onChange({
         ...event,
@@ -73,14 +70,14 @@ class DateRangeField extends React.PureComponent {
         <DateField
           label='From'
           dateTime={dateTime}
-          value={value && value.from ? value.from.valueString : null}
+          value={value ? value.from : null}
           variant={variant}
           onChange={this.handleFromChange}
         />
         <DateField
           label='To'
           dateTime={dateTime}
-          value={value && value.to ? value.to.valueString : null}
+          value={value ? value.to : null}
           variant={variant}
           onChange={this.handleToChange}
         />

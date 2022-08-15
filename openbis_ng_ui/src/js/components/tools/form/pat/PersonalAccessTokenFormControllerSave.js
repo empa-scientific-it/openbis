@@ -66,11 +66,11 @@ export default class PersonalAccessTokenFormControllerSave {
       creation.setOwnerId(new openbis.PersonPermId(pat.owner.value))
     }
     creation.setSessionName(pat.sessionName.value)
-    if (pat.validFromDate.value) {
-      creation.setValidFromDate(pat.validFromDate.value.getTime())
+    if (pat.validFromDate.value && pat.validFromDate.value.dateObject) {
+      creation.setValidFromDate(pat.validFromDate.value.dateObject.getTime())
     }
-    if (pat.validToDate.value) {
-      creation.setValidToDate(pat.validToDate.value.getTime())
+    if (pat.validToDate.value && pat.validToDate.value.dateObject) {
+      creation.setValidToDate(pat.validToDate.value.dateObject.getTime())
     }
     return new openbis.CreatePersonalAccessTokensOperation([creation])
   }

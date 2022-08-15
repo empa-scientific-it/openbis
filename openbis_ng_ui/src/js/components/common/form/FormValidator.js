@@ -35,6 +35,27 @@ class FormValidator {
     }
   }
 
+  validateDateNotEmpty(object, name, label) {
+    if (this.mode !== 'full') {
+      return
+    }
+
+    const field = object[name]
+
+    if (
+      field.value === null ||
+      field.value === undefined ||
+      field.value.dateObject === null ||
+      field.value.dateObject === undefined
+    ) {
+      this.addError(
+        object,
+        name,
+        messages.get(messages.VALIDATION_CANNOT_BE_EMPTY, label)
+      )
+    }
+  }
+
   validatePattern(object, name, error, pattern) {
     const field = object[name]
 

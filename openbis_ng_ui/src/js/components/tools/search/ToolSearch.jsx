@@ -197,10 +197,18 @@ class ToolSearch extends React.Component {
             value: _.get(pat, 'sessionName', null)
           }),
           validFromDate: FormUtil.createField({
-            value: validFromDate ? new Date(validFromDate) : null
+            value: validFromDate
+              ? {
+                  dateObject: new Date(validFromDate)
+                }
+              : null
           }),
           validToDate: FormUtil.createField({
-            value: validToDate ? new Date(validToDate) : null
+            value: validToDate
+              ? {
+                  dateObject: new Date(validToDate)
+                }
+              : null
           }),
           owner: FormUtil.createField({
             value: pat.owner ? pat.owner.userId : null
@@ -209,10 +217,18 @@ class ToolSearch extends React.Component {
             value: pat.registrator ? pat.registrator.userId : null
           }),
           registrationDate: FormUtil.createField({
-            value: registrationDate ? new Date(registrationDate) : null
+            value: registrationDate
+              ? {
+                  dateObject: new Date(registrationDate)
+                }
+              : null
           }),
           accessDate: FormUtil.createField({
-            value: accessDate ? new Date(accessDate) : null
+            value: accessDate
+              ? {
+                  dateObject: new Date(accessDate)
+                }
+              : null
           })
         }
       })

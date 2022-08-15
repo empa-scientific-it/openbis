@@ -72,11 +72,19 @@ export default class PersonalAccessTokenFormControllerLoad {
         enabled: false
       }),
       validFromDate: FormUtil.createField({
-        value: validFromDate ? new Date(validFromDate) : null,
+        value: validFromDate
+          ? {
+              dateObject: new Date(validFromDate)
+            }
+          : null,
         enabled: false
       }),
       validToDate: FormUtil.createField({
-        value: validToDate ? new Date(validToDate) : null,
+        value: validToDate
+          ? {
+              dateObject: new Date(validToDate)
+            }
+          : null,
         enabled: false
       }),
       owner: FormUtil.createField({
@@ -88,11 +96,19 @@ export default class PersonalAccessTokenFormControllerLoad {
         enabled: false
       }),
       registrationDate: FormUtil.createField({
-        value: registrationDate ? new Date(registrationDate) : null,
+        value: registrationDate
+          ? {
+              dateObject: new Date(registrationDate)
+            }
+          : null,
         enabled: false
       }),
       accessDate: FormUtil.createField({
-        value: accessDate ? new Date(accessDate) : null,
+        value: accessDate
+          ? {
+              dateObject: new Date(accessDate)
+            }
+          : null,
         enabled: false
       })
     }
@@ -129,8 +145,12 @@ export default class PersonalAccessTokenFormControllerLoad {
           return {
             owner: _.trim(pat.owner.value),
             sessionName: _.trim(pat.sessionName.value),
-            validFrom: pat.validFromDate.value,
+            validFrom: pat.validFromDate.value
+              ? pat.validFromDate.value.dateObject
+              : null,
             validTo: pat.validToDate.value
+              ? pat.validToDate.value.dateObject
+              : null
           }
         }
         const oldValue = getValue(oldPat)

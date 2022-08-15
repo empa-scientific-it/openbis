@@ -52,13 +52,18 @@ class PersonalAccessTokensGrid extends React.PureComponent {
             name: 'valid',
             label: messages.get(messages.VALID),
             getValue: ({ row }) => {
-              if (!row.validFromDate.value || !row.validToDate.value) {
+              if (
+                !row.validFromDate.value ||
+                !row.validFromDate.value.dateObject ||
+                !row.validToDate.value ||
+                !row.validToDate.value.dateObject
+              ) {
                 return null
               }
 
               const now = new Date()
-              const validFrom = row.validFromDate.value
-              const validTo = row.validToDate.value
+              const validFrom = row.validFromDate.value.dateObject
+              const validTo = row.validToDate.value.dateObject
 
               if (validFrom <= validTo) {
                 if (validTo < now) {
@@ -154,7 +159,7 @@ function dateColumn(name, message) {
     name: name,
     label: message,
     getValue: ({ row }) => {
-      return date.format(row[name].value)
+      return date.format(row[name].value ? row[name].value.dateObject : null)
     },
     renderFilter: ({ value, onChange }) => {
       return (
@@ -166,9 +171,9 @@ function dateColumn(name, message) {
         return defaultMatches(value, filter)
       } else {
         return date.inRange(
-          row[name].value,
-          filter.from ? filter.from.value : null,
-          filter.to ? filter.to.value : null
+          row[name].value ? row[name].value.dateObject : null,
+          filter.from ? filter.from.dateObject : null,
+          filter.to ? filter.to.dateObject : null
         )
       }
     }
