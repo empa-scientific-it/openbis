@@ -23,7 +23,16 @@ def get():
 @get.command("tokens")
 @click.pass_obj
 def get_tokens(ctx):
-    """get openBIS tokens"""
+    """get openBIS session tokens"""
+    tokens = pybis.get_saved_tokens()
+    token_list = [[key, *tokens[key]] for key in tokens]
+    print(tabulate(token_list, headers=["openBIS hostname", "token"]))
+
+
+@get.command("pats")
+@click.pass_obj
+def get_pats(ctx):
+    """get openBIS Personal Access Tokens (PAT)"""
     tokens = pybis.get_saved_tokens()
     token_list = [[key, *tokens[key]] for key in tokens]
     print(tabulate(token_list, headers=["openBIS hostname", "token"]))
