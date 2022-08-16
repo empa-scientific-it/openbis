@@ -43,20 +43,15 @@ function duration(millis) {
     { millisPerUnit: MILLIS_PER_SECOND, message: messages.SECOND_OR_SECONDS }
   ]
 
-  let text = ''
-
-  units.forEach(unit => {
-    if (millis > unit.millisPerUnit) {
-      const value = millis / unit.millisPerUnit
-      if (text.length > 0) {
-        text += ' '
-      }
-      text += messages.get(unit.message, value)
-      millis = millis % unit.millisPerUnit
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i]
+    if (millis >= unit.millisPerUnit * 0.99) {
+      const value = Math.round(millis / unit.millisPerUnit)
+      return messages.get(unit.message, value)
     }
-  })
+  }
 
-  return text
+  return '0'
 }
 
 function inRange(value, from, to) {

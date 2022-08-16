@@ -49,6 +49,34 @@ class PersonalAccessTokensGrid extends React.PureComponent {
           dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
           dateColumn('validToDate', messages.get(messages.VALID_TO)),
           {
+            name: 'validityPeriod',
+            label: messages.get(messages.VALIDITY_PERIOD),
+            getValue: ({ row }) => {
+              if (
+                !row.validFromDate.value ||
+                !row.validFromDate.value.dateObject ||
+                !row.validToDate.value ||
+                !row.validToDate.value.dateObject
+              ) {
+                return null
+              }
+
+              return (
+                row.validToDate.value.dateObject.getTime() -
+                row.validFromDate.value.dateObject.getTime()
+              )
+            },
+            renderValue: ({ value }) => {
+              if (value) {
+                return date.duration(value)
+              } else {
+                return null
+              }
+            },
+            filterable: false,
+            nowrap: true
+          },
+          {
             name: 'valid',
             label: messages.get(messages.VALID),
             getValue: ({ row }) => {
@@ -96,6 +124,8 @@ class PersonalAccessTokensGrid extends React.PureComponent {
                     {messages.get(messages.INVALID)}
                   </Message>
                 )
+              } else {
+                return null
               }
             },
             renderFilter: ({ value, onChange }) => {
