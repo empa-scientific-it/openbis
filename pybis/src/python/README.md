@@ -122,14 +122,14 @@ To create a token, you first need a valid session (either through classic login 
 ```
 from pyBIS import Openbis
 o = Openbis('https://test-openbis-instance.com')
-o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C", save_token=True)
 ```
 
 Then you can create a new token and use it the same way as a session token:
 
 ```
 pat = o.create_personal_access_token(sessionName="Project A"))
-o.set_token(pat)
+o.set_token(pat, save_token=True)
 ```
 
 **Note:** Most operations are permitted using the PAT, except:
@@ -156,6 +156,16 @@ Or delete any specific: token:
 o.get_token("$pat-your_username-220804233700046xCA2B5FFE4C57595598489490AA665239").delete('another no-reason')
 ```
 
+### Personal access token (PAT) with command line
+
+```bash
+$ pybis get tokens
+openBIS hostname                    token
+----------------------------------  -----------------------------------------------------------
+openbis-test.ethz.ch                vermeul-220815133624077xE80D040A0068280D7BEB7C5433DF2A82
+openbis-demo.ethz.ch                vermeul-220630120224411x9BA6D2DDC6C283958D7284CECDA8AA17
+localhost                           admin-201104092559402xE05FC2892427AB90E26DB646D0BEA7D5
+```
 
 ### Caching
 
