@@ -5,7 +5,6 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DateField from '@src/js/components/common/form/DateField.jsx'
-import AppController from '@src/js/components/AppController.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -124,21 +123,15 @@ class PersonalAccessTokenFormParameters extends React.PureComponent {
   }
 
   renderMessageMaxValidityPeriod(pat) {
-    const { classes } = this.props
+    const { classes, controller } = this.props
 
-    const maxValidityPeriod = AppController.getInstance().getServerInformation()
-      ? AppController.getInstance().getServerInformation()[
-          'personal-access-tokens-max-validity-period'
-        ]
-      : null
-
-    if (!pat.original && maxValidityPeriod) {
+    if (!pat.original && controller.getMaxValidityPeriod()) {
       return (
         <div className={classes.field}>
           <Message type='info'>
             {messages.get(
               messages.PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD,
-              date.duration(maxValidityPeriod * 1000)
+              date.duration(controller.getMaxValidityPeriod() * 1000)
             )}
           </Message>
         </div>

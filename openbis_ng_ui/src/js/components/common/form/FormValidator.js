@@ -15,8 +15,16 @@ class FormValidator {
     this.errors = new Map()
   }
 
+  isBasicMode() {
+    return this.mode === FormValidator.MODE_BASIC
+  }
+
+  isFullMode() {
+    return this.mode === FormValidator.MODE_FULL
+  }
+
   validateNotEmpty(object, name, label) {
-    if (this.mode !== 'full') {
+    if (!this.isFullMode()) {
       return
     }
 
@@ -36,7 +44,7 @@ class FormValidator {
   }
 
   validateDateNotEmpty(object, name, label) {
-    if (this.mode !== 'full') {
+    if (!this.isFullMode()) {
       return
     }
 

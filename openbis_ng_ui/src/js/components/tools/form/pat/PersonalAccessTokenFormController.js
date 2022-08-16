@@ -10,6 +10,7 @@ import PersonalAccessTokenFormControllerChange from '@src/js/components/tools/fo
 import PersonalAccessTokenFormControllerBlur from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerBlur.js'
 import PersonalAccessTokenFormControllerSelectionChange from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerSelectionChange.js'
 import PersonalAccessTokenFormControllerSave from '@src/js/components/tools/form/pat/PersonalAccessTokenFormControllerSave.js'
+import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'
 
 export default class PersonalAccessTokenFormController {
@@ -90,5 +91,13 @@ export default class PersonalAccessTokenFormController {
   getDictionaries() {
     const { dictionaries } = this.context.getState()
     return dictionaries || {}
+  }
+
+  getMaxValidityPeriod() {
+    return AppController.getInstance().getServerInformation()
+      ? AppController.getInstance().getServerInformation()[
+          'personal-access-tokens-max-validity-period'
+        ]
+      : null
   }
 }

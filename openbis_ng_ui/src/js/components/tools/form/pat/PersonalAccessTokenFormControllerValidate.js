@@ -30,7 +30,9 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
 
   _validatePats(validator, pats) {
     pats.forEach(pat => {
-      this._validatePat(validator, pat)
+      if (!pat.original) {
+        this._validatePat(validator, pat)
+      }
     })
     return validator.withErrors(pats)
   }
@@ -52,5 +54,37 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
       'validToDate',
       messages.get(messages.VALID_TO)
     )
+
+    if (
+      pat.validFromDate.value &&
+      pat.validFromDate.value.dateObject &&
+      pat.validToDate.value &&
+      pat.validToDate.value.dateObject
+    ) {
+      const validFromMillis = pat.validFromDate.value.dateObject.getTime()
+      const validToMillis = pat.validToDate.value.dateObject.getTime()
+
+      if (validToMillis < validFromMillis) {
+        validator.addError(
+          pat,
+          'validToDate',
+          messages.get(messages.VALID_TO_CANNOT_BE_BEFORE_VALID_FROM)
+        )
+      }
+
+      if (this.controller.getMaxValidityPeriod()) {
+        const validityPeriod = validToMillis - validFromMillis
+
+        if (validityPeriod > this.controller.getMaxValidityPeriod() * 1000) {
+          validator.addError(
+            pat,
+            'validToDate',
+            messages.get(
+              messages.PERSONAL_ACCESS_TOKEN_MAX_VALIDITY_PERIOD_EXCEEDED
+            )
+          )
+        }
+      }
+    }
   }
 }
