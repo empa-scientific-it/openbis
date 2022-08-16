@@ -8,14 +8,11 @@ Work with openBIS using Python.
 
 """
 
-from __future__ import print_function
-
-import copy
 import json
 import os
+from pathlib import Path
 import re
 import subprocess
-import sys
 import time
 from xml.dom import NotSupportedErr
 import zlib
@@ -147,6 +144,16 @@ def get_search_type_for_entity(entity, operator=None):
         sc["operator"] = operator
 
     return sc
+
+
+def get_saved_tokens():
+
+    tokens = defaultdict(list)
+    for filepath in Path(Path.home() / ".pybis").glob("*.*"):
+        with open(filepath) as fh:
+            if filepath.is_file:
+                tokens[filepath.stem].append(fh.read())
+    return tokens
 
 
 def _type_for_id(ident, entity):
@@ -948,7 +955,7 @@ class Openbis:
                 token = self._get_saved_token()
                 self.token = token
             except ValueError:
-                print(token)
+                self._delete_saved_token()
                 pass
 
     def _get_username(self):
@@ -1116,20 +1123,18 @@ class Openbis:
         return path
 
     def save_token_on_behalf(self, os_home):
+        """Set the correct user, only the owner of the token should be able to access it,
+        used by jupyterhub authenticator
+        """
         token_path = self._save_token_to_disk(os_home)
 
-        # Set the correct user, only the owner of the token should be able to access it, used by jupyterhub authenticator
         token_user_name = self.token.split("-")[0]
         from pwd import getpwnam
 
         token_user_name_uid = getpwnam(token_user_name).pw_uid
         token_user_name_gid = getpwnam(token_user_name).pw_gid
 
-        # Token
         os.chown(token_path, token_user_name_uid, token_user_name_gid)
-
-        # Parent directory
-        from pathlib import Path
 
         path = Path(token_path)
         token_parent_path = path.parent.absolute()
@@ -1145,6 +1150,11 @@ class Openbis:
         # prevent other users to be able to read the token
         os.chmod(token_path, 0o600)
         return token_path
+
+    def _delete_saved_token(self, os_home=None):
+        token_path = self.gen_token_path(os_home)
+        if os.path.exists(token_path):
+            os.unlink(token_path)
 
     def _get_saved_token(self):
         """Read the token from the .pybis, on the default user location"""
@@ -1167,6 +1177,11 @@ class Openbis:
         """
         return self._post_request_full_url(urljoin(self.url, resource), request)
 
+    def _recover_session(self, full_url, request):
+        """Current token seems to be expired,
+        try to use other means to connect.
+        """
+
     def _post_request_full_url(self, full_url, request):
         """internal method, used to handle all post requests and serializing / deserializing
         data
@@ -1188,9 +1203,11 @@ class Openbis:
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
-                # print(full_url)
-                print(json.dumps(request))
-                raise ValueError(resp["error"]["message"])
+                if "Session token" in resp["error"]["message"]:
+                    self._recover_session(full_url, request)
+                else:
+                    print(json.dumps(request))
+                    raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
             else:
@@ -1914,7 +1931,7 @@ class Openbis:
             # if "error" in resp and resp["error"]["message"] == "method not found":
 
     def get_personal_access_tokens(
-        self, permId=None, start_with=None, count=None, **search_args
+        self, permId=None, sessionName=None, start_with=None, count=None, **search_args
     ):
         """Get Personal Access Tokens"""
         entity = "personalAccessToken"
@@ -1922,6 +1939,9 @@ class Openbis:
         search_criteria = get_search_criteria(entity, **search_args)
         if permId:
             sub_crit = _subcriteria_for_permid(permids=permId, entity=entity)
+            search_criteria["criteria"].append(sub_crit)
+        if sessionName:
+            sub_crit = _subcriteria_for_code(code=sessionName, entity=entity)
             search_criteria["criteria"].append(sub_crit)
         fetchopts = get_fetchoption_for_entity(entity)
         fetchopts["from"] = start_with
@@ -4192,6 +4212,20 @@ class Openbis:
             return False
         return resp
 
+    def get_session_info(self, token=None):
+        if token is None:
+            token = self.token
+
+        if token is None:
+            return False
+
+        request = {"method": "getSessionInformation", "params": [token]}
+        try:
+            resp = self._post_request(self.as_v3, request)
+        except Exception:
+            return False
+        return SessionInformation(openbis_obj=self, data=resp["result"])
+
     def set_token(self, token, save_token=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
@@ -5209,5 +5243,12 @@ class PersonalAccessToken(
     OpenBisObject,
     entity="personalAccessToken",
     single_item_method_name="get_personal_access_token",
+):
+    pass
+
+
+class SessionInformation(
+    OpenBisObject,
+    entity="sessionInformation",
 ):
     pass
