@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.CustomASServiceProvider;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
@@ -50,8 +51,9 @@ public class AutoSymlink
                 new PluginType("services",
                         CustomASServiceProvider.SERVICES_PROPERTY_KEY);
         PluginType miscellaneous = new PluginType("miscellaneous", null);
+        PluginType apiListener = new PluginType("api-listener", IOperationListener.LISTENER_PROPERTY_KEY);
         CorePluginsInjector injector =
-                new CorePluginsInjector(ScannerType.AS, new IPluginType[] { maintenanceTasks, services, miscellaneous });
+                new CorePluginsInjector(ScannerType.AS, new IPluginType[] { maintenanceTasks, services, miscellaneous, apiListener });
         Map<String, File> pluginFolders = injector.injectCorePlugins(properties);
         createSymlinks(new File("webapps/openbis/WEB-INF/lib/"), pluginFolders);
     }

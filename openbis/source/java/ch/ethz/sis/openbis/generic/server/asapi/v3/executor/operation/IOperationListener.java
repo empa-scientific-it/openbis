@@ -7,6 +7,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 
 public interface IOperationListener<OPERATION extends IOperation, RESULT extends IOperationResult> {
+    public static final String LISTENER_PROPERTY_KEY = "operation-listener";
+
     public abstract void beforeOperation(IApplicationServerInternalApi api, Session session, OPERATION operation);
     public abstract void afterOperation(IApplicationServerInternalApi api, Session session, OPERATION operation, RESULT result, RuntimeException runtimeException);
 }
