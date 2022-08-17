@@ -547,6 +547,9 @@
 		class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarter">
 	</bean>
 
+	<bean id="operation-listener-loader"
+		  class="ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.OperationListenerLoader">
+	</bean>
 
 	<!-- Core plugins registration -->
 
