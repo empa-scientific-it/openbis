@@ -95,6 +95,7 @@ LOG_INFO = 4
 LOG_ENTRY = 5
 LOG_PARM = 6
 LOG_DEBUG = 7
+PYBIS_FOLDER = Path.home() / ".pybis"
 
 DEBUG_LEVEL = LOG_NONE
 
@@ -149,10 +150,49 @@ def get_search_type_for_entity(entity, operator=None):
 def get_saved_tokens():
 
     tokens = defaultdict(list)
-    for filepath in Path(Path.home() / ".pybis").glob("*.*"):
+    for filepath in PYBIS_FOLDER.glob("*.token"):
         with open(filepath) as fh:
             if filepath.is_file:
                 tokens[filepath.stem].append(fh.read())
+    return tokens
+
+
+def save_pats_to_disk(hostname: str, resp: dict) -> None:
+    pats = resp["objects"]
+    parse_jackson(pats)
+    path = PYBIS_FOLDER / hostname
+    path.mkdir(exist_ok=True)
+    for existing_file in path.glob("*.pat"):
+        existing_file.unlink()
+
+    for token in pats:
+        data = {
+            "hostname": hostname,
+            "owner": token["owner"]["userId"],
+            "registrationDate": format_timestamp(token["owner"]["registrationDate"]),
+            "validFromDate": format_timestamp(token["validFromDate"]),
+            "validToDate": format_timestamp(token["validToDate"]),
+            "sessionName": token["sessionName"],
+            "permId": token["permId"]["permId"],
+        }
+        with open(path / (token["hash"] + ".pat"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(data, indent=4))
+
+
+def get_saved_pats(hostname=None, sessionName=None):
+    """return all personal access tokens stored on disk."""
+    if hostname is None:
+        hostname = ""
+    path = PYBIS_FOLDER / hostname
+    tokens = []
+    for filepath in path.rglob("*.pat"):
+        with open(filepath) as fh:
+            if filepath.is_file:
+                pat = json.load(fh)
+                if sessionName:
+                    if pat["sessionName"] != sessionName:
+                        continue
+                tokens.append(pat)
     return tokens
 
 
@@ -1931,7 +1971,13 @@ class Openbis:
             # if "error" in resp and resp["error"]["message"] == "method not found":
 
     def get_personal_access_tokens(
-        self, permId=None, sessionName=None, start_with=None, count=None, **search_args
+        self,
+        permId=None,
+        sessionName=None,
+        start_with=None,
+        count=None,
+        save_to_disk=False,
+        **search_args,
     ):
         """Get Personal Access Tokens"""
         entity = "personalAccessToken"
@@ -1983,6 +2029,9 @@ class Openbis:
                 for person in ["owner", "registrator", "modifier"]:
                     pats[person] = pats[person].map(extract_person)
             return pats[attrs]
+
+        if save_to_disk:
+            save_pats_to_disk(hostname=self.hostname, resp=resp)
 
         return Things(
             openbis_obj=self,
