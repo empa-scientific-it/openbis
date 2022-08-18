@@ -1,0 +1,3 @@
+2	DMS_2	Test External openBIS instance	http://www.openbis.ch/perm_id=${code}	OPENBIS
+1	DMS_1	Test EDMS	http://example.edms.pl/code=${code}	URL
+3	DMS_3	Non-local filesystem	sprint:/path/to/location	FILE_SYSTEM
