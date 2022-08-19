@@ -5,6 +5,8 @@ import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
+import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
+import AppController from '@src/js/components/AppController.js'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -12,7 +14,8 @@ import logger from '@src/js/common/logger.js'
 
 const NOT_YET_VALID = '0'
 const VALID = '1'
-const INVALID = '2'
+const VALID_WITH_WARNING = '2'
+const INVALID = '3'
 
 class PersonalAccessTokensGrid extends React.PureComponent {
   render() {
@@ -77,6 +80,34 @@ class PersonalAccessTokensGrid extends React.PureComponent {
             nowrap: true
           },
           {
+            name: 'validityLeft',
+            label: messages.get(messages.VALIDITY_LEFT),
+            getValue: ({ row }) => {
+              if (
+                !row.validFromDate.value ||
+                !row.validFromDate.value.dateObject ||
+                !row.validToDate.value ||
+                !row.validToDate.value.dateObject
+              ) {
+                return null
+              }
+
+              return (
+                row.validToDate.value.dateObject.getTime() -
+                new Date().getTime()
+              )
+            },
+            renderValue: ({ value }) => {
+              if (value) {
+                return date.duration(value)
+              } else {
+                return null
+              }
+            },
+            filterable: false,
+            nowrap: true
+          },
+          {
             name: 'valid',
             label: messages.get(messages.VALID),
             getValue: ({ row }) => {
@@ -99,7 +130,20 @@ class PersonalAccessTokensGrid extends React.PureComponent {
                 } else if (now < validFrom) {
                   return NOT_YET_VALID
                 } else {
-                  return VALID
+                  const validityPeriodWarning =
+                    AppController.getInstance().getServerInformation(
+                      ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD
+                    )
+                  const validityLeft = validTo.getTime() - now.getTime()
+
+                  if (
+                    validityPeriodWarning &&
+                    validityLeft < validityPeriodWarning * 1000
+                  ) {
+                    return VALID_WITH_WARNING
+                  } else {
+                    return VALID
+                  }
                 }
               } else {
                 return INVALID
@@ -116,6 +160,12 @@ class PersonalAccessTokensGrid extends React.PureComponent {
                 return (
                   <Message type='success'>
                     {messages.get(messages.VALID)}
+                  </Message>
+                )
+              } else if (value === VALID_WITH_WARNING) {
+                return (
+                  <Message type='warning'>
+                    {messages.get(messages.VALID_WITH_WARNING)}
                   </Message>
                 )
               } else if (value === INVALID) {
@@ -143,6 +193,10 @@ class PersonalAccessTokensGrid extends React.PureComponent {
                     {
                       value: VALID,
                       label: messages.get(messages.VALID)
+                    },
+                    {
+                      value: VALID_WITH_WARNING,
+                      label: messages.get(messages.VALID_WITH_WARNING)
                     },
                     {
                       value: INVALID,

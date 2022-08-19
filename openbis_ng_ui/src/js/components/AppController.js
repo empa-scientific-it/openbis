@@ -311,8 +311,8 @@ export class AppController {
     return this.context.getState().loading
   }
 
-  getServerInformation() {
-    return this.context.getState().serverInformation
+  getServerInformation(key) {
+    return this.context.getState().serverInformation[key]
   }
 
   getSession() {

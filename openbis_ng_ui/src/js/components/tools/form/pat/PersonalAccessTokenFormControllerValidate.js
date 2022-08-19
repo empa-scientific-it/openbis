@@ -1,4 +1,6 @@
 import PageControllerValidate from '@src/js/components/common/page/PageConrollerValidate.js'
+import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
+import AppController from '@src/js/components/AppController.js'
 import messages from '@src/js/common/messages.js'
 
 export default class PersonalAccessTokenFormControllerValidate extends PageControllerValidate {
@@ -72,10 +74,15 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
         )
       }
 
-      if (this.controller.getMaxValidityPeriod()) {
+      const maxValidityPeriod =
+        AppController.getInstance().getServerInformation(
+          ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD
+        )
+
+      if (maxValidityPeriod) {
         const validityPeriod = validToMillis - validFromMillis
 
-        if (validityPeriod > this.controller.getMaxValidityPeriod() * 1000) {
+        if (validityPeriod > maxValidityPeriod * 1000) {
           validator.addError(
             pat,
             'validToDate',

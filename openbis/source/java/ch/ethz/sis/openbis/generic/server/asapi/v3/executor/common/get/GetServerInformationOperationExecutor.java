@@ -80,6 +80,8 @@ public class GetServerInformationOperationExecutor
                 Boolean.toString(personalAccessTokenConfig.arePersonalAccessTokensEnabled()));
         info.put(PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD,
                 Long.toString(personalAccessTokenConfig.getPersonalAccessTokensMaxValidityPeriod()));
+        info.put(PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD,
+                Long.toString(personalAccessTokenConfig.getPersonalAccessTokensValidityWarningPeriod()));
         info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
 
         return new GetServerInformationOperationResult(info);
