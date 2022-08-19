@@ -3,17 +3,18 @@ buildscript {
 
 	repositories repositoryConfig
 
-	dependencies {
-	  classpath 'apache:commons-codec:1.10',
-	    'owasp:dependency-check-gradle:6.2.2',
-		'paleozogt:symzip-plugin:0.10.1',
-		'com.github.node-gradle:gradle-node-plugin:3.2.1'
-	}
+    dependencies {
+        classpath 'apache:commons-codec:1.10',
+                  'owasp:dependency-check-gradle:6.2.2',
+				  'paleozogt:symzip-plugin:0.10.1'
+    }
 }
 
+plugins {
+  id "com.github.node-gradle.node" version "3.2.1"
+}
 apply plugin: org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 apply plugin: "org.paleozogt.symzip"
-apply plugin: "com.github.node-gradle.node"
 
 dependencyCheck {
   failBuildOnCVSS = 7 // 0 - 4 = low, 4 - 7 = medium, 7 - 9 = high, 9-10 = critical

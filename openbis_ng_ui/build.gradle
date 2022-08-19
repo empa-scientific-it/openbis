@@ -1,29 +1,14 @@
-buildscript {
-  apply from: '../gradle/repository.gradle'
-
-  repositories {
-    ivy {
-      ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
-      artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-    }
-  }
-
-  dependencies {
-    classpath 'com.fasterxml.jackson.core:jackson-core:2.13.3',
-      'com.fasterxml.jackson.core:jackson-databind:2.13.3',
-      'com.github.node-gradle:gradle-node-plugin:3.2.1'
-  }
+plugins {
+  id "com.github.node-gradle.node" version "3.2.1"
 }
 
 configure(allprojects) {
   apply plugin:'base'
-
+  
   repositories {
     mavenCentral()
   }
 }
-
-apply plugin: "com.github.node-gradle.node"
 
 node {
   download = true
