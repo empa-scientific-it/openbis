@@ -49,6 +49,10 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
 
     private ITimeProvider timeProvider;
 
+    public PersonalAccessTokenValidityWarningTask()
+    {
+    }
+
     PersonalAccessTokenValidityWarningTask(IPersonalAccessTokenConfig personalAccessTokenConfig, IPersonalAccessTokenDAO personalAccessTokenDAO,
             IPersonDAO personDAO, IMailClient mailClient, ITimeProvider timeProvider)
     {
@@ -110,7 +114,7 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
         }
 
         StringBuilder emailContent = new StringBuilder();
-        emailContent.append("The following personal access tokens are going to expire soon:\n");
+        emailContent.append("The following personal access tokens have already expired or are going to expire soon:\n");
 
         for (PersonalAccessToken userToken : userTokens)
         {
