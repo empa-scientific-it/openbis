@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.pat.PersonalAccessTokenConstants;
 
@@ -34,6 +33,12 @@ public class PersonalAccessTokenConfigFromProperties implements IPersonalAccessT
     {
         return PropertyUtils.getLong(configurer.getResolvedProps(), PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD,
                 PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD_DEFAULT);
+    }
+
+    @Override public long getPersonalAccessTokensValidityWarningPeriod()
+    {
+        return PropertyUtils.getLong(configurer.getResolvedProps(), PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD,
+                PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD_DEFAULT);
     }
 
 }

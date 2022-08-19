@@ -9,4 +9,6 @@ public interface IPersonalAccessTokenConfig
 
     public long getPersonalAccessTokensMaxValidityPeriod();
 
+    public long getPersonalAccessTokensValidityWarningPeriod();
+
 }

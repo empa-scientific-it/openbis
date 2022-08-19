@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.maintenance.MaintenancePlugin;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenValidityWarningTask;
 import ch.systemsx.cisd.openbis.generic.server.task.CacheClearanceMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.SessionCleanUpMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask;
@@ -143,6 +144,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     EventsSearchMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
                     false,
                     EventsSearchMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
+        }
+
+        if (false == isTaskConfigured(tasks, PersonalAccessTokenValidityWarningTask.class))
+        {
+            tasks = addTask(tasks,
+                    PersonalAccessTokenValidityWarningTask.class,
+                    PersonalAccessTokenValidityWarningTask.DEFAULT_MAINTENANCE_TASK_NAME,
+                    false,
+                    PersonalAccessTokenValidityWarningTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
         }
 
         plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);

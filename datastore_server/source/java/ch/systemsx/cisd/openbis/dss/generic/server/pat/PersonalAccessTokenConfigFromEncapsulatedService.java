@@ -48,6 +48,11 @@ public class PersonalAccessTokenConfigFromEncapsulatedService implements IPerson
         throw new UnsupportedOperationException();
     }
 
+    @Override public long getPersonalAccessTokensValidityWarningPeriod()
+    {
+        throw new UnsupportedOperationException();
+    }
+
     private Map<String, String> getServerInformation()
     {
         if (serverInformation == null)
