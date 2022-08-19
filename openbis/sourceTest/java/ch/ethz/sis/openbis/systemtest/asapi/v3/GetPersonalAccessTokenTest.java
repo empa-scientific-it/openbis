@@ -82,16 +82,16 @@ public class GetPersonalAccessTokenTest extends AbstractPersonalAccessTokenTest
     @Test
     public void testGetWithPersonalAccessTokenAsSessionToken()
     {
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation());
+        PersonalAccessToken token1 = createToken(TEST_USER, PASSWORD, tokenCreation());
+        PersonalAccessToken token2 = createToken(TEST_USER, PASSWORD, tokenCreation());
 
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                v3api.getPersonalAccessTokens(token.getHash(), Arrays.asList(token.getPermId()), new PersonalAccessTokenFetchOptions());
-            }
-        }, "Personal access tokens cannot be used to manage personal access tokens");
+        Map<IPersonalAccessTokenId, PersonalAccessToken> map =
+                v3api.getPersonalAccessTokens(token1.getHash(), Arrays.asList(token1.getPermId(), token2.getPermId()),
+                        new PersonalAccessTokenFetchOptions());
+
+        assertEquals(map.size(), 1);
+        assertEquals(map.get(token1.getPermId()).getPermId(), token1.getPermId());
+        assertNull(map.get(token2.getPermId()));
     }
 
     @Test

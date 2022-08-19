@@ -97,14 +97,12 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testSearchWithPersonalAccessTokenAsSessionToken()
     {
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
+        SearchResult<PersonalAccessToken> result =
                 v3api.searchPersonalAccessTokens(token1.getHash(), new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
-            }
-        }, "Personal access tokens cannot be used to manage personal access tokens");
+
+        assertEquals(result.getTotalCount(), 1);
+        assertEquals(result.getObjects().size(), 1);
+        assertEquals(result.getObjects().get(0).getPermId(), token1.getPermId());
     }
 
     @Test

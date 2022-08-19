@@ -1,5 +1,8 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -719,11 +722,25 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     {
         checkPersonalAccessTokensEnabled();
 
+        Map<IPersonalAccessTokenId, PersonalAccessToken> originalResult = invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+
         if (converter.shouldConvert(sessionToken))
         {
-            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
+            PersonalAccessTokenPermId currentPATId = new PersonalAccessTokenPermId(sessionToken);
+
+            if (originalResult.containsKey(currentPATId))
+            {
+                Map<IPersonalAccessTokenId, PersonalAccessToken> resultWithCurrentPAT = new HashMap<>();
+                resultWithCurrentPAT.put(currentPATId, originalResult.get(currentPATId));
+                return resultWithCurrentPAT;
+            } else
+            {
+                return new HashMap<>();
+            }
+        } else
+        {
+            return originalResult;
         }
-        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public SearchResult<Space> searchSpaces(final String sessionToken, final SpaceSearchCriteria searchCriteria,
@@ -1096,11 +1113,27 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     {
         checkPersonalAccessTokensEnabled();
 
+        SearchResult<PersonalAccessToken> originalResult = invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+
         if (converter.shouldConvert(sessionToken))
         {
-            throw new UserFailureException("Personal access tokens cannot be used to manage personal access tokens.");
+            PersonalAccessTokenPermId currentPATId = new PersonalAccessTokenPermId(sessionToken);
+
+            for (PersonalAccessToken token : originalResult.getObjects())
+            {
+                if (token.getPermId().equals(currentPATId))
+                {
+                    List<PersonalAccessToken> resultWithCurrentPAT = new ArrayList<>();
+                    resultWithCurrentPAT.add(token);
+                    return new SearchResult<>(resultWithCurrentPAT, 1);
+                }
+            }
+
+            return new SearchResult<>(new ArrayList<>(), 0);
+        } else
+        {
+            return originalResult;
         }
-        return invocation.proceedWithOriginalArguments();
     }
 
     @Override public void revertDeletions(final String sessionToken, final List<? extends IDeletionId> deletionIds)
