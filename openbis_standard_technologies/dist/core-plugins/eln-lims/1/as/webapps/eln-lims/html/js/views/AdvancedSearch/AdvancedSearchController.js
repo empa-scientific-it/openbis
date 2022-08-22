@@ -120,8 +120,12 @@ function AdvancedSearchController(mainController, forceSearch) {
 						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
 					}
 
-					if(entity.experiment) {
+					if (entity.experiment) {
 						rowData.experiment = entity.experiment.code;
+						if (entity.experiment.project) {
+						    rowData.project = entity.experiment.project;
+						}
+						rowData.experimentType = entity.experiment.type;
 					}
 					if (entity.sample) {
 						rowData.sample = entity.sample.code;
@@ -221,45 +225,49 @@ function AdvancedSearchController(mainController, forceSearch) {
                     for(var field in options.searchMap){
                         var search = options.searchMap[field] || ""
 
-                        if(_.isString(search)){
+                        if (_.isString(search)) {
                             search = search.trim()
                         }
 
-                        if(field === "entityType"){
+                        if (field === "entityType") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
-                        }else if(field === "experiment"){
+                        } else if (field === "experiment") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
-                        }else if(field === "code"){
+                        } else if (field === "code") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
-                        }else if(field === "identifier"){
-                            if(criteria.entityKind === "DATASET"){
+                        } else if (field === "identifier") {
+                            if (criteria.entityKind === "DATASET") {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
-                            }else{
+                            } else {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "IDENTIFIER", value : search, operator: "thatContains" };
                             }
-                        }else if(field === "registrator"){
+                        } else if (field === "registrator") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
-                        }else if(field === "registrationDate"){
-                            if(search.from && search.from.value){
+                        } else if (field === "registrationDate") {
+                            if (search.from && search.from.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
+                            if (search.to && search.to.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
-                        }else if(field === "modifier"){
+                        } else if (field === "modifier") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
-                        }else if(field === "modificationDate"){
-                            if(search.from && search.from.value){
+                        } else if (field === "modificationDate") {
+                            if (search.from && search.from.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
+                            if (search.to && search.to.value) {
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
                         } else if (field === "status") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PHYSICAL_STATUS", value : search };
-                        } else if(field === "presentInArchive") {
+                        } else if (field === "presentInArchive") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PRESENT_IN_ARCHIVE", value : search };
-                        } else if(field === "storageConfirmation") {
+                        } else if (field === "experimentType") {
+                          gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "DATASET_EXPERIMENT_TYPE", value : search };
+                        } else if (field === "projectPermId") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "DATASET_PROJECT_PERM_ID", value : search };
+                        } else if (field === "storageConfirmation") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "STORAGE_CONFIRMATION", value : search };
                         } else {
                             var column = options.columnMap[field]
@@ -373,6 +381,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 					break;
 				case "DATASET":
                     fetchOptions["withPhysicalData"] = true;
+                    fetchOptions["withExperiment"] = true;
+                    fetchOptions["withExperimentProject"] = true;
+                    fetchOptions["withExperimentType"] = true;
+                    fetchOptions["withSample"] = true;
                     mainController.serverFacade.searchForDataSetsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 					break;
 			}

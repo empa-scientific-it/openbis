@@ -1483,6 +1483,12 @@ function ServerFacade(openbisServer) {
 
 					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
+						if(advancedFetchOptions && advancedFetchOptions.withExperimentProject) {
+                            fetchOptions.withExperiment().withProject();
+                        }
+                        if(advancedFetchOptions && advancedFetchOptions.withExperimentType) {
+                            fetchOptions.withExperiment().withType();
+                        }
 					}
 					if(advancedFetchOptions.withSample && fetchOptions.withSample) {
 						fetchOptions.withSample();
@@ -1953,6 +1959,13 @@ function ServerFacade(openbisServer) {
                                     break;
                                 case "PROJECT_SPACE":
                                     criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
+                                    break;
+                                //Only Dataset
+                                case "DATASET_PROJECT_PERM_ID":
+                                    criteria.withExperiment().withProject().withPermId().thatContains(attributeValue);
+                                    break;
+                                case "DATASET_EXPERIMENT_TYPE":
+                                    criteria.withExperiment().withType().withCode().thatContains(attributeValue);
                                     break;
                                 case "PHYSICAL_STATUS":
                                     criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
