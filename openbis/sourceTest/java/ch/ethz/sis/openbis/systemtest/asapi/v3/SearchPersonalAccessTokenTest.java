@@ -97,12 +97,42 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testSearchWithPersonalAccessTokenAsSessionToken()
     {
-        SearchResult<PersonalAccessToken> result =
+        // no criteria run using PAT1 gives PAT1
+        SearchResult<PersonalAccessToken> result1 =
                 v3api.searchPersonalAccessTokens(token1.getHash(), new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
 
-        assertEquals(result.getTotalCount(), 1);
-        assertEquals(result.getObjects().size(), 1);
-        assertEquals(result.getObjects().get(0).getPermId(), token1.getPermId());
+        assertEquals(result1.getTotalCount(), 1);
+        assertEquals(result1.getObjects().size(), 1);
+        assertEquals(result1.getObjects().get(0).getPermId(), token1.getPermId());
+
+        // no criteria run using PAT2 gives PAT2
+        SearchResult<PersonalAccessToken> result2 =
+                v3api.searchPersonalAccessTokens(token2.getHash(), new PersonalAccessTokenSearchCriteria(), new PersonalAccessTokenFetchOptions());
+
+        assertEquals(result2.getTotalCount(), 1);
+        assertEquals(result2.getObjects().size(), 1);
+        assertEquals(result2.getObjects().get(0).getPermId(), token2.getPermId());
+
+        // criteria with PAT1 run using PAT1 gives PAT1
+        PersonalAccessTokenSearchCriteria criteria3 = new PersonalAccessTokenSearchCriteria();
+        criteria3.withId().thatEquals(token1.getPermId());
+
+        SearchResult<PersonalAccessToken> result3 =
+                v3api.searchPersonalAccessTokens(token1.getHash(), criteria3, new PersonalAccessTokenFetchOptions());
+
+        assertEquals(result3.getTotalCount(), 1);
+        assertEquals(result3.getObjects().size(), 1);
+        assertEquals(result3.getObjects().get(0).getPermId(), token1.getPermId());
+
+        // criteria with PAT2 run using PAT1 gives nothing
+        PersonalAccessTokenSearchCriteria criteria4 = new PersonalAccessTokenSearchCriteria();
+        criteria4.withId().thatEquals(token2.getPermId());
+
+        SearchResult<PersonalAccessToken> result4 =
+                v3api.searchPersonalAccessTokens(token1.getHash(), criteria4, new PersonalAccessTokenFetchOptions());
+
+        assertEquals(result4.getTotalCount(), 0);
+        assertEquals(result4.getObjects().size(), 0);
     }
 
     @Test
