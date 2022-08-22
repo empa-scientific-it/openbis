@@ -91,6 +91,7 @@ public class StatisticsCollectionMaintenanceTask implements IMaintenanceTask
         try {
             sessionToken = applicationServerApi.loginAsSystem();
             execute(sessionToken);
+            applicationServerApi.logout(sessionToken);
         } catch (Exception exception) {
             if (sessionToken != null) {
                 applicationServerApi.logout(sessionToken);
