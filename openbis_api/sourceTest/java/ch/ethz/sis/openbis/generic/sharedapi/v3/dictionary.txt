@@ -2632,3 +2632,10 @@ with Space History
 with Space History Using
 with Unknown History
 with Unknown History Using
+
+afterOperation
+beforeOperation
+IOperationListener
+LISTENER_CLASS_KEY
+LISTENER_PROPERTY_KEY
+setup
