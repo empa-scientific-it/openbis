@@ -38,6 +38,8 @@ def parse_jackson(input_json):
         "externalDms",
         "roleAssignments",
         "user",
+        "person",
+        "creatorPerson",
         "users",
         "authorizationGroup",
         "vocabulary",
