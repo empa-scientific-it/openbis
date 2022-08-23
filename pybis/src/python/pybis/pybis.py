@@ -96,6 +96,7 @@ LOG_ENTRY = 5
 LOG_PARM = 6
 LOG_DEBUG = 7
 PYBIS_FOLDER = Path.home() / ".pybis"
+CONFIG_FILENAME = ".pybis.json"
 
 DEBUG_LEVEL = LOG_NONE
 
@@ -147,8 +148,54 @@ def get_search_type_for_entity(entity, operator=None):
     return sc
 
 
-def get_saved_tokens():
+def is_session_token(token: str):
+    return not token.startswith("$pat")
 
+
+def is_personal_access_token(token: str):
+    return token.startswith("$pat")
+
+
+def save_config(config_filepath: Path, config: dict) -> dict:
+    with open(config_filepath, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(config))
+
+
+def read_config(config_filepath: Path) -> dict:
+    config = {}
+    if config_filepath.exists():
+        with open(config_filepath, "r") as fh:
+            config = json.load(fh)
+        return config
+
+
+def get_global_config():
+    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_global_config(hostname=None, token=None):
+    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=global_openbis, config=config)
+    return
+
+
+def get_local_config():
+    config_filepath = Path.cwd() / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_local_config(hostname=None, token=None):
+    local_openbis = Path.cwd() / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=local_openbis, config=config)
+    return
+
+
+def get_saved_tokens():
     tokens = defaultdict(list)
     for filepath in PYBIS_FOLDER.glob("*.token"):
         with open(filepath) as fh:
@@ -1221,6 +1268,16 @@ class Openbis:
         """Current token seems to be expired,
         try to use other means to connect.
         """
+        if is_session_token(self.token):
+            for session_token in get_saved_tokens(hostname=self.hostname):
+                pass
+
+        else:
+            for token in get_saved_pats(hostname=self.hostname):
+                if self.is_token_valid(token=token):
+                    return requests.post(
+                        full_url, json.dumps(request), verify=self.verify_certificates
+                    )
 
     def _post_request_full_url(self, full_url, request):
         """internal method, used to handle all post requests and serializing / deserializing
@@ -1244,8 +1301,6 @@ class Openbis:
             resp = resp.json()
             if "error" in resp:
                 if "Session token" in resp["error"]["message"]:
-                    self._recover_session(full_url, request)
-                else:
                     print(json.dumps(request))
                     raise ValueError(resp["error"]["message"])
             elif "result" in resp:
@@ -4239,7 +4294,7 @@ class Openbis:
         """checks whether a session is still active. Returns true or false."""
         return self.is_token_valid(self.token)
 
-    def is_token_valid(self, token=None):
+    def is_token_valid(self, token: str = None):
         """Check if the connection to openBIS is valid.
         This method is useful to check if a token is still valid or if it has timed out,
         requiring the user to login again.
@@ -4266,14 +4321,15 @@ class Openbis:
             token = self.token
 
         if token is None:
-            return False
+            return None
 
         request = {"method": "getSessionInformation", "params": [token]}
         try:
             resp = self._post_request(self.as_v3, request)
-        except Exception:
-            return False
-        return SessionInformation(openbis_obj=self, data=resp["result"])
+            parse_jackson(resp)
+        except Exception as exc:
+            return None
+        return SessionInformation(openbis_obj=self, data=resp)
 
     def set_token(self, token, save_token=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
