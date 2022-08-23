@@ -2,6 +2,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationListener.LISTENER_CLASS_KEY;
+import static ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener.LISTENER_CLASS_KEY;
 
 public class OperationListenerLoader implements ApplicationContextAware, InitializingBean,
         DisposableBean

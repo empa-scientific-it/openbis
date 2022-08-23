@@ -24,7 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationListener;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperation;
 import ch.systemsx.cisd.openbis.generic.server.IConcurrentOperationLimiter;
@@ -121,8 +121,12 @@ public abstract class OperationExecutor<OPERATION extends IOperation, RESULT ext
     private void beforeOperation(Session session, OPERATION operation) {
         if (operationListeners != null && !operationListeners.isEmpty()) {
             IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
+            String sessionToken = null;
+            if (session != null) {
+                sessionToken = session.getSessionToken();
+            }
             for (IOperationListener<IOperation, IOperationResult> operationListener:operationListeners) {
-                operationListener.beforeOperation(applicationServerApi, session, operation);
+                operationListener.beforeOperation(applicationServerApi, sessionToken, operation);
             }
         }
     }
@@ -130,10 +134,12 @@ public abstract class OperationExecutor<OPERATION extends IOperation, RESULT ext
     private void afterOperation(Session session, OPERATION operation, RESULT result, RuntimeException runtimeException) {
         if (operationListeners != null && !operationListeners.isEmpty()) {
             IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
-            session.getPrincipal().getUserId();
-            session.getSessionToken();
+            String sessionToken = null;
+            if (session != null) {
+                sessionToken = session.getSessionToken();
+            }
             for (IOperationListener<IOperation, IOperationResult> operationListener:operationListeners) {
-                operationListener.afterOperation(applicationServerApi, session, operation, result, runtimeException);
+                operationListener.afterOperation(applicationServerApi, sessionToken, operation, result, runtimeException);
             }
         }
     }

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationListener;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.CustomASServiceProvider;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;

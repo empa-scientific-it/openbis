@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 import java.io.IOException;
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationListener;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.CustomASServiceProvider;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
