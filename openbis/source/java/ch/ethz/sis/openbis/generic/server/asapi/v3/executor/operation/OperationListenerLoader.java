@@ -54,6 +54,7 @@ public class OperationListenerLoader implements ApplicationContextAware, Initial
                 Class<?> operationListenerClass = Class.forName(operationListenerClassName);
                 Constructor<?> operationListenerConstructor = operationListenerClass.getConstructor();
                 IOperationListener<IOperation, IOperationResult> operationListener = (IOperationListener) operationListenerConstructor.newInstance();
+                operationListener.setup(sectionProperty.getProperties());
                 operationListeners.add(operationListener);
                 operationLog.info("Added: " + key + " Class: " + operationListenerClassName);
             }
