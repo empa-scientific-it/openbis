@@ -11,6 +11,9 @@ def openbis_definitions(entity):
     (Entity-Name in camel-case, starting with lowercase letter, with Id added)
     """
     entities = {
+        "sessionInformation": {
+            "attrs": "sessionToken userName homeGroupCode personalAccessTokenSession personalAccessTokenSessionName person creatorPerson".split(),
+        },
         "space": {
             "attrs_new": "code description".split(),
             "attrs_up": "description freeze freezeForProjects freezeForSamples".split(),
