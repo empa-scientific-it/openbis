@@ -24,7 +24,7 @@ def login_options(func):
     return func
 
 
-def login(hostname, **kwargs):
+def get_openbis(hostname, **kwargs):
 
     openbis = pybis.Openbis(
         url=hostname,
@@ -141,7 +141,7 @@ def new_pat(ctx, hostname, session_name, **kwargs):
         validTo += relativedelta(days=int(kwargs.get("validity_days")))
     else:
         validTo += relativedelta(years=1)
-    o = login(hostname, **kwargs)
+    o = get_openbis(hostname, **kwargs)
     new_pat = o.create_personal_access_token(sessionName=session_name, validTo=validTo)
     click.echo(new_pat)
     o.get_personal_access_tokens(save_to_disk=True)
