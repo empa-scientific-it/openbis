@@ -52,6 +52,8 @@ async function testLoadWithSearchText(resultsFound) {
 
   openbis.mockSearchPersons([fixture.TEST_USER_DTO, fixture.ANOTHER_USER_DTO])
 
+  openbis.mockSearchPersonalAccessTokens([])
+
   const form = await common.mount({ searchText: 'test' })
 
   if (resultsFound) {
@@ -189,10 +191,7 @@ async function testLoadWithSearchText(resultsFound) {
           text: 'No results found',
           type: 'info'
         }
-      ],
-      dynamicPropertyPlugins: null,
-      entityValidationPlugins: null,
-      queries: null
+      ]
     })
   }
 }

@@ -72,6 +72,8 @@ import PersonFetchOptions from 'as/dto/person/fetchoptions/PersonFetchOptions'
 import PersonPermId from 'as/dto/person/id/PersonPermId'
 import PersonSearchCriteria from 'as/dto/person/search/PersonSearchCriteria'
 import PersonUpdate from 'as/dto/person/update/PersonUpdate'
+import PersonalAccessTokenFetchOptions from 'as/dto/pat/fetchoptions/PersonalAccessTokenFetchOptions'
+import PersonalAccessTokenSearchCriteria from 'as/dto/pat/search/PersonalAccessTokenSearchCriteria'
 import Plugin from 'as/dto/plugin/Plugin'
 import PluginCreation from 'as/dto/plugin/create/PluginCreation'
 import PluginDeletionOptions from 'as/dto/plugin/delete/PluginDeletionOptions'
@@ -244,6 +246,8 @@ const dto = {
   PersonPermId,
   PersonSearchCriteria,
   PersonUpdate,
+  PersonalAccessTokenSearchCriteria,
+  PersonalAccessTokenFetchOptions,
   Plugin,
   PluginCreation,
   PluginDeletionOptions,
