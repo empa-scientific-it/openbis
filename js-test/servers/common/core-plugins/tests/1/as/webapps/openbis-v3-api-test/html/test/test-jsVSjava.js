@@ -27,6 +27,7 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
             UnauthorizedObjectAccessException: "Java class ignored: ",
             UnsupportedObjectIdException: "Java class ignored: ",
             IApplicationServerApi: "Java class ignored: ",
+            IOperationListener: "Java class ignored: ",
             DataSetCreation: "Java class ignored: ",
             DataSetFileDownloadInputStream: "Java class ignored: ",
             IDataStoreServerApi: "Java class ignored: ",
