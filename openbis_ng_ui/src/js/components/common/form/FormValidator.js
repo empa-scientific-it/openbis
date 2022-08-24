@@ -15,8 +15,16 @@ class FormValidator {
     this.errors = new Map()
   }
 
+  isBasicMode() {
+    return this.mode === FormValidator.MODE_BASIC
+  }
+
+  isFullMode() {
+    return this.mode === FormValidator.MODE_FULL
+  }
+
   validateNotEmpty(object, name, label) {
-    if (this.mode !== 'full') {
+    if (!this.isFullMode()) {
       return
     }
 
@@ -26,6 +34,27 @@ class FormValidator {
       field.value === null ||
       field.value === undefined ||
       (_.isString(field.value) && field.value.trim() === '')
+    ) {
+      this.addError(
+        object,
+        name,
+        messages.get(messages.VALIDATION_CANNOT_BE_EMPTY, label)
+      )
+    }
+  }
+
+  validateDateNotEmpty(object, name, label) {
+    if (!this.isFullMode()) {
+      return
+    }
+
+    const field = object[name]
+
+    if (
+      field.value === null ||
+      field.value === undefined ||
+      field.value.dateObject === null ||
+      field.value.dateObject === undefined
     ) {
       this.addError(
         object,

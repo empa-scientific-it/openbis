@@ -22,7 +22,9 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.test.context.transaction.TestTransaction;
@@ -33,6 +35,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.Author
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthorizationGroupId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
@@ -47,6 +51,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.IRoleAssignmen
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.id.RoleAssignmentTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -234,6 +239,39 @@ public class DeletePersonTest extends AbstractTest
             String stackTrace = ExceptionUtils.getStackTrace(e);
             assertTrue(stackTrace.contains("insert or update on table \"spaces\" violates foreign key constraint \"space_pers_fk_registerer\""),
                     stackTrace);
+        }
+    }
+
+    @Test
+    public void testDeletePersonWithPersonalAccessTokenSession()
+    {
+        String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId("deletion_test_person_with_personal_access_tokens");
+        PersonPermId personId = v3api.createPersons(adminSessionToken, Collections.singletonList(personCreation)).get(0);
+
+        RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+        roleCreation.setUserId(personId);
+        roleCreation.setRole(Role.ADMIN);
+        v3api.createRoleAssignments(adminSessionToken, Collections.singletonList(roleCreation));
+
+        String userSessionToken = v3api.login(personCreation.getUserId(), PASSWORD);
+        PersonalAccessTokenPermId tokenId = v3api.createPersonalAccessTokens(userSessionToken, Arrays.asList(tokenCreation())).get(0);
+
+        assertNotNull(v3api.getSessionInformation(tokenId.getPermId()));
+
+        PersonDeletionOptions options = new PersonDeletionOptions();
+        options.setReason("testing");
+        v3api.deletePersons(adminSessionToken, Collections.singletonList(personId), options);
+
+        try
+        {
+            v3api.getSessionInformation(tokenId.getPermId());
+            fail();
+        } catch (InvalidSessionException e)
+        {
+            // expected
         }
     }
 

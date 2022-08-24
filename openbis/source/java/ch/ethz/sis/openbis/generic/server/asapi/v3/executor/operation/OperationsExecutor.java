@@ -94,6 +94,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.get.IGetOp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal.IInternalOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.search.ISearchOperationExecutionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.update.IUpdateOperationExecutionsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat.ICreatePersonalAccessTokensOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat.IDeletePersonalAccessTokensOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat.IGetPersonalAccessTokensOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat.ISearchPersonalAccessTokensOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat.IUpdatePersonalAccessTokensOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ICreatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IDeletePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IGetPersonsOperationExecutor;
@@ -157,6 +162,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.ISearchProce
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.ISearchReportingServicesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.ISearchSearchDomainServicesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session.IGetSessionInformationOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session.ISearchSessionInformationOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.ICreateSpacesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IDeleteSpacesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IGetSpacesOperationExecutor;
@@ -257,6 +263,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeletePersonsOperationExecutor deletePersonsExecutor;
 
     @Autowired
+    private IDeletePersonalAccessTokensOperationExecutor deletePersonalAccessTokensExecutor;
+
+    @Autowired
     private ICreateSpacesOperationExecutor createSpacesExecutor;
 
     @Autowired
@@ -326,6 +335,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ICreatePermIdsOperationExecutor createPermIdsExecutor;
 
     @Autowired
+    private ICreatePersonalAccessTokensOperationExecutor createPersonalAccessTokensExecutor;
+
+    @Autowired
     private IUpdateSpacesOperationExecutor updateSpacesExecutor;
 
     @Autowired
@@ -387,6 +399,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateQueriesOperationExecutor updateQueriesExecutor;
+
+    @Autowired
+    private IUpdatePersonalAccessTokensOperationExecutor updatePersonalAccessTokensExecutor;
 
     @Autowired
     private IVerifyExperimentsOperationExecutor verifyExperimentsExecutor;
@@ -480,6 +495,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IGetServerPublicInformationOperationExecutor getServerPublicInformationExecutor;
+
+    @Autowired
+    private IGetPersonalAccessTokensOperationExecutor getPersonalAccessTokensExecutor;
 
     @Autowired
     private ISearchSpacesOperationExecutor searchSpacesExecutor;
@@ -582,6 +600,12 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ISearchQueryDatabasesOperationExecutor searchQueryDatabasesExecutor;
+
+    @Autowired
+    private ISearchPersonalAccessTokensOperationExecutor searchPersonalAccessTokensExecutor;
+
+    @Autowired
+    private ISearchSessionInformationOperationExecutor searchSessionInformationExecutor;
 
     @Autowired
     private IExecuteCustomASServiceOperationExecutor executeCustomASServiceExecutor;
@@ -744,6 +768,8 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchPropertyAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(searchQueriesExecutor.execute(context, operations));
         resultMap.putAll(searchQueryDatabasesExecutor.execute(context, operations));
+        resultMap.putAll(searchPersonalAccessTokensExecutor.execute(context, operations));
+        resultMap.putAll(searchSessionInformationExecutor.execute(context, operations));
     }
 
     private void executeGets(List<? extends IOperation> operations,
@@ -775,6 +801,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getQueryDatabasesExecutor.execute(context, operations));
         resultMap.putAll(getServerInformationExecutor.execute(context, operations));
         resultMap.putAll(getServerPublicInformationExecutor.execute(context, operations));
+        resultMap.putAll(getPersonalAccessTokensExecutor.execute(context, operations));
     }
 
     private void verify(List<? extends IOperation> operations,
@@ -810,6 +837,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateSamplesExecutor.execute(context, operations));
         resultMap.putAll(updateDataSetsExecutor.execute(context, operations));
         resultMap.putAll(updateQueriesExecutor.execute(context, operations));
+        resultMap.putAll(updatePersonalAccessTokensExecutor.execute(context, operations));
     }
 
     private void executeCreations(List<? extends IOperation> operations,
@@ -838,6 +866,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createQueriesExecutor.execute(context, operations));
         resultMap.putAll(createCodesExecutor.execute(context, operations));
         resultMap.putAll(createPermIdsExecutor.execute(context, operations));
+        resultMap.putAll(createPersonalAccessTokensExecutor.execute(context, operations));
     }
 
     private void executeDeletions(List<? extends IOperation> operations,
@@ -865,6 +894,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(deletePersonsExecutor.execute(context, operations));
+        resultMap.putAll(deletePersonalAccessTokensExecutor.execute(context, operations));
     }
 
     protected void clearCurrentSession()

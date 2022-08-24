@@ -186,6 +186,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateQueriesOperation(creations));
 		}
 
+		this.createPersonalAccessTokens = function(creations) {
+			return this._executeCreateOperation(new c.CreatePersonalAccessTokensOperation(creations));
+		}
+
 		this.updateSpaces = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateSpacesOperation(updates));
 		}
@@ -268,6 +272,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.updateQueries = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateQueriesOperation(updates));
+		}
+
+		this.updatePersonalAccessTokens = function(updates) {
+			return this._executeUpdateOperation(new c.UpdatePersonalAccessTokensOperation(updates));
 		}
 
 		this.getSpaces = function(ids, fetchOptions) {
@@ -360,6 +368,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.getQueryDatabases = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetQueryDatabasesOperation(ids, fetchOptions));
+		}
+
+		this.getPersonalAccessTokens = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetPersonalAccessTokensOperation(ids, fetchOptions));
 		}
 
 		this.searchSpaces = function(criteria, fetchOptions) {
@@ -490,6 +502,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchQueryDatabasesOperation(criteria, fetchOptions));
 		}
 
+		this.searchPersonalAccessTokens = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPersonalAccessTokensOperation(criteria, fetchOptions));
+		}
+
+		this.searchSessionInformation = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchSessionInformationOperation(criteria, fetchOptions));
+		}
+
 		this.deleteSpaces = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteSpacesOperation(ids, deletionOptions));
 		}
@@ -572,6 +592,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.deleteQueries = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteQueriesOperation(ids, deletionOptions));
+		}
+
+		this.deletePersonalAccessTokens = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeletePersonalAccessTokensOperation(ids, deletionOptions));
 		}
 
 		this.deletePersons = function(ids, deletionOptions) {

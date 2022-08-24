@@ -102,20 +102,27 @@ public final class SessionFactory implements ISessionFactory<Session>
             final Principal principal, final String remoteHost, final long sessionStart,
             final int expirationTime)
     {
+        return create(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime, false, null);
+    }
+
+    @Override public Session create(final String sessionToken, final String userName, final Principal principal, final String remoteHost,
+            final long sessionStart, final int sessionExpirationTime, final boolean isPersonalAccessTokenSession,
+            final String personalAccessTokenSessionName)
+    {
         final Session session =
-                new Session(userName, sessionToken, principal, remoteHost, sessionStart,
-                        expirationTime);
+                new Session(userName, sessionToken, principal, remoteHost, sessionStart, sessionExpirationTime, isPersonalAccessTokenSession,
+                        personalAccessTokenSessionName);
         if (datastoreDAO != null && dssFactory != null)
         {
             session.addCleanupListener(new ISessionCleaner()
+            {
+                @Override
+                public void cleanup()
                 {
-                    @Override
-                    public void cleanup()
-                    {
-                        sessionWorkspaceProvider.deleteSessionWorkspace(sessionToken);
-                        cleanUpSessionOnDataStoreServers(sessionToken, datastoreDAO, dssFactory);
-                    }
-                });
+                    sessionWorkspaceProvider.deleteSessionWorkspace(sessionToken);
+                    cleanUpSessionOnDataStoreServers(sessionToken, datastoreDAO, dssFactory);
+                }
+            });
         }
         return session;
     }

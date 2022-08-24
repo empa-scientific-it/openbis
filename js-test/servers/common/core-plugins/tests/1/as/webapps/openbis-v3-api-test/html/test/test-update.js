@@ -1538,6 +1538,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findQuery, fCheck);
 		});
 
+		QUnit.test("updatePersonalAccessTokens()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var update = new c.PersonalAccessTokenUpdate();
+			update.setAccessDate(new Date(12345).getTime());
+
+			var fCreate = function(facade) {
+				return c.createPersonalAccessToken(facade).then(function(permId) {
+					return [ permId ];
+				});
+			}
+
+			var fUpdate = function(facade, permId) {
+				update.setPersonalAccessTokenId(permId);
+				return facade.updatePersonalAccessTokens([ update ]);
+			}
+
+			var fCheck = function(pat) {
+				c.assertEqual(pat.getAccessDate(), update.getAccessDate().getValue(), "Access date");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findPersonalAccessToken, fCheck);
+		});
 	}
 
 	return function() {

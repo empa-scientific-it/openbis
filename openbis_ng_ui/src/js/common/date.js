@@ -1,9 +1,26 @@
-function format(millis) {
-  if (millis === null) {
+import _ from 'lodash'
+import messages from './messages'
+
+const MILLIS_PER_SECOND = 1000
+const MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND
+const MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE
+const MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR
+const MILLIS_PER_YEAR = 365 * MILLIS_PER_DAY
+
+function format(value) {
+  if (value === null) {
     return ''
   }
 
-  var date = new Date(millis)
+  var date = null
+
+  if (_.isDate(value)) {
+    date = value
+  } else if (_.isNumber(value)) {
+    date = new Date(value)
+  } else {
+    throw new Error('Incorrect date: ' + value)
+  }
 
   const year = String(date.getFullYear()).padStart(4, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -17,11 +34,48 @@ function format(millis) {
   )
 }
 
+function duration(millis) {
+  const units = [
+    { millisPerUnit: MILLIS_PER_YEAR, message: messages.YEAR_OR_YEARS },
+    { millisPerUnit: MILLIS_PER_DAY, message: messages.DAY_OR_DAYS },
+    { millisPerUnit: MILLIS_PER_HOUR, message: messages.HOUR_OR_HOURS },
+    { millisPerUnit: MILLIS_PER_MINUTE, message: messages.MINUTE_OR_MINUTES },
+    { millisPerUnit: MILLIS_PER_SECOND, message: messages.SECOND_OR_SECONDS }
+  ]
+
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i]
+    if (millis >= unit.millisPerUnit * 0.99) {
+      const value = Math.round(millis / unit.millisPerUnit)
+      return messages.get(unit.message, value)
+    }
+  }
+
+  return '0'
+}
+
+function inRange(value, from, to) {
+  if (from || to) {
+    if (value === null || value === undefined) {
+      return false
+    }
+    if (from && value.getTime() < from.getTime()) {
+      return false
+    }
+    if (to && value.getTime() > to.getTime()) {
+      return false
+    }
+  }
+  return true
+}
+
 function timezone() {
   return -(new Date().getTimezoneOffset() / 60)
 }
 
 export default {
   format,
-  timezone
+  duration,
+  timezone,
+  inRange
 }

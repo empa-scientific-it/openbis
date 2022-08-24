@@ -31,7 +31,13 @@ define([ "stjs" ], function(stjs) {
 			return this.value;
 		};
 	}, {
-		value: "Object"
+		value: function(jsonTypeArguments){
+		    if(jsonTypeArguments && jsonTypeArguments.length > 0){
+		        return jsonTypeArguments[0];
+		    } else {
+		        return "Object"
+		    }
+		}
 	});
 	return FieldUpdateValue;
 })

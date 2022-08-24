@@ -22,6 +22,8 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.core.Ordered;
 
+import ch.systemsx.cisd.openbis.common.pat.PersonalAccessTokenAdvisor;
+
 /**
  * A pointcut advisor which applies the {@link LogInterceptor} advice to classes with the {@link Logging} annotation.
  * 
@@ -32,7 +34,7 @@ public class LogAdvisor extends DefaultPointcutAdvisor
 
     private static final long serialVersionUID = 1L;
 
-    public static final int ORDER = Ordered.HIGHEST_PRECEDENCE;
+    public static final int ORDER = PersonalAccessTokenAdvisor.ORDER + 1;
 
     LogAdvisor()
     {

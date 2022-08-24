@@ -36,6 +36,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.PreStagingCleanUpMaintenanceTask;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.SessionWorkspaceCleanUpMaintenanceTask;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -707,6 +708,9 @@ public final class ETLDaemon
         injectMaintenanceTask(maintenancePlugins, PreStagingCleanUpMaintenanceTask.class,
                 PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
+        injectMaintenanceTask(maintenancePlugins, SessionWorkspaceCleanUpMaintenanceTask.class,
+                SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
+                SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
 
         operationLog.info("Data Store Server ready and waiting for data.");
     }

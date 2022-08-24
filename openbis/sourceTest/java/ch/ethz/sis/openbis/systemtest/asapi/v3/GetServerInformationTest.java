@@ -39,7 +39,7 @@ public class GetServerInformationTest extends AbstractTest
         Map<String, String> result = v3api.getServerInformation(sessionToken);
 
         // Then
-        assertEquals(result.size(), 10);
+        assertEquals(result.size(), 13);
         assertEquals(result.get("api-version"), "3.5");
         assertEquals(result.get("archiving-configured"), "false");
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
@@ -47,6 +47,9 @@ public class GetServerInformationTest extends AbstractTest
         assertEquals(result.get("authentication-service.switch-aai.label"), null);
         assertEquals(result.get("enabled-technologies"), "test-.*");
         assertEquals(result.get("project-samples-enabled"), "true");
+        assertEquals(result.get("personal-access-tokens-enabled"), "true");
+        assertEquals(result.get("personal-access-tokens-max-validity-period"), "7776000");
+        assertEquals(result.get("personal-access-tokens-validity-warning-period"), "864000");
         assertEquals(result.get("create-continuous-sample-codes"), "false");
         assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
         assertEquals(result.get("openbis.support.email"), "openbis-support@id.ethz.ch");

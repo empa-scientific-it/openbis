@@ -119,13 +119,19 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IEntityOperationsLogDAO}. */
     public IEntityOperationsLogDAO getEntityOperationsLogDAO();
 
-    /** Returns an implementation of {@link IExternalDataManagementSystemDAO}. */
+    /**
+     * Returns an implementation of {@link IExternalDataManagementSystemDAO}.
+     */
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO();
 
-    /** Returns an implementation of {@link IOperationExecutionDAO}. */
+    /**
+     * Returns an implementation of {@link IOperationExecutionDAO}.
+     */
     public IOperationExecutionDAO getOperationExecutionDAO();
 
-    /** Returns an implementation of {@link ISemanticAnnotationDAO}. */
+    /**
+     * Returns an implementation of {@link ISemanticAnnotationDAO}.
+     */
     public ISemanticAnnotationDAO getSemanticAnnotationDAO();
 
 }

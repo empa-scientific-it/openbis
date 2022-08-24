@@ -72,7 +72,8 @@ const styles = theme => ({
     }
   },
   property: {
-    marginTop: '-6px'
+    marginTop: '-6px',
+    overflow: 'hidden'
   }
 })
 

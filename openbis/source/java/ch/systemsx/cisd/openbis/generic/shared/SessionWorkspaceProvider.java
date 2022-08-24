@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 /**
  * @author pkupczyk
@@ -53,15 +55,18 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
 
     private Properties serviceProperties;
 
+    private IPersonalAccessTokenConverter personalAccessTokenConverter;
+
     private File sessionWorkspaceRootDir;
 
     public SessionWorkspaceProvider()
     {
     }
 
-    SessionWorkspaceProvider(Properties serviceProperties)
+    SessionWorkspaceProvider(Properties serviceProperties, IPersonalAccessTokenConverter personalAccessTokenConverter)
     {
         this.serviceProperties = serviceProperties;
+        this.personalAccessTokenConverter = personalAccessTokenConverter;
     }
 
     @PostConstruct
@@ -109,8 +114,9 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
-    public File getSessionWorkspace(String sessionToken)
+    public File getSessionWorkspace(String sessionTokenOrPAT)
     {
+        String sessionToken = personalAccessTokenConverter.convert(sessionTokenOrPAT);
         File sessionWorkspace = new File(sessionWorkspaceRootDir, sessionToken);
 
         if (false == sessionWorkspace.exists())
@@ -123,10 +129,11 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
-    public void deleteSessionWorkspace(String sessionToken)
+    public void deleteSessionWorkspace(String sessionTokenOrPAT)
     {
         try
         {
+            String sessionToken = personalAccessTokenConverter.convert(sessionTokenOrPAT);
             File sessionWorkspace = new File(sessionWorkspaceRootDir, sessionToken);
 
             if (sessionWorkspace.exists())
@@ -146,4 +153,9 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
         serviceProperties = servicePropertiesPlaceholder.getResolvedProps();
     }
 
+    @Autowired
+    private void setPersonalAccessTokenConverter(final IPersonalAccessTokenConverter personalAccessTokenConverter)
+    {
+        this.personalAccessTokenConverter = personalAccessTokenConverter;
+    }
 }

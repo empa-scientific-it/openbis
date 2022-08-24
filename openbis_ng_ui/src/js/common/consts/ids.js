@@ -19,6 +19,7 @@ const ENTITY_VALIDATION_PLUGINS_GRID_ID = 'entity_validation_plugins_grid'
 const QUERIES_GRID_ID = 'queries_grid'
 const HISTORY_OF_DELETION_GRID_ID = 'history_of_deletion_grid'
 const HISTORY_OF_FREEZING_GRID_ID = 'history_of_freezing_grid'
+const PERSONAL_ACCESS_TOKEN_GRID_ID = 'personal_access_token_grid'
 
 export default {
   WEB_APP_ID,
@@ -41,5 +42,6 @@ export default {
   ENTITY_VALIDATION_PLUGINS_GRID_ID,
   QUERIES_GRID_ID,
   HISTORY_OF_DELETION_GRID_ID,
-  HISTORY_OF_FREEZING_GRID_ID
+  HISTORY_OF_FREEZING_GRID_ID,
+  PERSONAL_ACCESS_TOKEN_GRID_ID
 }

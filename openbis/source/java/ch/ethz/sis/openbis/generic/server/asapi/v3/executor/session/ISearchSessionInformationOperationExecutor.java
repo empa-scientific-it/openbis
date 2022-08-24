@@ -16,25 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
 
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * @author pkupczyk
  */
-@Component
-public class SessionAuthorizationExecutor implements ISessionAuthorizationExecutor
+public interface ISearchSessionInformationOperationExecutor extends ISearchObjectsOperationExecutor
 {
-
-    @Override
-    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("GET_SESSION")
-    public void canGet(IOperationContext context)
-    {
-    }
 
 }

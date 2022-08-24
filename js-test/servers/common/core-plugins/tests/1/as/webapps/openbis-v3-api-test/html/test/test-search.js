@@ -3229,6 +3229,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchPersonalAccessTokens() withId", function(assert) {
+			var c = new common(assert, openbis);
+
+			var creation = new c.PersonalAccessTokenCreation();
+			creation.setSessionName(c.generateId("pat"));
+			creation.setValidFromDate(new Date(1).getTime());
+			creation.setValidToDate(new Date(2).getTime());
+
+			var fSearch = function(facade) {
+				return facade.createPersonalAccessTokens([creation]).then(function(permIds) {
+					var criteria = new c.PersonalAccessTokenSearchCriteria();
+					criteria.withId().thatEquals(permIds[0]);
+					return facade.searchPersonalAccessTokens(criteria, c.createPersonalAccessTokenFetchOptions());
+				});
+			}
+
+			var fCheck = function(facade, pats) {
+				c.assertEqual(pats.length, 1);
+				c.assertEqual(pats[0].getSessionName(), creation.getSessionName(), "Session name");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchSamples() withProperty", function(assert) {
 			var c = new common(assert, openbis);
 

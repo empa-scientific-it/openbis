@@ -30,6 +30,10 @@ class Facade {
     return this.promise(this.v3.getSessionInformation())
   }
 
+  getServerInformation() {
+    return this.promise(this.v3.getServerInformation())
+  }
+
   getServerPublicInformation() {
     return this.promise(this.v3.getServerPublicInformation())
   }
@@ -80,6 +84,10 @@ class Facade {
 
   searchPlugins(criteria, fo) {
     return this.promise(this.v3.searchPlugins(criteria, fo))
+  }
+
+  searchPersonalAccessTokens(criteria, fo) {
+    return this.promise(this.v3.searchPersonalAccessTokens(criteria, fo))
   }
 
   searchQueries(criteria, fo) {

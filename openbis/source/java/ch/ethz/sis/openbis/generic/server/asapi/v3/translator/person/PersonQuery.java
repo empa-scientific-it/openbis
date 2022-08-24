@@ -32,14 +32,20 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface PersonQuery extends ObjectQuery
 {
 
-    @Select(sql = "select id, first_name as firstName, last_name as lastName, user_id as userId, email, registration_timestamp as registrationDate, is_active as isActive "
-            + " from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select id from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<Long> getPersonIds(LongSet personIds);
+
+    @Select(sql =
+            "select id, first_name as firstName, last_name as lastName, user_id as userId, email, registration_timestamp as registrationDate, is_active as isActive "
+                    + " from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PersonBaseRecord> getPersons(LongSet personIds);
 
-    @Select(sql = "select id as objectId, space_id as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select id as objectId, space_id as relatedId from persons where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getSpaceIds(LongSet personIds);
 
-    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from persons where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet personIds);
 
     @Select(sql = "select pers_id_grantee as objectId, id as relatedId from role_assignments where pers_id_grantee = any(?{1})",

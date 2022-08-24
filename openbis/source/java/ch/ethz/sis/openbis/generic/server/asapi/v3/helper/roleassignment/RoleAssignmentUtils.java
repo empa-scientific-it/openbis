@@ -50,7 +50,7 @@ public class RoleAssignmentUtils
                 }
                 throw new UserFailureException(
                         "For safety reason you cannot give away your own " + adminType + " admin power. "
-                                + "Ask " + (adminType.equals("project") ? "space or " : "") 
+                                + "Ask " + (adminType.equals("project") ? "space or " : "")
                                 + "instance admin to do that for you.");
             } else if (roleAssignment.getSpace() == null && roleAssignment.getProject() == null)
             {
@@ -59,6 +59,18 @@ public class RoleAssignmentUtils
                                 + "Ask another instance admin to do that for you.");
             }
         }
+    }
+
+    public static boolean isETLServer(PersonPE personPE)
+    {
+        for (RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
+        {
+            if (roleAssigment.getRole().equals(RoleCode.ETL_SERVER))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isInstanceAdmin(PersonPE personPE)

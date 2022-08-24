@@ -365,13 +365,13 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 dataSourceManager, new DefaultSessionManager<Session>(new SessionFactory(),
                         new LogMessagePrefixGenerator(), new DummyAuthenticationService(),
                         new RequestContextProviderAdapter(new IRequestContextProvider()
+                        {
+                            @Override
+                            public HttpServletRequest getHttpServletRequest()
                             {
-                                @Override
-                                public HttpServletRequest getHttpServletRequest()
-                                {
-                                    return null;
-                                }
-                            }),
+                                return null;
+                            }
+                        }),
                         30),
                 managedPropertyEvaluatorFactory, null, null);
     }

@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.session;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectsOperationExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface ISessionAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ISearchPersonalAccessTokensOperationExecutor extends ISearchObjectsOperationExecutor
 {
-
-    void canGet(IOperationContext context);
 
 }
