@@ -815,8 +815,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code [ATTR.CODE]" },
 				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type [ATTR.DATA_SET_TYPE]" },
-				         { value : "ATTR.DATASET_EXPERIMENT_TYPE", label : "Collection Type [ATTR.DATASET_EXPERIMENT_TYPE]" },
-				         { value : "ATTR.DATASET_PROJECT_PERM_ID", label : "Project Identifier [ATTR.DATASET_PROJECT_PERM_ID]" },
 				         { value : "ATTR.STATUS", label : "Archiving status [ATTR.STATUS]" },
 				         { value : "ATTR.PRESENT_IN_ARCHIVE", label : "Present in archive [ATTR.PRESENT_IN_ARCHIVE]" },
 				         { value : "ATTR.STORAGE_CONFIRMATION", label : "Storage confirmation [ATTR.STORAGE_CONFIRMATION]" },
@@ -1054,33 +1052,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}]);
 
 			if (criteria.entityKind === "DATASET") {
-			    columns.push({
-                    label : 'Collection Type',
-                    property : 'experimentType',
-                    isExportable: false,
-                    filterable: !isGlobalSearch,
-                    sortable : false,
-                    render : function(data) {
-                        return data.experimentType.code
-                    }
-                });
-			    columns.push({
-                    label : 'Project Identifier',
-                    property : 'projectPermId',
-                    isExportable: false,
-                    filterable: !isGlobalSearch,
-                    sortable : false,
-                    render : function(data) {
-                        return data.project.identifier.identifier
-                    }
-                });
-                columns.push({
-                    label : 'Object',
-                    property : 'sample',
-                    isExportable: false,
-                    filterable: !isGlobalSearch,
-                    sortable : false
-                });
                 columns.push({
                     label : 'Archiving status',
                     property : 'status',
