@@ -573,15 +573,12 @@ DECLARE cvt RECORD;
 BEGIN
     IF NEW.cvte_id IS NOT NULL THEN
         SELECT code, label INTO STRICT cvt FROM controlled_vocabulary_terms WHERE id = NEW.cvte_id;
-        NEW.tsvector_document := setweight(to_tsvector('english', left(escape_tsvector_string(cvt.code), 850000)), 'C') ||
-                setweight(to_tsvector('english', left(escape_tsvector_string(coalesce(cvt.label, '')), 850000)), 'C');
+        NEW.tsvector_document := text_to_ts_vector(cvt.code, 'C') || text_to_ts_vector(cvt.label, 'C');
     ELSE
-        NEW.tsvector_document := setweight(
-                to_tsvector('english', left(escape_tsvector_string(coalesce(NEW.value, '')), 850000)), 'D');
+        NEW.tsvector_document := text_to_ts_vector(NEW.value, 'D');
     END IF;
     RETURN NEW;
-END
-$$;
+END $$;
 CREATE FUNCTION raise_delete_from_data_set_exception() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -986,6 +983,25 @@ BEGIN
     RETURN NEW;
 END
 $$;
+CREATE FUNCTION text_to_ts_vector(text_to_index text, weight "char") RETURNS tsvector
+    LANGUAGE plpgsql
+    AS $$
+DECLARE indexed BOOLEAN;
+    DECLARE result tsvector;
+BEGIN
+    indexed := FALSE;
+    text_to_index := regexp_replace(coalesce(text_to_index, ''), E'<[^>]+>', '', 'gi'); -- Remove XML Tags
+    text_to_index := escape_tsvector_string(text_to_index); -- Escape characters used by ts_vector
+    WHILE NOT INDEXED LOOP
+            BEGIN
+                result = setweight(to_tsvector('english', text_to_index), weight)::TEXT;
+                indexed := TRUE;
+            EXCEPTION WHEN sqlstate '54000' THEN
+                text_to_index := left(text_to_index, LENGTH(text_to_index) / 2); -- If the index is too big reduce the size of the text to half
+            END;
+        END LOOP;
+    RETURN result;
+END $$;
 CREATE SEQUENCE attachment_content_id_seq
     START WITH 1
     INCREMENT BY 1
