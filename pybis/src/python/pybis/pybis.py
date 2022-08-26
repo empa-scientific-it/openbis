@@ -2104,18 +2104,18 @@ class Openbis:
         except Exception:
             self.login(username=username, password=password)
 
-        import pdb
-
-        pdb.set_trace()
-        session_info = self.get_session_info(token=token)
-        validFrom_orig = datetime.strptime(session_info.validFrom, "%Y-%m-%d %H:%H:%S")
-        validTo_orig = datetime.strptime(session_info.validTo, "%Y-%m-%d %H:%H:%S")
+        session_info = self.get_personal_access_token(token)
+        validFrom_orig = datetime.strptime(
+            session_info.validFromDate, "%Y-%m-%d %H:%M:%S"
+        )
+        validTo_orig = datetime.strptime(session_info.validToDate, "%Y-%m-%d %H:%M:%S")
         days_delta = abs(validFrom_orig - validTo_orig).days
+        validTo_new = datetime.now() + relativedelta(days=days_delta)
 
         new_pat = self.new_personal_access_token(
             sessionName=session_info.sessionName,
             validFrom=datetime.now(),
-            validTo=relativedelta(datetime.now(), days=days_delta),
+            validTo=validTo_new,
         )
         self.set_token(new_pat)
         if VERBOSE:
