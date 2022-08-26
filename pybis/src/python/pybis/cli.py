@@ -24,14 +24,21 @@ def login_options(func):
     return func
 
 
-def get_openbis(hostname, **kwargs):
+def get_openbis(hostname, session_token_needed=False, **kwargs):
 
+    token = pybis.get_token_for_hostname(
+        hostname, session_token_needed=session_token_needed
+    )
     openbis = pybis.Openbis(
         url=hostname,
         verify_certificates=kwargs.get("verify_certificate", True),
     )
-    if openbis.is_session_active():
-        return openbis
+    if token:
+        try:
+            openbis.set_token(token)
+            return openbis
+        except Exception:
+            pass
 
     if not kwargs.get("username"):
         kwargs["username"] = click.prompt("Username")
@@ -58,7 +65,7 @@ def cli():
 @click.argument("token", required=False, type=click.UNPROCESSED)
 @click.option("--info", is_flag=True, help="get more detailed information")
 def get_set_hostname(hostname, token, info):
-    """show or set hostname and token that is used in the current working directory."""
+    """show or set hostname and token that is used locally."""
     if hostname:
         if token and token.startswith("-"):
             token = "$pat" + token
@@ -69,13 +76,14 @@ def get_set_hostname(hostname, token, info):
         if info:
             o = pybis.Openbis(url=config.get("hostname", ""))
             session_info = o.get_session_info(token=config.get("token"))
-            print(session_info)
-        click.echo(
-            tabulate(
-                [[config.get("hostname", ""), config.get("token", "")]],
-                headers=["openBIS hostname", "token"],
+            click.echo(session_info)
+        else:
+            click.echo(
+                tabulate(
+                    [[config.get("hostname", ""), config.get("token", "")]],
+                    headers=["openBIS hostname", "token"],
+                )
             )
-        )
 
 
 @cli.command("tokens")
@@ -83,7 +91,7 @@ def get_set_hostname(hostname, token, info):
 def get_tokens(ctx, **kwargs):
     """list stored openBIS Session Tokens"""
     tokens = pybis.get_saved_tokens()
-    token_list = [[key, *tokens[key]] for key in tokens]
+    token_list = [[key, tokens[key]] for key in tokens]
     click.echo(tabulate(token_list, headers=["openBIS hostname", "session token"]))
 
 
@@ -141,8 +149,12 @@ def new_pat(ctx, hostname, session_name, **kwargs):
         validTo += relativedelta(days=int(kwargs.get("validity_days")))
     else:
         validTo += relativedelta(years=1)
-    o = get_openbis(hostname, **kwargs)
-    new_pat = o.create_personal_access_token(sessionName=session_name, validTo=validTo)
+    o = get_openbis(hostname, session_token_needed=True, **kwargs)
+    try:
+        new_pat = o.new_personal_access_token(sessionName=session_name, validTo=validTo)
+    except Exception as exc:
+        click.echo(f"Creation of new personal access token failed: {exc}")
+        sys.exit(1)
     click.echo(new_pat)
     o.get_personal_access_tokens(save_to_disk=True)
 
