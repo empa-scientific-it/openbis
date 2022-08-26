@@ -194,7 +194,9 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     @AfterClass
     public void logoutSystem()
     {
-        commonServer.logout(systemSessionToken);
+        if (commonServer != null && systemSessionToken != null) {
+            commonServer.logout(systemSessionToken);
+        }
     }
 
     /**
