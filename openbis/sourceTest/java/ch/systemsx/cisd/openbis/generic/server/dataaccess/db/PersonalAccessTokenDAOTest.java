@@ -263,6 +263,25 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
+    public void testWithFileWithMaxValidityPeriod() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config("test-validity-period-longer-than-allowed-maximum.json", TEST_VALIDITY_PERIOD);
+        TestGenerator generator = new TestGenerator();
+
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        assertEquals(dao.listTokens().size(), 1);
+        assertEquals(dao.listSessions().size(), 1);
+
+        PersonalAccessToken token = dao.listTokens().get(0);
+
+        assertEquals(token.getValidFromDate(), new Date(0));
+        assertEquals(token.getValidToDate(), new Date(TEST_VALIDITY_PERIOD * 1000));
+
+        assertJsonFile("test-validity-period-longer-than-allowed-maximum.json");
+    }
+
+    @Test
     public void testWithFileWithTokensOnly() throws IOException
     {
         IPersonalAccessTokenConfig config = config("test-tokens-only.json", TEST_VALIDITY_PERIOD);

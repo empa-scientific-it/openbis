@@ -25,6 +25,7 @@ import static org.testng.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.testng.annotations.Test;
@@ -38,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.pat.PersonalAccessTokenConstants;
 
 /**
  * @author pkupczyk
@@ -209,6 +211,27 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
         PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
 
         assertFalse(v3api.isSessionActive(token.getHash()));
+    }
+
+    @Test
+    public void testCreateWithValidityPeriodLongerThanAllowedMaximum()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        Map<String, String> serverInformation = v3api.getServerInformation(sessionToken);
+        long maxValidityPeriodInSeconds =
+                Long.parseLong(serverInformation.get(PersonalAccessTokenConstants.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
+
+        Date now = new Date();
+
+        PersonalAccessTokenCreation creation = tokenCreation();
+        creation.setValidFromDate(now);
+        creation.setValidToDate(new Date(now.getTime() + maxValidityPeriodInSeconds * 1000 + DateUtils.MILLIS_PER_DAY));
+
+        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+
+        assertEquals(token.getValidFromDate(), now);
+        assertEquals(token.getValidToDate(), new Date(now.getTime() + maxValidityPeriodInSeconds * 1000));
     }
 
     @Test
