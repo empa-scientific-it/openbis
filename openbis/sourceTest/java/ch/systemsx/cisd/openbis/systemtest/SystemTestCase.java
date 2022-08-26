@@ -190,15 +190,6 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
     }
 
-    @AfterMethod(alwaysRun = true)
-    @AfterClass
-    public void logoutSystem()
-    {
-        if (commonServer != null && systemSessionToken != null) {
-            commonServer.logout(systemSessionToken);
-        }
-    }
-
     /**
      * Sets a {@link MockHttpServletRequest} for the specified context provider
      */
