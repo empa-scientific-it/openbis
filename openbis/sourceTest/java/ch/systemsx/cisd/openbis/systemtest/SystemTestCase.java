@@ -43,10 +43,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.*;
 
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
@@ -191,6 +188,13 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+    }
+
+    @AfterMethod(alwaysRun = true)
+    @AfterClass
+    public void logoutSystem()
+    {
+        commonServer.logout(systemSessionToken);
     }
 
     /**
