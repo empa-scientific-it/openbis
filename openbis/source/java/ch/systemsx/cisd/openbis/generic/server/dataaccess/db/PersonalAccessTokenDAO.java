@@ -159,9 +159,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             throw new UserFailureException("Valid to date cannot be null.");
         }
 
-        if (creation.getValidFromDate().after(creation.getValidToDate()))
+        if (creation.getValidFromDate().getTime() >= creation.getValidToDate().getTime())
         {
-            throw new UserFailureException("Valid from date cannot be after valid to date.");
+            throw new UserFailureException("Valid to date has to be after valid from date.");
         }
 
         if (creation.getRegistrationDate() == null)
@@ -571,9 +571,9 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
                             throw new UserFailureException("Valid to date cannot be null.");
                         }
 
-                        if (fileToken.validFromDate.after(fileToken.validToDate))
+                        if (fileToken.validFromDate.getTime() >= fileToken.validToDate.getTime())
                         {
-                            throw new UserFailureException("Valid from date cannot be after valid to date.");
+                            throw new UserFailureException("Valid to date has to be after valid from date.");
                         }
 
                         if (fileToken.registrationDate == null)

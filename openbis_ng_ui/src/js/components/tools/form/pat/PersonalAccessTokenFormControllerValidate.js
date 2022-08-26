@@ -63,14 +63,22 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
       pat.validToDate.value &&
       pat.validToDate.value.dateObject
     ) {
-      const validFromMillis = pat.validFromDate.value.dateObject.getTime()
-      const validToMillis = pat.validToDate.value.dateObject.getTime()
+      const roundToSeconds = millis => {
+        return Math.floor(millis / 1000) * 1000
+      }
 
-      if (validToMillis < validFromMillis) {
+      const validFromMillis = roundToSeconds(
+        pat.validFromDate.value.dateObject.getTime()
+      )
+      const validToMillis = roundToSeconds(
+        pat.validToDate.value.dateObject.getTime()
+      )
+
+      if (validToMillis <= validFromMillis) {
         validator.addError(
           pat,
           'validToDate',
-          messages.get(messages.VALID_TO_CANNOT_BE_BEFORE_VALID_FROM)
+          messages.get(messages.VALID_TO_HAS_TO_AFTER_VALID_FROM)
         )
       }
 

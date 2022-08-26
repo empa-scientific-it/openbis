@@ -13,10 +13,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -214,9 +212,9 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
-    public void testWithIncorrectFile() throws IOException
+    public void testWithFileWithIncorrectOwnerId() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-incorrect.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config("test-incorrect-owner-id.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -225,6 +223,42 @@ public class PersonalAccessTokenDAOTest
         assertEquals(dao.listSessions().size(), 0);
 
         assertContains("ERROR OPERATION.PersonalAccessTokenDAO - Loading of personal access tokens file failed.",
+                logRecorder.getLogContent());
+        assertContains("Cannot deserialize value of type `java.lang.Long` from String \"I_SHOULD_BE_A_NUMBER\": not a valid Long value",
+                logRecorder.getLogContent());
+    }
+
+    @Test
+    public void testWithFileWithValidFromDateEqualToValidToDate() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config("test-valid-from-date-equal-to-valid-to-date.json", TEST_VALIDITY_PERIOD);
+        TestGenerator generator = new TestGenerator();
+
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        assertEquals(dao.listTokens().size(), 0);
+        assertEquals(dao.listSessions().size(), 0);
+
+        assertContains("ERROR OPERATION.PersonalAccessTokenDAO - Loading of personal access tokens file failed.",
+                logRecorder.getLogContent());
+        assertContains("Valid to date has to be after valid from date",
+                logRecorder.getLogContent());
+    }
+
+    @Test
+    public void testWithFileWithValidFromDateAfterToValidToDate() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config("test-valid-from-date-after-valid-to-date.json", TEST_VALIDITY_PERIOD);
+        TestGenerator generator = new TestGenerator();
+
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        assertEquals(dao.listTokens().size(), 0);
+        assertEquals(dao.listSessions().size(), 0);
+
+        assertContains("ERROR OPERATION.PersonalAccessTokenDAO - Loading of personal access tokens file failed.",
+                logRecorder.getLogContent());
+        assertContains("Valid to date has to be after valid from date",
                 logRecorder.getLogContent());
     }
 

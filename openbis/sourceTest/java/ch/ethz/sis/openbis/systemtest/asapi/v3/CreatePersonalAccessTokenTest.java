@@ -254,7 +254,23 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
                 creation.setValidToDate(new Date(1));
                 createToken(TEST_USER, PASSWORD, creation);
             }
-        }, "Valid from date cannot be after valid to date");
+        }, "Valid to date has to be after valid from date");
+    }
+
+    @Test
+    public void testCreateWithValidFromEqualToValidTo()
+    {
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                PersonalAccessTokenCreation creation = tokenCreation();
+                creation.setValidFromDate(new Date(1));
+                creation.setValidToDate(new Date(1));
+                createToken(TEST_USER, PASSWORD, creation);
+            }
+        }, "Valid to date has to be after valid from date");
     }
 
     @Test
