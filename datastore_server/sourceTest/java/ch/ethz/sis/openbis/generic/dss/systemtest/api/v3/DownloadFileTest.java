@@ -7,13 +7,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,6 +35,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
@@ -77,6 +82,32 @@ public class DownloadFileTest extends AbstractFileTest
 
         // When
         FastDownloadSession downloadSession = dss.createFastDownloadSession(sessionToken, fileIds, options);
+        FastDownloadResult downloadResult = new FastDownloader(downloadSession).downloadTo(target);
+
+        // Then
+        assertEquals(DownloadStatus.FINISHED, downloadResult.getStatus());
+        assertDownloads(sessionToken, downloadResult.getPathsById(), fileIds);
+    }
+
+    @Test
+    public void testFastDownloadUsingPersonalAccessToken()
+    {
+        // Given
+        String sessionToken = as.login(TEST_USER, PASSWORD);
+
+        PersonalAccessTokenCreation patCreation = new PersonalAccessTokenCreation();
+        patCreation.setSessionName("test session" + UUID.randomUUID());
+        patCreation.setValidFromDate(new Date());
+        patCreation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
+
+        List<PersonalAccessTokenPermId> patIds = as.createPersonalAccessTokens(sessionToken, Collections.singletonList(patCreation));
+
+        DataSetFilePermId root = new DataSetFilePermId(new DataSetPermId(dataSetCode), "");
+        List<DataSetFilePermId> fileIds = Arrays.asList(root);
+        FastDownloadSessionOptions options = new FastDownloadSessionOptions().withWishedNumberOfStreams(1);
+
+        // When
+        FastDownloadSession downloadSession = dss.createFastDownloadSession(patIds.get(0).getPermId(), fileIds, options);
         FastDownloadResult downloadResult = new FastDownloader(downloadSession).downloadTo(target);
 
         // Then

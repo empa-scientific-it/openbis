@@ -225,7 +225,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         boolean isLinkData = false;
         try
         {
-            RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
+            RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME, applicationContext);
             isLinkData = requestParams.isLinkData();
             rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
@@ -321,7 +321,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName)
+    private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName, ApplicationContext applicationContext)
             throws UnsupportedEncodingException, URISyntaxException
     {
         final String urlPrefix = "/" + applicationName + "/";
@@ -348,7 +348,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
-        sessionIDOrNull = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionIDOrNull);
+        sessionIDOrNull = applicationContext.getPersonalAccessTokenConverter().convert(sessionIDOrNull);
 
         String displayMode = getDisplayMode(request);
 

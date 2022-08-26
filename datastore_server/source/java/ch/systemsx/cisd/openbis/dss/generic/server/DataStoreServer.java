@@ -161,7 +161,7 @@ public class DataStoreServer
         final ApplicationContext applicationContext =
                 new ApplicationContext(openBISService, sessionTokenCache,
                         ServiceProvider.getShareIdManager(),
-                        ServiceProvider.getHierarchicalContentProvider(), configParams);
+                        ServiceProvider.getHierarchicalContentProvider(), configParams, ServiceProvider.getPersonalAccessTokenConverter());
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParams
                 .getAuthCacheExpirationTimeMins(), configParams
                         .getAuthCacheCleanupTimerPeriodMins()));

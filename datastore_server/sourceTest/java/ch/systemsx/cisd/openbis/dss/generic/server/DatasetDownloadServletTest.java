@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
@@ -148,6 +149,8 @@ public class DatasetDownloadServletTest
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
+    private IPersonalAccessTokenConverter personalAccessTokenConverter;
+
     private IServiceForDataStoreServer service;
 
     @BeforeMethod
@@ -169,19 +172,32 @@ public class DatasetDownloadServletTest
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(openbisService, dummyDirectoryProvider,
                         fileBasedContentFactory, null, null, null, "STANDARD", null);
+        personalAccessTokenConverter = new IPersonalAccessTokenConverter()
+        {
+            @Override public boolean shouldConvert(final String sessionTokenOrPAT)
+            {
+                return false;
+            }
+
+            @Override public String convert(final String sessionTokenOrPAT)
+            {
+                return sessionTokenOrPAT;
+            }
+        };
+
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
         FileUtilities.writeToFile(EXAMPLE_FILE, EXAMPLE_FILE_CONTENT);
         EXAMPLE_DATA_SET_SUB_FOLDER.mkdir();
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(httpSession).setAttribute(with("openbis-session-id"), with(any(Object.class)));
-                    allowing(httpSession).getAttribute(with("openbis-session-id"));
-                    will(returnValue(EXAMPLE_SESSION_ID));
-                }
-            });
+                allowing(httpSession).setAttribute(with("openbis-session-id"), with(any(Object.class)));
+                allowing(httpSession).getAttribute(with("openbis-session-id"));
+                will(returnValue(EXAMPLE_SESSION_ID));
+            }
+        });
 
     }
 
@@ -932,7 +948,7 @@ public class DatasetDownloadServletTest
         ConfigParameters configParameters = new ConfigParameters(properties);
         OpenbisSessionTokenCache sessionTokenCache = new OpenbisSessionTokenCache(service);
         return new DatasetDownloadServlet(new ApplicationContext(openbisService, sessionTokenCache,
-                shareIdManager, hierarchicalContentProvider, configParameters));
+                shareIdManager, hierarchicalContentProvider, configParameters, personalAccessTokenConverter));
     }
 
     private String getNormalizedLogContent()
