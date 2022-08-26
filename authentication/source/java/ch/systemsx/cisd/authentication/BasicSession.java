@@ -41,7 +41,7 @@ public class BasicSession implements Serializable
 
     private long sessionStart;
 
-    private int sessionExpirationTime;
+    private long sessionExpirationTime;
 
     private boolean isPersonalAccessTokenSession;
 
@@ -57,7 +57,7 @@ public class BasicSession implements Serializable
      * epoch).
      */
     public BasicSession(String sessionToken, String userName,
-            Principal principal, String remoteHost, long sessionStart, int sessionExpirationTime)
+            Principal principal, String remoteHost, long sessionStart, long sessionExpirationTime)
     {
         assert sessionToken != null : "Given session token can not be null.";
         assert userName != null : "Given user name can not be null.";
@@ -75,7 +75,7 @@ public class BasicSession implements Serializable
     }
 
     public BasicSession(String sessionToken, String userName,
-            Principal principal, String remoteHost, long sessionStart, int sessionExpirationTime, boolean isPersonalAccessTokenSession,
+            Principal principal, String remoteHost, long sessionStart, long sessionExpirationTime, boolean isPersonalAccessTokenSession,
             String personalAccessTokenSessionName)
     {
         this(sessionToken, userName, principal, remoteHost, sessionStart, sessionExpirationTime);
@@ -134,7 +134,7 @@ public class BasicSession implements Serializable
     /**
      * Returns the expiration time of this session in milliseconds.
      */
-    public final int getSessionExpirationTime()
+    public final long getSessionExpirationTime()
     {
         return sessionExpirationTime;
     }
@@ -187,7 +187,7 @@ public class BasicSession implements Serializable
     }
 
     @Deprecated
-    public void setSessionExpirationTime(int sessionExpirationTime)
+    public void setSessionExpirationTime(long sessionExpirationTime)
     {
         this.sessionExpirationTime = sessionExpirationTime;
     }

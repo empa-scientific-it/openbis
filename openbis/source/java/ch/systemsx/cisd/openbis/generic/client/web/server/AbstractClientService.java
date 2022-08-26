@@ -659,7 +659,7 @@ public abstract class AbstractClientService implements IClientService,
         }
 
         // Expiration time of httpSession is 10 seconds less than of session
-        final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
+        final int sessionExpirationTimeInMillis = (int) session.getSessionExpirationTime();
         final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
         if (sessionExpirationTimeInMillis < 0)
         {

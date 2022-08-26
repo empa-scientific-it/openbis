@@ -145,9 +145,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     /**
      * The time after which an inactive session will be expired (in milliseconds).
      */
-    private final int sessionExpirationPeriodMillis;
+    private final long sessionExpirationPeriodMillis;
 
-    private final int sessionExpirationPeriodMillisNoLogin;
+    private final long sessionExpirationPeriodMillisNoLogin;
 
     private final boolean tryEmailAsUserName;
 
@@ -181,11 +181,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.prefixGenerator = prefixGenerator;
         this.authenticationService = authenticationService;
         this.remoteHostProvider = remoteHostProvider;
-        this.sessionExpirationPeriodMillis =
-                (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
+        this.sessionExpirationPeriodMillis = sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE;
         if (sessionExpirationPeriodMinutesNoLogin > 0)
         {
-            this.sessionExpirationPeriodMillisNoLogin = (int) (sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE);
+            this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE;
         } else
         {
             this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMillis;

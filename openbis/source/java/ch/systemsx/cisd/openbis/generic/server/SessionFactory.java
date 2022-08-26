@@ -100,13 +100,13 @@ public final class SessionFactory implements ISessionFactory<Session>
     @Override
     public final Session create(final String sessionToken, final String userName,
             final Principal principal, final String remoteHost, final long sessionStart,
-            final int expirationTime)
+            final long expirationTime)
     {
         return create(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime, false, null);
     }
 
     @Override public Session create(final String sessionToken, final String userName, final Principal principal, final String remoteHost,
-            final long sessionStart, final int sessionExpirationTime, final boolean isPersonalAccessTokenSession,
+            final long sessionStart, final long sessionExpirationTime, final boolean isPersonalAccessTokenSession,
             final String personalAccessTokenSessionName)
     {
         final Session session =

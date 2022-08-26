@@ -40,7 +40,7 @@ public class SessionContextDTO implements Serializable
 
     private String homeGroupCodeOrNull;
 
-    private int sessionExpirationTime;
+    private long sessionExpirationTime;
 
     private String userEmail;
 
@@ -75,7 +75,7 @@ public class SessionContextDTO implements Serializable
         this.homeGroupCodeOrNull = homeGroupCodeOrNull;
     }
 
-    public void setSessionExpirationTime(int sessionExpirationTime)
+    public void setSessionExpirationTime(long sessionExpirationTime)
     {
         this.sessionExpirationTime = sessionExpirationTime;
     }
@@ -100,7 +100,7 @@ public class SessionContextDTO implements Serializable
         return homeGroupCodeOrNull;
     }
 
-    public int getSessionExpirationTime()
+    public long getSessionExpirationTime()
     {
         return sessionExpirationTime;
     }

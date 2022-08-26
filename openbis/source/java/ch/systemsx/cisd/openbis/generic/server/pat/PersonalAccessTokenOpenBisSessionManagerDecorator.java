@@ -309,7 +309,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
             final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
                     patSession.getValidFromDate().getTime(),
-                    (int) (patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime()),
+                    patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime(),
                     true, patSession.getName());
 
             HibernateUtils.initialize(person.getAllPersonRoles());
