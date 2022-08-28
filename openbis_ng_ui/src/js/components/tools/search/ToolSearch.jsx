@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import AppController from '@src/js/components/AppController.js'
+import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
 import PersonalAccessTokensGrid from '@src/js/components/tools/common/PersonalAccessTokensGrid.jsx'
@@ -166,6 +167,15 @@ class ToolSearch extends React.Component {
   }
 
   async loadPersonalAccessTokens() {
+    const personalAccessTokensEnabled =
+      AppController.getInstance().getServerInformation(
+        ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+      )
+
+    if (personalAccessTokensEnabled !== 'true') {
+      return
+    }
+
     if (!this.shouldLoad(objectTypes.PERSONAL_ACCESS_TOKEN)) {
       return
     }
@@ -388,6 +398,15 @@ class ToolSearch extends React.Component {
   }
 
   renderPersonalAccessTokens() {
+    const personalAccessTokensEnabled =
+      AppController.getInstance().getServerInformation(
+        ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+      )
+
+    if (personalAccessTokensEnabled !== 'true') {
+      return
+    }
+
     if (this.shouldRender(objectTypes.PERSONAL_ACCESS_TOKEN, this.state.pats)) {
       const { classes } = this.props
       return (

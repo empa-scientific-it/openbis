@@ -312,7 +312,8 @@ export class AppController {
   }
 
   getServerInformation(key) {
-    return this.context.getState().serverInformation[key]
+    const serverInformation = this.context.getState().serverInformation || {}
+    return serverInformation[key]
   }
 
   getSession() {

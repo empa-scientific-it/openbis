@@ -4,6 +4,7 @@ import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
+import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'
 import messages from '@src/js/common/messages.js'
 
@@ -108,19 +109,6 @@ export default class ToolBrowserController extends BrowserController {
         }
       ]
 
-      const accessNodes = [
-        {
-          id: 'access/personalAccessTokens',
-          text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
-          object: {
-            type: objectType.OVERVIEW,
-            id: objectType.PERSONAL_ACCESS_TOKEN
-          },
-          canMatchFilter: true,
-          canRemove: false
-        }
-      ]
-
       let nodes = [
         {
           id: 'dynamicPropertyPlugins',
@@ -166,23 +154,43 @@ export default class ToolBrowserController extends BrowserController {
           text: messages.get(messages.IMPORT),
           children: importNodes,
           canAdd: false
-        },
-        {
-          id: 'access',
-          text: messages.get(messages.ACCESS),
-          children: accessNodes,
-          canAdd: false
-        },
-        {
-          id: 'activeUsersReport',
-          text: messages.get(messages.ACTIVE_USERS_REPORT),
-          object: {
-            type: objectType.ACTIVE_USERS_REPORT,
-            id: objectType.ACTIVE_USERS_REPORT
-          },
-          canAdd: false
         }
       ]
+
+      const personalAccessTokensEnabled =
+        AppController.getInstance().getServerInformation(
+          ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+        )
+
+      if (personalAccessTokensEnabled === 'true') {
+        nodes.push({
+          id: 'access',
+          text: messages.get(messages.ACCESS),
+          children: [
+            {
+              id: 'access/personalAccessTokens',
+              text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
+              object: {
+                type: objectType.OVERVIEW,
+                id: objectType.PERSONAL_ACCESS_TOKEN
+              },
+              canMatchFilter: true,
+              canRemove: false
+            }
+          ],
+          canAdd: false
+        })
+      }
+
+      nodes.push({
+        id: 'activeUsersReport',
+        text: messages.get(messages.ACTIVE_USERS_REPORT),
+        object: {
+          type: objectType.ACTIVE_USERS_REPORT,
+          id: objectType.ACTIVE_USERS_REPORT
+        },
+        canAdd: false
+      })
 
       return nodes
     })
