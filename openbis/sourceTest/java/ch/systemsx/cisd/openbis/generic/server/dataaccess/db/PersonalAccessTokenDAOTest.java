@@ -6,6 +6,7 @@ import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -26,6 +28,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -117,9 +120,49 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
+    public void testWithValidFileAndPersonalAccessTokensEnabled() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config(true, "test-valid-file.json", 60 * 60);
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        List<PersonalAccessToken> tokens = dao.listTokens();
+        assertEquals(tokens.size(), 3);
+
+        List<PersonalAccessTokenSession> sessions = dao.listSessions();
+        assertEquals(sessions.size(), 2);
+    }
+
+    @Test
+    public void testWithValidFileAndPersonalAccessTokensDisabled() throws IOException
+    {
+        IPersonalAccessTokenConfig config = config(false, "test-valid-file.json", 60 * 60);
+        TestGenerator generator = new TestGenerator();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+
+        try
+        {
+            dao.listTokens();
+            fail();
+        } catch (UserFailureException e)
+        {
+            assertEquals(e.getMessage(), "Personal access tokens are disabled");
+        }
+
+        try
+        {
+            dao.listSessions();
+            fail();
+        } catch (UserFailureException e)
+        {
+            assertEquals(e.getMessage(), "Personal access tokens are disabled");
+        }
+    }
+
+    @Test
     public void testWithMaxValidityPeriod() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-empty.json", 60 * 60);
+        IPersonalAccessTokenConfig config = config(true, "test-empty.json", 60 * 60);
         TestGenerator generator = new TestGenerator();
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
 
@@ -139,7 +182,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithEmptyFile() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-empty.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-empty.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -204,7 +247,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithNonExistentFile() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("i-do-not-exist.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "i-do-not-exist.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -216,7 +259,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithIncorrectOwnerId() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-incorrect-owner-id.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-incorrect-owner-id.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -233,7 +276,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithValidFromDateEqualToValidToDate() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-valid-from-date-equal-to-valid-to-date.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-valid-from-date-equal-to-valid-to-date.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -250,7 +293,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithValidFromDateAfterToValidToDate() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-valid-from-date-after-valid-to-date.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-valid-from-date-after-valid-to-date.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -267,7 +310,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithMaxValidityPeriod() throws Exception
     {
-        IPersonalAccessTokenConfig config = config("test-validity-period-longer-than-allowed-maximum.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-validity-period-longer-than-allowed-maximum.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -286,7 +329,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithTokensOnly() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-tokens-only.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-tokens-only.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -300,7 +343,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithUnknownUsers() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-unknown-users.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-unknown-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -320,7 +363,7 @@ public class PersonalAccessTokenDAOTest
     @Test
     public void testWithFileWithInactiveUsers() throws IOException
     {
-        IPersonalAccessTokenConfig config = config("test-inactive-users.json", TEST_VALIDITY_PERIOD);
+        IPersonalAccessTokenConfig config = config(true, "test-inactive-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
 
         PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
@@ -337,7 +380,7 @@ public class PersonalAccessTokenDAOTest
         assertJsonFile("test-inactive-users.json");
     }
 
-    private IPersonalAccessTokenConfig config(String initialJsonFileName, long maxValidityPeriod) throws IOException
+    private IPersonalAccessTokenConfig config(boolean enabled, String initialJsonFileName, long maxValidityPeriod) throws IOException
     {
         IPersonalAccessTokenConfig config = mockery.mock(IPersonalAccessTokenConfig.class);
 
@@ -352,6 +395,9 @@ public class PersonalAccessTokenDAOTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(config).arePersonalAccessTokensEnabled();
+                will(returnValue(enabled));
+
                 allowing(config).getPersonalAccessTokensFilePath();
                 will(returnValue(file.getAbsolutePath()));
 

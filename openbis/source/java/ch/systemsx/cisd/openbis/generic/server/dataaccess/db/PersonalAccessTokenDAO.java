@@ -103,12 +103,25 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         this.personDAO = personDAO;
         this.generator = generator;
 
-        loadFromFile();
+        if (config.arePersonalAccessTokensEnabled())
+        {
+            loadFromFile();
+        }
+    }
+
+    private void checkPersonalAccessTokensEnabled()
+    {
+        if (!config.arePersonalAccessTokensEnabled())
+        {
+            throw new UserFailureException("Personal access tokens are disabled");
+        }
     }
 
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessToken createToken(final PersonalAccessToken creation)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (StringUtils.isEmpty(creation.getSessionName()))
         {
             throw new UserFailureException("Session name cannot be empty.");
@@ -206,6 +219,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized void updateToken(final PersonalAccessToken update)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (update == null)
         {
             throw new UserFailureException("Update cannot be null.");
@@ -253,6 +268,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized void deleteToken(final String hash)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (StringUtils.isEmpty(hash))
         {
             throw new UserFailureException("Hash cannot be empty.");
@@ -270,6 +287,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized List<PersonalAccessToken> listTokens()
     {
+        checkPersonalAccessTokensEnabled();
+
         List<PersonalAccessToken> tokens = new ArrayList<>();
 
         for (FileToken fileToken : fileTokens.values())
@@ -288,6 +307,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessToken getTokenByHash(final String hash)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (StringUtils.isEmpty(hash))
         {
             throw new UserFailureException("Hash cannot be empty.");
@@ -306,6 +327,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized List<PersonalAccessTokenSession> listSessions()
     {
+        checkPersonalAccessTokensEnabled();
+
         List<PersonalAccessTokenSession> sessions = new ArrayList<>();
 
         for (FileSession fileSession : fileSessions.values())
@@ -324,6 +347,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public PersonalAccessTokenSession getSessionByHash(final String hash)
     {
+        checkPersonalAccessTokensEnabled();
+
         if (StringUtils.isEmpty(hash))
         {
             throw new UserFailureException("Hash cannot be empty.");
@@ -342,6 +367,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     @Override public synchronized PersonalAccessTokenSession getSessionByUserIdAndSessionName(final String userId, final String sessionName)
     {
+        checkPersonalAccessTokensEnabled();
+        
         if (StringUtils.isEmpty(userId))
         {
             throw new UserFailureException("User id cannot be empty.");

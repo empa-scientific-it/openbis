@@ -137,6 +137,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         if (!config.arePersonalAccessTokensEnabled())
         {
             sessionManager.expireSession(sessionToken);
+            return;
         }
 
         PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
@@ -156,6 +157,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         if (!config.arePersonalAccessTokensEnabled())
         {
             sessionManager.closeSession(sessionToken);
+            return;
         }
 
         PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
