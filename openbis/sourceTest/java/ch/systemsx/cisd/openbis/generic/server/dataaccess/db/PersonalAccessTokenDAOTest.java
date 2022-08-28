@@ -10,9 +10,11 @@ import static org.testng.Assert.assertNull;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
@@ -263,7 +265,7 @@ public class PersonalAccessTokenDAOTest
     }
 
     @Test
-    public void testWithFileWithMaxValidityPeriod() throws IOException
+    public void testWithFileWithMaxValidityPeriod() throws Exception
     {
         IPersonalAccessTokenConfig config = config("test-validity-period-longer-than-allowed-maximum.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
@@ -275,8 +277,8 @@ public class PersonalAccessTokenDAOTest
 
         PersonalAccessToken token = dao.listTokens().get(0);
 
-        assertEquals(token.getValidFromDate(), new Date(0));
-        assertEquals(token.getValidToDate(), new Date(TEST_VALIDITY_PERIOD * 1000));
+        assertDate(token.getValidFromDate(), "1970-01-01 00:00:00");
+        assertDate(token.getValidToDate(), "2000-01-01 00:00:00");
 
         assertJsonFile("test-validity-period-longer-than-allowed-maximum.json");
     }
@@ -373,6 +375,14 @@ public class PersonalAccessTokenDAOTest
         creation.setRegistrationDate(new Date(1));
         creation.setModificationDate(new Date(1));
         return creation;
+    }
+
+    private void assertDate(Date actualDate, String expectedDateStr) throws Exception
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Date expectedDate = format.parse(expectedDateStr);
+        assertEquals(actualDate, expectedDate);
     }
 
     private void assertToken(PersonalAccessToken token, String hash, PersonalAccessToken creation)

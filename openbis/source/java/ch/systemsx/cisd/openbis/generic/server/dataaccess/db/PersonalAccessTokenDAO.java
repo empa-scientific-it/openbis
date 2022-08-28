@@ -449,18 +449,7 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         token.setRegistratorId(registrator != null ? registrator.getUserId() : null);
         token.setModifierId(modifier != null ? modifier.getUserId() : null);
         token.setValidFromDate(fileToken.validFromDate);
-
-        long maxValidityPeriod = config.getPersonalAccessTokensMaxValidityPeriod() * 1000;
-        long validityPeriod = fileToken.validToDate.getTime() - fileToken.validFromDate.getTime();
-
-        if (validityPeriod < maxValidityPeriod)
-        {
-            token.setValidToDate(fileToken.validToDate);
-        } else
-        {
-            token.setValidToDate(new Date(fileToken.validFromDate.getTime() + maxValidityPeriod));
-        }
-
+        token.setValidToDate(fileToken.validToDate);
         token.setRegistrationDate(fileToken.registrationDate);
         token.setModificationDate(fileToken.modificationDate);
         token.setAccessDate(fileToken.accessDate);
