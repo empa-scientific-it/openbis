@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformatio
 import ch.systemsx.cisd.authentication.SessionTokenHash;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
@@ -42,25 +43,29 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     public void testWithUnknownSession()
     {
         String unknownSessionToken = SessionTokenHash.create("testing", System.currentTimeMillis()).toString();
-        testWithUnknownSession(unknownSessionToken);
-    }
 
-    private void testWithUnknownSession(String sessionToken)
-    {
-        assertFalse(sessionManager.isSessionActive(sessionToken));
-        assertNull(sessionManager.tryGetSession(sessionToken));
+        testWithUnknownSession(unknownSessionToken);
+
         assertInvalidSessionException(() ->
         {
-            sessionManager.getSession(sessionToken);
+            sessionManager.expireSession(unknownSessionToken);
         });
-
-        for (Session session : sessionManager.getSessions())
+        assertInvalidSessionException(() ->
         {
-            if (sessionToken.equals(session.getSessionToken()))
-            {
-                fail("Session should not exist");
-            }
-        }
+            sessionManager.closeSession(unknownSessionToken);
+        });
+    }
+
+    @Test
+    public void testWithRegularSession()
+    {
+        String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
+        Session session = sessionManager.getSession(sessionToken);
+        session.setSessionExpirationTime(DateUtils.MILLIS_PER_DAY);
+        testWithKnownSession(sessionToken);
+
+        sessionManager.expireSession(sessionToken);
+        testWithUnknownSession(sessionToken);
 
         assertInvalidSessionException(() ->
         {
@@ -73,15 +78,23 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     }
 
     @Test
-    public void testWithRegularSession()
+    public void testWithRegularSessionTimeout() throws InterruptedException
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final long SESSION_VALIDITY_PERIOD = 2000;
 
+        String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
+        Session session = sessionManager.getSession(sessionToken);
+        session.setSessionExpirationTime(SESSION_VALIDITY_PERIOD);
         testWithKnownSession(sessionToken);
 
-        sessionManager.expireSession(sessionToken);
-        testWithUnknownSession(sessionToken);
+        Thread.sleep(SESSION_VALIDITY_PERIOD);
 
+        testWithTimedOutSession(sessionToken);
+
+        assertInvalidSessionException(() ->
+        {
+            sessionManager.expireSession(sessionToken);
+        });
         assertInvalidSessionException(() ->
         {
             sessionManager.closeSession(sessionToken);
@@ -89,10 +102,9 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     }
 
     @Test
-    public void testWithPersonalAccessTokenSessionValid()
+    public void testWithPersonalAccessTokenSession()
     {
-        String sessionToken = createPersonalAccessTokenSession(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY),
-                new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
+        String sessionToken = createPersonalAccessTokenSession(new Date(), new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
         testWithKnownSession(sessionToken);
 
         sessionManager.expireSession(sessionToken);
@@ -103,11 +115,58 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     }
 
     @Test
-    public void testWithPersonalAccessTokenSessionInvalid()
+    public void testWithPersonalAccessTokenSessionWithMultipleTokens() throws InterruptedException
     {
-        String sessionToken = createPersonalAccessTokenSession(new Date(System.currentTimeMillis() - 2 * DateUtils.MILLIS_PER_DAY),
-                new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
-        assertNull(sessionToken);
+        final long SESSION_VALIDITY_PERIOD = 2000;
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionName = "test session " + UUID.randomUUID();
+
+        PersonalAccessTokenCreation patCreation1 = new PersonalAccessTokenCreation();
+        patCreation1.setSessionName(sessionName);
+        patCreation1.setValidFromDate(new Date());
+        patCreation1.setValidToDate(new Date(System.currentTimeMillis() + SESSION_VALIDITY_PERIOD));
+
+        PersonalAccessTokenCreation patCreation2 = new PersonalAccessTokenCreation();
+        patCreation2.setSessionName(sessionName);
+        patCreation2.setValidFromDate(patCreation1.getValidToDate());
+        patCreation2.setValidToDate(new Date(patCreation1.getValidToDate().getTime() + SESSION_VALIDITY_PERIOD));
+
+        v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(patCreation1, patCreation2));
+
+        SessionInformationSearchCriteria patSessionCriteria = new SessionInformationSearchCriteria();
+        patSessionCriteria.withPersonalAccessTokenSession().thatEquals(true);
+        patSessionCriteria.withPersonalAccessTokenSessionName().thatEquals(sessionName);
+
+        SearchResult<SessionInformation> patSessionResult =
+                v3api.searchSessionInformation(sessionToken, patSessionCriteria, new SessionInformationFetchOptions());
+        assertEquals(patSessionResult.getObjects().size(), 1);
+
+        String patSessionToken = patSessionResult.getObjects().get(0).getSessionToken();
+
+        testWithKnownSession(patSessionToken);
+        Thread.sleep(SESSION_VALIDITY_PERIOD);
+        sessionManager.expireSession(patSessionToken);
+        sessionManager.closeSession(patSessionToken);
+        testWithKnownSession(patSessionToken);
+        Thread.sleep(SESSION_VALIDITY_PERIOD);
+        testWithTimedOutSession(patSessionToken);
+    }
+
+    @Test
+    public void testWithPersonalAccessTokenSessionTimeout() throws InterruptedException
+    {
+        final long SESSION_VALIDITY_PERIOD = 2000;
+
+        String sessionToken = createPersonalAccessTokenSession(new Date(), new Date(System.currentTimeMillis() + SESSION_VALIDITY_PERIOD));
+        testWithKnownSession(sessionToken);
+
+        Thread.sleep(SESSION_VALIDITY_PERIOD);
+
+        testWithTimedOutSession(sessionToken);
+
+        sessionManager.expireSession(sessionToken);
+        sessionManager.closeSession(sessionToken);
     }
 
     private void testWithKnownSession(String sessionToken)
@@ -133,6 +192,53 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         assertNotNull(getSessions);
         assertEquals(getSessions.getSessionToken(), sessionToken);
         assertSame(tryGetSession, getSessions);
+    }
+
+    private void testWithUnknownSession(String sessionToken)
+    {
+        assertFalse(sessionManager.isSessionActive(sessionToken));
+        assertNull(sessionManager.tryGetSession(sessionToken));
+
+        for (Session session : sessionManager.getSessions())
+        {
+            if (sessionToken.equals(session.getSessionToken()))
+            {
+                fail("Session should not exist");
+            }
+        }
+
+        assertInvalidSessionException(() ->
+        {
+            sessionManager.getSession(sessionToken);
+        });
+    }
+
+    private void testWithTimedOutSession(String sessionToken)
+    {
+        assertFalse(sessionManager.isSessionActive(sessionToken));
+
+        Session tryGetSession = sessionManager.tryGetSession(sessionToken);
+        assertEquals(tryGetSession.getSessionToken(), sessionToken);
+
+        Session getSessions = null;
+        for (Session session : sessionManager.getSessions())
+        {
+            if (sessionToken.equals(session.getSessionToken()))
+            {
+                getSessions = session;
+            }
+        }
+        assertNotNull(getSessions);
+        assertEquals(getSessions.getSessionToken(), sessionToken);
+        assertSame(tryGetSession, getSessions);
+
+        assertInvalidSessionException(() ->
+        {
+            // removes the invalid session
+            sessionManager.getSession(sessionToken);
+        });
+
+        testWithUnknownSession(sessionToken);
     }
 
     private String createPersonalAccessTokenSession(Date validFrom, Date validTo)

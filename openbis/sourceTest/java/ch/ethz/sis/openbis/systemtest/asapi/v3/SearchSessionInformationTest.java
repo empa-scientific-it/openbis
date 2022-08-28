@@ -54,6 +54,7 @@ public class SearchSessionInformationTest extends AbstractTest
 
         assertNotNull(sessionInformation);
         assertEquals(sessionInformation.getSessionToken(), sessionToken1);
+        assertTrue(v3api.isSessionActive(sessionInformation.getSessionToken()));
         assertEquals(sessionInformation.getUserName(), TEST_USER);
         assertEquals(sessionInformation.getPerson().getUserId(), TEST_USER);
         assertEquals(sessionInformation.getCreatorPerson().getUserId(), TEST_USER);
@@ -63,6 +64,7 @@ public class SearchSessionInformationTest extends AbstractTest
 
         assertNotNull(patSessionInformation);
         assertNotNull(patSessionInformation.getSessionToken());
+        assertTrue(v3api.isSessionActive(patSessionInformation.getSessionToken()));
         assertEquals(patSessionInformation.getUserName(), TEST_USER);
         assertEquals(patSessionInformation.getPerson().getUserId(), TEST_USER);
         assertEquals(patSessionInformation.getCreatorPerson().getUserId(), TEST_USER);
@@ -77,14 +79,11 @@ public class SearchSessionInformationTest extends AbstractTest
 
         assertNotNull(sessionInformation);
         assertEquals(sessionInformation.getSessionToken(), sessionToken1);
-        assertEquals(sessionInformation.getUserName(), TEST_USER);
-        assertEquals(sessionInformation.getPerson().getUserId(), TEST_USER);
-        assertEquals(sessionInformation.getCreatorPerson().getUserId(), TEST_USER);
-        assertEquals(sessionInformation.getHomeGroupCode(), "CISD");
-        assertFalse(sessionInformation.isPersonalAccessTokenSession());
-        assertNull(sessionInformation.getPersonalAccessTokenSessionName());
+        assertTrue(v3api.isSessionActive(sessionInformation.getSessionToken()));
 
-        assertNull(patSessionInformation);
+        assertNotNull(patSessionInformation);
+        assertNotNull(patSessionInformation.getSessionToken());
+        assertFalse(v3api.isSessionActive(patSessionInformation.getSessionToken()));
 
         v3api.logout(sessionToken1);
 
@@ -92,7 +91,10 @@ public class SearchSessionInformationTest extends AbstractTest
         patSessionInformation = searchPersonalAccessTokenSessionInformation(TEST_USER, pat1.getOwner().getUserId(), pat1.getSessionName());
 
         assertNull(sessionInformation);
-        assertNull(patSessionInformation);
+
+        assertNotNull(patSessionInformation);
+        assertFalse(v3api.isSessionActive(patSessionInformation.getSessionToken()));
+        assertNotNull(patSessionInformation.getSessionToken());
     }
 
     @Test

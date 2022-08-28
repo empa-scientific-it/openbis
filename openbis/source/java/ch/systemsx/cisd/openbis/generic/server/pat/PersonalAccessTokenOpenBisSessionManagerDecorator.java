@@ -3,8 +3,12 @@ package ch.systemsx.cisd.openbis.generic.server.pat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
 
@@ -167,7 +171,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
                 if (now.after(patSession.getValidToDate()))
                 {
-                    Session session = getSessionForPATSession(patSession);
+                    Session session = sessions.get(patSession.getHash());
                     if (session != null)
                     {
                         session.cleanup();
@@ -196,9 +200,17 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             synchronized (sessions)
             {
                 Session session = tryGetSession(sessionToken);
+
                 if (session != null)
                 {
-                    return session;
+                    if (isSessionActive(sessionToken))
+                    {
+                        return session;
+                    } else
+                    {
+                        closeSession(sessionToken);
+                        throw new InvalidSessionException("Invalid personal access token session");
+                    }
                 } else
                 {
                     throw new InvalidSessionException("Invalid personal access token session");
@@ -224,7 +236,10 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         {
             synchronized (sessions)
             {
-                if (isSessionActive(sessionToken))
+                if (sessions.containsKey(sessionToken))
+                {
+                    return sessions.get(sessionToken);
+                } else if (isSessionActive(sessionToken))
                 {
                     return getOrCreateSessionForPATSession(patSession);
                 } else
@@ -243,34 +258,36 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.getSessions();
         }
 
-        List<Session> allSessions = new ArrayList<>(sessionManager.getSessions());
+        Map<String, Session> allSessions = new TreeMap<>();
+
+        for (Session session : sessionManager.getSessions())
+        {
+            allSessions.put(session.getSessionToken(), session);
+        }
 
         synchronized (sessions)
         {
+            allSessions.putAll(sessions);
+
             for (PersonalAccessTokenSession patSession : personalAccessTokenDAO.listSessions())
             {
-                if (isSessionActive(patSession.getHash()))
+                if (!allSessions.containsKey(patSession.getHash()) && isSessionActive(patSession.getHash()))
                 {
                     Session session = getOrCreateSessionForPATSession(patSession);
                     if (session != null)
                     {
-                        allSessions.add(session);
+                        allSessions.put(session.getSessionToken(), session);
                     }
                 }
             }
         }
 
-        return allSessions;
-    }
-
-    private Session getSessionForPATSession(PersonalAccessTokenSession patSession)
-    {
-        return sessions.get(patSession.getHash());
+        return new ArrayList<>(allSessions.values());
     }
 
     private Session getOrCreateSessionForPATSession(PersonalAccessTokenSession patSession)
     {
-        Session session = getSessionForPATSession(patSession);
+        Session session = sessions.get(patSession.getHash());
         if (session == null)
         {
             session = createSessionForPATSession(patSession);
