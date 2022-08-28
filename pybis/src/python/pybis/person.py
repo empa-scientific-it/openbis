@@ -1,4 +1,3 @@
-from regex import F
 from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
 from .utils import VERBOSE

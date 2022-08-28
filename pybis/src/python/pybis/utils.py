@@ -315,3 +315,12 @@ def is_number(value):
     """
     number_regex = re.compile(r"^(?=.)([+-]?([0-9]*)(\.([0-9]+))?)$")
     return number_regex.search(value)
+
+
+def extract_username_from_token(token: str) -> str:
+    if token.startswith("$pat"):
+        match = re.search(r"^\$pat-(?P<username>.*?)-.*", token)
+    else:
+        match = re.search(r"(?P<username>.*?)-.*", token)
+    if match:
+        return match.groupdict().get("username")
