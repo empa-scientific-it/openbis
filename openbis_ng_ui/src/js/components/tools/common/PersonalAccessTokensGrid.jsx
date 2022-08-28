@@ -94,7 +94,10 @@ class PersonalAccessTokensGrid extends React.PureComponent {
 
               return (
                 row.validToDate.value.dateObject.getTime() -
-                new Date().getTime()
+                Math.max(
+                  row.validFromDate.value.dateObject.getTime(),
+                  new Date().getTime()
+                )
               )
             },
             renderValue: ({ value }) => {
