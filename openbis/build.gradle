@@ -142,7 +142,7 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
 
 testProjectSamplesEnabled.dependsOn(copyTestData)
 cleanDbSuiteProjectSamplesEnabled.dependsOn(testProjectSamplesEnabled)
-test.maxHeapSize = "4096m"
+test.maxHeapSize = "8192m"
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
 //test.dependsOn(testProjectSamplesEnabled)
