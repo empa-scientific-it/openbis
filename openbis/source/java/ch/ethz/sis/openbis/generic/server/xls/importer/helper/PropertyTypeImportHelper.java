@@ -19,6 +19,9 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,8 @@ import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyType
 
 public class PropertyTypeImportHelper extends BasicImportHelper
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeImportHelper.class);
+
     private enum Attribute implements IAttribute {
         Version("Version", true),
         Code("Code", true),
@@ -191,7 +196,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         {
             if (vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
             {
-                throw new UserFailureException("Vocabulary types can't be updated.");
+                operationLog.warn("PROPERTY TYPE [" + code+ "] : Vocabulary types can't be updated. Ignoring the update.");
+                //   throw new UserFailureException("Vocabulary types can't be updated.");
             }
         }
         if (dataType != null && !dataType.isEmpty())
@@ -203,7 +209,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             }
             if (dataType.equals(currentDataType) == false)
             {
-                update.convertToDataType(DataType.valueOf(dataType));
+                operationLog.warn("PROPERTY TYPE [" + code + "] : Data Types can't be converted with Master Data XLS. Ignoring the update.");
+                // update.convertToDataType(DataType.valueOf(dataType));
             }
         }
         if (metadata != null && !metadata.isEmpty())
