@@ -175,14 +175,20 @@ public class SampleImportHelper extends BasicImportHelper
         if (space != null && !space.isEmpty())
         {
             creation.setSpaceId(new SpacePermId(space));
+        } else {
+            throw new UserFailureException("Required field missing: " + Attribute.Space);
         }
         if (project != null && !project.isEmpty() && options.getAllowProjectSamples()) // Projects can only be set in project samples are enabled
         {
             creation.setProjectId(new ProjectIdentifier(project));
+        } else {
+            throw new UserFailureException("Required field missing: " + Attribute.Project);
         }
         if (experiment != null && !experiment.isEmpty())
         {
             creation.setExperimentId(new ExperimentIdentifier(experiment));
+        } else {
+            throw new UserFailureException("Required field missing: " + Attribute.Experiment);
         }
         injectOwner(creation);
 
