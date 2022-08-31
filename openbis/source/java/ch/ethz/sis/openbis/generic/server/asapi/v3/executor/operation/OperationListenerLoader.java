@@ -62,7 +62,8 @@ public class OperationListenerLoader implements ApplicationContextAware, Initial
             operationLog.info("Operation Listeners Set");
         } catch (Exception ex)
         {
-            operationLog.info("Failed to load the configured api listeners.", ex);
+            operationLog.error("Failed to load the configured api listeners, canceling server startup.", ex);
+            System.exit(-1);
         }
     }
 
