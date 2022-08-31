@@ -37,17 +37,6 @@ class Browser extends React.PureComponent {
     this.controller.load()
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.selectedObject !== prevProps.selectedObject) {
-      this.controller.objectSelect(this.props.selectedObject)
-    }
-    if (
-      this.props.lastObjectModifications !== prevProps.lastObjectModifications
-    ) {
-      this.controller.refresh(this.props.lastObjectModifications)
-    }
-  }
-
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
 

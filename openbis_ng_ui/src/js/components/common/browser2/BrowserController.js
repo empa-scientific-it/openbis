@@ -1,25 +1,8 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import AppController from '@src/js/components/AppController.js'
 
 export default class BrowserController {
-  doGetPage() {
-    throw 'Method not implemented'
-  }
-
   doLoadNodes() {
-    throw 'Method not implemented'
-  }
-
-  doNodeAdd() {
-    throw 'Method not implemented'
-  }
-
-  doNodeRemove() {
-    throw 'Method not implemented'
-  }
-
-  doGetObservedModifications() {
     throw 'Method not implemented'
   }
 
@@ -35,8 +18,7 @@ export default class BrowserController {
       filter: '',
       nodes: [],
       selectedId: null,
-      selectedObject: null,
-      removeNodeDialogOpen: false
+      selectedObject: null
     })
     this.context = context
   }
@@ -165,6 +147,7 @@ export default class BrowserController {
 
   nodeSelect(nodeId) {
     const { nodes } = this.context.getState()
+    const { onSelectedChange } = this.context.getProps()
 
     let nodeObject = null
 
@@ -174,14 +157,6 @@ export default class BrowserController {
       }
     })
 
-    if (nodeObject) {
-      AppController.getInstance().objectOpen(
-        this.getPage(),
-        nodeObject.type,
-        nodeObject.id
-      )
-    }
-
     const newNodes = this._setNodesSelected(nodes, nodeId, nodeObject)
 
     this.context.setState({
@@ -189,47 +164,10 @@ export default class BrowserController {
       selectedId: nodeId,
       selectedObject: nodeObject
     })
-  }
 
-  nodeAdd() {
-    if (!this.isAddNodeEnabled()) {
-      return
+    if (onSelectedChange) {
+      onSelectedChange(nodeObject)
     }
-
-    const selectedNode = this.getSelectedNode()
-    this.doNodeAdd(selectedNode)
-  }
-
-  nodeRemove() {
-    if (!this.isRemoveNodeEnabled()) {
-      return
-    }
-
-    this.context.setState({
-      removeNodeDialogOpen: true
-    })
-  }
-
-  nodeRemoveConfirm() {
-    const { removeNodeDialogOpen } = this.context.getState()
-
-    if (!removeNodeDialogOpen) {
-      return Promise.resolve()
-    }
-
-    const selectedNode = this.getSelectedNode()
-
-    return this.doNodeRemove(selectedNode).then(() => {
-      return this.context.setState({
-        removeNodeDialogOpen: false
-      })
-    })
-  }
-
-  nodeRemoveCancel() {
-    this.context.setState({
-      removeNodeDialogOpen: false
-    })
   }
 
   objectSelect(object) {
@@ -242,10 +180,6 @@ export default class BrowserController {
       selectedId: null,
       selectedObject: object
     })
-  }
-
-  getPage() {
-    return this.doGetPage()
   }
 
   getLoaded() {
@@ -278,21 +212,6 @@ export default class BrowserController {
     })
 
     return selectedNode
-  }
-
-  isAddNodeEnabled() {
-    const selectedNode = this.getSelectedNode()
-    return selectedNode && selectedNode.canAdd
-  }
-
-  isRemoveNodeEnabled() {
-    const selectedNode = this.getSelectedNode()
-    return selectedNode && selectedNode.canRemove
-  }
-
-  isRemoveNodeDialogOpen() {
-    const { removeNodeDialogOpen } = this.context.getState()
-    return removeNodeDialogOpen
   }
 
   _createNodes = nodes => {
