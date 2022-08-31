@@ -52,6 +52,9 @@ class DefaultRoute {
 }
 
 const routes = {
+  DATABASE: new Route('/database', {
+    page: pages.DATABASE
+  }),
   TYPES: new Route('/types', {
     page: pages.TYPES
   }),

@@ -104,6 +104,10 @@ class Menu extends React.PureComponent {
             onChange={this.handlePageChange}
             classes={{ root: classes.tabs }}
           >
+            <Tab
+              value={pages.DATABASE}
+              label={messages.get(messages.DATABASE)}
+            />
             <Tab value={pages.TYPES} label={messages.get(messages.TYPES)} />
             <Tab value={pages.USERS} label={messages.get(messages.USERS)} />
             <Tab value={pages.TOOLS} label={messages.get(messages.TOOLS)} />
