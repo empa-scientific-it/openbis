@@ -68,7 +68,7 @@ class Browser extends React.PureComponent {
       >
         <div className={classes.paper}>
           <FilterField
-            filter={controller.getFilter()}
+            filter={controller.getFilter() || ''}
             filterChange={controller.filterChange}
           />
           <div className={classes.nodes}>

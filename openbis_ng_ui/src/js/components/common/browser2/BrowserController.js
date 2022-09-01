@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 
+const LIMIT = 100
+
 export default class BrowserController {
   async doLoadNodes() {
     throw 'Method not implemented'
@@ -15,8 +17,9 @@ export default class BrowserController {
   init(context) {
     context.initState({
       loaded: false,
-      filter: '',
       nodes: [],
+      filter: null,
+      filteredNodes: [],
       selectedId: null,
       selectedObject: null
     })
@@ -24,13 +27,17 @@ export default class BrowserController {
   }
 
   async load() {
-    const { filter, nodes, selectedId, selectedObject } =
+    const { nodes, filter, selectedId, selectedObject } =
       this.context.getState()
 
-    const loadedNodes = await this.doLoadNodes()
+    const loadedNodes = await this.doLoadNodes({
+      node: null,
+      filter: filter,
+      offset: 0,
+      limit: LIMIT
+    })
 
     let newNodes = this._createNodes(loadedNodes)
-    newNodes = this._filterNodes(newNodes, filter)
     newNodes = await this._setNodesExpanded(
       newNodes,
       this._getExpandedNodes(nodes),
@@ -41,11 +48,10 @@ export default class BrowserController {
       selectedId,
       selectedObject
     )
-    this._sortNodes(newNodes)
 
     this.loadedNodes = loadedNodes
 
-    this.context.setState({
+    await this.context.setState({
       loaded: true,
       nodes: newNodes
     })
@@ -157,7 +163,7 @@ export default class BrowserController {
     })
   }
 
-  nodeSelect(nodeId) {
+  async nodeSelect(nodeId) {
     const { nodes } = this.context.getState()
     const { onSelectedChange } = this.context.getProps()
 
@@ -169,9 +175,9 @@ export default class BrowserController {
       }
     })
 
-    const newNodes = this._setNodesSelected(nodes, nodeId, nodeObject)
+    const newNodes = await this._setNodesSelected(nodes, nodeId, nodeObject)
 
-    this.context.setState({
+    await this.context.setState({
       nodes: newNodes,
       selectedId: nodeId,
       selectedObject: nodeObject
@@ -182,12 +188,12 @@ export default class BrowserController {
     }
   }
 
-  objectSelect(object) {
+  async objectSelect(object) {
     const { nodes } = this.context.getState()
 
-    const newNodes = this._setNodesSelected(nodes, null, object)
+    const newNodes = await this._setNodesSelected(nodes, null, object)
 
-    this.context.setState({
+    await this.context.setState({
       nodes: newNodes,
       selectedId: null,
       selectedObject: object
@@ -271,10 +277,16 @@ export default class BrowserController {
   }
 
   async _setNodesExpanded(nodes, nodeIds, expanded) {
+    const { filter } = this.context.getState()
     return await this._modifyNodes(nodes, async node => {
       if (nodeIds[node.id]) {
-        if (expanded && node.load && !node.loaded) {
-          const children = await node.load(node)
+        if (expanded && !node.loaded) {
+          const children = await this.doLoadNodes({
+            node,
+            filter,
+            offset: 0,
+            limit: LIMIT
+          })
           return {
             ...node,
             loaded: true,
@@ -311,20 +323,6 @@ export default class BrowserController {
       } else {
         return node
       }
-    })
-  }
-
-  _sortNodes = (nodes, level = 0) => {
-    if (!nodes) {
-      return
-    }
-    if (level > 0) {
-      nodes.sort((n1, n2) => {
-        return n1.text.localeCompare(n2.text)
-      })
-    }
-    nodes.forEach(node => {
-      this._sortNodes(node.children, level + 1)
     })
   }
 
