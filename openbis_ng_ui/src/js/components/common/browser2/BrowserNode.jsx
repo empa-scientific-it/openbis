@@ -87,7 +87,7 @@ class BrowserNode extends React.PureComponent {
 
     const { classes } = this.props
 
-    if (node.children && node.children.length > 0) {
+    if (node.load || (node.children && node.children.length > 0)) {
       let icon = null
       if (node.expanded) {
         icon = <ExpandMoreIcon onClick={this.handleCollapse} />

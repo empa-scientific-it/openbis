@@ -2,7 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 
 export default class BrowserController {
-  doLoadNodes() {
+  async doLoadNodes() {
     throw 'Method not implemented'
   }
 
@@ -23,27 +23,31 @@ export default class BrowserController {
     this.context = context
   }
 
-  load() {
-    return this.doLoadNodes().then(loadedNodes => {
-      const { filter, nodes, selectedId, selectedObject } =
-        this.context.getState()
+  async load() {
+    const { filter, nodes, selectedId, selectedObject } =
+      this.context.getState()
 
-      let newNodes = this._createNodes(loadedNodes)
-      newNodes = this._filterNodes(newNodes, filter)
-      newNodes = this._setNodesExpanded(
-        newNodes,
-        this._getExpandedNodes(nodes),
-        true
-      )
-      newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
-      this._sortNodes(newNodes)
+    const loadedNodes = await this.doLoadNodes()
 
-      this.loadedNodes = loadedNodes
+    let newNodes = this._createNodes(loadedNodes)
+    newNodes = this._filterNodes(newNodes, filter)
+    newNodes = await this._setNodesExpanded(
+      newNodes,
+      this._getExpandedNodes(nodes),
+      true
+    )
+    newNodes = await this._setNodesSelected(
+      newNodes,
+      selectedId,
+      selectedObject
+    )
+    this._sortNodes(newNodes)
 
-      this.context.setState({
-        loaded: true,
-        nodes: newNodes
-      })
+    this.loadedNodes = loadedNodes
+
+    this.context.setState({
+      loaded: true,
+      nodes: newNodes
     })
   }
 
@@ -125,20 +129,28 @@ export default class BrowserController {
     })
   }
 
-  nodeExpand(nodeId) {
+  async nodeExpand(nodeId) {
     const { nodes } = this.context.getState()
 
-    const newNodes = this._setNodesExpanded(nodes, { [nodeId]: nodeId }, true)
+    const newNodes = await this._setNodesExpanded(
+      nodes,
+      { [nodeId]: nodeId },
+      true
+    )
 
     this.context.setState({
       nodes: newNodes
     })
   }
 
-  nodeCollapse(nodeId) {
+  async nodeCollapse(nodeId) {
     const { nodes } = this.context.getState()
 
-    const newNodes = this._setNodesExpanded(nodes, { [nodeId]: nodeId }, false)
+    const newNodes = await this._setNodesExpanded(
+      nodes,
+      { [nodeId]: nodeId },
+      false
+    )
 
     this.context.setState({
       nodes: newNodes
@@ -258,12 +270,22 @@ export default class BrowserController {
     )
   }
 
-  _setNodesExpanded(nodes, nodeIds, expanded) {
-    return this._modifyNodes(nodes, node => {
+  async _setNodesExpanded(nodes, nodeIds, expanded) {
+    return await this._modifyNodes(nodes, async node => {
       if (nodeIds[node.id]) {
-        return {
-          ...node,
-          expanded
+        if (expanded && node.load && !node.loaded) {
+          const children = await node.load(node)
+          return {
+            ...node,
+            loaded: true,
+            expanded: true,
+            children
+          }
+        } else {
+          return {
+            ...node,
+            expanded
+          }
         }
       } else {
         return node
@@ -271,8 +293,8 @@ export default class BrowserController {
     })
   }
 
-  _setNodesSelected(nodes, selectedId, selectedObject) {
-    return this._modifyNodes(nodes, node => {
+  async _setNodesSelected(nodes, selectedId, selectedObject) {
+    return await this._modifyNodes(nodes, async node => {
       if (
         (selectedId && selectedId === node.id) ||
         (selectedObject && _.isEqual(selectedObject, node.object))
@@ -354,7 +376,7 @@ export default class BrowserController {
     return newNodes
   }
 
-  _modifyNodes = (nodes, modifyFn) => {
+  _modifyNodes = async (nodes, modifyFn) => {
     if (!nodes) {
       return nodes
     }
@@ -362,10 +384,12 @@ export default class BrowserController {
     let newNodes = []
     let modified = false
 
-    nodes.forEach(node => {
-      let newNode = modifyFn(node)
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
 
-      const newChildren = this._modifyNodes(newNode.children, modifyFn)
+      let newNode = await modifyFn(node)
+
+      const newChildren = await this._modifyNodes(newNode.children, modifyFn)
 
       if (newNode === node) {
         if (newChildren !== node.children) {
@@ -383,7 +407,7 @@ export default class BrowserController {
       if (newNode !== node) {
         modified = true
       }
-    })
+    }
 
     return modified ? newNodes : nodes
   }

@@ -2,17 +2,6 @@ import BrowserController from '@src/js/components/common/browser2/BrowserControl
 
 export default class UserBrowserController extends BrowserController {
   async doLoadNodes() {
-    var children2 = []
-
-    for (let i = 0; i < 1000; i++) {
-      children2.push({
-        id: 'child2.' + i,
-        text: 'Child 2.' + i,
-        object: { type: 'child', id: '2.' + i },
-        canMatchFilter: true
-      })
-    }
-
     let nodes = [
       {
         id: 'folder1',
@@ -37,7 +26,18 @@ export default class UserBrowserController extends BrowserController {
         id: 'folder2',
         text: 'Folder 2',
         object: { type: 'folder', id: '2' },
-        children: children2
+        load: () => {
+          var children = []
+          for (let i = 0; i < 1000; i++) {
+            children.push({
+              id: 'child2.' + i,
+              text: 'Child 2.' + i,
+              object: { type: 'child', id: '2.' + i },
+              canMatchFilter: true
+            })
+          }
+          return children
+        }
       }
     ]
 
