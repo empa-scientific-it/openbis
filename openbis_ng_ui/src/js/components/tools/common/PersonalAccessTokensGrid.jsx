@@ -10,6 +10,7 @@ import AppController from '@src/js/components/AppController.js'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
+import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 
 const NOT_YET_VALID = '0'
@@ -48,6 +49,19 @@ class PersonalAccessTokensGrid extends React.PureComponent {
             name: 'sessionName',
             label: messages.get(messages.SESSION_NAME),
             getValue: ({ row }) => row.sessionName.value
+          },
+          {
+            name: 'sessionIdentifier',
+            label: messages.get(messages.SESSION_IDENTIFIER),
+            getValue: ({ row }) => {
+              const owner = util.trim(row.owner.value)
+              const sessionName = util.trim(row.sessionName.value)
+              if (owner !== null && sessionName !== null) {
+                return owner + '-(' + sessionName + ')'
+              } else {
+                return null
+              }
+            }
           },
           dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
           dateColumn('validToDate', messages.get(messages.VALID_TO)),
