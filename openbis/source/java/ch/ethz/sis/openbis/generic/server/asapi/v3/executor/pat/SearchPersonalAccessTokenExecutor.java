@@ -16,7 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.pat;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,12 +27,18 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenOwnerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.StringFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonExecutor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 
 /**
@@ -45,6 +54,9 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
 
     @Autowired
     private IPersonalAccessTokenDAO personalAccessTokenDAO;
+
+    @Autowired
+    private ISearchPersonExecutor searchPersonExecutor;
 
     @Override
     public List<PersonalAccessToken> search(IOperationContext context, PersonalAccessTokenSearchCriteria criteria)
@@ -65,6 +77,12 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
+        } else if (criteria instanceof PersonalAccessTokenOwnerSearchCriteria)
+        {
+            return new OwnerMatcher(searchPersonExecutor);
+        } else if (criteria instanceof PersonalAccessTokenSessionNameSearchCriteria)
+        {
+            return new SessionNameMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -89,6 +107,52 @@ public class SearchPersonalAccessTokenExecutor extends AbstractSearchObjectManua
             {
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());
             }
+        }
+
+    }
+
+    private static class OwnerMatcher extends Matcher<PersonalAccessToken>
+    {
+
+        private ISearchPersonExecutor searchPersonExecutor;
+
+        public OwnerMatcher(ISearchPersonExecutor searchPersonExecutor)
+        {
+            this.searchPersonExecutor = searchPersonExecutor;
+        }
+
+        @Override
+        public List<PersonalAccessToken> getMatching(IOperationContext context, List<PersonalAccessToken> objects, ISearchCriteria criteria)
+        {
+            List<PersonPE> persons = searchPersonExecutor.search(context, (PersonSearchCriteria) criteria);
+
+            Set<String> personIds = new HashSet<>();
+            for (PersonPE person : persons)
+            {
+                personIds.add(person.getUserId());
+            }
+
+            List<PersonalAccessToken> matches = new ArrayList<>();
+            for (PersonalAccessToken object : objects)
+            {
+                if (personIds.contains(object.getOwnerId()))
+                {
+                    matches.add(object);
+                }
+            }
+
+            return matches;
+        }
+
+    }
+
+    private static class SessionNameMatcher extends StringFieldMatcher<PersonalAccessToken>
+    {
+
+        @Override
+        protected String getFieldValue(PersonalAccessToken object)
+        {
+            return object.getSessionName();
         }
 
     }

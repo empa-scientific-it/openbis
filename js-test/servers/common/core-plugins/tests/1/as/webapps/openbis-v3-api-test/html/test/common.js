@@ -758,10 +758,11 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.createPersonalAccessToken = function(facade) {
 			var c = this;
+			var now = new Date();
 			var creation = new dtos.PersonalAccessTokenCreation();
 			creation.setSessionName(c.generateId("PERSONAL_ACCESS_TOKEN"));
-			creation.setValidFromDate(new Date(1).getTime());
-			creation.setValidToDate(new Date(2).getTime());
+			creation.setValidFromDate(now.getTime());
+			creation.setValidToDate(new Date(now.getTime() + 24 * 3600 * 1000).getTime());
 			return facade.createPersonalAccessTokens([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});

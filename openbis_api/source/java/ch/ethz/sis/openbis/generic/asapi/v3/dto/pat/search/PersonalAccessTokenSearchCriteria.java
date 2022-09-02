@@ -26,6 +26,16 @@ public class PersonalAccessTokenSearchCriteria extends AbstractObjectSearchCrite
         return (PersonalAccessTokenSearchCriteria) withOperator(SearchOperator.AND);
     }
 
+    public PersonalAccessTokenOwnerSearchCriteria withOwner()
+    {
+        return with(new PersonalAccessTokenOwnerSearchCriteria());
+    }
+
+    public PersonalAccessTokenSessionNameSearchCriteria withSessionName()
+    {
+        return with(new PersonalAccessTokenSessionNameSearchCriteria());
+    }
+
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {

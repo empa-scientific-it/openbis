@@ -3231,11 +3231,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("searchPersonalAccessTokens() withId", function(assert) {
 			var c = new common(assert, openbis);
+			var now = new Date();
 
 			var creation = new c.PersonalAccessTokenCreation();
 			creation.setSessionName(c.generateId("pat"));
-			creation.setValidFromDate(new Date(1).getTime());
-			creation.setValidToDate(new Date(2).getTime());
+			creation.setValidFromDate(now.getTime());
+			creation.setValidToDate(new Date(now.getTime() + 24 * 3600 * 1000).getTime());
 
 			var fSearch = function(facade) {
 				return facade.createPersonalAccessTokens([creation]).then(function(permIds) {

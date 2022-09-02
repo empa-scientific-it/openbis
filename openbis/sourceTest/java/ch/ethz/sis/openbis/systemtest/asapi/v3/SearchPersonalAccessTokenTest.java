@@ -183,6 +183,24 @@ public class SearchPersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     }
 
     @Test
+    public void testSearchWithOwner()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withOwner().withUserId().thatStartsWith("te");
+
+        testSearch(TEST_USER, criteria, token1.getHash(), token2.getHash());
+    }
+
+    @Test
+    public void testSearchWithSessionName()
+    {
+        PersonalAccessTokenSearchCriteria criteria = new PersonalAccessTokenSearchCriteria();
+        criteria.withSessionName().thatEndsWith("name 2");
+
+        testSearch(TEST_USER, criteria, token2.getHash());
+    }
+
+    @Test
     public void testLogging()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

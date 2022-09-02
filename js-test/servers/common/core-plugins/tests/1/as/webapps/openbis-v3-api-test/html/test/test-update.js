@@ -1542,7 +1542,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, openbis);
 
 			var update = new c.PersonalAccessTokenUpdate();
-			update.setAccessDate(new Date(12345).getTime());
+			update.setAccessDate(new Date().getTime());
 
 			var fCreate = function(facade) {
 				return c.createPersonalAccessToken(facade).then(function(permId) {

@@ -1098,11 +1098,12 @@ define(
 
 				QUnit.test("createPersonalAccessTokens()", function(assert) {
 					var c = new common(assert, openbis);
+					var now = new Date();
 
 					var patCreation = new c.PersonalAccessTokenCreation();
 					patCreation.setSessionName(c.generateId("pat"));
-					patCreation.setValidFromDate(new Date(1).getTime());
-					patCreation.setValidToDate(new Date(2).getTime());
+					patCreation.setValidFromDate(now.getTime());
+					patCreation.setValidToDate(new Date(now.getTime() + 24 * 3600 * 1000).getTime());
 
 					var fCreate = function(facade) {
 						return facade.createPersonalAccessTokens([ patCreation ]);

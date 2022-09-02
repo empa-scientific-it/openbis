@@ -2701,3 +2701,5 @@ withPersonalAccessTokenSession
 withPersonalAccessTokenSessionName
 withPersonUsing
 withUserName
+PersonalAccessTokenOwnerSearchCriteria
+withSessionName
