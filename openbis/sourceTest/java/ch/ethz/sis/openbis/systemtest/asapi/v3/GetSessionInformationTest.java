@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 
@@ -84,13 +85,15 @@ public class GetSessionInformationTest extends AbstractTest
     }
 
     @Test
-    public void testGetWithPersonalAccessTokenInvalid()
+    public void testGetWithPersonalAccessTokenInvalid() throws InterruptedException
     {
         PersonalAccessTokenCreation tokenCreation = tokenCreation();
-        tokenCreation.setValidFromDate(new Date(0));
-        tokenCreation.setValidToDate(new Date(1));
+        tokenCreation.setValidFromDate(new Date());
+        tokenCreation.setValidToDate(new Date(System.currentTimeMillis() + 250));
 
         PersonalAccessToken token = createToken(TEST_USER, PASSWORD, tokenCreation);
+
+        Thread.sleep(250);
 
         try
         {

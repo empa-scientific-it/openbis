@@ -204,13 +204,18 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
     @Test
     public void testCreateWithValidToDateInThePast()
     {
-        PersonalAccessTokenCreation creation = tokenCreation();
-        creation.setValidFromDate(new Date(System.currentTimeMillis() - 2 * DateUtils.MILLIS_PER_DAY));
-        creation.setValidToDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                PersonalAccessTokenCreation creation = tokenCreation();
+                creation.setValidFromDate(new Date(System.currentTimeMillis() - 2 * DateUtils.MILLIS_PER_DAY));
+                creation.setValidToDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
 
-        PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
-
-        assertFalse(v3api.isSessionActive(token.getHash()));
+                PersonalAccessToken token = createToken(TEST_USER, PASSWORD, creation);
+            }
+        }, "Valid to date cannot be in the past");
     }
 
     @Test
@@ -273,8 +278,8 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             public void execute()
             {
                 PersonalAccessTokenCreation creation = tokenCreation();
-                creation.setValidFromDate(new Date(2));
-                creation.setValidToDate(new Date(1));
+                creation.setValidFromDate(new Date(System.currentTimeMillis() + 2 * DateUtils.MILLIS_PER_DAY));
+                creation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
                 createToken(TEST_USER, PASSWORD, creation);
             }
         }, "Valid to date has to be after valid from date");
@@ -289,8 +294,8 @@ public class CreatePersonalAccessTokenTest extends AbstractPersonalAccessTokenTe
             public void execute()
             {
                 PersonalAccessTokenCreation creation = tokenCreation();
-                creation.setValidFromDate(new Date(1));
-                creation.setValidToDate(new Date(1));
+                creation.setValidFromDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
+                creation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
                 createToken(TEST_USER, PASSWORD, creation);
             }
         }, "Valid to date has to be after valid from date");

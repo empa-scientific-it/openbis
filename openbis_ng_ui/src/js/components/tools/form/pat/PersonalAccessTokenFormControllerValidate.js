@@ -101,5 +101,15 @@ export default class PersonalAccessTokenFormControllerValidate extends PageContr
         }
       }
     }
+
+    if (pat.validToDate.value && pat.validToDate.value.dateObject) {
+      if (pat.validToDate.value.dateObject.getTime() < new Date().getTime()) {
+        validator.addError(
+          pat,
+          'validToDate',
+          messages.get(messages.VALID_TO_CANNOT_BE_IN_THE_PAST)
+        )
+      }
+    }
   }
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonalAccessTokenDAO;
@@ -50,6 +51,8 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
     private final IPersonDAO personDAO;
 
     private final HashGenerator generator;
+
+    private final ITimeProvider timeProvider;
 
     private Map<String, FileToken> fileTokens = new LinkedHashMap<>();
 
@@ -78,11 +81,17 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             {
                 return SessionTokenHash.create(user, System.currentTimeMillis()).toString();
             }
+        }, new ITimeProvider()
+        {
+            @Override public long getTimeInMilliseconds()
+            {
+                return System.currentTimeMillis();
+            }
         });
     }
 
     PersonalAccessTokenDAO(final IPersonalAccessTokenConfig config, final IPersonDAO personDAO,
-            final HashGenerator generator)
+            final HashGenerator generator, final ITimeProvider timeProvider)
     {
         if (config == null)
         {
@@ -99,9 +108,15 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
             throw new IllegalArgumentException("Hash generator cannot be null");
         }
 
+        if (timeProvider == null)
+        {
+            throw new IllegalArgumentException("Time provider cannot be null");
+        }
+
         this.config = config;
         this.personDAO = personDAO;
         this.generator = generator;
+        this.timeProvider = timeProvider;
 
         if (config.arePersonalAccessTokensEnabled())
         {
@@ -170,6 +185,11 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         if (creation.getValidToDate() == null)
         {
             throw new UserFailureException("Valid to date cannot be null.");
+        }
+
+        if (creation.getValidToDate().getTime() < timeProvider.getTimeInMilliseconds())
+        {
+            throw new UserFailureException("Valid to date cannot be in the past.");
         }
 
         if (creation.getValidFromDate().getTime() >= creation.getValidToDate().getTime())

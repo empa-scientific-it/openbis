@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.PersonalAccessTokenDAO.HashGenerator;
@@ -124,7 +125,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-valid-file.json", 60 * 60);
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         List<PersonalAccessToken> tokens = dao.listTokens();
         assertEquals(tokens.size(), 3);
@@ -138,7 +140,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(false, "test-valid-file.json", 60 * 60);
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         try
         {
@@ -164,7 +167,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-empty.json", 60 * 60);
         TestGenerator generator = new TestGenerator();
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         PersonalAccessToken creation1 = tokenCreation("test owner", "test session", new Date(0), new Date(2 * 60 * 60 * 1000));
         PersonalAccessToken creation2 = tokenCreation("test owner", "test session", new Date(0), new Date(59 * 60 * 1000));
@@ -184,8 +188,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-empty.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         PersonalAccessToken tokenCreationA1 = tokenCreation("test owner", "test session A", new Date(5), new Date(10));
         PersonalAccessToken tokenCreationB1 = tokenCreation("test owner", "test session B", new Date(10), new Date(20));
@@ -249,8 +253,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "i-do-not-exist.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -261,8 +265,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-incorrect-owner-id.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -278,8 +282,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-valid-from-date-equal-to-valid-to-date.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -295,8 +299,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-valid-from-date-after-valid-to-date.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 0);
         assertEquals(dao.listSessions().size(), 0);
@@ -312,8 +316,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-validity-period-longer-than-allowed-maximum.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 1);
         assertEquals(dao.listSessions().size(), 1);
@@ -331,8 +335,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-tokens-only.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertEquals(dao.listTokens().size(), 3);
         assertEquals(dao.listSessions().size(), 2);
@@ -345,8 +349,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-unknown-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertNull(dao.getTokenByHash("token-1"));
         assertNotNull(dao.getTokenByHash("token-2"));
@@ -365,8 +369,8 @@ public class PersonalAccessTokenDAOTest
     {
         IPersonalAccessTokenConfig config = config(true, "test-inactive-users.json", TEST_VALIDITY_PERIOD);
         TestGenerator generator = new TestGenerator();
-
-        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator);
+        TestTimeProvider timeProvider = new TestTimeProvider();
+        PersonalAccessTokenDAO dao = new PersonalAccessTokenDAO(config, personDAO, generator, timeProvider);
 
         assertNull(dao.getTokenByHash("token-1"));
         assertNotNull(dao.getTokenByHash("token-2"));
@@ -497,6 +501,14 @@ public class PersonalAccessTokenDAOTest
         @Override public String generateSessionHash(String user)
         {
             return "session-" + sessionCounter++;
+        }
+    }
+
+    private static class TestTimeProvider implements ITimeProvider
+    {
+        @Override public long getTimeInMilliseconds()
+        {
+            return 0;
         }
     }
 }
