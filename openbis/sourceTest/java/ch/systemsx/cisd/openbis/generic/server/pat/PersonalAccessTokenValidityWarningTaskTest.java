@@ -78,6 +78,13 @@ public class PersonalAccessTokenValidityWarningTaskTest
         user1TokenSoonToBeExpired.setValidFromDate(parseDate("2022-01-01 00:00:00"));
         user1TokenSoonToBeExpired.setValidToDate(parseDate("2022-01-02 00:00:00"));
 
+        PersonalAccessToken user1TokenSoonToBeExpired2 = new PersonalAccessToken();
+        user1TokenSoonToBeExpired2.setHash("token-2b");
+        user1TokenSoonToBeExpired2.setSessionName("session-A");
+        user1TokenSoonToBeExpired2.setOwnerId(USER_1.getUserId());
+        user1TokenSoonToBeExpired2.setValidFromDate(parseDate("2022-01-01 01:00:00"));
+        user1TokenSoonToBeExpired2.setValidToDate(parseDate("2022-01-02 01:00:00"));
+
         PersonalAccessToken user1TokenStillValidForALongTime = new PersonalAccessToken();
         user1TokenStillValidForALongTime.setHash("token-3");
         user1TokenStillValidForALongTime.setSessionName("session-B");
@@ -119,8 +126,10 @@ public class PersonalAccessTokenValidityWarningTaskTest
                 will(returnValue(36 * 3600L));
 
                 allowing(personalAccessTokenDAO).listTokens();
-                will(returnValue(Arrays.asList(user1TokenExpired, user1TokenSoonToBeExpired,
+                will(returnValue(Arrays.asList(user1TokenExpired, user1TokenSoonToBeExpired, user1TokenSoonToBeExpired2,
                         user1TokenStillValidForALongTime, user2TokenSoonToBeExpired, userWithoutEmailToken, nonExistentUserToken)));
+
+                one(personalAccessTokenDAO).deleteToken(user1TokenExpired.getHash());
 
                 allowing(personDAO).tryFindPersonByUserId(with(USER_1.getUserId()));
                 will(returnValue(USER_1));

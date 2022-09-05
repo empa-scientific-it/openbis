@@ -233,6 +233,10 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         fileSessions = calculateSessions(fileTokens.values(), fileSessions.values());
         saveInFile();
 
+        operationLog.info(
+                "Created personal access token - owner: " + fileToken.ownerId + ", sessionName: " + fileToken.sessionName + ", validFrom: "
+                        + fileToken.validFromDate + ", validTo: " + fileToken.validToDate);
+
         return getTokenByHash(fileToken.hash);
     }
 
@@ -301,6 +305,10 @@ public class PersonalAccessTokenDAO implements IPersonalAccessTokenDAO
         {
             fileSessions = calculateSessions(fileTokens.values(), fileSessions.values());
             saveInFile();
+
+            operationLog.info(
+                    "Deleted personal access token - owner: " + fileToken.ownerId + ", sessionName: " + fileToken.sessionName + ", validFrom: "
+                            + fileToken.validFromDate + ", validTo: " + fileToken.validToDate);
         }
     }
 

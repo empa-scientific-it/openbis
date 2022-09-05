@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -81,6 +82,12 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
             return;
         }
 
+        sendEmails();
+        deleteExpired();
+    }
+
+    private void sendEmails()
+    {
         Map<String, List<PersonalAccessToken>> userTokensMap = personalAccessTokenDAO.listTokens().stream()
                 .filter(this::isValidityPeriodWarningNeeded)
                 .sorted(Comparator.comparing(this::getValidityPeriodLeft))
@@ -94,7 +101,28 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
 
     private void sendEmail(final String userId, final List<PersonalAccessToken> userTokens)
     {
-        if (userTokens.isEmpty())
+        int count = 0;
+
+        StringBuilder emailContent = new StringBuilder();
+        emailContent.append("The following personal access tokens are going to expire soon:\n");
+
+        for (PersonalAccessToken userToken : userTokens)
+        {
+            long validityPeriodLeft = getValidityPeriodLeft(userToken);
+
+            if (validityPeriodLeft > 0)
+            {
+                emailContent.append("- hash: ").append(userToken.getHash())
+                        .append(", session name: ").append(userToken.getSessionName())
+                        .append(", valid from: ").append(DATE_FORMAT.format(userToken.getValidFromDate()))
+                        .append(", valid to: ").append(DATE_FORMAT.format(userToken.getValidToDate()))
+                        .append(", expires in: ").append(DateTimeUtils.renderDuration(validityPeriodLeft))
+                        .append("\n");
+                count++;
+            }
+        }
+
+        if (count == 0)
         {
             return;
         }
@@ -113,27 +141,6 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
             return;
         }
 
-        StringBuilder emailContent = new StringBuilder();
-        emailContent.append("The following personal access tokens have already expired or are going to expire soon:\n");
-
-        for (PersonalAccessToken userToken : userTokens)
-        {
-            emailContent.append("- hash: ").append(userToken.getHash())
-                    .append(", session name: ").append(userToken.getSessionName())
-                    .append(", valid from: ").append(DATE_FORMAT.format(userToken.getValidFromDate()))
-                    .append(", valid to: ").append(DATE_FORMAT.format(userToken.getValidToDate()));
-
-            long validityPeriodLeft = getValidityPeriodLeft(userToken);
-
-            if (validityPeriodLeft > 0)
-            {
-                emailContent.append(", expires in: ").append(DateTimeUtils.renderDuration(validityPeriodLeft)).append("\n");
-            } else
-            {
-                emailContent.append(", already expired").append("\n");
-            }
-        }
-
         try
         {
             mailClient.sendEmailMessage("openBIS personal access tokens expiration warning", emailContent.toString(), null, null,
@@ -147,9 +154,40 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
         }
     }
 
+    private void deleteExpired()
+    {
+        List<PersonalAccessToken> expiredTokens = personalAccessTokenDAO.listTokens().stream()
+                .filter(this::isExpired).collect(Collectors.toList());
+
+        if (expiredTokens.isEmpty())
+        {
+            operationLog.info("No expired personal access tokens to delete");
+            return;
+        }
+
+        operationLog.info("Found " + expiredTokens.size() + " expired personal access token(s) to delete");
+
+        try
+        {
+            for (PersonalAccessToken expiredToken : expiredTokens)
+            {
+                personalAccessTokenDAO.deleteToken(expiredToken.getHash());
+            }
+        } catch (Exception e)
+        {
+            operationLog.error("Could not delete expired personal access tokens", e);
+        }
+    }
+
+    private boolean isExpired(PersonalAccessToken token)
+    {
+        return getValidityPeriodLeft(token) == 0;
+    }
+
     private boolean isValidityPeriodWarningNeeded(PersonalAccessToken token)
     {
-        return getValidityPeriodLeft(token) < personalAccessTokenConfig.getPersonalAccessTokensValidityWarningPeriod() * 1000;
+        long validityPeriodLeft = getValidityPeriodLeft(token);
+        return validityPeriodLeft > 0 && validityPeriodLeft < personalAccessTokenConfig.getPersonalAccessTokensValidityWarningPeriod() * 1000;
     }
 
     private long getValidityPeriodLeft(PersonalAccessToken token)
