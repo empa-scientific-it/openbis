@@ -73,19 +73,19 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 		}
 
 		this.getSessionInformation = function() {
-			return this._executeOperation(new c.GetSessionInformationOperation()).then(function() {
+			return this._executeOperation(new c.GetSessionInformationOperation()).then(function(results) {
 				return results.getResults()[0].getSessionInformation();
 			});
 		}
 
 		this.getServerInformation = function() {
-			return this._executeOperation(new c.GetServerInformationOperation()).then(function() {
+			return this._executeOperation(new c.GetServerInformationOperation()).then(function(results) {
 				return results.getResults()[0].getServerInformation();
 			});
 		}
 
 		this.getServerPublicInformation = function() {
-			return this._executeOperation(new c.GetServerPublicInformationOperation()).then(function() {
+			return this._executeOperation(new c.GetServerPublicInformationOperation()).then(function(results) {
 				return results.getResults()[0].getServerInformation();
 			});
 		}
