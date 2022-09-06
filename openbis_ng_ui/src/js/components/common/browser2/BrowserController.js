@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
+import util from '@src/js/common/util.js'
 
-const LIMIT = 100
+const LOAD_LIMIT = 100
+const LOAD_SILENT_PERIOD = 500
 
 export default class BrowserController {
   async doLoadNodes() {
@@ -10,7 +12,8 @@ export default class BrowserController {
 
   constructor() {
     autoBind(this)
-    this.loadedNodes = []
+    this.lastLoadTimeoutId = null
+    this.lastLoadPromise = null
     this.lastObjectModifications = {}
   }
 
@@ -29,31 +32,47 @@ export default class BrowserController {
     const { nodes, filter, selectedId, selectedObject } =
       this.context.getState()
 
-    const loadedNodes = await this.doLoadNodes({
-      node: null,
-      filter: filter,
-      offset: 0,
-      limit: LIMIT
-    })
+    if (this.lastLoadTimeoutId) {
+      clearTimeout(this.lastLoadTimeoutId)
+    }
 
-    let newNodes = this._createNodes(loadedNodes)
-    newNodes = await this._setNodesExpanded(
-      newNodes,
-      this._getExpandedNodes(nodes),
-      true
-    )
-    newNodes = await this._setNodesSelected(
-      newNodes,
-      selectedId,
-      selectedObject
-    )
+    if (this.lastLoadPromise) {
+      this.lastLoadPromise = null
+    }
 
-    this.loadedNodes = loadedNodes
+    this.lastLoadTimeoutId = setTimeout(() => {
+      const loadPromise = this.doLoadNodes({
+        node: null,
+        filter: filter,
+        offset: 0,
+        limit: LOAD_LIMIT
+      })
 
-    await this.context.setState({
-      loaded: true,
-      nodes: newNodes
-    })
+      this.lastLoadPromise = loadPromise
+
+      return loadPromise.then(async loadedNodes => {
+        if (loadPromise !== this.lastLoadPromise) {
+          return
+        }
+
+        let newNodes = this._createNodes(loadedNodes)
+        newNodes = await this._setNodesExpanded(
+          newNodes,
+          this._getExpandedNodes(nodes),
+          true
+        )
+        newNodes = await this._setNodesSelected(
+          newNodes,
+          selectedId,
+          selectedObject
+        )
+
+        await this.context.setState({
+          loaded: true,
+          nodes: newNodes
+        })
+      })
+    }, LOAD_SILENT_PERIOD)
   }
 
   refresh(fullObjectModifications) {
@@ -108,7 +127,7 @@ export default class BrowserController {
 
   async filterChange(newFilter) {
     await this.context.setState({
-      filter: newFilter
+      filter: util.trim(newFilter)
     })
     await this.load()
   }
@@ -243,15 +262,14 @@ export default class BrowserController {
   }
 
   async _setNodesExpanded(nodes, nodeIds, expanded) {
-    const { filter } = this.context.getState()
     return await this._modifyNodes(nodes, async node => {
       if (nodeIds[node.id]) {
         if (expanded && !node.loaded) {
           const children = await this.doLoadNodes({
             node,
-            filter,
+            filter: null,
             offset: 0,
-            limit: LIMIT
+            limit: LOAD_LIMIT
           })
           return {
             ...node,
