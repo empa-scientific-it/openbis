@@ -305,41 +305,6 @@ export default class BrowserController {
     return results
   }
 
-  _filterNodes = (nodes, filter, ascendantMatches = false) => {
-    if (!nodes || filter.trim().length === 0) {
-      return nodes
-    }
-
-    let newNodes = []
-
-    nodes.forEach(node => {
-      const nodeMatches =
-        node.canMatchFilter &&
-        node.text &&
-        node.text.toLowerCase().indexOf(filter.trim().toLowerCase()) !== -1
-
-      const newNode = {
-        ...node
-      }
-
-      newNode.children = this._filterNodes(
-        node.children,
-        filter,
-        ascendantMatches || nodeMatches
-      )
-
-      if (
-        ascendantMatches ||
-        nodeMatches ||
-        (newNode.children && newNode.children.length > 0)
-      ) {
-        newNodes.push(newNode)
-      }
-    })
-
-    return newNodes
-  }
-
   _modifyNodes = async (nodes, modifyFn) => {
     if (!nodes) {
       return nodes

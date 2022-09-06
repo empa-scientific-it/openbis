@@ -7,7 +7,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Collapse from '@material-ui/core/Collapse'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import BrowserNodes from '@src/js/components/common/browser/BrowserNodes.jsx'
+import BrowserNodes from '@src/js/components/common/browser2/BrowserNodes.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
