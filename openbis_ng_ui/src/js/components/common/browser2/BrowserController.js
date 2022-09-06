@@ -19,7 +19,6 @@ export default class BrowserController {
       loaded: false,
       nodes: [],
       filter: null,
-      filteredNodes: [],
       selectedId: null,
       selectedObject: null
     })
@@ -107,32 +106,11 @@ export default class BrowserController {
     }
   }
 
-  filterChange(newFilter) {
-    const { filter, nodes, selectedId, selectedObject } =
-      this.context.getState()
-
-    let initialNodes = null
-
-    if (newFilter.startsWith(filter)) {
-      initialNodes = nodes
-    } else {
-      initialNodes = this.loadedNodes
-    }
-
-    let newNodes = this._createNodes(initialNodes)
-    newNodes = this._filterNodes(newNodes, newFilter)
-    newNodes = this._setNodesExpanded(
-      newNodes,
-      this._getParentNodes(newNodes),
-      true
-    )
-    newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
-    this._sortNodes(newNodes)
-
-    this.context.setState({
-      filter: newFilter,
-      nodes: newNodes
+  async filterChange(newFilter) {
+    await this.context.setState({
+      filter: newFilter
     })
+    await this.load()
   }
 
   async nodeExpand(nodeId) {
@@ -257,18 +235,6 @@ export default class BrowserController {
       nodes,
       (node, result) => {
         if (node.expanded) {
-          result[node.id] = node.id
-        }
-      },
-      {}
-    )
-  }
-
-  _getParentNodes(nodes) {
-    return this._visitNodes(
-      nodes,
-      (node, result) => {
-        if (node.children && node.children.length > 0) {
           result[node.id] = node.id
         }
       },
