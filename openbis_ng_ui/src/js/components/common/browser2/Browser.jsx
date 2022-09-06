@@ -70,6 +70,7 @@ class Browser extends React.PureComponent {
           <FilterField
             filter={controller.getFilter() || ''}
             filterChange={controller.filterChange}
+            loading={controller.getLoading()}
           />
           <div className={classes.nodes}>
             <BrowserNodes

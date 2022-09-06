@@ -20,6 +20,7 @@ export default class BrowserController {
   init(context) {
     context.initState({
       loaded: false,
+      loading: false,
       nodes: [],
       filter: null,
       selectedId: null,
@@ -29,8 +30,7 @@ export default class BrowserController {
   }
 
   async load() {
-    const { nodes, filter, selectedId, selectedObject } =
-      this.context.getState()
+    const { filter } = this.context.getState()
 
     if (this.lastLoadTimeoutId) {
       clearTimeout(this.lastLoadTimeoutId)
@@ -39,6 +39,10 @@ export default class BrowserController {
     if (this.lastLoadPromise) {
       this.lastLoadPromise = null
     }
+
+    this.context.setState({
+      loading: true
+    })
 
     this.lastLoadTimeoutId = setTimeout(() => {
       const loadPromise = this.doLoadNodes({
@@ -50,28 +54,36 @@ export default class BrowserController {
 
       this.lastLoadPromise = loadPromise
 
-      return loadPromise.then(async loadedNodes => {
-        if (loadPromise !== this.lastLoadPromise) {
-          return
-        }
+      return loadPromise
+        .then(async loadedNodes => {
+          if (loadPromise !== this.lastLoadPromise) {
+            return
+          }
 
-        let newNodes = this._createNodes(loadedNodes)
-        newNodes = await this._setNodesExpanded(
-          newNodes,
-          this._getExpandedNodes(nodes),
-          true
-        )
-        newNodes = await this._setNodesSelected(
-          newNodes,
-          selectedId,
-          selectedObject
-        )
+          const { nodes, selectedId, selectedObject } = this.context.getState()
 
-        await this.context.setState({
-          loaded: true,
-          nodes: newNodes
+          let newNodes = this._createNodes(loadedNodes)
+          newNodes = await this._setNodesExpanded(
+            newNodes,
+            this._getExpandedNodes(nodes),
+            true
+          )
+          newNodes = await this._setNodesSelected(
+            newNodes,
+            selectedId,
+            selectedObject
+          )
+
+          await this.context.setState({
+            loaded: true,
+            nodes: newNodes
+          })
         })
-      })
+        .finally(() => {
+          this.context.setState({
+            loading: false
+          })
+        })
     }, LOAD_SILENT_PERIOD)
   }
 
@@ -200,6 +212,11 @@ export default class BrowserController {
   getLoaded() {
     const { loaded } = this.context.getState()
     return loaded
+  }
+
+  getLoading() {
+    const { loading } = this.context.getState()
+    return loading
   }
 
   getFilter() {

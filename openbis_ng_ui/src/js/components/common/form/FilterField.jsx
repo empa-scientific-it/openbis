@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import IconButton from '@material-ui/core/IconButton'
 import FilterIcon from '@material-ui/icons/FilterList'
 import CloseIcon from '@material-ui/icons/Close'
@@ -77,7 +78,14 @@ class FilterField extends React.Component {
   }
 
   renderFilterIcon() {
-    const classes = this.props.classes
+    const { loading, classes } = this.props
+
+    const icon = loading ? (
+      <CircularProgress size={20} />
+    ) : (
+      <FilterIcon fontSize='small' />
+    )
+
     return (
       <InputAdornment
         position='start'
@@ -85,7 +93,7 @@ class FilterField extends React.Component {
           root: classes.adornment
         }}
       >
-        <FilterIcon fontSize='small' />
+        {icon}
       </InputAdornment>
     )
   }
