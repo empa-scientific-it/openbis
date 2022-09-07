@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
 
@@ -42,7 +43,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     return result.getObjects().map(space => ({
-      id: 'space_' + space.getCode(),
+      id: 'space_' + space.getCode() + '_' + _.uniqueId(),
       text: space.getCode() + (filter ? ' (space)' : ''),
       object: {
         type: 'space',
@@ -71,7 +72,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
     return result.getObjects().map(project => ({
-      id: 'project_' + project.getPermId().getPermId(),
+      id: 'project_' + project.getPermId().getPermId() + '_' + _.uniqueId(),
       text: project.getCode() + (filter ? ' (project)' : ''),
       object: {
         type: 'project',
@@ -100,7 +101,8 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
     return result.getObjects().map(experiment => ({
-      id: 'experiment_' + experiment.getPermId().getPermId(),
+      id:
+        'experiment_' + experiment.getPermId().getPermId() + '_' + _.uniqueId(),
       text: experiment.getCode() + (filter ? ' (experiment)' : ''),
       object: {
         type: 'experiment',
@@ -129,7 +131,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
     return result.getObjects().map(sample => ({
-      id: 'sample_' + sample.getPermId().getPermId(),
+      id: 'sample_' + sample.getPermId().getPermId() + '_' + _.uniqueId(),
       text: sample.getCode() + (filter ? ' (sample)' : ''),
       object: {
         type: 'sample',
