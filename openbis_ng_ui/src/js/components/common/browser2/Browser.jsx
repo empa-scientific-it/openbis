@@ -3,7 +3,7 @@ import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
-import BrowserNodes from '@src/js/components/common/browser2/BrowserNodes.jsx'
+import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -73,9 +73,9 @@ class Browser extends React.PureComponent {
             loading={controller.getLoading()}
           />
           <div className={classes.nodes}>
-            <BrowserNodes
+            <BrowserNode
               controller={controller}
-              nodes={controller.getNodes()}
+              node={controller.getRoot()}
               level={0}
             />
           </div>

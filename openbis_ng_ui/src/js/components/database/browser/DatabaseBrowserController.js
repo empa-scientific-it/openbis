@@ -6,7 +6,7 @@ export default class UserBrowserController extends BrowserController {
   async doLoadNodes(params) {
     const { node, filter } = params
 
-    if (node === null) {
+    if (node.object.type === 'root') {
       if (filter === null) {
         return await this.searchSpaces(params)
       } else {
@@ -74,7 +74,7 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
-    if (node) {
+    if (node.object.type === 'space') {
       criteria.withSpace().withCode().thatEquals(node.object.id)
     }
     if (filter) {
@@ -108,7 +108,7 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
-    if (node) {
+    if (node.object.type === 'project') {
       criteria.withProject().withPermId().thatEquals(node.object.id)
     }
     if (filter) {
@@ -143,7 +143,7 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SampleSearchCriteria()
-    if (node) {
+    if (node.object.type === 'experiment') {
       criteria.withExperiment().withPermId().thatEquals(node.object.id)
     }
     if (filter) {

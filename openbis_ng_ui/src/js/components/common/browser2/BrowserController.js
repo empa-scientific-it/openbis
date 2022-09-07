@@ -21,7 +21,14 @@ export default class BrowserController {
     context.initState({
       loaded: false,
       loading: false,
-      nodes: [],
+      root: {
+        id: 'root',
+        text: 'Root',
+        object: {
+          id: 'root',
+          type: 'root'
+        }
+      },
       filter: null,
       selectedId: null,
       selectedObject: null
@@ -30,7 +37,12 @@ export default class BrowserController {
   }
 
   async load() {
-    const { filter } = this.context.getState()
+    const { root } = this.context.getState()
+    this.loadNode(root)
+  }
+
+  async loadNode(node) {
+    const { root, filter } = this.context.getState()
 
     if (this.lastLoadTimeoutId) {
       clearTimeout(this.lastLoadTimeoutId)
@@ -46,7 +58,7 @@ export default class BrowserController {
 
     this.lastLoadTimeoutId = setTimeout(() => {
       const loadPromise = this.doLoadNodes({
-        node: null,
+        node: node,
         filter: filter,
         offset: 0,
         limit: LOAD_LIMIT
@@ -60,26 +72,38 @@ export default class BrowserController {
             return
           }
 
-          const { nodes, selectedId, selectedObject } = this.context.getState()
+          const { selectedId, selectedObject } = this.context.getState()
 
-          let newNodes = loadedNodes.nodes
+          let newChildren = loadedNodes.nodes
           let totalCount = loadedNodes.totalCount
 
-          newNodes = await this._setNodesExpanded(
-            newNodes,
-            this._getExpandedNodes(nodes),
+          newChildren = await this._setNodesExpanded(
+            newChildren,
+            this._getExpandedNodes([node]),
             true
           )
-          newNodes = await this._setNodesSelected(
-            newNodes,
+
+          newChildren = await this._setNodesSelected(
+            newChildren,
             selectedId,
             selectedObject
           )
 
+          const [newRoot] = await this._modifyNodes([root], originalNode => {
+            if (originalNode === node) {
+              return {
+                ...originalNode,
+                children: newChildren,
+                totalCount: totalCount
+              }
+            } else {
+              return originalNode
+            }
+          })
+
           await this.context.setState({
             loaded: true,
-            nodes: newNodes,
-            totalCount: totalCount
+            root: newRoot
           })
         })
         .finally(() => {
@@ -148,49 +172,49 @@ export default class BrowserController {
   }
 
   async nodeExpand(nodeId) {
-    const { nodes } = this.context.getState()
+    const { root } = this.context.getState()
 
-    const newNodes = await this._setNodesExpanded(
-      nodes,
+    const [newRoot] = await this._setNodesExpanded(
+      [root],
       { [nodeId]: nodeId },
       true
     )
 
     this.context.setState({
-      nodes: newNodes
+      root: newRoot
     })
   }
 
   async nodeCollapse(nodeId) {
-    const { nodes } = this.context.getState()
+    const { root } = this.context.getState()
 
-    const newNodes = await this._setNodesExpanded(
-      nodes,
+    const [newRoot] = await this._setNodesExpanded(
+      [root],
       { [nodeId]: nodeId },
       false
     )
 
     this.context.setState({
-      nodes: newNodes
+      root: newRoot
     })
   }
 
   async nodeSelect(nodeId) {
-    const { nodes } = this.context.getState()
+    const { root } = this.context.getState()
     const { onSelectedChange } = this.context.getProps()
 
     let nodeObject = null
 
-    this._visitNodes(nodes, node => {
+    this._visitNodes([root], node => {
       if (node.id === nodeId) {
         nodeObject = node.object
       }
     })
 
-    const newNodes = await this._setNodesSelected(nodes, nodeId, nodeObject)
+    const [newRoot] = await this._setNodesSelected([root], nodeId, nodeObject)
 
     await this.context.setState({
-      nodes: newNodes,
+      root: newRoot,
       selectedId: nodeId,
       selectedObject: nodeObject
     })
@@ -201,12 +225,12 @@ export default class BrowserController {
   }
 
   async objectSelect(object) {
-    const { nodes } = this.context.getState()
+    const { root } = this.context.getState()
 
-    const newNodes = await this._setNodesSelected(nodes, null, object)
+    const [newRoot] = await this._setNodesSelected([root], null, object)
 
     await this.context.setState({
-      nodes: newNodes,
+      root: newRoot,
       selectedId: null,
       selectedObject: object
     })
@@ -227,17 +251,17 @@ export default class BrowserController {
     return filter
   }
 
-  getNodes() {
-    const { nodes } = this.context.getState()
-    return nodes
+  getRoot() {
+    const { root } = this.context.getState()
+    return root
   }
 
   getSelectedNode() {
-    const { nodes, selectedId, selectedObject } = this.context.getState()
+    const { root, selectedId, selectedObject } = this.context.getState()
 
     let selectedNode = null
 
-    this._visitNodes(nodes, node => {
+    this._visitNodes([root], node => {
       if (
         (selectedId && selectedId === node.id) ||
         (selectedObject && _.isEqual(selectedObject, node.object))
