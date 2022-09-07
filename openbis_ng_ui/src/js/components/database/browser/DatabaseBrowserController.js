@@ -14,7 +14,19 @@ export default class UserBrowserController extends BrowserController {
         const projects = await this.searchProjects(params)
         const experiments = await this.searchExperiments(params)
         const samples = await this.searchSamples(params)
-        return [...spaces, ...projects, ...experiments, ...samples]
+        return {
+          nodes: [
+            ...spaces.nodes,
+            ...projects.nodes,
+            ...experiments.nodes,
+            ...samples.nodes
+          ],
+          totalCount:
+            spaces.totalCount +
+            projects.totalCount +
+            experiments.totalCount +
+            samples.totalCount
+        }
       }
     } else if (node.object.type === 'space') {
       return await this.searchProjects(params)
@@ -42,7 +54,7 @@ export default class UserBrowserController extends BrowserController {
 
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
-    return result.getObjects().map(space => ({
+    const nodes = result.getObjects().map(space => ({
       id: 'space_' + space.getCode() + '_' + _.uniqueId(),
       text: space.getCode() + (filter ? ' (space)' : ''),
       object: {
@@ -51,6 +63,11 @@ export default class UserBrowserController extends BrowserController {
       },
       canHaveChildren: true
     }))
+
+    return {
+      nodes: nodes,
+      totalCount: result.getTotalCount()
+    }
   }
 
   async searchProjects(params) {
@@ -71,7 +88,7 @@ export default class UserBrowserController extends BrowserController {
 
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
-    return result.getObjects().map(project => ({
+    const nodes = result.getObjects().map(project => ({
       id: 'project_' + project.getPermId().getPermId() + '_' + _.uniqueId(),
       text: project.getCode() + (filter ? ' (project)' : ''),
       object: {
@@ -80,6 +97,11 @@ export default class UserBrowserController extends BrowserController {
       },
       canHaveChildren: true
     }))
+
+    return {
+      nodes: nodes,
+      totalCount: result.getTotalCount()
+    }
   }
 
   async searchExperiments(params) {
@@ -100,7 +122,7 @@ export default class UserBrowserController extends BrowserController {
 
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
-    return result.getObjects().map(experiment => ({
+    const nodes = result.getObjects().map(experiment => ({
       id:
         'experiment_' + experiment.getPermId().getPermId() + '_' + _.uniqueId(),
       text: experiment.getCode() + (filter ? ' (experiment)' : ''),
@@ -110,6 +132,11 @@ export default class UserBrowserController extends BrowserController {
       },
       canHaveChildren: true
     }))
+
+    return {
+      nodes: nodes,
+      totalCount: result.getTotalCount()
+    }
   }
 
   async searchSamples(params) {
@@ -130,7 +157,7 @@ export default class UserBrowserController extends BrowserController {
 
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
-    return result.getObjects().map(sample => ({
+    const nodes = result.getObjects().map(sample => ({
       id: 'sample_' + sample.getPermId().getPermId() + '_' + _.uniqueId(),
       text: sample.getCode() + (filter ? ' (sample)' : ''),
       object: {
@@ -138,5 +165,10 @@ export default class UserBrowserController extends BrowserController {
         id: sample.getPermId().getPermId()
       }
     }))
+
+    return {
+      nodes: nodes,
+      totalCount: result.getTotalCount()
+    }
   }
 }

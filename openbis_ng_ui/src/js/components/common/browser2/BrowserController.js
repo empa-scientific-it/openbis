@@ -62,7 +62,9 @@ export default class BrowserController {
 
           const { nodes, selectedId, selectedObject } = this.context.getState()
 
-          let newNodes = this._createNodes(loadedNodes)
+          let newNodes = loadedNodes.nodes
+          let totalCount = loadedNodes.totalCount
+
           newNodes = await this._setNodesExpanded(
             newNodes,
             this._getExpandedNodes(nodes),
@@ -76,7 +78,8 @@ export default class BrowserController {
 
           await this.context.setState({
             loaded: true,
-            nodes: newNodes
+            nodes: newNodes,
+            totalCount: totalCount
           })
         })
         .finally(() => {
@@ -246,26 +249,6 @@ export default class BrowserController {
     return selectedNode
   }
 
-  _createNodes = nodes => {
-    if (!nodes) {
-      return []
-    }
-
-    const newNodes = []
-
-    nodes.forEach(node => {
-      const newNode = {
-        ...node,
-        selected: false,
-        expanded: false,
-        children: this._createNodes(node.children)
-      }
-      newNodes.push(newNode)
-    })
-
-    return newNodes
-  }
-
   _getExpandedNodes(nodes) {
     return this._visitNodes(
       nodes,
@@ -282,7 +265,7 @@ export default class BrowserController {
     return await this._modifyNodes(nodes, async node => {
       if (nodeIds[node.id]) {
         if (expanded && !node.loaded) {
-          const children = await this.doLoadNodes({
+          const loadedNodes = await this.doLoadNodes({
             node,
             filter: null,
             offset: 0,
@@ -292,7 +275,8 @@ export default class BrowserController {
             ...node,
             loaded: true,
             expanded: true,
-            children
+            children: loadedNodes.nodes,
+            totalCount: loadedNodes.totalCount
           }
         } else {
           return {
