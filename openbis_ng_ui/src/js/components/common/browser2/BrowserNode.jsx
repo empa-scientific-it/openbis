@@ -69,18 +69,20 @@ class BrowserNodeClass extends React.PureComponent {
 
     return (
       <div>
-        <ListItem
-          button
-          selected={node.selected}
-          onClick={this.handleClick}
-          style={{ paddingLeft: level * PADDING_PER_LEVEL + 'px' }}
-          classes={{
-            root: classes.item
-          }}
-        >
-          {this.renderIcon(node)}
-          {this.renderText(node)}
-        </ListItem>
+        {level !== -1 && (
+          <ListItem
+            button
+            selected={node.selected}
+            onClick={this.handleClick}
+            style={{ paddingLeft: level * PADDING_PER_LEVEL + 'px' }}
+            classes={{
+              root: classes.item
+            }}
+          >
+            {this.renderIcon(node)}
+            {this.renderText(node)}
+          </ListItem>
+        )}
         {this.renderChildren()}
       </div>
     )

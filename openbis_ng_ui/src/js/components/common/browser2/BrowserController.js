@@ -12,15 +12,13 @@ export default class BrowserController {
 
   constructor() {
     autoBind(this)
-    this.lastLoadTimeoutId = null
-    this.lastLoadPromise = null
+    this.lastLoadTimeoutId = {}
+    this.lastLoadPromise = {}
     this.lastObjectModifications = {}
   }
 
   init(context) {
     context.initState({
-      loaded: false,
-      loading: false,
       root: {
         id: 'root',
         text: 'Root',
@@ -28,6 +26,10 @@ export default class BrowserController {
           id: 'root',
           type: 'root'
         },
+        loaded: false,
+        loading: false,
+        selected: false,
+        expanded: true,
         canHaveChildren: true
       },
       filter: null,
@@ -43,21 +45,35 @@ export default class BrowserController {
   }
 
   async loadNode(node) {
-    const { root, filter } = this.context.getState()
+    const { filter } = this.context.getState()
 
-    if (this.lastLoadTimeoutId) {
-      clearTimeout(this.lastLoadTimeoutId)
+    if (this.lastLoadTimeoutId[node.id]) {
+      clearTimeout(this.lastLoadTimeoutId[node.id])
+      delete this.lastLoadTimeoutId[node.id]
     }
 
-    if (this.lastLoadPromise) {
-      this.lastLoadPromise = null
+    if (this.lastLoadPromise[node.id]) {
+      delete this.lastLoadPromise[node.id]
     }
 
-    this.context.setState({
-      loading: true
-    })
+    this.lastLoadTimeoutId[node.id] = setTimeout(async () => {
+      const { root } = this.context.getState()
 
-    this.lastLoadTimeoutId = setTimeout(() => {
+      const [newRoot] = await this._modifyNodes([root], originalNode => {
+        if (originalNode.id === node.id) {
+          return {
+            ...originalNode,
+            loading: true
+          }
+        } else {
+          return originalNode
+        }
+      })
+
+      await this.context.setState({
+        root: newRoot
+      })
+
       const loadPromise = this.doLoadNodes({
         node: node,
         filter: filter,
@@ -65,53 +81,47 @@ export default class BrowserController {
         limit: LOAD_LIMIT
       })
 
-      this.lastLoadPromise = loadPromise
+      this.lastLoadPromise[node.id] = loadPromise
 
-      return loadPromise
-        .then(async loadedNodes => {
-          if (loadPromise !== this.lastLoadPromise) {
-            return
-          }
+      return loadPromise.then(async loadedNodes => {
+        if (loadPromise !== this.lastLoadPromise[node.id]) {
+          return
+        }
 
-          const { selectedId, selectedObject } = this.context.getState()
+        let newChildren = await this._setNodesExpanded(
+          loadedNodes.nodes,
+          this._getExpandedNodes([node]),
+          true
+        )
 
-          let newChildren = loadedNodes.nodes
-          let totalCount = loadedNodes.totalCount
+        const { selectedId, selectedObject } = this.context.getState()
 
-          newChildren = await this._setNodesExpanded(
-            newChildren,
-            this._getExpandedNodes([node]),
-            true
-          )
+        newChildren = await this._setNodesSelected(
+          newChildren,
+          selectedId,
+          selectedObject
+        )
 
-          newChildren = await this._setNodesSelected(
-            newChildren,
-            selectedId,
-            selectedObject
-          )
+        const { root } = this.context.getState()
 
-          const [newRoot] = await this._modifyNodes([root], originalNode => {
-            if (originalNode === node) {
-              return {
-                ...originalNode,
-                children: newChildren,
-                totalCount: totalCount
-              }
-            } else {
-              return originalNode
+        const [newRoot] = await this._modifyNodes([root], originalNode => {
+          if (originalNode.id === node.id) {
+            return {
+              ...originalNode,
+              loaded: true,
+              loading: false,
+              children: newChildren,
+              totalCount: loadedNodes.totalCount
             }
-          })
+          } else {
+            return originalNode
+          }
+        })
 
-          await this.context.setState({
-            loaded: true,
-            root: newRoot
-          })
+        await this.context.setState({
+          root: newRoot
         })
-        .finally(() => {
-          this.context.setState({
-            loading: false
-          })
-        })
+      })
     }, LOAD_SILENT_PERIOD)
   }
 
@@ -237,24 +247,14 @@ export default class BrowserController {
     })
   }
 
-  getLoaded() {
-    const { loaded } = this.context.getState()
-    return loaded
-  }
-
-  getLoading() {
-    const { loading } = this.context.getState()
-    return loading
+  getRoot() {
+    const { root } = this.context.getState()
+    return root
   }
 
   getFilter() {
     const { filter } = this.context.getState()
     return filter
-  }
-
-  getRoot() {
-    const { root } = this.context.getState()
-    return root
   }
 
   getSelectedNode() {

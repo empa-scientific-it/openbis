@@ -42,7 +42,7 @@ class Browser extends React.PureComponent {
 
     const { controller } = this
 
-    if (!controller.getLoaded()) {
+    if (!controller.getRoot().loaded) {
       return null
     }
 
@@ -70,13 +70,13 @@ class Browser extends React.PureComponent {
           <FilterField
             filter={controller.getFilter() || ''}
             filterChange={controller.filterChange}
-            loading={controller.getLoading()}
+            loading={controller.getRoot().loading}
           />
           <div className={classes.nodes}>
             <BrowserNode
               controller={controller}
               node={controller.getRoot()}
-              level={0}
+              level={-1}
             />
           </div>
         </div>
