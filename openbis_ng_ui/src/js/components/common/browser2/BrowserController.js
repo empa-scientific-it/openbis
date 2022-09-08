@@ -27,7 +27,8 @@ export default class BrowserController {
         object: {
           id: 'root',
           type: 'root'
-        }
+        },
+        canHaveChildren: true
       },
       filter: null,
       selectedId: null,

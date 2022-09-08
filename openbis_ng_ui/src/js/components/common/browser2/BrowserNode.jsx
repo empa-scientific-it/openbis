@@ -1,14 +1,19 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Collapse from '@material-ui/core/Collapse'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import BrowserNodes from '@src/js/components/common/browser2/BrowserNodes.jsx'
+import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import messages from '@src/js/common/messages.js'
+import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
+
+const PADDING_PER_LEVEL = 24
 
 const styles = theme => ({
   item: {
@@ -22,10 +27,17 @@ const styles = theme => ({
   text: {
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.fontSize
+  },
+  listContainer: {
+    flex: '1 1 100%'
+  },
+  list: {
+    paddingTop: '0',
+    paddingBottom: '0'
   }
 })
 
-class BrowserNode extends React.PureComponent {
+class BrowserNodeClass extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
@@ -53,7 +65,7 @@ class BrowserNode extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'BrowserNode.render')
 
-    const { controller, node, level, classes } = this.props
+    const { node, level, classes } = this.props
 
     return (
       <div>
@@ -61,7 +73,7 @@ class BrowserNode extends React.PureComponent {
           button
           selected={node.selected}
           onClick={this.handleClick}
-          style={{ paddingLeft: level * 24 + 'px' }}
+          style={{ paddingLeft: level * PADDING_PER_LEVEL + 'px' }}
           classes={{
             root: classes.item
           }}
@@ -69,15 +81,7 @@ class BrowserNode extends React.PureComponent {
           {this.renderIcon(node)}
           {this.renderText(node)}
         </ListItem>
-        {node.children && node.children.length > 0 && (
-          <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
-            <BrowserNodes
-              controller={controller}
-              nodes={node.children}
-              level={level + 1}
-            />
-          </Collapse>
-        )}
+        {this.renderChildren()}
       </div>
     )
   }
@@ -130,6 +134,119 @@ class BrowserNode extends React.PureComponent {
       />
     )
   }
+
+  renderChildren() {
+    const { node, level, classes } = this.props
+
+    if (!node.canHaveChildren || !node.loaded) {
+      return null
+    }
+
+    return (
+      <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
+        <List
+          className={util.classNames(
+            classes.list,
+            level === 0 ? classes.listContainer : null
+          )}
+        >
+          {this.renderNonEmptyChildren()}
+          {this.renderShowMoreChildren()}
+          {this.renderEmptyChildren()}
+        </List>
+      </Collapse>
+    )
+  }
+
+  renderNonEmptyChildren() {
+    const { controller, node, level } = this.props
+
+    if (node.children && node.children.length > 0) {
+      return node.children.map(child => {
+        return (
+          <BrowserNode
+            key={child.id}
+            controller={controller}
+            node={child}
+            level={level + 1}
+          />
+        )
+      })
+    } else {
+      return null
+    }
+  }
+
+  renderShowMoreChildren() {
+    const { node, level, classes } = this.props
+
+    if (
+      node.children &&
+      node.totalCount &&
+      node.children.length < node.totalCount
+    ) {
+      return (
+        <ListItem
+          button
+          style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
+          classes={{
+            root: classes.item
+          }}
+        >
+          <ListItemIcon
+            classes={{
+              root: classes.icon
+            }}
+          >
+            <span></span>
+          </ListItemIcon>
+          <ListItemText
+            primary={messages.get(
+              messages.LOAD_MORE,
+              node.totalCount - node.children.length
+            )}
+            classes={{
+              primary: classes.text
+            }}
+          />
+        </ListItem>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderEmptyChildren() {
+    const { node, level, classes } = this.props
+
+    if (!node.children || node.children.length === 0) {
+      return (
+        <ListItem
+          button
+          style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
+          classes={{
+            root: classes.item
+          }}
+        >
+          <ListItemIcon
+            classes={{
+              root: classes.icon
+            }}
+          >
+            <span></span>
+          </ListItemIcon>
+          <ListItemText
+            primary={messages.get(messages.LOADED_EMPTY)}
+            classes={{
+              primary: classes.text
+            }}
+          />
+        </ListItem>
+      )
+    } else {
+      return null
+    }
+  }
 }
 
-export default _.flow(withStyles(styles))(BrowserNode)
+export default _.flow(withStyles(styles))(BrowserNodeClass)
