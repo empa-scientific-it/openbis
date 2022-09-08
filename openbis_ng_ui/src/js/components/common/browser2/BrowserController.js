@@ -76,7 +76,7 @@ export default class BrowserController {
 
       const loadPromise = this.doLoadNodes({
         node: node,
-        filter: filter,
+        filter: util.trim(filter),
         offset: 0,
         limit: LOAD_LIMIT
       })
@@ -177,7 +177,7 @@ export default class BrowserController {
 
   async filterChange(newFilter) {
     await this.context.setState({
-      filter: util.trim(newFilter)
+      filter: newFilter
     })
     await this.load()
   }
