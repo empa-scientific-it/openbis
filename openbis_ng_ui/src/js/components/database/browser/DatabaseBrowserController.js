@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
 
@@ -42,7 +41,7 @@ export default class UserBrowserController extends BrowserController {
   }
 
   async searchSpaces(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SpaceSearchCriteria()
     if (filter) {
@@ -57,7 +56,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(space => ({
-      id: 'space_' + space.getCode() + '_' + _.uniqueId(),
+      id: 'space_' + space.getCode() + '_in_' + node.id,
       text: space.getCode() + (filter ? ' (space)' : ''),
       object: {
         type: 'space',
@@ -91,7 +90,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(project => ({
-      id: 'project_' + project.getPermId().getPermId() + '_' + _.uniqueId(),
+      id: 'project_' + project.getPermId().getPermId() + '_in_' + node.id,
       text: project.getCode() + (filter ? ' (project)' : ''),
       object: {
         type: 'project',
@@ -125,8 +124,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(experiment => ({
-      id:
-        'experiment_' + experiment.getPermId().getPermId() + '_' + _.uniqueId(),
+      id: 'experiment_' + experiment.getPermId().getPermId() + '_in_' + node.id,
       text: experiment.getCode() + (filter ? ' (experiment)' : ''),
       object: {
         type: 'experiment',
@@ -160,7 +158,7 @@ export default class UserBrowserController extends BrowserController {
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(sample => ({
-      id: 'sample_' + sample.getPermId().getPermId() + '_' + _.uniqueId(),
+      id: 'sample_' + sample.getPermId().getPermId() + '_in_' + node.id,
       text: sample.getCode() + (filter ? ' (sample)' : ''),
       object: {
         type: 'sample',
