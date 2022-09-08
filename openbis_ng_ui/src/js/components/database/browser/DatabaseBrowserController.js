@@ -10,10 +10,12 @@ export default class UserBrowserController extends BrowserController {
       if (filter === null) {
         return await this.searchSpaces(params)
       } else {
-        const spaces = await this.searchSpaces(params)
-        const projects = await this.searchProjects(params)
-        const experiments = await this.searchExperiments(params)
-        const samples = await this.searchSamples(params)
+        const [spaces, projects, experiments, samples] = await Promise.all([
+          this.searchSpaces(params),
+          this.searchProjects(params),
+          this.searchExperiments(params),
+          this.searchSamples(params)
+        ])
         return {
           nodes: [
             ...spaces.nodes,
