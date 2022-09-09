@@ -38,7 +38,7 @@ public interface IGenericDAO<T extends IIdHolder>
      * @return entity with the given technical identifier (and no lazy connections initialized) or null if it is not found <br>
      *         NOTE: don't rely on T.getId() value because returned value can be a {@link HibernateProxy}. Use {@link HibernateUtils#getId(IIdHolder)}
      *         instead.
-     * @throws DataRetrievalFailureException if the entity with given identifier does not exist in the database.
+     * @throws DataRetrievalFailureException if the entity with given identifier do not exist in the database.
      */
     public T getByTechId(final TechId techId);
 

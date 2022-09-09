@@ -109,7 +109,7 @@ public class DatabaseConsistencyChecker
 
         if (numberOfTypesInJSON > 0 && missing.size() == numberOfTypesInJSON)
         {
-            throw new UserFailureException("All types from xls-import-version-info.json does not exist in the database. Missing: " + missing
+            throw new UserFailureException("All types from xls-import-version-info.json do not exist in the database. Missing: " + missing
                     + " The database may have been deleted. Please delete xls-import-version-info.json too and restart the app.");
         }
     }

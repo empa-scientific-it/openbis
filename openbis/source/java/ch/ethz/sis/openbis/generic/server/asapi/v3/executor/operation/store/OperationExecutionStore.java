@@ -733,7 +733,7 @@ public class OperationExecutionStore implements IOperationExecutionStore, Applic
     {
         if (executionPE == null)
         {
-            throw new IllegalArgumentException("Operation execution with id " + executionId + " does not exist in the database.");
+            throw new IllegalArgumentException("Operation execution with id " + executionId + " do not exist in the database.");
         }
     }
 
