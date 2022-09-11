@@ -20,3 +20,4 @@ sourceTest/java/ch/systemsx/cisd/etlserver/plugins/LastSeenDataSetFileContentTes
 /.idea/
 *.iml
 *.eml
+${incoming-root-dir}
