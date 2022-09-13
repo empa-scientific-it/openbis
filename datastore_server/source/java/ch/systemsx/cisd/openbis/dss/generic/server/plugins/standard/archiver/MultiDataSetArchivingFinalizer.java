@@ -283,14 +283,25 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             @Override
             public boolean conditionFulfilled()
             {
-                if (replicatedFile.length() < originalSize)
+                if (replicatedFile.length() != originalSize)
                 {
+                    operationLog.info("Waiting for the file size of the replicated file to match the original file size.");
                     return false;
+                } else
+                {
+                    operationLog.info("Replicated file has the same file size as the original file.");
                 }
 
-                if (parameters.isWaitForTFlag() && !isTFlagSet(replicatedFile))
+                if (parameters.isWaitForTFlag())
                 {
-                    return false;
+                    if (!isTFlagSet(replicatedFile))
+                    {
+                        operationLog.info("Waiting for T flag to be set on the replicated file.");
+                        return false;
+                    } else
+                    {
+                        operationLog.info("Replicated file has T flag set.");
+                    }
                 }
 
                 return true;
@@ -318,6 +329,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                     new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
 
             IHierarchicalContent replicaContent = operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
+
+            operationLog.info("Starting sanity check of the file archived in the replicated destination");
 
             if (parameters.isWaitForSanityCheck())
             {

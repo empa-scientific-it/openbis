@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
  * @author pkupczyk
@@ -104,6 +105,7 @@ public abstract class RetryCaller<T, E extends Throwable>
     {
         try
         {
+            logger.log(LogLevel.INFO, "Going to wait " + DateTimeUtils.renderDuration(waitingTime));
             Thread.sleep(waitingTime);
             waitingTime = waitingTime * 2;
         } catch (InterruptedException e)

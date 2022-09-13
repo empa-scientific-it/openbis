@@ -544,6 +544,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     {
         Map<String, Status> statusMap = null;
 
+        operationLog.info("Starting sanity check of the file archived in the final destination");
+
         if (waitForSanityCheck)
         {
             RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
