@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -362,6 +363,19 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         System.err.println("archive " + datasets + " options:" + options);
 
         scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull, options);
+    }
+
+    @Override public Properties getArchiverProperties()
+    {
+        ArchiverPluginFactory archiverPluginFactory = pluginTaskInfoProvider.getArchiverPluginFactory();
+
+        if (archiverPluginFactory.isArchiverConfigured())
+        {
+            return archiverPluginFactory.getArchiverProperties();
+        } else
+        {
+            return null;
+        }
     }
 
     @Override

@@ -20,6 +20,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,23 +31,32 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.IWaitingCondition;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.FileBasedPause;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
@@ -68,6 +78,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
     public static final String CONTAINER_ID_KEY = "container-id";
 
+    public static final String CONTAINER_PATH_KEY = "container-path";
+
     public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
 
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
@@ -83,6 +95,9 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     public static final String TIME_STAMP_FORMAT = "yyyyMMdd-HHmmss";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            MultiDataSetArchivingFinalizer.class);
+
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             MultiDataSetArchivingFinalizer.class);
 
     private final File pauseFile;
@@ -125,7 +140,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             {
                 operationLog.info("Waiting for replication of archive '" + originalFile
                         + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
-                boolean noTimeout = waitUntilReplicated(parameters);
+                boolean noTimeout = waitUntilReplicated(datasets, parameters);
                 if (noTimeout && checkMultiDatasetArchiveDatabase(dataSetCodes, parameters))
                 {
                     DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
@@ -252,7 +267,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         return new MultiDataSetArchiverDBTransaction();
     }
 
-    private boolean waitUntilReplicated(Parameters parameters)
+    private boolean waitUntilReplicated(List<DatasetDescription> dataSets, Parameters parameters)
     {
         final File originalFile = parameters.getOriginalFile();
         final File replicatedFile = parameters.getReplicatedFile();
@@ -263,22 +278,107 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         long startTime = parameters.getStartTime();
         FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger,
                 "Waiting for replicated file " + parameters.getReplicatedFile());
-        return waitingHelper.waitOn(startTime, new IWaitingCondition()
+        boolean replicatedFileReady = waitingHelper.waitOn(startTime, new IWaitingCondition()
+        {
+            @Override
+            public boolean conditionFulfilled()
             {
-                @Override
-                public boolean conditionFulfilled()
+                if (replicatedFile.length() < originalSize)
                 {
-                    return replicatedFile.length() >= originalSize;
+                    return false;
                 }
 
-                @Override
-                public String toString()
+                if (parameters.isWaitForTFlag() && !isTFlagSet(replicatedFile))
                 {
-                    return FileUtilities.byteCountToDisplaySize(replicatedFile.length())
-                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize)
-                            + " are replicated for " + originalFile;
+                    return false;
                 }
-            }, pause);
+
+                return true;
+            }
+
+            @Override
+            public String toString()
+            {
+                return FileUtilities.byteCountToDisplaySize(replicatedFile.length())
+                        + " of " + FileUtilities.byteCountToDisplaySize(originalSize)
+                        + " are replicated for " + originalFile;
+            }
+        }, pause);
+
+        if (replicatedFileReady)
+        {
+            ArchiverTaskContext archiverContext = new ArchiverTaskContext(
+                    ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
+                    ServiceProvider.getHierarchicalContentProvider());
+
+            Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+
+            MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
+                    archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                    new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+
+            IHierarchicalContent replicaContent = operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
+
+            if (parameters.isWaitForSanityCheck())
+            {
+                RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
+                        new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
+                                parameters.getWaitForSanityCheckMaxWaitingTime(),
+                                new Log4jSimpleLogger(operationLog))
+                        {
+                            @Override protected Map<String, Status> call()
+                            {
+                                return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                                        new Log4jSimpleLogger(operationLog));
+                            }
+                        };
+                sanityCheckCaller.callWithRetry();
+            } else
+            {
+                MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                        new Log4jSimpleLogger(operationLog));
+            }
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    private boolean isTFlagSet(File file)
+    {
+        File shell = OSUtilities.findExecutable("sh");
+
+        if (shell == null)
+        {
+            throw new RuntimeException("Could not check if T flag is set on file '" + file.getAbsolutePath()
+                    + "' because 'sh' command needed for the check could not be found in the following locations: " + OSUtilities.getSafeOSPath());
+        }
+
+        List<String> command =
+                Arrays.asList(shell.getAbsolutePath(), "-c", String.format("ls -l '%s' | awk '{printf substr($1,10,1)}'", file.getAbsolutePath()));
+
+        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog);
+
+        if (result.isOK())
+        {
+            String output = result.getOutput().get(0);
+
+            if (output != null && output.trim().equalsIgnoreCase("T"))
+            {
+                operationLog.info("T flag is set on file '" + file.getAbsolutePath() + "'");
+                return true;
+            } else
+            {
+                operationLog.info("T flag is not set on file '" + file.getAbsolutePath() + "'");
+                return false;
+            }
+        } else
+        {
+            Throwable exception = result.getProcessIOResult().tryGetException();
+            operationLog.warn("Could not check if T flag is set on file '" + file.getAbsolutePath() + "'", exception);
+            return false;
+        }
     }
 
     private List<String> extracCodes(List<DatasetDescription> datasets)
@@ -300,6 +400,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             parameters.setContainerId(getNumber(parameterBindings, CONTAINER_ID_KEY));
         }
+        parameters.setContainerPath(getProperty(parameterBindings, CONTAINER_PATH_KEY));
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
@@ -307,6 +408,13 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         parameters.setSubDirectory(parameterBindings.get(Constants.SUB_DIR_KEY));
+
+        parameters.setWaitForSanityCheck(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_KEY));
+        parameters.setWaitForSanityCheckInitialWaitingTime(
+                getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY));
+        parameters.setWaitForSanityCheckMaxWaitingTime(getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY));
+        parameters.setWaitForTFlag(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY));
+
         return parameters;
     }
 
@@ -321,6 +429,12 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             throw new IllegalArgumentException("Property '" + property + "' isn't a time stamp of format "
                     + TIME_STAMP_FORMAT + ": " + value);
         }
+    }
+
+    private boolean getBoolean(Map<String, String> parameterBindings, String property)
+    {
+        String value = getProperty(parameterBindings, property);
+        return Boolean.parseBoolean(value);
     }
 
     private long getNumber(Map<String, String> parameterBindings, String property)
@@ -363,6 +477,16 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private String subDirectory;
 
         private Long containerId;
+
+        private String containerPath;
+
+        private boolean waitForSanityCheck;
+
+        private long waitForSanityCheckInitialWaitingTime;
+
+        private long waitForSanityCheckMaxWaitingTime;
+
+        private boolean waitForTFlag;
 
         public void setOriginalFile(File file)
         {
@@ -443,6 +567,57 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             this.containerId = containerId;
         }
+
+        public String getContainerPath()
+        {
+            return containerPath;
+        }
+
+        public void setContainerPath(final String containerPath)
+        {
+            this.containerPath = containerPath;
+        }
+
+        public boolean isWaitForSanityCheck()
+        {
+            return waitForSanityCheck;
+        }
+
+        public void setWaitForSanityCheck(final boolean waitForSanityCheck)
+        {
+            this.waitForSanityCheck = waitForSanityCheck;
+        }
+
+        public long getWaitForSanityCheckInitialWaitingTime()
+        {
+            return waitForSanityCheckInitialWaitingTime;
+        }
+
+        public void setWaitForSanityCheckInitialWaitingTime(final long waitForSanityCheckInitialWaitingTime)
+        {
+            this.waitForSanityCheckInitialWaitingTime = waitForSanityCheckInitialWaitingTime;
+        }
+
+        public long getWaitForSanityCheckMaxWaitingTime()
+        {
+            return waitForSanityCheckMaxWaitingTime;
+        }
+
+        public void setWaitForSanityCheckMaxWaitingTime(final long waitForSanityCheckMaxWaitingTime)
+        {
+            this.waitForSanityCheckMaxWaitingTime = waitForSanityCheckMaxWaitingTime;
+        }
+
+        public boolean isWaitForTFlag()
+        {
+            return waitForTFlag;
+        }
+
+        public void setWaitForTFlag(final boolean waitForTFlag)
+        {
+            this.waitForTFlag = waitForTFlag;
+        }
+
     }
 
 }

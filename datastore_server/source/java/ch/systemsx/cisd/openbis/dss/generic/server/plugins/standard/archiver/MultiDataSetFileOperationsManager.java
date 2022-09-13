@@ -499,6 +499,19 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     public IHierarchicalContent getContainerAsHierarchicalContent(String containerPath, List<DatasetDescription> dataSets)
     {
         ArchiveDestination archiveDestination = getFinalArchive();
+        return getAsHierarchicalContent(archiveDestination, containerPath, dataSets);
+    }
+
+    @Override
+    public IHierarchicalContent getReplicaAsHierarchicalContent(String containerPath, List<DatasetDescription> dataSets)
+    {
+        ArchiveDestination archiveDestination = getFinalReplicatedArchive();
+        return getAsHierarchicalContent(archiveDestination, containerPath, dataSets);
+    }
+
+    public IHierarchicalContent getAsHierarchicalContent(ArchiveDestination archiveDestination, String containerPath,
+            List<DatasetDescription> dataSets)
+    {
         String destinationRoot = archiveDestination.getDestination();
         File containerInDestination = new File(destinationRoot, containerPath);
 
