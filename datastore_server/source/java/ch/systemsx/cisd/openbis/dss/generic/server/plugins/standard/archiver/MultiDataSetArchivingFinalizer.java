@@ -414,25 +414,65 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         Map<String, String> parameterBindings = context.getParameterBindings();
         operationLog.info("Parameters: " + parameterBindings);
         Parameters parameters = new Parameters();
+
         if (parameterBindings.containsKey(CONTAINER_ID_KEY))
         {
             parameters.setContainerId(getNumber(parameterBindings, CONTAINER_ID_KEY));
         }
-        parameters.setContainerPath(getProperty(parameterBindings, CONTAINER_PATH_KEY));
+        if (parameterBindings.containsKey(CONTAINER_PATH_KEY))
+        {
+            parameters.setContainerPath(getProperty(parameterBindings, CONTAINER_PATH_KEY));
+        }
+        
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
         parameters.setStartTime(getTimestamp(parameterBindings, START_TIME_KEY));
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
-        parameters.setSanityCheck(getBoolean(parameterBindings, FINALIZER_SANITY_CHECK_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         parameters.setSubDirectory(parameterBindings.get(Constants.SUB_DIR_KEY));
 
-        parameters.setWaitForSanityCheck(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_KEY));
-        parameters.setWaitForSanityCheckInitialWaitingTime(
-                getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY));
-        parameters.setWaitForSanityCheckMaxWaitingTime(getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY));
-        parameters.setWaitForTFlag(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY));
+        if (parameterBindings.containsKey(FINALIZER_SANITY_CHECK_KEY))
+        {
+            parameters.setSanityCheck(getBoolean(parameterBindings, FINALIZER_SANITY_CHECK_KEY));
+        } else
+        {
+            parameters.setSanityCheck(MultiDataSetArchiver.DEFAULT_FINALIZER_SANITY_CHECK);
+        }
+
+        if (parameterBindings.containsKey(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_KEY))
+        {
+            parameters.setWaitForSanityCheck(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_KEY));
+        } else
+        {
+            parameters.setWaitForSanityCheck(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK);
+        }
+
+        if (parameterBindings.containsKey(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY))
+        {
+            parameters.setWaitForSanityCheckInitialWaitingTime(
+                    getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY));
+        } else
+        {
+            parameters.setWaitForSanityCheckInitialWaitingTime(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
+        }
+
+        if (parameterBindings.containsKey(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY))
+        {
+            parameters.setWaitForSanityCheckMaxWaitingTime(
+                    getNumber(parameterBindings, MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY));
+        } else
+        {
+            parameters.setWaitForSanityCheckMaxWaitingTime(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
+        }
+
+        if (parameterBindings.containsKey(MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY))
+        {
+            parameters.setWaitForTFlag(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY));
+        } else
+        {
+            parameters.setWaitForTFlag(MultiDataSetArchiver.DEFAULT_WAIT_FOR_T_FLAG);
+        }
 
         return parameters;
     }
