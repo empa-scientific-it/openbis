@@ -163,7 +163,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
 
-    public static final boolean DEFAULT_WAIT_FOR_T_FLAG_KEY = false;
+    public static final boolean DEFAULT_WAIT_FOR_T_FLAG = false;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
@@ -238,7 +238,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
         waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
                 DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
-        waitForTFlag = PropertyUtils.getBoolean(properties, WAIT_FOR_T_FLAG_KEY, DEFAULT_WAIT_FOR_T_FLAG_KEY);
+        waitForTFlag = PropertyUtils.getBoolean(properties, WAIT_FOR_T_FLAG_KEY, DEFAULT_WAIT_FOR_T_FLAG);
 
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();

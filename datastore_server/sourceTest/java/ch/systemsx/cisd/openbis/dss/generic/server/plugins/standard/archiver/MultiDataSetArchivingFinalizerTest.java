@@ -133,11 +133,19 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         dataFilePartiallyReplicated = new File(replicate, "data2.txt");
         FileUtilities.writeToFile(dataFilePartiallyReplicated, "hello");
         parameterBindings = new LinkedHashMap<String, String>();
+        parameterBindings.put(MultiDataSetArchivingFinalizer.CONTAINER_PATH_KEY, "data.txt");
         parameterBindings.put(MultiDataSetArchivingFinalizer.ORIGINAL_FILE_PATH_KEY, dataFileInArchive.getPath());
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFileReplicated.getPath());
-        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "20000");
         parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, START_TIME_AS_STRING);
+        parameterBindings.put(MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY, Boolean.toString(MultiDataSetArchiver.DEFAULT_WAIT_FOR_T_FLAG));
+        parameterBindings.put(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_KEY, Boolean.toString(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK));
+        parameterBindings.put(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY,
+                Long.toString(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME));
+        parameterBindings.put(MultiDataSetArchiver.WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
+                Long.toString(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "20000");
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "300000");
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, "false");
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.ARCHIVED.toString());
         parameterBindings.put(Constants.SUB_DIR_KEY, MY_GROUP);
         processingContext = new DataSetProcessingContext(null, null,
@@ -145,12 +153,12 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         updatedStatus = new ArrayList<DataSetCodesWithStatus>();
         cleaner = new MockCleaner();
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(dssService).getDataSetDeleter();
-                    will(returnValue(dataSetDeleter));
-                }
-            });
+                allowing(dssService).getDataSetDeleter();
+                will(returnValue(dataSetDeleter));
+            }
+        });
     }
 
     @AfterMethod
@@ -190,12 +198,13 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
-                + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of "
-                + "'" + dataFileInArchive.getPath() + "' failed because the original file does not exist.",
+                        + "Parameters: {container-path=" + dataFileInArchive.getName() + ", original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group}\n"
+                        + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of "
+                        + "'" + dataFileInArchive.getPath() + "' failed because the original file does not exist.",
                 logRecorder.getLogContent());
         assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed because the original file does not exist.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
@@ -216,14 +225,15 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
-                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
-                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
+                        + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                        + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                        + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
                 logRecorder.getLogContent());
         assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - ARCHIVED]", updatedStatus.toString());
@@ -242,16 +252,17 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
-                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
-                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
-                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "No container found in Multi Data Set Archive database with container ID 42.\n",
+                        + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                        + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                        + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                        + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                        + "No container found in Multi Data Set Archive database with container ID 42.\n",
                 logRecorder.getLogContent());
         assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
@@ -272,16 +283,17 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
         
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
-                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
-                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
-                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Archive file '" + dataFileInArchive.getPath() + "' doesn't ends with 'wrong/path'.\n",
+                        + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                        + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                        + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                        + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                        + "Archive file '" + dataFileInArchive.getPath() + "' doesn't ends with 'wrong/path'.\n",
                 logRecorder.getLogContent());
         assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
@@ -302,17 +314,18 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
         
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
-                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
-                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
-                + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Data sets in Multi Data Set Archive database are different from provided data sets: "
-                + "Provided data sets: [ds1]. Data sets in Multi Data Set Archive database: [unknown]\n",
+                        + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group, container-id=42}\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                        + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                        + "13 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                        + "WARN  OPERATION.MultiDataSetArchivingFinalizer - "
+                        + "Data sets in Multi Data Set Archive database are different from provided data sets: "
+                        + "Provided data sets: [ds1]. Data sets in Multi Data Set Archive database: [unknown]\n",
                 logRecorder.getLogContent());
         assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
@@ -349,14 +362,15 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
-                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group, container-id=42}\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
-                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
-                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
+                        + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
+                        + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                        + "start-time=" + START_TIME_AS_STRING + ", "
+                        + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                        + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=AVAILABLE, sub-directory=my-group, container-id=42}\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                        + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                        + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                        + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
                 logRecorder.getLogContent());
         assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
@@ -423,10 +437,11 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
+                + "start-time=" + START_TIME_AS_STRING + ", "
+                + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=ARCHIVED, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
@@ -476,10 +491,11 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1, ds2), processingContext);
 
         AssertionUtil.assertContainsLines("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + "Parameters: {container-path=data.txt, original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
-                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group}\n"
+                + "start-time=" + START_TIME_AS_STRING + ", "
+                + "wait-for-t-flag=false, wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, "
+                + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, finalizer-sanity-check=false, status=AVAILABLE, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
