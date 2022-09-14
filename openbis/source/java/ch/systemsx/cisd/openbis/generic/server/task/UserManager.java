@@ -1029,10 +1029,15 @@ public class UserManager
         searchCriteria.withAuthorizationGroup().withId().thatEquals(groupId);
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
         fetchOptions.withSpace();
+        fetchOptions.withProject();
         List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
                 searchCriteria, fetchOptions).getObjects();
         for (RoleAssignment roleAssignment : roleAssignments)
         {
+            // Automatic role assignments are for spaces only
+            if (roleAssignment.getRoleLevel() == RoleLevel.PROJECT) {
+                continue;
+            }
             if (roleAssignment.getRole().equals(role))
             {
                 Space space = roleAssignment.getSpace();
