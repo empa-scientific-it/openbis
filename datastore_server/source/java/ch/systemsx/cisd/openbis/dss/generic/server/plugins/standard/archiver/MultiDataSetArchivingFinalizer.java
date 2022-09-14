@@ -88,6 +88,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
     public static final String FINALIZER_MAX_WAITING_TIME_KEY = "finalizer-max-waiting-time";
 
+    public static final String FINALIZER_WAIT_FOR_T_FLAG_KEY = "finalizer-wait-for-t-flag";
+
     public static final String FINALIZER_SANITY_CHECK_KEY = "finalizer-sanity-check";
 
     public static final String START_TIME_KEY = "start-time";
@@ -423,7 +425,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             parameters.setContainerPath(getProperty(parameterBindings, CONTAINER_PATH_KEY));
         }
-        
+
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
@@ -431,6 +433,14 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         parameters.setSubDirectory(parameterBindings.get(Constants.SUB_DIR_KEY));
+
+        if (parameterBindings.containsKey(MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY))
+        {
+            parameters.setWaitForTFlag(getBoolean(parameterBindings, MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY));
+        } else
+        {
+            parameters.setWaitForTFlag(MultiDataSetArchiver.DEFAULT_FINALIZER_WAIT_FOR_T_FLAG);
+        }
 
         if (parameterBindings.containsKey(FINALIZER_SANITY_CHECK_KEY))
         {
@@ -464,14 +474,6 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         } else
         {
             parameters.setWaitForSanityCheckMaxWaitingTime(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
-        }
-
-        if (parameterBindings.containsKey(MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY))
-        {
-            parameters.setWaitForTFlag(getBoolean(parameterBindings, MultiDataSetArchiver.WAIT_FOR_T_FLAG_KEY));
-        } else
-        {
-            parameters.setWaitForTFlag(MultiDataSetArchiver.DEFAULT_WAIT_FOR_T_FLAG);
         }
 
         return parameters;

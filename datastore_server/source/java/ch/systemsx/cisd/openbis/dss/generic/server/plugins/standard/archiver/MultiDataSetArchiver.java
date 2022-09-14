@@ -139,6 +139,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
 
+    public static final boolean DEFAULT_FINALIZER_WAIT_FOR_T_FLAG = false;
+
     public static final boolean DEFAULT_FINALIZER_SANITY_CHECK = true;
 
     public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
@@ -155,15 +157,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY = "wait-for-sanity-check-max-waiting-time";
 
-    public static final String WAIT_FOR_T_FLAG_KEY = "wait-for-t-flag";
-
     public static final boolean DEFAULT_WAIT_FOR_SANITY_CHECK = false;
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME = 10 * 1000;
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
-
-    public static final boolean DEFAULT_WAIT_FOR_T_FLAG = false;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
@@ -197,7 +195,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final long waitForSanityCheckMaxWaitingTime;
 
-    private final boolean waitForTFlag;
+    private final boolean finalizerWaitForTFlag;
 
     private final Properties cleanerProperties;
 
@@ -230,6 +228,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
         finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, DEFAULT_FINALIZER_MAX_WAITING_TIME);
+        finalizerWaitForTFlag = PropertyUtils.getBoolean(properties, MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY,
+                DEFAULT_FINALIZER_WAIT_FOR_T_FLAG);
         finalizerSanityCheck =
                 PropertyUtils.getBoolean(properties, MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, DEFAULT_FINALIZER_SANITY_CHECK);
         waitForSanityCheck = PropertyUtils.getBoolean(properties, WAIT_FOR_SANITY_CHECK_KEY, DEFAULT_WAIT_FOR_SANITY_CHECK);
@@ -238,7 +238,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
         waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
                 DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
-        waitForTFlag = PropertyUtils.getBoolean(properties, WAIT_FOR_T_FLAG_KEY, DEFAULT_WAIT_FOR_T_FLAG);
 
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();
@@ -506,6 +505,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
         parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(getTimeProvider().getTimeInMilliseconds()));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY, Boolean.toString(finalizerWaitForTFlag));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, Boolean.toString(finalizerSanityCheck));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());
@@ -513,7 +513,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_KEY, Boolean.toString(waitForSanityCheck));
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY, Long.toString(waitForSanityCheckInitialWaitingTime));
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY, Long.toString(waitForSanityCheckMaxWaitingTime));
-        parameterBindings.put(WAIT_FOR_T_FLAG_KEY, Boolean.toString(waitForTFlag));
 
         getDataStoreService().scheduleTask(ARCHIVING_FINALIZER, task, parameterBindings, dataSets,
                 userId, userEmail, userSessionToken);
