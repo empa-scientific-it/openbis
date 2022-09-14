@@ -88,6 +88,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
     public static final String FINALIZER_MAX_WAITING_TIME_KEY = "finalizer-max-waiting-time";
 
+    public static final String FINALIZER_SANITY_CHECK_KEY = "finalizer-sanity-check";
+
     public static final String START_TIME_KEY = "start-time";
 
     public static final String STATUS_KEY = "status";
@@ -318,38 +320,41 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
         if (replicatedFileReady)
         {
-            ArchiverTaskContext archiverContext = new ArchiverTaskContext(
-                    ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
-                    ServiceProvider.getHierarchicalContentProvider());
-
-            Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
-
-            MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
-                    archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                    new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-
-            IHierarchicalContent replicaContent = operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
-
-            operationLog.info("Starting sanity check of the file archived in the replicated destination");
-
-            if (parameters.isWaitForSanityCheck())
+            if (parameters.isSanityCheck())
             {
-                RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                        new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
-                                parameters.getWaitForSanityCheckMaxWaitingTime(),
-                                new Log4jSimpleLogger(operationLog))
-                        {
-                            @Override protected Map<String, Status> call()
+                ArchiverTaskContext archiverContext = new ArchiverTaskContext(
+                        ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
+                        ServiceProvider.getHierarchicalContentProvider());
+
+                Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+
+                MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
+                        archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                        new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+
+                IHierarchicalContent replicaContent = operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
+
+                operationLog.info("Starting sanity check of the file archived in the replicated destination");
+
+                if (parameters.isWaitForSanityCheck())
+                {
+                    RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
+                            new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
+                                    parameters.getWaitForSanityCheckMaxWaitingTime(),
+                                    new Log4jSimpleLogger(operationLog))
                             {
-                                return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                                        new Log4jSimpleLogger(operationLog));
-                            }
-                        };
-                sanityCheckCaller.callWithRetry();
-            } else
-            {
-                MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                        new Log4jSimpleLogger(operationLog));
+                                @Override protected Map<String, Status> call()
+                                {
+                                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                                            new Log4jSimpleLogger(operationLog));
+                                }
+                            };
+                    sanityCheckCaller.callWithRetry();
+                } else
+                {
+                    MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                            new Log4jSimpleLogger(operationLog));
+                }
             }
             return true;
         } else
@@ -419,6 +424,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
         parameters.setStartTime(getTimestamp(parameterBindings, START_TIME_KEY));
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
+        parameters.setSanityCheck(getBoolean(parameterBindings, FINALIZER_SANITY_CHECK_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         parameters.setSubDirectory(parameterBindings.get(Constants.SUB_DIR_KEY));
 
@@ -492,6 +498,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private Long containerId;
 
         private String containerPath;
+
+        private boolean sanityCheck;
 
         private boolean waitForSanityCheck;
 
@@ -589,6 +597,16 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         public void setContainerPath(final String containerPath)
         {
             this.containerPath = containerPath;
+        }
+
+        public boolean isSanityCheck()
+        {
+            return sanityCheck;
+        }
+
+        public void setSanityCheck(final boolean sanityCheck)
+        {
+            this.sanityCheck = sanityCheck;
         }
 
         public boolean isWaitForSanityCheck()

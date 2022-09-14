@@ -139,6 +139,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
 
+    public static final boolean DEFAULT_FINALIZER_SANITY_CHECK = true;
+
     public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
 
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
@@ -187,6 +189,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final long finalizerMaxWaitingTime;
 
+    private final boolean finalizerSanityCheck;
+
     private final boolean waitForSanityCheck;
 
     private final long waitForSanityCheckInitialWaitingTime;
@@ -226,6 +230,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
         finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, DEFAULT_FINALIZER_MAX_WAITING_TIME);
+        finalizerSanityCheck =
+                PropertyUtils.getBoolean(properties, MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, DEFAULT_FINALIZER_SANITY_CHECK);
         waitForSanityCheck = PropertyUtils.getBoolean(properties, WAIT_FOR_SANITY_CHECK_KEY, DEFAULT_WAIT_FOR_SANITY_CHECK);
         waitForSanityCheckInitialWaitingTime =
                 DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY,
@@ -500,6 +506,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
         parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(getTimeProvider().getTimeInMilliseconds()));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, Boolean.toString(finalizerSanityCheck));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());
 
