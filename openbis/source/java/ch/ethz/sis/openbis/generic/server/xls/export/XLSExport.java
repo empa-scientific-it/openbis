@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSProjectExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSPropertyTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
@@ -56,6 +57,8 @@ public class XLSExport
     private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
 
     private final IXLSExportHelper spaceExportHelper = new XLSSpaceExportHelper();
+
+    private final IXLSExportHelper projectExportHelper = new XLSProjectExportHelper();
 
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
@@ -192,6 +195,10 @@ public class XLSExport
             case SPACE:
             {
                 return spaceExportHelper;
+            }
+            case PROJECT:
+            {
+                return projectExportHelper;
             }
             default:
             {

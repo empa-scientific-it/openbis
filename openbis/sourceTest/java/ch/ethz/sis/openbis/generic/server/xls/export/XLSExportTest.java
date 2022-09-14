@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
@@ -78,20 +79,20 @@ public class XLSExportTest
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                         true
                 },
-                {
-                        "export-property-type.xlsx",
-                        PropertyTypeExpectations.class,
-                        List.of(
-                                new ExportablePermId(PROPERTY_TYPE,
-                                        new PropertyTypePermId("ANNOTATION.SYSTEM.COMMENTS")),
-                                new ExportablePermId(PROPERTY_TYPE,
-                                        new PropertyTypePermId("ANNOTATION.SYSTEM.QUANTITY")),
-                                new ExportablePermId(PROPERTY_TYPE,
-                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_ANNOTATION")),
-                                new ExportablePermId(PROPERTY_TYPE,
-                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP"))),
-                        true
-                },
+//                {
+//                        "export-property-type.xlsx",
+//                        PropertyTypeExpectations.class,
+//                        List.of(
+//                                new ExportablePermId(PROPERTY_TYPE,
+//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.COMMENTS")),
+//                                new ExportablePermId(PROPERTY_TYPE,
+//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.QUANTITY")),
+//                                new ExportablePermId(PROPERTY_TYPE,
+//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_ANNOTATION")),
+//                                new ExportablePermId(PROPERTY_TYPE,
+//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP"))),
+//                        true
+//                },
                 {
                         "export-data-set-type.xlsx",
                         DataSetTypeExpectations.class,
@@ -150,6 +151,15 @@ public class XLSExportTest
                                 new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
                                 new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
                                 new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
+                        ),
+                        true
+                },
+                {
+                        "export-project.xlsx",
+                        ProjectExpectations.class,
+                        Arrays.asList(
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
                         ),
                         true
                 },
