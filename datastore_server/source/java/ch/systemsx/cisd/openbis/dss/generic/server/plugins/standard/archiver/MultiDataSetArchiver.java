@@ -141,7 +141,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final boolean DEFAULT_FINALIZER_WAIT_FOR_T_FLAG = false;
 
-    public static final boolean DEFAULT_FINALIZER_SANITY_CHECK = true;
+    public static final boolean DEFAULT_FINALIZER_SANITY_CHECK = false;
 
     public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
 

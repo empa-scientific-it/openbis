@@ -545,7 +545,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
-                        + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=true, status=ARCHIVED, "
+                        + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
                         + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[]\n", dataSetDeleter.toString());
@@ -634,7 +634,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
-                        + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=true, status=ARCHIVED, "
+                        + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
                         + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[Dataset 'ds1']\n", dataSetDeleter.toString());
