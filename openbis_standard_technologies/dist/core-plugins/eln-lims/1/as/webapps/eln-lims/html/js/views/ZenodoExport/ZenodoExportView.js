@@ -54,6 +54,9 @@ function ZenodoExportView(exportController, exportModel) {
         $header.append($formTitle);
 
         this.paintTitleTextBox($container);
+        ExportUtil.paintGroupCheckboxes($container, "zenodo-groups");
+
+        exportModel.tableModel = ExportUtil.getTableModel();
 
         var $exportButton = $('<input>', { 'type': 'submit', 'class': 'btn btn-primary', 'value': 'Export Selected',
             'onClick': '$("form[name=\'zenodoExportForm\']").submit()'});
@@ -66,4 +69,7 @@ function ZenodoExportView(exportController, exportModel) {
         titleTextBoxFormGroup.css('width', '50%');
         $container.append(titleTextBoxFormGroup);
     };
+
+
+
 }
