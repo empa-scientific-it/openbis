@@ -336,26 +336,45 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
                 IHierarchicalContent replicaContent = operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
 
-                operationLog.info("Starting sanity check of the file archived in the replicated destination");
+                try
+                {
+                    operationLog.info("Starting sanity check of the file archived in the replicated destination");
 
-                if (parameters.isWaitForSanityCheck())
-                {
-                    RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                            new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
-                                    parameters.getWaitForSanityCheckMaxWaitingTime(),
-                                    new Log4jSimpleLogger(operationLog))
-                            {
-                                @Override protected Map<String, Status> call()
+                    if (parameters.isWaitForSanityCheck())
+                    {
+                        RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
+                                new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
+                                        parameters.getWaitForSanityCheckMaxWaitingTime(),
+                                        new Log4jSimpleLogger(operationLog))
                                 {
-                                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                                            new Log4jSimpleLogger(operationLog));
-                                }
-                            };
-                    sanityCheckCaller.callWithRetry();
-                } else
+                                    @Override protected Map<String, Status> call()
+                                    {
+                                        return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                                                new Log4jSimpleLogger(operationLog));
+                                    }
+                                };
+                        sanityCheckCaller.callWithRetry();
+                    } else
+                    {
+                        MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                                new Log4jSimpleLogger(operationLog));
+                    }
+                } catch (Exception e)
                 {
-                    MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                            new Log4jSimpleLogger(operationLog));
+                    operationLog.error("Failed sanity check of the file archived in the replicated destination", e);
+                    return false;
+                } finally
+                {
+                    if (replicaContent != null)
+                    {
+                        try
+                        {
+                            replicaContent.close();
+                        } catch (Exception e)
+                        {
+                            operationLog.warn("Could not close replicated content node", e);
+                        }
+                    }
                 }
             }
             return true;
