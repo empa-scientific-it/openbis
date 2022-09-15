@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSProjectExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSPropertyTypeExportHelper;
@@ -60,10 +61,12 @@ public class XLSExport
 
     private final IXLSExportHelper projectExportHelper = new XLSProjectExportHelper();
 
+    private final IXLSExportHelper experimentExportHelper = new XLSExperimentExportHelper();
+
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
-        if (isValid(exportablePermIds) == false)
+        if (!isValid(exportablePermIds))
         {
             throw new IllegalArgumentException();
         }
@@ -199,6 +202,10 @@ public class XLSExport
             case PROJECT:
             {
                 return projectExportHelper;
+            }
+            case EXPERIMENT:
+            {
+                return experimentExportHelper;
             }
             default:
             {

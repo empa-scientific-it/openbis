@@ -35,8 +35,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -160,6 +160,16 @@ public class XLSExportTest
                         Arrays.asList(
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
+                        ),
+                        true
+                },
+                {
+                        "export-experiment.xlsx",
+                        ExperimentExpectations.class,
+                        Arrays.asList(
+                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
+                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
+                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                         ),
                         true
                 },
