@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -86,43 +87,50 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
     @Override public void execute()
     {
-        CheckStatuses existingStatuses = loadCheckStatuses();
-        CheckStatuses newStatuses = new CheckStatuses();
+        operationLog.info("Starting consistency check task");
+
+        CheckStatuses statuses = loadCheckStatuses();
 
         for (MultiDataSetArchiverContainerDTO container : multiDataSetDAO.listContainers())
         {
-            CheckStatus status = existingStatuses.getStatus(container.getPath());
+            CheckStatus status = statuses.getStatus(container.getPath());
 
             if (status == null)
             {
-                CheckStatus newStatus = new CheckStatus();
-
                 try
                 {
-                    if (shouldCheckConsistency(newStatus, container))
+                    if (shouldCheckConsistency(container))
                     {
-                        checkConsistency(newStatus, container);
+                        operationLog.info("Starting consistency check of container '" + container.getPath() + "'");
+                        checkConsistency(container);
+                        operationLog.info("Finished consistency check of container '" + container.getPath() + "'.");
+                        status = CheckStatus.OK;
+                    } else
+                    {
+                        status = CheckStatus.SKIPPED;
                     }
                 } catch (Exception e)
                 {
-                    operationLog.error("Consistency check task failed unexpectedly", e);
-                    newStatus.addError("Consistency check task failed unexpectedly", e);
-                } finally
-                {
-                    newStatuses.setStatus(container.getPath(), newStatus);
+                    operationLog.error("Consistency check of container '" + container.getPath() + "' failed.", e);
+                    status = new CheckStatus(true, null, e);
                 }
+
+                if (status.isError())
+                {
+                    sendEmail(container, status);
+                }
+
+                statuses.setStatus(container.getPath(), status);
+                saveCheckStatuses(statuses);
             }
         }
 
-        sendEmail(newStatuses);
-
-        existingStatuses.addStatuses(newStatuses);
-        saveCheckStatuses(existingStatuses);
+        operationLog.info("Finished consistency check task.");
     }
 
-    private boolean shouldCheckConsistency(final CheckStatus status, final MultiDataSetArchiverContainerDTO container)
+    private boolean shouldCheckConsistency(final MultiDataSetArchiverContainerDTO container)
     {
-        File tar = new File(container.getPath());
+        File tar = new File(getOperationsManager().getOriginalArchiveFilePath(container.getPath()));
 
         if (tar.exists())
         {
@@ -133,8 +141,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
                 attributes = Files.readAttributes(tar.toPath(), BasicFileAttributes.class);
             } catch (IOException e)
             {
-                status.addError("Could not read attributes of tar file '" + tar.getAbsolutePath() + "'", e);
-                return false;
+                throw new RuntimeException("Could not read attributes of tar file '" + tar.getAbsolutePath() + "'", e);
             }
 
             Date creationDate = new Date(attributes.creationTime().toMillis());
@@ -151,14 +158,11 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
                         if (pathInfoDataSetId == null)
                         {
-                            status.addError("Path info database does not have information about data set '" + containerDataSet.getCode()
+                            throw new RuntimeException("Path info database does not have information about data set '" + containerDataSet.getCode()
                                     + "' which is part of '" + tar.getAbsolutePath() + "' tar file. Consistency cannot be checked.", null);
-                            return false;
                         }
                     }
 
-                    status.addInfo("Tar file '" + tar.getAbsolutePath() + "' created on '" + DATE_FORMAT.format(creationDate)
-                            + "' qualified for the check. Path info database contains information about all of its data sets.");
                     return true;
                 } else
                 {
@@ -166,28 +170,24 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
                 }
             } else
             {
-                status.addError("Cannot check if tar file '" + tar.getAbsolutePath() + "' should be verified, because its creation date is 0.", null);
-                return false;
+                throw new RuntimeException(
+                        "Cannot check if tar file '" + tar.getAbsolutePath() + "' should be verified, because its creation date is 0.", null);
             }
         } else
         {
-            status.addError("Tar path '" + tar.getAbsolutePath()
-                    + "' stored in the multi-dataset archiver database points to a file that does not exist.", null);
-            return false;
+            throw new RuntimeException(
+                    "Tar path '" + tar.getAbsolutePath() + "' stored in the multi-dataset archiver database points to a file that does not exist.",
+                    null);
         }
     }
 
-    private void checkConsistency(final CheckStatus status, final MultiDataSetArchiverContainerDTO container)
+    private void checkConsistency(final MultiDataSetArchiverContainerDTO container)
     {
         ArchiverTaskContext archiverContext = new ArchiverTaskContext(
                 ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
                 ServiceProvider.getHierarchicalContentProvider());
 
-        Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
-
-        MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
-                archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        MultiDataSetFileOperationsManager operationsManager = getOperationsManager();
 
         List<MultiDataSetArchiverDataSetDTO> containerDataSets = multiDataSetDAO.listDataSetsForContainerId(container.getId());
         List<DatasetDescription> containerDataSetDescriptions = convertToDescriptions(containerDataSets);
@@ -200,8 +200,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
             MultiDataSetArchivingUtils.sanityCheck(mainContent, containerDataSetDescriptions, archiverContext, new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {
-            status.addError("Sanity check of the main copy failed", e);
-            return;
+            throw new RuntimeException("Sanity check of the main copy of failed", e);
         } finally
         {
             if (mainContent != null)
@@ -219,8 +218,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
                     new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {
-            status.addError("Sanity check of the replica copy failed", e);
-            return;
+            throw new RuntimeException("Sanity check of the replica copy failed", e);
         } finally
         {
             if (replicaContent != null)
@@ -228,8 +226,15 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
                 replicaContent.close();
             }
         }
+    }
 
-        status.addInfo("Consistency check passed for both the main copy and the replica copies.");
+    private MultiDataSetFileOperationsManager getOperationsManager()
+    {
+        Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+
+        return new MultiDataSetFileOperationsManager(
+                archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     private List<DatasetDescription> convertToDescriptions(List<MultiDataSetArchiverDataSetDTO> dataSets)
@@ -292,7 +297,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         }
     }
 
-    private void sendEmail(CheckStatuses statuses)
+    private void sendEmail(final MultiDataSetArchiverContainerDTO container, final CheckStatus status)
     {
         if (notifyEmails.isEmpty())
         {
@@ -302,39 +307,22 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
         IMailClient mailClient = ServiceProvider.getDataStoreService().createEMailClient();
 
-        StringBuilder content = new StringBuilder("The following archive containers have been checked:\n");
+        StringBuilder content = new StringBuilder("Consistency check for container '" + container.getPath() + "' failed with error:");
 
-        for (Map.Entry<String, CheckStatus> entry : statuses.getStatuses().entrySet())
+        if (status.getMessage() != null)
         {
-            String path = entry.getKey();
-            CheckStatus status = entry.getValue();
-
-            content.append("- ").append(path).append(" :\n");
-
-            if (status.getErrors().size() > 0)
-            {
-                content.append("    errors:\n");
-                for (String error : status.getErrors())
-                {
-                    content.append("        - ").append(error);
-                }
-            }
-
-            if (status.getInfos().size() > 0)
-            {
-                content.append("    info:\n");
-                for (String info : status.getInfos())
-                {
-                    content.append("        - ").append(info);
-                }
-            }
+            content.append("\n").append(status.getMessage());
+        }
+        if (status.getStackTrace() != null)
+        {
+            content.append("\n").append(status.getStackTrace());
         }
 
         List<EMailAddress> emails = notifyEmails.stream().map(EMailAddress::new).collect(Collectors.toList());
 
         try
         {
-            mailClient.sendEmailMessage("Multi-dataset archiver sanity check report", content.toString(), null, null,
+            mailClient.sendEmailMessage("Multi dataset archive consistency check failed", content.toString(), null, null,
                     emails.toArray(new EMailAddress[] {}));
         } catch (Exception e)
         {
@@ -359,11 +347,6 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
             statuses.put(containerPath, status);
         }
 
-        public void addStatuses(final CheckStatuses statuses)
-        {
-            this.statuses.putAll(statuses.statuses);
-        }
-
         public Map<String, CheckStatus> getStatuses()
         {
             return statuses;
@@ -373,32 +356,45 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
     @JsonObject("CheckStatus")
     private static class CheckStatus
     {
+        public static final CheckStatus OK = new CheckStatus(false, "OK", null);
+
+        public static final CheckStatus SKIPPED = new CheckStatus(false, "SKIPPED", null);
 
         @JsonProperty
-        private final List<String> infos = new ArrayList<>();
+        private boolean error;
 
         @JsonProperty
-        private final List<String> errors = new ArrayList<>();
+        private String message;
 
-        public void addInfo(String message)
+        @JsonProperty
+        private String stackTrace;
+
+        private CheckStatus()
         {
-            infos.add(message);
         }
 
-        public void addError(String message, Exception e)
+        public CheckStatus(boolean error, String message, Exception exception)
         {
-            errors.add(message);
+            this.error = error;
+            this.message = message;
+            this.stackTrace = exception != null ? ExceptionUtils.getStackTrace(exception) : null;
         }
 
-        public List<String> getInfos()
+        public boolean isError()
         {
-            return infos;
+            return error;
         }
 
-        public List<String> getErrors()
+        public String getMessage()
         {
-            return errors;
+            return message;
         }
+
+        public String getStackTrace()
+        {
+            return stackTrace;
+        }
+
     }
 
 }
