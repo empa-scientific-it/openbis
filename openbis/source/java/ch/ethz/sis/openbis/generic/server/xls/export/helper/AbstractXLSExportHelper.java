@@ -1,7 +1,11 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -12,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -96,6 +101,20 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                 return dataTypeString;
             }
         }
+    }
+
+    protected <T extends IEntityTypeHolder> Collection<Collection<T>> groupByType(
+            final Collection<T> entityTypeHolders)
+    {
+        final HashMap<String, Collection<T>> permIdToEntityTypeMap = entityTypeHolders.stream().collect(
+                Collectors.toMap(
+                entityTypeHolder -> entityTypeHolder.getType().getPermId().toString(),
+                List::of,
+                (entityTypeHolders1, entityTypeHolders2) -> Stream.of(entityTypeHolders1, entityTypeHolders2)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList()),
+                HashMap::new));
+        return permIdToEntityTypeMap.values();
     }
 
 }

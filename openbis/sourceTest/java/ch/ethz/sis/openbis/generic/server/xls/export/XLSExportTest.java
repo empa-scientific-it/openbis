@@ -173,6 +173,15 @@ public class XLSExportTest
                         ),
                         true
                 },
+                {
+                        "export-sample.xlsx",
+                        SampleExpectations.class,
+                        Arrays.asList(
+                                new ExportablePermId(SAMPLE, new SpacePermId("BENCH")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("DEFAULT_STORAGE"))
+                        ),
+                        true
+                },
         };
     }
 

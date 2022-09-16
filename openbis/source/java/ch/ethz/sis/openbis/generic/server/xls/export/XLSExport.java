@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentExportH
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSProjectExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSPropertyTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
@@ -62,6 +63,8 @@ public class XLSExport
     private final IXLSExportHelper projectExportHelper = new XLSProjectExportHelper();
 
     private final IXLSExportHelper experimentExportHelper = new XLSExperimentExportHelper();
+
+    private final IXLSExportHelper sampleExportHelper = new XLSSampleExportHelper();
 
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
@@ -207,9 +210,13 @@ public class XLSExport
             {
                 return experimentExportHelper;
             }
+            case SAMPLE:
+            {
+                return sampleExportHelper;
+            }
             default:
             {
-                return null;
+                throw new IllegalArgumentException(String.format("Not supported exportable kind %s.", exportableKind));
             }
         }
     }
