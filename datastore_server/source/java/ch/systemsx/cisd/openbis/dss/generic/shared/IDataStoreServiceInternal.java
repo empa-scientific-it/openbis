@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -43,6 +44,11 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      * Return an {@link IArchiverPlugin} or null if none is configured.
      */
     IArchiverPlugin getArchiverPlugin();
+
+    /**
+     * Return the archiver {@link Properties} or null if the archiver is not configured.
+     */
+    Properties getArchiverProperties();
 
     /**
      * Returns the data set directory provider.

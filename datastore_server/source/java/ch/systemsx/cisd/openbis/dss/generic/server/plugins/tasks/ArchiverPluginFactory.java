@@ -71,6 +71,11 @@ public class ArchiverPluginFactory
         return className != null;
     }
 
+    public Properties getArchiverProperties()
+    {
+        return archiverProperties;
+    }
+
     public IArchiverPlugin createInstance(File storeRoot)
     {
         if (isArchiverConfigured() == false)
