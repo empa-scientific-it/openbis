@@ -177,8 +177,10 @@ public class XLSExportTest
                         "export-sample.xlsx",
                         SampleExpectations.class,
                         Arrays.asList(
-                                new ExportablePermId(SAMPLE, new SpacePermId("BENCH")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("DEFAULT_STORAGE"))
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004"))
                         ),
                         true
                 },

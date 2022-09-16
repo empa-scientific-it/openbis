@@ -48,17 +48,21 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
             for (final Sample sample : entry.getValue())
             {
+                final String parents = sample.getParents() == null ? "" : sample.getParents().stream()
+                        .map(parent -> parent.getIdentifier().getIdentifier())
+                        .collect(Collectors.joining("\n"));
+                final String children = sample.getChildren() == null ? "" : sample.getChildren().stream()
+                        .map(child -> child.getIdentifier().getIdentifier())
+                        .collect(Collectors.joining("\n"));
                 final List<String> sampleValues = new ArrayList<>(
                         List.of("", sample.getIdentifier().getIdentifier(), sample.getCode(),
                                 sample.getSpace().getPermId().getPermId(),
                                 sample.getProject().getIdentifier().getIdentifier(),
                                 sample.getExperiment().getIdentifier().getIdentifier(),
-                                "FALSE",
-                                // TODO: implement parents/children.
-                                "", ""));
+                                "FALSE", parents, children));
 
-                final Map<String, String> properties = sample.getProperties();
-                sampleValues.addAll(propertyNames.stream().map(properties::get).collect(Collectors.toList()));
+                sampleValues.addAll(propertyNames.stream().map(sample.getProperties()::get)
+                        .collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, sampleValues.toArray(String[]::new));
             }

@@ -35,9 +35,13 @@ class SampleExpectations extends Expectations
     public SampleExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
         allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
-                        Arrays.asList(new SamplePermId("BENCH"), new SamplePermId("DEFAULT_STORAGE"))
+                        List.of(
+                                new SamplePermId("200001010000000-0001"), new SamplePermId("200001010000000-0002"),
+                                new SamplePermId("200001010000000-0003"), new SamplePermId("200001010000000-0004")
+                        )
                 )),
-                with(any(SampleFetchOptions.class)));
+                with(any(SampleFetchOptions.class))
+        );
 
         will(new CustomAction("getting samples")
         {
@@ -67,12 +71,12 @@ class SampleExpectations extends Expectations
                 experiment.setCode("STORAGES_COLLECTION");
                 experiment.setIdentifier(new ExperimentIdentifier("/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION"));
 
-                final Sample[] samples = new Sample[2];
+                final Sample[] samples = new Sample[4];
 
                 samples[0] = new Sample();
                 samples[0].setType(sampleType);
                 samples[0].setFetchOptions(fetchOptions);
-                samples[0].setPermId(new SamplePermId("BENCH"));
+                samples[0].setPermId(new SamplePermId("200001010000000-0001"));
                 samples[0].setCode("BENCH");
                 samples[0].setIdentifier(new SampleIdentifier(space.getCode(), project.getCode(), null, "BENCH"));
                 samples[0].setSpace(space);
@@ -84,7 +88,7 @@ class SampleExpectations extends Expectations
                 samples[1] = new Sample();
                 samples[1].setType(sampleType);
                 samples[1].setFetchOptions(fetchOptions);
-                samples[1].setPermId(new SamplePermId("DEFAULT_STORAGE"));
+                samples[1].setPermId(new SamplePermId("200001010000000-0002"));
                 samples[1].setCode("DEFAULT_STORAGE");
                 samples[1].setIdentifier(new SampleIdentifier(space.getCode(), project.getCode(), null,
                         "DEFAULT_STORAGE"));
@@ -93,6 +97,37 @@ class SampleExpectations extends Expectations
                 samples[1].setExperiment(experiment);
                 samples[1].setProperty("Name", "Default Storage");
                 samples[1].setProperty("Number of Boxes", "1111");
+
+                samples[2] = new Sample();
+                samples[2].setType(sampleType);
+                samples[2].setFetchOptions(fetchOptions);
+                samples[2].setPermId(new SamplePermId("200001010000000-0003"));
+                samples[2].setCode("CHILD_1");
+                samples[2].setIdentifier(new SampleIdentifier(space.getCode(), project.getCode(), null,
+                        "CHILD_1"));
+                samples[2].setSpace(space);
+                samples[2].setProject(project);
+                samples[2].setExperiment(experiment);
+                samples[2].setProperty("Name", "Child 1");
+                samples[2].setProperty("Number of Boxes", "1");
+
+                samples[3] = new Sample();
+                samples[3].setType(sampleType);
+                samples[3].setFetchOptions(fetchOptions);
+                samples[3].setPermId(new SamplePermId("200001010000000-0004"));
+                samples[3].setCode("CHILD_2");
+                samples[3].setIdentifier(new SampleIdentifier(space.getCode(), project.getCode(), null,
+                        "CHILD_2"));
+                samples[3].setSpace(space);
+                samples[3].setProject(project);
+                samples[3].setExperiment(experiment);
+                samples[3].setProperty("Name", "Child 2");
+                samples[3].setProperty("Number of Boxes", "2");
+
+                samples[0].setChildren(List.of(samples[2], samples[3]));
+                samples[1].setChildren(List.of(samples[2], samples[3]));
+                samples[2].setParents(List.of(samples[0], samples[1]));
+                samples[3].setParents(List.of(samples[0], samples[1]));
 
                 return Arrays.stream(samples).collect(Collectors.toMap(Sample::getPermId, Function.identity(),
                         (sample1, sample2) -> sample2, LinkedHashMap::new));
