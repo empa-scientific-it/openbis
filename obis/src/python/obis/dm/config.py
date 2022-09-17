@@ -12,6 +12,7 @@ Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
 import abc
 import json
 import os
+from pathlib import Path
 
 
 class ConfigLocation(object):
@@ -67,7 +68,8 @@ class ConfigParam(object):
         for key in obj.keys():
             new_key = key.upper()
             if new_key in result:
-                raise ValueError("Duplicate key after capitalizing JSON config: " + new_key)
+                raise ValueError(
+                    "Duplicate key after capitalizing JSON config: " + new_key)
             result[new_key] = obj[key]
         return result
 
@@ -85,8 +87,10 @@ class ConfigEnv(object):
 
     def initialize_locations(self):
         self.add_location(ConfigLocation(['global'], 'user_home', '.obis'))
-        self.add_location(ConfigLocation(['local', 'public'], 'data_set', '.obis'))
-        self.add_location(ConfigLocation(['local', 'private'], 'data_set', '.git/obis'))
+        self.add_location(ConfigLocation(
+            ['local', 'public'], 'data_set', '.obis'))
+        self.add_location(ConfigLocation(
+            ['local', 'private'], 'data_set', '.git/obis'))
 
     def add_location(self, loc):
         desc = loc.desc
@@ -104,12 +108,16 @@ class ConfigEnv(object):
         self.add_param(ConfigParam(name='openbis_url'))
         self.add_param(ConfigParam(name='fileservice_url'))
         self.add_param(ConfigParam(name='user'))
-        self.add_param(ConfigParam(name='verify_certificates', is_json=True, default_value=True))
-        self.add_param(ConfigParam(name='allow_only_https', is_json=True, default_value=True))
+        self.add_param(ConfigParam(name='verify_certificates',
+                       is_json=True, default_value=True))
+        self.add_param(ConfigParam(name='allow_only_https',
+                       is_json=True, default_value=True))
         self.add_param(ConfigParam(name='hostname'))
-        self.add_param(ConfigParam(name='git_annex_hash_as_checksum', is_json=True, default_value=True))
+        self.add_param(ConfigParam(
+            name='git_annex_hash_as_checksum', is_json=True, default_value=True))
         self.add_param(ConfigParam(name='git_annex_backend'))
         self.add_param(ConfigParam(name='obis_metadata_folder'))
+        self.add_param(ConfigParam(name='openbis_token'))
 
     def add_param(self, param):
         self.params[param.name] = param
@@ -127,6 +135,7 @@ class ConfigEnv(object):
         self.rules.append(rule)
 
     def initialize_rules(self):
+        # self.add_rule(TokenRule())
         pass
 
 
@@ -156,7 +165,7 @@ class DataSetEnv(ConfigEnv):
 
     def initialize_params(self):
         self.add_param(ConfigParam(name='type'))
-        self.add_param(ConfigParam(name='properties', is_json=True))        
+        self.add_param(ConfigParam(name='properties', is_json=True))
 
 
 class RepositoryEnv(ConfigEnv):
@@ -246,14 +255,16 @@ class ConfigResolver(object):
         :return:
         """
         if not name in self.env.params:
-            raise ValueError("Unknown setting {} for {}.".format(name, self.categoty))
+            raise ValueError(
+                "Unknown setting {} for {}.".format(name, self.categoty))
 
         if not self.is_initialized:
             self.initialize_location_cache()
 
         param = self.env.params[name]
         value = param.parse_value(value)
-        location_config_dict = self.set_cache_value_for_parameter(param, value, loc)
+        location_config_dict = self.set_cache_value_for_parameter(
+            param, value, loc)
         location_path = param.location_path(loc)
         location = self.env.location_at_path(location_path)
         location_dir_path = self.location_resolver.resolve_location(location)
@@ -281,15 +292,16 @@ class ConfigResolver(object):
         param = self.env.params[json_param_name]
 
         if not param.is_json:
-            raise ValueError('Can not set json value for non-json parameter: ' + json_param_name)
+            raise ValueError(
+                'Can not set json value for non-json parameter: ' + json_param_name)
 
         json_value = self.value_for_parameter(param, loc)
         if json_value is None:
             json_value = {}
         json_value[name.upper()] = value
 
-        self.set_value_for_parameter(json_param_name, json.dumps(json_value), loc, apply_rules=apply_rules)
-
+        self.set_value_for_parameter(json_param_name, json.dumps(
+            json_value), loc, apply_rules=apply_rules)
 
     def value_for_parameter(self, param, loc):
         config = self.location_cache[loc]
@@ -336,12 +348,18 @@ class ConfigResolver(object):
 
 class SettingsResolver(object):
     """ This class functions as a wrapper since we have multiple config resolvers. """
+
     def __init__(self, location_resolver=None):
-        self.repository = ConfigResolver(location_resolver=location_resolver, env=RepositoryEnv(), categoty='repository')
-        self.data_set = ConfigResolver(location_resolver=location_resolver, env=DataSetEnv(), categoty='data_set')
-        self.object = ConfigResolver(location_resolver=location_resolver, env=ObjectEnv(), categoty='object')
-        self.collection = ConfigResolver(location_resolver=location_resolver, env=CollectionEnv(), categoty='collection')
-        self.config = ConfigResolver(location_resolver=location_resolver, env=ConfigEnv())
+        self.repository = ConfigResolver(
+            location_resolver=location_resolver, env=RepositoryEnv(), categoty='repository')
+        self.data_set = ConfigResolver(
+            location_resolver=location_resolver, env=DataSetEnv(), categoty='data_set')
+        self.object = ConfigResolver(
+            location_resolver=location_resolver, env=ObjectEnv(), categoty='object')
+        self.collection = ConfigResolver(
+            location_resolver=location_resolver, env=CollectionEnv(), categoty='collection')
+        self.config = ConfigResolver(
+            location_resolver=location_resolver, env=ConfigEnv())
         self.resolvers = []
         self.resolvers.append(self.repository)
         self.resolvers.append(self.data_set)
@@ -349,23 +367,22 @@ class SettingsResolver(object):
         self.resolvers.append(self.collection)
         self.resolvers.append(self.config)
 
-
     def get(self, category):
         for resolver in self.resolvers:
             if resolver.categoty == category:
                 return resolver
 
-
     def config_dict(self, local_only=False):
         combined_dict = {}
         for resolver in self.resolvers:
-            combined_dict[resolver.categoty] = resolver.config_dict(local_only=local_only)
+            combined_dict[resolver.categoty] = resolver.config_dict(
+                local_only=local_only)
         return combined_dict
 
     def local_public_properties_paths(self, omit_usersettings=True):
         paths = []
         for resolver in self.resolvers:
-            if omit_usersettings == False or resolver.is_usersetting() ==  False:
+            if omit_usersettings == False or resolver.is_usersetting() == False:
                 paths.append(resolver.local_public_properties_path())
         return paths
 
@@ -391,6 +408,7 @@ class SettingRule(object):
 
 class ClearPermIdRule(SettingRule):
     """ When the user sets a new id, the permId might be invalid, so it will be cleared. """
+
     def on_set(self, config_resolver, name, value, loc):
         if name == "id":
             config_resolver.set_value_for_parameter("permId", None, loc)
@@ -398,6 +416,7 @@ class ClearPermIdRule(SettingRule):
 
 class ClearIdentifierRule(SettingRule):
     """ When the user sets a new id, the permId might be invalid, so it will be cleared. """
+
     def on_set(self, config_resolver, name, value, loc):
         if name == "permId":
             config_resolver.set_value_for_parameter("id", None, loc)
