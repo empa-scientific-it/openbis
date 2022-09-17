@@ -135,8 +135,7 @@ class ConfigEnv(object):
         self.rules.append(rule)
 
     def initialize_rules(self):
-        # self.add_rule(TokenRule())
-        pass
+        self.add_rule(TokenRule())
 
 
 class CollectionEnv(ConfigEnv):
@@ -420,3 +419,18 @@ class ClearIdentifierRule(SettingRule):
     def on_set(self, config_resolver, name, value, loc):
         if name == "permId":
             config_resolver.set_value_for_parameter("id", None, loc)
+
+
+class TokenRule(SettingRule):
+    """ When the user sets a token, check whether it is a file."""
+
+    def on_set(self, config_resolver, name, value, loc):
+        token = ""
+        tokenpath = Path(value).expanduser()
+        if tokenpath.exists():
+            with open(tokenpath, "r") as fh:
+                token = fh.read()
+        else:
+            token = value
+
+        config_resolver.set_value_for_parameter("openbis_token", token, loc)
