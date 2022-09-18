@@ -28,7 +28,6 @@ class OpenbisCommand(object):
                 if result.failure():
                     raise CommandException(result)
 
-
     def external_dms_id(self):
         return self.config_dict['repository']['external_dms_id']
 
@@ -107,11 +106,15 @@ class OpenbisCommand(object):
     def set_openbis_url(self, value):
         self.config_dict['config']['openbis_url'] = value
 
+    def openbis_token(self):
+        return self.config_dict['config']['openbis_token']
+
+    def set_openbis_token(self, value):
+        self.config_dict['config']['openbis_token'] = value
 
     def log(self, message):
         command = type(self).__name__
         self.data_mgmt.log.log(command, message)
-
 
     def prepare_run(self):
         result = self.check_configuration()
@@ -122,22 +125,25 @@ class OpenbisCommand(object):
             return result
         return CommandResult(returncode=0, output="")
 
-
     def check_configuration(self):
         """ overwrite in subclass """
         return CommandResult(returncode=0, output="")
-
 
     def login(self):
         """ Checks for valid session and asks user for password
         if login is needed. """
         user = self.user()
+        if self.openbis_token():
+            try:
+                self.openbis.set_token(self.openbis_token())
+            except ValueError:
+                pass
         if self.openbis.is_session_active():
             if self.openbis.token.startswith(user):
                 return CommandResult(returncode=0, output="")
             else:
                 self.openbis.logout()
-        if self.data_mgmt.login  == False:
+        if self.data_mgmt.login == False:
             return CommandResult(returncode=-1, output="No active session.")
         passwd = getpass.getpass("Password for {}:".format(user))
         try:
@@ -153,7 +159,8 @@ class OpenbisCommand(object):
         if result.failure():
             return result
         external_dms = result.output
-        self.settings_resolver.repository.set_value_for_parameter('external_dms_id', external_dms.code, 'local')
+        self.settings_resolver.repository.set_value_for_parameter(
+            'external_dms_id', external_dms.code, 'local')
         self.set_external_dms_id(external_dms.code)
         return result
 
@@ -170,14 +177,16 @@ class OpenbisCommand(object):
             return result
         edms_path, path_name = os.path.split(result.output)
         if external_dms_id is None:
-            external_dms_id = self.generate_external_data_management_system_code(user, hostname, edms_path)
+            external_dms_id = self.generate_external_data_management_system_code(
+                user, hostname, edms_path)
         try:
-            external_dms = self.openbis.get_external_data_management_system(external_dms_id.upper())
+            external_dms = self.openbis.get_external_data_management_system(
+                external_dms_id.upper())
         except ValueError:
             # external dms does not exist - create it
             try:
                 external_dms = self.openbis.create_external_data_management_system(external_dms_id, external_dms_id,
-                                                                    "{}:/{}".format(hostname, edms_path))
+                                                                                   "{}:/{}".format(hostname, edms_path))
             except Exception as error:
                 return CommandResult(returncode=-1, output=str(error))
         return CommandResult(returncode=0, output=external_dms)
@@ -192,12 +201,14 @@ class OpenbisCommand(object):
         # ask user
         hostname = self.ask_for_hostname(socket.gethostname())
         # store
-        self.data_mgmt.config('config', True, False, prop='hostname', value=hostname, set=True)
+        self.data_mgmt.config('config', True, False,
+                              prop='hostname', value=hostname, set=True)
         return hostname
 
     def ask_for_hostname(self, hostname):
         """ Asks the user to confirm the suggestes hostname or choose a custom one. """
-        hostname_input = input('Enter hostname (empty to confirm \'' + str(hostname) + '\'): ')
+        hostname_input = input(
+            'Enter hostname (empty to confirm \'' + str(hostname) + '\'): ')
         if hostname_input:
             return hostname_input
         else:
@@ -228,7 +239,6 @@ class ContentCopySelector(object):
         self.content_copy_index = content_copy_index
         self.get_index = get_index
 
-
     def select(self):
         content_copy_index = self.select_index()
         if self.get_index == True:
@@ -236,10 +246,10 @@ class ContentCopySelector(object):
         else:
             return self.data_set.data['linkedData']['contentCopies'][content_copy_index]
 
-
     def select_index(self):
         if self.data_set.data['kind'] != 'LINK':
-            raise ValueError('Data set is of type ' + self.data_set.data['kind'] + ' but should be LINK.')
+            raise ValueError('Data set is of type ' +
+                             self.data_set.data['kind'] + ' but should be LINK.')
         content_copies = self.data_set.data['linkedData']['contentCopies']
         if len(content_copies) == 0:
             raise ValueError("Data set has no content copies.")
@@ -247,7 +257,6 @@ class ContentCopySelector(object):
             return 0
         else:
             return self.select_content_copy_index(content_copies)
-
 
     def select_content_copy_index(self, content_copies):
         if self.content_copy_index is not None:
