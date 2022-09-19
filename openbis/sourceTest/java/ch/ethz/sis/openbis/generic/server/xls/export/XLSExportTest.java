@@ -180,7 +180,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004"))
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                         ),
                         true
                 },
