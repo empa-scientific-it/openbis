@@ -2,7 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 import util from '@src/js/common/util.js'
 
-const LOAD_LIMIT = 100
+const LOAD_LIMIT = 50
 const LOAD_SILENT_PERIOD = 500
 
 export default class BrowserController {
@@ -40,13 +40,11 @@ export default class BrowserController {
   }
 
   async load() {
-    const { root } = this.context.getState()
-    this.loadNode(root)
+    const { root, filter } = this.context.getState()
+    this.loadNode(root, filter, 0, LOAD_LIMIT)
   }
 
-  async loadNode(node) {
-    const { filter } = this.context.getState()
-
+  async loadNode(node, filter, offset, limit) {
     if (this.lastLoadTimeoutId[node.id]) {
       clearTimeout(this.lastLoadTimeoutId[node.id])
       delete this.lastLoadTimeoutId[node.id]
@@ -77,8 +75,8 @@ export default class BrowserController {
       const loadPromise = this.doLoadNodes({
         node: node,
         filter: util.trim(filter),
-        offset: 0,
-        limit: LOAD_LIMIT
+        offset: offset,
+        limit: limit
       })
 
       this.lastLoadPromise[node.id] = loadPromise
@@ -106,11 +104,20 @@ export default class BrowserController {
 
         const [newRoot] = await this._modifyNodes([root], originalNode => {
           if (originalNode.id === node.id) {
+            let newFullChildren = []
+
+            if (offset === 0) {
+              newFullChildren = newChildren
+            } else {
+              newFullChildren = originalNode.children.concat(newChildren)
+            }
+
             return {
               ...originalNode,
               loaded: true,
               loading: false,
-              children: newChildren,
+              children: newFullChildren,
+              loadedCount: offset + limit,
               totalCount: loadedNodes.totalCount
             }
           } else {
@@ -180,6 +187,22 @@ export default class BrowserController {
       filter: newFilter
     })
     await this.load()
+  }
+
+  async nodeLoadMore(nodeId) {
+    const { root, filter } = this.context.getState()
+
+    let foundNode = null
+
+    this._visitNodes([root], node => {
+      if (node.id === nodeId) {
+        foundNode = node
+      }
+    })
+
+    if (foundNode) {
+      await this.loadNode(foundNode, filter, foundNode.loadedCount, LOAD_LIMIT)
+    }
   }
 
   async nodeExpand(nodeId) {

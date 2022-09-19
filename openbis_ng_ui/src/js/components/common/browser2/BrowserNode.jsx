@@ -43,6 +43,7 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleClick = this.handleClick.bind(this)
     this.handleExpand = this.handleExpand.bind(this)
     this.handleCollapse = this.handleCollapse.bind(this)
+    this.handleLoadMore = this.handleLoadMore.bind(this)
   }
 
   handleClick() {
@@ -60,6 +61,11 @@ class BrowserNodeClass extends React.PureComponent {
     const { controller, node } = this.props
     event.stopPropagation()
     controller.nodeCollapse(node.id)
+  }
+
+  handleLoadMore() {
+    const { controller, node } = this.props
+    controller.nodeLoadMore(node.id)
   }
 
   render() {
@@ -187,6 +193,15 @@ class BrowserNodeClass extends React.PureComponent {
       node.totalCount &&
       node.children.length < node.totalCount
     ) {
+      const link = (
+        <span onClick={this.handleLoadMore}>
+          {messages.get(
+            messages.LOAD_MORE,
+            node.totalCount - node.children.length
+          )}
+        </span>
+      )
+
       return (
         <ListItem
           button
@@ -203,10 +218,7 @@ class BrowserNodeClass extends React.PureComponent {
             <span></span>
           </ListItemIcon>
           <ListItemText
-            primary={messages.get(
-              messages.LOAD_MORE,
-              node.totalCount - node.children.length
-            )}
+            primary={link}
             classes={{
               primary: classes.text
             }}
