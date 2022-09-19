@@ -16,18 +16,13 @@ import subprocess
 import time
 from xml.dom import NotSupportedErr
 import zlib
-from collections import defaultdict, namedtuple
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from urllib.parse import quote, urljoin, urlparse
 
-import pandas as pd
 import requests
 import urllib3
-from pandas import DataFrame, Series
-from tabulate import tabulate
-from texttable import Texttable
-from typing import Optional
+from pandas import DataFrame
 
 from . import data_set as pbds
 from .dataset import DataSet
@@ -5386,16 +5381,16 @@ class ServerInformation:
             "api_version",
             "archiving_configured",
             "authentication_service",
-            "authentication-service.switch-aai.label",
-            "authentication-service.switch-aai.link",
-            "create-continuous-sample-codes",
+            "authentication_service.switch_aai.label",
+            "authentication_service.switch_aai.link",
+            "create_continuous_sample_codes",
             "enabled_technologies",
-            "openbis-version",
-            "openbis.support.email",
-            "personal-access-tokens-enabled",
-            "personal-access-tokens-max-validity-period",
-            "personal-access-tokens-validity-warning-period",
-            "project-samples-enabled",
+            "openbis_version",
+            "openbis_support_email",
+            "personal_access_tokens_enabled",
+            "personal_access_tokens_max_validity_period",
+            "personal_access_tokens_validity_warning_period",
+            "project_samples_enabled",
         ]
 
     def _reformat_info(self, info):
@@ -5417,6 +5412,8 @@ class ServerInformation:
         ]:
             if int_field in info:
                 info[int_field] = int(info[int_field])
+        info["openbis-support-email"] = info["openbis.support.email"]
+        del info["openbis.support.email"]
         return info
 
     def __dir__(self):
