@@ -49,86 +49,79 @@ export default class BrowserController {
   }
 
   async loadNode(nodeId, filter, offset, limit) {
-    if (this.lastLoadTimeoutId[nodeId]) {
-      clearTimeout(this.lastLoadTimeoutId[nodeId])
-      delete this.lastLoadTimeoutId[nodeId]
+    const { nodes } = this.context.getState()
+
+    const node = nodes[nodeId]
+
+    if (!node) {
+      return
     }
+
+    await this.context.setState(state => ({
+      nodes: {
+        ...state.nodes,
+        [nodeId]: {
+          ...node,
+          loading: true
+        }
+      }
+    }))
 
     if (this.lastLoadPromise[nodeId]) {
       delete this.lastLoadPromise[nodeId]
     }
 
-    this.lastLoadTimeoutId[nodeId] = setTimeout(async () => {
-      const { nodes } = this.context.getState()
+    const loadPromise = this.doLoadNodes({
+      node: node,
+      filter: util.trim(filter),
+      offset: offset,
+      limit: limit
+    })
 
-      const node = nodes[nodeId]
+    this.lastLoadPromise[nodeId] = loadPromise
 
-      if (!node) {
+    return loadPromise.then(async loadedNodes => {
+      if (loadPromise !== this.lastLoadPromise[nodeId]) {
         return
       }
 
-      await this.context.setState(state => ({
-        nodes: {
-          ...state.nodes,
-          [nodeId]: {
-            ...node,
-            loading: true
-          }
-        }
-      }))
+      await this.context.setState(state => {
+        const newNodes = { ...state.nodes }
+        const newNodesIds = []
 
-      const loadPromise = this.doLoadNodes({
-        node: node,
-        filter: util.trim(filter),
-        offset: offset,
-        limit: limit
-      })
+        if (loadedNodes.nodes) {
+          loadedNodes.nodes.forEach(node => {
+            const newNode = {
+              ...node,
+              children: node.children
+                ? node.children.map(child => child.id)
+                : []
+            }
 
-      this.lastLoadPromise[nodeId] = loadPromise
+            // TODO expand nodes
+            // TODO select nodes
 
-      return loadPromise.then(async loadedNodes => {
-        if (loadPromise !== this.lastLoadPromise[nodeId]) {
-          return
+            newNodes[newNode.id] = newNode
+            newNodesIds.push(newNode.id)
+          })
         }
 
-        this.context.setState(state => {
-          const newNodes = { ...state.nodes }
-          const newNodesIds = []
+        const newNode = {
+          ...node,
+          children:
+            offset === 0 ? newNodesIds : node.children.concat(newNodesIds),
+          loaded: true,
+          loadedCount: offset + limit,
+          totalCount: loadedNodes.totalCount
+        }
 
-          if (loadedNodes.nodes) {
-            loadedNodes.nodes.forEach(node => {
-              const newNode = {
-                ...node,
-                children: node.children
-                  ? node.children.map(child => child.id)
-                  : []
-              }
+        newNodes[nodeId] = newNode
 
-              // TODO expand nodes
-              // TODO select nodes
-
-              newNodes[newNode.id] = newNode
-              newNodesIds.push(newNode.id)
-            })
-          }
-
-          const newNode = {
-            ...node,
-            children:
-              offset === 0 ? newNodesIds : node.children.concat(newNodesIds),
-            loaded: true,
-            loadedCount: offset + limit,
-            totalCount: loadedNodes.totalCount
-          }
-
-          newNodes[nodeId] = newNode
-
-          return {
-            nodes: newNodes
-          }
-        })
+        return {
+          nodes: newNodes
+        }
       })
-    }, LOAD_SILENT_PERIOD)
+    })
   }
 
   refresh(fullObjectModifications) {
@@ -185,7 +178,15 @@ export default class BrowserController {
     await this.context.setState({
       filter: newFilter
     })
-    await this.load()
+
+    if (this.lastLoadTimeoutId[ROOT_ID]) {
+      clearTimeout(this.lastLoadTimeoutId[ROOT_ID])
+      delete this.lastLoadTimeoutId[ROOT_ID]
+    }
+
+    this.lastLoadTimeoutId[ROOT_ID] = setTimeout(async () => {
+      await this.loadNode(ROOT_ID, newFilter, 0, LOAD_LIMIT)
+    }, LOAD_SILENT_PERIOD)
   }
 
   async nodeLoadMore(nodeId) {
