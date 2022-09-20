@@ -14,13 +14,16 @@ import json
 import os
 import sys
 from datetime import datetime
+from typing_extensions import Required
 
 import click
+from dateutil.relativedelta import relativedelta
+from pybis import Openbis
 
 from ..dm.command_result import CommandResult
 from ..dm.utils import cd
-from .data_mgmt_runner import DataMgmtRunner
 from .click_util import click_echo
+from .data_mgmt_runner import DataMgmtRunner
 
 
 def click_progress(progress_data):
@@ -93,7 +96,8 @@ class SettingsGet(click.ParamType):
             self._fail(param)
 
     def _fail(self, param):
-            self.fail(param=param, message='Settings must be in the format: key1, key2, ...')
+        self.fail(
+            param=param, message='Settings must be in the format: key1, key2, ...')
 
 
 class SettingsClear(SettingsGet):
@@ -139,7 +143,8 @@ class SettingsSet(click.ParamType):
         return value.replace('|', ',')
 
     def _fail(self, param):
-            self.fail(param=param, message='Settings must be in the format: key1=value1, key2=value2, ...')
+        self.fail(
+            param=param, message='Settings must be in the format: key1=value1, key2=value2, ...')
 
 
 def _join_settings_set(setting_dicts):
@@ -164,7 +169,8 @@ def _access_settings(ctx, prop=None, value=None, set=False, get=False, clear=Fal
     is_data_set_property = False
     if 'is_data_set_property' in ctx.obj:
         is_data_set_property = ctx.obj['is_data_set_property']
-    runner.config(resolver, is_global, is_data_set_property, prop=prop, value=value, set=set, get=get, clear=clear)
+    runner.config(resolver, is_global, is_data_set_property,
+                  prop=prop, value=value, set=set, get=get, clear=clear)
 
 
 def _set(ctx, settings):
@@ -192,7 +198,7 @@ def _clear(ctx, settings):
     return CommandResult(returncode=0, output='')
 
 
-## get all settings
+# get all settings
 
 @cli.group()
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Get global or local.')
@@ -212,7 +218,7 @@ def settings_get(ctx):
     click.echo("{}".format(settings_str))
 
 
-## repository: repository_id, external_dms_id, data_set_id
+# repository: repository_id, external_dms_id, data_set_id
 
 @cli.group()
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
@@ -247,7 +253,7 @@ def repository_clear(ctx, settings):
     return ctx.obj['runner'].run("repository_clear", lambda dm: _clear(ctx, settings))
 
 
-## data_set: type, properties
+# data_set: type, properties
 
 
 @cli.group('data_set')
@@ -357,7 +363,7 @@ def collection_clear(ctx, settings):
     return ctx.obj['runner'].run("collection_clear", lambda dm: _clear(ctx, settings))
 
 
-## config: fileservice_url, git_annex_hash_as_checksum, hostname, openbis_url, user, verify_certificates
+# config: fileservice_url, git_annex_hash_as_checksum, hostname, openbis_url, user, verify_certificates
 
 
 @cli.group()
@@ -395,13 +401,17 @@ def config_clear(ctx, settings):
 
 # repository commands: status, sync, commit, init, addref, removeref, init_analysis
 
-## commit
+# commit
 
 _commit_params = [
-    click.option('-m', '--msg', default="obis commit", help='A message explaining what was done.'),
-    click.option('-a', '--auto_add', default=True, is_flag=True, help='Automatically add all untracked files.'),
-    click.option('-i', '--ignore_missing_parent', default=True, is_flag=True, help='If parent data set is missing, ignore it.'),
-    click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
+    click.option('-m', '--msg', default="obis commit",
+                 help='A message explaining what was done.'),
+    click.option('-a', '--auto_add', default=True, is_flag=True,
+                 help='Automatically add all untracked files.'),
+    click.option('-i', '--ignore_missing_parent', default=True,
+                 is_flag=True, help='If parent data set is missing, ignore it.'),
+    click.argument('repository', type=click.Path(
+        exists=True, file_okay=False), required=False),
 ]
 
 
@@ -411,25 +421,31 @@ _commit_params = [
 def repository_commit(ctx, msg, auto_add, ignore_missing_parent, repository):
     return ctx.obj['runner'].run("commit", lambda dm: dm.commit(msg, auto_add, ignore_missing_parent), repository)
 
+
 @cli.command(short_help="Commit the repository to git and inform openBIS.")
 @click.pass_context
 @add_params(_commit_params)
 def commit(ctx, msg, auto_add, ignore_missing_parent, repository):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(repository_commit, msg=msg, auto_add=auto_add, ignore_missing_parent=ignore_missing_parent, repository=repository)
+    ctx.invoke(repository_commit, msg=msg, auto_add=auto_add,
+               ignore_missing_parent=ignore_missing_parent, repository=repository)
 
-## init
+# init
+
 
 _init_params = [
-    click.argument('repository', type=click.Path(exists=False, file_okay=False), required=False),
+    click.argument('repository', type=click.Path(
+        exists=False, file_okay=False), required=False),
     click.argument('description', default=""),
 ]
+
 
 @repository.command("init", short_help="Initialize the folder as a data repository.")
 @click.pass_context
 @add_params(_init_params)
 def repository_init(ctx, repository, description):
     return init_data_impl(ctx, repository, description)
+
 
 @cli.command(short_help="Initialize the folder as a data repository.")
 @click.pass_context
@@ -438,12 +454,15 @@ def init(ctx, repository, description):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_init, repository=repository, description=description)
 
-## init analysis
+# init analysis
+
 
 _init_analysis_params = [
-    click.option('-p', '--parent', type=click.Path(exists=False, file_okay=False)),
+    click.option('-p', '--parent',
+                 type=click.Path(exists=False, file_okay=False)),
 ]
 _init_analysis_params += _init_params
+
 
 @repository.command("init_analysis", short_help="Initialize the folder as an analysis folder.")
 @click.pass_context
@@ -451,24 +470,30 @@ _init_analysis_params += _init_params
 def repository_init_analysis(ctx, parent, repository, description):
     return init_analysis_impl(ctx, parent, repository, description)
 
+
 @cli.command(name='init_analysis', short_help="Initialize the folder as an analysis folder.")
 @click.pass_context
 @add_params(_init_analysis_params)
 def init_analysis(ctx, parent, repository, description):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(repository_init_analysis, parent=parent, repository=repository, description=description)
+    ctx.invoke(repository_init_analysis, parent=parent,
+               repository=repository, description=description)
 
-## status
+# status
+
 
 _status_params = [
-    click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
+    click.argument('repository', type=click.Path(
+        exists=True, file_okay=False), required=False),
 ]
+
 
 @repository.command("status", short_help="Show the state of the obis repository.")
 @click.pass_context
 @add_params(_status_params)
 def repository_status(ctx, repository):
     return ctx.obj['runner'].run("repository_status", lambda dm: dm.status(), repository)
+
 
 @cli.command(short_help="Show the state of the obis repository.")
 @click.pass_context
@@ -477,16 +502,21 @@ def status(ctx, repository):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_status, repository=repository)
 
-## sync
+# sync
+
 
 _sync_params = [
-    click.option('-i', '--ignore_missing_parent', default=True, is_flag=True, help='If parent data set is missing, ignore it.'),
-    click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
+    click.option('-i', '--ignore_missing_parent', default=True,
+                 is_flag=True, help='If parent data set is missing, ignore it.'),
+    click.argument('repository', type=click.Path(
+        exists=True, file_okay=False), required=False),
 ]
+
 
 def _repository_sync(dm, ignore_missing_parent):
     dm.ignore_missing_parent = ignore_missing_parent
     return dm.sync()
+
 
 @repository.command("sync", short_help="Sync the repository with openBIS.")
 @click.pass_context
@@ -494,24 +524,98 @@ def _repository_sync(dm, ignore_missing_parent):
 def repository_sync(ctx, ignore_missing_parent, repository):
     return ctx.obj['runner'].run("sync", lambda dm: _repository_sync(dm, ignore_missing_parent), repository)
 
+
 @cli.command(short_help="Sync the repository with openBIS.")
 @click.pass_context
 @add_params(_sync_params)
 def sync(ctx, ignore_missing_parent, repository):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(repository_sync, ignore_missing_parent=ignore_missing_parent, repository=repository)
+    ctx.invoke(repository_sync,
+               ignore_missing_parent=ignore_missing_parent, repository=repository)
 
-## addref
+
+@cli.group(short_help="create/show a openBIS token")
+@click.pass_context
+def token(ctx):
+    pass
+
+
+@token.command("new", short_help="Create a new openBIS token")
+@click.argument("session-name", required=False)
+@click.option("--validity-days", help="Number of days the token is valid")
+@click.option("--validity-weeks", help="Number of weeks the token is valid")
+@click.option("--validity-months", help="Number of months the token is valid")
+@click.pass_context
+def new_token(ctx, session_name=None, **kwargs):
+    runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
+    settings = runner.get_settings()
+
+    url = settings['config']['openbis_url']
+    if not url:
+        url = click.prompt("Please enter the openBIS URL")
+
+    username = settings['config']['user']
+    if not username:
+        username = click.prompt(f"Please enter username for {url}")
+    password = click.prompt(f"Password for {username}@{url}", hide_input=True)
+
+    o = Openbis(url)
+    o.login(username, password)
+
+    if session_name is None:
+        session_name = settings['config']['session_name']
+    if session_name is None:
+        session_name = click.prompt("Please enter a session name")
+
+    validFrom = datetime.now()
+    if kwargs.get("validity_months"):
+        validTo = validFrom + \
+            relativedelta(months=int(kwargs.get("validity_months")))
+    elif kwargs.get("validity_weeks"):
+        validTo = validFrom + \
+            relativedelta(weeks=int(kwargs.get("validity_weeks")))
+    elif kwargs.get("validity_days"):
+        validTo = validFrom + \
+            relativedelta(days=int(kwargs.get("validity_days")))
+    else:
+        serverinfo = o.get_server_information()
+        seconds = serverinfo.personal_access_tokens_max_validity_period
+        validTo = validFrom + relativedelta(seconds=seconds)
+    token = o.new_personal_access_token(
+        sessionName=session_name, validFrom=validFrom, validTo=validTo)
+    settings = (
+        {"user": username},
+        {"openbis_url": url},
+        {"openbis_token": token},
+        {"session_name": session_name},
+    )
+
+    ctx.obj['is_global'] = False
+    ctx.obj['runner'] = runner
+    ctx.obj['resolver'] = 'config'
+    runner.run("config_set", lambda dm: _set(ctx, settings))
+
+
+@token.command("get", short_help="Get existing openBIS token")
+@click.pass_context
+def get_token(ctx):
+    print("creating new token")
+
+# addref
+
 
 _addref_params = [
-    click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
+    click.argument('repository', type=click.Path(
+        exists=True, file_okay=False), required=False),
 ]
+
 
 @repository.command("addref", short_help="Add the given repository as a reference to openBIS.")
 @click.pass_context
 @add_params(_addref_params)
 def repository_addref(ctx, repository):
     return ctx.obj['runner'].run("addref", lambda dm: dm.addref(), repository)
+
 
 @cli.command(short_help="Add the given repository as a reference to openBIS.")
 @click.pass_context
@@ -522,10 +626,14 @@ def addref(ctx, repository):
 
 # removeref
 
+
 _removeref_params = [
-    click.option('-d', '--data_set_id', help='Remove ref by data set id, in case the repository is not available anymore.'),
-    click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
+    click.option('-d', '--data_set_id',
+                 help='Remove ref by data set id, in case the repository is not available anymore.'),
+    click.argument('repository', type=click.Path(
+        exists=True, file_okay=False), required=False),
 ]
+
 
 @repository.command("removeref", short_help="Remove the reference to the given repository from openBIS.")
 @click.pass_context
@@ -542,41 +650,53 @@ def repository_removeref(ctx, data_set_id, repository):
 @add_params(_removeref_params)
 def removeref(ctx, data_set_id, repository):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(repository_removeref, data_set_id=data_set_id, repository=repository)
+    ctx.invoke(repository_removeref, data_set_id=data_set_id,
+               repository=repository)
 
 
 # data set commands: download / clone
 
-## download
+# download
 
 _download_params = [
-    click.option('-c', '--content_copy_index', type=int, default=None, help='Index of the content copy to download from.'),
-    click.option('-f', '--file', help='File in the data set to download - downloading all if not given.'),
-    click.option('-s', '--skip_integrity_check', default=False, is_flag=True, help='Skip file integrity check with checksums.'),
+    click.option('-c', '--content_copy_index', type=int, default=None,
+                 help='Index of the content copy to download from.'),
+    click.option(
+        '-f', '--file', help='File in the data set to download - downloading all if not given.'),
+    click.option('-s', '--skip_integrity_check', default=False,
+                 is_flag=True, help='Skip file integrity check with checksums.'),
     click.argument('data_set_id'),
 ]
 
+
 @data_set.command("download", short_help="Download files of a linked data set.")
 @add_params(_download_params)
-@click.pass_context 
+@click.pass_context
 def data_set_download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
     return ctx.obj['runner'].run("download", lambda dm: dm.download(data_set_id, content_copy_index, file, skip_integrity_check))
+
 
 @cli.command(short_help="Download files of a linked data set.")
 @add_params(_download_params)
 @click.pass_context
 def download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_download, content_copy_index=content_copy_index, file=file, data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
+    ctx.invoke(data_set_download, content_copy_index=content_copy_index, file=file,
+               data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
 
-## clone
+# clone
+
 
 _clone_move_params = [
-    click.option('-u', '--ssh_user', default=None, help='User to connect to remote systems via ssh'),
-    click.option('-c', '--content_copy_index', type=int, default=None, help='Index of the content copy to clone from in case there are multiple copies'),
-    click.option('-s', '--skip_integrity_check', default=False, is_flag=True, help='Skip file integrity check with checksums.'),
+    click.option('-u', '--ssh_user', default=None,
+                 help='User to connect to remote systems via ssh'),
+    click.option('-c', '--content_copy_index', type=int, default=None,
+                 help='Index of the content copy to clone from in case there are multiple copies'),
+    click.option('-s', '--skip_integrity_check', default=False,
+                 is_flag=True, help='Skip file integrity check with checksums.'),
     click.argument('data_set_id'),
 ]
+
 
 @data_set.command("clone", short_help="Clone the repository found in the given data set id.")
 @click.pass_context
@@ -584,15 +704,17 @@ _clone_move_params = [
 def data_set_clone(ctx, ssh_user, content_copy_index, data_set_id, skip_integrity_check):
     return ctx.obj['runner'].run("clone", lambda dm: dm.clone(data_set_id, ssh_user, content_copy_index, skip_integrity_check))
 
+
 @cli.command(short_help="Clone the repository found in the given data set id.")
 @click.pass_context
 @add_params(_clone_move_params)
 def clone(ctx, ssh_user, content_copy_index, data_set_id, skip_integrity_check):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_clone, ssh_user=ssh_user, content_copy_index=content_copy_index, data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
+    ctx.invoke(data_set_clone, ssh_user=ssh_user, content_copy_index=content_copy_index,
+               data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
 
 
-## move
+# move
 
 @data_set.command("move", short_help="Move the repository found in the given data set id.")
 @click.pass_context
@@ -600,12 +722,14 @@ def clone(ctx, ssh_user, content_copy_index, data_set_id, skip_integrity_check):
 def data_set_move(ctx, ssh_user, content_copy_index, data_set_id, skip_integrity_check):
     return ctx.obj['runner'].run("move", lambda dm: dm.move(data_set_id, ssh_user, content_copy_index, skip_integrity_check))
 
+
 @cli.command(short_help="Move the repository found in the given data set id.")
 @click.pass_context
 @add_params(_clone_move_params)
 def move(ctx, ssh_user, content_copy_index, data_set_id, skip_integrity_check):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_move, ssh_user=ssh_user, content_copy_index=content_copy_index, data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
+    ctx.invoke(data_set_move, ssh_user=ssh_user, content_copy_index=content_copy_index,
+               data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
 
 
 def main():
