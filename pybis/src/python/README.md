@@ -111,37 +111,42 @@ print(f"Session is active: {o.is_session_active()"}
 
 ### Personal access token (PAT)
 
-As an alternative to login every time you run a script, you can create tokens which
+As an (new) alternative to login every time you run a script, you can create tokens which
 
-* once issued, do **not need username or password**
-* are **much longer valid** (default is one year)
-* **survive restarts** of an openBIS instance
+- once issued, do **not need username or password**
+- are **much longer valid** than session tokens (default is one year)
+- **survive restarts** of an openBIS instance
 
-To create a token, you first need a valid session (either through classic login (see above) or by assigning a valid session token:
+To create a token, you first need a valid session – either through classic login or by assigning an existing valid session token:
 
 ```
 from pyBIS import Openbis
 o = Openbis('https://test-openbis-instance.com')
-o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C", save_token=True)
+
+o.login("username", "password")
+# or
+o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
 ```
 
-Then you can create a new token and use it the same way as a session token:
+Then you can create a new personal access token (PAT) and use it for all further pyBIS queries:
 
 ```
 pat = o.create_personal_access_token(sessionName="Project A"))
 o.set_token(pat, save_token=True)
 ```
 
-**Note:** Most operations are permitted using the PAT, except:
+**Note:** Most operations are permitted using the PAT, _except_:
 
-* all operations on personal access tokens itself
-* i.e. create, list, delete operations on tokens
+- all operations on personal access tokens itself
+- i.e. create, list, delete operations on tokens
 
+For these operations, you need to use a session token instead.
 
 To get a list of all currently available tokens:
 
 ```
 o.get_personal_access_tokens()
+o.get_personal_access_tokens(sessionName="APPLICATION_1")
 ```
 
 To delete the first token shown in the list:
