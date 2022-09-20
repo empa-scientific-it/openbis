@@ -287,6 +287,10 @@ export default class BrowserController {
     return nodes[ROOT_ID]
   }
 
+  isRoot(node) {
+    return node && node.object && node.object.type === ROOT_TYPE
+  }
+
   getNodes() {
     const { nodes } = this.context.getState()
     return nodes

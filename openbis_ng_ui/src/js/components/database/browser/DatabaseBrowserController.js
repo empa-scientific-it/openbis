@@ -5,7 +5,7 @@ export default class UserBrowserController extends BrowserController {
   async doLoadNodes(params) {
     const { node, filter } = params
 
-    if (node.object.type === 'root') {
+    if (this.isRoot(node)) {
       if (filter === null) {
         return await this.searchSpaces(params)
       } else {
@@ -30,9 +30,23 @@ export default class UserBrowserController extends BrowserController {
         }
       }
     } else if (node.object.type === 'space') {
-      return await this.searchProjects(params)
+      const [projects, samples] = await Promise.all([
+        this.searchProjects(params),
+        this.searchSamples(params)
+      ])
+      return {
+        nodes: [...projects.nodes, ...samples.nodes],
+        totalCount: projects.totalCount + samples.totalCount
+      }
     } else if (node.object.type === 'project') {
-      return await this.searchExperiments(params)
+      const [experiments, samples] = await Promise.all([
+        this.searchExperiments(params),
+        this.searchSamples(params)
+      ])
+      return {
+        nodes: [...experiments.nodes, ...samples.nodes],
+        totalCount: experiments.totalCount + samples.totalCount
+      }
     } else if (node.object.type === 'experiment') {
       return await this.searchSamples(params)
     } else {
@@ -143,6 +157,16 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SampleSearchCriteria()
+    criteria.withAndOperator()
+
+    if (node.object.type === 'space') {
+      criteria.withSpace().withPermId().thatEquals(node.object.id)
+      criteria.withoutProject()
+    }
+    if (node.object.type === 'project') {
+      criteria.withProject().withPermId().thatEquals(node.object.id)
+      criteria.withoutExperiment()
+    }
     if (node.object.type === 'experiment') {
       criteria.withExperiment().withPermId().thatEquals(node.object.id)
     }
