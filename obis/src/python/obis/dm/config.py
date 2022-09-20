@@ -118,6 +118,7 @@ class ConfigEnv(object):
         self.add_param(ConfigParam(name='git_annex_backend'))
         self.add_param(ConfigParam(name='obis_metadata_folder'))
         self.add_param(ConfigParam(name='openbis_token'))
+        self.add_param(ConfigParam(name='session_name'))
 
     def add_param(self, param):
         self.params[param.name] = param
@@ -426,6 +427,8 @@ class TokenRule(SettingRule):
 
     def on_set(self, config_resolver, name, value, loc):
         token = ""
+        if name != "openbis_token":
+            return
         tokenpath = Path(value).expanduser()
         if tokenpath.exists():
             with open(tokenpath, "r") as fh:
