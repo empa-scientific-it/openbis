@@ -3,7 +3,7 @@ import autoBind from 'auto-bind'
 import util from '@src/js/common/util.js'
 
 const LOAD_LIMIT = 50
-const LOAD_SILENT_PERIOD = 500
+const FILTER_SILENT_PERIOD = 500
 
 const ROOT_ID = 'root'
 const ROOT_TYPE = 'root'
@@ -15,7 +15,7 @@ export default class BrowserController {
 
   constructor() {
     autoBind(this)
-    this.lastLoadTimeoutId = {}
+    this.lastFilterTimeoutId = null
     this.lastLoadPromise = {}
     this.lastObjectModifications = {}
   }
@@ -178,14 +178,14 @@ export default class BrowserController {
       filter: newFilter
     })
 
-    if (this.lastLoadTimeoutId[ROOT_ID]) {
-      clearTimeout(this.lastLoadTimeoutId[ROOT_ID])
-      delete this.lastLoadTimeoutId[ROOT_ID]
+    if (this.lastFilterTimeoutId) {
+      clearTimeout(this.lastFilterTimeoutId)
+      this.lastFilterTimeoutId = null
     }
 
-    this.lastLoadTimeoutId[ROOT_ID] = setTimeout(async () => {
+    this.lastFilterTimeoutId = setTimeout(async () => {
       await this.loadNode(ROOT_ID, newFilter, 0, LOAD_LIMIT)
-    }, LOAD_SILENT_PERIOD)
+    }, FILTER_SILENT_PERIOD)
   }
 
   async nodeLoadMore(nodeId) {
