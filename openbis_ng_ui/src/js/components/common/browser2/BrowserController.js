@@ -93,14 +93,13 @@ export default class BrowserController {
           loadedNodes.nodes.forEach(node => {
             const newNode = {
               ...node,
+              selected:
+                node.id === state.selectedId ||
+                (node.object && _.isEqual(node.object, state.selectedObject)),
               children: node.children
                 ? node.children.map(child => child.id)
                 : []
             }
-
-            // TODO expand nodes
-            // TODO select nodes
-
             newNodes[newNode.id] = newNode
             newNodesIds.push(newNode.id)
           })
@@ -108,11 +107,11 @@ export default class BrowserController {
 
         const newNode = {
           ...node,
-          children:
-            offset === 0 ? newNodesIds : node.children.concat(newNodesIds),
           loaded: true,
           loadedCount: offset + limit,
-          totalCount: loadedNodes.totalCount
+          totalCount: loadedNodes.totalCount,
+          children:
+            offset === 0 ? newNodesIds : node.children.concat(newNodesIds)
         }
 
         newNodes[nodeId] = newNode
