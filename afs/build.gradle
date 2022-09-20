@@ -1,0 +1,23 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    ivy {
+        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+dependencies {
+    annotationProcessor 'lombok:lombok:1.18.22'
+    implementation 'lombok:lombok:1.18.22',
+                    'log4j:log4j-api:2.10.0',
+                    'log4j:log4j-core:2.10.0',
+                    'fasterxml:jackson-annotations:2.9.10',
+                    'fasterxml:jackson-core:2.9.10',
+                    'fasterxml:jackson-databind:2.9.10.8';
+    testImplementation 'junit:junit:4.10'
+    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+}
+
+mainClassName = "ch.ethz.sis.afs.startup.Main"
