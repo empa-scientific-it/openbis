@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
@@ -46,25 +47,25 @@ import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 public class XLSExport
 {
 
-    // TODO: those entities that have types should have columns which correspond to their types
+    private static final IXLSExportHelper SAMPLE_TYPE_EXPORT_HELPER = new XLSSampleTypeExportHelper();
 
-    private final IXLSExportHelper sampleTypeExportHelper = new XLSSampleTypeExportHelper();
+    private static final IXLSExportHelper EXPERIMENT_TYPE_EXPORT_HELPER = new XLSExperimentTypeExportHelper();
 
-    private final IXLSExportHelper experimentTypeExportHelper = new XLSExperimentTypeExportHelper();
+    private static final IXLSExportHelper DATA_SET_TYPE_EXPORT_HELPER = new XLSDataSetTypeExportHelper();
 
-    private final IXLSExportHelper dataSetTypeExportHelper = new XLSDataSetTypeExportHelper();
+    private static final IXLSExportHelper PROPERTY_TYPE_EXPORT_HELPER = new XLSPropertyTypeExportHelper();
 
-    private final IXLSExportHelper propertyTypeExportHelper = new XLSPropertyTypeExportHelper();
+    private static final IXLSExportHelper VOCABULARY_EXPORT_HELPER = new XLSVocabularyExportHelper();
 
-    private final IXLSExportHelper vocabularyExportHelper = new XLSVocabularyExportHelper();
+    private static final IXLSExportHelper SPACE_EXPORT_HELPER = new XLSSpaceExportHelper();
 
-    private final IXLSExportHelper spaceExportHelper = new XLSSpaceExportHelper();
+    private static final IXLSExportHelper PROJECT_EXPORT_HELPER = new XLSProjectExportHelper();
 
-    private final IXLSExportHelper projectExportHelper = new XLSProjectExportHelper();
+    private static final IXLSExportHelper EXPERIMENT_EXPORT_HELPER = new XLSExperimentExportHelper();
 
-    private final IXLSExportHelper experimentExportHelper = new XLSExperimentExportHelper();
+    private static final IXLSExportHelper SAMPLE_EXPORT_HELPER = new XLSSampleExportHelper();
 
-    private final IXLSExportHelper sampleExportHelper = new XLSSampleExportHelper();
+    private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
@@ -180,39 +181,43 @@ public class XLSExport
         {
             case SAMPLE_TYPE:
             {
-                return sampleTypeExportHelper;
+                return SAMPLE_TYPE_EXPORT_HELPER;
             }
             case EXPERIMENT_TYPE:
             {
-                return experimentTypeExportHelper;
+                return EXPERIMENT_TYPE_EXPORT_HELPER;
             }
             case DATASET_TYPE:
             {
-                return dataSetTypeExportHelper;
+                return DATA_SET_TYPE_EXPORT_HELPER;
             }
             case PROPERTY_TYPE:
             {
-                return propertyTypeExportHelper;
+                return PROPERTY_TYPE_EXPORT_HELPER;
             }
             case VOCABULARY:
             {
-                return vocabularyExportHelper;
+                return VOCABULARY_EXPORT_HELPER;
             }
             case SPACE:
             {
-                return spaceExportHelper;
+                return SPACE_EXPORT_HELPER;
             }
             case PROJECT:
             {
-                return projectExportHelper;
+                return PROJECT_EXPORT_HELPER;
             }
             case EXPERIMENT:
             {
-                return experimentExportHelper;
+                return EXPERIMENT_EXPORT_HELPER;
             }
             case SAMPLE:
             {
-                return sampleExportHelper;
+                return SAMPLE_EXPORT_HELPER;
+            }
+            case DATASET:
+            {
+                return DATA_SET_EXPORT_HELPER;
             }
             default:
             {

@@ -1,6 +1,16 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET_TYPE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT_TYPE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROPERTY_TYPE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE_TYPE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -8,7 +18,6 @@ import static org.testng.Assert.fail;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,6 +42,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -103,7 +113,7 @@ public class XLSExportTest
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
                         SampleTypeWithVocabularyPropertyExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
                         true
@@ -111,7 +121,7 @@ public class XLSExportTest
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
                         SampleTypeWithVocabularyPropertyExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
                         false
@@ -147,7 +157,7 @@ public class XLSExportTest
                 {
                         "export-space.xlsx",
                         SpaceExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
                                 new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
                                 new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
@@ -157,7 +167,7 @@ public class XLSExportTest
                 {
                         "export-project.xlsx",
                         ProjectExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
                         ),
@@ -166,7 +176,7 @@ public class XLSExportTest
                 {
                         "export-experiment.xlsx",
                         ExperimentExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
@@ -176,12 +186,22 @@ public class XLSExportTest
                 {
                         "export-sample.xlsx",
                         SampleExpectations.class,
-                        Arrays.asList(
+                        List.of(
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
+                        ),
+                        true
+                },
+                {
+                        "export-data-set.xlsx",
+                        DataSetExpectations.class,
+                        List.of(
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                         ),
                         true
                 },
