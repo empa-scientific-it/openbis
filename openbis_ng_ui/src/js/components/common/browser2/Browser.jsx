@@ -76,6 +76,7 @@ class Browser extends React.PureComponent {
             <BrowserNode
               controller={controller}
               node={controller.getRoot()}
+              nodes={controller.getNodes()}
               level={-1}
             />
           </div>

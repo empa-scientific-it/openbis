@@ -167,15 +167,16 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderNonEmptyChildren() {
-    const { controller, node, level } = this.props
+    const { controller, node, nodes, level } = this.props
 
     if (node.children && node.children.length > 0) {
       return node.children.map(child => {
         return (
           <BrowserNode
-            key={child.id}
+            key={child}
             controller={controller}
-            node={child}
+            node={nodes[child]}
+            nodes={nodes}
             level={level + 1}
           />
         )
