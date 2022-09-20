@@ -2026,8 +2026,13 @@ class Openbis:
     def new_personal_access_token(
         self, sessionName: str, validFrom: datetime = None, validTo: datetime = None
     ) -> str:
-        """Creates a new personal access token (PAT)"""
+        """Creates a new personal access token (PAT).
+        If a PAT with the given sessionName already exists and
+        its expiry date (validToDate) is outside the warning period,
+        the existing PAT is returned.
+        """
 
+        server_info = self.get_server_information()
         session_token = self.token
         if not is_session_token(session_token):
             session_token = self.session_token
@@ -2040,6 +2045,21 @@ class Openbis:
             raise ValueError(
                 "You you need a session token to create a new personal access token."
             )
+
+        for existing_pat in self.get_personal_access_tokens(sessionName=sessionName):
+            # check if we already reached the warning period
+            validTo_date = datetime.strptime(
+                existing_pat.validToDate, "%Y-%m-%d %H:%M:%S"
+            )
+            if validTo_date > (
+                datetime.now()
+                + relativedelta(
+                    seconds=server_info.personal_access_tokens_validity_warning_period
+                )
+            ):
+                # return existing PAT which is within warning period
+                return existing_pat
+
         if validFrom is None:
             validFrom = datetime.now()
         if validTo is None:
@@ -2124,11 +2144,17 @@ class Openbis:
         entity = "personalAccessToken"
 
         search_criteria = get_search_criteria(entity, **search_args)
-        if permId:
-            sub_crit = _subcriteria_for_permid(permids=permId, entity=entity)
-            search_criteria["criteria"].append(sub_crit)
         if sessionName:
-            sub_crit = _subcriteria_for_code(code=sessionName, entity=entity)
+            sub_crit = {
+                "fieldName": "code",
+                "fieldType": "ATTRIBUTE",
+                "fieldValue": {
+                    "value": sessionName.upper(),
+                    "@type": "as.dto.common.search.StringEqualToValue",
+                },
+                "@type": "as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria",
+            }
+
             search_criteria["criteria"].append(sub_crit)
         fetchopts = get_fetchoption_for_entity(entity)
         fetchopts["from"] = start_with
