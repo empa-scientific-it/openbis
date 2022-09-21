@@ -26,8 +26,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -381,11 +384,32 @@ public class XLSExport
                         new EntityTypePermId(code, DATA_SET)))
                 .collect(Collectors.toList());
 
+        final Collection<ExportablePermId> spaces = Stream.of("DEFAULT", "DEFAULT_LAB_NOTEBOOK", "ELN_SETTINGS")
+                .map(permId -> new ExportablePermId(ExportableKind.SPACE, new SpacePermId(permId)))
+                .collect(Collectors.toList());
+
+        final Collection<ExportablePermId> samples = Stream.of("20220921142846885-1", "20220921142853426-4")
+                .map(permId -> new ExportablePermId(ExportableKind.SAMPLE, new ObjectPermId(permId)))
+                .collect(Collectors.toList());
+
+        final Collection<ExportablePermId> projects = Stream.of("20220921142846885-1", "20220921142853426-6")
+                .map(permId -> new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId(permId)))
+                .collect(Collectors.toList());
+
+        final Collection<ExportablePermId> experiments = Stream.of("20220921142846885-1", "20220921142853426-14",
+                        "20220921142853426-2")
+                .map(permId -> new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId(permId)))
+                .collect(Collectors.toList());
+
         final Collection<ExportablePermId> exportablePermIds = new ArrayList<>();
+        exportablePermIds.addAll(projects);
+        exportablePermIds.addAll(samples);
         exportablePermIds.addAll(vocabularies);
         exportablePermIds.addAll(sampleTypes);
         exportablePermIds.addAll(experimentTypes);
         exportablePermIds.addAll(dataSetTypes);
+        exportablePermIds.addAll(spaces);
+        exportablePermIds.addAll(experiments);
         final ByteArrayOutputStream os = xlsExport.export(applicationServerApi, sessionToken, exportablePermIds, true);
 
         try (final OutputStream fileOutputStream = new FileOutputStream("test.xlsx"))
