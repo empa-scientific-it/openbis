@@ -222,41 +222,120 @@ public class XLSExportTest
     }
 
     @Test()
+    public void testPutVocabulariesFirst()
+    {
+        final List<Collection<ExportablePermId>> permIds = new ArrayList<>(List.of(
+                List.of(
+                        new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST1")),
+                        new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST2")),
+                        new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST3"))
+                ),
+                List.of(
+                        new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET1")),
+                        new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET2")),
+                        new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET3"))
+                ),
+                List.of(
+                        new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
+                        new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
+                        new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3"))
+                ),
+                List.of(
+                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT1")),
+                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT2")),
+                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT3"))
+                ),
+                List.of(
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V3"))
+                ),
+                List.of(
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V4")),
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V5")),
+                        new ExportablePermId(VOCABULARY, new ObjectPermId("V6"))
+                ),
+                List.of(
+                        new ExportablePermId(SPACE, new ObjectPermId("SP1")),
+                        new ExportablePermId(SPACE, new ObjectPermId("SP2")),
+                        new ExportablePermId(SPACE, new ObjectPermId("SP3"))
+                ),
+                List.of(
+                        new ExportablePermId(PROJECT, new ObjectPermId("P1")),
+                        new ExportablePermId(PROJECT, new ObjectPermId("P2")),
+                        new ExportablePermId(PROJECT, new ObjectPermId("P3"))
+                ),
+                List.of(
+                        new ExportablePermId(SAMPLE, new ObjectPermId("S1")),
+                        new ExportablePermId(SAMPLE, new ObjectPermId("S2")),
+                        new ExportablePermId(SAMPLE, new ObjectPermId("S3"))
+                ),
+                List.of(
+                        new ExportablePermId(EXPERIMENT, new ObjectPermId("E1")),
+                        new ExportablePermId(EXPERIMENT, new ObjectPermId("E2")),
+                        new ExportablePermId(EXPERIMENT, new ObjectPermId("E3"))
+                ),
+                List.of(
+                        new ExportablePermId(DATASET, new ObjectPermId("D1")),
+                        new ExportablePermId(DATASET, new ObjectPermId("D2")),
+                        new ExportablePermId(DATASET, new ObjectPermId("D3"))
+                )
+        ));
+
+        Collections.shuffle(permIds);
+
+        final Collection<Collection<ExportablePermId>> reorderedPermIds = xlsExport.putVocabulariesFirst(permIds);
+        boolean nonVocabularyFound = false;
+
+        assertEquals(reorderedPermIds.size(), permIds.size(), "The size after reordering should not change.");
+
+        for (final Collection<ExportablePermId> group : reorderedPermIds)
+        {
+            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            {
+                assertFalse(nonVocabularyFound, "All vocabularies should be at the beginning.");
+            } else
+            {
+                nonVocabularyFound = true;
+            }
+        }
+    }
+
+    @Test()
     public void testGroup()
     {
-        final List<ExportablePermId> permIds = new ArrayList<>();
-
-        permIds.add(new ExportablePermId(SPACE, new ObjectPermId("SP1")));
-        permIds.add(new ExportablePermId(SPACE, new ObjectPermId("SP2")));
-        permIds.add(new ExportablePermId(SPACE, new ObjectPermId("SP3")));
-        permIds.add(new ExportablePermId(PROJECT, new ObjectPermId("P1")));
-        permIds.add(new ExportablePermId(PROJECT, new ObjectPermId("P2")));
-        permIds.add(new ExportablePermId(PROJECT, new ObjectPermId("P3")));
-        permIds.add(new ExportablePermId(SAMPLE, new ObjectPermId("S1")));
-        permIds.add(new ExportablePermId(SAMPLE, new ObjectPermId("S2")));
-        permIds.add(new ExportablePermId(SAMPLE, new ObjectPermId("S3")));
-        permIds.add(new ExportablePermId(EXPERIMENT, new ObjectPermId("E1")));
-        permIds.add(new ExportablePermId(EXPERIMENT, new ObjectPermId("E2")));
-        permIds.add(new ExportablePermId(EXPERIMENT, new ObjectPermId("E3")));
-        permIds.add(new ExportablePermId(DATASET, new ObjectPermId("D1")));
-        permIds.add(new ExportablePermId(DATASET, new ObjectPermId("D2")));
-        permIds.add(new ExportablePermId(DATASET, new ObjectPermId("D3")));
-
-        permIds.add(new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST1")));
-        permIds.add(new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST2")));
-        permIds.add(new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST3")));
-        permIds.add(new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET1")));
-        permIds.add(new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET2")));
-        permIds.add(new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET3")));
-        permIds.add(new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")));
-        permIds.add(new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")));
-        permIds.add(new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3")));
-        permIds.add(new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT1")));
-        permIds.add(new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT2")));
-        permIds.add(new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT3")));
-        permIds.add(new ExportablePermId(VOCABULARY, new ObjectPermId("V1")));
-        permIds.add(new ExportablePermId(VOCABULARY, new ObjectPermId("V2")));
-        permIds.add(new ExportablePermId(VOCABULARY, new ObjectPermId("V3")));
+        final List<ExportablePermId> permIds = new ArrayList<>(List.of(
+                new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST1")),
+                new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST2")),
+                new ExportablePermId(SAMPLE_TYPE, new ObjectPermId("ST3")),
+                new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET1")),
+                new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET2")),
+                new ExportablePermId(EXPERIMENT_TYPE, new ObjectPermId("ET3")),
+                new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
+                new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
+                new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3")),
+                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT1")),
+                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT2")),
+                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT3")),
+                new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
+                new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
+                new ExportablePermId(VOCABULARY, new ObjectPermId("V3")),
+                new ExportablePermId(SPACE, new ObjectPermId("SP1")),
+                new ExportablePermId(SPACE, new ObjectPermId("SP2")),
+                new ExportablePermId(SPACE, new ObjectPermId("SP3")),
+                new ExportablePermId(PROJECT, new ObjectPermId("P1")),
+                new ExportablePermId(PROJECT, new ObjectPermId("P2")),
+                new ExportablePermId(PROJECT, new ObjectPermId("P3")),
+                new ExportablePermId(SAMPLE, new ObjectPermId("S1")),
+                new ExportablePermId(SAMPLE, new ObjectPermId("S2")),
+                new ExportablePermId(SAMPLE, new ObjectPermId("S3")),
+                new ExportablePermId(EXPERIMENT, new ObjectPermId("E1")),
+                new ExportablePermId(EXPERIMENT, new ObjectPermId("E2")),
+                new ExportablePermId(EXPERIMENT, new ObjectPermId("E3")),
+                new ExportablePermId(DATASET, new ObjectPermId("D1")),
+                new ExportablePermId(DATASET, new ObjectPermId("D2")),
+                new ExportablePermId(DATASET, new ObjectPermId("D3"))
+        ));
 
         Collections.shuffle(permIds);
 

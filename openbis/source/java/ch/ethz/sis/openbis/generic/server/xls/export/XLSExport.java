@@ -4,6 +4,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DAT
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -81,7 +82,7 @@ public class XLSExport
         }
 
         final Collection<Collection<ExportablePermId>> groupedExportablePermIds =
-                group(exportablePermIds);
+                putVocabulariesFirst(group(exportablePermIds));
 
         final Workbook wb = new XSSFWorkbook();
         wb.createSheet();
@@ -255,6 +256,32 @@ public class XLSExport
         }
 
         result.addAll(groupMap.values());
+
+        return result;
+    }
+
+    Collection<Collection<ExportablePermId>> putVocabulariesFirst(
+            final Collection<Collection<ExportablePermId>> exportablePermIds)
+    {
+        final List<Collection<ExportablePermId>> result = new ArrayList<>(exportablePermIds.size());
+
+        // Adding vocabularies first
+        for (final Collection<ExportablePermId> group : exportablePermIds)
+        {
+            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            {
+                result.add(group);
+            }
+        }
+
+        // Adding other items
+        for (final Collection<ExportablePermId> group : exportablePermIds)
+        {
+            if (group.iterator().next().getExportableKind() != VOCABULARY)
+            {
+                result.add(group);
+            }
+        }
 
         return result;
     }
