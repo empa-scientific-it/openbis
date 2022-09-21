@@ -120,7 +120,7 @@ As an (new) alternative to login every time you run a script, you can create tok
 To create a token, you first need a valid session – either through classic login or by assigning an existing valid session token:
 
 ```
-from pyBIS import Openbis
+from pybis import Openbis
 o = Openbis('https://test-openbis-instance.com')
 
 o.login("username", "password")
