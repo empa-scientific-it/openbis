@@ -1192,7 +1192,6 @@ class Openbis:
             "new_semantic_annotation()",
             "new_transaction()",
             "new_personal_access_token()",
-            "renew_token()",
             "set_token()",
         ]
 
@@ -2024,12 +2023,22 @@ class Openbis:
         )
 
     def new_personal_access_token(
-        self, sessionName: str, validFrom: datetime = None, validTo: datetime = None
+        self,
+        sessionName: str,
+        validFrom: datetime = datetime.now(),
+        validTo: datetime = None,
+        force=False,
     ) -> str:
-        """Creates a new personal access token (PAT).
-        If a PAT with the given sessionName already exists and
-        its expiry date (validToDate) is outside the warning period,
+        """Creates a new personal access token (PAT).  If a PAT with the given sessionName
+        already exists and its expiry date (validToDate) is outside the warning period,
         the existing PAT is returned.
+
+        Args:
+
+            sessionName (str):    a session name (mandatory)
+            validFrom (datetime): begin of the validity period (default:now)
+            validTo (datetime):   end of the validity period (default: validFrom + maximum validity period, as configured in openBIS)
+            force (bool):         if set to True, a new PAT is created, regardless of existing ones.
         """
 
         server_info = self.get_server_information()
@@ -2058,12 +2067,13 @@ class Openbis:
                 )
             ):
                 # return existing PAT which is within warning period
-                return existing_pat
+                if not force:
+                    return existing_pat
 
-        if validFrom is None:
-            validFrom = datetime.now()
         if validTo is None:
-            validTo = datetime.now() + relativedelta(years=1)
+            validTo = datetime.now() + relativedelta(
+                seconds=server_info.personal_access_tokens_max_validity_period
+            )
 
         entity = "personalAccessToken"
         request = {
@@ -2085,51 +2095,9 @@ class Openbis:
                 "Your openBIS instance does not support personal access tokens. Please upgrade your server and activate them."
             )
         try:
-            token = resp[0]["permId"]
-            return token
+            return self.get_personal_access_token(resp[0]["permId"])
         except KeyError:
             pass
-            # if "error" in resp and resp["error"]["message"] == "method not found":
-
-    def renew_token(
-        self, username=None, password=None, hostname=None, save_token=False, token=None
-    ):
-        if token is None:
-            token = self.token
-
-        if hostname is None:
-            hostname = self.hostname
-
-        if is_session_token(token):
-            if self.is_token_valid(token):
-                # no need to renew a session token as it renews itself
-                return
-            else:
-                self.login(username=username, password=password, save_token=save_token)
-                return
-
-        session_token = get_token_for_hostname(hostname, session_token_needed=True)
-        try:
-            self.set_token(session_token)
-        except Exception:
-            self.login(username=username, password=password)
-
-        session_info = self.get_personal_access_token(token)
-        validFrom_orig = datetime.strptime(
-            session_info.validFromDate, "%Y-%m-%d %H:%M:%S"
-        )
-        validTo_orig = datetime.strptime(session_info.validToDate, "%Y-%m-%d %H:%M:%S")
-        days_delta = abs(validFrom_orig - validTo_orig).days
-        validTo_new = datetime.now() + relativedelta(days=days_delta)
-
-        new_pat = self.new_personal_access_token(
-            sessionName=session_info.sessionName,
-            validFrom=datetime.now(),
-            validTo=validTo_new,
-        )
-        self.set_token(new_pat)
-        if VERBOSE:
-            print(self.token)
 
     def get_personal_access_tokens(
         self,
@@ -2146,11 +2114,11 @@ class Openbis:
         search_criteria = get_search_criteria(entity, **search_args)
         if sessionName:
             sub_crit = {
-                "fieldName": "code",
+                "fieldName": "sessionName",
                 "fieldType": "ATTRIBUTE",
                 "fieldValue": {
-                    "value": sessionName.upper(),
-                    "@type": "as.dto.common.search.StringEqualToValue",
+                    "value": sessionName,
+                    "@type": "as.dto.common.search.StringStartsWithValue",
                 },
                 "@type": "as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria",
             }
@@ -2244,10 +2212,6 @@ class Openbis:
                     return PersonalAccessToken(
                         openbis_obj=self,
                         data=resp[permId],
-                        # single_item_method_name=self.get_personal_access_token,
-                        # count=len(resp),
-                        # totalCount=len(resp),
-                        # response=resp,
                     )
 
     def get_persons(self, start_with=None, count=None, **search_args):
@@ -4449,6 +4413,8 @@ class Openbis:
         """
         if not token:
             return
+        if isinstance(token, PersonalAccessToken):
+            token = token.permId
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
@@ -5498,6 +5464,15 @@ class PersonalAccessToken(
     single_item_method_name="get_personal_access_token",
 ):
     def renew(self, validFrom: datetime = None, validTo: datetime = None):
+        """Create a new personal access token (PAT) based on an existing one.
+        The same sessionName and validity period will be used, starting from now.
+        A new PAT will be created, regardless if there is already an existing
+        (and still valid) one.
+
+        Args:
+            validFrom (datetime): begin of the validity period (default:now)
+            validTo (datetime):   end of the validity period (default: validFrom + maximum validity period, as configured in openBIS)
+        """
         if not validFrom:
             validFrom = datetime.now()
 
@@ -5508,11 +5483,12 @@ class PersonalAccessToken(
             validTo = validFrom + relativedelta(days=days_delta)
 
         new_pat = self.openbis.new_personal_access_token(
-            sessionName=self.sessionName, validFrom=validFrom, validTo=validTo
+            sessionName=self.sessionName,
+            validFrom=validFrom,
+            validTo=validTo,
+            force=True,
         )
-        self.openbis.set_token(new_pat)
-        if VERBOSE:
-            print(self.openbis.token)
+        return new_pat
 
 
 class SessionInformation(
