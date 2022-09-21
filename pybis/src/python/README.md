@@ -68,7 +68,7 @@ pip install jupyterlab
 
 In an **interactive session** e.g. inside a Jupyter notebook, you can use `getpass` to enter your password safely:
 
-```
+```python
 from pybis import Openbis
 o = Openbis('https://example.com')
 o = Openbis('example.com')          # https:// is assumed
@@ -81,7 +81,7 @@ o.login('username', password, save_token=True)   # save the session token in ~/.
 
 In a **script** you would rather use two **environment variables** to provide username and password:
 
-```
+```python
 from pybis import Openbis
 o = Openbis(os.environ['OPENBIS_HOST'])
 
@@ -119,7 +119,7 @@ As an (new) alternative to login every time you run a script, you can create tok
 
 To create a token, you first need a valid session – either through classic login or by assigning an existing valid session token:
 
-```
+```python
 from pybis import Openbis
 o = Openbis('https://test-openbis-instance.com')
 
@@ -130,10 +130,12 @@ o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
 
 Then you can create a new personal access token (PAT) and use it for all further pyBIS queries:
 
-```
-pat = o.create_personal_access_token(sessionName="Project A"))
+```python
+pat = o.new_personal_access_token(sessionName="Project A"))
 o.set_token(pat, save_token=True)
 ```
+
+**Note:** If there is an existing PAT with the same _sessionName_ which is still valid (within the validity warning period, defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
 
 **Note:** Most operations are permitted using the PAT, _except_:
 
@@ -144,32 +146,21 @@ For these operations, you need to use a session token instead.
 
 To get a list of all currently available tokens:
 
-```
+```python
 o.get_personal_access_tokens()
 o.get_personal_access_tokens(sessionName="APPLICATION_1")
 ```
 
 To delete the first token shown in the list:
 
-```
+```python
 o.get_personal_access_tokens()[0].delete('no specific reason')
 ```
 
 Or delete any specific: token:
 
-```
+```python
 o.get_token("$pat-your_username-220804233700046xCA2B5FFE4C57595598489490AA665239").delete('another no-reason')
-```
-
-### Personal access token (PAT) with command line
-
-```bash
-$ pybis get tokens
-openBIS hostname                    token
-----------------------------------  -----------------------------------------------------------
-openbis-test.ethz.ch                vermeul-220815133624077xE80D040A0068280D7BEB7C5433DF2A82
-openbis-demo.ethz.ch                vermeul-220630120224411x9BA6D2DDC6C283958D7284CECDA8AA17
-localhost                           admin-201104092559402xE05FC2892427AB90E26DB646D0BEA7D5
 ```
 
 ### Caching
