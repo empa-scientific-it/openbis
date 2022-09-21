@@ -174,6 +174,14 @@ export default class BrowserController {
   }
 
   async filterChange(newFilter) {
+    this._setFilter(newFilter, FILTER_SILENT_PERIOD)
+  }
+
+  async filterClear() {
+    this._setFilter(null, 0)
+  }
+
+  async _setFilter(newFilter, silentPeriod) {
     await this.context.setState({
       filter: newFilter
     })
@@ -185,7 +193,7 @@ export default class BrowserController {
 
     this.lastFilterTimeoutId = setTimeout(async () => {
       await this.loadNode(ROOT_ID, newFilter, 0, LOAD_LIMIT)
-    }, FILTER_SILENT_PERIOD)
+    }, silentPeriod)
   }
 
   async nodeLoadMore(nodeId) {

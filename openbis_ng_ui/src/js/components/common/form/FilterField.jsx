@@ -48,7 +48,7 @@ class FilterField extends React.Component {
 
   handleFilterClear(event) {
     event.preventDefault()
-    this.props.filterChange('')
+    this.props.filterClear()
     this.filterRef.current.focus()
   }
 
