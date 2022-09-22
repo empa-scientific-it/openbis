@@ -2611,9 +2611,9 @@ class Openbis:
 
         if kind:
             kind = kind.upper()
-            if kind not in ["PHYSICAL_DATA", "CONTAINER", "LINK"]:
+            if kind not in ["PHYSICAL", "CONTAINER", "LINK"]:
                 raise ValueError(
-                    "unknown dataSet kind: {}. It should be one of the following: PHYSICAL_DATA, CONTAINER or LINK".format(
+                    "unknown dataSet kind: {}. It should be one of the following: PHYSICAL, CONTAINER or LINK".format(
                         kind
                     )
                 )
@@ -4968,7 +4968,7 @@ class Openbis:
     def new_dataset(
         self,
         type=None,
-        kind="PHYSICAL_DATA",
+        kind="PHYSICAL",
         files=None,
         file=None,
         props=None,

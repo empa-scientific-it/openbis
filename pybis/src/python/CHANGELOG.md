@@ -1,3 +1,7 @@
+## Changes with pybis-1.32.1
+
+- fixing the issue with incorrectly named reference to DataSetKind.PHYSICAL
+ 
 ## Changes with pybis-1.32.0
 
 - throw error when invalid token is assigned
