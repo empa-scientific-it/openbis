@@ -55,7 +55,7 @@ class DataSet(
         **kwargs,
     ):
 
-        if kind == "PHYSICAL_DATA":
+        if kind == "PHYSICAL":
             if files is None and zipfile is None:
                 raise ValueError("please provide at least one file")
 
@@ -96,7 +96,7 @@ class DataSet(
 
         if kind is not None:
             kind = kind.upper()
-            allowed_kinds = ["PHYSICAL_DATA", "CONTAINER", "LINK"]
+            allowed_kinds = ["PHYSICAL", "CONTAINER", "LINK"]
             if kind not in allowed_kinds:
                 raise ValueError(
                     "only these values are allowed for kind: {}".format(allowed_kinds)
@@ -813,7 +813,7 @@ class DataSet(
                     "A DataSet must be either connected to a Sample or an Experiment"
                 )
 
-            if self.kind == "PHYSICAL_DATA":
+            if self.kind == "PHYSICAL":
                 if self.files is None or len(self.files) == 0:
                     raise ValueError(
                         "Cannot register a dataset without a file. Please provide at least one file"
