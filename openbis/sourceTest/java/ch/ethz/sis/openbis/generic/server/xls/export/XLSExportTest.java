@@ -391,7 +391,8 @@ public class XLSExportTest
 
         try
         {
-            final Workbook actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds, exportReferred);
+            final Workbook actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
+                    exportReferred);
 
             final InputStream stream = getClass().getClassLoader().getResourceAsStream(
                     "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);

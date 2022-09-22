@@ -71,6 +71,17 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
+    public ByteArrayOutputStream export(final IApplicationServerApi api, final String sessionToken,
+            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
+    {
+        try (final Workbook wb = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred))
+        {
+            final ByteArrayOutputStream result = new ByteArrayOutputStream();
+            wb.write(result);
+            return result;
+        }
+    }
+
     Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
@@ -100,17 +111,6 @@ public class XLSExport
         }
 
         return wb;
-    }
-
-    public ByteArrayOutputStream export(final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
-    {
-        try (final Workbook wb = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred))
-        {
-            final ByteArrayOutputStream result = new ByteArrayOutputStream();
-            wb.write(result);
-            return result;
-        }
     }
 
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
