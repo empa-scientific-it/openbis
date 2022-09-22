@@ -22,7 +22,7 @@ public class ApplicationServerAPIExtensions {
      *
      * @throws UserFailureException in case of any problems
      */
-    public PersonalAccessTokenPermId getManagedPersonalAccessToken(IApplicationServerApi v3, String sessionToken, String sessionName) {
+    public static PersonalAccessTokenPermId getManagedPersonalAccessToken(IApplicationServerApi v3, String sessionToken, String sessionName) {
         final int SECONDS_PER_DAY = 24 * 60 * 60;
 
         // Obtain servers renewal information
