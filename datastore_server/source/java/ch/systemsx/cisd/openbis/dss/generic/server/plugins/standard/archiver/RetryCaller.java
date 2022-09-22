@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
-import java.io.IOException;
-
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
@@ -57,6 +55,8 @@ public abstract class RetryCaller<T, E extends Throwable>
 
     public T callWithRetry() throws E
     {
+        final long waitUntil = System.currentTimeMillis() + waitingTimeLimit;
+
         waitForRetry();
 
         while (true)
@@ -67,38 +67,17 @@ public abstract class RetryCaller<T, E extends Throwable>
                 return result;
             } catch (Exception e)
             {
-                if (isRetryableException(e))
+                if (System.currentTimeMillis() < waitUntil)
                 {
-                    if (shouldRetry())
-                    {
-                        logger.log(LogLevel.WARN, "Call failed - will retry");
-                        waitForRetry();
-                    } else
-                    {
-                        logger.log(LogLevel.WARN, "Call failed - will NOT retry");
-                        throw e;
-                    }
+                    logger.log(LogLevel.WARN, "Call failed - will retry");
+                    waitForRetry();
                 } else
                 {
+                    logger.log(LogLevel.WARN, "Call failed - will NOT retry");
                     throw e;
                 }
             }
         }
-    }
-
-    protected boolean isRetryableException(Exception e)
-    {
-        if (e instanceof IOException)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean shouldRetry()
-    {
-        return waitingTime < waitingTimeLimit;
     }
 
     private void waitForRetry()
