@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ApplicationServerAPIExtensions {
-    //
-    // Facade Methods
-    //
 
     /**
      * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
