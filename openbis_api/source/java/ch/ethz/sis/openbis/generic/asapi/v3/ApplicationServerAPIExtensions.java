@@ -18,6 +18,10 @@ import java.util.Map;
 
 public class ApplicationServerAPIExtensions implements Serializable {
 
+    private ApplicationServerAPIExtensions() {
+
+    }
+
     /**
      * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
      * Requires are real session token since it uses other methods.
@@ -88,5 +92,10 @@ public class ApplicationServerAPIExtensions implements Serializable {
         creation.setValidToDate(new Date(System.currentTimeMillis() + MILLIS_PER_DAY * personalAccessTokensMaxValidityPeriodInDays));
         List<PersonalAccessTokenPermId> personalAccessTokens = v3.createPersonalAccessTokens(sessionToken, List.of(creation));
         return personalAccessTokens.get(0);
+    }
+
+    @Override
+    public String toString() {
+        return "ApplicationServerAPIExtensions Utility Class";
     }
 }
