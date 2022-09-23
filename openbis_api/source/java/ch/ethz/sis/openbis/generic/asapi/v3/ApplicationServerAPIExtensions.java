@@ -6,15 +6,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ApplicationServerAPIExtensions {
+public class ApplicationServerAPIExtensions implements Serializable {
 
     /**
      * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
@@ -27,9 +29,9 @@ public class ApplicationServerAPIExtensions {
 
         // Obtain servers renewal information
         Map<String, String> information = v3.getServerInformation(sessionToken);
-        int personalAccessTokensRenewalPeriodInSeconds = Integer.parseInt(information.get(ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
+        int personalAccessTokensRenewalPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
         int personalAccessTokensRenewalPeriodInDays = personalAccessTokensRenewalPeriodInSeconds / SECONDS_PER_DAY;
-        int personalAccessTokensMaxValidityPeriodInSeconds = Integer.parseInt(information.get(ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
+        int personalAccessTokensMaxValidityPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
         int personalAccessTokensMaxValidityPeriodInDays = personalAccessTokensMaxValidityPeriodInSeconds / SECONDS_PER_DAY;
 
         // Obtain user id
