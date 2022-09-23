@@ -6,6 +6,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Collapse from '@material-ui/core/Collapse'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
@@ -101,7 +102,10 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (node.canHaveChildren || (node.children && node.children.length > 0)) {
       let icon = null
-      if (node.expanded) {
+
+      if (node.loading) {
+        icon = <CircularProgress size={20} />
+      } else if (node.expanded) {
         icon = <ExpandMoreIcon onClick={this.handleCollapse} />
       } else {
         icon = <ChevronRightIcon onClick={this.handleExpand} />
