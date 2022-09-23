@@ -5,6 +5,7 @@ import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import logger from '@src/js/common/logger.js'
+import util from '@src/js/common/util.js'
 
 const styles = theme => ({
   resizable: {
@@ -20,6 +21,12 @@ const styles = theme => ({
   nodes: {
     height: '100%',
     overflow: 'auto'
+  },
+  visible: {
+    display: 'block'
+  },
+  hidden: {
+    display: 'none'
   }
 })
 
@@ -41,12 +48,11 @@ class Browser extends React.PureComponent {
     logger.log(logger.DEBUG, 'Browser.render')
 
     const { controller } = this
-
-    if (!controller.getRoot().loaded) {
-      return null
-    }
-
     const { classes } = this.props
+
+    const visibleTree = controller.getRoot() === controller.getTreeRoot()
+    const visibleFiltered =
+      controller.getRoot() === controller.getFilteredRoot()
 
     return (
       <Resizable
@@ -73,11 +79,29 @@ class Browser extends React.PureComponent {
             filterClear={controller.filterClear}
             loading={controller.getRoot().loading}
           />
-          <div className={classes.nodes}>
+          <div
+            className={util.classNames(
+              classes.nodes,
+              visibleTree ? classes.visible : classes.hidden
+            )}
+          >
             <BrowserNode
               controller={controller}
-              node={controller.getRoot()}
-              nodes={controller.getNodes()}
+              node={controller.getTreeRoot()}
+              nodes={controller.getTreeNodes()}
+              level={-1}
+            />
+          </div>
+          <div
+            className={util.classNames(
+              classes.nodes,
+              visibleFiltered ? classes.visible : classes.hidden
+            )}
+          >
+            <BrowserNode
+              controller={controller}
+              node={controller.getFilteredRoot()}
+              nodes={controller.getFilteredNodes()}
               level={-1}
             />
           </div>
