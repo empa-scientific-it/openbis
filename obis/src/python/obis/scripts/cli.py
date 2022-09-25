@@ -15,6 +15,7 @@ import os
 import sys
 from datetime import datetime
 from typing_extensions import Required
+from requests import ConnectionError
 
 import click
 from dateutil.relativedelta import relativedelta
@@ -540,7 +541,7 @@ def token(ctx):
     pass
 
 
-@token.command("new", short_help="Create a new openBIS token")
+@token.command("get", short_help="Get existing personal access token or reate a new one")
 @click.argument("session-name", required=False)
 @click.option("--validity-days", help="Number of days the token is valid")
 @click.option("--validity-weeks", help="Number of weeks the token is valid")
@@ -549,6 +550,13 @@ def token(ctx):
 def new_token(ctx, session_name=None, **kwargs):
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     settings = runner.get_settings()
+
+    if not session_name:
+        session_name = settings['config']['session_name']
+    if session_name:
+        click.echo(f"Get personal access token for session «{session_name}»")
+    else:
+        session_name = click.prompt("Please enter a session name")
 
     url = settings['config']['openbis_url']
     if not url:
@@ -560,12 +568,10 @@ def new_token(ctx, session_name=None, **kwargs):
     password = click.prompt(f"Password for {username}@{url}", hide_input=True)
 
     o = Openbis(url)
-    o.login(username, password)
-
-    if session_name is None:
-        session_name = settings['config']['session_name']
-    if session_name is None:
-        session_name = click.prompt("Please enter a session name")
+    try:
+        o.login(username, password)
+    except ConnectionError as exc:
+        raise click.ClickException(f"Cannot connect to openBIS: {exc}")
 
     validFrom = datetime.now()
     if kwargs.get("validity_months"):
@@ -594,14 +600,6 @@ def new_token(ctx, session_name=None, **kwargs):
     ctx.obj['runner'] = runner
     ctx.obj['resolver'] = 'config'
     runner.run("config_set", lambda dm: _set(ctx, settings))
-
-
-@token.command("get", short_help="Get existing openBIS token")
-@click.pass_context
-def get_token(ctx):
-    print("creating new token")
-
-# addref
 
 
 _addref_params = [
