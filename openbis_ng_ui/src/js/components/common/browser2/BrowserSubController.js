@@ -123,18 +123,7 @@ export default class BrowserSubController {
         })
 
         await this.context.setState({
-          nodes: {
-            ...newNodes,
-            [nodeId]: {
-              ...newNodes[nodeId],
-              loadedCount: offset + limit,
-              totalCount: loadedNodes.totalCount,
-              children:
-                offset === 0
-                  ? loadedNodesIds
-                  : node.children.concat(loadedNodesIds)
-            }
-          }
+          nodes: newNodes
         })
 
         const loadedNodesToExpand = Object.values(loadedNodesIds)
@@ -154,7 +143,13 @@ export default class BrowserSubController {
           [nodeId]: {
             ...state.nodes[nodeId],
             loading: false,
-            loaded: true
+            loaded: true,
+            loadedCount: offset + limit,
+            totalCount: loadedNodes.totalCount,
+            children:
+              offset === 0
+                ? loadedNodesIds
+                : node.children.concat(loadedNodesIds)
           }
         }
       }))
