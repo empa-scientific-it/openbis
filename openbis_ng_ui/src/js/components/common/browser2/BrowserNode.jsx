@@ -100,10 +100,10 @@ class BrowserNodeClass extends React.PureComponent {
 
     const { classes } = this.props
 
-    if (node.canHaveChildren || (node.children && node.children.length > 0)) {
+    if (node.canHaveChildren) {
       let icon = null
 
-      if (node.loading) {
+      if (node.loading && _.isEmpty(node.children)) {
         icon = <CircularProgress size={20} />
       } else if (node.expanded) {
         icon = <ExpandMoreIcon onClick={this.handleCollapse} />
@@ -173,7 +173,7 @@ class BrowserNodeClass extends React.PureComponent {
   renderNonEmptyChildren() {
     const { controller, node, nodes, level } = this.props
 
-    if (node.children && node.children.length > 0) {
+    if (!_.isEmpty(node.children)) {
       return node.children.map(child => {
         return (
           <BrowserNode
@@ -206,6 +206,7 @@ class BrowserNodeClass extends React.PureComponent {
           )}
         </span>
       )
+      const icon = node.loading ? <CircularProgress size={20} /> : <span></span>
 
       return (
         <ListItem
@@ -220,7 +221,7 @@ class BrowserNodeClass extends React.PureComponent {
               root: classes.icon
             }}
           >
-            <span></span>
+            {icon}
           </ListItemIcon>
           <ListItemText
             primary={link}
