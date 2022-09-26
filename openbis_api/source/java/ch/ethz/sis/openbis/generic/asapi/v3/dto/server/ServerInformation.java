@@ -1,5 +1,8 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.server;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.server.ServerInformation")
 public interface ServerInformation {
 
     public static final String PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD = "personal-access-tokens-max-validity-period";
