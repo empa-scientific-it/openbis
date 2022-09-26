@@ -31,7 +31,8 @@ export default class BrowserSubController {
         root: ROOT
       },
       selectedId: null,
-      selectedObject: null
+      selectedObject: null,
+      expandedIds: {}
     })
 
     this.lastLoadPromise = {}
@@ -44,13 +45,20 @@ export default class BrowserSubController {
         root: ROOT
       },
       selectedId: null,
-      selectedObject: null
+      selectedObject: null,
+      expandedIds: {}
     })
 
     this.lastLoadPromise = {}
   }
 
   async load() {
+    const settings = await this._loadSettings()
+
+    if (!_.isEmpty(settings)) {
+      this.context.setState({ ...settings })
+    }
+
     this.loadNode(ROOT.id, 0, LOAD_LIMIT)
   }
 
@@ -67,7 +75,7 @@ export default class BrowserSubController {
       nodes: {
         ...state.nodes,
         [nodeId]: {
-          ...node,
+          ...state.nodes[nodeId],
           loading: true
         }
       }
@@ -90,41 +98,66 @@ export default class BrowserSubController {
         return
       }
 
-      await this.context.setState(state => {
-        const newNodes = { ...state.nodes }
-        const newNodesIds = []
+      const { nodes, selectedId, selectedObject, expandedIds } =
+        this.context.getState()
 
-        if (loadedNodes.nodes) {
-          loadedNodes.nodes.forEach(node => {
-            const newNode = {
-              ...node,
-              selected:
-                node.id === state.selectedId ||
-                (node.object && _.isEqual(node.object, state.selectedObject)),
-              children: node.children
-                ? node.children.map(child => child.id)
-                : []
+      const loadedNodesIds = []
+
+      if (!_.isEmpty(loadedNodes.nodes)) {
+        const newNodes = { ...nodes }
+
+        loadedNodes.nodes.forEach(loadedNode => {
+          const newNode = {
+            ...loadedNode,
+            selected:
+              loadedNode.id === selectedId ||
+              (loadedNode.object &&
+                _.isEqual(loadedNode.object, selectedObject)),
+            expanded: !!expandedIds[loadedNode.id],
+            children: loadedNode.children
+              ? loadedNode.children.map(child => child.id)
+              : []
+          }
+          newNodes[newNode.id] = newNode
+          loadedNodesIds.push(newNode.id)
+        })
+
+        await this.context.setState({
+          nodes: {
+            ...newNodes,
+            [nodeId]: {
+              ...newNodes[nodeId],
+              loadedCount: offset + limit,
+              totalCount: loadedNodes.totalCount,
+              children:
+                offset === 0
+                  ? loadedNodesIds
+                  : node.children.concat(loadedNodesIds)
             }
-            newNodes[newNode.id] = newNode
-            newNodesIds.push(newNode.id)
-          })
-        }
+          }
+        })
 
-        const newNode = {
-          ...node,
-          loaded: true,
-          loadedCount: offset + limit,
-          totalCount: loadedNodes.totalCount,
-          children:
-            offset === 0 ? newNodesIds : node.children.concat(newNodesIds)
-        }
+        const loadedNodesToExpand = Object.values(loadedNodesIds)
+          .map(id => newNodes[id])
+          .filter(node => node.expanded)
 
-        newNodes[nodeId] = newNode
-
-        return {
-          nodes: newNodes
+        if (!_.isEmpty(loadedNodesToExpand)) {
+          await Promise.all(
+            loadedNodesToExpand.map(node => this.nodeExpand(node.id))
+          )
         }
-      })
+      }
+
+      await this.context.setState(state => ({
+        nodes: {
+          ...state.nodes,
+          [nodeId]: {
+            ...state.nodes[nodeId],
+            loading: false,
+            loaded: true
+          }
+        }
+      }))
     })
   }
 
@@ -155,8 +188,14 @@ export default class BrowserSubController {
             ...state.nodes[nodeId],
             expanded: true
           }
+        },
+        expandedIds: {
+          ...state.expandedIds,
+          [nodeId]: true
         }
       }))
+
+      this._saveSettings()
     }
   }
 
@@ -166,15 +205,22 @@ export default class BrowserSubController {
     const node = nodes[nodeId]
 
     if (node) {
-      await this.context.setState(state => ({
-        nodes: {
-          ...state.nodes,
-          [nodeId]: {
-            ...state.nodes[nodeId],
-            expanded: false
-          }
+      await this.context.setState(state => {
+        const newExpandedIds = { ...state.expandedIds }
+        delete newExpandedIds[nodeId]
+        return {
+          nodes: {
+            ...state.nodes,
+            [nodeId]: {
+              ...state.nodes[nodeId],
+              expanded: false
+            }
+          },
+          expandedIds: newExpandedIds
         }
-      }))
+      })
+
+      this._saveSettings()
     }
   }
 
@@ -220,6 +266,42 @@ export default class BrowserSubController {
         selectedObject: nodeObject
       }
     })
+  }
+
+  async _loadSettings() {
+    const props = this.context.getProps()
+
+    if (!props.loadSettings) {
+      return {}
+    }
+
+    const loaded = await props.loadSettings()
+
+    if (!loaded || !_.isObject(loaded)) {
+      return {}
+    }
+
+    const settings = {}
+
+    if (_.isObject(loaded.expandedIds)) {
+      settings.expandedIds = loaded.expandedIds
+    }
+
+    return settings
+  }
+
+  async _saveSettings() {
+    const { onSettingsChange } = this.context.getProps()
+
+    if (onSettingsChange) {
+      const { expandedIds } = this.context.getState()
+
+      const settings = {
+        expandedIds
+      }
+
+      onSettingsChange(settings)
+    }
   }
 
   static isRoot(node) {

@@ -2,10 +2,11 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 
 export default class ComponentContextWithNamespace {
-  constructor(originalContext, namespace) {
+  constructor(originalContext, namespace, getPropsFn) {
     autoBind(this)
     this.originalContext = originalContext
     this.namespace = namespace
+    this.getPropsFn = getPropsFn
   }
 
   initState(initialState) {
@@ -17,7 +18,7 @@ export default class ComponentContextWithNamespace {
   }
 
   getProps() {
-    return this.originalContext.getProps()
+    return this.getPropsFn()
   }
 
   getState() {
@@ -28,14 +29,22 @@ export default class ComponentContextWithNamespace {
   setState(stateOrFunction) {
     if (_.isFunction(stateOrFunction)) {
       return this.originalContext.setState(fullState => {
-        const state = fullState[this.namespace] || {}
+        const namespaceState = fullState[this.namespace] || {}
         return {
-          [this.namespace]: stateOrFunction(state)
+          [this.namespace]: {
+            ...namespaceState,
+            ...stateOrFunction(namespaceState)
+          }
         }
       })
     } else if (_.isObject(stateOrFunction)) {
+      const fullState = this.originalContext.getState()
+      const namespaceState = fullState[this.namespace] || {}
       return this.originalContext.setState({
-        [this.namespace]: stateOrFunction
+        [this.namespace]: {
+          ...namespaceState,
+          ...stateOrFunction
+        }
       })
     }
   }

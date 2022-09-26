@@ -1,6 +1,7 @@
 import React from 'react'
-import Browser from '@src/js/components/common/browser2/Browser.jsx'
+import BrowserWithSettings from '@src/js/components/common/browser2/BrowserWithSettings.jsx'
 import DatabaseBrowserController from '@src/js/components/database/browser/DatabaseBrowserController.js'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 class DatabaseBrowser extends React.Component {
@@ -11,7 +12,12 @@ class DatabaseBrowser extends React.Component {
 
   render() {
     logger.log(logger.DEBUG, 'DatabaseBrowser.render')
-    return <Browser controller={this.controller} />
+    return (
+      <BrowserWithSettings
+        id={ids.DATABASE_BROWSER_ID}
+        controller={this.controller}
+      />
+    )
   }
 }
 

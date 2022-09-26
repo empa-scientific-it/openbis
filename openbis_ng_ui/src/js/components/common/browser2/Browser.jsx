@@ -47,6 +47,12 @@ class Browser extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
 
+    const { loaded } = this.state
+
+    if (!loaded) {
+      return null
+    }
+
     const { controller } = this
     const { classes } = this.props
 
