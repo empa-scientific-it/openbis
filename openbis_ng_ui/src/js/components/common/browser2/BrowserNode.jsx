@@ -198,19 +198,10 @@ class BrowserNodeClass extends React.PureComponent {
       node.totalCount &&
       node.children.length < node.totalCount
     ) {
-      const link = (
-        <span onClick={this.handleLoadMore}>
-          {messages.get(
-            messages.LOAD_MORE,
-            node.totalCount - node.children.length
-          )}
-        </span>
-      )
-      const icon = node.loading ? <CircularProgress size={20} /> : <span></span>
-
       return (
         <ListItem
           button
+          onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
           classes={{
             root: classes.item
@@ -221,10 +212,17 @@ class BrowserNodeClass extends React.PureComponent {
               root: classes.icon
             }}
           >
-            {icon}
+            {node.loading ? <CircularProgress size={20} /> : <span></span>}
           </ListItemIcon>
           <ListItemText
-            primary={link}
+            primary={
+              <span>
+                {messages.get(
+                  messages.LOAD_MORE,
+                  node.totalCount - node.children.length
+                )}
+              </span>
+            }
             classes={{
               primary: classes.text
             }}
