@@ -61,10 +61,13 @@ export default class UserBrowserController extends BrowserController {
         totalCount: samples.totalCount + dataSets.totalCount
       }
     } else if (node.object.type === 'sample') {
-      const dataSets = await this.searchDataSets(params)
+      const [samples, dataSets] = await Promise.all([
+        this.searchSamples(params),
+        this.searchDataSets(params)
+      ])
       return {
-        nodes: dataSets.nodes,
-        totalCount: dataSets.totalCount
+        nodes: [...samples.nodes, ...dataSets.nodes],
+        totalCount: samples.totalCount + dataSets.totalCount
       }
     } else {
       return null
@@ -189,6 +192,9 @@ export default class UserBrowserController extends BrowserController {
     }
     if (node.object.type === 'experiment') {
       criteria.withExperiment().withPermId().thatEquals(node.object.id)
+    }
+    if (node.object.type === 'sample') {
+      criteria.withParents().withPermId().thatEquals(node.object.id)
     }
 
     const fetchOptions = new openbis.SampleFetchOptions()
