@@ -5,11 +5,14 @@ var ExportUtil = new function() {
         var titleLabel = $("<label>", {"type": "label", "id": labelId, "class": "control-label"})
             .text("Groups (*)");
         fieldset.append(titleLabel);
-        this._tableModel = this._createTableModel();
+        this.getTableModel();
         fieldset.append(this._getTable(this._tableModel));
     }
 
     this.getTableModel = function() {
+        if (!this._tableModel) {
+            this._tableModel = this._createTableModel();
+        }
         return this._tableModel;
     }
 

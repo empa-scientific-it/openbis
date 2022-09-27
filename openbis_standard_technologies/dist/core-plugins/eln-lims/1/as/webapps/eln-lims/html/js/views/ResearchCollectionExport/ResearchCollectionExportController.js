@@ -70,7 +70,7 @@ function ResearchCollectionExportController(parentController) {
             Util.showInfo('Select submission type.');
         } else if (!retentionPeriod) {
             Util.showInfo('Select retention period.');
-        } else if (checkedGroups.length === 0) {
+        } else if (groupRows.length > 0 && checkedGroups.length === 0) {
             Util.showInfo('At least one group should be selected.');
         } else {
             Util.blockUI();

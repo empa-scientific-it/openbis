@@ -14,8 +14,10 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create import SampleCreatio
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
+from java.lang import String
 from java.util import ArrayList
 from java.util import HashMap
+from java.util import LinkedHashSet
 from org.apache.log4j import Logger
 
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + '.publication-api.py')
@@ -76,6 +78,7 @@ def createDataSets(parameters, sessionToken, v3, sampleIds):
                 containerDatasetsCreations.append(dataSetCreation)
     v3.createDataSets(sessionToken, containerDatasetsCreations)
 
+
 def getDefaultDataStoreCode(v3, sessionToken):
     searchResult = v3.searchDataStores(sessionToken, DataStoreSearchCriteria(), DataStoreFetchOptions())
     return searchResult.objects.get(0).code
@@ -85,11 +88,9 @@ def getGroupsForRelatedIdentifiers(parameters):
     groups = []
     openBISRelatedIdentifiersString = parameters.get('openBISRelatedIdentifiers')
     allIdentifiers = openBISRelatedIdentifiersString.split(',')
-    # operationLog.info('allIdentifiers: %s' % allIdentifiers)
     for identifier in allIdentifiers:
         if identifier.startswith('GROUP:'):
             groups.append(identifier[6:])
-    # operationLog.info('groups: %s' % groups)
     return groups
 
 
@@ -126,13 +127,12 @@ def createPublicationSamples(parameters, sessionToken, v3):
 
     sampleCreations = []
     for groupCode in groupCodes:
-        # operationLog.info('Processing group code %s' % groupCode)
         sampleCreation = SampleCreation()
         sampleCreation.setTypeId(EntityTypePermId('PUBLICATION'))
-        if groupCode == "GENERAL":
-            groupPrefix = ""
+        if groupCode == 'GENERAL':
+            groupPrefix = ''
         else:
-            groupPrefix = groupCode + "_"
+            groupPrefix = groupCode + '_'
         sampleCreation.setExperimentId(ExperimentIdentifier('/' + groupPrefix + 'PUBLICATIONS/' + groupPrefix
                 + 'PUBLIC_REPOSITORIES/' + groupPrefix + 'PUBLICATIONS_COLLECTION'))
         sampleCreation.setSpaceId(SpacePermId(groupPrefix + 'PUBLICATIONS'))
@@ -142,8 +142,10 @@ def createPublicationSamples(parameters, sessionToken, v3):
         sampleCreation.setProperty('$PUBLICATION.IDENTIFIER', publicationIdentifier)
         sampleCreation.setProperty('$PUBLICATION.URL', publicationURL)
         sampleCreation.setProperty('$PUBLICATION.DESCRIPTION', publicationDescription)
-        sampleCreation.setProperty('$PUBLICATION.OPENBIS_RELATED_IDENTIFIERS', openBISRelatedIdentifiers)
+        # Adding identifiers with removed repetitions
+        sampleCreation.setProperty('$PUBLICATION.OPENBIS_RELATED_IDENTIFIERS',
+                                   String.join(', ', LinkedHashSet(openBISRelatedIdentifiers.split(','))))
         sampleCreations.append(sampleCreation)
 
-    # operationLog.info('Creating samples, sampleCreations: %s' % sampleCreations)
+    operationLog.info('Creating publication samples, sampleCreations: %s' % str(sampleCreations))
     return v3.createSamples(sessionToken, sampleCreations)

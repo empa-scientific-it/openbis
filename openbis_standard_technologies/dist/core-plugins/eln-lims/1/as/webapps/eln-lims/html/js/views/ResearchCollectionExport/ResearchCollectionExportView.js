@@ -41,12 +41,15 @@ function ResearchCollectionExportView(researchCollectionExportController, resear
 
         $container.append($form);
 
-        this.paintSubmissionTypeDropdown($container);
-        this.paintRetentionPeriodDropdown($container);
-        ExportUtil.paintGroupCheckboxes($container, "rc-groups");
-
         researchCollectionExportModel.tree = TreeUtil.getCompleteTree($tree);
         researchCollectionExportModel.tableModel = ExportUtil.getTableModel();
+
+        this.paintSubmissionTypeDropdown($container);
+        this.paintRetentionPeriodDropdown($container);
+
+        if (researchCollectionExportModel.tableModel.getValues().length > 0) {
+            ExportUtil.paintGroupCheckboxes($container, "rc-groups");
+        }
 
         var $formTitle = $('<h2>').append('Research Collection Export Builder');
         $header.append($formTitle);
