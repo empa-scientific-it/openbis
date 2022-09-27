@@ -49,24 +49,24 @@ class BrowserNodeClass extends React.PureComponent {
 
   handleClick() {
     const { controller, node } = this.props
-    controller.nodeSelect(node.id)
+    controller.selectNode(node.id)
   }
 
   handleExpand(event) {
     const { controller, node } = this.props
     event.stopPropagation()
-    controller.nodeExpand(node.id)
+    controller.expandNode(node.id)
   }
 
   handleCollapse(event) {
     const { controller, node } = this.props
     event.stopPropagation()
-    controller.nodeCollapse(node.id)
+    controller.collapseNode(node.id)
   }
 
   handleLoadMore() {
     const { controller, node } = this.props
-    controller.nodeLoadMore(node.id)
+    controller.loadMoreNodes(node.id)
   }
 
   render() {

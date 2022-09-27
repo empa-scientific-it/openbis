@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import ComponentContextNamespaced from '@src/js/components/common/ComponentContextNamespaced.js'
-import BrowserSubController from '@src/js/components/common/browser2/BrowserSubController.js'
+import BrowserTreeController from '@src/js/components/common/browser2/BrowserTreeController.js'
 import util from '@src/js/common/util.js'
 
 export default class BrowserController {
@@ -14,7 +14,7 @@ export default class BrowserController {
 
     const controller = this
 
-    class TreeNodesController extends BrowserSubController {
+    class FullTreeController extends BrowserTreeController {
       async doLoadNodes(params) {
         return await controller.doLoadNodes({
           ...params,
@@ -23,7 +23,7 @@ export default class BrowserController {
       }
     }
 
-    class FilteredNodesController extends BrowserSubController {
+    class FilteredTreeController extends BrowserTreeController {
       async doLoadNodes(params) {
         const { filter } = controller.context.getState()
         return await controller.doLoadNodes({
@@ -33,8 +33,8 @@ export default class BrowserController {
       }
     }
 
-    this.treeNodesController = new TreeNodesController()
-    this.filteredNodesController = new FilteredNodesController()
+    this.fullTreeController = new FullTreeController()
+    this.filteredTreeController = new FilteredTreeController()
     this.lastFilterTimeoutId = null
   }
 
@@ -45,20 +45,20 @@ export default class BrowserController {
       filter: null
     })
 
-    this.treeNodesController.init(
-      new ComponentContextNamespaced(context, 'treeNodes', () => ({
+    this.fullTreeController.init(
+      new ComponentContextNamespaced(context, 'fullTree', () => ({
         loadSettings: () => {
-          return this.settings.treeNodes
+          return this.settings.fullTree
         },
         onSettingsChange: settings => {
-          this.settings.treeNodes = settings
+          this.settings.fullTree = settings
           this._saveSettings()
         }
       }))
     )
 
-    this.filteredNodesController.init(
-      new ComponentContextNamespaced(context, 'filteredNodes', () => ({}))
+    this.filteredTreeController.init(
+      new ComponentContextNamespaced(context, 'filteredTree', () => ({}))
     )
 
     this.context = context
@@ -70,7 +70,7 @@ export default class BrowserController {
     })
 
     this.settings = await this._loadSettings()
-    await this.treeNodesController.load()
+    await this.fullTreeController.load()
 
     this.context.setState({
       loaded: true,
@@ -97,61 +97,61 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
-      await this.filteredNodesController.clear()
+      await this.filteredTreeController.clear()
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
-        await this.filteredNodesController.load()
+        await this.filteredTreeController.load()
       }, silentPeriod)
     }
   }
 
-  async nodeLoadMore(nodeId) {
-    await this._getSubController().nodeLoadMore(nodeId)
+  async loadMoreNodes(nodeId) {
+    await this._getTreeController().loadMoreNodes(nodeId)
   }
 
-  async nodeExpand(nodeId) {
-    await this._getSubController().nodeExpand(nodeId)
+  async expandNode(nodeId) {
+    await this._getTreeController().expandNode(nodeId)
   }
 
-  async nodeCollapse(nodeId) {
-    await this._getSubController().nodeCollapse(nodeId)
+  async collapseNode(nodeId) {
+    await this._getTreeController().collapseNode(nodeId)
   }
 
-  async nodeSelect(nodeId) {
-    await this._getSubController().nodeSelect(nodeId)
+  async selectNode(nodeId) {
+    await this._getTreeController().selectNode(nodeId)
   }
 
-  async objectSelect(object) {
-    await this._getSubController().objectSelect(object)
+  async selectObject(object) {
+    await this._getTreeController().selectObject(object)
   }
 
   isLoading() {
     const { loading } = this.context.getState()
-    return loading || this._getSubController().isLoading()
+    return loading || this._getTreeController().isLoading()
   }
 
   isRoot(node) {
-    return BrowserSubController.isRoot(node)
+    return BrowserTreeController.isRoot(node)
   }
 
   getRoot() {
-    return this._getSubController().getRoot()
+    return this._getTreeController().getRoot()
   }
 
   getFullTree() {
-    return this.treeNodesController.getTree()
+    return this.fullTreeController.getTree()
   }
 
   isFullTreeVisible() {
-    return this._getSubController() === this.treeNodesController
+    return this._getTreeController() === this.fullTreeController
   }
 
   getFilteredTree() {
-    return this.filteredNodesController.getTree()
+    return this.filteredTreeController.getTree()
   }
 
   isFilteredTreeVisible() {
-    return this._getSubController() === this.filteredNodesController
+    return this._getTreeController() === this.filteredTreeController
   }
 
   getFilter() {
@@ -159,12 +159,12 @@ export default class BrowserController {
     return filter
   }
 
-  _getSubController() {
+  _getTreeController() {
     const { filter } = this.context.getState()
     if (util.trim(filter)) {
-      return this.filteredNodesController
+      return this.filteredTreeController
     } else {
-      return this.treeNodesController
+      return this.fullTreeController
     }
   }
 

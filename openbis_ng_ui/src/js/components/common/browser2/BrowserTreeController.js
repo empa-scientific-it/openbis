@@ -16,7 +16,7 @@ const ROOT = {
 
 const LOAD_LIMIT = 50
 
-export default class BrowserSubController {
+export default class BrowserTreeController {
   async doLoadNodes() {
     throw 'Method not implemented'
   }
@@ -123,7 +123,7 @@ export default class BrowserSubController {
 
         if (!_.isEmpty(loadedNodesToExpand)) {
           await Promise.all(
-            loadedNodesToExpand.map(node => this._doNodeExpand(state, node.id))
+            loadedNodesToExpand.map(node => this._doExpandNode(state, node.id))
           )
         }
       }
@@ -139,7 +139,7 @@ export default class BrowserSubController {
     })
   }
 
-  async nodeLoadMore(nodeId) {
+  async loadMoreNodes(nodeId) {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
@@ -152,21 +152,21 @@ export default class BrowserSubController {
     }
   }
 
-  async nodeExpand(nodeId) {
+  async expandNode(nodeId) {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
     if (node) {
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
-      await this._doNodeExpand(newState, nodeId)
+      await this._doExpandNode(newState, nodeId)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
       this._saveSettings()
     }
   }
 
-  async _doNodeExpand(state, nodeId) {
+  async _doExpandNode(state, nodeId) {
     const node = state.nodes[nodeId]
 
     if (node) {
@@ -185,19 +185,19 @@ export default class BrowserSubController {
     }
   }
 
-  async nodeCollapse(nodeId) {
+  async collapseNode(nodeId) {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
     if (node) {
       const newState = { ...state }
-      await this._doNodeCollapse(newState, nodeId)
+      await this._doCollapseNode(newState, nodeId)
       await this.context.setState(newState)
       this._saveSettings()
     }
   }
 
-  async _doNodeCollapse(state, nodeId) {
+  async _doCollapseNode(state, nodeId) {
     const node = state.nodes[nodeId]
 
     if (node) {
@@ -212,13 +212,13 @@ export default class BrowserSubController {
     }
   }
 
-  async nodeSelect(nodeId) {
+  async selectNode(nodeId) {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
     if (node) {
       const newState = { ...state }
-      await this._doNodesSelect(newState, node.id, node.object)
+      await this._doSelectNodes(newState, node.id, node.object)
       await this.context.setState(newState)
 
       const { onSelectedChange } = this.context.getState()
@@ -228,15 +228,15 @@ export default class BrowserSubController {
     }
   }
 
-  async objectSelect(object) {
+  async selectObject(object) {
     const state = this.context.getState()
     const newState = { ...state }
 
-    await this._doNodesSelect(newState, null, object)
+    await this._doSelectNodes(newState, null, object)
     await this.context.setState(newState)
   }
 
-  async _doNodesSelect(state, nodeId, nodeObject) {
+  async _doSelectNodes(state, nodeId, nodeObject) {
     state.nodes = { ...state.nodes }
 
     Object.keys(state.nodes).forEach(id => {
