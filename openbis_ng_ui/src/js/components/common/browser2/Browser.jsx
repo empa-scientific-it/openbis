@@ -47,13 +47,6 @@ class Browser extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
 
-    const { loaded } = this.state
-
-    if (!loaded) {
-      return null
-    }
-
-    const { controller } = this
     const { classes } = this.props
 
     return (
@@ -74,41 +67,58 @@ class Browser extends React.PureComponent {
         }}
         className={classes.resizable}
       >
-        <div className={classes.paper}>
-          <FilterField
-            filter={controller.getFilter() || ''}
-            filterChange={controller.filterChange}
-            filterClear={controller.filterClear}
-            loading={controller.isLoading()}
-          />
-          <div
-            className={util.classNames(
-              classes.nodes,
-              controller.isFullTreeVisible() ? classes.visible : classes.hidden
-            )}
-          >
-            <BrowserNode
-              controller={controller}
-              node={controller.getFullTree()}
-              level={-1}
-            />
-          </div>
-          <div
-            className={util.classNames(
-              classes.nodes,
-              controller.isFilteredTreeVisible()
-                ? classes.visible
-                : classes.hidden
-            )}
-          >
-            <BrowserNode
-              controller={controller}
-              node={controller.getFilteredTree()}
-              level={-1}
-            />
-          </div>
-        </div>
+        {this.renderBrowser()}
       </Resizable>
+    )
+  }
+
+  renderBrowser() {
+    const { controller } = this
+    const { classes } = this.props
+
+    if (!this.state.loaded) {
+      return (
+        <div className={classes.paper}>
+          <FilterField loading={true} />
+        </div>
+      )
+    }
+
+    return (
+      <div className={classes.paper}>
+        <FilterField
+          filter={controller.getFilter() || ''}
+          filterChange={controller.filterChange}
+          filterClear={controller.filterClear}
+          loading={controller.isLoading()}
+        />
+        <div
+          className={util.classNames(
+            classes.nodes,
+            controller.isFullTreeVisible() ? classes.visible : classes.hidden
+          )}
+        >
+          <BrowserNode
+            controller={controller}
+            node={controller.getFullTree()}
+            level={-1}
+          />
+        </div>
+        <div
+          className={util.classNames(
+            classes.nodes,
+            controller.isFilteredTreeVisible()
+              ? classes.visible
+              : classes.hidden
+          )}
+        >
+          <BrowserNode
+            controller={controller}
+            node={controller.getFilteredTree()}
+            level={-1}
+          />
+        </div>
+      </div>
     )
   }
 }
