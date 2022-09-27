@@ -48,6 +48,7 @@ Commands:
   settings       Get all settings.
   status         Show the state of the obis repository.
   sync           Sync the repository with openBIS.
+  token          create/show a openBIS token
 ```
 
 To show detailed help for a specific command, type `obis <command> --help` :
@@ -103,6 +104,7 @@ Following settings exist:
 | config     | `hostname`                   | Hostname to be used when cloning / moving a data set to connect to the machine where the original copy is located.                                                                                                                                                                      |
 | config     | `openbis_url`                | URL for connecting to openBIS (only protocol://host:port, without a path).                                                                                                                                                                                                              |
 | config     | `openbis_token`              | Token to use when connecting to openBIS. Can be either a session token or a personal access token. Alternatively, it can be a path to a file containing the token.                                                                                                                      |
+| config     | `session_name`              | The name every personal access token is associated with.                                                                                                                      |
 | config     | `obis_metadata_folder`       | Absolute path to the folder which obis will use to store its metadata. If not set, the metadata will be stored in the same location as the data. This setting can be useful when dealing with read-only access to the data. The clone and move commands will not work when this is set. |
 | config     | `user`                       | User for connecting to openBIS.                                                                                                                                                                                                                                                         |
 | data_set   | `type`                       | Data set type of data sets created by obis.                                                                                                                                                                                                                                             |
@@ -219,6 +221,16 @@ obis removeref
 ```
 
 Obis repository folders can be added or removed from openBIS. This can be useful when a repository was moved or copied without using the `move` or `copy` commands.
+
+**token**
+
+```
+obis token get <session_name> [--validity-days] [--validity-weeks] [--validity-months]
+```
+
+Gets or creates a new personal access token (PAT) and stores it in the obis configuration. If no `session_name` is provided or is not stored in the configuration, you'll be asked interactively. If no validity period is provided, the maximum (configured by the server) is used. If a PAT with this `session_name` already exists and it is going to expire soon (according to server setting `personal_access_tokens_validity_warning_period`), a new PAT will be created, stored in the obis configuration and used for every subsequent request.
+
+
 
 ## Examples
 
