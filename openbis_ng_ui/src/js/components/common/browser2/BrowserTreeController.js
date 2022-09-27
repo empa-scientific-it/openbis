@@ -197,6 +197,26 @@ export default class BrowserTreeController {
     }
   }
 
+  async collapseAllNodes() {
+    const state = this.context.getState()
+
+    const newState = { ...state }
+    newState.nodes = { ...newState.nodes }
+    Object.values(newState.nodes).forEach(node => {
+      if (this.isRoot(node)) {
+        return
+      }
+      newState.nodes[node.id] = {
+        ...node,
+        expanded: false
+      }
+    })
+    newState.expandedIds = {}
+
+    await this.context.setState(newState)
+    this._saveSettings()
+  }
+
   async _doCollapseNode(state, nodeId) {
     const node = state.nodes[nodeId]
 
@@ -310,7 +330,7 @@ export default class BrowserTreeController {
     return root && root.loading
   }
 
-  static isRoot(node) {
+  isRoot(node) {
     return node && node.object && node.object.type === ROOT.object.type
   }
 

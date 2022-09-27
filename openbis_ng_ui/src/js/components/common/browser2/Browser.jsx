@@ -1,9 +1,11 @@
 import React from 'react'
 import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
-import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
+import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import IconButton from '@material-ui/core/IconButton'
+import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 
@@ -12,11 +14,17 @@ const styles = theme => ({
     zIndex: 100,
     position: 'relative'
   },
-  paper: {
+  browser: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     borderRight: `1px solid ${theme.palette.border.primary}`
+  },
+  filterButtons: {
+    marginRight: '8px'
+  },
+  filterButton: {
+    padding: '4px'
   },
   nodes: {
     height: '100%',
@@ -78,19 +86,29 @@ class Browser extends React.PureComponent {
 
     if (!this.state.loaded) {
       return (
-        <div className={classes.paper}>
-          <FilterField loading={true} />
+        <div className={classes.browser}>
+          <FilterField filter={''} loading={true} />
         </div>
       )
     }
 
     return (
-      <div className={classes.paper}>
+      <div className={classes.browser}>
         <FilterField
           filter={controller.getFilter() || ''}
           filterChange={controller.filterChange}
           filterClear={controller.filterClear}
           loading={controller.isLoading()}
+          endAdornments={
+            <div className={classes.filterButtons}>
+              <IconButton
+                onClick={controller.collapseAllNodes}
+                classes={{ root: classes.filterButton }}
+              >
+                <UnfoldLessIcon fontSize='small' />
+              </IconButton>
+            </div>
+          }
         />
         <div
           className={util.classNames(

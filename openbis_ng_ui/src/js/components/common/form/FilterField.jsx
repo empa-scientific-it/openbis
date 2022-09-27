@@ -66,7 +66,7 @@ class FilterField extends React.Component {
         InputProps={{
           inputRef: this.filterRef,
           startAdornment: this.renderFilterIcon(),
-          endAdornment: this.renderFilterClearIcon(),
+          endAdornment: this.renderEndAdornment(),
           classes: {
             input: classes.input,
             underline: classes.underline
@@ -95,6 +95,16 @@ class FilterField extends React.Component {
       >
         {icon}
       </InputAdornment>
+    )
+  }
+
+  renderEndAdornment() {
+    const { endAdornments } = this.props
+    return (
+      <React.Fragment>
+        {this.renderFilterClearIcon()}
+        {endAdornments}
+      </React.Fragment>
     )
   }
 

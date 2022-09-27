@@ -117,6 +117,10 @@ export default class BrowserController {
     await this._getTreeController().collapseNode(nodeId)
   }
 
+  async collapseAllNodes() {
+    await this._getTreeController().collapseAllNodes()
+  }
+
   async selectNode(nodeId) {
     await this._getTreeController().selectNode(nodeId)
   }
@@ -131,7 +135,7 @@ export default class BrowserController {
   }
 
   isRoot(node) {
-    return BrowserTreeController.isRoot(node)
+    return this._getTreeController().isRoot(node)
   }
 
   getRoot() {
