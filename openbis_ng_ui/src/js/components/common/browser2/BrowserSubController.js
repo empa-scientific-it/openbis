@@ -36,6 +36,7 @@ export default class BrowserSubController {
     })
 
     this.lastLoadPromise = {}
+    this.lastTree = null
     this.context = context
   }
 
@@ -49,6 +50,7 @@ export default class BrowserSubController {
       expandedIds: {}
     })
 
+    this.lastTree = null
     this.lastLoadPromise = {}
   }
 
@@ -303,6 +305,11 @@ export default class BrowserSubController {
     }
   }
 
+  isLoading() {
+    const root = this.getRoot()
+    return root && root.loading
+  }
+
   static isRoot(node) {
     return node && node.object && node.object.type === ROOT.object.type
   }
@@ -312,8 +319,72 @@ export default class BrowserSubController {
     return nodes[ROOT.id]
   }
 
-  getNodes() {
+  getTree() {
     const { nodes } = this.context.getState()
-    return nodes
+    this.lastTree = this._getTree(this.lastTree, nodes, ROOT.id)
+    return this.lastTree
+  }
+
+  _getTree(lastTree, nodes, nodeId) {
+    const node = nodes[nodeId]
+
+    if (!node) {
+      return null
+    }
+
+    const treeChanged = !lastTree || lastTree._node !== node
+
+    if (_.isEmpty(node.children)) {
+      if (!treeChanged) {
+        return lastTree
+      } else {
+        return {
+          ...node,
+          _node: node
+        }
+      }
+    } else {
+      const subTrees = []
+      let subTreesChanged = false
+
+      for (let i = 0; i < node.children.length; i++) {
+        const childId = node.children[i]
+        let lastSubTree = null
+
+        if (
+          lastTree &&
+          lastTree.children &&
+          lastTree.children.length > i &&
+          lastTree.children[i].id === childId
+        ) {
+          lastSubTree = lastTree.children[i]
+        }
+
+        const subTree = this._getTree(lastSubTree, nodes, childId)
+
+        if (subTree) {
+          subTrees.push(subTree)
+          if (subTree !== lastSubTree) {
+            subTreesChanged = true
+          }
+        }
+      }
+
+      if (!treeChanged && !subTreesChanged) {
+        return lastTree
+      } else if (subTreesChanged) {
+        return {
+          ...node,
+          _node: node,
+          children: subTrees
+        }
+      } else if (treeChanged) {
+        return {
+          ...node,
+          _node: node,
+          children: lastTree.children
+        }
+      }
+    }
   }
 }

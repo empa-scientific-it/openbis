@@ -56,14 +56,10 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
-    const visibleTree = controller.getRoot() === controller.getTreeRoot()
-    const visibleFiltered =
-      controller.getRoot() === controller.getFilteredRoot()
-
     return (
       <Resizable
         defaultSize={{
-          width: 300,
+          width: '25%',
           height: '100%'
         }}
         enable={{
@@ -83,31 +79,31 @@ class Browser extends React.PureComponent {
             filter={controller.getFilter() || ''}
             filterChange={controller.filterChange}
             filterClear={controller.filterClear}
-            loading={controller.getRoot().loading}
+            loading={controller.isLoading()}
           />
           <div
             className={util.classNames(
               classes.nodes,
-              visibleTree ? classes.visible : classes.hidden
+              controller.isFullTreeVisible() ? classes.visible : classes.hidden
             )}
           >
             <BrowserNode
               controller={controller}
-              node={controller.getTreeRoot()}
-              nodes={controller.getTreeNodes()}
+              node={controller.getFullTree()}
               level={-1}
             />
           </div>
           <div
             className={util.classNames(
               classes.nodes,
-              visibleFiltered ? classes.visible : classes.hidden
+              controller.isFilteredTreeVisible()
+                ? classes.visible
+                : classes.hidden
             )}
           >
             <BrowserNode
               controller={controller}
-              node={controller.getFilteredRoot()}
-              nodes={controller.getFilteredNodes()}
+              node={controller.getFilteredTree()}
               level={-1}
             />
           </div>

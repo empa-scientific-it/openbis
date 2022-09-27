@@ -125,6 +125,11 @@ export default class BrowserController {
     await this._getSubController().objectSelect(object)
   }
 
+  isLoading() {
+    const { loading } = this.context.getState()
+    return loading || this._getSubController().isLoading()
+  }
+
   isRoot(node) {
     return BrowserSubController.isRoot(node)
   }
@@ -133,20 +138,20 @@ export default class BrowserController {
     return this._getSubController().getRoot()
   }
 
-  getTreeRoot() {
-    return this.treeNodesController.getRoot()
+  getFullTree() {
+    return this.treeNodesController.getTree()
   }
 
-  getTreeNodes() {
-    return this.treeNodesController.getNodes()
+  isFullTreeVisible() {
+    return this._getSubController() === this.treeNodesController
   }
 
-  getFilteredRoot() {
-    return this.filteredNodesController.getRoot()
+  getFilteredTree() {
+    return this.filteredNodesController.getTree()
   }
 
-  getFilteredNodes() {
-    return this.filteredNodesController.getNodes()
+  isFilteredTreeVisible() {
+    return this._getSubController() === this.filteredNodesController
   }
 
   getFilter() {
