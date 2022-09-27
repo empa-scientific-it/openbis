@@ -541,7 +541,7 @@ def token(ctx):
     pass
 
 
-@token.command("get", short_help="Get existing personal access token or reate a new one")
+@token.command("get", short_help="Get existing personal access token or create a new one")
 @click.argument("session-name", required=False)
 @click.option("--validity-days", help="Number of days the token is valid")
 @click.option("--validity-weeks", help="Number of weeks the token is valid")

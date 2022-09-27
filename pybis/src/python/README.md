@@ -131,11 +131,11 @@ o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
 Then you can create a new personal access token (PAT) and use it for all further pyBIS queries:
 
 ```python
-pat = o.new_personal_access_token(sessionName="Project A"))
+pat = o.get_or_create_personal_access_token(sessionName="Project A"))
 o.set_token(pat, save_token=True)
 ```
 
-**Note:** If there is an existing PAT with the same _sessionName_ which is still valid (within the validity warning period, defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
+**Note:** If there is an existing PAT with the same _sessionName_ which is still valid and the validity is within the warning period (defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
 
 **Note:** Most operations are permitted using the PAT, _except_:
 
@@ -154,13 +154,13 @@ o.get_personal_access_tokens(sessionName="APPLICATION_1")
 To delete the first token shown in the list:
 
 ```python
-o.get_personal_access_tokens()[0].delete('no specific reason')
+o.get_personal_access_tokens()[0].delete('some reason')
 ```
 
 Or delete any specific: token:
 
 ```python
-o.get_token("$pat-your_username-220804233700046xCA2B5FFE4C57595598489490AA665239").delete('another no-reason')
+o.get_personal_access_token("$pat-your_username-220804233700046xCA2B5FFE4C57595598489490AA665239").delete('another reason')
 ```
 
 ### Caching

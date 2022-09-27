@@ -1152,7 +1152,6 @@ class Openbis:
             "get_property_types()",
             "get_property_type()",
             "get_personal_access_tokens()",
-            "get_personal_access_token()",
             "new_property_type()",
             "get_semantic_annotations()",
             "get_semantic_annotation()",
@@ -1191,7 +1190,7 @@ class Openbis:
             "new_material_type()",
             "new_semantic_annotation()",
             "new_transaction()",
-            "new_personal_access_token()",
+            "get_or_create_personal_access_token()",
             "set_token()",
         ]
 
@@ -1949,7 +1948,7 @@ class Openbis:
     def get_groups(self, start_with=None, count=None, **search_args):
         """Get openBIS AuthorizationGroups. Returns a «Things» object.
 
-        Usage::
+        Usage:
             groups = e.get.groups()
             groups[0]             # select first group
             groups['GROUP_NAME']  # select group with this code
@@ -2022,7 +2021,7 @@ class Openbis:
             df_initializer=create_data_frame,
         )
 
-    def new_personal_access_token(
+    def get_or_create_personal_access_token(
         self,
         sessionName: str,
         validFrom: datetime = datetime.now(),
@@ -2030,13 +2029,13 @@ class Openbis:
         force=False,
     ) -> str:
         """Creates a new personal access token (PAT).  If a PAT with the given sessionName
-        already exists and its expiry date (validToDate) is outside the warning period,
-        the existing PAT is returned.
+        already exists and its expiry date (validToDate) is not within the warning period,
+        the existing PAT is returned instead.
 
         Args:
 
             sessionName (str):    a session name (mandatory)
-            validFrom (datetime): begin of the validity period (default:now)
+            validFrom (datetime): begin of the validity period (default: now)
             validTo (datetime):   end of the validity period (default: validFrom + maximum validity period, as configured in openBIS)
             force (bool):         if set to True, a new PAT is created, regardless of existing ones.
         """
@@ -2101,14 +2100,19 @@ class Openbis:
 
     def get_personal_access_tokens(
         self,
-        permId=None,
         sessionName=None,
         start_with=None,
         count=None,
         save_to_disk=False,
         **search_args,
     ):
-        """Get Personal Access Tokens"""
+        """Get a list of Personal Access Tokens (PAT).
+
+        Args:
+
+            sessionName (str)  :  a session name
+            save_to_disk (bool):  saves the PATs to the disk, in ~/.pybis
+        """
         entity = "personalAccessToken"
 
         search_criteria = get_search_criteria(entity, **search_args)
@@ -2181,6 +2185,14 @@ class Openbis:
         )
 
     def get_personal_access_token(self, permId, only_data=False):
+        """Get a single Personal Access Token (PAT) by its permId.
+        If you want to get the latest PAT for a given sessionName or create a new one,
+        please use the get_or_create_personal_access_token() method instead.
+
+        Args:
+
+            permId (str)  :  The id of the PAT
+        """
         entity = "personalAccessToken"
         identifiers = []
         only_one = True
