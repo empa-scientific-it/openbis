@@ -1,26 +1,26 @@
 package ch.ethz.sis.openbis.generic.asapi.v3;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ApplicationServerAPIExtensions implements Serializable {
-
-    private ApplicationServerAPIExtensions() {
-
-    }
+public interface ApplicationServerAPIExtensions {
 
     /**
      * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
@@ -94,8 +94,40 @@ public class ApplicationServerAPIExtensions implements Serializable {
         return personalAccessTokens.get(0);
     }
 
-    @Override
-    public String toString() {
-        return "ApplicationServerAPIExtensions Utility Class";
+    public static SemanticAnnotationCreation getSemanticSubjectCreation(String subjectClass,
+                                                                             String subjectClassOntologyId,
+                                                                             String subjectClassOntologyVersion,
+                                                                             String subjectClassId) {
+        SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
+        // Subject: Type matching an ontology class
+        semanticAnnotationCreation.setEntityTypeId(new EntityTypePermId(subjectClass, EntityKind.SAMPLE));
+        // Ontology URL
+        semanticAnnotationCreation.setPredicateOntologyId(subjectClassOntologyId);
+        // Ontology Version URL
+        semanticAnnotationCreation.setPredicateOntologyVersion(subjectClassOntologyVersion);
+        // Ontology Class URL
+        semanticAnnotationCreation.setPredicateAccessionId(subjectClassId);
+        return semanticAnnotationCreation;
     }
+
+    public static SemanticAnnotationCreation getSemanticPredicateCreation(String subjectClass,
+                                                                            String predicateProperty,
+                                                                            String predicatePropertyOntologyId,
+                                                                            String predicatePropertyOntologyVersion,
+                                                                            String predicatePropertyId) {
+        SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
+        // Subject: Type matching an ontology class
+        // Predicate: Property matching an ontology class property
+        semanticAnnotationCreation.setPropertyAssignmentId(new PropertyAssignmentPermId(
+                new EntityTypePermId(subjectClass, EntityKind.SAMPLE),
+                new PropertyTypePermId(predicateProperty)));
+        // Ontology URL
+        semanticAnnotationCreation.setPredicateOntologyId(predicatePropertyOntologyId);
+        // Ontology Version URL
+        semanticAnnotationCreation.setPredicateOntologyVersion(predicatePropertyOntologyVersion);
+        // Ontology Property URL
+        semanticAnnotationCreation.setPredicateAccessionId(predicatePropertyId);
+        return semanticAnnotationCreation;
+    }
+
 }
