@@ -186,8 +186,10 @@ public abstract class ApplicationServerAPIExtensions {
         semanticFetchOptions.withEntityType();
 
         // Request and collect predicates
-        for (String predicate:predicatePropertiesOrNull.keySet()) {
-            semanticCriteria.withPredicateAccessionId().thatEquals(predicate);
+        if (predicatePropertiesOrNull != null) {
+            for (String predicate : predicatePropertiesOrNull.keySet()) {
+                semanticCriteria.withPredicateAccessionId().thatEquals(predicate);
+            }
         }
         PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = semanticFetchOptions.withPropertyAssignment();
         propertyAssignmentFetchOptions.withPropertyType();
@@ -215,18 +217,26 @@ public abstract class ApplicationServerAPIExtensions {
         }
 
         if (entityTypeCode == null) {
-            throw new UserFailureException("Sample Type matching Subject not found.");
+            throw new UserFailureException("Entity Type matching Subject not found.");
         }
 
         // Set Predicates matching the Subject
-        for (SemanticAnnotation semanticAnnotation:semanticAnnotationSearchResult.getObjects()) {
-            if (semanticAnnotation.getPropertyAssignment() != null &&
-                semanticAnnotation.getPropertyAssignment().getEntityType().getCode().equals(entityTypeCode)) {
-                EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getPropertyAssignment().getEntityType().getPermId();
-                if (permId.getEntityKind() == entityKind) {
-                    String value = predicatePropertiesOrNull.get(semanticAnnotation.getPredicateAccessionId());
-                    criteria.withProperty(semanticAnnotation.getPropertyAssignment().getPropertyType().getCode()).thatEquals(value);
+        if (predicatePropertiesOrNull != null) {
+            int predicatesFound = 0;
+            for (SemanticAnnotation semanticAnnotation : semanticAnnotationSearchResult.getObjects()) {
+                if (semanticAnnotation.getPropertyAssignment() != null &&
+                        semanticAnnotation.getPropertyAssignment().getEntityType().getCode().equals(entityTypeCode)) {
+                    EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getPropertyAssignment().getEntityType().getPermId();
+                    if (permId.getEntityKind() == entityKind) {
+                        String value = predicatePropertiesOrNull.get(semanticAnnotation.getPredicateAccessionId());
+                        criteria.withProperty(semanticAnnotation.getPropertyAssignment().getPropertyType().getCode()).thatEquals(value);
+                        predicatesFound++;
+                    }
                 }
+            }
+
+            if (predicatesFound != predicatePropertiesOrNull.size()) {
+                throw new UserFailureException("Property Types matching Predicates not found.");
             }
         }
 
