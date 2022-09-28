@@ -8,9 +8,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -20,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public interface ApplicationServerAPIExtensions {
+public abstract class ApplicationServerAPIExtensions {
 
     /**
      * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
@@ -94,6 +101,10 @@ public interface ApplicationServerAPIExtensions {
         return personalAccessTokens.get(0);
     }
 
+    /**
+     * This utility method provides a simplified API to create subject semantic annotations
+     *
+     */
     public static SemanticAnnotationCreation getSemanticSubjectCreation(String subjectClass,
                                                                              String subjectClassOntologyId,
                                                                              String subjectClassOntologyVersion,
@@ -110,6 +121,10 @@ public interface ApplicationServerAPIExtensions {
         return semanticAnnotationCreation;
     }
 
+    /**
+     * This utility method provides a simplified API to create predicate semantic annotations
+     *
+     */
     public static SemanticAnnotationCreation getSemanticPredicateCreation(String subjectClass,
                                                                             String predicateProperty,
                                                                             String predicatePropertyOntologyId,
@@ -128,6 +143,79 @@ public interface ApplicationServerAPIExtensions {
         // Ontology Property URL
         semanticAnnotationCreation.setPredicateAccessionId(predicatePropertyId);
         return semanticAnnotationCreation;
+    }
+
+    /**
+     * This utility method provides a simplified API to search based on semantic subjects and predicates
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public static SearchResult<Sample> searchSamplesWithSemanticAnnotations(IApplicationServerApi v3,
+                                                                        String sessionToken,
+                                                                        String subjectClassOrNull,
+                                                                        Map<String, String> predicatePropertiesOrNull,
+                                                                        SampleFetchOptions sampleFetchOptions) {
+        //
+        // Part 1 : Translate semantic classes and properties into openBIS types and property types
+        //
+
+        SemanticAnnotationSearchCriteria semanticCriteria = new SemanticAnnotationSearchCriteria();
+        semanticCriteria.withOrOperator();
+
+        SemanticAnnotationFetchOptions semanticFetchOptions = new SemanticAnnotationFetchOptions();
+
+        // Request and collect subjects
+        if (subjectClassOrNull != null) {
+            semanticCriteria.withPredicateAccessionId().thatEquals(subjectClassOrNull);
+        }
+        semanticFetchOptions.withEntityType();
+
+        // Request and collect predicates
+        for (String predicate:predicatePropertiesOrNull.keySet()) {
+            semanticCriteria.withPredicateAccessionId().thatEquals(predicate);
+        }
+        PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = semanticFetchOptions.withPropertyAssignment();
+        propertyAssignmentFetchOptions.withPropertyType();
+        propertyAssignmentFetchOptions.withEntityType();
+
+        SearchResult<SemanticAnnotation> semanticAnnotationSearchResult = v3.searchSemanticAnnotations(sessionToken, new SemanticAnnotationSearchCriteria(), new SemanticAnnotationFetchOptions());
+
+        //
+        // Part 2 : Create openBIS search matching semantic results
+        //
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAndOperator();
+
+        // Set Subject
+        String sampleTypeCode = null;
+        for (SemanticAnnotation semanticAnnotation:semanticAnnotationSearchResult.getObjects()) {
+            if (semanticAnnotation.getEntityType() != null) {
+                EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getEntityType().getPermId();
+                if (permId.getEntityKind() == EntityKind.SAMPLE) {
+                    sampleTypeCode = semanticAnnotation.getEntityType().getCode();
+                    criteria.withType().withCode().thatEquals(sampleTypeCode);
+                }
+            }
+        }
+
+        if (sampleTypeCode == null) {
+            throw new UserFailureException("Sample Type matching Subject not found.");
+        }
+
+        // Set Predicates matching the Subject
+        for (SemanticAnnotation semanticAnnotation:semanticAnnotationSearchResult.getObjects()) {
+            if (semanticAnnotation.getPropertyAssignment() != null &&
+                semanticAnnotation.getPropertyAssignment().getEntityType().getCode().equals(sampleTypeCode)) {
+                EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getPropertyAssignment().getEntityType().getPermId();
+                if (permId.getEntityKind() == EntityKind.SAMPLE) {
+                    String value = predicatePropertiesOrNull.get(semanticAnnotation.getPredicateAccessionId());
+                    criteria.withProperty(semanticAnnotation.getPropertyAssignment().getPropertyType().getCode()).thatEquals(value);
+                }
+            }
+        }
+
+        return v3.searchSamples(sessionToken, criteria, sampleFetchOptions);
     }
 
 }
