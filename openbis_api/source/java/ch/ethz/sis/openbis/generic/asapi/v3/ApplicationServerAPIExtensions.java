@@ -1,28 +1,11 @@
 package ch.ethz.sis.openbis.generic.asapi.v3;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -40,7 +23,10 @@ public abstract class ApplicationServerAPIExtensions {
      *
      * @throws UserFailureException in case of any problems
      */
-    public static PersonalAccessTokenPermId getManagedPersonalAccessToken(IApplicationServerApi v3, String sessionToken, String sessionName) {
+    public static PersonalAccessTokenPermId getManagedPersonalAccessToken(IApplicationServerApi v3,
+                                                                          String sessionToken,
+                                                                          String sessionName)
+    {
         final int SECONDS_PER_DAY = 24 * 60 * 60;
 
         // Obtain servers renewal information
@@ -64,37 +50,48 @@ public abstract class ApplicationServerAPIExtensions {
         PersonalAccessTokenPermId bestTokenFoundPermId = null;
 
         // Obtain longer lasting application token
-        for (PersonalAccessToken personalAccessToken : personalAccessTokenSearchResult.getObjects()) {
-            if (personalAccessToken.getValidToDate().after(new Date())) {
-                if (bestTokenFound == null) {
+        for (PersonalAccessToken personalAccessToken : personalAccessTokenSearchResult.getObjects())
+        {
+            if (personalAccessToken.getValidToDate().after(new Date()))
+            {
+                if (bestTokenFound == null)
+                {
                     bestTokenFound = personalAccessToken;
-                } else if (personalAccessToken.getValidToDate().after(bestTokenFound.getValidToDate())) {
+                } else if (personalAccessToken.getValidToDate().after(bestTokenFound.getValidToDate()))
+                {
                     bestTokenFound = personalAccessToken;
                 }
             }
         }
 
         // If best token doesn't exist, create
-        if (bestTokenFound == null) {
+        if (bestTokenFound == null)
+        {
             bestTokenFoundPermId = createManagedPersonalAccessToken(v3, sessionToken, sessionName, personalAccessTokensMaxValidityPeriodInDays);
         }
 
         // If best token is going to expire in less than the warning period, renew
         Calendar renewalDate = Calendar.getInstance();
         renewalDate.add(Calendar.DAY_OF_MONTH, personalAccessTokensRenewalPeriodInDays);
-        if (bestTokenFound != null && bestTokenFound.getValidToDate().before(renewalDate.getTime())) {
+        if (bestTokenFound != null && bestTokenFound.getValidToDate().before(renewalDate.getTime()))
+        {
             bestTokenFoundPermId = createManagedPersonalAccessToken(v3, sessionToken, sessionName, personalAccessTokensMaxValidityPeriodInDays);
         }
 
         // If we have not created or renewed, return current
-        if (bestTokenFoundPermId == null) {
+        if (bestTokenFoundPermId == null)
+        {
             bestTokenFoundPermId = bestTokenFound.getPermId();
         }
 
         return bestTokenFoundPermId;
     }
 
-    private static PersonalAccessTokenPermId createManagedPersonalAccessToken(IApplicationServerApi v3, String sessionToken, String applicationName, int personalAccessTokensMaxValidityPeriodInDays) {
+    private static PersonalAccessTokenPermId createManagedPersonalAccessToken(IApplicationServerApi v3,
+                                                                              String sessionToken,
+                                                                              String applicationName,
+                                                                              int personalAccessTokensMaxValidityPeriodInDays)
+    {
         final int SECONDS_PER_DAY = 24 * 60 * 60;
         final int MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
 
