@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.Semant
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import jnr.ffi.annotations.In;
 
 import java.util.Calendar;
 import java.util.Date;
