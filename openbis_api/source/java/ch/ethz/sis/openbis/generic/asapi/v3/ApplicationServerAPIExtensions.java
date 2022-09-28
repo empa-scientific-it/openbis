@@ -1,8 +1,14 @@
 package ch.ethz.sis.openbis.generic.asapi.v3;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
@@ -21,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.Semant
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import jnr.ffi.annotations.In;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -150,11 +157,20 @@ public abstract class ApplicationServerAPIExtensions {
      *
      * @throws UserFailureException in case of any problems
      */
-    public static SearchResult<Sample> searchSamplesWithSemanticAnnotations(IApplicationServerApi v3,
-                                                                        String sessionToken,
-                                                                        String subjectClassOrNull,
-                                                                        Map<String, String> predicatePropertiesOrNull,
-                                                                        SampleFetchOptions sampleFetchOptions) {
+    public static SearchResult searchEntityWithSemanticAnnotations(IApplicationServerApi v3,
+                                                                           String sessionToken,
+                                                                           EntityKind entityKind,
+                                                                           String subjectClassOrNull,
+                                                                           Map<String, String> predicatePropertiesOrNull,
+                                                                           Integer fromOrNull,
+                                                                           Integer countOrNull) {
+        if (entityKind == null) {
+            throw new UserFailureException("entityKind cannot be null");
+        }
+        if (entityKind == EntityKind.DATA_SET) {
+            throw new UserFailureException("EntityKind.DATA_SET is not supported");
+        }
+
         //
         // Part 1 : Translate semantic classes and properties into openBIS types and property types
         //
@@ -184,38 +200,109 @@ public abstract class ApplicationServerAPIExtensions {
         // Part 2 : Create openBIS search matching semantic results
         //
 
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        AbstractEntitySearchCriteria criteria = getEntitySearchCriteria(entityKind);
         criteria.withAndOperator();
 
         // Set Subject
-        String sampleTypeCode = null;
+        String entityTypeCode = null;
         for (SemanticAnnotation semanticAnnotation:semanticAnnotationSearchResult.getObjects()) {
             if (semanticAnnotation.getEntityType() != null) {
                 EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getEntityType().getPermId();
-                if (permId.getEntityKind() == EntityKind.SAMPLE) {
-                    sampleTypeCode = semanticAnnotation.getEntityType().getCode();
-                    criteria.withType().withCode().thatEquals(sampleTypeCode);
+                if (permId.getEntityKind() == entityKind) {
+                    entityTypeCode = semanticAnnotation.getEntityType().getCode();
+                    setWithTypeThatEquals(entityKind, criteria, entityTypeCode);
                 }
             }
         }
 
-        if (sampleTypeCode == null) {
+        if (entityTypeCode == null) {
             throw new UserFailureException("Sample Type matching Subject not found.");
         }
 
         // Set Predicates matching the Subject
         for (SemanticAnnotation semanticAnnotation:semanticAnnotationSearchResult.getObjects()) {
             if (semanticAnnotation.getPropertyAssignment() != null &&
-                semanticAnnotation.getPropertyAssignment().getEntityType().getCode().equals(sampleTypeCode)) {
+                semanticAnnotation.getPropertyAssignment().getEntityType().getCode().equals(entityTypeCode)) {
                 EntityTypePermId permId = (EntityTypePermId) semanticAnnotation.getPropertyAssignment().getEntityType().getPermId();
-                if (permId.getEntityKind() == EntityKind.SAMPLE) {
+                if (permId.getEntityKind() == entityKind) {
                     String value = predicatePropertiesOrNull.get(semanticAnnotation.getPredicateAccessionId());
                     criteria.withProperty(semanticAnnotation.getPropertyAssignment().getPropertyType().getCode()).thatEquals(value);
                 }
             }
         }
 
-        return v3.searchSamples(sessionToken, criteria, sampleFetchOptions);
+        FetchOptions fetchOptions = getEntityFetchOptions(entityKind);
+        if (fromOrNull != null) {
+            fetchOptions.from(fromOrNull);
+        }
+        if (countOrNull != null) {
+            fetchOptions.count(countOrNull);
+        }
+
+        SearchResult searchResult = getSearchResult(v3, sessionToken, entityKind, criteria, fetchOptions);
+        return searchResult;
+    }
+
+    private static void setWithTypeThatEquals(EntityKind entityKind, AbstractEntitySearchCriteria criteria, String entityTypeCode) {
+        switch (entityKind) {
+            case EXPERIMENT:
+                ((ExperimentSearchCriteria) criteria).withType().withCode().thatEquals(entityTypeCode);
+                break;
+            case SAMPLE:
+                ((SampleSearchCriteria) criteria).withType().withCode().thatEquals(entityTypeCode);
+                break;
+            case DATA_SET:
+                ((DataSetSearchCriteria) criteria).withType().withCode().thatEquals(entityTypeCode);
+                break;
+        }
+    }
+
+    private static AbstractEntitySearchCriteria getEntitySearchCriteria(EntityKind entityKind) {
+        AbstractEntitySearchCriteria criteria = null;
+        switch (entityKind) {
+            case EXPERIMENT:
+                criteria = new ExperimentSearchCriteria();
+                break;
+            case SAMPLE:
+                criteria = new SampleSearchCriteria();
+                break;
+            case DATA_SET:
+                criteria = new DataSetSearchCriteria();
+                break;
+        }
+        return criteria;
+    }
+
+    private static FetchOptions getEntityFetchOptions(EntityKind entityKind) {
+        FetchOptions fetchOptions = null;
+        switch (entityKind) {
+            case EXPERIMENT:
+                fetchOptions = new ExperimentFetchOptions();
+                break;
+            case SAMPLE:
+                fetchOptions = new SampleFetchOptions();
+                break;
+            case DATA_SET:
+                fetchOptions = new DataSetFetchOptions();
+                break;
+        }
+        return fetchOptions;
+    }
+
+    private static SearchResult getSearchResult(IApplicationServerApi v3, String sessionToken, EntityKind entityKind, AbstractEntitySearchCriteria criteria, FetchOptions fetchOptions) {
+        SearchResult searchResult = null;
+        switch (entityKind) {
+            case EXPERIMENT:
+                searchResult = v3.searchExperiments(sessionToken, (ExperimentSearchCriteria) criteria, (ExperimentFetchOptions) fetchOptions);
+                break;
+            case SAMPLE:
+                searchResult = v3.searchSamples(sessionToken, (SampleSearchCriteria) criteria, (SampleFetchOptions) fetchOptions);
+                break;
+            case DATA_SET:
+                searchResult = v3.searchDataSets(sessionToken, (DataSetSearchCriteria) criteria, (DataSetFetchOptions) fetchOptions);
+                break;
+        }
+        return searchResult;
     }
 
 }
