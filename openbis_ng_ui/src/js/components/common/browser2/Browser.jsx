@@ -4,9 +4,8 @@ import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
-import BrowserSortings from '@src/js/components/common/browser2/BrowserSortings.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
+import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 
@@ -22,10 +21,11 @@ const styles = theme => ({
     borderRight: `1px solid ${theme.palette.border.primary}`
   },
   filterButtons: {
-    marginRight: '8px'
+    marginRight: '8px',
+    display: 'flex'
   },
   filterButton: {
-    padding: '4px'
+    marginLeft: '8px'
   },
   nodes: {
     height: '100%',
@@ -135,21 +135,6 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
-    const changeSortingButton = (
-      <BrowserSortings
-        node={controller.getRoot()}
-        onChange={controller.changeSorting}
-      />
-    )
-    const collapseAllButton = (
-      <IconButton
-        onClick={controller.collapseAllNodes}
-        classes={{ root: classes.filterButton }}
-      >
-        <UnfoldLessIcon fontSize='small' />
-      </IconButton>
-    )
-
     return (
       <FilterField
         filter={controller.getFilter() || ''}
@@ -158,8 +143,18 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
-            {changeSortingButton}
-            {collapseAllButton}
+            <div className={classes.filterButton}>
+              <BrowserNodeCollapseAll
+                node={controller.getRoot()}
+                onClick={controller.collapseAllNodes}
+              />
+            </div>
+            <div className={classes.filterButton}>
+              <BrowserNodeSortings
+                node={controller.getRoot()}
+                onChange={controller.changeSorting}
+              />
+            </div>
           </div>
         }
       />

@@ -117,8 +117,8 @@ export default class BrowserController {
     await this._getTreeController().collapseNode(nodeId)
   }
 
-  async collapseAllNodes() {
-    await this._getTreeController().collapseAllNodes()
+  async collapseAllNodes(nodeId) {
+    await this._getTreeController().collapseAllNodes(nodeId)
   }
 
   async selectNode(nodeId) {

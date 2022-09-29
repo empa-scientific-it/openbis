@@ -10,7 +10,8 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
-import BrowserSortings from '@src/js/components/common/browser2/BrowserSortings.jsx'
+import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
 import messages from '@src/js/common/messages.js'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
@@ -20,7 +21,10 @@ const PADDING_PER_LEVEL = 24
 const styles = theme => ({
   item: {
     paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(1),
+    '&:hover $options': {
+      visibility: 'visible'
+    }
   },
   icon: {
     margin: '-2px 4px -2px 8px',
@@ -36,6 +40,13 @@ const styles = theme => ({
   list: {
     paddingTop: '0',
     paddingBottom: '0'
+  },
+  options: {
+    visibility: 'hidden',
+    display: 'flex'
+  },
+  option: {
+    paddingLeft: '8px'
   }
 })
 
@@ -47,6 +58,7 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleCollapse = this.handleCollapse.bind(this)
     this.handleLoadMore = this.handleLoadMore.bind(this)
     this.handleSortingChange = this.handleSortingChange.bind(this)
+    this.handleCollapseAll = this.handleCollapseAll.bind(this)
   }
 
   handleClick() {
@@ -76,6 +88,11 @@ class BrowserNodeClass extends React.PureComponent {
     controller.changeSorting(nodeId, sortingId)
   }
 
+  handleCollapseAll(nodeId) {
+    const { controller } = this.props
+    controller.collapseAllNodes(nodeId)
+  }
+
   render() {
     logger.log(logger.DEBUG, 'BrowserNode.render')
 
@@ -95,6 +112,7 @@ class BrowserNodeClass extends React.PureComponent {
           >
             {this.renderIcon(node)}
             {this.renderText(node)}
+            {this.renderOptions(node)}
           </ListItem>
         )}
         {this.renderChildren()}
@@ -144,22 +162,34 @@ class BrowserNodeClass extends React.PureComponent {
 
     const { classes } = this.props
 
-    const content = (
-      <span>
-        {node.text}
-        {!_.isEmpty(node.children) && (
-          <BrowserSortings node={node} onChange={this.handleSortingChange} />
-        )}
-      </span>
-    )
-
     return (
       <ListItemText
-        primary={content}
+        primary={node.text}
         classes={{
           primary: classes.text
         }}
       />
+    )
+  }
+
+  renderOptions(node) {
+    const { classes } = this.props
+
+    return (
+      <div className={classes.options}>
+        <div className={classes.option}>
+          <BrowserNodeCollapseAll
+            node={node}
+            onClick={this.handleCollapseAll}
+          />
+        </div>
+        <div className={classes.option}>
+          <BrowserNodeSortings
+            node={node}
+            onChange={this.handleSortingChange}
+          />
+        </div>
+      </div>
     )
   }
 

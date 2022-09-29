@@ -10,9 +10,14 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({})
+const styles = () => ({
+  button: {
+    padding: '4px',
+    margin: '-4px'
+  }
+})
 
-class BrowserSortings extends React.PureComponent {
+class BrowserNodeSortings extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -41,15 +46,11 @@ class BrowserSortings extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'BrowserSortings.render')
+    logger.log(logger.DEBUG, 'BrowserNodeSortings.render')
 
-    const { node } = this.props
+    const { node, classes } = this.props
 
-    if (
-      _.isEmpty(node) ||
-      _.isEmpty(node.sortings) ||
-      _.isEmpty(node.sortingId)
-    ) {
+    if (!node || !node.canHaveChildren || _.isEmpty(node.sortings)) {
       return null
     }
 
@@ -57,7 +58,10 @@ class BrowserSortings extends React.PureComponent {
 
     return (
       <div>
-        <IconButton onClick={this.handleOpen}>
+        <IconButton
+          onClick={this.handleOpen}
+          classes={{ root: classes.button }}
+        >
           <Sort fontSize='small' />
         </IconButton>
         <Popover
@@ -103,4 +107,4 @@ class BrowserSortings extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(BrowserSortings)
+export default withStyles(styles)(BrowserNodeSortings)
