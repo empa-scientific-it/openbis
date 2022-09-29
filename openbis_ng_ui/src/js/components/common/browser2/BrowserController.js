@@ -129,8 +129,8 @@ export default class BrowserController {
     await this._getTreeController().selectObject(object)
   }
 
-  async changeSorting(nodeId, sorting) {
-    await this._getTreeController().changeSorting(nodeId, sorting)
+  async changeSorting(nodeId, sortingId) {
+    await this._getTreeController().changeSorting(nodeId, sortingId)
   }
 
   isLoading() {

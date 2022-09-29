@@ -20,13 +20,17 @@ export default class BrowserTreeController {
   async clear() {
     const root = await this.doLoadNodes({})
 
+    if (_.isEmpty(root) || _.isEmpty(root.id)) {
+      throw new Error('Browser root node and its id cannot be empty')
+    }
+
     await this.context.setState({
       rootId: root.id,
       nodes: { [root.id]: root },
       selectedId: null,
       selectedObject: null,
       expandedIds: {},
-      sortings: {}
+      sortingIds: {}
     })
 
     this.lastTree = null
@@ -90,7 +94,8 @@ export default class BrowserTreeController {
             expanded: !!state.expandedIds[loadedNode.id],
             children: loadedNode.children
               ? loadedNode.children.map(child => child.id)
-              : []
+              : [],
+            sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId
           }
           state.nodes[newNode.id] = newNode
           loadedNodesIds.push(newNode.id)
@@ -108,7 +113,7 @@ export default class BrowserTreeController {
       }
 
       state.nodes[nodeId] = {
-        ...state.nodes[nodeId],
+        ...node,
         loaded: true,
         loadedCount: offset + limit,
         totalCount: loadedNodes.totalCount,
@@ -256,7 +261,7 @@ export default class BrowserTreeController {
     state.selectedObject = nodeObject
   }
 
-  async changeSorting(nodeId, sorting) {
+  async changeSorting(nodeId, sortingId) {
     const state = this.context.getState()
 
     await this._setNodeLoading(nodeId, true)
@@ -264,10 +269,10 @@ export default class BrowserTreeController {
     newState.nodes = { ...newState.nodes }
     newState.nodes[nodeId] = {
       ...newState.nodes[nodeId],
-      sorting: sorting
+      sortingId: sortingId
     }
-    newState.sortings = { ...newState.sortings }
-    newState.sortings[nodeId] = sorting
+    newState.sortingIds = { ...newState.sortingIds }
+    newState.sortingIds[nodeId] = sortingId
     await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
     await this.context.setState(newState)
     await this._setNodeLoading(nodeId, false)
@@ -306,6 +311,10 @@ export default class BrowserTreeController {
       settings.expandedIds = loaded.expandedIds
     }
 
+    if (_.isObject(loaded.sortingIds)) {
+      settings.sortingIds = loaded.sortingIds
+    }
+
     return settings
   }
 
@@ -313,10 +322,11 @@ export default class BrowserTreeController {
     const { onSettingsChange } = this.context.getProps()
 
     if (onSettingsChange) {
-      const { expandedIds } = this.context.getState()
+      const { expandedIds, sortingIds } = this.context.getState()
 
       const settings = {
-        expandedIds
+        expandedIds,
+        sortingIds
       }
 
       onSettingsChange(settings)

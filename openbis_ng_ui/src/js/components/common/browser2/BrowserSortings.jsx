@@ -35,10 +35,7 @@ class BrowserSortings extends React.PureComponent {
   handleChange(event) {
     const { node, onChange } = this.props
     if (onChange) {
-      const sorting = node.sortings.find(
-        sorting => sorting.label === event.target.value
-      )
-      onChange(node.id, sorting)
+      onChange(node.id, event.target.value)
     }
   }
 
@@ -47,7 +44,7 @@ class BrowserSortings extends React.PureComponent {
 
     const { node } = this.props
 
-    if (_.isEmpty(node.sortings)) {
+    if (_.isEmpty(node.sortings) || _.isEmpty(node.sortingId)) {
       return null
     }
 
@@ -80,15 +77,18 @@ class BrowserSortings extends React.PureComponent {
   renderSortings() {
     const { node } = this.props
 
-    const options = node.sortings.map(sorting => ({
-      label: sorting.label,
-      value: sorting.label
-    }))
+    const options = Object.entries(node.sortings)
+      .map(([id, sorting]) => ({
+        value: id,
+        label: sorting.label,
+        index: sorting.index
+      }))
+      .sort(option => option.index)
 
     return (
       <RadioGroupField
         name='sorting'
-        value={node.sorting ? node.sorting.label : null}
+        value={node.sortingId}
         options={options}
         onChange={this.handleChange}
       />

@@ -1,24 +1,32 @@
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
 
-const SORTINGS = [
-  {
+const SORTINGS = {
+  code_asc: {
     label: 'Code ASC',
     sortBy: 'code',
-    sortDirection: 'asc'
+    sortDirection: 'asc',
+    index: 0
   },
-  { label: 'Code DESC', sortBy: 'code', sortDirection: 'desc' },
-  {
+  code_desc: {
+    label: 'Code DESC',
+    sortBy: 'code',
+    sortDirection: 'desc',
+    index: 1
+  },
+  registration_date_asc: {
     label: 'Registration Date ASC',
     sortBy: 'registrationDate',
-    sortDirection: 'asc'
+    sortDirection: 'asc',
+    index: 2
   },
-  {
+  registration_date_desc: {
     label: 'Registration Date DESC',
     sortBy: 'registrationDate',
-    sortDirection: 'desc'
+    sortDirection: 'desc',
+    index: 3
   }
-]
+}
 
 export default class UserBrowserController extends BrowserController {
   async doLoadNodes(params) {
@@ -32,7 +40,8 @@ export default class UserBrowserController extends BrowserController {
           type: 'root'
         },
         canHaveChildren: true,
-        sortings: SORTINGS
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
       }
     } else if (node.object.type === 'root') {
       if (filter === null) {
@@ -112,10 +121,11 @@ export default class UserBrowserController extends BrowserController {
     }
 
     const fetchOptions = new openbis.SpaceFetchOptions()
-    if (node.sorting) {
-      fetchOptions.sortBy()[node.sorting.sortBy]()[node.sorting.sortDirection]()
-    } else {
-      fetchOptions.sortBy().code().asc()
+    if (node.sortings && node.sortingId) {
+      const sorting = node.sortings[node.sortingId]
+      if (sorting) {
+        fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
+      }
     }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
