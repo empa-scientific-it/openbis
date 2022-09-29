@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import Sort from '@material-ui/icons/Sort'
+import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Popover from '@material-ui/core/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
@@ -72,7 +73,9 @@ class BrowserSortings extends React.PureComponent {
             horizontal: 'left'
           }}
         >
-          <Container square={true}>{this.renderSortings()}</Container>
+          <Mask visible={node.loading}>
+            <Container square={true}>{this.renderSortings()}</Container>
+          </Mask>
         </Popover>
       </div>
     )
