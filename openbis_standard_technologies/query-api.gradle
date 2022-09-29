@@ -279,3 +279,22 @@ task dropboxJavaDocZip(type: Zip, dependsOn: dropboxApiJavadoc) {
     archiveName 'javadoc-dropbox-api.zip'
     from dropboxApiJavadoc.destinationDir
 }
+
+/////////// DYNAMIC PROPERTIES API ////////////////////
+
+configurations.create('dynamicApiJavadoc')
+dependencies {
+    dynamicApiJavadoc project(':openbis')
+}
+
+task dynamicApiJavadoc(type: Javadoc) {
+    source project(':openbis').files('source/java').getAsFileTree().matching {
+        include "ch/systemsx/cisd/openbis/generic/shared/hotdeploy_plugins/api/*.java"
+    }
+    classpath = configurations.dynamicApiJavadoc
+}
+
+task dynamicApiJavadocZip(type: Zip, dependsOn: dynamicApiJavadoc) {
+    archiveName 'javadoc-dynamic-api.zip'
+    from dropboxApiJavadoc.destinationDir
+}
