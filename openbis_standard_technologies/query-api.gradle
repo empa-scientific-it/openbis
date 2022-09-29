@@ -259,3 +259,23 @@ task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, ap
   from configurations.apiV3Dependencies
   into 'openBIS-API-V3'
 }
+
+/////////// DROPBOX API V2 ////////////////////
+
+configurations.create('dropboxApiJavadoc')
+dependencies {
+    dropboxApiJavadoc project(':datastore_server')
+}
+
+task dropboxApiJavadoc(type: Javadoc) {
+    source project(':datastore_server').files('source/java').getAsFileTree().matching {
+        include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.java"
+        include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.java"
+    }
+    classpath = configurations.dropboxApiJavadoc
+}
+
+task dropboxJavaDocZip(type: Zip, dependsOn: dropboxApiJavadoc) {
+    archiveName 'javadoc-dropbox-api.zip'
+    from dropboxApiJavadoc.destinationDir
+}

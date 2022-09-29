@@ -475,7 +475,7 @@ task obisZip(type: Zip) {
   from '../obis/'
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip]) {
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
@@ -483,6 +483,7 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from screeningApiZip.archivePath
   from pybisZip.archivePath
   from obisZip.archivePath
+  from dropboxJavaDocZip.archivePath
   from ('dist/client/readme.txt')
   rename { filename ->
     if (filename.startsWith('pybis-')) {

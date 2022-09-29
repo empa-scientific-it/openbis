@@ -29,8 +29,8 @@ configurations.all {
 //    gradleVersion = '4.10.3'
 //    distributionUrl = "https://services.gradle.org/distributions/gradle-4.10.3-bin.zip"
 //}
-sourceCompatibility='1.8'
-targetCompatibility='1.8'
+sourceCompatibility='11'
+targetCompatibility='11'
 
 sourceSets { 
     main {
@@ -403,5 +403,6 @@ publish {
 if (JavaVersion.current().isJava8Compatible()) {
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'utf-8')
     }
 }
