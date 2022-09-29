@@ -144,7 +144,9 @@ export default class UserBrowserController extends BrowserController {
         type: 'space',
         id: space.getCode()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      sortings: SORTINGS,
+      sortingId: 'code_asc'
     }))
 
     return {
@@ -165,7 +167,12 @@ export default class UserBrowserController extends BrowserController {
     }
 
     const fetchOptions = new openbis.ProjectFetchOptions()
-    fetchOptions.sortBy().code().asc()
+    if (node.sortings && node.sortingId) {
+      const sorting = node.sortings[node.sortingId]
+      if (sorting) {
+        fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
+      }
+    }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
 
@@ -178,7 +185,9 @@ export default class UserBrowserController extends BrowserController {
         type: 'project',
         id: project.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      sortings: SORTINGS,
+      sortingId: 'code_asc'
     }))
 
     return {
@@ -199,7 +208,12 @@ export default class UserBrowserController extends BrowserController {
     }
 
     const fetchOptions = new openbis.ExperimentFetchOptions()
-    fetchOptions.sortBy().code().asc()
+    if (node.sortings && node.sortingId) {
+      const sorting = node.sortings[node.sortingId]
+      if (sorting) {
+        fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
+      }
+    }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
 
@@ -212,7 +226,9 @@ export default class UserBrowserController extends BrowserController {
         type: 'experiment',
         id: experiment.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      sortings: SORTINGS,
+      sortingId: 'code_asc'
     }))
 
     return {
@@ -246,7 +262,12 @@ export default class UserBrowserController extends BrowserController {
     }
 
     const fetchOptions = new openbis.SampleFetchOptions()
-    fetchOptions.sortBy().code().asc()
+    if (node.sortings && node.sortingId) {
+      const sorting = node.sortings[node.sortingId]
+      if (sorting) {
+        fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
+      }
+    }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
 
@@ -259,7 +280,9 @@ export default class UserBrowserController extends BrowserController {
         type: 'sample',
         id: sample.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      sortings: SORTINGS,
+      sortingId: 'code_asc'
     }))
 
     return {
@@ -286,7 +309,12 @@ export default class UserBrowserController extends BrowserController {
     }
 
     const fetchOptions = new openbis.DataSetFetchOptions()
-    fetchOptions.sortBy().code().asc()
+    if (node.sortings && node.sortingId) {
+      const sorting = node.sortings[node.sortingId]
+      if (sorting) {
+        fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
+      }
+    }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
 

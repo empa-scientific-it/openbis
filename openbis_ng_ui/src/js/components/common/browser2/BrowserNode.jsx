@@ -10,6 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import BrowserSortings from '@src/js/components/common/browser2/BrowserSortings.jsx'
 import messages from '@src/js/common/messages.js'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
@@ -45,6 +46,7 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleExpand = this.handleExpand.bind(this)
     this.handleCollapse = this.handleCollapse.bind(this)
     this.handleLoadMore = this.handleLoadMore.bind(this)
+    this.handleSortingChange = this.handleSortingChange.bind(this)
   }
 
   handleClick() {
@@ -67,6 +69,11 @@ class BrowserNodeClass extends React.PureComponent {
   handleLoadMore() {
     const { controller, node } = this.props
     controller.loadMoreNodes(node.id)
+  }
+
+  handleSortingChange(nodeId, sortingId) {
+    const { controller } = this.props
+    controller.changeSorting(nodeId, sortingId)
   }
 
   render() {
@@ -137,9 +144,18 @@ class BrowserNodeClass extends React.PureComponent {
 
     const { classes } = this.props
 
+    const content = (
+      <span>
+        {node.text}
+        {!_.isEmpty(node.children) && (
+          <BrowserSortings node={node} onChange={this.handleSortingChange} />
+        )}
+      </span>
+    )
+
     return (
       <ListItemText
-        primary={node.text}
+        primary={content}
         classes={{
           primary: classes.text
         }}
