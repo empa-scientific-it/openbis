@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import BrowserSortings from '@src/js/components/common/browser2/BrowserSortings.jsx'
 import IconButton from '@material-ui/core/IconButton'
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
 import logger from '@src/js/common/logger.js'
@@ -41,15 +42,13 @@ const styles = theme => ({
 class Browser extends React.PureComponent {
   constructor(props) {
     super(props)
-
     this.state = {}
-
     this.controller = props.controller
-    this.controller.init(new ComponentContext(this))
   }
 
-  componentDidMount() {
-    this.controller.load()
+  async componentDidMount() {
+    await this.controller.init(new ComponentContext(this))
+    await this.controller.load()
   }
 
   render() {
@@ -94,22 +93,7 @@ class Browser extends React.PureComponent {
 
     return (
       <div className={classes.browser}>
-        <FilterField
-          filter={controller.getFilter() || ''}
-          filterChange={controller.filterChange}
-          filterClear={controller.filterClear}
-          loading={controller.isLoading()}
-          endAdornments={
-            <div className={classes.filterButtons}>
-              <IconButton
-                onClick={controller.collapseAllNodes}
-                classes={{ root: classes.filterButton }}
-              >
-                <UnfoldLessIcon fontSize='small' />
-              </IconButton>
-            </div>
-          }
-        />
+        {this.renderFilter()}
         <div
           className={util.classNames(
             classes.nodes,
@@ -137,6 +121,41 @@ class Browser extends React.PureComponent {
           />
         </div>
       </div>
+    )
+  }
+
+  renderFilter() {
+    const { controller } = this
+    const { classes } = this.props
+
+    const changeSortingButton = (
+      <BrowserSortings
+        node={controller.getRoot()}
+        onChange={controller.changeSorting}
+      />
+    )
+    const collapseAllButton = (
+      <IconButton
+        onClick={controller.collapseAllNodes}
+        classes={{ root: classes.filterButton }}
+      >
+        <UnfoldLessIcon fontSize='small' />
+      </IconButton>
+    )
+
+    return (
+      <FilterField
+        filter={controller.getFilter() || ''}
+        filterChange={controller.filterChange}
+        filterClear={controller.filterClear}
+        loading={controller.isLoading()}
+        endAdornments={
+          <div className={classes.filterButtons}>
+            {changeSortingButton}
+            {collapseAllButton}
+          </div>
+        }
+      />
     )
   }
 }

@@ -39,13 +39,15 @@ export default class BrowserController {
   }
 
   async init(context) {
-    context.initState({
+    this.context = context
+
+    await this.context.setState({
       loaded: false,
       loading: false,
       filter: null
     })
 
-    this.fullTreeController.init(
+    await this.fullTreeController.init(
       new ComponentContextNamespaced(context, 'fullTree', () => ({
         loadSettings: () => {
           return this.settings.fullTree
@@ -57,22 +59,20 @@ export default class BrowserController {
       }))
     )
 
-    this.filteredTreeController.init(
+    await this.filteredTreeController.init(
       new ComponentContextNamespaced(context, 'filteredTree', () => ({}))
     )
-
-    this.context = context
   }
 
   async load() {
-    this.context.setState({
+    await this.context.setState({
       loading: true
     })
 
     this.settings = await this._loadSettings()
     await this.fullTreeController.load()
 
-    this.context.setState({
+    await this.context.setState({
       loaded: true,
       loading: false
     })
@@ -129,13 +129,13 @@ export default class BrowserController {
     await this._getTreeController().selectObject(object)
   }
 
+  async changeSorting(nodeId, sorting) {
+    await this._getTreeController().changeSorting(nodeId, sorting)
+  }
+
   isLoading() {
     const { loading } = this.context.getState()
     return loading || this._getTreeController().isLoading()
-  }
-
-  isRoot(node) {
-    return this._getTreeController().isRoot(node)
   }
 
   getRoot() {

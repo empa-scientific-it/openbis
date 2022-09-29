@@ -1,11 +1,40 @@
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
 
+const SORTINGS = [
+  {
+    label: 'Code ASC',
+    sortBy: 'code',
+    sortDirection: 'asc'
+  },
+  { label: 'Code DESC', sortBy: 'code', sortDirection: 'desc' },
+  {
+    label: 'Registration Date ASC',
+    sortBy: 'registrationDate',
+    sortDirection: 'asc'
+  },
+  {
+    label: 'Registration Date DESC',
+    sortBy: 'registrationDate',
+    sortDirection: 'desc'
+  }
+]
+
 export default class UserBrowserController extends BrowserController {
   async doLoadNodes(params) {
     const { node, filter } = params
 
-    if (this.isRoot(node)) {
+    if (!node) {
+      return {
+        id: 'root',
+        object: {
+          id: 'root',
+          type: 'root'
+        },
+        canHaveChildren: true,
+        sortings: SORTINGS
+      }
+    } else if (node.object.type === 'root') {
       if (filter === null) {
         return await this.searchSpaces(params)
       } else {
@@ -78,12 +107,16 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SpaceSearchCriteria()
-    if (this.isRoot(node) && filter) {
+    if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
 
     const fetchOptions = new openbis.SpaceFetchOptions()
-    fetchOptions.sortBy().code().asc()
+    if (node.sorting) {
+      fetchOptions.sortBy()[node.sorting.sortBy]()[node.sorting.sortDirection]()
+    } else {
+      fetchOptions.sortBy().code().asc()
+    }
     fetchOptions.from(offset)
     fetchOptions.count(limit)
 
@@ -109,7 +142,7 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
-    if (this.isRoot(node) && filter) {
+    if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
     if (node.object.type === 'space') {
@@ -143,7 +176,7 @@ export default class UserBrowserController extends BrowserController {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
-    if (this.isRoot(node) && filter) {
+    if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
     if (node.object.type === 'project') {
@@ -179,7 +212,7 @@ export default class UserBrowserController extends BrowserController {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (this.isRoot(node) && filter) {
+    if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
     if (node.object.type === 'space') {
@@ -226,7 +259,7 @@ export default class UserBrowserController extends BrowserController {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withAndOperator()
 
-    if (this.isRoot(node) && filter) {
+    if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
     if (node.object.type === 'experiment') {
