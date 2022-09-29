@@ -57,7 +57,12 @@ class BrowserNodeSortings extends React.PureComponent {
     const { el } = this.state
 
     return (
-      <div>
+      <div
+        onClick={event => {
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
         <IconButton
           onClick={this.handleOpen}
           classes={{ root: classes.button }}

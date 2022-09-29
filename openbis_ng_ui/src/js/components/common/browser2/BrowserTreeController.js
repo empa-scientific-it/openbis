@@ -248,7 +248,11 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      if (node.id !== state.rootId) {
+      if (node.id === state.rootId) {
+        if (recursive) {
+          state.expandedIds = {}
+        }
+      } else {
         state.nodes = { ...state.nodes }
         state.nodes[nodeId] = {
           ...state.nodes[nodeId],
@@ -313,30 +317,33 @@ export default class BrowserTreeController {
   }
 
   async changeSorting(nodeId, sortingId) {
-    await this.context.setState({
-      loading: true
-    })
-
     const state = this.context.getState()
+    const node = state.nodes[nodeId]
 
-    await this._setNodeLoading(nodeId, true)
-    const newState = { ...state }
-    newState.nodes = { ...newState.nodes }
-    newState.nodes[nodeId] = {
-      ...newState.nodes[nodeId],
-      sortingId: sortingId
+    if (node) {
+      await this.context.setState({
+        loading: true
+      })
+
+      await this._setNodeLoading(nodeId, true)
+      const newState = { ...state }
+      newState.nodes = { ...newState.nodes }
+      newState.nodes[nodeId] = {
+        ...newState.nodes[nodeId],
+        sortingId: sortingId
+      }
+      newState.sortingIds = { ...newState.sortingIds }
+      newState.sortingIds[nodeId] = sortingId
+      await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
+      await this.context.setState(newState)
+      await this._setNodeLoading(nodeId, false)
+
+      await this.context.setState({
+        loading: false
+      })
+
+      this._saveSettings()
     }
-    newState.sortingIds = { ...newState.sortingIds }
-    newState.sortingIds[nodeId] = sortingId
-    await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
-    await this.context.setState(newState)
-    await this._setNodeLoading(nodeId, false)
-
-    await this.context.setState({
-      loading: false
-    })
-
-    this._saveSettings()
   }
 
   async _setNodeLoading(nodeId, loading) {

@@ -48,7 +48,7 @@ class RadioGroupField extends React.PureComponent {
     }
 
     this.references = references
-    this.action = null
+    this.actions = {}
     this.handleLabelClick = this.handleLabelClick.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -67,8 +67,9 @@ class RadioGroupField extends React.PureComponent {
 
   handleFocus(event) {
     this.handleEvent(event, this.props.onFocus)
-    if (this.action) {
-      this.action.focusVisible()
+    const action = this.getAction(event.target.value)
+    if (action) {
+      action.focusVisible()
     }
   }
 
@@ -131,7 +132,7 @@ class RadioGroupField extends React.PureComponent {
       <div key={option.value} className={classes.radioContainer}>
         <Radio
           inputRef={this.getReference(option.value)}
-          action={action => (this.action = action)}
+          action={action => (this.actions[option.value] = action)}
           value={option.value}
           checked={option.value === value}
           disabled={isDisabled}
@@ -158,6 +159,9 @@ class RadioGroupField extends React.PureComponent {
 
   getReference(value) {
     return this.references[value]
+  }
+  getAction(value) {
+    return this.actions[value]
   }
 }
 

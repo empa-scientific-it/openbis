@@ -128,7 +128,7 @@ class BrowserNodeClass extends React.PureComponent {
     if (node.canHaveChildren) {
       let icon = null
 
-      if (node.loading && _.isEmpty(node.children)) {
+      if (node.loading) {
         icon = <CircularProgress size={20} />
       } else if (node.expanded) {
         icon = <ExpandMoreIcon onClick={this.handleCollapse} />
