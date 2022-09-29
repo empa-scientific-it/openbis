@@ -39,15 +39,13 @@ export default class BrowserController {
   }
 
   async init(context) {
-    this.context = context
-
-    await this.context.setState({
+    context.initState({
       loaded: false,
       loading: false,
       filter: null
     })
 
-    await this.fullTreeController.init(
+    this.fullTreeController.init(
       new ComponentContextNamespaced(context, 'fullTree', () => ({
         loadSettings: () => {
           return this.settings.fullTree
@@ -59,9 +57,11 @@ export default class BrowserController {
       }))
     )
 
-    await this.filteredTreeController.init(
+    this.filteredTreeController.init(
       new ComponentContextNamespaced(context, 'filteredTree', () => ({}))
     )
+
+    this.context = context
   }
 
   async load() {
@@ -131,6 +131,11 @@ export default class BrowserController {
 
   async changeSorting(nodeId, sortingId) {
     await this._getTreeController().changeSorting(nodeId, sortingId)
+  }
+
+  isLoaded() {
+    const { loaded } = this.context.getState()
+    return loaded
   }
 
   isLoading() {

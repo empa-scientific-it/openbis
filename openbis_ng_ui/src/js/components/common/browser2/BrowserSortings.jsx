@@ -44,7 +44,11 @@ class BrowserSortings extends React.PureComponent {
 
     const { node } = this.props
 
-    if (_.isEmpty(node.sortings) || _.isEmpty(node.sortingId)) {
+    if (
+      _.isEmpty(node) ||
+      _.isEmpty(node.sortings) ||
+      _.isEmpty(node.sortingId)
+    ) {
       return null
     }
 

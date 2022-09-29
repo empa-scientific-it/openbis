@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 
+const INTERNAL_ROOT_ID = 'internal_root_id'
 const LOAD_LIMIT = 50
 
 export default class BrowserTreeController {
@@ -13,44 +14,75 @@ export default class BrowserTreeController {
   }
 
   async init(context) {
-    this.context = context
-    await this.clear()
-  }
-
-  async clear() {
-    const root = await this.doLoadNodes({})
-
-    if (_.isEmpty(root) || _.isEmpty(root.id)) {
-      throw new Error('Browser root node and its id cannot be empty')
-    }
-
-    await this.context.setState({
-      rootId: root.id,
-      nodes: { [root.id]: root },
+    context.initState({
+      loaded: false,
+      loading: false,
+      rootId: null,
+      nodes: {},
       selectedId: null,
       selectedObject: null,
       expandedIds: {},
       sortingIds: {}
     })
+    this.context = context
+    this.lastTree = null
+    this.lastLoadPromise = {}
+  }
 
+  async clear() {
+    await this.context.setState({
+      loaded: false,
+      loading: false,
+      rootId: null,
+      nodes: {},
+      selectedId: null,
+      selectedObject: null,
+      expandedIds: {},
+      sortingIds: {}
+    })
     this.lastTree = null
     this.lastLoadPromise = {}
   }
 
   async load() {
-    const settings = await this._loadSettings()
-
-    if (!_.isEmpty(settings)) {
-      this.context.setState({ ...settings })
-    }
+    await this.context.setState({
+      loading: true
+    })
 
     const state = this.context.getState()
     const newState = { ...state }
+
+    const settings = await this._loadSettings()
+    _.merge(newState, settings)
+
+    newState.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
+    await this._doLoadNode(newState, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
+    const internalRoot = newState.nodes[INTERNAL_ROOT_ID]
+    delete newState.nodes[INTERNAL_ROOT_ID]
+
+    if (
+      internalRoot.children.length === 0 ||
+      internalRoot.children.length > 1
+    ) {
+      throw new Error(
+        'Found ' +
+          internalRoot.children.length +
+          ' root candidates. Expected to find 1.'
+      )
+    }
+
+    const rootId = internalRoot.children[0]
+    newState.rootId = rootId
 
     await this._setNodeLoading(newState.rootId, true)
     await this._doExpandNode(newState, newState.rootId)
     await this.context.setState(newState)
     await this._setNodeLoading(newState.rootId, false)
+
+    await this.context.setState({
+      loaded: true,
+      loading: false
+    })
 
     this._saveSettings()
   }
@@ -67,7 +99,7 @@ export default class BrowserTreeController {
     }
 
     const loadPromise = this.doLoadNodes({
-      node: node,
+      node: node.id === INTERNAL_ROOT_ID ? null : node,
       offset: offset,
       limit: limit
     })
@@ -128,11 +160,19 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
+      await this.context.setState({
+        loading: true
+      })
+
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doLoadNode(newState, node.id, node.loadedCount, LOAD_LIMIT)
       this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
+
+      await this.context.setState({
+        loading: false
+      })
     }
   }
 
@@ -141,11 +181,20 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
+      await this.context.setState({
+        loading: true
+      })
+
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doExpandNode(newState, nodeId)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
+
+      await this.context.setState({
+        loading: false
+      })
+
       this._saveSettings()
     }
   }
@@ -262,6 +311,10 @@ export default class BrowserTreeController {
   }
 
   async changeSorting(nodeId, sortingId) {
+    await this.context.setState({
+      loading: true
+    })
+
     const state = this.context.getState()
 
     await this._setNodeLoading(nodeId, true)
@@ -276,6 +329,10 @@ export default class BrowserTreeController {
     await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
     await this.context.setState(newState)
     await this._setNodeLoading(nodeId, false)
+
+    await this.context.setState({
+      loading: false
+    })
 
     this._saveSettings()
   }
@@ -334,8 +391,8 @@ export default class BrowserTreeController {
   }
 
   isLoading() {
-    const root = this.getRoot()
-    return root && root.loading
+    const { loading } = this.context.getState()
+    return loading
   }
 
   getRoot() {

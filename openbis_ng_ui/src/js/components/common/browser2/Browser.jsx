@@ -44,10 +44,10 @@ class Browser extends React.PureComponent {
     super(props)
     this.state = {}
     this.controller = props.controller
+    this.controller.init(new ComponentContext(this))
   }
 
   async componentDidMount() {
-    await this.controller.init(new ComponentContext(this))
     await this.controller.load()
   }
 
@@ -83,7 +83,7 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
-    if (!this.state.loaded) {
+    if (!controller.isLoaded()) {
       return (
         <div className={classes.browser}>
           <FilterField filter={''} loading={true} />
@@ -91,35 +91,42 @@ class Browser extends React.PureComponent {
       )
     }
 
+    const fullTree = controller.getFullTree()
+    const filteredTree = controller.getFilteredTree()
+
     return (
       <div className={classes.browser}>
         {this.renderFilter()}
-        <div
-          className={util.classNames(
-            classes.nodes,
-            controller.isFullTreeVisible() ? classes.visible : classes.hidden
-          )}
-        >
-          <BrowserNode
-            controller={controller}
-            node={controller.getFullTree()}
-            level={-1}
-          />
-        </div>
-        <div
-          className={util.classNames(
-            classes.nodes,
-            controller.isFilteredTreeVisible()
-              ? classes.visible
-              : classes.hidden
-          )}
-        >
-          <BrowserNode
-            controller={controller}
-            node={controller.getFilteredTree()}
-            level={-1}
-          />
-        </div>
+        {fullTree && (
+          <div
+            className={util.classNames(
+              classes.nodes,
+              controller.isFullTreeVisible() ? classes.visible : classes.hidden
+            )}
+          >
+            <BrowserNode
+              controller={controller}
+              node={controller.getFullTree()}
+              level={-1}
+            />
+          </div>
+        )}
+        {filteredTree && (
+          <div
+            className={util.classNames(
+              classes.nodes,
+              controller.isFilteredTreeVisible()
+                ? classes.visible
+                : classes.hidden
+            )}
+          >
+            <BrowserNode
+              controller={controller}
+              node={controller.getFilteredTree()}
+              level={-1}
+            />
+          </div>
+        )}
       </div>
     )
   }

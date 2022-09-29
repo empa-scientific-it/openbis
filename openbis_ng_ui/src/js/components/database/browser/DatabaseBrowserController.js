@@ -34,14 +34,19 @@ export default class UserBrowserController extends BrowserController {
 
     if (!node) {
       return {
-        id: 'root',
-        object: {
-          id: 'root',
-          type: 'root'
-        },
-        canHaveChildren: true,
-        sortings: SORTINGS,
-        sortingId: 'code_asc'
+        nodes: [
+          {
+            id: 'root',
+            object: {
+              id: 'root',
+              type: 'root'
+            },
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 1
       }
     } else if (node.object.type === 'root') {
       if (filter === null) {
