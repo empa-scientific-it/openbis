@@ -309,6 +309,10 @@ export default class BrowserTreeController {
     state.selectedObject = nodeObject
   }
 
+  async showSelectedNode() {
+    // TODO
+  }
+
   async changeSorting(nodeId, sortingId) {
     const state = this.context.getState()
     const node = state.nodes[nodeId]

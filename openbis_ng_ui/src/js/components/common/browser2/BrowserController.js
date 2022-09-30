@@ -136,6 +136,10 @@ export default class BrowserController {
     await this._getTreeController().selectObject(object)
   }
 
+  async showSelectedNode() {
+    await this._getTreeController().showSelectedNode()
+  }
+
   async changeSorting(nodeId, sortingId) {
     await this._getTreeController().changeSorting(nodeId, sortingId)
   }

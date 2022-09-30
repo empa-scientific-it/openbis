@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import BrowserNodeShowSelected from '@src/js/components/common/browser2/BrowserNodeShowSelected.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
 import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
@@ -144,6 +145,9 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
+            <div className={classes.filterButton}>
+              <BrowserNodeShowSelected onClick={controller.showSelectedNode} />
+            </div>
             <div className={classes.filterButton}>
               <BrowserNodeCollapseAll
                 node={controller.getRoot()}
