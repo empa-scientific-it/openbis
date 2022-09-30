@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
+import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import IconButton from '@material-ui/core/IconButton'
 import FilterIcon from '@material-ui/icons/FilterList'
@@ -119,12 +120,14 @@ class FilterField extends React.Component {
             root: classes.adornment
           }}
         >
-          <IconButton
-            onClick={this.handleFilterClear}
-            classes={{ root: classes.adornmentButton }}
-          >
-            <CloseIcon fontSize='small' />
-          </IconButton>
+          <Tooltip title={messages.get(messages.CLEAR_FILTER)}>
+            <IconButton
+              onClick={this.handleFilterClear}
+              classes={{ root: classes.adornmentButton }}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </Tooltip>
         </InputAdornment>
       )
     } else {

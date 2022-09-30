@@ -2,12 +2,14 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
+import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
 import Sort from '@material-ui/icons/Sort'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Popover from '@material-ui/core/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({
@@ -63,13 +65,15 @@ class BrowserNodeSortings extends React.PureComponent {
           event.stopPropagation()
         }}
       >
-        <IconButton
-          size='small'
-          onClick={this.handleOpen}
-          classes={{ root: classes.button }}
-        >
-          <Sort fontSize='small' />
-        </IconButton>
+        <Tooltip title={messages.get(messages.CHANGE_SORTING)}>
+          <IconButton
+            size='small'
+            onClick={this.handleOpen}
+            classes={{ root: classes.button }}
+          >
+            <Sort fontSize='small' />
+          </IconButton>
+        </Tooltip>
         <Popover
           open={Boolean(el)}
           anchorEl={el}

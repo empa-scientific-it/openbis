@@ -1,8 +1,10 @@
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
+import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({
@@ -35,13 +37,15 @@ class BrowserNodeCollapseAll extends React.PureComponent {
     }
 
     return (
-      <IconButton
-        size='small'
-        onClick={this.handleClick}
-        classes={{ root: classes.button }}
-      >
-        <UnfoldLessIcon fontSize='small' />
-      </IconButton>
+      <Tooltip title={messages.get(messages.COLLAPSE_ALL)}>
+        <IconButton
+          size='small'
+          onClick={this.handleClick}
+          classes={{ root: classes.button }}
+        >
+          <UnfoldLessIcon fontSize='small' />
+        </IconButton>
+      </Tooltip>
     )
   }
 }
