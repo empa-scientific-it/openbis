@@ -116,7 +116,7 @@ export default class BrowserTreeController {
               loadedNode.id === state.selectedId ||
               (loadedNode.object &&
                 _.isEqual(loadedNode.object, state.selectedObject)),
-            expanded: !!state.expandedIds[loadedNode.id],
+            expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
             children: loadedNode.children
               ? loadedNode.children.map(child => child.id)
               : [],
