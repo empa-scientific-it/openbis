@@ -35,7 +35,11 @@ class BrowserNodeCollapseAll extends React.PureComponent {
     }
 
     return (
-      <IconButton onClick={this.handleClick} classes={{ root: classes.button }}>
+      <IconButton
+        size='small'
+        onClick={this.handleClick}
+        classes={{ root: classes.button }}
+      >
         <UnfoldLessIcon fontSize='small' />
       </IconButton>
     )

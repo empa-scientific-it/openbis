@@ -71,6 +71,10 @@ export default class BrowserController {
 
     this.settings = await this._loadSettings()
     await this.fullTreeController.load()
+    await this.fullTreeController.expandNode(
+      this.fullTreeController.getRoot().id
+    )
+    await this.filteredTreeController.load()
 
     await this.context.setState({
       loaded: true,
@@ -97,10 +101,13 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
-      await this.filteredTreeController.clear()
+      await this.filteredTreeController.load()
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
         await this.filteredTreeController.load()
+        await this.filteredTreeController.expandNode(
+          this.filteredTreeController.getRoot().id
+        )
       }, silentPeriod)
     }
   }

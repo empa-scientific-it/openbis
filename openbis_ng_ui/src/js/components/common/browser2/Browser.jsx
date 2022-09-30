@@ -21,11 +21,12 @@ const styles = theme => ({
     borderRight: `1px solid ${theme.palette.border.primary}`
   },
   filterButtons: {
-    marginRight: '8px',
+    marginLeft: '-12px',
+    marginRight: '16px',
     display: 'flex'
   },
   filterButton: {
-    marginLeft: '8px'
+    marginLeft: '16px'
   },
   nodes: {
     height: '100%',

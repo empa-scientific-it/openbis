@@ -29,36 +29,41 @@ export default class BrowserTreeController {
     this.lastLoadPromise = {}
   }
 
-  async clear() {
+  async load() {
     await this.context.setState({
-      loaded: false,
-      loading: false,
+      loading: true
+    })
+
+    const newState = {
       rootId: null,
       nodes: {},
       selectedId: null,
       selectedObject: null,
       expandedIds: {},
       sortingIds: {}
-    })
+    }
     this.lastTree = null
     this.lastLoadPromise = {}
-  }
-
-  async load() {
-    await this.context.setState({
-      loading: true
-    })
-
-    const state = this.context.getState()
-    const newState = { ...state }
 
     const settings = await this._loadSettings()
     _.merge(newState, settings)
 
-    newState.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
-    await this._doLoadNode(newState, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
-    const internalRoot = newState.nodes[INTERNAL_ROOT_ID]
-    delete newState.nodes[INTERNAL_ROOT_ID]
+    await this._doLoadRoot(newState)
+    await this.context.setState(newState)
+
+    await this.context.setState({
+      loaded: true,
+      loading: false
+    })
+
+    this._saveSettings()
+  }
+
+  async _doLoadRoot(state) {
+    state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
+    await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
+    const internalRoot = state.nodes[INTERNAL_ROOT_ID]
+    delete state.nodes[INTERNAL_ROOT_ID]
 
     if (
       internalRoot.children.length === 0 ||
@@ -72,19 +77,7 @@ export default class BrowserTreeController {
     }
 
     const rootId = internalRoot.children[0]
-    newState.rootId = rootId
-
-    await this._setNodeLoading(newState.rootId, true)
-    await this._doExpandNode(newState, newState.rootId)
-    await this.context.setState(newState)
-    await this._setNodeLoading(newState.rootId, false)
-
-    await this.context.setState({
-      loaded: true,
-      loading: false
-    })
-
-    this._saveSettings()
+    state.rootId = rootId
   }
 
   async _doLoadNode(state, nodeId, offset, limit) {

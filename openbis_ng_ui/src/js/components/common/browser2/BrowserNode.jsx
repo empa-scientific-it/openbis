@@ -46,7 +46,7 @@ const styles = theme => ({
     display: 'flex'
   },
   option: {
-    paddingLeft: '8px'
+    paddingLeft: '16px'
   }
 })
 

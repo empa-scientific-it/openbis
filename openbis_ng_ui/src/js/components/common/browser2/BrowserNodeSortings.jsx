@@ -64,6 +64,7 @@ class BrowserNodeSortings extends React.PureComponent {
         }}
       >
         <IconButton
+          size='small'
           onClick={this.handleOpen}
           classes={{ root: classes.button }}
         >
