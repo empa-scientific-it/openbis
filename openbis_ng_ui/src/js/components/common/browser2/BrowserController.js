@@ -5,6 +5,10 @@ import BrowserTreeController from '@src/js/components/common/browser2/BrowserTre
 import util from '@src/js/common/util.js'
 
 export default class BrowserController {
+  async doLoadNodePath() {
+    throw 'Method not implemented'
+  }
+
   async doLoadNodes() {
     throw 'Method not implemented'
   }
@@ -15,6 +19,9 @@ export default class BrowserController {
     const controller = this
 
     class FullTreeController extends BrowserTreeController {
+      async doLoadNodePath(params) {
+        return controller.doLoadNodePath(params)
+      }
       async doLoadNodes(params) {
         return await controller.doLoadNodes({
           ...params,
@@ -24,6 +31,9 @@ export default class BrowserController {
     }
 
     class FilteredTreeController extends BrowserTreeController {
+      async doLoadNodePath(params) {
+        return controller.doLoadNodePath(params)
+      }
       async doLoadNodes(params) {
         const { filter } = controller.context.getState()
         return await controller.doLoadNodes({
@@ -128,12 +138,13 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
-  async selectNode(nodeId) {
-    await this._getTreeController().selectNode(nodeId)
-  }
-
-  async selectObject(object) {
-    await this._getTreeController().selectObject(object)
+  async selectNode(nodeObject) {
+    if (this.isFilteredTreeVisible()) {
+      await this.fullTreeController.selectNode(nodeObject)
+      await this.filteredTreeController.selectNode(nodeObject)
+    } else {
+      await this.fullTreeController.selectNode(nodeObject)
+    }
   }
 
   async showSelectedNode() {

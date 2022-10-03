@@ -5,7 +5,6 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import Collapse from '@material-ui/core/Collapse'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -63,7 +62,7 @@ class BrowserNodeClass extends React.PureComponent {
 
   handleClick() {
     const { controller, node } = this.props
-    controller.selectNode(node.id)
+    controller.selectNode(node.object)
   }
 
   handleExpand(event) {
@@ -102,6 +101,7 @@ class BrowserNodeClass extends React.PureComponent {
       <div>
         {level !== -1 && (
           <ListItem
+            id={node.id}
             button
             selected={node.selected}
             onClick={this.handleClick}
@@ -196,23 +196,21 @@ class BrowserNodeClass extends React.PureComponent {
   renderChildren() {
     const { node, level, classes } = this.props
 
-    if (!node.canHaveChildren || !node.loaded) {
+    if (!node.canHaveChildren || !node.loaded || !node.expanded) {
       return null
     }
 
     return (
-      <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
-        <List
-          className={util.classNames(
-            classes.list,
-            level === 0 ? classes.listContainer : null
-          )}
-        >
-          {this.renderNonEmptyChildren()}
-          {this.renderShowMoreChildren()}
-          {this.renderEmptyChildren()}
-        </List>
-      </Collapse>
+      <List
+        className={util.classNames(
+          classes.list,
+          level === 0 ? classes.listContainer : null
+        )}
+      >
+        {this.renderNonEmptyChildren()}
+        {this.renderShowMoreChildren()}
+        {this.renderEmptyChildren()}
+      </List>
     )
   }
 
@@ -245,6 +243,7 @@ class BrowserNodeClass extends React.PureComponent {
     ) {
       return (
         <ListItem
+          id={node.id + '_load_more'}
           button
           onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}

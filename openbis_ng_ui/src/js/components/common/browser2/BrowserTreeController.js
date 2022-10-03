@@ -5,6 +5,10 @@ const INTERNAL_ROOT_ID = 'internal_root_id'
 const LOAD_LIMIT = 50
 
 export default class BrowserTreeController {
+  async doLoadNodePath() {
+    throw 'Method not implemented'
+  }
+
   async doLoadNodes() {
     throw 'Method not implemented'
   }
@@ -19,8 +23,8 @@ export default class BrowserTreeController {
       loading: false,
       rootId: null,
       nodes: {},
-      selectedId: null,
       selectedObject: null,
+      selectedScrollTo: false,
       expandedIds: {},
       sortingIds: {}
     })
@@ -37,8 +41,8 @@ export default class BrowserTreeController {
     const newState = {
       rootId: null,
       nodes: {},
-      selectedId: null,
       selectedObject: null,
+      selectedScrollTo: false,
       expandedIds: {},
       sortingIds: {}
     }
@@ -113,9 +117,8 @@ export default class BrowserTreeController {
           const newNode = {
             ...loadedNode,
             selected:
-              loadedNode.id === state.selectedId ||
-              (loadedNode.object &&
-                _.isEqual(loadedNode.object, state.selectedObject)),
+              loadedNode.object &&
+              _.isEqual(loadedNode.object, state.selectedObject),
             expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
             children: loadedNode.children
               ? loadedNode.children.map(child => child.id)
@@ -264,38 +267,25 @@ export default class BrowserTreeController {
     }
   }
 
-  async selectNode(nodeId) {
+  async selectNode(nodeObject) {
     const state = this.context.getState()
-    const node = state.nodes[nodeId]
 
-    if (node) {
-      const newState = { ...state }
-      await this._doSelectNodes(newState, node.id, node.object)
-      await this.context.setState(newState)
+    const newState = { ...state }
+    await this._doSelectNodes(newState, nodeObject)
+    await this.context.setState(newState)
 
-      const { onSelectedChange } = this.context.getState()
-      if (onSelectedChange) {
-        onSelectedChange(node.object)
-      }
+    const { onSelectedChange } = this.context.getState()
+    if (onSelectedChange) {
+      onSelectedChange(nodeObject)
     }
   }
 
-  async selectObject(object) {
-    const state = this.context.getState()
-    const newState = { ...state }
-
-    await this._doSelectNodes(newState, null, object)
-    await this.context.setState(newState)
-  }
-
-  async _doSelectNodes(state, nodeId, nodeObject) {
+  async _doSelectNodes(state, nodeObject) {
     state.nodes = { ...state.nodes }
 
     Object.keys(state.nodes).forEach(id => {
       const node = state.nodes[id]
-      const selected =
-        nodeId === node.id ||
-        (node.object && _.isEqual(nodeObject, node.object))
+      const selected = node.object && _.isEqual(nodeObject, node.object)
 
       if (selected ^ node.selected) {
         state.nodes[id] = {
@@ -305,12 +295,59 @@ export default class BrowserTreeController {
       }
     })
 
-    state.selectedId = nodeId
     state.selectedObject = nodeObject
   }
 
   async showSelectedNode() {
-    // TODO
+    const state = this.context.getState()
+
+    if (!state.selectedObject) {
+      return
+    }
+
+    const pathWithoutRoot = await this.doLoadNodePath({
+      object: state.selectedObject
+    })
+
+    if (!pathWithoutRoot || _.isEmpty(pathWithoutRoot)) {
+      return
+    }
+
+    const path = [this.getRoot().object, ...pathWithoutRoot]
+    const newState = { ...state }
+
+    let lastNode = null
+    for (let i = 0; i < path.length; i++) {
+      const node = Object.values(newState.nodes).find(
+        node => node.object && _.isEqual(node.object, path[i])
+      )
+      if (node) {
+        lastNode = node
+        if (i < path.length - 1) {
+          await this._doExpandNode(newState, node.id)
+        }
+      } else {
+        break
+      }
+    }
+
+    await this.context.setState(newState)
+
+    setTimeout(() => {
+      if (lastNode && document) {
+        let element = null
+
+        if (lastNode.object.id === path[path.length - 1].id) {
+          element = document.querySelector('#' + lastNode.id)
+        } else {
+          element = document.querySelector('#' + lastNode.id + '_load_more')
+        }
+
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    }, 1)
   }
 
   async changeSorting(nodeId, sortingId) {

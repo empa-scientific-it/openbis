@@ -145,9 +145,13 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
-            <div className={classes.filterButton}>
-              <BrowserNodeShowSelected onClick={controller.showSelectedNode} />
-            </div>
+            {controller.isFullTreeVisible() && (
+              <div className={classes.filterButton}>
+                <BrowserNodeShowSelected
+                  onClick={controller.showSelectedNode}
+                />
+              </div>
+            )}
             <div className={classes.filterButton}>
               <BrowserNodeCollapseAll
                 node={controller.getRoot()}

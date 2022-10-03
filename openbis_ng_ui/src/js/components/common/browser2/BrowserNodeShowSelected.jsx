@@ -23,8 +23,7 @@ class BrowserNodeShowSelected extends React.PureComponent {
   handleClick(event) {
     event.preventDefault()
     event.stopPropagation()
-    const { node } = this.props
-    this.props.onClick(node.id)
+    this.props.onClick()
   }
 
   render() {

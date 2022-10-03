@@ -28,7 +28,101 @@ const SORTINGS = {
   }
 }
 
-export default class UserBrowserController extends BrowserController {
+export default class DatabaseBrowserController extends BrowserController {
+  async doLoadNodePath(params) {
+    const { object } = params
+
+    if (object.type === 'space') {
+      return [object]
+    } else if (object.type === 'project') {
+      const id = new openbis.ProjectPermId(object.id)
+      const fetchOptions = new openbis.ProjectFetchOptions()
+      fetchOptions.withSpace()
+
+      const projects = await openbis.getProjects([id], fetchOptions)
+      const project = projects[id]
+
+      if (project) {
+        return [{ type: 'space', id: project.getSpace().getCode() }, object]
+      } else {
+        return null
+      }
+    } else if (object.type === 'experiment') {
+      const id = new openbis.ExperimentPermId(object.id)
+      const fetchOptions = new openbis.ExperimentFetchOptions()
+      fetchOptions.withProject().withSpace()
+
+      const experiments = await openbis.getExperiments([id], fetchOptions)
+      const experiment = experiments[id]
+
+      if (experiment) {
+        return [
+          { type: 'space', id: experiment.getProject().getSpace().getCode() },
+          {
+            type: 'project',
+            id: experiment.getProject().getPermId().getPermId()
+          },
+          object
+        ]
+      } else {
+        return null
+      }
+    } else if (object.type === 'sample') {
+      const id = new openbis.SamplePermId(object.id)
+      const fetchOptions = new openbis.SampleFetchOptions()
+      fetchOptions.withSpace()
+      fetchOptions.withProject().withSpace()
+      fetchOptions.withExperiment().withProject().withSpace()
+
+      const samples = await openbis.getSamples([id], fetchOptions)
+      const sample = samples[id]
+
+      if (sample) {
+        if (sample.getExperiment()) {
+          return [
+            {
+              type: 'space',
+              id: sample.getExperiment().getProject().getSpace().getCode()
+            },
+            {
+              type: 'project',
+              id: sample.getExperiment().getProject().getPermId().getPermId()
+            },
+            {
+              type: 'experiment',
+              id: sample.getExperiment().getPermId().getPermId()
+            },
+            object
+          ]
+        } else if (sample.getProject()) {
+          return [
+            {
+              type: 'space',
+              id: sample.getProject().getSpace().getCode()
+            },
+            {
+              type: 'project',
+              id: sample.getProject().getPermId().getPermId()
+            },
+            object
+          ]
+        } else if (sample.getSpace()) {
+          return [
+            {
+              type: 'space',
+              id: sample.getSpace().getCode()
+            },
+            object
+          ]
+        } else {
+          return [object]
+        }
+      } else {
+        return null
+      }
+    }
+  }
+
   async doLoadNodes(params) {
     const { node, filter } = params
 
