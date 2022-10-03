@@ -36,9 +36,7 @@ class Material(OpenBisObject):
                     or getattr(self.props, prop_name) == ""
                 ):
                     raise ValueError(
-                        "Property '{}' is mandatory and must not be None".format(
-                            prop_name
-                        )
+                        f"Property '{prop_name}' is mandatory and must not be None"
                     )
 
         props = self.p._all_props()
@@ -66,4 +64,4 @@ class Material(OpenBisObject):
     def delete(self, reason="no reason"):
         self.openbis.delete_entity(entity=self.entity, id=self.permId, reason=reason)
         if VERBOSE:
-            print("Material {} successfully deleted.".format(self.permId))
+            print(f"Material {self.permId} successfully deleted.")

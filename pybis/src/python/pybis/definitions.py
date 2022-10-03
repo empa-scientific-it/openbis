@@ -475,7 +475,7 @@ def get_fetchoption_for_entity(entity):
 
 def get_type_for_entity(entity, action, parents_or_children=""):
     if action not in "create update delete search".split():
-        raise ValueError("unknown action: {}".format(action))
+        raise ValueError(f"unknown action: {action}")
 
     definition = openbis_definitions(entity)
     if action in definition and not parents_or_children:
@@ -492,19 +492,11 @@ def get_type_for_entity(entity, action, parents_or_children=""):
 
         if parents_or_children:
             return {
-                "@type": "as.dto.{}.{}.{}{}{}".format(
-                    entity.lower(),
-                    action,
-                    cap_entity,
-                    parents_or_children,
-                    noun[action],
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{parents_or_children}{noun[action]}"
             }
         else:
             return {
-                "@type": "as.dto.{}.{}.{}{}".format(
-                    entity.lower(), action, cap_entity, noun[action]
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{noun[action]}"
             }
 
 
@@ -523,12 +515,12 @@ def get_fetchoptions(entity, including=None):
     return fo
 
 
-def get_method_for_entity(entity, action):
+def get_method_for_entity(entity: str, action: str) -> str:
     action = action.lower()
 
     if entity == "vocabulary":
-        return "{}Vocabularies".format(action)
+        return f"{action}Vocabularies"
 
     cap_entity = entity[:1].upper() + entity[1:]
 
-    return "{}{}s".format(action, cap_entity)
+    return f"{action}{cap_entity}s"

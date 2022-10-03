@@ -89,15 +89,11 @@ class Group(
         try:
             self.openbis.assign_role(role=role, group=self, **kwargs)
             if VERBOSE:
-                print(
-                    "Role {} successfully assigned to group {}".format(role, self.code)
-                )
+                print(f"Role {role} successfully assigned to group {self.code}")
         except ValueError as e:
             if "exists" in str(e):
                 if VERBOSE:
-                    print(
-                        "Role {} already assigned to group {}".format(role, self.code)
-                    )
+                    print(f"Role {role} already assigned to group {self.code}")
             else:
                 raise ValueError(str(e))
 
@@ -120,9 +116,7 @@ class Group(
                 query["project"] = project.upper()
 
             # build a query string for dataframe
-            querystr = " & ".join(
-                '{} == "{}"'.format(key, value) for key, value in query.items()
-            )
+            querystr = " & ".join(f'{key} == "{value}"' for key, value in query.items())
             roles = self.get_roles().df
             if len(roles) == 0:
                 if VERBOSE:

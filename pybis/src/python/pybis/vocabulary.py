@@ -25,9 +25,7 @@ class Vocabulary(
             for key in kwargs:
                 if key not in allowed_attrs:
                     raise ValueError(
-                        "{} is an unknown Vocabulary attribute. Allowed attributes are: {}".format(
-                            key, ", ".join(allowed_attrs)
-                        )
+                        f"{key} is an unknown Vocabulary attribute. Allowed attributes are: {', '.join(allowed_attrs)}"
                     )
 
         if kwargs is not None:
@@ -77,7 +75,7 @@ class Vocabulary(
         }
         resp = self.openbis._post_request(self.openbis.as_v3, request)
         if VERBOSE:
-            print("{} {} successfully deleted.".format(self.entity, self.code))
+            print(f"{self.entity} {self.code} successfully deleted.")
 
     def save(self):
         terms = self._terms or []

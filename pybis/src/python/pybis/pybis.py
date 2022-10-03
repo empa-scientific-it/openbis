@@ -200,14 +200,12 @@ def _type_for_id(ident, entity):
 
         search_request = {
             "identifier": ident.upper(),
-            "@type": "as.dto.{}.id.{}Identifier".format(
-                entity.lower(), entity_capitalize
-            ),
+            "@type": f"as.dto.{entity.lower()}.id.{entity_capitalize}Identifier",
         }
     else:
         search_request = {
             "permId": ident,
-            "@type": "as.dto.{}.id.{}PermId".format(entity.lower(), entity_capitalize),
+            "@type": f"as.dto.{entity.lower()}.id.{entity_capitalize}PermId",
         }
     return search_request
 
@@ -253,9 +251,7 @@ def _tagIds_for_tags(tags=None, action="Add"):
         "actions": [
             {
                 "items": items,
-                "@type": "as.dto.common.update.ListUpdateAction{}".format(
-                    action.capitalize()
-                ),
+                "@type": f"as.dto.common.update.ListUpdateAction{action.capitalize()}",
             }
         ],
         "@type": "as.dto.common.update.IdListUpdateValue",
@@ -274,7 +270,7 @@ def _list_update(ids=None, entity=None, action="Add"):
         map(
             lambda id: {
                 "code": id,
-                "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity),
+                "@type": f"as.dto.{entity.lower()}.id.{entity}Code",
             },
             ids,
         )
@@ -284,9 +280,7 @@ def _list_update(ids=None, entity=None, action="Add"):
         "actions": [
             {
                 "items": items,
-                "@type": "as.dto.common.update.ListUpdateAction{}".format(
-                    action.capitalize()
-                ),
+                "@type": f"as.dto.common.update.ListUpdateAction{action.capitalize()}",
             }
         ],
         "@type": "as.dto.common.update.IdListUpdateValue",
@@ -295,7 +289,7 @@ def _list_update(ids=None, entity=None, action="Add"):
 
 
 def get_field_value_search(field, value, comparison="StringEqualToValue"):
-    return {"value": value, "@type": "as.dto.common.search.{}".format(comparison)}
+    return {"value": value, "@type": f"as.dto.common.search.{comparison}"}
 
 
 def _common_search(search_type, value, comparison="StringEqualToValue"):
@@ -303,7 +297,7 @@ def _common_search(search_type, value, comparison="StringEqualToValue"):
         "@type": search_type,
         "fieldValue": {
             "value": value,
-            "@type": "as.dto.common.search.{}".format(comparison),
+            "@type": f"as.dto.common.search.{comparison}",
         },
     }
     return sreq
@@ -351,7 +345,7 @@ def _subcriteria_for_userId(userId):
 
 def _subcriteria_for_type(code, entity):
     return {
-        "@type": "as.dto.{}.search.{}TypeSearchCriteria".format(entity.lower(), entity),
+        "@type": f"as.dto.{entity.lower()}.search.{entity}TypeSearchCriteria",
         "criteria": [
             {
                 "@type": "as.dto.common.search.CodeSearchCriteria",
@@ -431,7 +425,7 @@ def _gen_search_criteria(req):
         elif key == "operator":
             sreq["operator"] = val.upper()
         else:
-            sreq["@type"] = "as.dto.{}.search.{}SearchCriteria".format(key, val)
+            sreq["@type"] = f"as.dto.{key}.search.{val}SearchCriteria"
     return sreq
 
 
@@ -1087,9 +1081,7 @@ class Openbis:
             "token",
         ]
         for attr in attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>
@@ -1259,9 +1251,7 @@ class Openbis:
                 return pstore.get("password")
             else:
                 raise Exception(
-                    "This method can only be called from these internal methods: {}".format(
-                        allowed_methods
-                    )
+                    f"This method can only be called from these internal methods: {allowed_methods}"
                 )
 
     def unmount(self, mountpoint=None):
@@ -1285,21 +1275,19 @@ class Openbis:
         if not os.path.ismount(full_mountpoint_path):
             return
 
-        status = subprocess.call("umount {}".format(full_mountpoint_path), shell=True)
+        status = subprocess.call(f"umount {full_mountpoint_path}", shell=True)
         if status == 1:
             status = subprocess.call(
-                'pkill -9 sshfs && umount "{}"'.format(full_mountpoint_path), shell=True
+                f'pkill -9 sshfs && umount "{full_mountpoint_path}"', shell=True
             )
 
         if status == 1:
             raise OSError(
-                "could not unmount mountpoint: {} Please try to unmount manually".format(
-                    full_mountpoint_path
-                )
+                f"could not unmount mountpoint: {full_mountpoint_path} Please try to unmount manually"
             )
         else:
             if VERBOSE:
-                print("Successfully unmounted {}".format(full_mountpoint_path))
+                print(f"Successfully unmounted {full_mountpoint_path}")
             self.mountpoint = None
 
     def is_mounted(self, mountpoint=None):
@@ -1388,9 +1376,7 @@ class Openbis:
         """
         if self.is_mounted():
             if VERBOSE:
-                print(
-                    "openBIS dataStore is already mounted on {}".format(self.mountpoint)
-                )
+                print(f"openBIS dataStore is already mounted on {self.mountpoint}")
             return
 
         def check_sshfs_is_installed():
@@ -1437,13 +1423,11 @@ class Openbis:
         supported_platforms = ["darwin", "linux"]
         if platform not in supported_platforms:
             raise ValueError(
-                "This method is not yet supported on {} plattform".format(platform)
+                f"This method is not yet supported on {platform} plattform"
             )
 
         os_options = {
-            "darwin": "-oauto_cache,reconnect,defer_permissions,noappledouble,negative_vncache,volname={} -oStrictHostKeyChecking=no ".format(
-                hostname
-            ),
+            "darwin": f"-oauto_cache,reconnect,defer_permissions,noappledouble,negative_vncache,volname={hostname} -oStrictHostKeyChecking=no ",
             "linux": "-oauto_cache,reconnect -oStrictHostKeyChecking=no",
         }
 
@@ -1475,7 +1459,7 @@ class Openbis:
 
         if status == 0:
             if VERBOSE:
-                print("Mounted successfully to {}".format(full_mountpoint_path))
+                print(f"Mounted successfully to {full_mountpoint_path}")
             self.mountpoint = full_mountpoint_path
             return self.mountpoint
         else:
@@ -1581,7 +1565,7 @@ class Openbis:
         try:
             return self._post_request(self.as_v1, request)
         except Exception as e:
-            raise ValueError("Could not generate a code for {}: {}".format(entity, e))
+            raise ValueError(f"Could not generate a code for {entity}: {e}")
 
     def gen_permId(self, count=1):
         """Generate a permId (or many permIds) for a dataSet"""
@@ -1590,7 +1574,7 @@ class Openbis:
         try:
             return self._post_request(self.as_v3, request)
         except Exception as exc:
-            raise ValueError("Could not generate a code: {}".format(exc))
+            raise ValueError(f"Could not generate a code: {exc}")
 
     def new_person(self, userId, space=None):
         """creates an openBIS person or returns the existing person"""
@@ -1681,7 +1665,7 @@ class Openbis:
                 else:
                     pass
             else:
-                raise ValueError("unknown search argument {}".format(attr))
+                raise ValueError(f"unknown search argument {attr}")
 
         search_criteria["criteria"] = sub_crit
 
@@ -1748,7 +1732,7 @@ class Openbis:
 
         resp = self._post_request(self.as_v3, request)
         if len(resp) == 0:
-            raise ValueError("No assigned role found for techId={}".format(techId))
+            raise ValueError(f"No assigned role found for techId={techId}")
 
         for permid in resp:
             data = resp[permid]
@@ -1771,7 +1755,7 @@ class Openbis:
         role = role.upper()
         defs = get_definition_for_entity("roleAssignment")
         if role not in defs["role"]:
-            raise ValueError("Role should be one of these: {}".format(defs["role"]))
+            raise ValueError(f"Role should be one of these: {defs['role']}")
         userId = None
         groupId = None
         spaceId = None
@@ -2738,9 +2722,7 @@ class Openbis:
             kind = kind.upper()
             if kind not in ["PHYSICAL", "CONTAINER", "LINK"]:
                 raise ValueError(
-                    "unknown dataSet kind: {}. It should be one of the following: PHYSICAL, CONTAINER or LINK".format(
-                        kind
-                    )
+                    f"unknown dataSet kind: {kind}. It should be one of the following: PHYSICAL, CONTAINER or LINK"
                 )
             fetchopts["kind"] = kind
             raise NotImplementedError("you cannot search for dataSet kinds yet")
@@ -3072,7 +3054,7 @@ class Openbis:
         if not isinstance(permids, list):
             permids = [permids]
 
-        type = "as.dto.{}.id.{}".format(entity.lower(), entity.capitalize())
+        type = f"as.dto.{entity.lower()}.id.{entity.capitalize()}"
         search_params = []
         for permid in permids:
             # decide if we got a permId or an identifier
@@ -3224,9 +3206,7 @@ class Openbis:
 
         if resp is None or len(resp) == 0:
             raise ValueError(
-                "no VocabularyTerm found with code='{}' and vocabularyCode='{}'".format(
-                    code, vocabularyCode
-                )
+                f"no VocabularyTerm found with code='{code}' and vocabularyCode='{vocabularyCode}'"
             )
         else:
             parse_jackson(resp)
@@ -3313,7 +3293,7 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
 
         if len(resp) == 0:
-            raise ValueError("no {} found with identifier: {}".format(entity, code))
+            raise ValueError(f"no {entity} found with identifier: {code}")
         else:
             parse_jackson(resp)
             for ident in resp:
@@ -3384,7 +3364,7 @@ class Openbis:
 
         if just_one:
             if len(resp) == 0:
-                raise ValueError("no such tag found: {}".format(permId))
+                raise ValueError(f"no such tag found: {permId}")
 
             parse_jackson(resp)
             for permId in resp:
@@ -3817,7 +3797,7 @@ class Openbis:
 
         if only_one:
             if len(resp) == 0:
-                raise ValueError("no such propertyType: {}".format(code))
+                raise ValueError(f"no such propertyType: {code}")
             for ident in resp:
                 if only_data:
                     return resp[ident]
@@ -4078,7 +4058,7 @@ class Openbis:
         parse_jackson(resp)
         if len(identifiers) == 1:
             if len(resp) == 0:
-                raise ValueError("no such {}: {}".format(entity, identifier[0]))
+                raise ValueError(f"no such {entity}: {identifier[0]}")
         for ident in resp:
             if only_data:
                 return resp[ident]
@@ -4112,14 +4092,10 @@ class Openbis:
             optional_attributes = []
 
         search_request = {
-            "@type": "as.dto.{}.search.{}TypeSearchCriteria".format(
-                entity.lower(), entity
-            )
+            "@type": f"as.dto.{entity.lower()}.search.{entity}TypeSearchCriteria"
         }
         fetch_options = {
-            "@type": "as.dto.{}.fetchoptions.{}TypeFetchOptions".format(
-                entity.lower(), entity
-            )
+            "@type": f"as.dto.{entity.lower()}.fetchoptions.{entity}TypeFetchOptions"
         }
         fetch_options["from"] = start_with
         fetch_options["count"] = count
@@ -4147,12 +4123,10 @@ class Openbis:
                 if len(response["objects"]) == 1:
                     return EntityType(openbis_obj=self, data=response["objects"][0])
                 elif len(response["objects"]) == 0:
-                    raise ValueError("No such {} type: {}".format(entity, type_name))
+                    raise ValueError(f"No such {entity} type: {type_name}")
                 else:
                     raise ValueError(
-                        "There is more than one entry for entity={} and type={}".format(
-                            entity, type_name
-                        )
+                        f"There is more than one entry for entity={entity} and type={type_name}"
                     )
 
             types = []
@@ -4280,7 +4254,7 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
         if just_one:
             if len(resp) == 0:
-                raise ValueError("no such dataset found: {}".format(permIds))
+                raise ValueError(f"no such dataset found: {permIds}")
 
             parse_jackson(resp)
 
@@ -4518,7 +4492,7 @@ class Openbis:
 
         if only_one:
             if len(resp) == 0:
-                raise ValueError("no such sample found: {}".format(sample_ident))
+                raise ValueError(f"no such sample found: {sample_ident}")
 
             parse_jackson(resp)
             for sample_ident in resp:
@@ -5212,9 +5186,7 @@ class ServerInformation:
         """
 
         for attr in self.attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>

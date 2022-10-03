@@ -25,7 +25,7 @@ class RoleAssignment(OpenBisObject):
         return ["id", "role", "roleLevel", "space", "project", "group"]
 
     def __str__(self):
-        return "{}".format(self.get("role"))
+        return f"{self.get('role')}"
 
     def delete(self, reason="no reason specified"):
         self.openbis.delete_openbis_entity(
@@ -33,7 +33,5 @@ class RoleAssignment(OpenBisObject):
         )
         if VERBOSE:
             print(
-                "RoleAssignment role={}, roleLevel={} successfully deleted.".format(
-                    self.role, self.roleLevel
-                )
+                f"RoleAssignment role={self.role}, roleLevel={self.roleLevel} successfully deleted."
             )

@@ -47,10 +47,10 @@ class Space(OpenBisObject, entity="space", single_item_method_name="get_space"):
             return self.openbis.get_sample(sample_code)
         else:
             if project_code is None:
-                return self.openbis.get_sample("/{}/{}".format(self.code, sample_code))
+                return self.openbis.get_sample(f"/{self.code}/{sample_code}")
             else:
                 return self.openbis.get_sample(
-                    "/{}/{}/{}".format(self.code, project_code, sample_code)
+                    f"/{self.code}/{project_code}/{sample_code}"
                 )
 
     get_object = get_sample  # Alias

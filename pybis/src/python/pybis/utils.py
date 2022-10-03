@@ -285,7 +285,7 @@ def extract_person(person):
 def extract_person_details(person):
     if not isinstance(person, dict):
         return str(person)
-    return "{} {} <{}>".format(person["firstName"], person["lastName"], person["email"])
+    return "{firstName} {lastName} <{email}>".format(**person)
 
 
 def extract_id(id):

@@ -93,7 +93,7 @@ class Things:
 
     def get_parents(self, **kwargs):
         if self.entity not in ["sample", "dataset"]:
-            raise ValueError("{}s do not have parents".format(self.entity))
+            raise ValueError(f"{self.entity}s do not have parents")
 
         if self.df is not None and len(self.df) > 0:
             dfs = []
@@ -116,7 +116,7 @@ class Things:
 
     def get_children(self, **kwargs):
         if self.entity not in ["sample", "dataset"]:
-            raise ValueError("{}s do not have children".format(self.entity))
+            raise ValueError(f"{self.entity}s do not have children")
 
         if self.df is not None and len(self.df) > 0:
             dfs = []
@@ -140,7 +140,7 @@ class Things:
 
     def get_samples(self, **kwargs):
         if self.entity not in ["space", "project", "experiment"]:
-            raise ValueError("{}s do not have samples".format(self.entity))
+            raise ValueError(f"{self.entity}s do not have samples")
 
         if self.df is not None and len(self.df) > 0:
             dfs = []
@@ -165,7 +165,7 @@ class Things:
 
     def get_datasets(self, **kwargs):
         if self.entity not in ["sample", "experiment"]:
-            raise ValueError("{}s do not have datasets".format(self.entity))
+            raise ValueError(f"{self.entity}s do not have datasets")
 
         if self.df is not None and len(self.df) > 0:
             dfs = []

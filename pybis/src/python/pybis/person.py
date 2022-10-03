@@ -1,3 +1,4 @@
+from regex import F
 from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
 from .utils import VERBOSE
@@ -50,19 +51,11 @@ class Person(OpenBisObject):
         try:
             self.openbis.assign_role(role=role, person=self, **kwargs)
             if VERBOSE:
-                print(
-                    "Role {} successfully assigned to person {}".format(
-                        role, self.userId
-                    )
-                )
+                print(f"Role {role} successfully assigned to person {self.userId}")
         except ValueError as e:
             if "exists" in str(e):
                 if VERBOSE:
-                    print(
-                        "Role {} already assigned to person {}".format(
-                            role, self.userId
-                        )
-                    )
+                    print(f"Role {role} already assigned to person {self.userId}")
             else:
                 raise ValueError(str(e))
 
@@ -91,9 +84,7 @@ class Person(OpenBisObject):
                     query["project"] = project.code.upper()
 
             # build a query string for dataframe
-            querystr = " & ".join(
-                '{} == "{}"'.format(key, value) for key, value in query.items()
-            )
+            querystr = " & ".join(f'{key} == "{value}"' for key, value in query.items())
             roles = self.get_roles().df
             if len(roles) == 0:
                 if VERBOSE:
@@ -107,11 +98,11 @@ class Person(OpenBisObject):
         ra = self.openbis.get_role_assignment(techId)
         ra.delete(reason)
         if VERBOSE:
-            print("Role {} successfully revoked from person {}".format(role, self.code))
+            print(f"Role {role} successfully revoked from person {self.code}")
         return
 
     def __str__(self):
-        return "{} {}".format(self.get("firstName"), self.get("lastName"))
+        return f'{self.get("firstName")} {self.get("lastName")}'
 
     def delete(self, reason):
         raise ValueError("Persons cannot be deleted")

@@ -150,7 +150,7 @@ class OpenBisObject:
             entity=self._entity, objectId=self.data["permId"], reason=reason
         )
         if VERBOSE:
-            print("{} {} successfully deleted.".format(self._entity, self.permId))
+            print(f"{self._entity} {self.permId} successfully deleted.")
 
     def _get_single_item_method(self):
         single_item_method = None
@@ -174,9 +174,7 @@ class OpenBisObject:
                         or getattr(self.props, prop_name) == ""
                     ):
                         raise ValueError(
-                            "Property '{}' is mandatory and must not be None".format(
-                                prop_name
-                            )
+                            f"Property '{prop_name}' is mandatory and must not be None"
                         )
 
             props = self.p._all_props()
@@ -190,7 +188,7 @@ class OpenBisObject:
             resp = self.openbis._post_request(self.openbis.as_v3, request)
 
             if VERBOSE:
-                print("{} successfully created.".format(self.entity))
+                print(f"{self.entity} successfully created.")
             new_entity_data = get_single_item(resp[0]["permId"], only_data=True)
             self._set_data(new_entity_data)
             return self
@@ -204,7 +202,7 @@ class OpenBisObject:
 
             resp = self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE:
-                print("{} successfully updated.".format(self.entity))
+                print(f"{self.entity} successfully updated.")
             new_entity_data = get_single_item(
                 self.permId, only_data=True, use_cache=False
             )
@@ -290,9 +288,7 @@ class Transaction:
                                     or getattr(entity.props, prop_name) == ""
                                 ):
                                     raise ValueError(
-                                        "Property '{}' is mandatory and must not be None".format(
-                                            prop_name
-                                        )
+                                        f"Property '{prop_name}' is mandatory and must not be None"
                                     )
                     props = entity.p._all_props()
 

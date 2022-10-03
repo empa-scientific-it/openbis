@@ -122,9 +122,7 @@ class PropertyHolder:
         """
         if name not in self._property_names:
             raise KeyError(
-                "No such property: '{}'. Allowed properties are: {}".format(
-                    name, ", ".join(self._property_names.keys())
-                )
+                f"No such property: «{name}». Allowed properties are: {', '.join(self._property_names.keys())}"
             )
         property_type = self._property_names[name]
         data_type = property_type["dataType"]
@@ -133,13 +131,11 @@ class PropertyHolder:
             value = str(value).upper()
             if value not in terms.df["code"].values:
                 raise ValueError(
-                    "Value for attribute {} must be one of these terms: {}".format(
-                        name, ", ".join(terms.df["code"].values)
-                    )
+                    f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
                 )
         elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR"):
             if not check_datatype(data_type, value):
-                raise ValueError("Value must be of type {}".format(data_type))
+                raise ValueError(f"Value must be of type {data_type}")
         self.__dict__[name] = value
 
     def __setitem__(self, key, value):
@@ -176,13 +172,18 @@ class PropertyHolder:
         """
 
         for prop_name, prop in self._property_names.items():
-            html += "<tr> <td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td> </tr>".format(
-                prop_name,
-                nvl(getattr(self, prop_name, ""), ""),
-                prop.get("description"),
-                prop.get("dataType"),
-                prop.get("mandatory"),
+            html += "<tr>"
+            html += "".join(
+                f"<td>{item}</td>"
+                for item in [
+                    prop_name,
+                    nvl(getattr(self, prop_name, ""), ""),
+                    prop.get("description"),
+                    prop.get("dataType"),
+                    prop.get("mandatory"),
+                ]
             )
+            html += "</tr>"
 
         html += """
             </tbody>

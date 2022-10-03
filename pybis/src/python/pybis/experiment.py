@@ -108,9 +108,7 @@ class Experiment(
             # a sample can only belong to exactly one experiment
             if obj.experiment is not None:
                 raise ValueError(
-                    "sample {} already belongs to experiment {}".format(
-                        obj.code, obj.experiment
-                    )
+                    f"sample {obj.code} already belongs to experiment {obj.experiment}"
                 )
             else:
                 if self.is_new:

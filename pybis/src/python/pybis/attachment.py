@@ -5,7 +5,7 @@ import os
 class Attachment:
     def __init__(self, filename, title=None, description=None):
         if not os.path.exists(filename):
-            raise ValueError("File not found: {}".format(filename))
+            raise ValueError(f"File not found: {filename}")
         self.fileName = filename
         self.title = title
         self.description = description

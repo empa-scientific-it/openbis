@@ -161,9 +161,7 @@ class SemanticAnnotation:
         """
 
         for attr in attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>
