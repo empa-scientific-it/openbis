@@ -331,23 +331,20 @@ export default class BrowserTreeController {
       }
     }
 
-    await this.context.setState(newState)
-
-    setTimeout(() => {
-      if (lastNode && document) {
-        let element = null
-
-        if (lastNode.object.id === path[path.length - 1].id) {
-          element = document.querySelector('#' + lastNode.id)
-        } else {
-          element = document.querySelector('#' + lastNode.id + '_load_more')
-        }
-
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (lastNode) {
+      newState.nodes = { ...newState.nodes }
+      newState.nodes[lastNode.id] = {
+        ...newState.nodes[lastNode.id],
+        scrollTo: {
+          type:
+            lastNode.object.id === path[path.length - 1].id
+              ? 'node'
+              : 'loadMore'
         }
       }
-    }, 1)
+    }
+
+    await this.context.setState(newState)
   }
 
   async changeSorting(nodeId, sortingId) {

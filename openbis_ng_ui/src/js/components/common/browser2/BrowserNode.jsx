@@ -58,6 +58,8 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleLoadMore = this.handleLoadMore.bind(this)
     this.handleSortingChange = this.handleSortingChange.bind(this)
     this.handleCollapseAll = this.handleCollapseAll.bind(this)
+    this.nodeRef = React.createRef()
+    this.loadMoreRef = React.createRef()
   }
 
   handleClick() {
@@ -92,6 +94,29 @@ class BrowserNodeClass extends React.PureComponent {
     controller.collapseAllNodes(nodeId)
   }
 
+  componentDidMount() {
+    this.componentDidUpdate(null)
+  }
+
+  componentDidUpdate(prevProps) {
+    const prevScrollTo = prevProps ? prevProps.node.scrollTo : null
+    const scrollTo = this.props.node.scrollTo
+
+    if (scrollTo && scrollTo !== prevScrollTo) {
+      let element = null
+
+      if (scrollTo.type === 'node') {
+        element = this.nodeRef.current
+      } else if (scrollTo.type === 'loadMore') {
+        element = this.loadMoreRef.current
+      }
+
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'BrowserNode.render')
 
@@ -101,7 +126,7 @@ class BrowserNodeClass extends React.PureComponent {
       <div>
         {level !== -1 && (
           <ListItem
-            id={node.id}
+            ref={this.nodeRef}
             button
             selected={node.selected}
             onClick={this.handleClick}
@@ -243,7 +268,7 @@ class BrowserNodeClass extends React.PureComponent {
     ) {
       return (
         <ListItem
-          id={node.id + '_load_more'}
+          ref={this.loadMoreRef}
           button
           onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
