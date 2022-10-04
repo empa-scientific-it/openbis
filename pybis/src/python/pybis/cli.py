@@ -24,10 +24,10 @@ def openbis_conn_options(func):
         click.option("-u", "--username", help="Username OPENBIS_USERNAME"),
         click.option("-p", "--password", help="Password OPENBIS_PASSWORD"),
         click.option(
-            "--verify-certificate",
+            "--ignore-certificate",
             is_flag=True,
             default=True,
-            help="Verify SSL certificate of openBIS host",
+            help="Ignore SSL certificate of openBIS host",
         ),
     ]
     # we use reversed(options) to keep the options order in --help
@@ -40,10 +40,10 @@ def login_options(func):
     options = [
         click.argument("hostname"),
         click.option(
-            "--verify-certificate",
+            "--ignore-certificate",
             is_flag=True,
             default=True,
-            help="Verify SSL certificate of openBIS host",
+            help="Ignore SSL certificate of openBIS host",
         ),
     ]
     # we use reversed(options) to keep the options order in --help
@@ -56,7 +56,7 @@ def get_openbis(
     hostname=None,
     username=None,
     password=None,
-    verify_certificate=True,
+    ignore_certificate=False,
     session_token_needed=False,
 ):
     """Order of priorities:
@@ -82,7 +82,7 @@ def get_openbis(
     )
     openbis = pybis.Openbis(
         url=hostname,
-        verify_certificates=verify_certificate,
+        verify_certificates=not ignore_certificate,
     )
     if token:
         try:
@@ -139,7 +139,7 @@ def get_space(identifier, **kwargs):
 @space.command("list")
 @openbis_conn_options
 def get_spaces(**kwargs):
-    """get all spaces"""
+    """get all spaces in an openBIS instance"""
     openbis = get_openbis(**kwargs)
     try:
         spaces = openbis.get_spaces()
@@ -192,7 +192,7 @@ def collection(ctx):
 @openbis_conn_options
 @click.argument("identifier", required=True)
 def get_collection(identifier, **kwargs):
-    """get a collection by its identifier or permId"""
+    """get collection by its identifier or permId"""
     openbis = get_openbis(**kwargs)
     try:
         coll = openbis.get_collection(identifier)
@@ -205,7 +205,7 @@ def get_collection(identifier, **kwargs):
 @openbis_conn_options
 @click.argument("identifier", required=True)
 def get_collections(identifier, **kwargs):
-    """list all collection in a given project or space"""
+    """list all collections in a given project or space"""
     openbis = get_openbis(**kwargs)
     try:
         entity = openbis.get_space(identifier)
@@ -222,7 +222,7 @@ def get_collections(identifier, **kwargs):
 @openbis_conn_options
 @click.argument("identifier", required=True)
 def get_collection(identifier, **kwargs):
-    """get list of collection for a"""
+    """get collection by its identifier or permId"""
     openbis = get_openbis(**kwargs)
     try:
         coll = openbis.get_collection(identifier)
@@ -280,7 +280,7 @@ def sample(ctx):
 @openbis_conn_options
 @click.argument("identifier", required=True)
 def get_sample(identifier, **kwargs):
-    """get a sample by its identifier or permId"""
+    """get sample by its identifier or permId"""
     openbis = get_openbis(**kwargs)
     try:
         sample = openbis.get_sample(identifier)
@@ -292,7 +292,7 @@ def get_sample(identifier, **kwargs):
 @sample.command("list")
 @openbis_conn_options
 @click.argument("identifier", required=True)
-def get_sample(identifier, **kwargs):
+def get_samples(identifier, **kwargs):
     """list all samples of a given space, project or collection"""
     openbis = get_openbis(**kwargs)
     try:
@@ -360,7 +360,7 @@ def dataset(ctx):
 @openbis_conn_options
 @click.argument("permid", required=True)
 def get_dataset(permid, **kwargs):
-    """get dataset meta-information"""
+    """get dataset meta-information by its permId"""
     openbis = get_openbis(**kwargs)
     try:
         ds = openbis.get_dataset(permid)
@@ -384,7 +384,7 @@ def get_dataset(permid, **kwargs):
     help="where to download your dataset",
 )
 def download_dataset(permid, destination, fileno, **kwargs):
-    """download a dataset"""
+    """download dataset files"""
     openbis = get_openbis(**kwargs)
     try:
         dataset = openbis.get_dataset(permid)
