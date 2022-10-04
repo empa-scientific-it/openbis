@@ -56,14 +56,15 @@ export default class BrowserController {
     })
 
     this.fullTreeController.init(
-      new ComponentContextNamespaced(context, 'fullTree', () => ({
+      new ComponentContextNamespaced(context, 'fullTree', originalProps => ({
         loadSettings: () => {
           return this.settings.fullTree
         },
         onSettingsChange: settings => {
           this.settings.fullTree = settings
           this._saveSettings()
-        }
+        },
+        onSelectedChange: originalProps.onSelectedChange
       }))
     )
 
@@ -138,17 +139,17 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
-  async selectNode(nodeObject) {
+  async selectObject(nodeObject) {
     if (this.isFilteredTreeVisible()) {
-      await this.fullTreeController.selectNode(nodeObject)
-      await this.filteredTreeController.selectNode(nodeObject)
+      await this.fullTreeController.selectObject(nodeObject)
+      await this.filteredTreeController.selectObject(nodeObject)
     } else {
-      await this.fullTreeController.selectNode(nodeObject)
+      await this.fullTreeController.selectObject(nodeObject)
     }
   }
 
-  async showSelectedNode() {
-    await this._getTreeController().showSelectedNode()
+  async showSelectedObject() {
+    await this._getTreeController().showSelectedObject()
   }
 
   async changeSorting(nodeId, sortingId) {
@@ -167,6 +168,10 @@ export default class BrowserController {
 
   getRoot() {
     return this._getTreeController().getRoot()
+  }
+
+  getSelectedObject() {
+    return this._getTreeController().getSelectedObject()
   }
 
   getFullTree() {

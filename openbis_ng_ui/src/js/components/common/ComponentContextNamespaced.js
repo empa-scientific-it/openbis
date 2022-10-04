@@ -18,7 +18,7 @@ export default class ComponentContextWithNamespace {
   }
 
   getProps() {
-    return this.getPropsFn()
+    return this.getPropsFn(this.originalContext.getProps())
   }
 
   getState() {

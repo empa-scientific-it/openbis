@@ -265,20 +265,20 @@ export default class BrowserTreeController {
     }
   }
 
-  async selectNode(nodeObject) {
+  async selectObject(nodeObject) {
     const state = this.context.getState()
 
     const newState = { ...state }
-    await this._doSelectNodes(newState, nodeObject)
+    await this._doSelectObject(newState, nodeObject)
     await this.context.setState(newState)
 
-    const { onSelectedChange } = this.context.getState()
+    const { onSelectedChange } = this.context.getProps()
     if (onSelectedChange) {
       onSelectedChange(nodeObject)
     }
   }
 
-  async _doSelectNodes(state, nodeObject) {
+  async _doSelectObject(state, nodeObject) {
     state.nodes = { ...state.nodes }
 
     Object.keys(state.nodes).forEach(id => {
@@ -296,7 +296,7 @@ export default class BrowserTreeController {
     state.selectedObject = nodeObject
   }
 
-  async showSelectedNode() {
+  async showSelectedObject() {
     const state = this.context.getState()
 
     if (!state.selectedObject) {
@@ -467,6 +467,11 @@ export default class BrowserTreeController {
   getRoot() {
     const { rootId, nodes } = this.context.getState()
     return nodes[rootId]
+  }
+
+  getSelectedObject() {
+    const { selectedObject } = this.context.getState()
+    return selectedObject
   }
 
   getTree() {

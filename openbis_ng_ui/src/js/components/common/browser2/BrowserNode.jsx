@@ -69,7 +69,7 @@ class BrowserNodeClass extends React.PureComponent {
 
   handleClick() {
     const { controller, node } = this.props
-    controller.selectNode(node.object)
+    controller.selectObject(node.object)
   }
 
   handleExpand(event) {
@@ -116,6 +116,7 @@ class BrowserNodeClass extends React.PureComponent {
           element.classList.remove(this.props.classes.selected)
         }, 1500)
       }
+      scrollTo.clear()
     }
   }
 

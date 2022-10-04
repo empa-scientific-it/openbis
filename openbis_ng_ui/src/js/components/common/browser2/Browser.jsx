@@ -148,7 +148,7 @@ class Browser extends React.PureComponent {
             {controller.isFullTreeVisible() && (
               <div className={classes.filterButton}>
                 <BrowserNodeShowSelected
-                  onClick={controller.showSelectedNode}
+                  onClick={controller.showSelectedObject}
                 />
               </div>
             )}

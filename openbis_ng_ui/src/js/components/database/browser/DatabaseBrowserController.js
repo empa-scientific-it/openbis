@@ -1,5 +1,6 @@
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
+import objectType from '@src/js/common/consts/objectType.js'
 
 const SORTINGS = {
   code_asc: {
@@ -32,9 +33,9 @@ export default class DatabaseBrowserController extends BrowserController {
   async doLoadNodePath(params) {
     const { object } = params
 
-    if (object.type === 'space') {
+    if (object.type === objectType.SPACE) {
       return [object]
-    } else if (object.type === 'project') {
+    } else if (object.type === objectType.PROJECT) {
       const id = new openbis.ProjectPermId(object.id)
       const fetchOptions = new openbis.ProjectFetchOptions()
       fetchOptions.withSpace()
@@ -43,11 +44,14 @@ export default class DatabaseBrowserController extends BrowserController {
       const project = projects[id]
 
       if (project) {
-        return [{ type: 'space', id: project.getSpace().getCode() }, object]
+        return [
+          { type: objectType.SPACE, id: project.getSpace().getCode() },
+          object
+        ]
       } else {
         return null
       }
-    } else if (object.type === 'experiment') {
+    } else if (object.type === objectType.COLLECTION) {
       const id = new openbis.ExperimentPermId(object.id)
       const fetchOptions = new openbis.ExperimentFetchOptions()
       fetchOptions.withProject().withSpace()
@@ -57,9 +61,12 @@ export default class DatabaseBrowserController extends BrowserController {
 
       if (experiment) {
         return [
-          { type: 'space', id: experiment.getProject().getSpace().getCode() },
           {
-            type: 'project',
+            type: objectType.SPACE,
+            id: experiment.getProject().getSpace().getCode()
+          },
+          {
+            type: objectType.PROJECT,
             id: experiment.getProject().getPermId().getPermId()
           },
           object
@@ -67,7 +74,7 @@ export default class DatabaseBrowserController extends BrowserController {
       } else {
         return null
       }
-    } else if (object.type === 'sample') {
+    } else if (object.type === objectType.OBJECT) {
       const id = new openbis.SamplePermId(object.id)
       const fetchOptions = new openbis.SampleFetchOptions()
       fetchOptions.withSpace()
@@ -81,15 +88,15 @@ export default class DatabaseBrowserController extends BrowserController {
         if (sample.getExperiment()) {
           return [
             {
-              type: 'space',
+              type: objectType.SPACE,
               id: sample.getExperiment().getProject().getSpace().getCode()
             },
             {
-              type: 'project',
+              type: objectType.PROJECT,
               id: sample.getExperiment().getProject().getPermId().getPermId()
             },
             {
-              type: 'experiment',
+              type: objectType.COLLECTION,
               id: sample.getExperiment().getPermId().getPermId()
             },
             object
@@ -97,11 +104,11 @@ export default class DatabaseBrowserController extends BrowserController {
         } else if (sample.getProject()) {
           return [
             {
-              type: 'space',
+              type: objectType.SPACE,
               id: sample.getProject().getSpace().getCode()
             },
             {
-              type: 'project',
+              type: objectType.PROJECT,
               id: sample.getProject().getPermId().getPermId()
             },
             object
@@ -109,7 +116,7 @@ export default class DatabaseBrowserController extends BrowserController {
         } else if (sample.getSpace()) {
           return [
             {
-              type: 'space',
+              type: objectType.SPACE,
               id: sample.getSpace().getCode()
             },
             object
@@ -170,7 +177,7 @@ export default class DatabaseBrowserController extends BrowserController {
             dataSets.totalCount
         }
       }
-    } else if (node.object.type === 'space') {
+    } else if (node.object.type === objectType.SPACE) {
       const [projects, samples] = await Promise.all([
         this.searchProjects(params),
         this.searchSamples(params)
@@ -179,7 +186,7 @@ export default class DatabaseBrowserController extends BrowserController {
         nodes: [...projects.nodes, ...samples.nodes],
         totalCount: projects.totalCount + samples.totalCount
       }
-    } else if (node.object.type === 'project') {
+    } else if (node.object.type === objectType.PROJECT) {
       const [experiments, samples] = await Promise.all([
         this.searchExperiments(params),
         this.searchSamples(params)
@@ -188,7 +195,7 @@ export default class DatabaseBrowserController extends BrowserController {
         nodes: [...experiments.nodes, ...samples.nodes],
         totalCount: experiments.totalCount + samples.totalCount
       }
-    } else if (node.object.type === 'experiment') {
+    } else if (node.object.type === objectType.COLLECTION) {
       const [samples, dataSets] = await Promise.all([
         this.searchSamples(params),
         this.searchDataSets(params)
@@ -197,7 +204,7 @@ export default class DatabaseBrowserController extends BrowserController {
         nodes: [...samples.nodes, ...dataSets.nodes],
         totalCount: samples.totalCount + dataSets.totalCount
       }
-    } else if (node.object.type === 'sample') {
+    } else if (node.object.type === objectType.OBJECT) {
       const [samples, dataSets] = await Promise.all([
         this.searchSamples(params),
         this.searchDataSets(params)
@@ -232,10 +239,10 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(space => ({
-      id: 'space_' + space.getCode() + '_in_' + node.id,
+      id: objectType.SPACE + '_' + space.getCode() + '_in_' + node.id,
       text: space.getCode() + (filter ? ' (space)' : ''),
       object: {
-        type: 'space',
+        type: objectType.SPACE,
         id: space.getCode()
       },
       canHaveChildren: true,
@@ -256,7 +263,7 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
-    if (node.object.type === 'space') {
+    if (node.object.type === objectType.SPACE) {
       criteria.withSpace().withCode().thatEquals(node.object.id)
     }
 
@@ -273,10 +280,15 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(project => ({
-      id: 'project_' + project.getPermId().getPermId() + '_in_' + node.id,
+      id:
+        objectType.PROJECT +
+        '_' +
+        project.getPermId().getPermId() +
+        '_in_' +
+        node.id,
       text: project.getCode() + (filter ? ' (project)' : ''),
       object: {
-        type: 'project',
+        type: objectType.PROJECT,
         id: project.getPermId().getPermId()
       },
       canHaveChildren: true,
@@ -297,7 +309,7 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
-    if (node.object.type === 'project') {
+    if (node.object.type === objectType.PROJECT) {
       criteria.withProject().withPermId().thatEquals(node.object.id)
     }
 
@@ -314,10 +326,15 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(experiment => ({
-      id: 'experiment_' + experiment.getPermId().getPermId() + '_in_' + node.id,
-      text: experiment.getCode() + (filter ? ' (experiment)' : ''),
+      id:
+        objectType.COLLECTION +
+        '_' +
+        experiment.getPermId().getPermId() +
+        '_in_' +
+        node.id,
+      text: experiment.getCode() + (filter ? ' (collection)' : ''),
       object: {
-        type: 'experiment',
+        type: objectType.COLLECTION,
         id: experiment.getPermId().getPermId()
       },
       canHaveChildren: true,
@@ -340,18 +357,18 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
-    if (node.object.type === 'space') {
+    if (node.object.type === objectType.SPACE) {
       criteria.withSpace().withPermId().thatEquals(node.object.id)
       criteria.withoutProject()
     }
-    if (node.object.type === 'project') {
+    if (node.object.type === objectType.PROJECT) {
       criteria.withProject().withPermId().thatEquals(node.object.id)
       criteria.withoutExperiment()
     }
-    if (node.object.type === 'experiment') {
+    if (node.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.object.id)
     }
-    if (node.object.type === 'sample') {
+    if (node.object.type === objectType.OBJECT) {
       criteria.withParents().withPermId().thatEquals(node.object.id)
     }
 
@@ -368,10 +385,15 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(sample => ({
-      id: 'sample_' + sample.getPermId().getPermId() + '_in_' + node.id,
-      text: sample.getCode() + (filter ? ' (sample)' : ''),
+      id:
+        objectType.OBJECT +
+        '_' +
+        sample.getPermId().getPermId() +
+        '_in_' +
+        node.id,
+      text: sample.getCode() + (filter ? ' (object)' : ''),
       object: {
-        type: 'sample',
+        type: objectType.OBJECT,
         id: sample.getPermId().getPermId()
       },
       canHaveChildren: true,
@@ -394,11 +416,11 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.object.type === 'root' && filter) {
       criteria.withCode().thatContains(filter)
     }
-    if (node.object.type === 'experiment') {
+    if (node.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.object.id)
       criteria.withoutSample()
     }
-    if (node.object.type === 'sample') {
+    if (node.object.type === objectType.OBJECT) {
       criteria.withSample().withPermId().thatEquals(node.object.id)
     }
 
@@ -415,10 +437,15 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(dataSet => ({
-      id: 'dataset_' + dataSet.getPermId().getPermId() + '_in_' + node.id,
+      id:
+        objectType.DATA_SET +
+        '_' +
+        dataSet.getPermId().getPermId() +
+        '_in_' +
+        node.id,
       text: dataSet.getCode() + (filter ? ' (dataset)' : ''),
       object: {
-        type: 'dataset',
+        type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
       }
     }))

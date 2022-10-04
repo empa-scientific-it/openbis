@@ -34,8 +34,9 @@ class Database extends React.PureComponent {
     return null
   }
 
-  renderTab() {
-    return null
+  renderTab(tab) {
+    const { object } = tab
+    return object.type + ': ' + object.id
   }
 }
 
