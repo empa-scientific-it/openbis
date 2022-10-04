@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Content from '@src/js/components/common/content/Content.jsx'
 import DatabaseBrowser from '@src/js/components/database/browser/DatabaseBrowser.jsx'
+import DatabaseTab from '@src/js/components/database/DatabaseTab.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -35,8 +36,7 @@ class Database extends React.PureComponent {
   }
 
   renderTab(tab) {
-    const { object } = tab
-    return object.type + ': ' + object.id
+    return <DatabaseTab tab={tab} />
   }
 }
 
