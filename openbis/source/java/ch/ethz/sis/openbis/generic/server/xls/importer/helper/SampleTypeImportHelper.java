@@ -25,7 +25,10 @@ public class SampleTypeImportHelper extends BasicImportHelper
         Description("Description", true),
         AutoGenerateCodes("Auto generate codes", true),
         ValidationScript("Validation script", true),
-        GeneratedCodePrefix("Generated code prefix", true);
+        GeneratedCodePrefix("Generated code prefix", true),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false);
 
         private final String headerName;
 
