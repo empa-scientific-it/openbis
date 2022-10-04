@@ -24,7 +24,6 @@ export default class BrowserTreeController {
       rootId: null,
       nodes: {},
       selectedObject: null,
-      selectedScrollTo: false,
       expandedIds: {},
       sortingIds: {}
     })
@@ -42,7 +41,6 @@ export default class BrowserTreeController {
       rootId: null,
       nodes: {},
       selectedObject: null,
-      selectedScrollTo: false,
       expandedIds: {},
       sortingIds: {}
     }
@@ -313,38 +311,69 @@ export default class BrowserTreeController {
       return
     }
 
-    const path = [this.getRoot().object, ...pathWithoutRoot]
+    const _this = this
     const newState = { ...state }
+    const path = [this.getRoot().object, ...pathWithoutRoot]
 
-    let lastNode = null
-    for (let i = 0; i < path.length; i++) {
-      const node = Object.values(newState.nodes).find(
-        node => node.object && _.isEqual(node.object, path[i])
-      )
-      if (node) {
-        lastNode = node
-        if (i < path.length - 1) {
-          await this._doExpandNode(newState, node.id)
+    let currentObject = path.shift()
+    let currentNode = this.getRoot()
+
+    const scrollTo = (ref, nodeId) => {
+      const scrollToId = _.uniqueId()
+      return {
+        id: scrollToId,
+        ref: ref,
+        clear: () => {
+          _this.context.setState(state => {
+            const node = state.nodes[nodeId]
+            if (node && node.scrollTo && node.scrollTo.id === scrollToId) {
+              const newNode = { ...node }
+              delete newNode.scrollTo
+              return {
+                nodes: {
+                  ...state.nodes,
+                  [newNode.id]: newNode
+                }
+              }
+            }
+          })
         }
-      } else {
-        break
       }
     }
 
-    if (lastNode) {
-      newState.nodes = { ...newState.nodes }
-      newState.nodes[lastNode.id] = {
-        ...newState.nodes[lastNode.id],
-        scrollTo: {
-          type:
-            lastNode.object.id === path[path.length - 1].id
-              ? 'node'
-              : 'loadMore'
+    while (currentObject && currentNode) {
+      let nextObject = path.shift()
+      let nextNode = null
+
+      if (nextObject) {
+        await this._doExpandNode(newState, currentNode.id)
+        currentNode = newState.nodes[currentNode.id]
+        if (currentNode.children) {
+          for (let i = 0; i < currentNode.children.length; i++) {
+            const childId = currentNode.children[i]
+            const child = newState.nodes[childId]
+            if (child && _.isEqual(child.object, nextObject)) {
+              nextNode = child
+              break
+            }
+          }
         }
       }
+
+      if (!nextNode) {
+        newState.nodes = { ...newState.nodes }
+        newState.nodes[currentNode.id] = {
+          ...newState.nodes[currentNode.id],
+          scrollTo: scrollTo(nextObject ? 'loadMore' : 'node', currentNode.id)
+        }
+      }
+
+      currentObject = nextObject
+      currentNode = nextNode
     }
 
     await this.context.setState(newState)
+    this._saveSettings()
   }
 
   async changeSorting(nodeId, sortingId) {

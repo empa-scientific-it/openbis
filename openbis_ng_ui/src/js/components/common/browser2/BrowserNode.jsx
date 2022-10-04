@@ -46,6 +46,9 @@ const styles = theme => ({
   },
   option: {
     paddingLeft: '16px'
+  },
+  selected: {
+    backgroundColor: theme.palette.background.primary
   }
 })
 
@@ -58,8 +61,10 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleLoadMore = this.handleLoadMore.bind(this)
     this.handleSortingChange = this.handleSortingChange.bind(this)
     this.handleCollapseAll = this.handleCollapseAll.bind(this)
-    this.nodeRef = React.createRef()
-    this.loadMoreRef = React.createRef()
+    this.references = {
+      node: React.createRef(),
+      loadMore: React.createRef()
+    }
   }
 
   handleClick() {
@@ -103,16 +108,13 @@ class BrowserNodeClass extends React.PureComponent {
     const scrollTo = this.props.node.scrollTo
 
     if (scrollTo && scrollTo !== prevScrollTo) {
-      let element = null
-
-      if (scrollTo.type === 'node') {
-        element = this.nodeRef.current
-      } else if (scrollTo.type === 'loadMore') {
-        element = this.loadMoreRef.current
-      }
-
+      let element = this.references[scrollTo.ref].current
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.classList.add(this.props.classes.selected)
+        setTimeout(() => {
+          element.classList.remove(this.props.classes.selected)
+        }, 1500)
       }
     }
   }
@@ -126,7 +128,7 @@ class BrowserNodeClass extends React.PureComponent {
       <div>
         {level !== -1 && (
           <ListItem
-            ref={this.nodeRef}
+            ref={this.references['node']}
             button
             selected={node.selected}
             onClick={this.handleClick}
@@ -268,7 +270,7 @@ class BrowserNodeClass extends React.PureComponent {
     ) {
       return (
         <ListItem
-          ref={this.loadMoreRef}
+          ref={this.references['loadMore']}
           button
           onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
