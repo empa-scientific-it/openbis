@@ -90,6 +90,9 @@ public class SampleImportHelper extends BasicImportHelper
             lineIndex++;
 
             sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));
+            if(sampleType.getPermId() == null || sampleType.getPermId().isEmpty()) {
+                throw new UserFailureException("Mandatory field missing or empty: " + SAMPLE_TYPE_FIELD);
+            }
 
             // first check that sample type exist.
             SampleTypeFetchOptions fetchTypeOptions = new SampleTypeFetchOptions();
@@ -97,7 +100,7 @@ public class SampleImportHelper extends BasicImportHelper
             SampleType type = delayedExecutor.getSampleType(sampleType, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Sample type " + sampleType + " is not exist.");
+                throw new UserFailureException("Sample type " + sampleType + " not found.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
