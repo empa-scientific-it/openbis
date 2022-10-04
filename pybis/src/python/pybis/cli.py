@@ -1,9 +1,21 @@
 import os
-import click
-from tabulate import tabulate
-from . import pybis
+import syslog
 from datetime import datetime
+
+# import logging
+# import logging.handlers
+
+import click
 from dateutil.relativedelta import relativedelta
+from tabulate import tabulate
+
+from . import pybis
+
+syslog.openlog("pyBIS")
+# pybis_logger = logging.getLogger("pyBIS")
+# pybis_logger.setLevel(logging.INFO)
+# handler = logging.handlers.SysLogHandler(address="/dev/log")
+# pybis_logger.addHandler(handler)
 
 
 def openbis_conn_options(func):
@@ -63,7 +75,7 @@ def get_openbis(
     if not hostname:
         hostname = config.get("hostname")
     if not hostname:
-        hostname = click.prompt("openBIS hostname:")
+        hostname = click.prompt("openBIS hostname")
 
     token = pybis.get_token_for_hostname(
         hostname, session_token_needed=session_token_needed
@@ -106,6 +118,159 @@ def cli():
 
 @cli.group()
 @click.pass_obj
+def space(ctx):
+    """manage spaces"""
+    pass
+
+
+@space.command("get")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_space(identifier, **kwargs):
+    """get a space by its identifier"""
+    openbis = get_openbis(**kwargs)
+    try:
+        space = openbis.get_space(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(space.__repr__())
+
+
+@space.command("list")
+@openbis_conn_options
+def get_spaces(**kwargs):
+    """get all spaces"""
+    openbis = get_openbis(**kwargs)
+    try:
+        spaces = openbis.get_spaces()
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(spaces.__repr__())
+
+
+@cli.group()
+@click.pass_obj
+def project(ctx):
+    """manage projects"""
+    pass
+
+
+@project.command("get")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_project(identifier, **kwargs):
+    """get a project by its identifier"""
+    openbis = get_openbis(**kwargs)
+    try:
+        project = openbis.get_project(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(project.__repr__())
+
+
+@project.command("list")
+@openbis_conn_options
+@click.argument("space", required=True)
+def get_projects(space, **kwargs):
+    """get all projects of a given space"""
+    openbis = get_openbis(**kwargs)
+    try:
+        projects = openbis.get_projects(space=space)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(projects.__repr__())
+
+
+@cli.group()
+@click.pass_obj
+def collection(ctx):
+    """manage collections"""
+    pass
+
+
+@collection.command("get")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_collection(identifier, **kwargs):
+    """get a collection by its identifier or permId"""
+    openbis = get_openbis(**kwargs)
+    try:
+        coll = openbis.get_collection(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(collection.__repr__())
+
+
+@collection.command("list")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_collections(identifier, **kwargs):
+    """list all collection in a given project or space"""
+    openbis = get_openbis(**kwargs)
+    try:
+        entity = openbis.get_space(identifier)
+    except ValueError as exc:
+        try:
+            entity = openbis.get_project(identifier)
+        except ValueError as exc:
+            raise click.ClickException(f"No space or project found for {identifier}")
+    colls = entity.get_collections()
+    click.echo(colls.__repr__())
+
+
+@collection.command("get")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_collection(identifier, **kwargs):
+    """get list of collection for a"""
+    openbis = get_openbis(**kwargs)
+    try:
+        coll = openbis.get_collection(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(coll.__repr__())
+
+
+@collection.command("datasets")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def list_datasets_in_collection(identifier, **kwargs):
+    """list all datasets of a given collection"""
+    openbis = get_openbis(**kwargs)
+    try:
+        coll = openbis.get_collection(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    datasets = coll.get_datasets()
+    click.echo(datasets.__repr__())
+
+
+@collection.command("download")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def download_dataset_in_collection(identifier, **kwargs):
+    """download all datasets of a given collection"""
+    openbis = get_openbis(**kwargs)
+    try:
+        coll = openbis.get_collection(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    datasets = coll.get_datasets()
+    for dataset in datasets:
+        click.echo(dataset.permId, nl=False)
+        if dataset.status != "AVAILABLE":
+            click.echo(f"dataset is not AVAILABLE: {dataset.status}")
+            continue
+        dest = dataset.download()
+        click.echo(f" {dest}")
+        syslog.syslog(
+            syslog.LOG_INFO,
+            f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+        )
+
+
+@cli.group()
+@click.pass_obj
 def sample(ctx):
     """manage samples"""
     pass
@@ -116,6 +281,72 @@ def sample(ctx):
 @click.argument("identifier", required=True)
 def get_sample(identifier, **kwargs):
     """get a sample by its identifier or permId"""
+    openbis = get_openbis(**kwargs)
+    try:
+        sample = openbis.get_sample(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    click.echo(sample.__repr__())
+
+
+@sample.command("list")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_sample(identifier, **kwargs):
+    """list all samples of a given space, project or collection"""
+    openbis = get_openbis(**kwargs)
+    try:
+        entity = openbis.get_space(identifier)
+    except ValueError as exc:
+        try:
+            entity = openbis.get_project(identifier)
+        except ValueError as exc:
+            try:
+                entity = openbis.get_collection(identifier)
+            except ValueError as exc:
+                raise click.ClickException(
+                    f"could not find any space, project or collection for {identifier}"
+                )
+    samples = entity.get_samples()
+    click.echo(samples.__repr__())
+
+
+@sample.command("datasets")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def list_datasets_in_sample(identifier, **kwargs):
+    """list all datasets of a sample"""
+    openbis = get_openbis(**kwargs)
+    try:
+        sample = openbis.get_sample(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    datasets = sample.get_datasets()
+    click.echo(datasets.__repr__())
+
+
+@sample.command("download")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def download_datasets_in_sample(identifier, **kwargs):
+    """download all datasets of a sample"""
+    openbis = get_openbis(**kwargs)
+    try:
+        sample = openbis.get_sample(identifier)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+    datasets = sample.get_datasets()
+    for dataset in datasets:
+        click.echo(dataset.permId, nl=False)
+        if dataset.status != "AVAILABLE":
+            click.echo(f"dataset is not AVAILABLE: {dataset.status}")
+            continue
+        dest = dataset.download()
+        click.echo(f" {dest}")
+        syslog.syslog(
+            syslog.LOG_INFO,
+            f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+        )
 
 
 @cli.group()
@@ -129,9 +360,12 @@ def dataset(ctx):
 @openbis_conn_options
 @click.argument("permid", required=True)
 def get_dataset(permid, **kwargs):
-    """get a dataset by its permId"""
+    """get dataset meta-information"""
     openbis = get_openbis(**kwargs)
-    ds = openbis.get_dataset(permid)
+    try:
+        ds = openbis.get_dataset(permid)
+    except ValueError as exc:
+        raise click.ClickException(exc)
     click.echo(ds.__repr__())
     click.echo("")
     click.echo("Files in this dataset")
@@ -150,29 +384,33 @@ def get_dataset(permid, **kwargs):
     help="where to download your dataset",
 )
 def download_dataset(permid, destination, fileno, **kwargs):
-    """download a dataset by permId"""
+    """download a dataset"""
     openbis = get_openbis(**kwargs)
     try:
-        ds = openbis.get_dataset(permid)
+        dataset = openbis.get_dataset(permid)
     except ValueError as exc:
         raise click.ClickException(exc)
 
     create_default_folders = False if destination else True
     if fileno:
-        all_files = ds.get_files()
+        all_files = dataset.get_files()
         files = []
         for loc in fileno:
             files.append(all_files.loc[int(loc)]["pathInDataSet"])
-        print(files)
-        ds.download(
+        click.echo(files)
+        dataset.download(
             destination=destination,
             create_default_folders=create_default_folders,
             files=files,
         )
     else:
-        ds.download(
+        dataset.download(
             destination=destination, create_default_folders=create_default_folders
         )
+    syslog.syslog(
+        syslog.LOG_INFO,
+        f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+    )
 
 
 @cli.command("local", context_settings=dict(ignore_unknown_options=True))
