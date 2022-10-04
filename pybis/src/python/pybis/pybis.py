@@ -3088,9 +3088,10 @@ class Openbis:
                 "as.dto.project.fetchoptions.ProjectFetchOptions",
             )
             resp = self._post_request(self.as_v3, request)
+            if len(resp) == 0:
+                raise ValueError("No such project: %s" % projectId)
             if only_data:
                 return resp[projectId]
-
             project = Project(openbis_obj=self, type=None, data=resp[projectId])
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
