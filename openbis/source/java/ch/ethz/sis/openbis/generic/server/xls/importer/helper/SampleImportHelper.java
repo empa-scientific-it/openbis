@@ -87,6 +87,7 @@ public class SampleImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(SAMPLE_TYPE_FIELD, header);
             lineIndex++;
 
             sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));

@@ -72,6 +72,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(EXPERIMENT_TYPE_FIELD, header);
             lineIndex++;
 
             experimentType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD));
