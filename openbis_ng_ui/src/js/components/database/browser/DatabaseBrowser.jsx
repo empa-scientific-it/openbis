@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import BrowserWithSettings from '@src/js/components/common/browser2/BrowserWithSettings.jsx'
 import DatabaseBrowserController from '@src/js/components/database/browser/DatabaseBrowserController.js'
@@ -12,8 +13,15 @@ class DatabaseBrowser extends React.Component {
     this.controller = this.props.controller || new DatabaseBrowserController()
   }
 
+  componentDidMount() {
+    this.componentDidUpdate(null)
+  }
+
   componentDidUpdate(prevProps) {
-    if (prevProps.selectedObject !== this.props.selectedObject) {
+    const prevSelectedObject = prevProps ? prevProps.selectedObject : null
+    const selectedObject = this.props.selectedObject
+
+    if (!_.isEqual(prevSelectedObject, selectedObject)) {
       this.controller.selectObject(this.props.selectedObject)
     }
   }

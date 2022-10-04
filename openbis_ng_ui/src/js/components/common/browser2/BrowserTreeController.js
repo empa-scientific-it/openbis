@@ -37,12 +37,11 @@ export default class BrowserTreeController {
       loading: true
     })
 
+    const state = this.context.getState()
     const newState = {
+      ...state,
       rootId: null,
-      nodes: {},
-      selectedObject: null,
-      expandedIds: {},
-      sortingIds: {}
+      nodes: {}
     }
     this.lastTree = null
     this.lastLoadPromise = {}
@@ -231,8 +230,20 @@ export default class BrowserTreeController {
     if (node) {
       const newState = { ...state }
       newState.nodes = { ...newState.nodes }
-      newState.expandedIds = { ...newState.expandedIds }
-      this._doCollapseNode(newState, node.id, true)
+
+      if (nodeId === newState.rootId) {
+        const root = newState.nodes[newState.rootId]
+        if (root && root.children) {
+          root.children.forEach(childId => {
+            this._doCollapseNode(newState, childId, true)
+          })
+        }
+        newState.expandedIds = {}
+      } else {
+        newState.expandedIds = { ...newState.expandedIds }
+        this._doCollapseNode(newState, node.id, true)
+      }
+
       await this.context.setState(newState)
       this._saveSettings()
     }
@@ -242,20 +253,14 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      if (node.id === state.rootId) {
-        if (recursive) {
-          state.expandedIds = {}
-        }
-      } else {
-        state.nodes = { ...state.nodes }
-        state.nodes[nodeId] = {
-          ...state.nodes[nodeId],
-          expanded: false
-        }
-
-        state.expandedIds = { ...state.expandedIds }
-        state.expandedIds[nodeId] = false
+      state.nodes = { ...state.nodes }
+      state.nodes[nodeId] = {
+        ...state.nodes[nodeId],
+        expanded: false
       }
+
+      state.expandedIds = { ...state.expandedIds }
+      state.expandedIds[nodeId] = false
 
       if (recursive && !_.isEmpty(node.children)) {
         node.children.forEach(child => {

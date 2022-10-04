@@ -112,7 +112,9 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
-      await this.filteredTreeController.load()
+      await this.filteredTreeController.collapseNode(
+        this.filteredTreeController.getRoot().id
+      )
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
         await this.filteredTreeController.load()
