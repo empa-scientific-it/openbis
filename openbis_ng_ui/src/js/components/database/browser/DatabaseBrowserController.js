@@ -44,90 +44,115 @@ export default class DatabaseBrowserController extends BrowserController {
       const project = projects[id]
 
       if (project) {
-        return [
-          { type: objectType.SPACE, id: project.getSpace().getCode() },
-          object
-        ]
-      } else {
-        return null
+        const spacePath = await this.doLoadNodePath({
+          object: {
+            type: objectType.SPACE,
+            id: project.getSpace().getCode()
+          }
+        })
+        if (spacePath) {
+          return [...spacePath, object]
+        }
       }
     } else if (object.type === objectType.COLLECTION) {
       const id = new openbis.ExperimentPermId(object.id)
       const fetchOptions = new openbis.ExperimentFetchOptions()
-      fetchOptions.withProject().withSpace()
+      fetchOptions.withProject()
 
       const experiments = await openbis.getExperiments([id], fetchOptions)
       const experiment = experiments[id]
 
       if (experiment) {
-        return [
-          {
-            type: objectType.SPACE,
-            id: experiment.getProject().getSpace().getCode()
-          },
-          {
+        const projectPath = await this.doLoadNodePath({
+          object: {
             type: objectType.PROJECT,
             id: experiment.getProject().getPermId().getPermId()
-          },
-          object
-        ]
-      } else {
-        return null
+          }
+        })
+        if (projectPath) {
+          return [...projectPath, object]
+        }
       }
     } else if (object.type === objectType.OBJECT) {
       const id = new openbis.SamplePermId(object.id)
       const fetchOptions = new openbis.SampleFetchOptions()
       fetchOptions.withSpace()
-      fetchOptions.withProject().withSpace()
-      fetchOptions.withExperiment().withProject().withSpace()
+      fetchOptions.withProject()
+      fetchOptions.withExperiment()
 
       const samples = await openbis.getSamples([id], fetchOptions)
       const sample = samples[id]
 
       if (sample) {
         if (sample.getExperiment()) {
-          return [
-            {
-              type: objectType.SPACE,
-              id: sample.getExperiment().getProject().getSpace().getCode()
-            },
-            {
-              type: objectType.PROJECT,
-              id: sample.getExperiment().getProject().getPermId().getPermId()
-            },
-            {
+          const experimentPath = await this.doLoadNodePath({
+            object: {
               type: objectType.COLLECTION,
               id: sample.getExperiment().getPermId().getPermId()
-            },
-            object
-          ]
+            }
+          })
+          if (experimentPath) {
+            return [...experimentPath, object]
+          }
         } else if (sample.getProject()) {
-          return [
-            {
-              type: objectType.SPACE,
-              id: sample.getProject().getSpace().getCode()
-            },
-            {
+          const projectPath = await this.doLoadNodePath({
+            object: {
               type: objectType.PROJECT,
               id: sample.getProject().getPermId().getPermId()
-            },
-            object
-          ]
+            }
+          })
+          if (projectPath) {
+            return [...projectPath, object]
+          }
         } else if (sample.getSpace()) {
-          return [
-            {
+          const spacePath = await this.doLoadNodePath({
+            object: {
               type: objectType.SPACE,
               id: sample.getSpace().getCode()
-            },
-            object
-          ]
+            }
+          })
+          if (spacePath) {
+            return [...spacePath, object]
+          }
         } else {
           return [object]
         }
-      } else {
-        return null
+      }
+    } else if (object.type === objectType.DATA_SET) {
+      const id = new openbis.DataSetPermId(object.id)
+      const fetchOptions = new openbis.DataSetFetchOptions()
+      fetchOptions.withExperiment()
+      fetchOptions.withSample()
+
+      const dataSets = await openbis.getDataSets([id], fetchOptions)
+      const dataSet = dataSets[id]
+
+      if (dataSet) {
+        if (dataSet.getSample()) {
+          const samplePath = await this.doLoadNodePath({
+            object: {
+              type: objectType.OBJECT,
+              id: dataSet.getSample().getPermId().getPermId()
+            }
+          })
+          if (samplePath) {
+            return [...samplePath, object]
+          }
+        } else if (dataSet.getExperiment()) {
+          const experimentPath = await this.doLoadNodePath({
+            object: {
+              type: objectType.COLLECTION,
+              id: dataSet.getExperiment().getPermId().getPermId()
+            }
+          })
+          if (experimentPath) {
+            return [...experimentPath, object]
+          }
+        }
       }
     }
+
+    return null
   }
 
   async doLoadNodes(params) {
