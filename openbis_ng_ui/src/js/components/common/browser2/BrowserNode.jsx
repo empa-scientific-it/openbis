@@ -128,9 +128,11 @@ class BrowserNodeClass extends React.PureComponent {
 
     const { node, level, classes } = this.props
 
-    return (
-      <div>
-        {level !== -1 && (
+    if (level === -1) {
+      return node.expanded ? this.renderChildren() : null
+    } else {
+      return (
+        <React.Fragment>
           <ListItem
             ref={this.references['node']}
             button
@@ -145,12 +147,12 @@ class BrowserNodeClass extends React.PureComponent {
             {this.renderText(node)}
             {this.renderOptions(node)}
           </ListItem>
-        )}
-        <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
-          {this.renderChildren()}
-        </Collapse>
-      </div>
-    )
+          <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
+            {this.renderChildren()}
+          </Collapse>
+        </React.Fragment>
+      )
+    }
   }
 
   renderIcon(node) {
