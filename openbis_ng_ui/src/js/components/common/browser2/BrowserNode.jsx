@@ -7,6 +7,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+import Collapse from '@material-ui/core/Collapse'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
@@ -108,13 +109,15 @@ class BrowserNodeClass extends React.PureComponent {
     const scrollTo = this.props.node.scrollTo
 
     if (scrollTo && scrollTo !== prevScrollTo) {
-      let element = this.references[scrollTo.ref].current
+      const element = this.references[scrollTo.ref].current
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        element.classList.add(this.props.classes.selected)
         setTimeout(() => {
-          element.classList.remove(this.props.classes.selected)
-        }, 1500)
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          element.classList.add(this.props.classes.selected)
+          setTimeout(() => {
+            element.classList.remove(this.props.classes.selected)
+          }, 1500)
+        }, 500)
       }
       scrollTo.clear()
     }
@@ -143,7 +146,9 @@ class BrowserNodeClass extends React.PureComponent {
             {this.renderOptions(node)}
           </ListItem>
         )}
-        {this.renderChildren()}
+        <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
+          {this.renderChildren()}
+        </Collapse>
       </div>
     )
   }
@@ -224,7 +229,7 @@ class BrowserNodeClass extends React.PureComponent {
   renderChildren() {
     const { node, level, classes } = this.props
 
-    if (!node.canHaveChildren || !node.loaded || !node.expanded) {
+    if (!node.canHaveChildren || !node.loaded) {
       return null
     }
 

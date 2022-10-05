@@ -228,6 +228,10 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
+      await this.context.setState({
+        loading: true
+      })
+
       const newState = { ...state }
       newState.nodes = { ...newState.nodes }
 
@@ -245,6 +249,10 @@ export default class BrowserTreeController {
       }
 
       await this.context.setState(newState)
+      await this.context.setState({
+        loading: false
+      })
+
       this._saveSettings()
     }
   }
@@ -316,6 +324,10 @@ export default class BrowserTreeController {
       return
     }
 
+    await this.context.setState({
+      loading: true
+    })
+
     const _this = this
     const newState = { ...state }
     const path = [this.getRoot().object, ...pathWithoutRoot]
@@ -378,6 +390,10 @@ export default class BrowserTreeController {
     }
 
     await this.context.setState(newState)
+    await this.context.setState({
+      loading: false
+    })
+
     this._saveSettings()
   }
 
