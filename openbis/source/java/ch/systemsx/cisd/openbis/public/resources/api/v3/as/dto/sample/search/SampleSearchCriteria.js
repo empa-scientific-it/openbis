@@ -2,7 +2,7 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation",
-		"as/dto/space/search/SpaceSearchCriteria", "as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria",
+		"as/dto/space/search/NoSpaceSearchCriteria", "as/dto/space/search/SpaceSearchCriteria", "as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria",
 		"as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria",
 		"as/dto/common/search/IdentifierSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria" ],
 	function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {

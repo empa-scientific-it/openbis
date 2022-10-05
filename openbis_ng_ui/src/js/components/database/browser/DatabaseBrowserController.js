@@ -176,7 +176,14 @@ export default class DatabaseBrowserController extends BrowserController {
       }
     } else if (node.object.type === 'root') {
       if (filter === null) {
-        return await this.searchSpaces(params)
+        const [spaces, samples] = await Promise.all([
+          this.searchSpaces(params),
+          this.searchSamples(params)
+        ])
+        return {
+          nodes: [...spaces.nodes, ...samples.nodes],
+          totalCount: spaces.totalCount + samples.totalCount
+        }
       } else {
         const [spaces, projects, experiments, samples, dataSets] =
           await Promise.all([
@@ -379,8 +386,14 @@ export default class DatabaseBrowserController extends BrowserController {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.object.type === 'root' && filter) {
-      criteria.withCode().thatContains(filter)
+    if (node.object.type === 'root') {
+      if (filter) {
+        criteria.withCode().thatContains(filter)
+      } else {
+        criteria.withoutSpace()
+        criteria.withoutProject()
+        criteria.withoutExperiment()
+      }
     }
     if (node.object.type === objectType.SPACE) {
       criteria.withSpace().withPermId().thatEquals(node.object.id)
