@@ -12,9 +12,7 @@ Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
 """
 import json
 import os
-import sys
 from datetime import datetime
-from typing_extensions import Required
 from requests import ConnectionError
 
 import click
