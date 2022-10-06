@@ -566,11 +566,11 @@ def new_token(ctx, session_name=None, **kwargs):
     if not username:
         username = click.prompt(f"Please enter username for {url}")
     password = click.prompt(f"Password for {username}@{url}", hide_input=True)
-
-    o = Openbis(url)
+    o = Openbis(url, verify_certificates=settings['config'].get(
+        "verify_certificates", True))
     try:
         o.login(username, password)
-    except ConnectionError as exc:
+    except (ConnectionError, ValueError) as exc:
         raise click.ClickException(f"Cannot connect to openBIS: {exc}")
 
     validFrom = datetime.now()
@@ -587,12 +587,12 @@ def new_token(ctx, session_name=None, **kwargs):
         serverinfo = o.get_server_information()
         seconds = serverinfo.personal_access_tokens_max_validity_period
         validTo = validFrom + relativedelta(seconds=seconds)
-    token = o.new_personal_access_token(
+    token_obj = o.get_or_create_personal_access_token(
         sessionName=session_name, validFrom=validFrom, validTo=validTo)
     settings = (
         {"user": username},
         {"openbis_url": url},
-        {"openbis_token": token},
+        {"openbis_token": token_obj.permId},
         {"session_name": session_name},
     )
 
