@@ -16,7 +16,7 @@ data_files = [(d, [os.path.join(d, f) for f in files])
 
 setup(
     name='obis',
-    version='0.3.0rc2',
+    version='0.3.0',
     description='Local data management with assistance from OpenBIS.',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'pyOpenSSL',
         'pytest',
-        'pybis==1.33.0rc3',
+        'pybis>=1.33.0',
         'click'
     ],
     entry_points={
