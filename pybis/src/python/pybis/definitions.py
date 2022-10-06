@@ -11,6 +11,9 @@ def openbis_definitions(entity):
     (Entity-Name in camel-case, starting with lowercase letter, with Id added)
     """
     entities = {
+        "sessionInformation": {
+            "attrs": "sessionToken userName homeGroupCode personalAccessTokenSession personalAccessTokenSessionName person creatorPerson".split(),
+        },
         "space": {
             "attrs_new": "code description".split(),
             "attrs_up": "description freeze freezeForProjects freezeForSamples".split(),
@@ -105,6 +108,14 @@ def openbis_definitions(entity):
             "update": {"@type": "as.dto.dataset.update.DataSetTypeUpdate"},
             "delete": {"@type": "as.dto.dataset.delete.DataSetTypeDeletionOptions"},
             "identifier": "typeId",
+        },
+        "personalAccessToken": {
+            "attrs_new": "sessionName validFromDate validToDate accessDate".split(),
+            "attrs_up": "".split(),
+            "attrs": "permId sessionName validFromDate validToDate accessDate owner registrator registrationDate modifier modificationDate".split(),
+            "search": {"@type": "as.dto.pat.search.PersonalAccessTokenSearchCriteria"},
+            "delete": {"@type": "as.dto.pat.delete.PersonalAccessTokenDeletionOptions"},
+            "identifier": "permId",
         },
         "experimentType": {
             "attrs_new": "code description validationPlugin".split(),
@@ -296,6 +307,9 @@ get_definition_for_entity = openbis_definitions  # Alias
 
 
 fetch_option = {
+    "personalAccessToken": {
+        "@type": "as.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions"
+    },
     "space": {"@type": "as.dto.space.fetchoptions.SpaceFetchOptions"},
     "project": {
         "@type": "as.dto.project.fetchoptions.ProjectFetchOptions",
@@ -464,7 +478,7 @@ def get_fetchoption_for_entity(entity):
 
 def get_type_for_entity(entity, action, parents_or_children=""):
     if action not in "create update delete search".split():
-        raise ValueError("unknown action: {}".format(action))
+        raise ValueError(f"unknown action: {action}")
 
     definition = openbis_definitions(entity)
     if action in definition and not parents_or_children:
@@ -481,19 +495,11 @@ def get_type_for_entity(entity, action, parents_or_children=""):
 
         if parents_or_children:
             return {
-                "@type": "as.dto.{}.{}.{}{}{}".format(
-                    entity.lower(),
-                    action,
-                    cap_entity,
-                    parents_or_children,
-                    noun[action],
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{parents_or_children}{noun[action]}"
             }
         else:
             return {
-                "@type": "as.dto.{}.{}.{}{}".format(
-                    entity.lower(), action, cap_entity, noun[action]
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{noun[action]}"
             }
 
 
@@ -512,12 +518,12 @@ def get_fetchoptions(entity, including=None):
     return fo
 
 
-def get_method_for_entity(entity, action):
+def get_method_for_entity(entity: str, action: str) -> str:
     action = action.lower()
 
     if entity == "vocabulary":
-        return "{}Vocabularies".format(action)
+        return f"{action}Vocabularies"
 
     cap_entity = entity[:1].upper() + entity[1:]
 
-    return "{}{}s".format(action, cap_entity)
+    return f"{action}{cap_entity}s"

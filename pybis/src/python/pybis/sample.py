@@ -211,9 +211,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                             or getattr(self.props, prop_name) == ""
                         ):
                             raise ValueError(
-                                "Property '{}' is mandatory and must not be None".format(
-                                    prop_name
-                                )
+                                f"Property '{prop_name}' is mandatory and must not be None"
                             )
 
             sampleProject = self.project.code if self.project else None
@@ -248,7 +246,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                 if resp["rows"][0][0]["value"] != "OK":
                     raise ValueError("Status is not OK")
                 if VERBOSE:
-                    print("{} successfully created.".format(self.entity))
+                    print(f"{self.entity} successfully created.")
                 permId = permid = resp["rows"][0][2]["value"]
                 new_entity_data = self.openbis.get_sample(permId, only_data=True)
                 self._set_data(new_entity_data)

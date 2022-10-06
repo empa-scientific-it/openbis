@@ -155,7 +155,7 @@ class EntityType:
         «initialValueForExistingEntities» too.
         """
         if self.is_new:
-            raise ValueError("Please save {} first".format(self.entity))
+            raise ValueError(f"Please save {self.entity} first")
 
         if isinstance(prop, str):
             property_type = self.openbis.get_property_type(prop.upper())

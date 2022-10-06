@@ -68,7 +68,7 @@ pip install jupyterlab
 
 In an **interactive session** e.g. inside a Jupyter notebook, you can use `getpass` to enter your password safely:
 
-```
+```python
 from pybis import Openbis
 o = Openbis('https://example.com')
 o = Openbis('example.com')          # https:// is assumed
@@ -81,12 +81,14 @@ o.login('username', password, save_token=True)   # save the session token in ~/.
 
 In a **script** you would rather use two **environment variables** to provide username and password:
 
-```
+```python
 from pybis import Openbis
 o = Openbis(os.environ['OPENBIS_HOST'])
 
 o.login(os.environ['OPENBIS_USERNAME'], os.environ['OPENBIS_PASSWORD'])
 ```
+
+As an even better alternative, you should use personal access tokens (PAT) to avoid username/password altogether. See below.
 
 ### Verify certificate
 
@@ -105,6 +107,54 @@ Check whether your session, i.e. the **session token** is still valid and log ou
 print(f"Session is active: {o.is_session_active()} and token is {o.token}")
 o.logout()
 print(f"Session is active: {o.is_session_active()"}
+```
+
+### Personal access token (PAT)
+
+As an (new) alternative to login every time you run a script, you can create tokens which
+
+- once issued, do **not need username or password**
+- are **much longer valid** than session tokens (default is one year)
+- **survive restarts** of an openBIS instance
+
+To create a token, you first need a valid session – either through classic login or by assigning an existing valid session token:
+
+```python
+from pybis import Openbis
+o = Openbis('https://test-openbis-instance.com')
+
+o.login("username", "password")
+# or
+o.set_token("your_username-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+```
+
+Then you can create a new personal access token (PAT) and use it for all further pyBIS queries:
+
+```python
+pat = o.get_or_create_personal_access_token(sessionName="Project A")
+o.set_token(pat, save_token=True)
+```
+
+**Note:** If there is an existing PAT with the same _sessionName_ which is still valid and the validity is within the warning period (defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
+
+**Note:** Most operations are permitted using the PAT, _except_:
+
+- all operations on personal access tokens itself
+- i.e. create, list, delete operations on tokens
+
+For these operations, you need to use a session token instead.
+
+To get a list of all currently available tokens:
+
+```python
+o.get_personal_access_tokens()
+o.get_personal_access_tokens(sessionName="APPLICATION_1")
+```
+
+To delete the first token shown in the list:
+
+```python
+o.get_personal_access_tokens()[0].delete('some reason')
 ```
 
 ### Caching

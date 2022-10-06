@@ -1,10 +1,11 @@
 import base64
 import os
 
-class Attachment():
+
+class Attachment:
     def __init__(self, filename, title=None, description=None):
         if not os.path.exists(filename):
-            raise ValueError("File not found: {}".format(filename))
+            raise ValueError(f"File not found: {filename}")
         self.fileName = filename
         self.title = title
         self.description = description
@@ -17,7 +18,7 @@ class Attachment():
         }
 
     def get_data(self):
-        with open(self.fileName, 'rb') as att:
+        with open(self.fileName, "rb") as att:
             content = att.read()
             contentb64 = base64.b64encode(content).decode()
         return {
