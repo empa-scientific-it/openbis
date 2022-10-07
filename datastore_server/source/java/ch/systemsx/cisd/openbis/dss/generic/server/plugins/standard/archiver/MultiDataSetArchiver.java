@@ -413,7 +413,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         long containerId = establishContainerDataSetMapping(dataSets, containerPath, transaction);
 
-        IHierarchicalContent archivedContent = null;
         try
         {
             Status status = getFileOperations().createContainer(containerPath, dataSets);
@@ -422,9 +421,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new Exception("Couldn't create archive file " + containerPath
                         + ". Reason: " + status.tryGetErrorMessage());
             }
-            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
-
-            checkArchivedDataSets(archivedContent, dataSets, context, statuses);
+            checkArchivedDataSets(containerPath, dataSets, context, statuses);
             scheduleFinalizer(containerPath, containerId, dataSets, context, removeFromDataStore, statuses);
         } catch (Exception ex)
         {
@@ -436,11 +433,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             // always delete staging content
             getFileOperations().deleteContainerFromStage(getCleaner(), containerPath);
-
-            if (archivedContent != null)
-            {
-                archivedContent.close();
-            }
         }
         return statuses;
     }
@@ -545,30 +537,47 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         return new DataSetAndPathInfoDBConsistencyChecker(null, null);
     }
 
-    private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
+    private void checkArchivedDataSets(String containerPath, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
         Map<String, Status> statusMap = null;
 
         operationLog.info("Starting sanity check of the file archived in the final destination");
 
-        if (waitForSanityCheck)
-        {
-            RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                    new RetryCaller<Map<String, Status>, RuntimeException>(waitForSanityCheckInitialWaitingTime, waitForSanityCheckMaxWaitingTime,
-                            new Log4jSimpleLogger(operationLog))
+        RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
+                new RetryCaller<Map<String, Status>, RuntimeException>(waitForSanityCheckInitialWaitingTime, waitForSanityCheckMaxWaitingTime,
+                        new Log4jSimpleLogger(operationLog))
+                {
+                    @Override protected Map<String, Status> call()
                     {
-                        @Override protected Map<String, Status> call()
+                        IHierarchicalContent archivedContent = null;
+                        try
                         {
+                            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
                             return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
                                     new Log4jSimpleLogger(operationLog));
+                        } finally
+                        {
+                            if (archivedContent != null)
+                            {
+                                try
+                                {
+                                    archivedContent.close();
+                                } catch (Exception e)
+                                {
+                                    operationLog.warn("Could not close archived content node", e);
+                                }
+                            }
                         }
-                    };
+                    }
+                };
+
+        if (waitForSanityCheck)
+        {
             statusMap = sanityCheckCaller.callWithRetry();
         } else
         {
-            statusMap = MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
-                    new Log4jSimpleLogger(operationLog));
+            statusMap = sanityCheckCaller.call();
         }
 
         if (needsToWaitForReplication() == false)
