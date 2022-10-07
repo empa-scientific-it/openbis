@@ -489,7 +489,7 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   rename { filename ->
     if (filename.startsWith('pybis-')) {
       def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll {it.path.endsWith('src/python/setup.cfg') }.iterator().next().text
-      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*"(.*)"/)[0][1]
+      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*(.*)/)[0][1]
       'pybis-' + pybisVersion + '.zip'
     } else {
       filename
