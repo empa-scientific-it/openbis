@@ -1,11 +1,12 @@
 # oBIS
+
 oBIS is a command-line tool to handle dataSets that are too big to store in openBIS but still need to be registered and tracked in openBIS.
 
 ## Prerequisites
-* python 3.6 or higher
-* git 2.11 or higher
-* git-annex 6 or higher [Installation guide](https://git-annex.branchable.com/install/)
 
+- python 3.6 or higher
+- git 2.11 or higher
+- git-annex 6 or higher [Installation guide](https://git-annex.branchable.com/install/)
 
 ## Installation
 
@@ -47,6 +48,7 @@ Commands:
   settings       Get all settings.
   status         Show the state of the obis repository.
   sync           Sync the repository with openBIS.
+  token          create/show a openBIS token
 ```
 
 To show detailed help for a specific command, type `obis <command> --help` :
@@ -62,8 +64,8 @@ Options:
   --help                       Show this message and exit.
 ```
 
-
 ## Settings
+
 With `get` you retrieve one or more settings. If the `key` is omitted, you retrieve all settings of the `type`:
 
 ```
@@ -92,23 +94,25 @@ The option `-g` can be used to interact with the global settings. The global set
 
 Following settings exist:
 
-| type | setting | description |
-| ---- | ------- | ----------- |
-| collection	| `id`	|	Identifier of the collection the created data set is attached to. Use either this or the object id. |
-| config | `allow_only_https` | Default is true. If false, http can be used to connect to openBIS.
-| config | `fileservice_url` | URL for downloading files. See DownloadHandler / FileInfoHandler services.
-| config  | `git_annex_backend` | Git annex backend to be used to calculate file hashes. Supported backends are SHA256E (default), MD5 and WORM.
-| config  | `git_annex_hash_as_checksum` | Default is true. If false, a CRC32 checksum will be calculated for openBIS. Otherwise, the hash calculated by git-annex will be used.
-| config  | `hostname` | Hostname to be used when cloning / moving a data set to connect to the machine where the original copy is located.
-| config  | `openbis_url` | URL for connecting to openBIS (only protocol://host:port, without a path).
-| config | `obis_metadata_folder` | Absolute path to the folder which obis will use to store its metadata. If not set, the metadata will be stored in the same location as the data. This setting can be useful when dealing with read-only access to the data. The clone and move commands will not work when this is set.
-| config | `user` | User for connecting to openBIS.
-| data_set | `type` | Data set type of data sets created by obis.
-| data_set | `properties` | Data set properties of data sets created by obis.
-| object | `id` | Identifier of the object the created data set is attached to. Use either this or the collection id.
-| repository | `data_set_id` | This is set by obis. Is is the id of the most recent data set created by obis and will be used as the parent of the next one.
-| repository | `external_dms_id` | This is set by obis. Id of the external dms in openBIS.
-| repository | `id` | This is set by obis. Id of the obis repository.
+| type       | setting                      | description                                                                                                                                                                                                                                                                             |
+| ---------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| collection |  `id`                        | Identifier of the collection the created data set is attached to. Use either this or the object id.                                                                                                                                                                                     |
+| config     | `allow_only_https`           | Default is true. If false, http can be used to connect to openBIS.                                                                                                                                                                                                                      |
+| config     | `fileservice_url`            | URL for downloading files. See DownloadHandler / FileInfoHandler services.                                                                                                                                                                                                              |
+| config     | `git_annex_backend`          | Git annex backend to be used to calculate file hashes. Supported backends are SHA256E (default), MD5 and WORM.                                                                                                                                                                          |
+| config     | `git_annex_hash_as_checksum` | Default is true. If false, a CRC32 checksum will be calculated for openBIS. Otherwise, the hash calculated by git-annex will be used.                                                                                                                                                   |
+| config     | `hostname`                   | Hostname to be used when cloning / moving a data set to connect to the machine where the original copy is located.                                                                                                                                                                      |
+| config     | `openbis_url`                | URL for connecting to openBIS (only protocol://host:port, without a path).                                                                                                                                                                                                              |
+| config     | `openbis_token`              | Token to use when connecting to openBIS. Can be either a session token or a personal access token. Alternatively, it can be a path to a file containing the token.                                                                                                                      |
+| config     | `session_name`              | The name every personal access token is associated with.                                                                                                                      |
+| config     | `obis_metadata_folder`       | Absolute path to the folder which obis will use to store its metadata. If not set, the metadata will be stored in the same location as the data. This setting can be useful when dealing with read-only access to the data. The clone and move commands will not work when this is set. |
+| config     | `user`                       | User for connecting to openBIS.                                                                                                                                                                                                                                                         |
+| data_set   | `type`                       | Data set type of data sets created by obis.                                                                                                                                                                                                                                             |
+| data_set   | `properties`                 | Data set properties of data sets created by obis.                                                                                                                                                                                                                                       |
+| object     | `id`                         | Identifier of the object the created data set is attached to. Use either this or the collection id.                                                                                                                                                                                     |
+| repository | `data_set_id`                | This is set by obis. Is is the id of the most recent data set created by obis and will be used as the parent of the next one.                                                                                                                                                           |
+| repository | `external_dms_id`            | This is set by obis. Id of the external dms in openBIS.                                                                                                                                                                                                                                 |
+| repository | `id`                         | This is set by obis. Id of the obis repository.                                                                                                                                                                                                                                         |
 
 The settings are saved within the obis repository, in the `.obis` folder, as JSON files, or in `~/.obis` for the global settings. They can be added/edited manually, which might be useful when it comes to integration with other tools.
 
@@ -183,14 +187,13 @@ This shows the status of the repository folder from which it is invoked, or the 
 obis clone [options] [data_set_id]
 ```
 
-The `clone` command copies a repository associated with a data set and registers the new copy in openBIS. In case there are already multiple copied of the repository, obis will ask from which copy to clone. 
+The `clone` command copies a repository associated with a data set and registers the new copy in openBIS. In case there are already multiple copied of the repository, obis will ask from which copy to clone.
 
-* To avoid user interaction, the copy index can be chosen with the option `-c`
-* With the option `-u` a user can be defined for copying the files from a remote system
-* By default, the file integrity is checked by calculating the checksum. This can be skipped with `-s`.
+- To avoid user interaction, the copy index can be chosen with the option `-c`
+- With the option `-u` a user can be defined for copying the files from a remote system
+- By default, the file integrity is checked by calculating the checksum. This can be skipped with `-s`.
 
-*Note*: This command does not work when `obis_metadata_folder` is set.
-
+_Note_: This command does not work when `obis_metadata_folder` is set.
 
 **move**
 
@@ -218,6 +221,16 @@ obis removeref
 ```
 
 Obis repository folders can be added or removed from openBIS. This can be useful when a repository was moved or copied without using the `move` or `copy` commands.
+
+**token**
+
+```
+obis token get <session_name> [--validity-days] [--validity-weeks] [--validity-months]
+```
+
+Gets or creates a new personal access token (PAT) and stores it in the obis configuration. If no `session_name` is provided or is not stored in the configuration, you'll be asked interactively. If no validity period is provided, the maximum (configured by the server) is used. If a PAT with this `session_name` already exists and it is going to expire soon (according to server setting `personal_access_tokens_validity_warning_period`), a new PAT will be created, stored in the obis configuration and used for every subsequent request.
+
+
 
 ## Examples
 
@@ -261,6 +274,7 @@ obis commit -m 'message'
 ```
 
 ## Big Data Link Services
+
 The Big Data Link Services can be used to download files which are contained in an obis repository. The services are included in the installation folder of openBIS, under `servers/big_data_link_services`. For how to configure and run them, consult the [README.md](https://sissource.ethz.ch/sispub/openbis/blob/master/big_data_link_server/README.md) file.
 
 ## Rationale for obis
@@ -273,8 +287,7 @@ For situations like these, we have developed `obis`, a tool for orderly manageme
 
 Under the covers, `obis` takes advantage of publicly available and tested tools to manage data on the file system. In particular, it uses `git` and `git-annex` to track the content of a dataset. Using `git-annex`, even large binary artifacts can be tracked efficiently. For communication with openBIS, `obis` uses the openBIS API, which offers the power to register and track all metadata supported by openBIS.
 
-
 ## Literature
 
-  V. Korolev, A. Joshi, V. Korolev, M.A. Grasso, A. Joshi, M.A. Grasso, et al., "PROB: A tool for tracking provenance and reproducibility of big data experiments", Reproduce '14. HPCA 2014, vol. 11, pp. 264-286, 2014.
-  http://ebiquity.umbc.edu/_file_directory_/papers/693.pdf
+V. Korolev, A. Joshi, V. Korolev, M.A. Grasso, A. Joshi, M.A. Grasso, et al., "PROB: A tool for tracking provenance and reproducibility of big data experiments", Reproduce '14. HPCA 2014, vol. 11, pp. 264-286, 2014.
+http://ebiquity.umbc.edu/_file_directory_/papers/693.pdf

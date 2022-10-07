@@ -23,7 +23,10 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         Version("Version", true),
         Code("Code", true),
         Description("Description", true),
-        ValidationScript("Validation script", true);
+        ValidationScript("Validation script", true),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false);
 
         private final String headerName;
 

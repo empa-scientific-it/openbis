@@ -1,7 +1,13 @@
+## Changes with pybis-1.33.0
+
+- add support for personal access tokens (PAT)
+- fix default dataset kind (was PHYSICAL_DATA instead of PHYSICAL)
+- refactor existing pyBIS code
+
 ## Changes with pybis-1.32.1
 
 - fixing the issue with incorrectly named reference to DataSetKind.PHYSICAL
- 
+
 ## Changes with pybis-1.32.0
 
 - throw error when invalid token is assigned

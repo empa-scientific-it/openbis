@@ -6,9 +6,13 @@ import json
 import re
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator as AttributeValidator
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
+import ch.systemsx.cisd.common.logging.LogCategory as LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory as LogFactory;
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
+
+OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, LogFactory);
 
 ##
 ## Grid related functions
@@ -473,6 +477,7 @@ def setCustomWidgetSettings(context, parameters, sessionToken):
     return True
 
 def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - START -" + str(parameters));
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
     from ch.systemsx.cisd.common.exceptions import UserFailureException
@@ -509,6 +514,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         raise UserFailureException("Found: " + str(sampleSearchResults.size()) + " storages for storage code: " + storageCode);
 
     # 2. Check that the state of the sample is valid for the Storage Validation Level
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 2");
     if storageRackRow is None or storageRackColumn is None:
         raise UserFailureException("Storage rack row or column missing");
     elif storageBoxName is None and (storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION"):
@@ -521,6 +527,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         pass
 
     # 3. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= RACK
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 3");
     # 3.1 Check the rack exists, it should always be specified as an integer, failing the conversion is a valid error
     storageNumOfRowsAsInt = int(storage.getProperty("$STORAGE.ROW_NUM"));
     storageNumOfColAsInt = int(storage.getProperty("$STORAGE.COLUMN_NUM"));
@@ -530,22 +537,24 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         raise UserFailureException("Out of range row or column for the rack");
 
     # 4. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4");
     if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
         # 4.1 Check that a box with the same name only exist on the given storage and rack position
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1");
         searchCriteriaOtherBox = SampleSearchCriteria();
         searchCriteriaOtherBox.withType().withCode().thatEquals("STORAGE_POSITION");
         searchCriteriaOtherBox.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
-        otherBoxSubcriteria = searchCriteriaOtherBox.withSubcriteria();
-        otherBoxSubcriteria.negate();
-        otherBoxSubcriteria.withType().withCode().thatEquals("STORAGE_POSITION");
-        otherBoxSubcriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
-        otherBoxSubcriteria.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
-        otherBoxSubcriteria.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
-        sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, SampleFetchOptions()).getObjects();
-        if not sampleSearchResults.isEmpty():
-            raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName));
+        searchCriteriaOtherBoxOptions = SampleFetchOptions();
+        searchCriteriaOtherBoxOptions.withProperties();
+
+        sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, searchCriteriaOtherBoxOptions).getObjects();
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1 - LEN: " + str(len(sampleSearchResults)));
+        for result in sampleSearchResults:
+            if (result.getProperty("$STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
+                raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("$STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN"));
 
         # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.2");
         searchCriteriaStorageRack = SampleSearchCriteria();
         searchCriteriaStorageRack.withType().withCode().thatEquals("STORAGE_POSITION");
         searchCriteriaStorageRack.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
@@ -556,6 +565,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         for sample in searchCriteriaStorageRackResults:
             storageRackBoxes.add(sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME"));
         # 4.3 $STORAGE.BOX_NUM is only checked in is configured
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.3");
         storageBoxNum = storage.getProperty("$STORAGE.BOX_NUM");
         if storageBoxNum is not None:
             storageBoxNumAsInt = int(storageBoxNum);
@@ -563,6 +573,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                 raise UserFailureException("Number of boxes in rack exceeded, use an existing box.");
 
     # 5. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX_POSITION
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 5");
     if storageValidationLevel == "BOX_POSITION":
         # Storage position format validation (typical mistakes to check before doing any validation requiring database queries)
         if "," in storageBoxPosition:
@@ -612,6 +623,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - END");
     return True
 
 def getServiceProperty(context, parameters):

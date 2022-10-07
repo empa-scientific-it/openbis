@@ -8,29 +8,21 @@ Work with openBIS using Python.
 
 """
 
-from __future__ import print_function
-
-import copy
-import errno
 import json
-import logging
 import os
-import random
+from pathlib import Path
 import re
 import subprocess
-import sys
 import time
+from xml.dom import NotSupportedErr
 import zlib
-from collections import defaultdict, namedtuple
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from urllib.parse import quote, urljoin, urlparse
 
-import pandas as pd
 import requests
 import urllib3
-from pandas import DataFrame, Series
-from tabulate import tabulate
-from texttable import Texttable
+from pandas import DataFrame
 
 from . import data_set as pbds
 from .dataset import DataSet
@@ -62,7 +54,6 @@ from .tag import Tag
 from .things import Things
 from .utils import (
     VERBOSE,
-    check_datatype,
     extract_attr,
     extract_code,
     extract_deletion,
@@ -74,15 +65,12 @@ from .utils import (
     extract_nested_permids,
     extract_permid,
     extract_person,
-    extract_person_details,
-    extract_property_assignments,
-    extract_role_assignments,
     extract_userId,
+    extract_username_from_token,
     format_timestamp,
     is_identifier,
     is_number,
     is_permid,
-    nvl,
     parse_jackson,
     split_identifier,
 )
@@ -98,6 +86,8 @@ LOG_INFO = 4
 LOG_ENTRY = 5
 LOG_PARM = 6
 LOG_DEBUG = 7
+PYBIS_FOLDER = Path.home() / ".pybis"
+CONFIG_FILENAME = ".pybis.json"
 
 DEBUG_LEVEL = LOG_NONE
 
@@ -116,6 +106,7 @@ def get_search_type_for_entity(entity, operator=None):
         {'@type': 'as.dto.space.search.SpaceSearchCriteria'}
     """
     search_criteria = {
+        "personalAccessToken": "as.dto.pat.search.PersonalAccessTokenSearchCriteria",
         "space": "as.dto.space.search.SpaceSearchCriteria",
         "userId": "as.dto.person.search.UserIdSearchCriteria",
         "email": "as.dto.person.search.EmailSearchCriteria",
@@ -148,6 +139,130 @@ def get_search_type_for_entity(entity, operator=None):
     return sc
 
 
+def is_session_token(token: str):
+    return not token.startswith("$pat")
+
+
+def is_personal_access_token(token: str):
+    return token.startswith("$pat")
+
+
+def save_config(config_filepath: Path, config: dict) -> dict:
+    with open(config_filepath, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(config))
+
+
+def read_config(config_filepath: Path) -> dict:
+    config = {}
+    if config_filepath.exists():
+        with open(config_filepath, "r") as fh:
+            config = json.load(fh)
+    return config
+
+
+def get_global_config():
+    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_global_config(hostname=None, token=None):
+    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=global_openbis, config=config)
+    return
+
+
+def get_local_config():
+    config = {}
+    for path in [Path.cwd(), *Path.cwd().parents]:
+        config_filepath = path / CONFIG_FILENAME
+        if config_filepath.exists() and config_filepath.is_file():
+            config = read_config(config_filepath=config_filepath)
+            break
+    return config
+
+
+def set_local_config(hostname=None, token=None):
+    local_openbis = Path.cwd() / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=local_openbis, config=config)
+    return
+
+
+def get_saved_tokens():
+    tokens = {}
+    for filepath in PYBIS_FOLDER.glob("*.token"):
+        with open(filepath) as fh:
+            if filepath.is_file:
+                token = fh.read()
+                tokens[filepath.stem] = token
+    return tokens
+
+
+def get_token_for_hostname(hostname, session_token_needed=True):
+    """Searches for a stored token for a given host in this order:
+    cwd/.pybis.json
+    ~/.pybis/.pybis.json
+    ~/.pybis/hostname.token
+    """
+    for config in [get_local_config(), get_global_config()]:
+        if config.get("hostname") == hostname:
+            if session_token_needed:
+                if is_session_token(config.get("token")):
+                    return config.get("token")
+            else:
+                return config.get("token")
+    tokens = get_saved_tokens()
+    if hostname in tokens:
+        if session_token_needed:
+            if is_session_token(tokens[hostname]):
+                return tokens[hostname]
+        else:
+            return tokens[hostname]
+    return
+
+
+def save_pats_to_disk(hostname: str, url: str, resp: dict) -> None:
+    pats = resp["objects"]
+    parse_jackson(pats)
+    path = PYBIS_FOLDER / hostname
+    path.mkdir(exist_ok=True)
+    for existing_file in path.glob("*.pat"):
+        existing_file.unlink()
+
+    for token in pats:
+        data = {
+            "url": url,
+            "hostname": hostname,
+            "owner": token["owner"]["userId"],
+            "registrationDate": format_timestamp(token["owner"]["registrationDate"]),
+            "validFromDate": format_timestamp(token["validFromDate"]),
+            "validToDate": format_timestamp(token["validToDate"]),
+            "sessionName": token["sessionName"],
+            "permId": token["permId"]["permId"],
+        }
+        with open(path / (token["hash"] + ".pat"), "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(data, indent=4))
+
+
+def get_saved_pats(hostname=None, sessionName=None):
+    """return all personal access tokens stored on disk."""
+    if hostname is None:
+        hostname = ""
+    path = PYBIS_FOLDER / hostname
+    tokens = []
+    for filepath in path.rglob("*.pat"):
+        with open(filepath) as fh:
+            if filepath.is_file:
+                pat = json.load(fh)
+                if sessionName:
+                    if pat["sessionName"] != sessionName:
+                        continue
+                tokens.append(pat)
+    return tokens
+
+
 def _type_for_id(ident, entity):
     ident = ident.strip()
     """Returns the data type for a given identifier/permId for use with the API call, e.g.
@@ -169,6 +284,8 @@ def _type_for_id(ident, entity):
             return {"permId": ident, "@type": "as.dto.tag.id.TagPermId"}
         else:
             return {"code": ident, "@type": "as.dto.tag.id.TagCode"}
+    if entity == "personalAccessToken":
+        return {"permId": ident, "@type": "as.dto.pat.id.PersonalAccessTokenPermId"}
 
     entities = {
         "sample": "Sample",
@@ -197,14 +314,12 @@ def _type_for_id(ident, entity):
 
         search_request = {
             "identifier": ident.upper(),
-            "@type": "as.dto.{}.id.{}Identifier".format(
-                entity.lower(), entity_capitalize
-            ),
+            "@type": f"as.dto.{entity.lower()}.id.{entity_capitalize}Identifier",
         }
     else:
         search_request = {
             "permId": ident,
-            "@type": "as.dto.{}.id.{}PermId".format(entity.lower(), entity_capitalize),
+            "@type": f"as.dto.{entity.lower()}.id.{entity_capitalize}PermId",
         }
     return search_request
 
@@ -250,9 +365,7 @@ def _tagIds_for_tags(tags=None, action="Add"):
         "actions": [
             {
                 "items": items,
-                "@type": "as.dto.common.update.ListUpdateAction{}".format(
-                    action.capitalize()
-                ),
+                "@type": f"as.dto.common.update.ListUpdateAction{action.capitalize()}",
             }
         ],
         "@type": "as.dto.common.update.IdListUpdateValue",
@@ -271,7 +384,7 @@ def _list_update(ids=None, entity=None, action="Add"):
         map(
             lambda id: {
                 "code": id,
-                "@type": "as.dto.{}.id.{}Code".format(entity.lower(), entity),
+                "@type": f"as.dto.{entity.lower()}.id.{entity}Code",
             },
             ids,
         )
@@ -281,9 +394,7 @@ def _list_update(ids=None, entity=None, action="Add"):
         "actions": [
             {
                 "items": items,
-                "@type": "as.dto.common.update.ListUpdateAction{}".format(
-                    action.capitalize()
-                ),
+                "@type": f"as.dto.common.update.ListUpdateAction{action.capitalize()}",
             }
         ],
         "@type": "as.dto.common.update.IdListUpdateValue",
@@ -292,7 +403,7 @@ def _list_update(ids=None, entity=None, action="Add"):
 
 
 def get_field_value_search(field, value, comparison="StringEqualToValue"):
-    return {"value": value, "@type": "as.dto.common.search.{}".format(comparison)}
+    return {"value": value, "@type": f"as.dto.common.search.{comparison}"}
 
 
 def _common_search(search_type, value, comparison="StringEqualToValue"):
@@ -300,7 +411,7 @@ def _common_search(search_type, value, comparison="StringEqualToValue"):
         "@type": search_type,
         "fieldValue": {
             "value": value,
-            "@type": "as.dto.common.search.{}".format(comparison),
+            "@type": f"as.dto.common.search.{comparison}",
         },
     }
     return sreq
@@ -348,7 +459,7 @@ def _subcriteria_for_userId(userId):
 
 def _subcriteria_for_type(code, entity):
     return {
-        "@type": "as.dto.{}.search.{}TypeSearchCriteria".format(entity.lower(), entity),
+        "@type": f"as.dto.{entity.lower()}.search.{entity}TypeSearchCriteria",
         "criteria": [
             {
                 "@type": "as.dto.common.search.CodeSearchCriteria",
@@ -428,7 +539,7 @@ def _gen_search_criteria(req):
         elif key == "operator":
             sreq["operator"] = val.upper()
         else:
-            sreq["@type"] = "as.dto.{}.search.{}SearchCriteria".format(key, val)
+            sreq["@type"] = f"as.dto.{key}.search.{val}SearchCriteria"
     return sreq
 
 
@@ -910,6 +1021,17 @@ class Openbis:
         if not verify_certificates:
             urllib3.disable_warnings()
 
+        config_local = {}
+        config_global = {}
+        if url is None:
+            config_local = get_local_config()
+            if config_local:
+                url = config_local.get("hostname")
+            else:
+                config_global = get_global_config()
+                if config_global:
+                    url = config_global.get("hostname")
+
         if url is None:
             url = os.environ.get("OPENBIS_URL") or os.environ.get("OPENBIS_HOST")
             if url is None:
@@ -938,6 +1060,7 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
+        self.token = None
         if (
             token is not None
         ):  # We try to set the token, during initialisation instead of errors, a message is printed
@@ -946,12 +1069,24 @@ class Openbis:
             except:
                 pass
         else:
-            try:
-                token = self._get_saved_token()
-                self.token = token
-            except ValueError:
-                print(token)
-                pass
+            while True:
+                try:
+                    self.token = config_local.get("token")
+                    break
+                except ValueError:
+                    pass
+                try:
+                    self.token = config_global.get("token")
+                    break
+                except ValueError:
+                    pass
+                try:
+                    self.token = self._get_saved_token()
+                    break
+                except ValueError:
+                    self._delete_saved_token()
+                    pass
+                break
 
     def _get_username(self):
         if self.token:
@@ -1016,6 +1151,7 @@ class Openbis:
             "get_object_types()",
             "get_property_types()",
             "get_property_type()",
+            "get_personal_access_tokens()",
             "new_property_type()",
             "get_semantic_annotations()",
             "get_semantic_annotation()",
@@ -1054,6 +1190,7 @@ class Openbis:
             "new_material_type()",
             "new_semantic_annotation()",
             "new_transaction()",
+            "get_or_create_personal_access_token()",
             "set_token()",
         ]
 
@@ -1080,9 +1217,7 @@ class Openbis:
             "token",
         ]
         for attr in attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>
@@ -1117,20 +1252,18 @@ class Openbis:
         return path
 
     def save_token_on_behalf(self, os_home):
+        """Set the correct user, only the owner of the token should be able to access it,
+        used by jupyterhub authenticator
+        """
         token_path = self._save_token_to_disk(os_home)
 
-        # Set the correct user, only the owner of the token should be able to access it, used by jupyterhub authenticator
         token_user_name = self.token.split("-")[0]
         from pwd import getpwnam
 
         token_user_name_uid = getpwnam(token_user_name).pw_uid
         token_user_name_gid = getpwnam(token_user_name).pw_gid
 
-        # Token
         os.chown(token_path, token_user_name_uid, token_user_name_gid)
-
-        # Parent directory
-        from pathlib import Path
 
         path = Path(token_path)
         token_parent_path = path.parent.absolute()
@@ -1146,6 +1279,11 @@ class Openbis:
         # prevent other users to be able to read the token
         os.chmod(token_path, 0o600)
         return token_path
+
+    def _delete_saved_token(self, os_home=None):
+        token_path = self.gen_token_path(os_home)
+        if os.path.exists(token_path):
+            os.unlink(token_path)
 
     def _get_saved_token(self):
         """Read the token from the .pybis, on the default user location"""
@@ -1168,6 +1306,21 @@ class Openbis:
         """
         return self._post_request_full_url(urljoin(self.url, resource), request)
 
+    def _recover_session(self, full_url, request):
+        """Current token seems to be expired,
+        try to use other means to connect.
+        """
+        if is_session_token(self.token):
+            for session_token in get_saved_tokens(hostname=self.hostname):
+                pass
+
+        else:
+            for token in get_saved_pats(hostname=self.hostname):
+                if self.is_token_valid(token=token):
+                    return requests.post(
+                        full_url, json.dumps(request), verify=self.verify_certificates
+                    )
+
     def _post_request_full_url(self, full_url, request):
         """internal method, used to handle all post requests and serializing / deserializing
         data
@@ -1189,9 +1342,9 @@ class Openbis:
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
-                # print(full_url)
-                print(json.dumps(request))
-                raise ValueError(resp["error"]["message"])
+                if "Session token" in resp["error"]["message"]:
+                    print(json.dumps(request))
+                    raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
             else:
@@ -1235,6 +1388,7 @@ class Openbis:
         if save_token:
             self._save_token_to_disk()
             self._password(password)
+            self.username = username
         return self.token
 
     def _password(self, password=None, pstore={}):
@@ -1252,9 +1406,7 @@ class Openbis:
                 return pstore.get("password")
             else:
                 raise Exception(
-                    "This method can only be called from these internal methods: {}".format(
-                        allowed_methods
-                    )
+                    f"This method can only be called from these internal methods: {allowed_methods}"
                 )
 
     def unmount(self, mountpoint=None):
@@ -1278,21 +1430,19 @@ class Openbis:
         if not os.path.ismount(full_mountpoint_path):
             return
 
-        status = subprocess.call("umount {}".format(full_mountpoint_path), shell=True)
+        status = subprocess.call(f"umount {full_mountpoint_path}", shell=True)
         if status == 1:
             status = subprocess.call(
-                'pkill -9 sshfs && umount "{}"'.format(full_mountpoint_path), shell=True
+                f'pkill -9 sshfs && umount "{full_mountpoint_path}"', shell=True
             )
 
         if status == 1:
             raise OSError(
-                "could not unmount mountpoint: {} Please try to unmount manually".format(
-                    full_mountpoint_path
-                )
+                f"could not unmount mountpoint: {full_mountpoint_path} Please try to unmount manually"
             )
         else:
             if VERBOSE:
-                print("Successfully unmounted {}".format(full_mountpoint_path))
+                print(f"Successfully unmounted {full_mountpoint_path}")
             self.mountpoint = None
 
     def is_mounted(self, mountpoint=None):
@@ -1381,9 +1531,7 @@ class Openbis:
         """
         if self.is_mounted():
             if VERBOSE:
-                print(
-                    "openBIS dataStore is already mounted on {}".format(self.mountpoint)
-                )
+                print(f"openBIS dataStore is already mounted on {self.mountpoint}")
             return
 
         def check_sshfs_is_installed():
@@ -1430,13 +1578,11 @@ class Openbis:
         supported_platforms = ["darwin", "linux"]
         if platform not in supported_platforms:
             raise ValueError(
-                "This method is not yet supported on {} plattform".format(platform)
+                f"This method is not yet supported on {platform} plattform"
             )
 
         os_options = {
-            "darwin": "-oauto_cache,reconnect,defer_permissions,noappledouble,negative_vncache,volname={} -oStrictHostKeyChecking=no ".format(
-                hostname
-            ),
+            "darwin": f"-oauto_cache,reconnect,defer_permissions,noappledouble,negative_vncache,volname={hostname} -oStrictHostKeyChecking=no ",
             "linux": "-oauto_cache,reconnect -oStrictHostKeyChecking=no",
         }
 
@@ -1468,7 +1614,7 @@ class Openbis:
 
         if status == 0:
             if VERBOSE:
-                print("Mounted successfully to {}".format(full_mountpoint_path))
+                print(f"Mounted successfully to {full_mountpoint_path}")
             self.mountpoint = full_mountpoint_path
             return self.mountpoint
         else:
@@ -1487,17 +1633,6 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
         if resp is not None:
-            # result is a dict of strings - use more useful types
-            keys_boolean = ["archiving-configured", "project-samples-enabled"]
-            keys_csv = ["enabled-technologies"]
-            for key in keys_boolean:
-                if key in resp:
-                    resp[key] = resp[key] == "true"
-            for key in keys_csv:
-                if key in resp:
-                    resp[key] = list(
-                        map(lambda item: item.strip(), resp[key].split(","))
-                    )
             self.server_information = ServerInformation(resp)
             return self.server_information
         else:
@@ -1574,7 +1709,7 @@ class Openbis:
         try:
             return self._post_request(self.as_v1, request)
         except Exception as e:
-            raise ValueError("Could not generate a code for {}: {}".format(entity, e))
+            raise ValueError(f"Could not generate a code for {entity}: {e}")
 
     def gen_permId(self, count=1):
         """Generate a permId (or many permIds) for a dataSet"""
@@ -1583,7 +1718,7 @@ class Openbis:
         try:
             return self._post_request(self.as_v3, request)
         except Exception as exc:
-            raise ValueError("Could not generate a code: {}".format(exc))
+            raise ValueError(f"Could not generate a code: {exc}")
 
     def new_person(self, userId, space=None):
         """creates an openBIS person or returns the existing person"""
@@ -1674,7 +1809,7 @@ class Openbis:
                 else:
                     pass
             else:
-                raise ValueError("unknown search argument {}".format(attr))
+                raise ValueError(f"unknown search argument {attr}")
 
         search_criteria["criteria"] = sub_crit
 
@@ -1741,7 +1876,7 @@ class Openbis:
 
         resp = self._post_request(self.as_v3, request)
         if len(resp) == 0:
-            raise ValueError("No assigned role found for techId={}".format(techId))
+            raise ValueError(f"No assigned role found for techId={techId}")
 
         for permid in resp:
             data = resp[permid]
@@ -1764,7 +1899,7 @@ class Openbis:
         role = role.upper()
         defs = get_definition_for_entity("roleAssignment")
         if role not in defs["role"]:
-            raise ValueError("Role should be one of these: {}".format(defs["role"]))
+            raise ValueError(f"Role should be one of these: {defs['role']}")
         userId = None
         groupId = None
         spaceId = None
@@ -1813,7 +1948,7 @@ class Openbis:
     def get_groups(self, start_with=None, count=None, **search_args):
         """Get openBIS AuthorizationGroups. Returns a «Things» object.
 
-        Usage::
+        Usage:
             groups = e.get.groups()
             groups[0]             # select first group
             groups['GROUP_NAME']  # select group with this code
@@ -1885,6 +2020,211 @@ class Openbis:
             response=resp,
             df_initializer=create_data_frame,
         )
+
+    def get_or_create_personal_access_token(
+        self,
+        sessionName: str,
+        validFrom: datetime = datetime.now(),
+        validTo: datetime = None,
+        force=False,
+    ) -> str:
+        """Creates a new personal access token (PAT).  If a PAT with the given sessionName
+        already exists and its expiry date (validToDate) is not within the warning period,
+        the existing PAT is returned instead.
+
+        Args:
+
+            sessionName (str):    a session name (mandatory)
+            validFrom (datetime): begin of the validity period (default: now)
+            validTo (datetime):   end of the validity period (default: validFrom + maximum validity period, as configured in openBIS)
+            force (bool):         if set to True, a new PAT is created, regardless of existing ones.
+        """
+
+        server_info = self.get_server_information()
+        session_token = self.token
+        if not is_session_token(session_token):
+            session_token = self.session_token
+        if not session_token:
+            session_token = get_token_for_hostname(
+                self.hostname, session_token_needed=True
+            )
+
+        if not self.is_token_valid(session_token):
+            raise ValueError(
+                "You you need a session token to create a new personal access token."
+            )
+
+        for existing_pat in self.get_personal_access_tokens(sessionName=sessionName):
+            # check if we already reached the warning period
+            validTo_date = datetime.strptime(
+                existing_pat.validToDate, "%Y-%m-%d %H:%M:%S"
+            )
+            if validTo_date > (
+                datetime.now()
+                + relativedelta(
+                    seconds=server_info.personal_access_tokens_validity_warning_period
+                )
+            ):
+                # return existing PAT which is within warning period
+                if not force:
+                    return existing_pat
+
+        if validTo is None:
+            validTo = datetime.now() + relativedelta(
+                seconds=server_info.personal_access_tokens_max_validity_period
+            )
+
+        entity = "personalAccessToken"
+        request = {
+            "method": get_method_for_entity(entity, "create"),
+            "params": [
+                self.token,
+                {
+                    "@type": "as.dto.pat.create.PersonalAccessTokenCreation",
+                    "sessionName": sessionName,
+                    "validFromDate": int(validFrom.timestamp() * 1000),
+                    "validToDate": int(validTo.timestamp() * 1000),
+                },
+            ],
+        }
+        try:
+            resp = self._post_request(self.as_v3, request)
+        except ValueError as exc:
+            raise NotSupportedErr(
+                "Your openBIS instance does not support personal access tokens. Please upgrade your server and activate them."
+            )
+        try:
+            return self.get_personal_access_token(resp[0]["permId"])
+        except KeyError:
+            pass
+
+    def get_personal_access_tokens(
+        self,
+        sessionName=None,
+        start_with=None,
+        count=None,
+        save_to_disk=False,
+        **search_args,
+    ):
+        """Get a list of Personal Access Tokens (PAT).
+
+        Args:
+
+            sessionName (str)  :  a session name
+            save_to_disk (bool):  saves the PATs to the disk, in ~/.pybis
+        """
+        entity = "personalAccessToken"
+
+        search_criteria = get_search_criteria(entity, **search_args)
+        if sessionName:
+            sub_crit = {
+                "fieldName": "sessionName",
+                "fieldType": "ATTRIBUTE",
+                "fieldValue": {
+                    "value": sessionName,
+                    "@type": "as.dto.common.search.StringStartsWithValue",
+                },
+                "@type": "as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria",
+            }
+
+            search_criteria["criteria"].append(sub_crit)
+        fetchopts = get_fetchoption_for_entity(entity)
+        fetchopts["from"] = start_with
+        fetchopts["count"] = count
+
+        for person in ["owner", "registrator", "modifier"]:
+            fetchopts[person] = get_fetchoption_for_entity(person)
+        request = {
+            "method": get_method_for_entity(entity, "search"),
+            "params": [self.token, search_criteria, fetchopts],
+        }
+        try:
+            resp = self._post_request(self.as_v3, request)
+        except ValueError:
+            raise NotSupportedErr(
+                "This method is not supported by your openBIS instance."
+            )
+
+        defs = get_definition_for_entity(entity)
+
+        def create_data_frame(attrs, props, response):
+            attrs = defs["attrs"]
+            objects = response["objects"]
+            if len(objects) == 0:
+                pats = DataFrame(columns=attrs)
+            else:
+                parse_jackson(objects)
+
+                pats = DataFrame(objects)
+                pats["permId"] = pats["permId"].map(extract_permid)
+                for date in [
+                    "validFromDate",
+                    "validToDate",
+                    "accessDate",
+                    "registrationDate",
+                    "modificationDate",
+                ]:
+                    pats[date] = pats[date].map(format_timestamp)
+                for person in ["owner", "registrator", "modifier"]:
+                    pats[person] = pats[person].map(extract_person)
+            return pats[attrs]
+
+        if save_to_disk:
+            save_pats_to_disk(hostname=self.hostname, url=self.url, resp=resp)
+
+        return Things(
+            openbis_obj=self,
+            entity=entity,
+            identifier_name="permId",
+            single_item_method=self.get_personal_access_token,
+            start_with=start_with,
+            count=count,
+            totalCount=resp.get("totalCount"),
+            response=resp,
+            df_initializer=create_data_frame,
+        )
+
+    def get_personal_access_token(self, permId, only_data=False):
+        """Get a single Personal Access Token (PAT) by its permId.
+        If you want to get the latest PAT for a given sessionName or create a new one,
+        please use the get_or_create_personal_access_token() method instead.
+
+        Args:
+
+            permId (str)  :  The id of the PAT
+        """
+        entity = "personalAccessToken"
+        identifiers = []
+        only_one = True
+        if isinstance(permId, list):
+            only_one = False
+            for ident in permId:
+                identifiers.append(_type_for_id(ident, entity))
+        else:
+            identifiers.append(_type_for_id(permId, entity))
+
+        defs = get_definition_for_entity(entity)
+        fetchopts = get_fetchoption_for_entity(entity)
+        for person in ["owner", "registrator", "modifier"]:
+            fetchopts[person] = get_fetchoption_for_entity(person)
+        request = {
+            "method": get_method_for_entity(entity, "get"),
+            "params": [self.token, identifiers, fetchopts],
+        }
+        resp = self._post_request(self.as_v3, request)
+        if only_one:
+            if len(resp) == 0:
+                raise ValueError(f"no such {entity} found: {permId}")
+
+            parse_jackson(resp)
+            for permId in resp:
+                if only_data:
+                    return resp[permId]
+                else:
+                    return PersonalAccessToken(
+                        openbis_obj=self,
+                        data=resp[permId],
+                    )
 
     def get_persons(self, start_with=None, count=None, **search_args):
         """Get openBIS users"""
@@ -2107,10 +2447,6 @@ class Openbis:
                         b) property is not defined for this sampleType
         """
 
-        logger = logging.getLogger("get_samples")
-        logger.setLevel(logging.CRITICAL)
-        logger.addHandler(logging.StreamHandler(sys.stdout))
-
         if collection is not None:
             experiment = collection
         if attrs is None:
@@ -2200,23 +2536,11 @@ class Openbis:
             ],
         }
 
-        time1 = now()
-        logger.debug("get_samples posting request")
         resp = self._post_request(self.as_v3, request)
 
-        time2 = now()
-
-        logger.debug(f"get_samples got response. Delay: {time2 - time1}")
         parse_jackson(resp)
 
-        time3 = now()
-
         response = resp["objects"]
-        logger.debug(f"get_samples got JSON. Delay: {time3 - time2}")
-
-        time4 = now()
-
-        logger.debug(f"get_samples after result mapping. Delay: {time4 - time3}")
 
         result = self._sample_list_for_response(
             response=response,
@@ -2228,9 +2552,6 @@ class Openbis:
             parsed=True,
         )
 
-        time5 = now()
-
-        logger.debug(f"get_samples computed final result. Delay: {time5 - time4}")
         return result
 
     get_objects = get_samples  # Alias
@@ -2613,9 +2934,7 @@ class Openbis:
             kind = kind.upper()
             if kind not in ["PHYSICAL", "CONTAINER", "LINK"]:
                 raise ValueError(
-                    "unknown dataSet kind: {}. It should be one of the following: PHYSICAL, CONTAINER or LINK".format(
-                        kind
-                    )
+                    f"unknown dataSet kind: {kind}. It should be one of the following: PHYSICAL, CONTAINER or LINK"
                 )
             fetchopts["kind"] = kind
             raise NotImplementedError("you cannot search for dataSet kinds yet")
@@ -2947,7 +3266,7 @@ class Openbis:
         if not isinstance(permids, list):
             permids = [permids]
 
-        type = "as.dto.{}.id.{}".format(entity.lower(), entity.capitalize())
+        type = f"as.dto.{entity.lower()}.id.{entity.capitalize()}"
         search_params = []
         for permid in permids:
             # decide if we got a permId or an identifier
@@ -3099,9 +3418,7 @@ class Openbis:
 
         if resp is None or len(resp) == 0:
             raise ValueError(
-                "no VocabularyTerm found with code='{}' and vocabularyCode='{}'".format(
-                    code, vocabularyCode
-                )
+                f"no VocabularyTerm found with code='{code}' and vocabularyCode='{vocabularyCode}'"
             )
         else:
             parse_jackson(resp)
@@ -3188,7 +3505,7 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
 
         if len(resp) == 0:
-            raise ValueError("no {} found with identifier: {}".format(entity, code))
+            raise ValueError(f"no {entity} found with identifier: {code}")
         else:
             parse_jackson(resp)
             for ident in resp:
@@ -3259,7 +3576,7 @@ class Openbis:
 
         if just_one:
             if len(resp) == 0:
-                raise ValueError("no such tag found: {}".format(permId))
+                raise ValueError(f"no such tag found: {permId}")
 
             parse_jackson(resp)
             for permId in resp:
@@ -3692,7 +4009,7 @@ class Openbis:
 
         if only_one:
             if len(resp) == 0:
-                raise ValueError("no such propertyType: {}".format(code))
+                raise ValueError(f"no such propertyType: {code}")
             for ident in resp:
                 if only_data:
                     return resp[ident]
@@ -3953,7 +4270,7 @@ class Openbis:
         parse_jackson(resp)
         if len(identifiers) == 1:
             if len(resp) == 0:
-                raise ValueError("no such {}: {}".format(entity, identifier[0]))
+                raise ValueError(f"no such {entity}: {identifier[0]}")
         for ident in resp:
             if only_data:
                 return resp[ident]
@@ -3987,14 +4304,10 @@ class Openbis:
             optional_attributes = []
 
         search_request = {
-            "@type": "as.dto.{}.search.{}TypeSearchCriteria".format(
-                entity.lower(), entity
-            )
+            "@type": f"as.dto.{entity.lower()}.search.{entity}TypeSearchCriteria"
         }
         fetch_options = {
-            "@type": "as.dto.{}.fetchoptions.{}TypeFetchOptions".format(
-                entity.lower(), entity
-            )
+            "@type": f"as.dto.{entity.lower()}.fetchoptions.{entity}TypeFetchOptions"
         }
         fetch_options["from"] = start_with
         fetch_options["count"] = count
@@ -4022,12 +4335,10 @@ class Openbis:
                 if len(response["objects"]) == 1:
                     return EntityType(openbis_obj=self, data=response["objects"][0])
                 elif len(response["objects"]) == 0:
-                    raise ValueError("No such {} type: {}".format(entity, type_name))
+                    raise ValueError(f"No such {entity} type: {type_name}")
                 else:
                     raise ValueError(
-                        "There is more than one entry for entity={} and type={}".format(
-                            entity, type_name
-                        )
+                        f"There is more than one entry for entity={entity} and type={type_name}"
                     )
 
             types = []
@@ -4071,7 +4382,7 @@ class Openbis:
         """checks whether a session is still active. Returns true or false."""
         return self.is_token_valid(self.token)
 
-    def is_token_valid(self, token=None):
+    def is_token_valid(self, token: str = None):
         """Check if the connection to openBIS is valid.
         This method is useful to check if a token is still valid or if it has timed out,
         requiring the user to login again.
@@ -4093,16 +4404,38 @@ class Openbis:
             return False
         return resp
 
-    def set_token(self, token, save_token=False):
+    def get_session_info(self, token=None):
+        if token is None:
+            token = self.token
+
+        if token is None:
+            return None
+
+        request = {"method": "getSessionInformation", "params": [token]}
+        try:
+            resp = self._post_request(self.as_v3, request)
+            parse_jackson(resp)
+        except Exception as exc:
+            return None
+        return SessionInformation(openbis_obj=self, data=resp)
+
+    def set_token(self, token, save_token=False, save_local=False, save_global=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
         if not token:
             return
+        if isinstance(token, PersonalAccessToken):
+            token = token.permId
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
+            if self.token and is_session_token(self.token):
+                # if current token is a session token, save it in .session_token
+                # just in case we need it later
+                self.session_token = self.token
             self.__dict__["token"] = token
+            self.username = extract_username_from_token(token)
         if save_token:
             self._save_token_to_disk()
 
@@ -4155,7 +4488,7 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
         if just_one:
             if len(resp) == 0:
-                raise ValueError("no such dataset found: {}".format(permIds))
+                raise ValueError(f"no such dataset found: {permIds}")
 
             parse_jackson(resp)
 
@@ -4393,7 +4726,7 @@ class Openbis:
 
         if only_one:
             if len(resp) == 0:
-                raise ValueError("no such sample found: {}".format(sample_ident))
+                raise ValueError(f"no such sample found: {sample_ident}")
 
             parse_jackson(resp)
             for sample_ident in resp:
@@ -4420,23 +4753,8 @@ class Openbis:
         totalCount=0,
         parsed=False,
     ):
-        logger = logging.getLogger("_sample_list_for_response")
-        logger.setLevel(logging.CRITICAL)
-        logger.disabled = True
-        logger.addHandler(logging.StreamHandler(sys.stdout))
-
-        time1 = now()
-
-        logger.debug("_sample_list_for_response before parsing JSON")
         if not parsed:
             parse_jackson(response)
-
-        time2 = now()
-
-        logger.debug(f"_sample_list_for_response got response. Delay: {time2 - time1}")
-
-        time6 = now()
-        logger.debug("_sample_list_for_response computing result.")
 
         def create_data_frame(attrs, props, response):
             """returns a Things object, containing a DataFrame plus additional information"""
@@ -4448,12 +4766,6 @@ class Openbis:
                     return obj.get(attribute_to_extract, "")
 
                 return return_attribute
-
-            logger = logging.getLogger("create_data_frame")
-            logger.setLevel(logging.CRITICAL)
-            logger.addHandler(logging.StreamHandler(sys.stdout))
-
-            time2 = now()
 
             if attrs is None:
                 attrs = []
@@ -4479,10 +4791,6 @@ class Openbis:
                     display_attrs.append(prop)
                 samples = DataFrame(columns=display_attrs)
             else:
-                time3 = now()
-                logger.debug(
-                    f"createDataFrame computing attributes. Delay: {time3 - time2}"
-                )
 
                 samples = DataFrame(response)
                 for attr in attrs:
@@ -4515,11 +4823,6 @@ class Openbis:
                 samples["permId"] = samples["permId"].map(extract_permid)
                 samples["type"] = samples["type"].map(extract_nested_permid)
 
-                time4 = now()
-                logger.debug(
-                    f"_sample_list_for_response computed attributes. Delay: {time4 - time3}"
-                )
-
                 for prop in props:
                     if prop == "*":
                         # include all properties in dataFrame.
@@ -4545,10 +4848,6 @@ class Openbis:
                                 samples.loc[i, prop.upper()] = ""
                         display_attrs.append(prop.upper())
 
-                time5 = now()
-                logger.debug(
-                    f"_sample_list_for_response computed properties. Delay: {time5 - time4}"
-                )
             return samples[display_attrs]
 
         def create_objects(response):
@@ -4577,10 +4876,6 @@ class Openbis:
             props=props,
         )
 
-        time7 = now()
-        logger.debug(
-            f"_sample_list_for_response computed result. Delay: {time7 - time6}"
-        )
         return result
 
     @staticmethod
@@ -5085,14 +5380,45 @@ class ExternalDMS:
 
 class ServerInformation:
     def __init__(self, info):
-        self._info = info
+        self._info = self._reformat_info(info)
         self.attrs = [
             "api_version",
             "archiving_configured",
             "authentication_service",
+            "authentication_service.switch_aai.label",
+            "authentication_service.switch_aai.link",
+            "create_continuous_sample_codes",
             "enabled_technologies",
+            "openbis_version",
+            "openbis_support_email",
+            "personal_access_tokens_enabled",
+            "personal_access_tokens_max_validity_period",
+            "personal_access_tokens_validity_warning_period",
             "project_samples_enabled",
         ]
+
+    def _reformat_info(self, info):
+        for bool_field in [
+            "archiving-configured",
+            "project-samples-enabled",
+            "personal-access-tokens-enabled",
+        ]:
+            if bool_field in info:
+                info[bool_field] = info[bool_field] == "true"
+        for csv_field in ["enabled-technologies"]:
+            if csv_field in info:
+                info[csv_field] = list(
+                    map(lambda item: item.strip(), info[csv_field].split(","))
+                )
+        for int_field in [
+            "personal-access-tokens-max-validity-period",
+            "personal-access-tokens-validity-warning-period",
+        ]:
+            if int_field in info:
+                info[int_field] = int(info[int_field])
+        info["openbis-support-email"] = info["openbis.support.email"]
+        del info["openbis.support.email"]
+        return info
 
     def __dir__(self):
         return self.attrs
@@ -5125,9 +5451,7 @@ class ServerInformation:
         """
 
         for attr in self.attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>
@@ -5143,4 +5467,44 @@ class PropertyType(
 
 
 class Plugin(OpenBisObject, entity="plugin", single_item_method_name="get_plugin"):
+    pass
+
+
+class PersonalAccessToken(
+    OpenBisObject,
+    entity="personalAccessToken",
+    single_item_method_name="get_personal_access_token",
+):
+    def renew(self, validFrom: datetime = None, validTo: datetime = None):
+        """Create a new personal access token (PAT) based on an existing one.
+        The same sessionName and validity period will be used, starting from now.
+        A new PAT will be created, regardless if there is already an existing
+        (and still valid) one.
+
+        Args:
+            validFrom (datetime): begin of the validity period (default:now)
+            validTo (datetime):   end of the validity period (default: validFrom + maximum validity period, as configured in openBIS)
+        """
+        if not validFrom:
+            validFrom = datetime.now()
+
+        if not validTo:
+            validFrom_orig = datetime.strptime(self.validFromDate, "%Y-%m-%d %H:%M:%S")
+            validTo_orig = datetime.strptime(self.validToDate, "%Y-%m-%d %H:%M:%S")
+            days_delta = abs(validFrom_orig - validTo_orig).days
+            validTo = validFrom + relativedelta(days=days_delta)
+
+        new_pat = self.openbis.new_personal_access_token(
+            sessionName=self.sessionName,
+            validFrom=validFrom,
+            validTo=validTo,
+            force=True,
+        )
+        return new_pat
+
+
+class SessionInformation(
+    OpenBisObject,
+    entity="sessionInformation",
+):
     pass

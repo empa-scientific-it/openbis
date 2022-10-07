@@ -46,7 +46,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         VocabularyCode("Vocabulary code", true),
         Description("Description", true),
         Metadata("Metadata", false),
-        DynamicScript("Dynamic script", false);
+        DynamicScript("Dynamic script", false),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false);
 
         private final String headerName;
 

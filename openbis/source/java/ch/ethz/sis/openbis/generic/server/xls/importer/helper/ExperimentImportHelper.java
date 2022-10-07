@@ -19,7 +19,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         }
     }
 
-    private EntityTypePermId entityTypePermId;
+    private EntityTypePermId experimentType;
 
     private final DelayedExecutionDecorator delayedExecutor;
 
@@ -73,18 +72,21 @@ public class ExperimentImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(EXPERIMENT_TYPE_FIELD, header);
             lineIndex++;
 
-            String experimentType = getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD);
-            entityTypePermId = new EntityTypePermId(experimentType);
+            experimentType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD));
+            if(experimentType.getPermId() == null || experimentType.getPermId().isEmpty()) {
+                throw new UserFailureException("Mandatory field missing or empty: " + EXPERIMENT_TYPE_FIELD);
+            }
 
             // first check that experiment type exist.
             ExperimentTypeFetchOptions fetchTypeOptions = new ExperimentTypeFetchOptions();
             fetchTypeOptions.withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
-            ExperimentType type = delayedExecutor.getExperimentType(entityTypePermId, fetchTypeOptions);
+            ExperimentType type = delayedExecutor.getExperimentType(experimentType, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Experiment type " + experimentType + " doesn't exist.");
+                throw new UserFailureException("Experiment type " + experimentType + " not found.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
@@ -125,7 +127,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String project = getValueByColumnName(header, values, Attribute.Project);
 
-        creation.setTypeId(entityTypePermId);
+        creation.setTypeId(experimentType);
         creation.setCode(code);
         creation.setProjectId(new ProjectIdentifier(project));
 

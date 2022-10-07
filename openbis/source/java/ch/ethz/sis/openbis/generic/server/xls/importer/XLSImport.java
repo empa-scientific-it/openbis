@@ -16,6 +16,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.helper.PropertyTypeImport
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleTypeImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ScriptImportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SemanticAnnotationImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SpaceImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyTermImportHelper;
@@ -70,6 +71,8 @@ public class XLSImport
 
     private final ScriptImportHelper scriptHelper;
 
+    private final SemanticAnnotationImportHelper semanticAnnotationImportHelper;
+
     private final DatabaseConsistencyChecker dbChecker;
 
     public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
@@ -95,6 +98,7 @@ public class XLSImport
         this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, versions);
         this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
+        this.semanticAnnotationImportHelper = new SemanticAnnotationImportHelper(this.delayedExecutor, mode, options);
     }
 
     public List<IObjectId> importXLS(byte xls[])
@@ -138,12 +142,14 @@ public class XLSImport
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create sample type
                         sampleTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
+                        semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.SAMPLE_TYPE);
                         // parse and assignment properties
                         if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
                             propertyAssignmentHelper.importBlock(page, pageNumber, lineNumber, blockEnd, ImportTypes.SAMPLE_TYPE);
+                            semanticAnnotationImportHelper.importBlockForEntityTypeProperty(page, pageNumber, lineNumber, blockEnd, ImportTypes.SAMPLE_TYPE);
                         }
                         break;
                     case EXPERIMENT_TYPE:
@@ -151,12 +157,14 @@ public class XLSImport
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create experiment type
                         experimentTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
+                        semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.EXPERIMENT_TYPE);
                         // parse and assignment properties
                         if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
                             propertyAssignmentHelper.importBlock(page, pageNumber, lineNumber, blockEnd, ImportTypes.EXPERIMENT_TYPE);
+                            semanticAnnotationImportHelper.importBlockForEntityTypeProperty(page, pageNumber, lineNumber, blockEnd, ImportTypes.EXPERIMENT_TYPE);
                         }
                         break;
                     case DATASET_TYPE:
@@ -164,12 +172,14 @@ public class XLSImport
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create dataset type
                         datasetHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
+                        semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.DATASET_TYPE);
                         // parse and assignment properties
                         if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
                             propertyAssignmentHelper.importBlock(page, pageNumber, lineNumber, blockEnd, ImportTypes.DATASET_TYPE);
+                            semanticAnnotationImportHelper.importBlockForEntityTypeProperty(page, pageNumber, lineNumber, blockEnd, ImportTypes.DATASET_TYPE);
                         }
                         break;
                     case SPACE:
@@ -186,6 +196,7 @@ public class XLSImport
                         break;
                     case PROPERTY_TYPE:
                         propertyHelper.importBlock(page, pageNumber, lineNumber, blockEnd);
+                        semanticAnnotationImportHelper.importBlockForPropertyType(page, pageNumber, lineNumber, blockEnd);
                         break;
                     default:
                         throw new UserFailureException("Unknown type: " + blockType);
