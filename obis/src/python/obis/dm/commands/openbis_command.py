@@ -133,12 +133,6 @@ class OpenbisCommand(object):
         """ Checks for valid session and asks user for password
         if login is needed. """
         user = self.user()
-        try:
-            self.openbis.set_token(self.openbis_token())
-        except ValueError:
-            pass
-        except KeyError:
-            pass
         if self.openbis.is_session_active():
             if self.openbis.token.startswith(user):
                 return CommandResult(returncode=0, output="")

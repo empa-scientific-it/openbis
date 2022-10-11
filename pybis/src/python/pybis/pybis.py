@@ -147,49 +147,6 @@ def is_personal_access_token(token: str):
     return token.startswith("$pat")
 
 
-def save_config(config_filepath: Path, config: dict) -> dict:
-    with open(config_filepath, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps(config))
-
-
-def read_config(config_filepath: Path) -> dict:
-    config = {}
-    if config_filepath.exists():
-        with open(config_filepath, "r") as fh:
-            config = json.load(fh)
-    return config
-
-
-def get_global_config():
-    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
-    config = read_config(config_filepath=config_filepath)
-    return config
-
-
-def set_global_config(hostname=None, token=None):
-    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
-    config = {"hostname": hostname, "token": token}
-    save_config(config_filepath=global_openbis, config=config)
-    return
-
-
-def get_local_config():
-    config = {}
-    for path in [Path.cwd(), *Path.cwd().parents]:
-        config_filepath = path / CONFIG_FILENAME
-        if config_filepath.exists() and config_filepath.is_file():
-            config = read_config(config_filepath=config_filepath)
-            break
-    return config
-
-
-def set_local_config(hostname=None, token=None):
-    local_openbis = Path.cwd() / CONFIG_FILENAME
-    config = {"hostname": hostname, "token": token}
-    save_config(config_filepath=local_openbis, config=config)
-    return
-
-
 def get_saved_tokens():
     tokens = {}
     for filepath in PYBIS_FOLDER.glob("*.token"):
@@ -202,17 +159,8 @@ def get_saved_tokens():
 
 def get_token_for_hostname(hostname, session_token_needed=True):
     """Searches for a stored token for a given host in this order:
-    cwd/.pybis.json
-    ~/.pybis/.pybis.json
     ~/.pybis/hostname.token
     """
-    for config in [get_local_config(), get_global_config()]:
-        if config.get("hostname") == hostname:
-            if session_token_needed:
-                if is_session_token(config.get("token")):
-                    return config.get("token")
-            else:
-                return config.get("token")
     tokens = get_saved_tokens()
     if hostname in tokens:
         if session_token_needed:
@@ -1021,17 +969,6 @@ class Openbis:
         if not verify_certificates:
             urllib3.disable_warnings()
 
-        config_local = {}
-        config_global = {}
-        if url is None:
-            config_local = get_local_config()
-            if config_local:
-                url = config_local.get("hostname")
-            else:
-                config_global = get_global_config()
-                if config_global:
-                    url = config_global.get("hostname")
-
         if url is None:
             url = os.environ.get("OPENBIS_URL") or os.environ.get("OPENBIS_HOST")
             if url is None:
@@ -1060,7 +997,6 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
-        self.token = None
         if (
             token is not None
         ):  # We try to set the token, during initialisation instead of errors, a message is printed
@@ -1069,24 +1005,12 @@ class Openbis:
             except:
                 pass
         else:
-            while True:
-                try:
-                    self.token = config_local.get("token")
-                    break
-                except ValueError:
-                    pass
-                try:
-                    self.token = config_global.get("token")
-                    break
-                except ValueError:
-                    pass
-                try:
-                    self.token = self._get_saved_token()
-                    break
-                except ValueError:
-                    self._delete_saved_token()
-                    pass
-                break
+            try:
+                token = self._get_saved_token()
+                self.token = token
+            except ValueError:
+                print(token)
+                pass
 
     def _get_username(self):
         if self.token:
@@ -4419,23 +4343,16 @@ class Openbis:
             return None
         return SessionInformation(openbis_obj=self, data=resp)
 
-    def set_token(self, token, save_token=False, save_local=False, save_global=False):
+    def set_token(self, token, save_token=False):
         """Checks the validity of a token, sets it as the current token and (by default) saves it
         to the disk, i.e. in the ~/.pybis directory
         """
         if not token:
             return
-        if isinstance(token, PersonalAccessToken):
-            token = token.permId
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:
-            if self.token and is_session_token(self.token):
-                # if current token is a session token, save it in .session_token
-                # just in case we need it later
-                self.session_token = self.token
             self.__dict__["token"] = token
-            self.username = extract_username_from_token(token)
         if save_token:
             self._save_token_to_disk()
 
