@@ -43,6 +43,7 @@ export default class BrowserController {
       }
     }
 
+    this.settings = {}
     this.fullTreeController = new FullTreeController()
     this.filteredTreeController = new FilteredTreeController()
     this.lastFilterTimeoutId = null
@@ -52,7 +53,8 @@ export default class BrowserController {
     context.initState({
       loaded: false,
       loading: false,
-      filter: null
+      filter: null,
+      autoShowSelectedObject: true
     })
 
     this.fullTreeController.init(
@@ -85,6 +87,12 @@ export default class BrowserController {
     await this.fullTreeController.expandNode(
       this.fullTreeController.getRoot().id
     )
+
+    const { autoShowSelectedObject } = this.context.getState()
+    if (autoShowSelectedObject) {
+      await this.fullTreeController.showSelectedObject()
+    }
+
     await this.filteredTreeController.load()
 
     await this.context.setState({
@@ -112,6 +120,10 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
+      const { autoShowSelectedObject } = this.context.getState()
+      if (autoShowSelectedObject) {
+        await this.fullTreeController.showSelectedObject()
+      }
       await this.filteredTreeController.collapseNode(
         this.filteredTreeController.getRoot().id
       )
@@ -146,12 +158,25 @@ export default class BrowserController {
       await this.fullTreeController.selectObject(nodeObject)
       await this.filteredTreeController.selectObject(nodeObject)
     } else {
+      const { autoShowSelectedObject } = this.context.getState()
       await this.fullTreeController.selectObject(nodeObject)
+      if (autoShowSelectedObject) {
+        await this.fullTreeController.showSelectedObject()
+      }
     }
   }
 
-  async showSelectedObject() {
-    await this._getTreeController().showSelectedObject()
+  async changeAutoShowSelectedObject() {
+    let { autoShowSelectedObject } = this.context.getState()
+
+    autoShowSelectedObject = !autoShowSelectedObject
+    await this.context.setState({
+      autoShowSelectedObject
+    })
+
+    if (autoShowSelectedObject) {
+      await this.fullTreeController.showSelectedObject()
+    }
   }
 
   async changeSorting(nodeId, sortingId) {
@@ -174,6 +199,11 @@ export default class BrowserController {
 
   getSelectedObject() {
     return this._getTreeController().getSelectedObject()
+  }
+
+  isAutoShowSelectedObject() {
+    const { autoShowSelectedObject } = this.context.getState()
+    return autoShowSelectedObject
   }
 
   getFullTree() {

@@ -14,7 +14,7 @@ const styles = () => ({
   }
 })
 
-class BrowserNodeShowSelected extends React.PureComponent {
+class BrowserNodeAutoShowSelected extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -27,12 +27,12 @@ class BrowserNodeShowSelected extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'BrowserNodeShowSelected.render')
+    logger.log(logger.DEBUG, 'BrowserNodeAutoShowSelected.render')
 
     const { classes } = this.props
 
     return (
-      <Tooltip title={messages.get(messages.SHOW_SELECTED)}>
+      <Tooltip title={messages.get(messages.AUTO_SHOW_SELECTED)}>
         <IconButton
           size='small'
           onClick={this.handleClick}
@@ -45,4 +45,4 @@ class BrowserNodeShowSelected extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(BrowserNodeShowSelected)
+export default withStyles(styles)(BrowserNodeAutoShowSelected)

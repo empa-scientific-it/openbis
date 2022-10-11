@@ -312,7 +312,7 @@ export default class BrowserTreeController {
   async showSelectedObject() {
     const state = this.context.getState()
 
-    if (!state.selectedObject) {
+    if (!state.rootId && !state.selectedObject) {
       return
     }
 
@@ -324,16 +324,21 @@ export default class BrowserTreeController {
       return
     }
 
+    const root = state.nodes[state.rootId]
+    if (!root) {
+      return
+    }
+
     await this.context.setState({
       loading: true
     })
 
     const _this = this
     const newState = { ...state }
-    const path = [this.getRoot().object, ...pathWithoutRoot]
+    const path = [root.object, ...pathWithoutRoot]
 
     let currentObject = path.shift()
-    let currentNode = this.getRoot()
+    let currentNode = root
 
     const scrollTo = (ref, nodeId) => {
       const scrollToId = _.uniqueId()
