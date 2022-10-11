@@ -105,47 +105,80 @@ export default class BrowserTreeController {
         return
       }
 
-      const loadedNodesIds = []
+      state.nodes = { ...state.nodes }
 
-      if (!_.isEmpty(loadedNodes.nodes)) {
-        state.nodes = { ...state.nodes }
+      const accumulator = { allLoadedNodesIds: [] }
+      this._doProcessLoadedNodes(
+        state,
+        nodeId,
+        offset,
+        limit,
+        loadedNodes,
+        accumulator
+      )
 
-        loadedNodes.nodes.forEach(loadedNode => {
-          const newNode = {
-            ...loadedNode,
-            selected:
-              loadedNode.object &&
-              _.isEqual(loadedNode.object, state.selectedObject),
-            expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
-            children: loadedNode.children
-              ? loadedNode.children.map(child => child.id)
-              : [],
-            sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId
-          }
-          state.nodes[newNode.id] = newNode
-          loadedNodesIds.push(newNode.id)
-        })
+      const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
+        .map(id => state.nodes[id])
+        .filter(node => node.expanded)
 
-        const loadedNodesToExpand = Object.values(loadedNodesIds)
-          .map(id => state.nodes[id])
-          .filter(node => node.expanded)
-
-        if (!_.isEmpty(loadedNodesToExpand)) {
-          await Promise.all(
-            loadedNodesToExpand.map(node => this._doExpandNode(state, node.id))
-          )
-        }
-      }
-
-      state.nodes[nodeId] = {
-        ...node,
-        loaded: true,
-        loadedCount: offset + limit,
-        totalCount: loadedNodes.totalCount,
-        children:
-          offset === 0 ? loadedNodesIds : node.children.concat(loadedNodesIds)
+      if (!_.isEmpty(loadedNodesToExpand)) {
+        await Promise.all(
+          loadedNodesToExpand.map(node => this._doExpandNode(state, node.id))
+        )
       }
     })
+  }
+
+  _doProcessLoadedNodes(
+    state,
+    nodeId,
+    offset,
+    limit,
+    loadedNodes,
+    accumulator
+  ) {
+    const loadedNodesIds = []
+
+    if (!_.isEmpty(loadedNodes.nodes)) {
+      loadedNodes.nodes.forEach(loadedNode => {
+        state.nodes[loadedNode.id] = {
+          ...loadedNode,
+          selected:
+            loadedNode.object &&
+            _.isEqual(loadedNode.object, state.selectedObject),
+          expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
+          sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId
+        }
+
+        if (_.isEmpty(loadedNode.children)) {
+          loadedNode.children = []
+        } else {
+          this._doProcessLoadedNodes(
+            state,
+            loadedNode.id,
+            0,
+            LOAD_LIMIT,
+            loadedNode.children,
+            accumulator
+          )
+        }
+
+        loadedNodesIds.push(loadedNode.id)
+      })
+    }
+
+    const node = state.nodes[nodeId]
+
+    state.nodes[nodeId] = {
+      ...node,
+      loaded: true,
+      loadedCount: offset + limit,
+      totalCount: loadedNodes.totalCount,
+      children:
+        offset === 0 ? loadedNodesIds : node.children.concat(loadedNodesIds)
+    }
+
+    accumulator.allLoadedNodesIds.push(...loadedNodesIds)
   }
 
   async loadMoreNodes(nodeId) {
@@ -312,7 +345,13 @@ export default class BrowserTreeController {
   async showSelectedObject() {
     const state = this.context.getState()
 
-    if (!state.rootId && !state.selectedObject) {
+    if (!state.rootId || !state.selectedObject) {
+      return
+    }
+
+    const root = state.nodes[state.rootId]
+
+    if (!root) {
       return
     }
 
@@ -321,11 +360,6 @@ export default class BrowserTreeController {
     })
 
     if (!pathWithoutRoot || _.isEmpty(pathWithoutRoot)) {
-      return
-    }
-
-    const root = state.nodes[state.rootId]
-    if (!root) {
       return
     }
 
