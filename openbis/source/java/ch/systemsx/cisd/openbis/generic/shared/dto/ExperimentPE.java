@@ -106,7 +106,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
 
-    private List<SamplePE> samples = new ArrayList<SamplePE>();
+//    private List<SamplePE> samples = new ArrayList<SamplePE>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
 
@@ -402,30 +402,30 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return attachments;
     }
 
-    @Transient
-    /* Note: modifications of the returned collection will result in an exception. */
-    public List<SamplePE> getSamples()
-    {
-        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
-    }
-
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    private List<SamplePE> getExperimentSamples()
-    {
-        return samples;
-    }
-
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private void setExperimentSamples(final List<SamplePE> samples)
-    {
-        this.samples = samples;
-    }
+//    @Transient
+//    /* Note: modifications of the returned collection will result in an exception. */
+//    public List<SamplePE> getSamples()
+//    {
+//        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
+//    }
+//
+//    @OptimisticLock(excluded = true)
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
+//    private List<SamplePE> getExperimentSamples()
+//    {
+//        return samples;
+//    }
+//
+//    // Required by Hibernate.
+//    @SuppressWarnings("unused")
+//    private void setExperimentSamples(final List<SamplePE> samples)
+//    {
+//        this.samples = samples;
+//    }
 
     public void setSamples(List<SamplePE> samples)
     {
-        getExperimentSamples().clear();
+//        getExperimentSamples().clear();
         for (SamplePE sample : samples)
         {
             addSample(sample);
@@ -434,20 +434,20 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     public void removeSample(SamplePE sample)
     {
-        getExperimentSamples().remove(sample);
+//        getExperimentSamples().remove(sample);
         sample.setExperimentInternal(null);
     }
 
     public void addSample(SamplePE sample)
     {
-        ExperimentPE experiment = sample.getExperiment();
-        if (experiment != null)
-        {
-            experiment.getExperimentSamples().remove(sample);
-        }
+//        ExperimentPE experiment = sample.getExperiment();
+//        if (experiment != null)
+//        {
+//            experiment.getExperimentSamples().remove(sample);
+//        }
         sample.setExperimentInternal(this);
         sample.setProject(project);
-        getExperimentSamples().add(sample);
+//        getExperimentSamples().add(sample);
     }
 
     @Transient

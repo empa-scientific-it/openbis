@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.validation.ValidationException;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
@@ -266,7 +267,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         // Deleted experiment should have all collections which prevent it from deletion empty.
         assertTrue(deletedExperiment.getDataSets().isEmpty());
-        assertTrue(deletedExperiment.getSamples().isEmpty());
+        assertTrue(SampleUtils.getExperimentSamples(deletedExperiment.getId()).isEmpty());
 
         // Remember how many rows are in the properties table before we delete
         int beforeDeletionPropertiesRowCount =
@@ -306,7 +307,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         assertFalse(deletedExperiment.getAttachments().isEmpty());
         assertTrue(deletedExperiment.getDataSets().isEmpty());
-        assertTrue(deletedExperiment.getSamples().isEmpty());
+        assertTrue(SampleUtils.getExperimentSamples(deletedExperiment.getId()).isEmpty());
 
         // delete
         experimentDAO.delete(deletedExperiment);
@@ -342,7 +343,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         assertTrue(deletedExperiment.getAttachments().isEmpty());
         assertFalse(deletedExperiment.getDataSets().isEmpty());
-        assertTrue(deletedExperiment.getSamples().isEmpty());
+        assertTrue(SampleUtils.getExperimentSamples(deletedExperiment.getId()).isEmpty());
 
         // delete
         experimentDAO.delete(deletedExperiment);
@@ -358,7 +359,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // Other connections which also prevent sample deletion should be empty in this test.
         assertTrue(deletedExperiment.getAttachments().isEmpty());
         assertTrue(deletedExperiment.getDataSets().isEmpty());
-        assertFalse(deletedExperiment.getSamples().isEmpty());
+        assertFalse(SampleUtils.getExperimentSamples(deletedExperiment.getId()).isEmpty());
 
         // delete
         experimentDAO.delete(deletedExperiment);

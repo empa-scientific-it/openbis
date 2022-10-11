@@ -80,7 +80,7 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     {
         Date timeStamp = getTransactionTimeStamp();
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
-        for (SamplePE sample : experiment.getSamples())
+        for (SamplePE sample : SampleUtils.getExperimentSamples(experiment.getId()))
         {
             ProjectPE sampleProject = sample.getProject();
             if (sampleProject != null && EntityHelper.equalEntities(sampleProject, project) == false)

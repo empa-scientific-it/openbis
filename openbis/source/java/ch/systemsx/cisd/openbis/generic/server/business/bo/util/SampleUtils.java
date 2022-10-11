@@ -17,21 +17,42 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Tomasz Pylak
  */
 public class SampleUtils
 {
+    public static List<SamplePE> getExperimentSamples(long experimentTechId) {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
+        List<Long> techIdsAsLongs = new ArrayList<>();
+        for (TechId id : techIds) {
+            Long idId = id.getId();
+            techIdsAsLongs.add(idId);
+        }
+        List<SamplePE> samplePES = sampleDAO.listByIDs(techIdsAsLongs);
+        return samplePES;
+    }
+
     /** for all experiment samples which belonged to a space the specified space will be set */
     public static void setSamplesSpace(ExperimentPE experiment, SpacePE space)
     {
-        for (SamplePE sample : experiment.getSamples())
+        for (SamplePE sample : SampleUtils.getExperimentSamples(experiment.getId()))
         {
             if (sample.getSpace() != null)
             {

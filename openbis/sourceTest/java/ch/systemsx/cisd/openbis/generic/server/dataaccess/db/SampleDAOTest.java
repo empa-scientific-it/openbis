@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import org.hibernate.Session;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
@@ -212,7 +213,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         currentSession.clear();
         ExperimentPE reloadedExperiment =
                 daoFactory.getExperimentDAO().tryGetByPermID(experiment.getPermId());
-        List<SamplePE> samples = reloadedExperiment.getSamples();
+        List<SamplePE> samples = SampleUtils.getExperimentSamples(reloadedExperiment.getId());
         List<String> identifiers = new ArrayList<String>();
         for (SamplePE sample : samples)
         {
@@ -251,7 +252,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         save(s1, s2);
 
         ExperimentPE reloadedExperiment = experimentDAO.tryGetByPermID(newExperiment.getPermId());
-        List<SamplePE> samples = reloadedExperiment.getSamples();
+        List<SamplePE> samples = SampleUtils.getExperimentSamples(reloadedExperiment.getId());
         List<String> identifiers = new ArrayList<String>();
         for (SamplePE sample : samples)
         {
