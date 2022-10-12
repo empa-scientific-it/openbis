@@ -5,8 +5,10 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import AppController from '@src/js/components/AppController.js'
+import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import PluginsGrid from '@src/js/components/tools/common/PluginsGrid.jsx'
 import QueriesGrid from '@src/js/components/tools/common/QueriesGrid.jsx'
+import PersonalAccessTokensGrid from '@src/js/components/tools/common/PersonalAccessTokensGrid.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import ids from '@src/js/common/consts/ids.js'
@@ -43,7 +45,8 @@ class ToolSearch extends React.Component {
       await Promise.all([
         this.loadDynamicPropertyPlugins(),
         this.loadEntityValidationPlugins(),
-        this.loadQueries()
+        this.loadQueries(),
+        this.loadPersonalAccessTokens()
       ])
       this.setState(() => ({
         loaded: true
@@ -163,6 +166,88 @@ class ToolSearch extends React.Component {
     })
   }
 
+  async loadPersonalAccessTokens() {
+    const personalAccessTokensEnabled =
+      AppController.getInstance().getServerInformation(
+        ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+      )
+
+    if (personalAccessTokensEnabled !== 'true') {
+      return
+    }
+
+    if (!this.shouldLoad(objectTypes.PERSONAL_ACCESS_TOKEN)) {
+      return
+    }
+
+    const fo = new openbis.PersonalAccessTokenFetchOptions()
+    fo.withOwner()
+    fo.withRegistrator()
+    fo.withModifier()
+
+    const result = await openbis.searchPersonalAccessTokens(
+      new openbis.PersonalAccessTokenSearchCriteria(),
+      fo
+    )
+
+    const pats = util
+      .filter(result.objects, this.props.searchText, ['hash', 'sessionName'])
+      .map(pat => {
+        const validFromDate = _.get(pat, 'validFromDate', null)
+        const validToDate = _.get(pat, 'validToDate', null)
+        const registrationDate = _.get(pat, 'registrationDate', null)
+        const accessDate = _.get(pat, 'accessDate', null)
+
+        return {
+          id: _.get(pat, 'hash'),
+          hash: FormUtil.createField({
+            value: _.get(pat, 'hash', null)
+          }),
+          sessionName: FormUtil.createField({
+            value: _.get(pat, 'sessionName', null)
+          }),
+          validFromDate: FormUtil.createField({
+            value: validFromDate
+              ? {
+                  dateObject: new Date(validFromDate)
+                }
+              : null
+          }),
+          validToDate: FormUtil.createField({
+            value: validToDate
+              ? {
+                  dateObject: new Date(validToDate)
+                }
+              : null
+          }),
+          owner: FormUtil.createField({
+            value: pat.owner ? pat.owner.userId : null
+          }),
+          registrator: FormUtil.createField({
+            value: pat.registrator ? pat.registrator.userId : null
+          }),
+          registrationDate: FormUtil.createField({
+            value: registrationDate
+              ? {
+                  dateObject: new Date(registrationDate)
+                }
+              : null
+          }),
+          accessDate: FormUtil.createField({
+            value: accessDate
+              ? {
+                  dateObject: new Date(accessDate)
+                }
+              : null
+          })
+        }
+      })
+
+    this.setState({
+      pats
+    })
+  }
+
   shouldLoad(objectType) {
     return this.props.objectType === objectType || !this.props.objectType
   }
@@ -199,6 +284,7 @@ class ToolSearch extends React.Component {
         {this.renderDynamicPropertyPlugins()}
         {this.renderEntityValidationPlugins()}
         {this.renderQueries()}
+        {this.renderPersonalAccessTokens()}
       </GridContainer>
     )
   }
@@ -208,14 +294,16 @@ class ToolSearch extends React.Component {
     const {
       dynamicPropertyPlugins = [],
       entityValidationPlugins = [],
-      queries = []
+      queries = [],
+      pats = []
     } = this.state
 
     if (
       !objectType &&
       dynamicPropertyPlugins.length === 0 &&
       entityValidationPlugins.length === 0 &&
-      queries.length === 0
+      queries.length === 0 &&
+      pats.length === 0
     ) {
       return (
         <Container>
@@ -300,6 +388,38 @@ class ToolSearch extends React.Component {
             rows={this.state.queries}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.QUERY
+            )}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderPersonalAccessTokens() {
+    const personalAccessTokensEnabled =
+      AppController.getInstance().getServerInformation(
+        ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+      )
+
+    if (personalAccessTokensEnabled !== 'true') {
+      return
+    }
+
+    if (this.shouldRender(objectTypes.PERSONAL_ACCESS_TOKEN, this.state.pats)) {
+      const { classes } = this.props
+      return (
+        <div className={classes.grid}>
+          <PersonalAccessTokensGrid
+            id={ids.PERSONAL_ACCESS_TOKEN_GRID_ID}
+            controllerRef={controller =>
+              (this.gridControllers[objectTypes.PERSONAL_ACCESS_TOKEN] =
+                controller)
+            }
+            rows={this.state.pats}
+            onSelectedRowChange={this.handleSelectedRowChange(
+              objectTypes.PERSONAL_ACCESS_TOKEN
             )}
           />
         </div>

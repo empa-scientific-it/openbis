@@ -21,6 +21,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryDatabaseFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -610,5 +619,16 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(IMetaprojectId metaprojectId);
+
+    @ManagedAuthentication
+    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenFetchOptions fetchOptions);
+
+    @ManagedAuthentication
+    public void updatePersonalAccessTokens(List<PersonalAccessTokenUpdate> personalAccessTokenUpdates);
+
+    @ManagedAuthentication
+    public SearchResult<SessionInformation> searchSessionInformation(SessionInformationSearchCriteria searchCriteria,
+            SessionInformationFetchOptions fetchOptions);
 
 }

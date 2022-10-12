@@ -115,7 +115,9 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
         public String getSessionId()
         {
-            return HttpServletRequestUtils.getStringParameter(request, Utils.SESSION_ID_PARAM);
+            String sessionId = HttpServletRequestUtils.getStringParameter(request, Utils.SESSION_ID_PARAM);
+            sessionId = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionId);
+            return sessionId;
         }
 
         public Integer getId()

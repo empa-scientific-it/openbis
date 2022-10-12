@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 
 /**
@@ -27,13 +28,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspac
  */
 public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
 {
-    private final String sessionToken;
-
     private final File sessionWorkspace;
 
-    public SessionWorkspaceProvider(File sessionWorkspaceRootDirectory, String userSessionToken)
+    public SessionWorkspaceProvider(File sessionWorkspaceRootDirectory, String sessionTokenOrPAT)
     {
-        this.sessionToken = userSessionToken;
+        String sessionToken = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionTokenOrPAT);
         this.sessionWorkspace = new File(sessionWorkspaceRootDirectory, sessionToken);
     }
 

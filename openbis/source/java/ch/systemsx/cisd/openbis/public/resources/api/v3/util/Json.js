@@ -159,7 +159,8 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 			}
 		} else if (jsonObject instanceof Object) {
 			if (jsonObject["@id"] && jsonObject["@type"]) {
-				return fromJsonObjectWithType(jsonObject, objectMap, modulesMap)
+			    var jsonTypeArguments = jsonType ? jsonType["arguments"] : null
+				return fromJsonObjectWithType(jsonTypeArguments, jsonObject, objectMap, modulesMap)
 			} else {
 				var map = {};
 				var jsonType = jsonType ? jsonType["arguments"][1] : null;
@@ -183,7 +184,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		}
 	}
 
-	var fromJsonObjectWithType = function(jsonObject, objectMap, modulesMap) {
+	var fromJsonObjectWithType = function(jsonTypeArguments, jsonObject, objectMap, modulesMap) {
 		var jsonId = jsonObject["@id"]
 		var jsonType = jsonObject["@type"]
 		var object = objectMap[jsonId];
@@ -197,6 +198,11 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 
 			for ( var key in jsonObject) {
 				var fieldType = moduleFieldTypeMap[key];
+
+				if(_.isFunction(fieldType)){
+				    fieldType = fieldType(jsonTypeArguments);
+				}
+
 				var fieldValue = jsonObject[key];
 
 				if (object["_" + key] !== undefined) {

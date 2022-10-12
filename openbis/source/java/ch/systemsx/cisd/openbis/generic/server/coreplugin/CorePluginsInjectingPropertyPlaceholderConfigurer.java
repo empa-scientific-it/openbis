@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 import java.io.IOException;
 import java.util.Properties;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.CustomASServiceProvider;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -65,10 +66,11 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
                         CustomImport.PropertyNames.CUSTOM_IMPORTS.getName());
         PluginType queryDatabases = new PluginType("query-databases", "query-databases");
         PluginType miscellaneous = new PluginType("miscellaneous", null);
+        PluginType apiListener = new PluginType("api-listener", IOperationListener.LISTENER_PROPERTY_KEY);
         PluginType webapps = PLUGIN_TYPE_WEBAPPS;
 
         new CorePluginsInjector(ScannerType.AS, new IPluginType[]
-        { maintenanceTasks, services, customImports, queryDatabases, miscellaneous, dssDataSources,
+        { maintenanceTasks, services, customImports, queryDatabases, miscellaneous, apiListener, dssDataSources,
                 webapps }).injectCorePlugins(properties);
 
         // Inject the web apps into jetty

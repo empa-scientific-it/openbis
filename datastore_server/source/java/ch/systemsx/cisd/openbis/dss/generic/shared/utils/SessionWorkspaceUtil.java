@@ -34,13 +34,7 @@ public class SessionWorkspaceUtil
 
     public static File getSessionWorkspace(Properties properties)
     {
-        File workspace = new File(properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
+        return new File(properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
                 SESSION_WORKSPACE_ROOT_DIR_DEFAULT));
-        if (workspace.exists())
-        {
-            QueueingPathRemoverService.removeRecursively(workspace);
-        }
-        return workspace;
-
     }
 }

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * Enumeration of object kinds. An object kind is an attribute an object (like a sample, a data set type or a vocabulary term) which can be created,
  * deleted or updated.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.objectkindmodification.ObjectKind")
@@ -31,5 +31,5 @@ public enum ObjectKind
     MATERIAL_TYPE, DATASET_TYPE, FILE_FORMAT_TYPE, PROJECT, SPACE, PROPERTY_TYPE,
     PROPERTY_TYPE_ASSIGNMENT, VOCABULARY, VOCABULARY_TERM, ROLE_ASSIGNMENT, PERSON,
     GRID_CUSTOM_FILTER, GRID_CUSTOM_COLUMN, SCRIPT, DELETION, POSTREGISTRATION_QUEUE,
-    QUERY, METAPROJECT
+    QUERY, METAPROJECT, PERSONAL_ACCESS_TOKEN
 }

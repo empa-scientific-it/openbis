@@ -82,6 +82,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			if (_this._allowedToEdit() && toolbarConfig.EDIT) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				    Util.blockUI();
 					mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
 				}, "Edit", null, "edit-btn");
 				toolbarModel.push({ component : $editBtn });
@@ -144,6 +145,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			    if(toolbarConfig.UPLOAD_DATASET) {
                     //Create Dataset
                     var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
+                        Util.blockUI();
                         mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
                     }, "Upload", null, "upload-btn");
                     toolbarModel.push({ component : $uploadBtn });
@@ -565,7 +567,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				} else {
 					var $component = null;
 					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
-						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier));
+						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier), true);
 					} else {
 						$component = FormUtil.getFieldForPropertyType(propertyType, value);
 					}

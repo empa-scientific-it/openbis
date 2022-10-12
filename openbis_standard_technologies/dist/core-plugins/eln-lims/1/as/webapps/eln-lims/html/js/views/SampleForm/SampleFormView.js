@@ -116,12 +116,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				//Edit
 				if(this._sampleFormModel.mode === FormMode.VIEW) {
 					var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-						var args = {
-								permIdOrIdentifier : _this._sampleFormModel.sample.permId,
-								paginationInfo : _this._sampleFormModel.paginationInfo
-						}
-
-						mainController.changeView('showEditSamplePageFromPermId', args);
+					    Util.blockUI();
+                        setTimeout(function() {
+                            var args = {
+                                    permIdOrIdentifier : _this._sampleFormModel.sample.permId,
+                                    paginationInfo : _this._sampleFormModel.paginationInfo
+                            };
+                            mainController.changeView('showEditSamplePageFromPermId', args);
+                        }, 100);
 					}, "Edit", null, "edit-btn");
 					if(toolbarConfig.EDIT) {
 						toolbarModel.push({ component : $editButton, tooltip: null });
@@ -373,7 +375,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
                     mainController.serverFacade.searchForSamplesAdvanced(criteria, {
                     			only : true,
-                    			withProperties : true
+                    			withProperties : true,
+                    			withParents : true,
+                                withChildren : true,
                     }, function(results) {
                         var settingsForDropdown = [];
                         for(var rIdx = 0; rIdx < results.totalCount; rIdx++) {
@@ -398,14 +402,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                                 }
                             }
                             _this._sampleFormModel.sample.properties = sample.properties;
+                            _this._sampleFormModel.sample.parents = sample.parents;
+                            _this._sampleFormModel.sample.children = sample.children;
 
-                            if(_this._sampleFormModel.views.header) {
+                            if (_this._sampleFormModel.views.header) {
                                 _this._sampleFormModel.views.header.empty();
                             }
-                            if(_this._sampleFormModel.views.content) {
+                            if (_this._sampleFormModel.views.content) {
                                  _this._sampleFormModel.views.content.empty();
                             }
-                            if(_this._sampleFormModel.views.auxContent) {
+                            if (_this._sampleFormModel.views.auxContent) {
                                  _this._sampleFormModel.views.auxContent.empty();
                             }
                             _this._sampleFormController.init(_this._sampleFormModel.views, true);
@@ -551,14 +557,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// LINKS TO PARENTS
 		//
 		if (this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.parents.length > 0)) {
-			$formColumn.append(this._createParentsSection(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode));
+			$formColumn.append(this._createParentsSection(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate));
 		}
 
 		//
 		// LINKS TO CHILDREN
 		//
 		if (this._sampleFormModel.mode !== FormMode.VIEW || (this._sampleFormModel.mode === FormMode.VIEW && this._sampleFormModel.sample.children.length > 0)) {
-			$formColumn.append(this._createChildrenSection(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode));
+			$formColumn.append(this._createChildrenSection(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate));
 		}
 
 		//
@@ -949,7 +955,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		return $identificationInfo;
 	}
 
-	this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
+	this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate) {
 		var _this = this;
 		var requiredParents = [];
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"]) {
@@ -961,7 +967,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 
-		var currentParentsLinks = this._sampleFormModel.sample ? this._sampleFormModel.sample.parents : null;
+        var currentParentsLinks = null;
+        var parentsFromTemplate = null;
+        if (loadFromTemplate) {
+            parentsFromTemplate = this._sampleFormModel.sample ? this._sampleFormModel.sample.parents : null;
+        } else {
+            currentParentsLinks = this._sampleFormModel.sample ? this._sampleFormModel.sample.parents : null;
+        }
+
 		var parentsTitle = "Parents";
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_TITLE"]) {
 			parentsTitle = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_TITLE"];
@@ -976,7 +989,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
 																			annotations,
-																			this._sampleFormModel.sample.spaceCode);
+																			this._sampleFormModel.sample.spaceCode,
+																			function() {
+                                                                                _this._sampleFormModel.isFormDirty = true;
+                                                                            });
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -986,6 +1002,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		     || (sampleTypeDefinitionsExtension !== undefined && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] !== undefined && !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"])
 		     ){
 			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+
+            if (loadFromTemplate) {
+                for(var i = 0; i < parentsFromTemplate.length; i++) {
+                    this._sampleFormModel.sampleLinksParents.addSample({ identifier : parentsFromTemplate[i].identifier.identifier });
+                }
+			}
 
             hideShowOptionsModel.push({
                 forceToShow : this._sampleFormModel.mode === FormMode.CREATE && (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["FORCE_TO_SHOW_PARENTS_SECTION"]),
@@ -1001,7 +1023,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		return $sampleParentsWidget;
 	}
 
-	this._createChildrenSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
+	this._createChildrenSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate) {
 		var _this = this;
 		var requiredChildren = [];
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
@@ -1011,7 +1033,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleChildrenWidgetId = "sample-children";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
 
-		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
+		var currentChildrenLinks = null;
+        var childrenFromTemplate = null;
+        if (loadFromTemplate) {
+            childrenFromTemplate = this._sampleFormModel.sample ? this._sampleFormModel.sample.children : null;
+        } else {
+            currentChildrenLinks = this._sampleFormModel.sample ? this._sampleFormModel.sample.children : null;
+        }
 
 		var childrenTitle = "Children";
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"]) {
@@ -1037,9 +1065,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations,
-															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull),
+															function() {
+                                                                _this._sampleFormModel.isFormDirty = true;
+                                                            });
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
+
+			if (loadFromTemplate) {
+                for(var i = 0; i < childrenFromTemplate.length; i++) {
+                    this._sampleFormModel.sampleLinksChildren.addSample({ identifier : childrenFromTemplate[i].identifier.identifier });
+                }
+            }
 		}
 
 		var childrenDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"];

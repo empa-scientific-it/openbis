@@ -26,10 +26,9 @@ public class ELNFixes {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ELNAnnotationsMigration.class);
 
-    public static void beforeUpgrade() throws Exception {
+    public static void beforeUpgrade(String sessionToken) throws Exception {
         operationLog.info("ELNFixes beforeUpgrade START");
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = api.loginAsSystem();
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
         operationLog.info("ELNFixes beforeUpgrade FINISH");

@@ -108,8 +108,8 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				});
 				$list.append($removeOption);
 				
-                var $removeIncludedOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently (including dependent deletions)'})
-                            .append("Delete Permanently<br>&nbsp;&nbsp;(including dependent deletions)"));
+                var $removeIncludedOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently (including dependent entries in trashcan)'})
+                            .append("Delete Permanently<br>&nbsp;&nbsp;(including dependent entries in trashcan)"));
                 $removeIncludedOption.click(function(e) {
                     Util.showWarning(deleteMessageOne, function() {
                         _this._trashManagerController.deletePermanently([data.entity.id], true);

@@ -372,9 +372,9 @@ var FormUtil = new function() {
         return visibleObjectTypesForSpace;
     }
 
-	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode) {
+	this.getSampleTypeDropdown = function(id, isRequired, showEvenIfHidden, showOnly, spaceCode, withEmptyOption) {
 	    var visibleObjectTypeCodesForSpace = null;
-	    if(spaceCode) {
+	    if (spaceCode) {
 	        visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
 	    }
 		var sampleTypes = this.profile.getAllSampleTypes();
@@ -385,6 +385,10 @@ var FormUtil = new function() {
 		}
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
+		if (withEmptyOption) {
+		    $component.append($("<option>").attr('value', '').text('(empty)'));
+		}
+
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
 			
@@ -970,6 +974,8 @@ var FormUtil = new function() {
         }
 
 		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
+
+        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(" " + alt);
 
 		if (isRequired) {
             $container.attr('required', '');
@@ -2102,14 +2108,14 @@ var FormUtil = new function() {
 
     		$("#sampleTypeDropdown").on("change", function(event) {
     			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-    			var argsMap = {
-    					"sampleTypeCode" : sampleTypeCode,
-    					"experimentIdentifier" : experimentIdentifier
-    			}
-
-    			var argsMapStr = JSON.stringify(argsMap);
-    			Util.unblockUI();
-    			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+                Util.blockUI();
+                setTimeout(function() {
+                    var argsMap = {
+                        "sampleTypeCode" : sampleTypeCode,
+                        "experimentIdentifier" : experimentIdentifier
+                    };
+                    mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+                }, 100);
     		});
 
     		$("#sampleTypeDropdownCancel").on("click", function(event) {
@@ -2410,6 +2416,24 @@ var FormUtil = new function() {
             value: params.value,
             emptyOption: {},
             options: [{value: "true"}, {value: "false"}],
+            onChange: params.onChange
+        })
+    }
+
+    this.renderArchivingStatusGridFilter = function(params) {
+        return React.createElement(window.NgUiGrid.default.SelectField, {
+            label: 'Filter',
+            variant: 'standard',
+            value: params.value,
+            emptyOption: {},
+            options: [
+                {value: "AVAILABLE"},
+                {value: "LOCKED"},
+                {value: "ARCHIVED"},
+                {value: "UNARCHIVE_PENDING"},
+                {value: "ARCHIVE_PENDING"},
+                {value: "BACKUP_PENDING"}
+            ],
             onChange: params.onChange
         })
     }

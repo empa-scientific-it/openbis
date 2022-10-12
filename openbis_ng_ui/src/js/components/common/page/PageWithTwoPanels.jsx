@@ -61,8 +61,13 @@ class PageWithTwoPanels extends React.PureComponent {
   }
 
   doRenderExisting() {
-    const { classes, renderMainPanel, renderAdditionalPanel, renderButtons } =
-      this.props
+    const {
+      classes,
+      renderMainPanel,
+      renderAdditionalPanel,
+      renderButtons,
+      additionalPanelWidth
+    } = this.props
 
     const mainPanel = renderMainPanel ? renderMainPanel() : <div></div>
     const additionalPanel = renderAdditionalPanel ? (
@@ -79,7 +84,7 @@ class PageWithTwoPanels extends React.PureComponent {
           {
             <Resizable
               defaultSize={{
-                width: 400,
+                width: additionalPanelWidth ? additionalPanelWidth : 400,
                 height: '100%'
               }}
               enable={{

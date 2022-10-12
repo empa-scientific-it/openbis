@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 /**
  * Application context. It contains the object accessing the openBIS for retrieving the data set, configuration parameters, and the name of the
@@ -39,16 +40,19 @@ public class ApplicationContext
 
     private final OpenbisSessionTokenCache sessionTokenCache;
 
+    private final IPersonalAccessTokenConverter personalAccessTokenConverter;
+
     ApplicationContext(IEncapsulatedOpenBISService service,
             OpenbisSessionTokenCache sessionTokenCache, IShareIdManager shareIdManager,
             IHierarchicalContentProvider hierarchicalContentProvider,
-            ConfigParameters configParameters)
+            ConfigParameters configParameters, IPersonalAccessTokenConverter personalAccessTokenConverter)
     {
         this.dataSetService = service;
         this.sessionTokenCache = sessionTokenCache;
         this.shareIdManager = shareIdManager;
         this.configParameters = configParameters;
         this.hierarchicalContentProvider = hierarchicalContentProvider;
+        this.personalAccessTokenConverter = personalAccessTokenConverter;
     }
 
     public final IEncapsulatedOpenBISService getDataSetService()
@@ -82,4 +86,8 @@ public class ApplicationContext
         return hierarchicalContentProvider.cloneFor(sessionHolder);
     }
 
+    public IPersonalAccessTokenConverter getPersonalAccessTokenConverter()
+    {
+        return personalAccessTokenConverter;
+    }
 }

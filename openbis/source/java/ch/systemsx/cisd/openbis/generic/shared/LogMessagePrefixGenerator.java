@@ -44,18 +44,18 @@ public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerat
             }
         }
         String remoteHost = sessionOrNull.getRemoteHost();
-        return createPrefix(userName, groupCode, remoteHost);
+        return createPrefix(userName, groupCode, remoteHost, sessionOrNull.isPersonalAccessTokenSession());
     }
 
     @Override
     public String createPrefix(String user, String remoteHost)
     {
-        return createPrefix(user, null, remoteHost);
+        return createPrefix(user, null, remoteHost, false);
     }
 
-    private String createPrefix(String user, String groupCodeOrNull, String remoteHost)
+    private String createPrefix(String user, String groupCodeOrNull, String remoteHost, boolean isPersonalAccessTokenSession)
     {
-        return String.format("[USER:%s SPACE:%s HOST:%s]", cite(user), cite(groupCodeOrNull),
+        return String.format("[USER:%s SPACE:%s HOST:%s" + (isPersonalAccessTokenSession ? " PAT" : "") + "]", cite(user), cite(groupCodeOrNull),
                 cite(remoteHost));
     }
 

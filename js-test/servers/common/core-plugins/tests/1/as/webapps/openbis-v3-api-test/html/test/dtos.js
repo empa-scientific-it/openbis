@@ -562,7 +562,26 @@ var sources = [
 	'as/dto/query/Query',
 	'as/dto/query/QueryDatabase',
 	'as/dto/query/QueryType',
-	
+
+	'as/dto/pat/create/CreatePersonalAccessTokensOperation',
+	'as/dto/pat/create/CreatePersonalAccessTokensOperationResult',
+	'as/dto/pat/create/PersonalAccessTokenCreation',
+	'as/dto/pat/delete/DeletePersonalAccessTokensOperation',
+	'as/dto/pat/delete/DeletePersonalAccessTokensOperationResult',
+	'as/dto/pat/delete/PersonalAccessTokenDeletionOptions',
+	'as/dto/pat/fetchoptions/PersonalAccessTokenFetchOptions',
+	'as/dto/pat/fetchoptions/PersonalAccessTokenSortOptions',
+	'as/dto/pat/get/GetPersonalAccessTokensOperation',
+	'as/dto/pat/get/GetPersonalAccessTokensOperationResult',
+	'as/dto/pat/id/PersonalAccessTokenPermId',
+	'as/dto/pat/search/PersonalAccessTokenSearchCriteria',
+	'as/dto/pat/search/SearchPersonalAccessTokensOperation',
+	'as/dto/pat/search/SearchPersonalAccessTokensOperationResult',
+	'as/dto/pat/update/PersonalAccessTokenUpdate',
+	'as/dto/pat/update/UpdatePersonalAccessTokensOperation',
+	'as/dto/pat/update/UpdatePersonalAccessTokensOperationResult',
+	'as/dto/pat/PersonalAccessToken',
+
 	'as/dto/roleassignment/create/RoleAssignmentCreation',
 	'as/dto/roleassignment/create/CreateRoleAssignmentsOperation',
 	'as/dto/roleassignment/create/CreateRoleAssignmentsOperationResult',
@@ -705,11 +724,17 @@ var sources = [
 	'as/dto/service/search/ProcessingServiceSearchCriteria',
 	'as/dto/service/search/SearchProcessingServicesOperation',
 	'as/dto/service/search/SearchProcessingServicesOperationResult',
-	
-	'as/dto/session/SessionInformation',
+
+	'as/dto/session/fetchoptions/SessionInformationFetchOptions',
+	'as/dto/session/fetchoptions/SessionInformationSortOptions',
 	'as/dto/session/get/GetSessionInformationOperation',
 	'as/dto/session/get/GetSessionInformationOperationResult',
-	
+	'as/dto/session/id/SessionInformationPermId',
+	'as/dto/session/search/SearchSessionInformationOperation',
+	'as/dto/session/search/SearchSessionInformationOperationResult',
+	'as/dto/session/search/SessionInformationSearchCriteria',
+	'as/dto/session/SessionInformation',
+
 	'as/dto/space/create/SpaceCreation',
 	'as/dto/space/create/CreateSpacesOperation',
 	'as/dto/space/create/CreateSpacesOperationResult',

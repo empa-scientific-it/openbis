@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
@@ -33,7 +35,7 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
 
     /**
      * Opens a new session with given <code>user</code> and given <code>password</code>.
-     * 
+     *
      * @return A session token that is used afterwards to get the <code>Session</code> object, or <code>null</code>, if the user could not be
      *         authenticated.
      */
@@ -43,6 +45,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * Opens a new session for specified user and principal provider.
      */
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider);
+
+    /**
+     * Returns <code>true</code> if the specified session is active (not expired).
+     */
+    public boolean isSessionActive(String sessionToken);
 
     /**
      * Closes session by removing given <code>sessionToken</code> from active sessions.
@@ -66,6 +73,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * </p>
      */
     public T getSession(final String sessionToken) throws InvalidSessionException;
+
+    /**
+     * Returns all sessions.
+     */
+    public List<T> getSessions();
 
     /**
      * For given <var>sessionToken</var> return the <code>Session</code> object, or <code>null</code>, if no session exist or the session is not

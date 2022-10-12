@@ -32,9 +32,10 @@ public class GetServerPublicInformationTest extends AbstractTest
     {
         Map<String, String> result = v3api.getServerPublicInformation();
 
-        assertEquals(result.size(), 3);
+        assertEquals(result.size(), 4);
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
         assertEquals(result.get("authentication-service.switch-aai.link"), null);
         assertEquals(result.get("authentication-service.switch-aai.label"), null);
+        assertEquals(result.get("openbis.support.email"), "openbis-support@id.ethz.ch");
     }
 }

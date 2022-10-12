@@ -257,6 +257,16 @@ def cleanUp(tempDirPath, tempZipFilePath):
     FileUtils.forceDelete(File(tempDirPath));
     FileUtils.forceDelete(File(tempZipFilePath));
 
+# Return Name if it exists, otherwise return code
+def extractName(entity):
+    name = None
+    if "$NAME" in entity.getProperties():
+        name = entity.getProperties().get("$NAME")
+    if name is not None and len(name) > 0:
+        return name
+    else:
+        return entity.getCode()
+
 
 def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, deflated=True):
     # Services used during the export process
@@ -298,31 +308,33 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
             fetchOps.withProperties();
             fetchOps.withTags();
             entityObj = v3.searchExperiments(sessionToken, criteria, fetchOps).getObjects().get(0);
-            entityFilePath = getFilePath(entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), entityObj.getCode(), None,
-                                         None);
+            entityFilePath = getFilePath(entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), extractName(entityObj),
+                                         None, None);
         if type == "SAMPLE":
             criteria = SampleSearchCriteria();
             criteria.withPermId().thatEquals(permId);
             fetchOps = SampleFetchOptions();
             fetchOps.withType();
             fetchOps.withExperiment().withProject().withSpace();
+            fetchOps.withExperiment().withProperties();
             fetchOps.withRegistrator();
             fetchOps.withModifier();
             fetchOps.withProperties();
             fetchOps.withTags();
             fetchOps.withParents().withProperties();
             fetchOps.withChildren().withProperties();
-            entityObj = v3.searchSamples(sessionToken, criteria, fetchOps).getObjects().get(0);
+            entityObj = v3.searchSamples(sessionToken, criteria, fetchOps).getObjects().get(0)
             entityFilePath = getFilePath(entityObj.getExperiment().getProject().getSpace().getCode(),
-                                         entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(),
-                                         None);
+                                         entityObj.getExperiment().getProject().getCode(), extractName(entityObj.getExperiment()),
+                                         extractName(entityObj), None)
         if type == "DATASET":
             criteria = DataSetSearchCriteria();
             criteria.withPermId().thatEquals(permId);
             fetchOps = DataSetFetchOptions();
             fetchOps.withType();
-            fetchOps.withSample();
+            fetchOps.withSample().withProperties();
             fetchOps.withExperiment().withProject().withSpace();
+            fetchOps.withExperiment().withProperties();
             fetchOps.withRegistrator();
             fetchOps.withModifier();
             fetchOps.withProperties();
@@ -333,20 +345,20 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
 
             sampleCode = None
             if (entityObj.getSample() is not None):
-                sampleCode = entityObj.getSample().getCode();
+                sampleCode = extractName(entityObj.getSample());
 
             entityFilePath = getFilePath(entityObj.getExperiment().getProject().getSpace().getCode(),
-                                         entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), sampleCode,
-                                         entityObj.getCode());
+                                         entityObj.getExperiment().getProject().getCode(), extractName(entityObj.getExperiment()), sampleCode,
+                                         extractName(entityObj));
         if type == "FILE" and not entity["isDirectory"]:
             datasetEntityObj = objectCache[entity["permId"]];
             sampleCode = None
             if (datasetEntityObj.getSample() is not None):
-                sampleCode = datasetEntityObj.getSample().getCode();
+                sampleCode = extractName(datasetEntityObj.getSample());
 
             datasetEntityFilePath = getFilePath(datasetEntityObj.getExperiment().getProject().getSpace().getCode(),
-                                                datasetEntityObj.getExperiment().getProject().getCode(), datasetEntityObj.getExperiment().getCode(),
-                                                sampleCode, datasetEntityObj.getCode());
+                                                datasetEntityObj.getExperiment().getProject().getCode(), extractName(datasetEntityObj.getExperiment()),
+                                                sampleCode, extractName(datasetEntityObj));
             filePath = datasetEntityFilePath + "/" + entity["path"];
 
             if not includeRoot:

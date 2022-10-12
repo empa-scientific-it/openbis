@@ -12,7 +12,8 @@ public enum ImportTypes
     PROJECT(null, true),
     EXPERIMENT(null, true),
     SAMPLE(null, true),
-    SCRIPT(null, false);
+    SCRIPT(null, false),
+    SEMANTIC_ANNOTATION(null, true);
 
     private String type;
 

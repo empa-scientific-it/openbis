@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 /**
  * An {@link AbstractCommandController} extension for uploading files.
@@ -80,9 +81,11 @@ public final class UploadServiceServlet extends AbstractController
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
-    @Private
-    UploadServiceServlet(ISessionFilesSetter sessionFilesSetter, IOpenBisSessionManager sessionManager,
-            ISessionWorkspaceProvider sessionWorkspaceProvider)
+    @Autowired
+    private IPersonalAccessTokenConverter personalAccessTokenConverter;
+
+    @Private UploadServiceServlet(ISessionFilesSetter sessionFilesSetter, IOpenBisSessionManager sessionManager,
+            ISessionWorkspaceProvider sessionWorkspaceProvider, IPersonalAccessTokenConverter personalAccessTokenConverter)
     {
         // super(UploadedFilesBean.class);
         setSynchronizeOnSession(true);
@@ -90,11 +93,12 @@ public final class UploadServiceServlet extends AbstractController
         this.sessionFilesSetter = sessionFilesSetter;
         this.sessionManager = sessionManager;
         this.sessionWorkspaceProvider = sessionWorkspaceProvider;
+        this.personalAccessTokenConverter = personalAccessTokenConverter;
     }
 
     public UploadServiceServlet()
     {
-        this(new SessionFilesSetter(), null, null);
+        this(new SessionFilesSetter(), null, null, null);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -167,6 +171,8 @@ public final class UploadServiceServlet extends AbstractController
             // We must have a session reaching this point. See the constructor where we set
             HttpSession session = request.getSession(false);
             String sessionToken = request.getParameter("sessionID");
+
+            sessionToken = personalAccessTokenConverter.convert(sessionToken);
 
             // If no session is found, the user from an API have a chance to give the sessionID
             if (session == null && sessionToken != null && !sessionToken.isEmpty())

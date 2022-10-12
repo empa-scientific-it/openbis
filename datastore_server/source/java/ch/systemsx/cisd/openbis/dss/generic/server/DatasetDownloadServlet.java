@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetAwareHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
@@ -224,7 +225,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         boolean isLinkData = false;
         try
         {
-            RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
+            RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME, applicationContext);
             isLinkData = requestParams.isLinkData();
             rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
@@ -320,7 +321,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName)
+    private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName, ApplicationContext applicationContext)
             throws UnsupportedEncodingException, URISyntaxException
     {
         final String urlPrefix = "/" + applicationName + "/";
@@ -346,7 +347,9 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         final String urlPrefixWithDataset =
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
-        final String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
+        String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
+        sessionIDOrNull = applicationContext.getPersonalAccessTokenConverter().convert(sessionIDOrNull);
+
         String displayMode = getDisplayMode(request);
 
         Boolean autoResolveOrNull = Boolean.valueOf(request.getParameter(AUTO_RESOLVE_KEY));

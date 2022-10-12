@@ -214,6 +214,11 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.QUERY
   }),
+  PERSONAL_ACCESS_TOKEN_OVERVIEW: new Route('/personal-access-token-overview', {
+    page: pages.TOOLS,
+    type: objectTypes.OVERVIEW,
+    id: objectTypes.PERSONAL_ACCESS_TOKEN
+  }),
   HISTORY: new Route('/history/:id', {
     page: pages.TOOLS,
     type: objectTypes.HISTORY
@@ -221,6 +226,11 @@ const routes = {
   IMPORT: new Route('/import/:id', {
     page: pages.TOOLS,
     type: objectTypes.IMPORT
+  }),
+  ACTIVE_USERS_REPORT: new Route('/active-users-report', {
+    page: pages.TOOLS,
+    type: objectTypes.ACTIVE_USERS_REPORT,
+    id: objectTypes.ACTIVE_USERS_REPORT
   }),
   DEFAULT: new DefaultRoute()
 }

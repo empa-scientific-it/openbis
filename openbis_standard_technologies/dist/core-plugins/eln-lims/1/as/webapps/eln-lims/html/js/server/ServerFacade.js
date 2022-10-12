@@ -916,7 +916,7 @@ function ServerFacade(openbisServer) {
                     var message = error.message;
                     if (message.startsWith("Permanent deletion not possible because ")) {
                         error.message += "\n\nYou have to delete them permanently before you can delete the selected deletion sets "
-                        + "or you choose 'Delete Permanently (including dependent deletions)' the next time."
+                        + "or you choose 'Delete Permanently (including dependent entries in trashcan)' the next time."
                     }
                     Util.showFailedServerCallError(error);
                     Util.unblockUI();
@@ -1957,8 +1957,26 @@ function ServerFacade(openbisServer) {
                                 case "PHYSICAL_STATUS":
                                     criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
                                     break;
+                                case "PRESENT_IN_ARCHIVE":
+                                    criteria.withPhysicalData().withPresentInArchive().thatEquals(attributeValue);
+                                    break;
+                                case "STORAGE_CONFIRMATION":
+                                    criteria.withPhysicalData().withStorageConfirmation().thatEquals(attributeValue);
+                                    break;
                                 case "ARCHIVING_REQUESTED":
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
+                                    break;
+                                case "PARENTS":
+                                    var parentsCriteria = criteria.withParents();
+                                    parentsCriteria.withOrOperator();
+                                    parentsCriteria.withCode().thatContains(attributeValue);
+                                    parentsCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
+                                    break;
+                                case "CHILDREN":
+                                    var childrenCriteria = criteria.withChildren();
+                                    childrenCriteria.withOrOperator();
+                                    childrenCriteria.withCode().thatContains(attributeValue);
+                                    childrenCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                             }
                         }

@@ -32,10 +32,9 @@ public class ELNAnnotationsMigration {
         return false;
     }
 
-    public static void beforeUpgrade() throws Exception {
+    public static void beforeUpgrade(String sessionToken) throws Exception {
         operationLog.info("ELNAnnotationsMigration beforeUpgrade START");
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = api.loginAsSystem();
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withProperty("$ANNOTATIONS_STATE");
         SampleFetchOptions options = new SampleFetchOptions();

@@ -102,7 +102,7 @@ def check_data_consistency(existing_elements, all_versioning_information, xls_ve
                         versionable_and_not_exist_codes_count = versionable_and_not_exist_codes_count + 1
 
     if versionable_codes_count > 0 and versionable_codes_count == versionable_and_not_exist_codes_count:
-        raise Exception("All creations from xls-import-version-info.json does not exist in the database." + \
+        raise Exception("All creations from xls-import-version-info.json do not exist in the database." + \
                         "The database may have been deleted. Please delete xls-import-version-info.json too and restart the app.")
 
 

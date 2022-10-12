@@ -4223,7 +4223,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .append(ctx.getDatabaseName()).append("]").append("\n");
 
         final IMailClient mailClient = new MailClient(mailClientParameters);
-        sendEmail(mailClient, emailBody.toString(), "Number of active users", CISDHelpdeskEmail,
+        sendEmail(mailClient, emailBody.toString(), "Number of active users", openbisSupportEmail,
                 email);
     }
 

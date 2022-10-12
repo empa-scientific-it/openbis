@@ -40,9 +40,12 @@ public interface IMultiDataSetFileOperationsManager
 
     /**
      * Get's the content of archived content in final destination.
+     *
      * @param dataSets TODO
      */
     IHierarchicalContent getContainerAsHierarchicalContent(String containerPath, List<DatasetDescription> dataSets);
+
+    IHierarchicalContent getReplicaAsHierarchicalContent(String containerPath, List<DatasetDescription> dataSets);
 
     Status restoreDataSetsFromContainerInFinalDestination(String containerPath,
             List<? extends IDatasetLocation> dataSetLocations);

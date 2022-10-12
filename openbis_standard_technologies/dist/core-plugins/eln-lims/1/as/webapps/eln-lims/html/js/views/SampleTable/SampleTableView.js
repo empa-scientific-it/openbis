@@ -75,13 +75,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			//Add Sample Type
 			if(sampleTypeCodeToUse !== null & _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
 				var $createButton = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-					var argsMap = {
-							"sampleTypeCode" : sampleTypeCodeToUse,
-							"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
-					}
-					var argsMapStr = JSON.stringify(argsMap);
-					Util.unblockUI();
-					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+					Util.blockUI();
+                    setTimeout(function() {
+                        var argsMap = {
+                            "sampleTypeCode" : sampleTypeCodeToUse,
+                            "experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
+                        };
+                        mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+                    }, 100);
 				}, "New " + Util.getDisplayNameFromCode(sampleTypeCodeToUse), null, "create-btn");
 				
 				toolbarModel.push({ component : $createButton });

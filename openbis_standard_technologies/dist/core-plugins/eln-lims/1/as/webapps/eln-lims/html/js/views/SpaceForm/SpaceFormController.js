@@ -49,7 +49,11 @@ function SpaceFormController(mainController, mode, isInventory, space) {
 	}
 
     this.createProject = function() {
-        this._mainController.changeView('showCreateProjectPage', this._spaceFormModel.space);
+        var _this = this;
+        Util.blockUI();
+        setTimeout(function() {
+            _this._mainController.changeView('showCreateProjectPage', _this._spaceFormModel.space);
+        }, 100);
     }
 
     this.enableEditing = function() {

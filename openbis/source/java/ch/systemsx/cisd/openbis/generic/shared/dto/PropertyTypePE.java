@@ -127,7 +127,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private Date modificationDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = true)
     public VocabularyPE getVocabulary()
     {
         return vocabulary;

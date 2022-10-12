@@ -1,0 +1,40 @@
+{
+  "tokens": [
+    {
+      "ownerId": 1000,
+      "sessionName": "test session B",
+      "hash": "token-2",
+      "registratorId": 2000,
+      "modifierId": 3000,
+      "validFromDate": "1970-01-01 00:00:00:010",
+      "validToDate": "1970-01-01 00:00:00:020",
+      "registrationDate": "1970-01-01 00:00:00:001",
+      "modificationDate": "1970-01-01 00:00:00:001",
+      "accessDate": null
+    },
+    {
+      "ownerId": 1000,
+      "sessionName": "test session A",
+      "hash": "token-3",
+      "registratorId": 2000,
+      "modifierId": 3000,
+      "validFromDate": "1970-01-01 00:00:00:010",
+      "validToDate": "1970-01-01 00:00:00:015",
+      "registrationDate": "1970-01-01 00:00:00:001",
+      "modificationDate": "1970-01-01 00:00:00:001",
+      "accessDate": null
+    }
+  ],
+  "sessions": [
+    {
+      "ownerId": 1000,
+      "name": "test session B",
+      "hash": "session-2"
+    },
+    {
+      "ownerId": 1000,
+      "name": "test session A",
+      "hash": "session-1"
+    }
+  ]
+}

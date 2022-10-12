@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -123,6 +124,10 @@ public class UpdatePropertyTypeExecutor
                         DataTypePE newDataType = daoFactory.getPropertyTypeDAO()
                                 .getDataTypeByCode(DataTypeCode.valueOf(dataTypeToBeConverted.name()));
                         propertyType.setType(newDataType);
+                        if (currentDataType == DataType.CONTROLLEDVOCABULARY &&
+                                dataTypeToBeConverted != DataType.CONTROLLEDVOCABULARY) {
+                            propertyType.setVocabulary(null);
+                        }
                         propertiesConverter.convertProperties(context, propertyType.getCode(), currentDataType, dataTypeToBeConverted);
                     }
                     CreatePropertyTypeExecutor.validateSchemaAndDataType(dataType, update.getSchema().getValue());

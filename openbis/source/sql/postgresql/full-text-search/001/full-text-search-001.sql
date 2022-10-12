@@ -20,20 +20,35 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION properties_tsvector_document_trigger() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION text_to_ts_vector(text_to_index TEXT, weight "char") RETURNS tsvector LANGUAGE plpgsql AS $$
+DECLARE indexed BOOLEAN;
+    DECLARE result tsvector;
+BEGIN
+    indexed := FALSE;
+    text_to_index := regexp_replace(coalesce(text_to_index, ''), E'<[^>]+>', '', 'gi'); -- Remove XML Tags
+    text_to_index := escape_tsvector_string(text_to_index); -- Escape characters used by ts_vector
+    WHILE NOT INDEXED LOOP
+            BEGIN
+                result = setweight(to_tsvector('english', text_to_index), weight)::TEXT;
+                indexed := TRUE;
+            EXCEPTION WHEN sqlstate '54000' THEN
+                text_to_index := left(text_to_index, LENGTH(text_to_index) / 2); -- If the index is too big reduce the size of the text to half
+            END;
+        END LOOP;
+    RETURN result;
+END $$;
+
+CREATE OR REPLACE FUNCTION properties_tsvector_document_trigger() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE cvt RECORD;
 BEGIN
     IF NEW.cvte_id IS NOT NULL THEN
         SELECT code, label INTO STRICT cvt FROM controlled_vocabulary_terms WHERE id = NEW.cvte_id;
-        NEW.tsvector_document := setweight(to_tsvector('english', escape_tsvector_string(cvt.code)), 'C') ||
-                setweight(to_tsvector('english', escape_tsvector_string(coalesce(cvt.label, ''))), 'C');
+        NEW.tsvector_document := text_to_ts_vector(cvt.code, 'C') || text_to_ts_vector(cvt.label, 'C');
     ELSE
-        NEW.tsvector_document := setweight(
-                to_tsvector('english', escape_tsvector_string(coalesce(NEW.value, ''))), 'D');
+        NEW.tsvector_document := text_to_ts_vector(NEW.value, 'D');
     END IF;
     RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
+END $$;
 
 -- Samples
 

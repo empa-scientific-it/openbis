@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -25,7 +28,6 @@ import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -112,26 +114,36 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     {
         synchronized (sessions)
         {
-            for (FullSession<Session> fullSession : sessions.values())
+            List<Session> list = sessions.values().stream().map(FullSession::getSession).collect(Collectors.toList());
+            updateSessions(daoFactory, list);
+        }
+    }
+
+    public static void updateSessions(IDAOFactory daoFactory, Collection<Session> sessions)
+    {
+        for (Session session : sessions)
+        {
+            synchronized (session) // synchronized with updateDisplaySettings() and saveDisplaySettings() in AbstractServer
             {
-                Session session = fullSession.getSession();
-                synchronized (session) // synchronized with updateDisplaySettings() and saveDisplaySettings() in AbstractServer
-                {
-                    PersonPE oldPerson = session.tryGetPerson();
-                    if (oldPerson != null
-                            && oldPerson.isSystemUser() == false)
-                    {
-                        IPersonDAO personDAO = daoFactory.getPersonDAO();
-                        PersonPE person = personDAO.tryGetByTechId(new TechId(oldPerson.getId()));
-                        if (person != null)
-                        {
-                            HibernateUtils.initialize(person.getAllPersonRoles());
-                            session.setPerson(person);
-                            session.setCreatorPerson(person);
-                        }
-                    }
-                }
+                session.setPerson(updateSessionPerson(daoFactory, session.tryGetPerson()));
+                session.setCreatorPerson(updateSessionPerson(daoFactory, session.tryGetCreatorPerson()));
             }
+        }
+    }
+
+    private static PersonPE updateSessionPerson(IDAOFactory daoFactory, PersonPE oldPerson)
+    {
+        if (oldPerson != null && !oldPerson.isSystemUser())
+        {
+            PersonPE newPerson = daoFactory.getPersonDAO().tryGetByTechId(new TechId(oldPerson.getId()));
+            if (newPerson != null)
+            {
+                HibernateUtils.initialize(newPerson.getAllPersonRoles());
+            }
+            return newPerson;
+        } else
+        {
+            return oldPerson;
         }
     }
 

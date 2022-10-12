@@ -475,7 +475,7 @@ task obisZip(type: Zip) {
   from '../obis/'
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip]) {
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
@@ -483,11 +483,13 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from screeningApiZip.archivePath
   from pybisZip.archivePath
   from obisZip.archivePath
+  from dropboxJavaDocZip.archivePath
+  from dynamicApiJavadocZip.archivePath
   from ('dist/client/readme.txt')
   rename { filename ->
     if (filename.startsWith('pybis-')) {
-      def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll {it.path.endsWith('src/python/setup.py') }.iterator().next().text
-      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*"(.*)"/)[0][1]
+      def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll {it.path.endsWith('src/python/setup.cfg') }.iterator().next().text
+      def pybisVersion = ( contentOfSetUpFile =~ /version.*=.*(.*)/)[0][1]
       'pybis-' + pybisVersion + '.zip'
     } else {
       filename

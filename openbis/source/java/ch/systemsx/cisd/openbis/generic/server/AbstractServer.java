@@ -181,7 +181,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     private IApplicationServerApi v3Api;
 
-    protected String CISDHelpdeskEmail;
+    protected String openbisSupportEmail;
 
     @Autowired
     private ICacheManager cacheManager;
@@ -257,9 +257,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return propertiesBatchManager;
     }
 
-    public final void setCISDHelpdeskEmail(String cisdHelpdeskEmail)
+    public void setOpenbisSupportEmail(String openbisSupportEmail)
     {
-        this.CISDHelpdeskEmail = cisdHelpdeskEmail;
+        this.openbisSupportEmail = openbisSupportEmail;
     }
 
     public final void setSampleTypeSlaveServerPlugin(

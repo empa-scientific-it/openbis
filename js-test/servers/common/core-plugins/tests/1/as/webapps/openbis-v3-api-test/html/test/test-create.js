@@ -1096,6 +1096,36 @@ define(
 					testCreate(c, fCreate, c.findQuery, fCheck);
 				});
 
+				QUnit.test("createPersonalAccessTokens()", function(assert) {
+					var c = new common(assert, openbis);
+					var now = new Date();
+
+					var patCreation = new c.PersonalAccessTokenCreation();
+					patCreation.setSessionName(c.generateId("pat"));
+					patCreation.setValidFromDate(now.getTime());
+					patCreation.setValidToDate(new Date(now.getTime() + 24 * 3600 * 1000).getTime());
+
+					var fCreate = function(facade) {
+						return facade.createPersonalAccessTokens([ patCreation ]);
+					}
+
+					var fCheck = function(pat) {
+						c.assertNotNull(pat.getPermId(), "Perm Id");
+						c.assertNotNull(pat.getHash(), "Hash");
+						c.assertEqual(pat.getSessionName(), patCreation.getSessionName(), "Session name");
+						c.assertEqual(pat.getValidFromDate(), patCreation.getValidFromDate(), "Valid from date");
+						c.assertEqual(pat.getValidToDate(), patCreation.getValidToDate(), "Valid to date");
+						c.assertNotNull(pat.getOwner().getUserId(), "Owner user id");
+						c.assertNotNull(pat.getRegistrator().getUserId(), "Registrator user id");
+						c.assertNotNull(pat.getModifier().getUserId(), "Modifier user id");
+						c.assertToday(pat.getRegistrationDate(), "Registration date");
+						c.assertToday(pat.getModificationDate(), "Modification date");
+						c.assertNull(pat.getAccessDate(), "Access date");
+					}
+
+					testCreate(c, fCreate, c.findPersonalAccessToken, fCheck);
+				});
+
 			}
 
 			return function() {

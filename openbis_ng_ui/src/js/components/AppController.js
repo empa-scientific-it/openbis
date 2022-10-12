@@ -68,6 +68,12 @@ export class AppController {
             } else {
               openbis.useSession(null)
             }
+
+            const serverInformation = await openbis.getServerInformation()
+
+            await this.context.setState({
+              serverInformation
+            })
           } catch (e) {
             openbis.useSession(null)
           }
@@ -96,6 +102,12 @@ export class AppController {
           }
         })
         cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
+
+        const serverInformation = await openbis.getServerInformation()
+
+        await this.context.setState({
+          serverInformation
+        })
 
         const routeObject = routes.parse(this.getRoute())
         await this.routeChange(routeObject.path)
@@ -297,6 +309,11 @@ export class AppController {
 
   getLoading() {
     return this.context.getState().loading
+  }
+
+  getServerInformation(key) {
+    const serverInformation = this.context.getState().serverInformation || {}
+    return serverInformation[key]
   }
 
   getSession() {

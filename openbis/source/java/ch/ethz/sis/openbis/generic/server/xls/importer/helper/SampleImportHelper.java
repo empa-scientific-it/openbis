@@ -37,7 +37,7 @@ public class SampleImportHelper extends BasicImportHelper
 {
     private static final String SAMPLE_TYPE_FIELD = "Sample type";
 
-    private enum Attribute implements IAttribute {
+    public enum Attribute implements IAttribute {
         $("$", false),
         Identifier("Identifier", false),
         Code("Code", false),
@@ -67,8 +67,6 @@ public class SampleImportHelper extends BasicImportHelper
 
     private EntityTypePermId sampleType;
 
-    private final ImportOptions options;
-
     private final DelayedExecutionDecorator delayedExecutor;
 
     private PropertyTypeSearcher propertyTypeSearcher;
@@ -77,8 +75,7 @@ public class SampleImportHelper extends BasicImportHelper
 
     public SampleImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
-        super(mode);
-        this.options = options;
+        super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
@@ -90,9 +87,13 @@ public class SampleImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(SAMPLE_TYPE_FIELD, header);
             lineIndex++;
 
             sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));
+            if(sampleType.getPermId() == null || sampleType.getPermId().isEmpty()) {
+                throw new UserFailureException("Mandatory field missing or empty: " + SAMPLE_TYPE_FIELD);
+            }
 
             // first check that sample type exist.
             SampleTypeFetchOptions fetchTypeOptions = new SampleTypeFetchOptions();
@@ -100,14 +101,14 @@ public class SampleImportHelper extends BasicImportHelper
             SampleType type = delayedExecutor.getSampleType(sampleType, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Sample type " + sampleType + " is not exist.");
+                throw new UserFailureException("Sample type " + sampleType + " not found.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
             lineIndex++;
         } catch (Exception e)
         {
-            throw new UserFailureException("Exception at page " + pageIndex + " and line " + lineIndex + " with message: " + e.getMessage());
+            throw new UserFailureException("Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with message: " + e.getMessage());
         }
 
         // and then import samples
@@ -279,53 +280,75 @@ public class SampleImportHelper extends BasicImportHelper
 
         // Start - Special case -> Remove parents / children & Special case -> Sample Variables
         Sample originSample = delayedExecutor.getSample(sampleId, fetchOptions);
-        Set<SampleIdentifier> parentIds = new HashSet<>();
-        if (parents != null && !parents.isEmpty())
+
+        if (parents == null || parents.isEmpty())
         {
-            for (String parent : parents.split("\n"))
+            // Skip empty values to avoid deleting by mistake
+        } else
+        {
+            Set<SampleIdentifier> parentIds = new HashSet<>();
+            if (parents.equals("--DELETE--") || parents.equals("__DELETE__"))
             {
-                if (parent.startsWith(VARIABLE_PREFIX))
+                // Delete missing = all
+            } else // Delete missing
+            {
+                for (String parent : parents.split("\n"))
                 {
-                    update.getParentIds().add(new IdentifierVariable(parent));
-                } else
-                {
-                    SampleIdentifier parentId = new SampleIdentifier(parent);
-                    update.getParentIds().add(parentId);
-                    parentIds.add(parentId);
+                    if (parent.startsWith(VARIABLE_PREFIX))
+                    {
+                        update.getParentIds().add(new IdentifierVariable(parent));
+                    } else
+                    {
+                        SampleIdentifier parentId = new SampleIdentifier(parent);
+                        update.getParentIds().add(parentId);
+                        parentIds.add(parentId);
+                    }
                 }
             }
-        }
-        for (Sample parent : originSample.getParents())
-        {
-            if (!parentIds.contains(parent.getIdentifier()))
+
+            for (Sample parent : originSample.getParents())
             {
-                update.getParentIds().remove(parent.getIdentifier());
+                if (!parentIds.contains(parent.getIdentifier()))
+                {
+                    update.getParentIds().remove(parent.getIdentifier());
+                }
             }
         }
 
-        Set<SampleIdentifier> childrenIds = new HashSet<>();
-        if (children != null && !children.isEmpty())
+        if (children == null || children.isEmpty())
         {
-            for (String child : children.split("\n"))
+            // Skip empty values to avoid deleting by mistake
+        } else
+        {
+            Set<SampleIdentifier> childrenIds = new HashSet<>();
+            if (children.equals("--DELETE--") || children.equals("__DELETE__"))
             {
-                if (child.startsWith(VARIABLE_PREFIX))
+                // Delete missing = all
+            } else // Delete missing
+            {
+                for (String child : children.split("\n"))
                 {
-                    update.getChildIds().add(new IdentifierVariable(child));
-                } else
+                    if (child.startsWith(VARIABLE_PREFIX))
+                    {
+                        update.getChildIds().add(new IdentifierVariable(child));
+                    } else
+                    {
+                        SampleIdentifier childId = new SampleIdentifier(child);
+                        update.getChildIds().add(childId);
+                        childrenIds.add(childId);
+                    }
+                }
+            }
+
+            for (Sample child : originSample.getChildren())
+            {
+                if (!childrenIds.contains(child.getIdentifier()))
                 {
-                    SampleIdentifier childId = new SampleIdentifier(child);
-                    update.getChildIds().add(childId);
-                    childrenIds.add(childId);
+                    update.getChildIds().remove(child.getIdentifier());
                 }
             }
         }
-        for (Sample child : originSample.getChildren())
-        {
-            if (!childrenIds.contains(child.getIdentifier()))
-            {
-                update.getChildIds().remove(child.getIdentifier());
-            }
-        }
+
         // End - Special case -> Remove parents / children & Special case -> Sample Variables
 
         for (String key : header.keySet())
@@ -333,9 +356,12 @@ public class SampleImportHelper extends BasicImportHelper
             if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
-                if (value != null && (value.isEmpty() || value.equals("--DELETE--") || value.equals("__DELETE__")))
+                if (value == null || value.isEmpty()) { // Skip empty values to avoid deleting by mistake
+                    continue;
+                } else if (value.equals("--DELETE--") || value.equals("__DELETE__")) // Do explicit delete
                 {
                     value = null;
+                } else { // Normal behaviour, set value
                 }
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
                 update.setProperty(propertyType.getCode(), getPropertyValue(propertyType, value));

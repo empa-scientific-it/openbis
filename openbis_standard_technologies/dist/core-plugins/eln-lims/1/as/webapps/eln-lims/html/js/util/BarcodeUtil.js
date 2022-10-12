@@ -1,7 +1,6 @@
 var BarcodeUtil = new function() {
     var barcodeTimeout = false;
     var barcodeReader = "";
-    var barcodePattern = /^[-0-9]+$/;
     var _this = this;
 
     var readSample = function(action) {
@@ -70,7 +69,7 @@ var BarcodeUtil = new function() {
     }
 
     this.getBarcodePattern = function() {
-        return barcodePattern;
+        return profile.barcodePattern ? profile.barcodePattern : /^[-0-9]+$/;
     }
 
     this.isValidBarcode = function(barcode) {
@@ -415,7 +414,7 @@ var BarcodeUtil = new function() {
 
         $window.append($('<legend>').append("Update Custom Barcode"));
         $window.append($('<br>'));
-        $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only digits and '-' are allowed."));
+        $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
         $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
         $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
 

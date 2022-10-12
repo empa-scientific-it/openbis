@@ -19,6 +19,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 	this._vocabularyManagerModel = vocabularyManagerModel;
 	this._dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
 	this._subtitle = $("<h4>", { "style" : "font-weight:normal;" });
+    this._toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
 	
 	this.repaint = function(views) {
 		
@@ -34,12 +35,12 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var $containerHeader = $("<div>");
 		$containerHeader.append($("<h2>", {"id" : "vocabulary-browser-title-id"}).append("Vocabulary Browser"));
 		$containerHeader.append(this._subtitle);
+		$containerHeader.append(this._toolbox);
 		views.header.append($containerHeader);
 		views.content.append($containerColumn);
 		
 		this._showVocabularies();
 		$containerColumn.append(this._dataGridContainer);
-		
 	}
 	
 	this._showVocabularies = function() {
@@ -84,9 +85,13 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		
 		this._subtitle.empty();
 		this._subtitle.append("Vocabularies List");
+
+		this._toolbox.empty();
 	}
 	
 	this._showVocabulary = function(vocabulary) {
+	    var _this = this;
+
 		var columns = [ {
 			label : 'Code',
 			property : 'code',
@@ -122,5 +127,12 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		
 		this._subtitle.empty();
 		this._subtitle.append("Terms from vocabulary " + vocabulary.code);
+
+		var $back = $("<a>", { "class" : "btn btn-default", "style" : "margin-top: 10px;", "id" : "back-to-vocabularies"}).append("⇦ Back");
+        $back.click(function() {
+            _this._showVocabularies();
+        });
+        this._toolbox.empty();
+        this._toolbox.append($back);
 	}
 }

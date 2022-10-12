@@ -167,13 +167,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var experimentIdentifier = profile.getStorageConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
 
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-			var argsMap = {
-					"sampleTypeCode" : "STORAGE",
-					"experimentIdentifier" : experimentIdentifier
-			}
-			var argsMapStr = JSON.stringify(argsMap);
-			Util.unblockUI();
-			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+            Util.blockUI();
+            setTimeout(function() {
+                var argsMap = {
+                    "sampleTypeCode" : "STORAGE",
+                    "experimentIdentifier" : experimentIdentifier
+                };
+                mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+            }, 100);
 		}, "New Storage");
 
 		$fieldset.append($("<p>").append($addBtn));
@@ -256,10 +257,27 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintInventorySpacesSection = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-inventory-spaces", true);
 		$fieldset.append(FormUtil.getInfoText(text.info));
+        var settingsSpaceCode = this._settingsFormModel.settingsSample.spaceCode;
+        var canRemoveFunctionSpace = function(rowData) {
+            if(!settingsSpaceCode) {
+                return false;
+            } else {
+                var spaceCode = rowData['Space'][0].value;
+                return !profile.isSystemSpace(settingsSpaceCode, spaceCode);
+            }
+        }
+        var canRemoveFunctionSpaceReadOnly = function(rowData) {
+            if(!settingsSpaceCode) {
+                return false;
+            } else {
+                var spaceCode = rowData['Space Read only'][0].value;
+                return !profile.isSystemSpace(settingsSpaceCode, spaceCode);
+            }
+        }
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
-		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
+		$fieldset.append(this._getTable(this._inventorySpacesTableModel, canRemoveFunctionSpace));
 		this._inventorySpacesReadOnlyTableModel = this._getInventorySpacesReadOnlyTableModel();
-        $fieldset.append(this._getTable(this._inventorySpacesReadOnlyTableModel));
+        $fieldset.append(this._getTable(this._inventorySpacesReadOnlyTableModel, canRemoveFunctionSpaceReadOnly));
 	}
 
 	this._getMainMenuItemsTableModel = function() {
@@ -468,7 +486,11 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var $sampleTypeFieldset = this._getFieldset($div, displayName, "settings-section-sampletype-" + sampleType.code, true);
 			$fieldset.append($div);
 
+            var defaultSampleTypeSettings = SettingsManagerUtils.getDefaultProfile().sampleTypeDefinitionsExtension[sampleType.code];
 			var sampleTypeSettings = this._profileToEdit.sampleTypeDefinitionsExtension[sampleType.code];
+			if(!sampleTypeSettings && defaultSampleTypeSettings) { // Sets the default profile configuration given by plugins
+			    sampleTypeSettings = defaultSampleTypeSettings;
+			}
 
 			// Checkboxes for miscellaneous options
 			// isProtocol
@@ -932,7 +954,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 	}
 
-	this._getTable = function(tableModel) {
+	this._getTable = function(tableModel, canRemoveFunction) {
 		var $table = $("<table>", { class : "table borderless table-compact" });
 		if (tableModel.fullWidth != true) {
 			$table.css("width", "initial");
@@ -979,16 +1001,16 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (tableModel.rowExtraBuilder) {
 				// add extra as row after actual row
 				var $extra = tableModel.rowExtras[i];
-				this._addRow($tbody, tableModel, row, $extra);
+				this._addRow($tbody, tableModel, row, $extra, canRemoveFunction);
 			} else {
-				this._addRow($tbody, tableModel, row);				
+				this._addRow($tbody, tableModel, row, null, canRemoveFunction);
 			}
 		}
 		$table.append($tbody);
 		return $table
 	}
 
-	this._addRow = function($tbody, tableModel, tableModelRow, $extra) {
+	this._addRow = function($tbody, tableModel, tableModelRow, $extra, canRemoveFunction) {
 		var $tr = $("<tr>");
 		$tbody.append($tr);
 		var $extraRow = null;
@@ -1036,17 +1058,22 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (this._settingsFormModel.mode === FormMode.VIEW) {
 				$removeButton.addClass("disabled");
 			} else {
-				$removeButton.on("click", function() {
-					$tr.remove();
-					if ($extraRow) {
-						$extraRow.remove();
-					}
-					var rowIndex = tableModel.rows.indexOf(tableModelRow);
-					tableModel.rows.splice(rowIndex, 1);
-					if (tableModel.rowExtraModels) {
-						tableModel.rowExtraModels.splice(rowIndex, 1);
-					}
-				});
+			    var rowIndex = tableModel.rows.indexOf(tableModelRow);
+			    if(!canRemoveFunction || canRemoveFunction(tableModel.rows[rowIndex])) {
+                    $removeButton.on("click", function() {
+                        $tr.remove();
+                        if ($extraRow) {
+                            $extraRow.remove();
+                        }
+                        var rowIndex = tableModel.rows.indexOf(tableModelRow);
+                        tableModel.rows.splice(rowIndex, 1);
+                        if (tableModel.rowExtraModels) {
+                            tableModel.rowExtraModels.splice(rowIndex, 1);
+                        }
+                    });
+			    } else {
+			        $removeButton.addClass("disabled");
+			    }
 			}
 			$tr.append($("<td>").append($removeButton));
 		}

@@ -5,7 +5,9 @@ function classNames(...classNames) {
 }
 
 function trim(str) {
-  return str && str.trim().length > 0 ? str.trim() : null
+  return str !== null && str !== undefined && str.trim().length > 0
+    ? str.trim()
+    : null
 }
 
 function filter(objects, value, fields) {

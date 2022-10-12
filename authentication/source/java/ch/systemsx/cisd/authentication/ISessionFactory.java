@@ -28,5 +28,10 @@ public interface ISessionFactory<T extends BasicSession>
      * and expiration time (in milliseconds).
      */
     public T create(String sessionToken, String userName, Principal principal,
-            String remoteHost, long sessionStart, int sessionExpirationTime);
+            String remoteHost, long sessionStart, long sessionExpirationTime);
+
+    public T create(String sessionToken, String userName, Principal principal,
+            String remoteHost, long sessionStart, long sessionExpirationTime, boolean isPersonalAccessTokenSession,
+            String personalAccessTokenSessionName);
+
 }

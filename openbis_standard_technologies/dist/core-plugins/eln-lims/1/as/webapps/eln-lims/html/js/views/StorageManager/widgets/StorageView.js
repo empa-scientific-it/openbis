@@ -323,8 +323,24 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 							}
 							
 							//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
+							boxPosition = boxPosition.replace(/  +/g, ' ');
+                            boxPosition = boxPosition.trim();
 							if(isMultiple && !isSelectedOrDeleted) {
-								boxPosition = boxPosition.replace(newPosition, '');
+								// Splitting the contents of the string
+								boxPositionsArray = boxPosition.split(' ');
+								// Deleting the requested position
+								var posToDeleteIndex = boxPositionsArray.indexOf(newPosition);
+                                if(-1 !== posToDeleteIndex) {
+                                    boxPositionsArray.splice(posToDeleteIndex, 1);
+                                }
+                                // Rebuilding the string
+								boxPosition = "";
+								for(var boxPositionsArrayIdx = 0; boxPositionsArrayIdx < boxPositionsArray.length; boxPositionsArrayIdx++) {
+								    if(boxPositionsArrayIdx > 0) {
+								        boxPosition += " ";
+								    }
+									boxPosition += boxPositionsArray[boxPositionsArrayIdx];
+								}
 							} else {
 								boxPosition += " " + newPosition;
 							}

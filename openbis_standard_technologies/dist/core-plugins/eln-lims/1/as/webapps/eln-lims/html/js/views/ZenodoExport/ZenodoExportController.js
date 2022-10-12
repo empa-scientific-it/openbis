@@ -36,6 +36,11 @@ function ZenodoExportController(parentController) {
         var selectedNodes = $(this.exportModel.tree).fancytree('getTree').getSelectedNodes();
         var title = this.exportView.$titleTextBox.val().trim();
 
+        var groupRows = this.exportModel.tableModel.getValues();
+        var nameColumn = this.exportModel.tableModel.columns[0];
+        var valueColumn = this.exportModel.tableModel.columns[1];
+        var checkedGroups = groupRows.flatMap(row => row[valueColumn.label] ? [row[nameColumn.label]] : []);
+
         var toExport = [];
         for (var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
             var node = selectedNodes[eIdx];
@@ -48,8 +53,16 @@ function ZenodoExportController(parentController) {
             Util.showInfo('Please enter a title.');
         } else if (!this.isValid(toExport)) {
             Util.showInfo('Not only spaces and the root should be selected. It will result in an empty export file.');
+        } else if (checkedGroups.length === 0) {
+            Util.showInfo('At least one group should be selected.');
         } else {
             Util.blockUI();
+
+            for (var i = 0; i < checkedGroups.length; i++) {
+                var group = checkedGroups[i];
+                toExport.push({type: 'GROUP', permId: 'GROUP:' + group, expand: null});
+            }
+
             this.getUserInformation((function(userInformation) {
                 mainController.serverFacade.exportZenodo(toExport, true, false, userInformation, title, this.exportModel.accessToken,
                         function(operationExecutionPermId) {

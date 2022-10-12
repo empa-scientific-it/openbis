@@ -179,7 +179,15 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 		$("#sampleTypeSelector").on("change", function(event) {
 			var sampleTypeCode = $("#sampleTypeSelector")[0].value;
 			_this.serverFacade.searchWithUniqueId(permId, function(data) {
-				mainController.changeView('showCreateSubExperimentPage', "{\"sampleTypeCode\":\"" + sampleTypeCode + "\",\"experimentIdentifier\":\"" + data[0].experimentIdentifierOrNull + "\"}");
+				Util.blockUI();
+                setTimeout(function() {
+                    var argsMap = {
+                        "sampleTypeCode" : sampleTypeCode,
+                        "experimentIdentifier" : data[0].experimentIdentifierOrNull
+                    };
+                    mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+                }, 100);
+
 				var setParent = function() {
 					mainController.currentView._sampleFormModel.sampleLinksParents.addSample(data[0]);
 					Util.unblockUI();

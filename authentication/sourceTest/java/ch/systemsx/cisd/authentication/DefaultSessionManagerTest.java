@@ -153,7 +153,7 @@ public class DefaultSessionManagerTest
 
                     one(sessionFactory).create(with(any(String.class)), with(equal(user)),
                             with(equal(sessionPrincipal)), with(equal(REMOTE_HOST)),
-                            with(any(Long.class)), with(any(Integer.class)));
+                            with(any(Long.class)), with(any(Long.class)));
                     BasicSession session =
                             new BasicSession(user + "-1", user, principal, REMOTE_HOST, 42L, 0);
                     will(returnValue(session));
@@ -213,7 +213,7 @@ public class DefaultSessionManagerTest
 
                         one(sessionFactory).create(with(any(String.class)), with(equal(user)),
                                 with(equal(principal)), with(equal(REMOTE_HOST)),
-                                with(any(Long.class)), with(any(Integer.class)));
+                                with(any(Long.class)), with(any(Long.class)));
                         BasicSession session =
                                 new BasicSession(user + "-" + (i + 1), user, principal, REMOTE_HOST, 42L, 0);
                         will(returnValue(session));
@@ -253,7 +253,7 @@ public class DefaultSessionManagerTest
                     {
                         one(sessionFactory).create(with(any(String.class)), with(equal(user)),
                                 with(equal(principal)), with(equal(REMOTE_HOST)),
-                                with(any(Long.class)), with(any(Integer.class)));
+                                with(any(Long.class)), with(any(Long.class)));
                         BasicSession session =
                                 new BasicSession(user + "-" + (i + 1), user, principal, REMOTE_HOST, 42L, 0);
                         will(returnValue(session));

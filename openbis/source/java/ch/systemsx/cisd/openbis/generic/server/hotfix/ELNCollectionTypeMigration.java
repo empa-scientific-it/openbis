@@ -104,9 +104,8 @@ public class ELNCollectionTypeMigration {
         "UPDATE property_types SET meta_data = NULL WHERE code IN ('NAME', 'SEQUENCE', 'AUTHORS', 'FREEFORM_TABLE_STATE');"
     };
 
-    private static Set<ExperimentType> getExperimentTypes(String[] experimentCodes) {
+    private static Set<ExperimentType> getExperimentTypes(String sessionToken, String[] experimentCodes) {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = api.loginAsSystem();
 
         ExperimentSearchCriteria esc = new ExperimentSearchCriteria();
         esc.withOrOperator();
@@ -127,9 +126,8 @@ public class ELNCollectionTypeMigration {
         return experimentTypes;
     }
 
-    private static ExperimentType getExperimentType(String experimentTypeCode) {
+    private static ExperimentType getExperimentType(String sessionToken, String experimentTypeCode) {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = api.loginAsSystem();
 
         ExperimentTypeFetchOptions etfo = new ExperimentTypeFetchOptions();
         etfo.withPropertyAssignments().withPropertyType();
@@ -156,9 +154,8 @@ public class ELNCollectionTypeMigration {
         return propertyTypes;
     }
 
-    private static void addMissingProperties(String experimentTypeCode, Set<PropertyType> missingPropertyTypes) {
+    private static void addMissingProperties(String sessionToken, String experimentTypeCode, Set<PropertyType> missingPropertyTypes) {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        String sessionToken = api.loginAsSystem();
 
         List<PropertyAssignmentCreation> propertiesToAdd = new ArrayList<>();
         for (PropertyType propertyType:missingPropertyTypes) {
@@ -232,11 +229,11 @@ public class ELNCollectionTypeMigration {
         return prty_id_2_etpt_id;
     }
 
-    public static void beforeUpgrade() {
+    public static void beforeUpgrade(String sessionToken) {
         operationLog.info("ELNCollectionTypeMigration beforeUpgrade START");
         // Obtain property types used by experiments that should be of type COLLECTION
         for (String experimentCode:experimentsOfTypeCollection) {
-            Set<ExperimentType> experimentTypes = getExperimentTypes(new String[]{experimentCode});
+            Set<ExperimentType> experimentTypes = getExperimentTypes(sessionToken, new String[]{experimentCode});
             if (!experimentTypes.isEmpty()) {
                 //operationLog.info("EXPERIMENT_CODE: " + experimentCode + " IS OF TYPE: " + experimentTypes.iterator().next().getCode());
                 ExperimentType experimentType = experimentTypes.iterator().next();
@@ -245,7 +242,7 @@ public class ELNCollectionTypeMigration {
                     Set<PropertyType> propertyTypes = getPropertyTypes(experimentType);
 
                     // Property Type used in collection
-                    Set<String> collectionPropertyTypes = getPropertyTypesCodes(getExperimentType(COLLECTION));
+                    Set<String> collectionPropertyTypes = getPropertyTypesCodes(getExperimentType(sessionToken, COLLECTION));
 
                     // Property Type NOT used in collection
                     Set<PropertyType> missingInCollection = new HashSet<>();
@@ -256,7 +253,7 @@ public class ELNCollectionTypeMigration {
                     }
 
                     // Add Property Type missing to collection
-                    addMissingProperties(COLLECTION, missingInCollection);
+                    addMissingProperties(sessionToken, COLLECTION, missingInCollection);
 
                     //
                     // Swap experiment property types assignments that NOW should also exist in COLLECTION

@@ -673,6 +673,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.createPersonalAccessTokens = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPersonalAccessTokens",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "PersonalAccessTokenPermId" ]
+				}
+			});
+		}
+
 		this.updateSpaces = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -899,6 +914,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				url : openbisUrl,
 				data : {
 					"method" : "updateQueries",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.updatePersonalAccessTokens = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updatePersonalAccessTokens",
 					"params" : [ thisFacade._private.sessionToken, updates ]
 				}
 			});
@@ -1260,6 +1286,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				returnType : {
 					name : "Map",
 					arguments : [ "IQueryDatabaseId", "QueryDatabase" ]
+				}
+			});
+		}
+
+		this.getPersonalAccessTokens = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getPersonalAccessTokens",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IPersonalAccessTokenId", "PersonalAccessToken" ]
 				}
 			});
 		}
@@ -1648,6 +1689,30 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.searchPersonalAccessTokens = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchPersonalAccessTokens",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
+		this.searchSessionInformation = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchSessionInformation",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -1888,6 +1953,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				url : openbisUrl,
 				data : {
 					"method" : "deletePersons",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deletePersonalAccessTokens = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deletePersonalAccessTokens",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
 				}
 			});

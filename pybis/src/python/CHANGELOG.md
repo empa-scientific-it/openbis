@@ -1,3 +1,19 @@
+## Changes with pybis-1.33.0
+
+- add support for personal access tokens (PAT)
+- fix default dataset kind (was PHYSICAL_DATA instead of PHYSICAL)
+- refactor existing pyBIS code
+
+## Changes with pybis-1.32.1
+
+- fixing the issue with incorrectly named reference to DataSetKind.PHYSICAL
+
+## Changes with pybis-1.32.0
+
+- throw error when invalid token is assigned
+- to not show an error message if stored token is invalid (just do not use it)
+- fixed a bug which led to missing parents and children
+
 ## Changes with pybis-1.31.6
 
 - automatically setting the project if only experiment was set

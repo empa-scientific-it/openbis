@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 usage()
 {
   echo ""
@@ -8,10 +8,11 @@ usage()
   exit 1
 }
 
-function move_to_file_server {
+move_to_file_server() 
+{
   echo "Moving new openBIS components to file server"
   
-  OPENBIS_PATH=~openbis@d/fileserver/sprint_builds/openBIS
+  OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
   SPRINT_DIR=$OPENBIS_PATH/$TODAY-$tag
   mkdir -p $SPRINT_DIR
   mv *$tag*.{zip,gz} $SPRINT_DIR/
@@ -47,8 +48,8 @@ cd ../plasmid
 cd ../..
 
 # move documentation to fileserver
-cp -r openbis/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis@d/fileserver/doc/openbis/$tag
-cd ~openbis@d/fileserver/doc/openbis
+cp -r openbis/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$tag
+cd ~openbis/fileserver/doc/openbis
 if [ ${tag:0:1} == "S" ]; then
   rm current
   ln -s $tag current

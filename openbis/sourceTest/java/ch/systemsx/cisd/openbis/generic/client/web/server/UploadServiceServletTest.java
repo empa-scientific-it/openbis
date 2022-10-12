@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadServiceServlet.I
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadServiceServlet.SessionFilesSetter;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
 
 /**
  * Tests for {@link UploadServiceServlet}.
@@ -71,6 +72,8 @@ public final class UploadServiceServletTest extends AssertJUnit
 
     protected ISessionWorkspaceProvider sessionWorkspaceProvider;
 
+    protected IPersonalAccessTokenConverter personalAccessTokenConverter;
+
     @BeforeMethod
     public void setUp()
     {
@@ -82,6 +85,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         sessionManager = context.mock(IOpenBisSessionManager.class);
         sessionFilesSetter = context.mock(ISessionFilesSetter.class);
         sessionWorkspaceProvider = context.mock(ISessionWorkspaceProvider.class);
+        personalAccessTokenConverter = context.mock(IPersonalAccessTokenConverter.class);
     }
 
     @AfterMethod
@@ -94,7 +98,7 @@ public final class UploadServiceServletTest extends AssertJUnit
 
     private UploadServiceServlet createServlet()
     {
-        return new UploadServiceServlet(sessionFilesSetter, sessionManager, sessionWorkspaceProvider);
+        return new UploadServiceServlet(sessionFilesSetter, sessionManager, sessionWorkspaceProvider, personalAccessTokenConverter);
     }
 
     private void expectSendResponse(Expectations exp)
@@ -110,6 +114,8 @@ public final class UploadServiceServletTest extends AssertJUnit
         exp.one(httpSession).getAttribute(SESSION_TOKEN_KEY);
         exp.will(Expectations.returnValue(SESSION_TOKEN));
         exp.one(sessionManager).getSession(SESSION_TOKEN);
+        exp.one(personalAccessTokenConverter).convert("");
+        exp.will(Expectations.returnValue(""));
     }
 
     @Test

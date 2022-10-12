@@ -2,6 +2,7 @@ import ToolSearchComponent from '@srcTest/js/components/tools/search/ToolSearchC
 import ToolSearchTestData from '@srcTest/js/components/tools/search/ToolSearchTestData.js'
 import objectTypes from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
+import fixture from '@srcTest/js/common/fixture.js'
 
 let common = null
 
@@ -48,6 +49,10 @@ async function testLoadWithSearchText(resultsFound) {
   )
 
   openbis.mockSearchQueries(resultsFound ? [testQuery, anotherQuery] : [])
+
+  openbis.mockSearchPersons([fixture.TEST_USER_DTO, fixture.ANOTHER_USER_DTO])
+
+  openbis.mockSearchPersonalAccessTokens([])
 
   const form = await common.mount({ searchText: 'test' })
 
@@ -186,10 +191,7 @@ async function testLoadWithSearchText(resultsFound) {
           text: 'No results found',
           type: 'info'
         }
-      ],
-      dynamicPropertyPlugins: null,
-      entityValidationPlugins: null,
-      queries: null
+      ]
     })
   }
 }

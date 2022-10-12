@@ -113,6 +113,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.Operation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
@@ -219,6 +227,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingService
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -450,6 +460,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<QueryTechId> createQueries(String sessionToken, List<QueryCreation> newQueries)
     {
         logAccess(sessionToken, "create-queries", "NEW_QUERIES(%s)", abbreviate(newQueries));
+        return null;
+    }
+
+    @Override public List<PersonalAccessTokenPermId> createPersonalAccessTokens(final String sessionToken,
+            final List<PersonalAccessTokenCreation> newPersonalAccessTokens)
+    {
+        logAccess(sessionToken, "create-personal-access-tokens", "NEW_PERSONAL_ACCESS_TOKENS(%s)", abbreviate(newPersonalAccessTokens));
         return null;
     }
 
@@ -743,6 +760,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(final String sessionToken,
+            final List<? extends IPersonalAccessTokenId> personalAccessTokenIds, final PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-personal-access-tokens", "PERSONAL_ACCESS_TOKEN_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(personalAccessTokenIds),
+                fetchOptions);
+        return null;
+    }
+
     @Override
     public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions)
     {
@@ -886,6 +911,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(final String sessionToken,
+            final PersonalAccessTokenSearchCriteria searchCriteria, final PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-personal-access-tokens", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
     @Override
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
     {
@@ -1025,6 +1057,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deletePersons(String sessionToken, List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-persons", "PERSON_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(personIds), deletionOptions);
+    }
+
+    @Override public void deletePersonalAccessTokens(final String sessionToken, final List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            final PersonalAccessTokenDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-personal-access-tokens", "PERSONAL_ACCESS_TOKEN_IDS(%s) DELETION_OPTIONS(%s)",
+                abbreviate(personalAccessTokenIds), deletionOptions);
     }
 
     @Override
@@ -1284,11 +1323,23 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "update-queries", "QUERY_UPDATES(%s)", abbreviate(queryUpdates));
     }
 
+    @Override public void updatePersonalAccessTokens(final String sessionToken, final List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+    {
+        logAccess(sessionToken, "update-personal-access-tokens", "PERSONAL_ACCESS_TOKEN_UPDATES(%s)", abbreviate(personalAccessTokenUpdates));
+    }
+
     @Override
     public SearchResult<ExternalDms> searchExternalDataManagementSystems(String sessionToken, ExternalDmsSearchCriteria searchCriteria,
             ExternalDmsFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-external-dms", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
+    @Override public SearchResult<SessionInformation> searchSessionInformation(final String sessionToken,
+            final SessionInformationSearchCriteria searchCriteria, final SessionInformationFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-session-information", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
     }
 

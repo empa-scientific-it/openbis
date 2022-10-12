@@ -42,6 +42,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -104,6 +105,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.OperationExecution;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
@@ -1665,6 +1673,60 @@ public class AbstractTest extends SystemTestCase
         creation.setLabel("Varchar");
         creation.setDescription("Varchar property type.");
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
+    }
+
+    protected PersonalAccessTokenCreation tokenCreation()
+    {
+        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
+        creation.setSessionName("test session " + UUID.randomUUID());
+        creation.setValidFromDate(new Date(System.currentTimeMillis() - DateUtils.MILLIS_PER_DAY));
+        creation.setValidToDate(new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
+        return creation;
+    }
+
+    protected PersonalAccessToken createToken(String user, String password, PersonalAccessTokenCreation creation)
+    {
+        String sessionToken = v3api.login(user, password);
+
+        List<PersonalAccessTokenPermId> ids = v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(creation));
+        assertEquals(ids.size(), 1);
+
+        return getToken(user, password, ids.get(0));
+    }
+
+    protected PersonalAccessToken updateToken(String user, String password, PersonalAccessTokenUpdate update)
+    {
+        String sessionToken = v3api.login(user, password);
+
+        v3api.updatePersonalAccessTokens(sessionToken, Arrays.asList(update));
+
+        return getToken(user, password, update.getPersonalAccessTokenId());
+    }
+
+    protected PersonalAccessToken deleteToken(String user, String password, IPersonalAccessTokenId tokenId)
+    {
+        String sessionToken = v3api.login(user, password);
+
+        PersonalAccessTokenDeletionOptions options = new PersonalAccessTokenDeletionOptions();
+        options.setReason("It is just a test");
+
+        v3api.deletePersonalAccessTokens(sessionToken, Arrays.asList(tokenId), options);
+
+        return getToken(user, password, tokenId);
+    }
+
+    protected PersonalAccessToken getToken(String user, String password, IPersonalAccessTokenId tokenId)
+    {
+        String sessionToken = v3api.login(user, password);
+
+        PersonalAccessTokenFetchOptions fetchOptions = new PersonalAccessTokenFetchOptions();
+        fetchOptions.withOwner();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
+
+        Map<IPersonalAccessTokenId, PersonalAccessToken> map = v3api.getPersonalAccessTokens(sessionToken, Arrays.asList(tokenId), fetchOptions);
+
+        return map.get(tokenId);
     }
 
 }

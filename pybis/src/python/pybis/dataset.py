@@ -55,7 +55,7 @@ class DataSet(
         **kwargs,
     ):
 
-        if kind == "PHYSICAL_DATA":
+        if kind == "PHYSICAL":
             if files is None and zipfile is None:
                 raise ValueError("please provide at least one file")
 
@@ -76,7 +76,7 @@ class DataSet(
 
                 for file in files:
                     if not os.path.exists(file):
-                        raise ValueError("File {} does not exist".format(file))
+                        raise ValueError(f"File {file} does not exist")
 
                 self.__dict__["files"] = files
 
@@ -96,10 +96,10 @@ class DataSet(
 
         if kind is not None:
             kind = kind.upper()
-            allowed_kinds = ["PHYSICAL_DATA", "CONTAINER", "LINK"]
+            allowed_kinds = ["PHYSICAL", "CONTAINER", "LINK"]
             if kind not in allowed_kinds:
                 raise ValueError(
-                    "only these values are allowed for kind: {}".format(allowed_kinds)
+                    f"only these values are allowed for kind: {allowed_kinds}"
                 )
             self.a.__dict__["_kind"] = kind
 
@@ -332,13 +332,13 @@ class DataSet(
         }
         self.archive_unarchive("archiveDataSets", fetchopts)
         if VERBOSE:
-            print("DataSet {} archived".format(self.permId))
+            print(f"DataSet {self.permId} archived")
 
     def unarchive(self):
         fetchopts = {"@type": "as.dto.dataset.unarchive.DataSetUnarchiveOptions"}
         self.archive_unarchive("unarchiveDataSets", fetchopts)
         if VERBOSE:
-            print("DataSet {} unarchived".format(self.permId))
+            print(f"DataSet {self.permId} unarchived")
 
     def archive_unarchive(self, method, fetchopts):
         payload = {}
@@ -493,7 +493,7 @@ class DataSet(
                 content_copy_index,
             )
         else:
-            raise ValueError("Can't download data set of kind {}.".format(kind))
+            raise ValueError(f"Can't download data set of kind {kind}.")
 
     def _download_physical(
         self, files, destination, create_default_folders, wait_until_finished, workers
@@ -545,7 +545,7 @@ class DataSet(
                 queue.join()
 
             if VERBOSE:
-                print("Files downloaded to: {}".format(os.path.join(final_destination)))
+                print(f"Files downloaded to: {os.path.join(final_destination)}")
             return final_destination
 
     def _download_link(
@@ -800,9 +800,7 @@ class DataSet(
                     or getattr(self.props, prop_name) == ""
                 ):
                     raise ValueError(
-                        "Property '{}' is mandatory and must not be None".format(
-                            prop_name
-                        )
+                        f"Property '{prop_name}' is mandatory and must not be None"
                     )
 
         if self.is_new:
@@ -813,7 +811,7 @@ class DataSet(
                     "A DataSet must be either connected to a Sample or an Experiment"
                 )
 
-            if self.kind == "PHYSICAL_DATA":
+            if self.kind == "PHYSICAL":
                 if self.files is None or len(self.files) == 0:
                     raise ValueError(
                         "Cannot register a dataset without a file. Please provide at least one file"
@@ -1172,39 +1170,29 @@ class DataSetDownloadQueue:
                 r = requests.get(url, stream=True, verify=verify_certificates)
                 if r.ok == False:
                     raise ValueError(
-                        "Could not download from {}: HTTP {}. Reason: {}".format(
-                            url, r.status_code, r.reason
-                        )
+                        f"Could not download from {url}: HTTP {r.status_code}. Reason: {r.reason}"
                     )
 
                 with open(filename_dest, write_mode) as fh:
                     for chunk in r.iter_content(chunk_size=1024 * 1024):
-                        # size += len(chunk)
-                        # print("WRITE     ", datetime.now(), len(chunk))
                         if chunk:  # filter out keep-alive new chunks
                             fh.write(chunk)
-                        # print("DONE WRITE", datetime.now())
-
-                # print("DONE", datetime.now())
 
                 r.raise_for_status()
-                # print("{} bytes written".format(size))
                 actual_file_size = os.path.getsize(filename_dest)
                 if actual_file_size != int(file_size):
                     if self.collect_files_with_wrong_length:
                         self.files_with_wrong_length.append(filename)
                     else:
                         print(
-                            "WARNING! File {} has the wrong length: Expected: {} Actual size: {}".format(
-                                filename_dest, int(file_size), actual_file_size
-                            )
+                            f"WARNING! File {filename_dest} has the wrong length: Expected: {int(file_size)} Actual size: {actual_file_size}"
                         )
                         print(
                             "REASON: The connection has been silently dropped upstreams.",
                             "Please check the http timeout settings of the openBIS datastore server",
                         )
             except Exception as err:
-                print("ERROR while writing file {}: {}".format(filename_dest, err))
+                print(f"ERROR while writing file {filename_dest}: {err}")
 
             finally:
                 self.download_queue.task_done()
@@ -1255,9 +1243,7 @@ class PhysicalData:
         """
 
         for attr in self.attrs:
-            html += "<tr> <td>{}</td> <td>{}</td> </tr>".format(
-                attr, getattr(self, attr, "")
-            )
+            html += f"<tr> <td>{attr}</td> <td>{getattr(self, attr, '')}</td> </tr>"
 
         html += """
             </tbody>

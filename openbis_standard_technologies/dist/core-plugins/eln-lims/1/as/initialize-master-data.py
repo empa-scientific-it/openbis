@@ -25,14 +25,15 @@ from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNFixes
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNAnnotationsMigration
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNCollectionTypeMigration
 
-if ELNFixes.isELNInstalled():
-    ELNFixes.beforeUpgrade()
-    ELNAnnotationsMigration.beforeUpgrade()
-    ELNCollectionTypeMigration.beforeUpgrade()
-
-helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
+
+if ELNFixes.isELNInstalled():
+    ELNFixes.beforeUpgrade(sessionToken)
+    ELNAnnotationsMigration.beforeUpgrade(sessionToken)
+    ELNCollectionTypeMigration.beforeUpgrade(sessionToken)
+
+helper = MasterDataRegistrationHelper(sys.path)
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("common-data-model.xls"))\
     .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
@@ -45,7 +46,7 @@ if not ELNFixes.isMultiGroup():
     result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
 
 ELNCollectionTypeMigration.afterUpgrade()
-
+api.logout(sessionToken)
 print("======================== master-data xls ingestion result ========================")
 print(result)
 print("======================== master-data xls ingestion result ========================")

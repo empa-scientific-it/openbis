@@ -51,6 +51,11 @@ function ResearchCollectionExportController(parentController) {
         var selectedRpOption = researchCollectionExportView.$retentionPeriodDropdown.find(":selected");
         var retentionPeriod = selectedRpOption.val();
 
+        var groupRows = researchCollectionExportModel.tableModel.getValues();
+        var nameColumn = researchCollectionExportModel.tableModel.columns[0];
+        var valueColumn = researchCollectionExportModel.tableModel.columns[1];
+        var checkedGroups = groupRows.flatMap(row => row[valueColumn.label] ? [row[nameColumn.label]] : []);
+
         var toExport = [];
         for (var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
             var node = selectedNodes[eIdx];
@@ -65,8 +70,16 @@ function ResearchCollectionExportController(parentController) {
             Util.showInfo('Select submission type.');
         } else if (!retentionPeriod) {
             Util.showInfo('Select retention period.');
+        } else if (groupRows.length > 0 && checkedGroups.length === 0) {
+            Util.showInfo('At least one group should be selected.');
         } else {
             Util.blockUI();
+
+            for (var i = 0; i < checkedGroups.length; i++) {
+                var group = checkedGroups[i];
+                toExport.push({type: 'GROUP', permId: 'GROUP:' + group, expand: null});
+            }
+
             this.getUserInformation(function(userInformation) {
                 mainController.serverFacade.exportRc(toExport, true, false, submissionUrl, submissionType, retentionPeriod, userInformation,
                         function(operationExecutionPermId) {

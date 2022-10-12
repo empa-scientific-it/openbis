@@ -19,7 +19,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,9 +50,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         }
     }
 
-    private EntityTypePermId entityTypePermId;
-
-    private final ImportOptions options;
+    private EntityTypePermId experimentType;
 
     private final DelayedExecutionDecorator delayedExecutor;
 
@@ -63,8 +60,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
-        super(mode);
-        this.options = options;
+        super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
@@ -76,25 +72,28 @@ public class ExperimentImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(EXPERIMENT_TYPE_FIELD, header);
             lineIndex++;
 
-            String experimentType = getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD);
-            entityTypePermId = new EntityTypePermId(experimentType);
+            experimentType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD));
+            if(experimentType.getPermId() == null || experimentType.getPermId().isEmpty()) {
+                throw new UserFailureException("Mandatory field missing or empty: " + EXPERIMENT_TYPE_FIELD);
+            }
 
             // first check that experiment type exist.
             ExperimentTypeFetchOptions fetchTypeOptions = new ExperimentTypeFetchOptions();
             fetchTypeOptions.withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
-            ExperimentType type = delayedExecutor.getExperimentType(entityTypePermId, fetchTypeOptions);
+            ExperimentType type = delayedExecutor.getExperimentType(experimentType, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Experiment type " + experimentType + " doesn't exist.");
+                throw new UserFailureException("Experiment type " + experimentType + " not found.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
             lineIndex++;
         } catch (Exception e)
         {
-            throw new UserFailureException("Exception at page " + pageIndex + " and line " + lineIndex + " with message: " + e.getMessage());
+            throw new UserFailureException("Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with message: " + e.getMessage());
         }
 
         // and then import experiments
@@ -128,7 +127,7 @@ public class ExperimentImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String project = getValueByColumnName(header, values, Attribute.Project);
 
-        creation.setTypeId(entityTypePermId);
+        creation.setTypeId(experimentType);
         creation.setCode(code);
         creation.setProjectId(new ProjectIdentifier(project));
 
@@ -164,17 +163,24 @@ public class ExperimentImportHelper extends BasicImportHelper
         {
             update.setProjectId(new ProjectIdentifier(project));
         }
-        Map<String, String> properties = new HashMap<>();
+
         for (String key : header.keySet())
         {
             if (!attributeValidator.isHeader(key))
             {
                 String value = getValueByColumnName(header, values, key);
+                if (value == null || value.isEmpty()) { // Skip empty values to avoid deleting by mistake
+                    continue;
+                } else if (value.equals("--DELETE--") || value.equals("__DELETE__")) // Do explicit delete
+                {
+                    value = null;
+                } else { // Normal behaviour, set value
+                }
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
-                properties.put(propertyType.getCode(), getPropertyValue(propertyType, value));
+                update.setProperty(propertyType.getCode(), getPropertyValue(propertyType, value));
             }
         }
-        update.setProperties(properties);
+
         delayedExecutor.updateExperiment(update, page, line);
     }
 

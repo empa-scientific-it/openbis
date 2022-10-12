@@ -60,6 +60,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			if (_this._allowedToEdit()) {
 				//Edit Button
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				    Util.blockUI();
 					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 				}, "Edit", null, "dataset-edit-btn");
 				if(toolbarConfig.EDIT) {
@@ -709,6 +710,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	this._repaintMetadata = function(dataSetType) {
 		var _this = this;
 		$("#metadataContainer").empty();
+		if(dataSetType == null) {
+		    return;
+		}
 		var $wrapper = $("<div>");
 		var dataSetTypeV3 = null;
 		for(var i = 0; i < _this._dataSetFormModel.dataSetTypesV3.length; i++) {

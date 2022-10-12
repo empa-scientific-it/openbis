@@ -381,6 +381,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testDeleteWithoutTrash(c, c.createPerson, c.findPerson, c.deletePerson);
 		});
 
+		QUnit.test("deletePersonalAccessTokens()", function(assert) {
+			var c = new common(assert, openbis);
+			testDeleteWithoutTrash(c, c.createPersonalAccessToken, c.findPersonalAccessToken, c.deletePersonalAccessToken);
+		});
 	}
 
 	return function() {

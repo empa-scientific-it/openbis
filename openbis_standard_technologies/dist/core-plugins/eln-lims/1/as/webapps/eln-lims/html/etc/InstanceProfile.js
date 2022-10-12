@@ -15,7 +15,8 @@ $.extend(InstanceProfile.prototype, StandardProfile.prototype, {
 //		this.singleSignOnLinkLabel = "Login with SWITCHaai";
 // END ANSIBLE MANAGED BLOCK (sso)
 		this.hideSectionsByDefault = true;
-        this.minBarcodeLength = 15;
+        this.minBarcodeLength = 10;
+        this.barcodePattern = /^[-a-z0-9]+$/i
         this.docuBaseUrl = "https://unlimited.ethz.ch/display/openBISDoc2010";
         this.showUserManagementConfig = false;
 }

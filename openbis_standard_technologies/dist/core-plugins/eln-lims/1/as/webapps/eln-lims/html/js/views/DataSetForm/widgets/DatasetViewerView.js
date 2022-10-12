@@ -32,6 +32,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		if(this._dataSetViewerModel.enableUpload) {
 			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload New Dataset");
 			$uploadButton.click(function() {
+			    Util.blockUI();
 				if(_this._dataSetViewerModel.isExperiment()) {
 					mainController.changeView('showCreateDataSetPageFromExpPermId',_this._dataSetViewerModel.entity.permId.permId);
 				} else {

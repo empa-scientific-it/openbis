@@ -43,10 +43,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.*;
 
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
@@ -127,6 +124,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected static final String TEST_GROUP_ADMIN = "admin";
 
     protected static final String TEST_NO_HOME_SPACE = "homeless";
+
+    protected static final String INSTANCE_ADMIN_USER = "instance_admin";
 
     protected static final String PASSWORD = "password";
 

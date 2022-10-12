@@ -17,12 +17,11 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -290,6 +289,12 @@ public class UpdatePropertyTypesTest extends AbstractTest
         v3api.updatePropertyTypes(sessionToken, Arrays.asList(update));
 
         // Then
+        if (dataType == DataType.CONTROLLEDVOCABULARY && newDataType != DataType.CONTROLLEDVOCABULARY) {
+            PropertyTypeFetchOptions propertyTypeFetchOptions = new PropertyTypeFetchOptions();
+            propertyTypeFetchOptions.withVocabulary();
+            PropertyType updated = v3api.getPropertyTypes(sessionToken, Arrays.asList(propertyTypePermId), propertyTypeFetchOptions).get(propertyTypePermId);
+            assertNull(updated.getVocabulary());
+        }
         assertDataType(sessionToken, propertyTypePermId, newDataType);
         SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
         sampleFetchOptions.withProperties();

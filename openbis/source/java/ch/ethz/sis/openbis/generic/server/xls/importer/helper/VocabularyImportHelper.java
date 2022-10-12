@@ -4,6 +4,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
@@ -45,9 +46,9 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     private final AttributeValidator<Attribute> attributeValidator;
 
-    public VocabularyImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, Map<String, Integer> versions)
+    public VocabularyImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, Integer> versions)
     {
-        super(mode);
+        super(mode, options);
         this.versions = versions;
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);

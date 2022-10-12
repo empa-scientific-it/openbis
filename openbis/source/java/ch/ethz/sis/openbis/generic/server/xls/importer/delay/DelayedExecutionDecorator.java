@@ -2,6 +2,8 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.delay;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -9,6 +11,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreati
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
@@ -51,6 +54,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.create.SemanticAnnotationCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -957,6 +964,73 @@ public class DelayedExecutionDecorator
     {
         v3.updateVocabularyTerms(this.sessionToken, List.of(vocabularyTermUpdate));
         this.ids.add(vocabularyTermUpdate.getVocabularyTermId());
+    }
+
+    //
+    // SEMANTIC ANNOTATIONS
+    //
+
+    public SemanticAnnotation getSemanticAnnotation(SemanticAnnotationSearchCriteria criteria, SemanticAnnotationFetchOptions fetchOptions) {
+        SearchResult<SemanticAnnotation> semanticAnnotationSearchResult = v3.searchSemanticAnnotations(this.sessionToken, criteria, fetchOptions);
+
+        if (semanticAnnotationSearchResult.getTotalCount() > 0) {
+            return semanticAnnotationSearchResult.getObjects().get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public void createSemanticAnnotation(SemanticAnnotationCreation creation, int page, int line)
+    {
+        List<IObjectId> dependencies = new ArrayList<>();
+        EntityTypePermId entityTypePermId = null;
+        PropertyTypePermId propertyTypePermId = null;
+
+        if (creation.getPropertyAssignmentId() != null) {
+            PropertyAssignmentPermId propertyAssignmentPermId = (PropertyAssignmentPermId) creation.getPropertyAssignmentId();
+            entityTypePermId = (EntityTypePermId) propertyAssignmentPermId.getEntityTypeId();
+            propertyTypePermId = (PropertyTypePermId) propertyAssignmentPermId.getPropertyTypeId();
+        }
+        if (creation.getEntityTypeId() != null) {
+            entityTypePermId = (EntityTypePermId) creation.getEntityTypeId();
+        }
+        if (creation.getPropertyTypeId() != null) {
+            propertyTypePermId = (PropertyTypePermId) creation.getPropertyTypeId();
+        }
+
+        if (entityTypePermId != null) {
+            IEntityType entityType = null;
+            switch (entityTypePermId.getEntityKind()) {
+                case EXPERIMENT:
+                    entityType = getExperimentType(entityTypePermId, new ExperimentTypeFetchOptions());
+                    break;
+                case SAMPLE:
+                    entityType = getSampleType(entityTypePermId, new SampleTypeFetchOptions());
+                    break;
+                case DATA_SET:
+                    entityType = getDataSetType(entityTypePermId, new DataSetTypeFetchOptions());
+                    break;
+            }
+            if (entityType == null) {
+                dependencies.add(creation.getEntityTypeId());
+            }
+        }
+
+        if (propertyTypePermId != null) {
+            PropertyType propertyType = getPropertyType(propertyTypePermId, new PropertyTypeFetchOptions());
+            if (propertyType == null)
+            {
+                dependencies.add(creation.getPropertyTypeId());
+            }
+        }
+
+        if (!dependencies.isEmpty()) { // Delay
+            DelayedExecution delayedExecution = new DelayedExecution(null, null, creation, page, line);
+            delayedExecution.addDependencies(dependencies);
+            addDelayedExecution(delayedExecution);
+        } else { // Execute
+            v3.createSemanticAnnotations(sessionToken, List.of(creation));
+        }
     }
 
 }

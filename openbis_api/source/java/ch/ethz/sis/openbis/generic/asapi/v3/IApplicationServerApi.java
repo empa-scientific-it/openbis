@@ -109,6 +109,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.fetchoptions.Operation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.id.IOperationExecutionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecutionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.PersonalAccessToken;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.create.PersonalAccessTokenCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.delete.PersonalAccessTokenDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
@@ -201,6 +209,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -554,6 +564,18 @@ public interface IApplicationServerApi extends IRpcService
     public List<SemanticAnnotationPermId> createSemanticAnnotations(String sessionToken, List<SemanticAnnotationCreation> newAnnotations);
 
     /**
+     * Creates personal access tokens basing on the provided {@code PersonalAccessTokenCreation} objects. Returns ids of the newly created personal access tokens
+     * where nth id corresponds to nth creation object.
+     * <p>
+     * Required access rights: {@code PROJECT_OBSERVER}
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems, e.g. incorrect {@code PersonalAccessTokenCreation} objects, insufficient access rights
+     *                              etc.
+     */
+    public List<PersonalAccessTokenPermId> createPersonalAccessTokens(String sessionToken, List<PersonalAccessTokenCreation> newPersonalAccessTokens);
+
+    /**
      * Updates spaces basing on the provided {@code SpaceUpdate} objects.
      * <p>
      * Required access rights: {@code SPACE_ADMIN} or stronger
@@ -769,6 +791,16 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code QueryUpdate} objects, insufficient access rights etc.
      */
     public void updateQueries(String sessionToken, List<QueryUpdate> queryUpdates);
+
+    /**
+     * Updates personal access tokens basing on the provided {@code PersonalAccessTokenUpdate} objects.
+     * <ul>
+     * Required access rights: {@code ETL_SERVER}
+     * </ul>
+     *
+     * @throws UserFailureException in case of any problems, e.g. incorrect {@code PersonalAccessTokenUpdate} objects, insufficient access rights etc.
+     */
+    public void updatePersonalAccessTokens(String sessionToken, List<PersonalAccessTokenUpdate> personalAccessTokenUpdates);
 
     /**
      * Gets authorization rights for the provided {@link IObjectId} ids. A result map contains an entry for a given id only if an object for that id
@@ -1139,6 +1171,24 @@ public interface IApplicationServerApi extends IRpcService
      */
     public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(String sessionToken, List<? extends IQueryDatabaseId> queryDatabaseIds,
             QueryDatabaseFetchOptions fetchOptions);
+
+    /**
+     * Gets personal access tokens for the provided {@code IPersonalAccessTokenId} ids. A result map contains an entry for a given id only if a personal access token for
+     * that id has been found and that personal access token can be accessed by the user.
+     * <p>
+     * By default the returned personal access tokens contain only basic information. Any additional information to be fetched has to be explicitly requested
+     * via {@code PersonalAccessTokenFetchOptions}.
+     * </p>
+     * <ul>
+     * Required access rights:
+     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
+     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
+     * </ul>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(String sessionToken,
+            List<? extends IPersonalAccessTokenId> personalAccessTokenIds, PersonalAccessTokenFetchOptions fetchOptions);
 
     /**
      * Searches for spaces basing on the provided {@code SpaceSearchCriteria}.
@@ -1884,6 +1934,20 @@ public interface IApplicationServerApi extends IRpcService
     public void deletePersons(String sessionToken, List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions);
 
     /**
+     * Permanently deletes personal access tokens with the provided {@code IPersonalAccessTokenId} ids. Additional deletion options (e.g. deletion reason) can be set via
+     * {@code PersonalAccessTokenDeletionOptions}.
+     * <p>
+     * Required access rights:
+     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
+     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public void deletePersonalAccessTokens(String sessionToken, List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenDeletionOptions deletionOptions);
+
+    /**
      * Searches for deletions basing on the provided {@code DeletionSearchCriteria}.
      * <p>
      * By default the returned deletions contain only basic information. Any additional information to be fetched has to be explicitly requested via
@@ -1910,6 +1974,40 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Event> searchEvents(String sessionToken, EventSearchCriteria searchCriteria, EventFetchOptions fetchOptions);
+
+    /**
+     * Searches for personal access tokens basing on the provided {@code PersonalAccessTokenSearchCriteria}.
+     * <p>
+     * By default the returned personal access tokens contain only basic information. Any additional information to be fetched has to be explicitly requested via
+     * {@code PersonalAccessTokenFetchOptions}.
+     * </p>
+     * <p>
+     * Required access rights:
+     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
+     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(String sessionToken, PersonalAccessTokenSearchCriteria searchCriteria,
+            PersonalAccessTokenFetchOptions fetchOptions);
+
+    /**
+     * Searches for sessions of users basing on the provided {@code SessionInformationSearchCriteria}.
+     * <p>
+     * By default the returned sessions contain only basic information. Any additional information to be fetched has to be explicitly requested via
+     * {@code SessionInformationFetchOptions}.
+     * </p>
+     * <p>
+     * Required access rights:
+     * <li>own tokens - {@code PROJECT_OBSERVER} or stronger</li>
+     * <li>all tokens - {@code INSTANCE_ADMIN}</li>
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public SearchResult<SessionInformation> searchSessionInformation(String sessionToken, SessionInformationSearchCriteria searchCriteria,
+            SessionInformationFetchOptions fetchOptions);
 
     /**
      * Reverts deletions with the provided {@code IDeletionId} ids (i.e. takes the entities out of trash and brings them back to life).

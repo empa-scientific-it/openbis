@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
@@ -71,11 +70,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private static final String LOGIN_PREFIX_TEMPLATE = "(%dms) LOGIN: ";
 
-    private static final char SESSION_TOKEN_SEPARATOR = '-';
-
-    // should be different than SESSION_TOKEN_SEPARATOR
-    private static final char TIMESTAMP_TOKEN_SEPARATOR = 'x';
-
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH,
             DefaultSessionManager.class);
 
@@ -85,20 +79,22 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DefaultSessionManager.class);
 
-    private static final TokenGenerator tokenGenerator = new TokenGenerator();
-
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
     protected static final class FullSession<S extends BasicSession>
     {
-        /** Session data. */
+        /**
+         * Session data.
+         */
         private final S session;
 
-        /** The last time when this session has been used (in milliseconds since 1970-01-01). */
+        /**
+         * The last time when this session has been used (in milliseconds since 1970-01-01).
+         */
         private long lastActiveTime;
 
-        FullSession(final S session)
+        public FullSession(final S session)
         {
             assert session != null : "Undefined session";
 
@@ -127,10 +123,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         boolean hasExpired(Long sessionExpirationTimeOrNull)
         {
-            long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
-            return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
+                long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
+                return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
+            }
         }
-    }
 
     private final ISessionFactory<T> sessionFactory;
 
@@ -146,10 +142,12 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private final IRemoteHostProvider remoteHostProvider;
 
-    /** The time after which an inactive session will be expired (in milliseconds). */
-    private final int sessionExpirationPeriodMillis;
+    /**
+     * The time after which an inactive session will be expired (in milliseconds).
+     */
+    private final long sessionExpirationPeriodMillis;
 
-    private final int sessionExpirationPeriodMillisNoLogin;
+    private final long sessionExpirationPeriodMillisNoLogin;
 
     private final boolean tryEmailAsUserName;
 
@@ -183,11 +181,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.prefixGenerator = prefixGenerator;
         this.authenticationService = authenticationService;
         this.remoteHostProvider = remoteHostProvider;
-        this.sessionExpirationPeriodMillis =
-                (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
+        this.sessionExpirationPeriodMillis = sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE;
         if (sessionExpirationPeriodMinutesNoLogin > 0)
         {
-            this.sessionExpirationPeriodMillisNoLogin = (int) (sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE);
+            this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE;
         } else
         {
             this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMillis;
@@ -216,9 +213,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final T createAndStoreSession(final String user, final Principal principal,
             final long now)
     {
-        final String sessionToken =
-                user + SESSION_TOKEN_SEPARATOR
-                        + tokenGenerator.getNewToken(now, TIMESTAMP_TOKEN_SEPARATOR);
+        final String sessionToken = SessionTokenHash.create(user, now).toString();
+
         synchronized (sessions)
         {
             int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
@@ -398,6 +394,21 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    public boolean isSessionActive(final String sessionToken)
+    {
+        synchronized (sessions)
+        {
+            final FullSession<T> session = sessions.get(sessionToken);
+            if (session != null)
+            {
+                return !doSessionExpiration(session);
+            } else
+            {
+                return false;
+            }
+        }
+    }
+
     private boolean isSessionUnavailable(final FullSession<T> session)
     {
         return session == null || doSessionExpiration(session);
@@ -448,17 +459,17 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private void logSessionExpired(final T session)
     {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
-                    + "after %d minutes of inactivity.", LOGOUT_PREFIX, session.getSessionToken(),
-                    session.getUserName(), sessionExpirationPeriodMillis
-                            / DateUtils.MILLIS_PER_MINUTE));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
+                                + "after %d minutes of inactivity.", LOGOUT_PREFIX, session.getSessionToken(),
+                        session.getUserName(), sessionExpirationPeriodMillis
+                                / DateUtils.MILLIS_PER_MINUTE));
+            }
+            final String prefix = prefixGenerator.createPrefix(session);
+            authenticationLog.info(prefix + ": session_expired  [inactive "
+                    + DurationFormatUtils.formatDuration(sessionExpirationPeriodMillis, "H:mm:ss.SSS") + "]");
         }
-        final String prefix = prefixGenerator.createPrefix(session);
-        authenticationLog.info(prefix + ": session_expired  [inactive "
-                + DurationFormatUtils.formatDuration(sessionExpirationPeriodMillis, "H:mm:ss.SSS") + "]");
-    }
 
     private void logLogout(final T session)
     {
@@ -487,36 +498,26 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public boolean isAWellFormedSessionToken(String sessionTokenOrNull)
     {
-        if (sessionTokenOrNull == null)
-        {
-            return false;
-        }
-        final String[] splittedToken =
-                StringUtils.split(sessionTokenOrNull, SESSION_TOKEN_SEPARATOR);
-        if (splittedToken.length < 2)
-        {
-            return false;
-        }
-        String[] splittedTimeStampToken =
-                StringUtils.split(splittedToken[1], TIMESTAMP_TOKEN_SEPARATOR);
-        if (splittedTimeStampToken.length < 2)
-        {
-            return false;
-        }
-        try
-        {
-            Long.parseLong(splittedTimeStampToken[0]);
-        } catch (NumberFormatException ex)
-        {
-            return false;
-        }
-        return splittedTimeStampToken[1].length() == 32;
+        return SessionTokenHash.isValid(sessionTokenOrNull);
     }
 
     @Override
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
         return getSession(sessionToken, true);
+    }
+
+    @Override public List<T> getSessions()
+    {
+        synchronized (sessions)
+        {
+            List<T> result = new ArrayList<>();
+            for (FullSession<T> session : sessions.values())
+            {
+                result.add(session.getSession());
+            }
+            return result;
+        }
     }
 
     @Override
@@ -536,18 +537,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         synchronized (sessions)
         {
-            final String[] splittedToken = StringUtils.split(sessionToken, SESSION_TOKEN_SEPARATOR);
-            if (splittedToken.length < 2)
-            {
-                final String msg =
-                        "Session token '" + sessionToken + "' is malformed. Please login again.";
-                if (authenticationLog.isInfoEnabled())
-                {
-                    authenticationLog.info(msg);
-                }
-                throw new InvalidSessionException(msg);
-            }
             final FullSession<T> session = sessions.get(sessionToken);
+            
             if (session == null)
             {
                 final String msg =
@@ -592,13 +583,13 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         checkIfNotBlank(password, "password");
         String sessionToken = tryToOpenSession(user, new IPrincipalProvider()
+        {
+            @Override
+            public Principal tryToGetPrincipal(String userID)
             {
-                @Override
-                public Principal tryToGetPrincipal(String userID)
-                {
-                    return tryGetAndAuthenticateUser(user, password);
-                }
-            });
+                return tryGetAndAuthenticateUser(user, password);
+            }
+        });
         return sessionToken;
     }
 

@@ -39,6 +39,7 @@ public class AttributeValidator<E extends IAttribute> {
             }
         }
     }
+
     public void validateHeaders(E[] attributes, PropertyTypeSearcher propertyTypeSearcher, Map<String, Integer> headers) {
         for (String header:headers.keySet()) {
             if(this.isHeader(header)) {
@@ -59,4 +60,13 @@ public class AttributeValidator<E extends IAttribute> {
             }
         }
     }
+
+    public static void validateHeader(String valid, Map<String, Integer> headers) {
+        for (String header:headers.keySet()) {
+            if (!valid.equals(header)) {
+                throw new UserFailureException("Header '" + header + "' is not a valid header. Check for typos, the only valid header is: '" + valid + "'.");
+            }
+        }
+    }
+
 }

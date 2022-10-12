@@ -139,6 +139,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
 
+    public static final boolean DEFAULT_FINALIZER_WAIT_FOR_T_FLAG = false;
+
+    public static final boolean DEFAULT_FINALIZER_SANITY_CHECK = false;
+
     public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
 
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
@@ -146,6 +150,18 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     public static final String CHECK_CONISTENCY = "check-consistency-between-store-and-pathinfo-db";
 
     public static final String CLEANER_PROPS = "cleaner";
+
+    public static final String WAIT_FOR_SANITY_CHECK_KEY = "wait-for-sanity-check";
+
+    public static final String WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY = "wait-for-sanity-check-initial-waiting-time";
+
+    public static final String WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY = "wait-for-sanity-check-max-waiting-time";
+
+    public static final boolean DEFAULT_WAIT_FOR_SANITY_CHECK = false;
+
+    public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME = 10 * 1000;
+
+    public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
@@ -170,6 +186,16 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private final long finalizerPollingTime;
 
     private final long finalizerMaxWaitingTime;
+
+    private final boolean finalizerSanityCheck;
+
+    private final boolean waitForSanityCheck;
+
+    private final long waitForSanityCheckInitialWaitingTime;
+
+    private final long waitForSanityCheckMaxWaitingTime;
+
+    private final boolean finalizerWaitForTFlag;
 
     private final Properties cleanerProperties;
 
@@ -202,6 +228,17 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
         finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, DEFAULT_FINALIZER_MAX_WAITING_TIME);
+        finalizerWaitForTFlag = PropertyUtils.getBoolean(properties, MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY,
+                DEFAULT_FINALIZER_WAIT_FOR_T_FLAG);
+        finalizerSanityCheck =
+                PropertyUtils.getBoolean(properties, MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, DEFAULT_FINALIZER_SANITY_CHECK);
+        waitForSanityCheck = PropertyUtils.getBoolean(properties, WAIT_FOR_SANITY_CHECK_KEY, DEFAULT_WAIT_FOR_SANITY_CHECK);
+        waitForSanityCheckInitialWaitingTime =
+                DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY,
+                        DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
+        waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
+                DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
+
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();
         getCleaner(); // Checks proper configuration of cleaner
@@ -376,7 +413,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         long containerId = establishContainerDataSetMapping(dataSets, containerPath, transaction);
 
-        IHierarchicalContent archivedContent = null;
         try
         {
             Status status = getFileOperations().createContainer(containerPath, dataSets);
@@ -385,9 +421,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new Exception("Couldn't create archive file " + containerPath
                         + ". Reason: " + status.tryGetErrorMessage());
             }
-            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
-
-            checkArchivedDataSets(archivedContent, dataSets, context, statuses);
+            checkArchivedDataSets(containerPath, dataSets, context, statuses);
             scheduleFinalizer(containerPath, containerId, dataSets, context, removeFromDataStore, statuses);
         } catch (Exception ex)
         {
@@ -399,11 +433,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             // always delete staging content
             getFileOperations().deleteContainerFromStage(getCleaner(), containerPath);
-
-            if (archivedContent != null)
-            {
-                archivedContent.close();
-            }
         }
         return statuses;
     }
@@ -457,7 +486,9 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             parameterBindings.put(Constants.SUB_DIR_KEY, groupKey);
         }
+
         parameterBindings.put(MultiDataSetArchivingFinalizer.CONTAINER_ID_KEY, Long.toString(containerId));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.CONTAINER_PATH_KEY, containerPath);
         parameterBindings.put(MultiDataSetArchivingFinalizer.ORIGINAL_FILE_PATH_KEY,
                 operations.getOriginalArchiveFilePath(containerPath));
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY,
@@ -466,8 +497,15 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
         parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(getTimeProvider().getTimeInMilliseconds()));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_WAIT_FOR_T_FLAG_KEY, Boolean.toString(finalizerWaitForTFlag));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_SANITY_CHECK_KEY, Boolean.toString(finalizerSanityCheck));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());
+
+        parameterBindings.put(WAIT_FOR_SANITY_CHECK_KEY, Boolean.toString(waitForSanityCheck));
+        parameterBindings.put(WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY, Long.toString(waitForSanityCheckInitialWaitingTime));
+        parameterBindings.put(WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY, Long.toString(waitForSanityCheckMaxWaitingTime));
+
         getDataStoreService().scheduleTask(ARCHIVING_FINALIZER, task, parameterBindings, dataSets,
                 userId, userEmail, userSessionToken);
     }
@@ -499,11 +537,48 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         return new DataSetAndPathInfoDBConsistencyChecker(null, null);
     }
 
-    private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
+    private void checkArchivedDataSets(String containerPath, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
-        Map<String, Status> statusMap = MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
-                new Log4jSimpleLogger(operationLog));
+        Map<String, Status> statusMap = null;
+
+        operationLog.info("Starting sanity check of the file archived in the final destination");
+
+        RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
+                new RetryCaller<Map<String, Status>, RuntimeException>(waitForSanityCheckInitialWaitingTime, waitForSanityCheckMaxWaitingTime,
+                        new Log4jSimpleLogger(operationLog))
+                {
+                    @Override protected Map<String, Status> call()
+                    {
+                        IHierarchicalContent archivedContent = null;
+                        try
+                        {
+                            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
+                            return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
+                                    new Log4jSimpleLogger(operationLog));
+                        } finally
+                        {
+                            if (archivedContent != null)
+                            {
+                                try
+                                {
+                                    archivedContent.close();
+                                } catch (Exception e)
+                                {
+                                    operationLog.warn("Could not close archived content node", e);
+                                }
+                            }
+                        }
+                    }
+                };
+
+        if (waitForSanityCheck)
+        {
+            statusMap = sanityCheckCaller.callWithRetry();
+        } else
+        {
+            statusMap = sanityCheckCaller.call();
+        }
 
         if (needsToWaitForReplication() == false)
         {

@@ -4,9 +4,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureExc
 import base64
 import json
 import re
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator as AttributeValidator
+import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
+import ch.systemsx.cisd.common.logging.LogCategory as LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory as LogFactory;
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
+
+OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, LogFactory);
 
 ##
 ## Grid related functions
@@ -40,11 +46,26 @@ def process(context, parameters):
     elif method == "doSpacesBelongToDisabledUsers":
         result = doSpacesBelongToDisabledUsers(context, parameters);
     elif method == "trashStorageSamplesWithoutParents":
-        result = trashStorageSamplesWithoutParents(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = trashStorageSamplesWithoutParents(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "isValidStoragePositionToInsertUpdate":
-        result = isValidStoragePositionToInsertUpdate(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = isValidStoragePositionToInsertUpdate(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "setCustomWidgetSettings":
-        result = setCustomWidgetSettings(context, parameters);
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = setCustomWidgetSettings(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "getUserManagementMaintenanceTaskConfig":
         result = getUserManagementMaintenanceTaskConfig(context, parameters)
     elif method == "saveUserManagementMaintenanceTaskConfig":
@@ -259,7 +280,7 @@ def getSamplesImportTemplate(context, parameters):
         row = sheet.createRow(row_index)
         _create_cell(row, 0, kind_style, "SAMPLE")
         row = sheet.createRow(row_index + 1)
-        _create_cell(row, 0, None, "Sample Type")
+        _create_cell(row, 0, None, "Sample type")
         row = sheet.createRow(row_index + 2)
         _create_cell(row, 0, type_style, sampleTypePermId)
         row = sheet.createRow(row_index + 3)
@@ -272,10 +293,15 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
             if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
-                cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                if not attributeValidator.isHeader(propertyAssignment.getPropertyType().getLabel()):
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                else:
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getCode())
+
         max_number_of_columns = max(max_number_of_columns, cell_index)
         row_index += 6
         for i in range(max_number_of_columns):
@@ -424,7 +450,7 @@ def _isInstanceAdmin(context):
             return True
     return False
 
-def setCustomWidgetSettings(context, parameters):
+def setCustomWidgetSettings(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update import PropertyTypeUpdate
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id import PropertyTypePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue import ListUpdateActionAdd
@@ -432,7 +458,6 @@ def setCustomWidgetSettings(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions import PropertyTypeFetchOptions
 
     widgetSettingsById = {PropertyTypePermId(ws["Property Type"]):ws for ws in parameters.get("widgetSettings")}
-    sessionToken = context.applicationService.loginAsSystem();
     searchCriteria = PropertyTypeSearchCriteria()
     fetchOptions = PropertyTypeFetchOptions()
     ptus = [];
@@ -451,7 +476,8 @@ def setCustomWidgetSettings(context, parameters):
     context.applicationService.updatePropertyTypes(sessionToken, ptus);
     return True
 
-def isValidStoragePositionToInsertUpdate(context, parameters):
+def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - START -" + str(parameters));
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
     from ch.systemsx.cisd.common.exceptions import UserFailureException
@@ -471,7 +497,6 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
     if storageCode is None:
         raise UserFailureException("Storage code missing");
 
-    sessionToken = context.applicationService.loginAsSystem();
     searchCriteria = SampleSearchCriteria();
     searchCriteria.withCode().thatEquals(storageCode);
     searchCriteria.withType().withCode().thatEquals("STORAGE");
@@ -489,6 +514,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         raise UserFailureException("Found: " + str(sampleSearchResults.size()) + " storages for storage code: " + storageCode);
 
     # 2. Check that the state of the sample is valid for the Storage Validation Level
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 2");
     if storageRackRow is None or storageRackColumn is None:
         raise UserFailureException("Storage rack row or column missing");
     elif storageBoxName is None and (storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION"):
@@ -501,6 +527,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         pass
 
     # 3. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= RACK
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 3");
     # 3.1 Check the rack exists, it should always be specified as an integer, failing the conversion is a valid error
     storageNumOfRowsAsInt = int(storage.getProperty("$STORAGE.ROW_NUM"));
     storageNumOfColAsInt = int(storage.getProperty("$STORAGE.COLUMN_NUM"));
@@ -510,18 +537,35 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         raise UserFailureException("Out of range row or column for the rack");
 
     # 4. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4");
     if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
-        # 4.1 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
+        # 4.1 Check that a box with the same name only exist on the given storage and rack position
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1");
+        searchCriteriaOtherBox = SampleSearchCriteria();
+        searchCriteriaOtherBox.withType().withCode().thatEquals("STORAGE_POSITION");
+        searchCriteriaOtherBox.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
+        searchCriteriaOtherBoxOptions = SampleFetchOptions();
+        searchCriteriaOtherBoxOptions.withProperties();
+
+        sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, searchCriteriaOtherBoxOptions).getObjects();
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1 - LEN: " + str(len(sampleSearchResults)));
+        for result in sampleSearchResults:
+            if (result.getProperty("$STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
+                raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("$STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN"));
+
+        # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.2");
         searchCriteriaStorageRack = SampleSearchCriteria();
         searchCriteriaStorageRack.withType().withCode().thatEquals("STORAGE_POSITION");
-        searchCriteriaStorageRack.withProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+        searchCriteriaStorageRack.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
         searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
         searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
         searchCriteriaStorageRackResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageRack, fetchOptions).getObjects();
         storageRackBoxes = {storageBoxName};
         for sample in searchCriteriaStorageRackResults:
             storageRackBoxes.add(sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME"));
-        # 4.2 $STORAGE.BOX_NUM is only checked in is configured
+        # 4.3 $STORAGE.BOX_NUM is only checked in is configured
+        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.3");
         storageBoxNum = storage.getProperty("$STORAGE.BOX_NUM");
         if storageBoxNum is not None:
             storageBoxNumAsInt = int(storageBoxNum);
@@ -529,6 +573,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
                 raise UserFailureException("Number of boxes in rack exceeded, use an existing box.");
 
     # 5. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX_POSITION
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 5");
     if storageValidationLevel == "BOX_POSITION":
         # Storage position format validation (typical mistakes to check before doing any validation requiring database queries)
         if "," in storageBoxPosition:
@@ -556,7 +601,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         for storageBoxSubPosition in storageBoxPosition.split(" "):
             searchCriteriaStorageBoxPosition = SampleSearchCriteria();
             searchCriteriaStorageBoxPosition.withType().withCode().thatEquals("STORAGE_POSITION");
-            searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
             searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
             searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
 
@@ -564,8 +609,8 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
                 searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
             else: # Patch for Lucene
                 import org.apache.lucene.queryparser.classic.QueryParserBase as QueryParserBase
-                searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
-            searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
+                searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
+            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
             searchCriteriaStorageBoxResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageBoxPosition, fetchOptions).getObjects();
             # 5.1 If the given box position dont exists (the list is empty), is new
             for sample in searchCriteriaStorageBoxResults:
@@ -578,7 +623,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass
-
+    # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - END");
     return True
 
 def getServiceProperty(context, parameters):
@@ -642,7 +687,7 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
 
-def trashStorageSamplesWithoutParents(context, parameters):
+def trashStorageSamplesWithoutParents(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete import SampleDeletionOptions
@@ -654,7 +699,6 @@ def trashStorageSamplesWithoutParents(context, parameters):
     fetchOptions = SampleFetchOptions();
     fetchOptions.withType();
     fetchOptions.withParents();
-    sessionToken = context.applicationService.loginAsSystem();
     samplesMapByPermId = context.applicationService.getSamples(sessionToken, permIds, fetchOptions);
     for permId in permIds:
         sample = samplesMapByPermId[permId];

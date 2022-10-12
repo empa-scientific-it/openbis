@@ -74,9 +74,16 @@ public final class Session extends BasicSession implements IAuthSession
     }
 
     public Session(String userName, String sessionToken, Principal principal, String remoteHost,
-            long sessionStart, int expirationTime)
+            long sessionStart, long expirationTime)
     {
         super(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime);
+    }
+
+    public Session(String userName, String sessionToken, Principal principal, String remoteHost,
+            long sessionStart, long expirationTime, boolean isPersonalAccessTokenSession, String personalAccessTokenSessionName)
+    {
+        super(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime, isPersonalAccessTokenSession,
+                personalAccessTokenSessionName);
     }
 
     @Override

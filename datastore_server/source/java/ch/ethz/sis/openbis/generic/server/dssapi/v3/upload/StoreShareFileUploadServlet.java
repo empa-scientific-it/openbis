@@ -130,7 +130,9 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
         public String getSessionId()
         {
-            return request.getParameter(SESSION_ID_PARAM);
+            String sessionId = request.getParameter(SESSION_ID_PARAM);
+            sessionId = ServiceProvider.getPersonalAccessTokenConverter().convert(sessionId);
+            return sessionId;
         }
 
         public String getDataSetType()
