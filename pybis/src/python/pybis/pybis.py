@@ -1266,9 +1266,9 @@ class Openbis:
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
-                if "Session token" in resp["error"]["message"]:
-                    print(json.dumps(request))
-                    raise ValueError(resp["error"]["message"])
+                # print(full_url)
+                print(json.dumps(request))
+                raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
             else:
