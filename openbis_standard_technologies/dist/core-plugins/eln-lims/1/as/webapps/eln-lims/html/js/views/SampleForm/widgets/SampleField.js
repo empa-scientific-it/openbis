@@ -88,17 +88,41 @@ function SampleField(isRequired,
 	//
 
 	var searchSample = function(action) {
-		var criteria = {
-						entityKind : "SAMPLE",
-						logicalOperator : "OR",
-						rules : {
-							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
-							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", value: storedParams.data.q }
-						}
-	    };
+        var criteria = null;
 
-	    if(sampleTypeCode) {
-            criteria.rules["UUIDv4-3"] = { type: "Property/Attribute", 	name: "ATTR.SAMPLE_TYPE", operator : "thatEquals", value: sampleTypeCode };
+        if(sampleTypeCode) {
+            criteria = {
+                entityKind : "SAMPLE",
+                logicalOperator : "OR",
+                rules : {},
+                subCriteria : {
+                    "1": {
+                        entityKind : "SAMPLE",
+                        logicalOperator : "AND",
+                        rules : {
+                            "1-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                            "1-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q }
+                        }
+                    },
+                    "2": {
+                        entityKind : "SAMPLE",
+                        logicalOperator : "AND",
+                        rules : {
+                            "2-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
+                            "2-2": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q }
+                        }
+                    }
+                }
+            }
+        } else {
+            criteria = {
+                entityKind : "SAMPLE",
+                logicalOperator : "OR",
+                rules : {
+                    "1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+                    "2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", value: storedParams.data.q }
+                }
+            };
         }
 
 		mainController.serverFacade.searchForSamplesAdvanced(criteria, {
