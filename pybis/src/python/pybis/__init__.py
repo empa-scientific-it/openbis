@@ -1,6 +1,6 @@
 name = "pybis"
-__author__ = "ID SIS • ETH Zürich"
-__email__ = "openbis-support@id.ethz.ch"
+__author__ = "Swen Vermeul • ID SIS • ETH Zürich"
+__email__ = "swen@ethz.ch"
 __version__ = "1.33.1"
 
 from . import pybis

@@ -22,7 +22,7 @@ setup(
     long_description_content_type="text/markdown",
     url='https://sissource.ethz.ch/sispub/openbis/tree/master/obis',
     author='ID SIS • ETH Zürich',
-    author_email='openbis-support@id.ethz.ch',
+    author_email='swen@ethz.ch',
     license='Apache Software License Version 2.0',
     packages=['obis', 'obis.dm', 'obis.dm.commands', 'obis.scripts'],
     data_files=data_files,
