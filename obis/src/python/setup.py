@@ -16,13 +16,13 @@ data_files = [(d, [os.path.join(d, f) for f in files])
 
 setup(
     name='obis',
-    version='0.3.1',
+    version='0.3.2',
     description='Local data management with assistance from OpenBIS.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://sissource.ethz.ch/sispub/openbis/tree/master/obis',
     author='ID SIS • ETH Zürich',
-    author_email='swen@ethz.ch',
+    author_email='openbis-support@id.ethz.ch',
     license='Apache Software License Version 2.0',
     packages=['obis', 'obis.dm', 'obis.dm.commands', 'obis.scripts'],
     data_files=data_files,
@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'pyOpenSSL',
         'pytest',
-        'pybis>=1.33.0',
+        'pybis>=1.33.1',
         'click'
     ],
     entry_points={
