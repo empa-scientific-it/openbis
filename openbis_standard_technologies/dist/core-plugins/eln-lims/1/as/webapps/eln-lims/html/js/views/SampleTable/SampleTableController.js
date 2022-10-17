@@ -100,42 +100,15 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 					Util.showUserError("Please select at least one " + ELNDictionary.sample + " to delete!");
 				} else {
 					var warningText = "The next " + ELNDictionary.samples + " will be deleted: ";
-					
-					var sampleIdentifiers = [];
+					var samplePermIds = [];
 					for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-						sampleIdentifiers.push(selected[sIdx].identifier);
+						samplePermIds.push(selected[sIdx].permId);
 					}
-					
-					Util.blockUI();
-					mainController.serverFacade.searchWithIdentifiers(sampleIdentifiers, function(selectedSamples) {
-						var samplePermIds = [];
-						for(var sIdx = 0; sIdx < selectedSamples.length; sIdx++) {
-							var selectedSample = selectedSamples[sIdx];
-							samplePermIds.push(selectedSample.permId);
-							warningText += selectedSample.identifier + " ";
-							
-							for(var idx = 0; idx < selectedSample.children.length; idx++) {
-								var child = selectedSample.children[idx];
-								if(child.sampleTypeCode === "STORAGE_POSITION") {
-									samplePermIds.push(child.permId);
-								}
-							}
-						}
-						
-						var modalView = new DeleteEntityController(function(reason) {
-							mainController.serverFacade.deleteSamples(samplePermIds, reason, function(data) {
-								if(data.error) {
-									Util.showError(data.error.message);
-								} else {
-									Util.showSuccess("" + ELNDictionary.Sample + "/s moved to Trashcan");
-									mainController.refreshView();
-								}
-							});
-						}, true, warningText);
-						modalView.init();
-					});
-					
-					
+
+					FormUtil.showDeleteSamples(samplePermIds, false,
+                    function() {
+                        mainController.refreshView();
+                    });
 				}
 			}});
 	
