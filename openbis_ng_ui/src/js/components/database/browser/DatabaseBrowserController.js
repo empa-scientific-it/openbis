@@ -156,7 +156,7 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async doLoadNodes(params) {
-    const { node, filter } = params
+    const { node } = params
 
     if (!node) {
       return {
@@ -167,97 +167,219 @@ export default class DatabaseBrowserController extends BrowserController {
               id: 'root',
               type: 'root'
             },
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
+            canHaveChildren: true
           }
         ],
         totalCount: 1
       }
     } else if (node.object.type === 'root') {
-      if (filter === null) {
-        const [spaces, samples] = await Promise.all([
-          this.searchSpaces(params),
-          this.searchSamples(params)
-        ])
-        return {
-          nodes: [...spaces.nodes, ...samples.nodes],
-          totalCount: spaces.totalCount + samples.totalCount
-        }
-      } else {
-        const [spaces, projects, experiments, samples, dataSets] =
-          await Promise.all([
-            this.searchSpaces(params),
-            this.searchProjects(params),
-            this.searchExperiments(params),
-            this.searchSamples(params),
-            this.searchDataSets(params)
-          ])
-        return {
-          nodes: [
-            ...spaces.nodes,
-            ...projects.nodes,
-            ...experiments.nodes,
-            ...samples.nodes,
-            ...dataSets.nodes
-          ],
-          totalCount:
-            spaces.totalCount +
-            projects.totalCount +
-            experiments.totalCount +
-            samples.totalCount +
-            dataSets.totalCount
-        }
+      return {
+        nodes: [
+          {
+            id: 'spaces_in_' + node.id,
+            text: 'Spaces',
+            object: {
+              type: 'spaces'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc',
+            expanded: true
+          },
+          {
+            id: 'objects_in_' + node.id,
+            text: 'Objects',
+            object: {
+              type: 'objects'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc',
+            expanded: true
+          }
+        ],
+        totalCount: 2
       }
     } else if (node.object.type === objectType.SPACE) {
-      const [projects, samples] = await Promise.all([
-        this.searchProjects(params),
-        this.searchSamples(params)
-      ])
       return {
-        nodes: [...projects.nodes, ...samples.nodes],
-        totalCount: projects.totalCount + samples.totalCount
+        nodes: [
+          {
+            id: 'projects_in_' + node.id,
+            text: 'Projects',
+            object: {
+              type: 'projects'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'objects_in_' + node.id,
+            text: 'Objects',
+            object: {
+              type: 'objects'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 2
       }
     } else if (node.object.type === objectType.PROJECT) {
-      const [experiments, samples] = await Promise.all([
-        this.searchExperiments(params),
-        this.searchSamples(params)
-      ])
       return {
-        nodes: [...experiments.nodes, ...samples.nodes],
-        totalCount: experiments.totalCount + samples.totalCount
+        nodes: [
+          {
+            id: 'collections_in_' + node.id,
+            text: 'Collections',
+            object: {
+              type: 'collections'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'objects_in_' + node.id,
+            text: 'Objects',
+            object: {
+              type: 'objects'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 2
       }
     } else if (node.object.type === objectType.COLLECTION) {
-      const [samples, dataSets] = await Promise.all([
-        this.searchSamples(params),
-        this.searchDataSets(params)
-      ])
       return {
-        nodes: [...samples.nodes, ...dataSets.nodes],
-        totalCount: samples.totalCount + dataSets.totalCount
+        nodes: [
+          {
+            id: 'objects_in_' + node.id,
+            text: 'Objects',
+            object: {
+              type: 'objects'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'datasets_in_' + node.id,
+            text: 'Data Sets',
+            object: {
+              type: 'dataSets'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 2
       }
     } else if (node.object.type === objectType.OBJECT) {
-      const [samples, dataSets] = await Promise.all([
-        this.searchSamples(params),
-        this.searchDataSets(params)
-      ])
       return {
-        nodes: [...samples.nodes, ...dataSets.nodes],
-        totalCount: samples.totalCount + dataSets.totalCount
+        nodes: [
+          {
+            id: 'children_in_' + node.id,
+            text: 'Children',
+            object: {
+              type: 'objectChildren'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'components_in_' + node.id,
+            text: 'Components',
+            object: {
+              type: 'objectComponents'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'datasets_in_' + node.id,
+            text: 'Data Sets',
+            object: {
+              type: 'dataSets'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 3
       }
+    } else if (node.object.type === objectType.DATA_SET) {
+      return {
+        nodes: [
+          {
+            id: 'children_in_' + node.id,
+            text: 'Children',
+            object: {
+              type: 'dataSetChildren'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          },
+          {
+            id: 'components_in_' + node.id,
+            text: 'Components',
+            object: {
+              type: 'dataSetComponents'
+            },
+            parent: node,
+            canHaveChildren: true,
+            sortings: SORTINGS,
+            sortingId: 'code_asc'
+          }
+        ],
+        totalCount: 2
+      }
+    } else if (node.object.type === 'spaces') {
+      return this.searchSpaces(params)
+    } else if (node.object.type === 'projects') {
+      return this.searchProjects(params)
+    } else if (node.object.type === 'collections') {
+      return this.searchExperiments(params)
+    } else if (node.object.type === 'objects') {
+      return this.searchSamples(params)
+    } else if (node.object.type === 'objectChildren') {
+      return this.searchSamples(params)
+    } else if (node.object.type === 'objectComponents') {
+      return this.searchSamples(params)
+    } else if (node.object.type === 'dataSets') {
+      return this.searchDataSets(params)
+    } else if (node.object.type === 'dataSetChildren') {
+      return this.searchDataSets(params)
+    } else if (node.object.type === 'dataSetComponents') {
+      return this.searchDataSets(params)
     } else {
       return null
     }
   }
 
   async searchSpaces(params) {
-    const { node, filter, offset, limit } = params
+    const { node, offset, limit } = params
 
     const criteria = new openbis.SpaceSearchCriteria()
-    if (node.object.type === 'root' && filter) {
-      criteria.withCode().thatContains(filter)
-    }
-
     const fetchOptions = new openbis.SpaceFetchOptions()
     if (node.sortings && node.sortingId) {
       const sorting = node.sortings[node.sortingId]
@@ -271,15 +393,13 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(space => ({
-      id: objectType.SPACE + '_' + space.getCode() + '_in_' + node.id,
-      text: space.getCode() + (filter ? ' (space)' : ''),
+      id: objectType.SPACE + '_' + space.getCode() + '_in_' + node.parent.id,
+      text: space.getCode(),
       object: {
         type: objectType.SPACE,
         id: space.getCode()
       },
-      canHaveChildren: true,
-      sortings: SORTINGS,
-      sortingId: 'code_asc'
+      canHaveChildren: true
     }))
 
     return {
@@ -289,14 +409,11 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchProjects(params) {
-    const { node, filter, offset, limit } = params
+    const { node, offset, limit } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
-    if (node.object.type === 'root' && filter) {
-      criteria.withCode().thatContains(filter)
-    }
-    if (node.object.type === objectType.SPACE) {
-      criteria.withSpace().withCode().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.SPACE) {
+      criteria.withSpace().withCode().thatEquals(node.parent.object.id)
     }
 
     const fetchOptions = new openbis.ProjectFetchOptions()
@@ -317,15 +434,13 @@ export default class DatabaseBrowserController extends BrowserController {
         '_' +
         project.getPermId().getPermId() +
         '_in_' +
-        node.id,
-      text: project.getCode() + (filter ? ' (project)' : ''),
+        node.parent.id,
+      text: project.getCode(),
       object: {
         type: objectType.PROJECT,
         id: project.getPermId().getPermId()
       },
-      canHaveChildren: true,
-      sortings: SORTINGS,
-      sortingId: 'code_asc'
+      canHaveChildren: true
     }))
 
     return {
@@ -335,14 +450,11 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchExperiments(params) {
-    const { node, filter, offset, limit } = params
+    const { node, offset, limit } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
-    if (node.object.type === 'root' && filter) {
-      criteria.withCode().thatContains(filter)
-    }
-    if (node.object.type === objectType.PROJECT) {
-      criteria.withProject().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.PROJECT) {
+      criteria.withProject().withPermId().thatEquals(node.parent.object.id)
     }
 
     const fetchOptions = new openbis.ExperimentFetchOptions()
@@ -363,15 +475,13 @@ export default class DatabaseBrowserController extends BrowserController {
         '_' +
         experiment.getPermId().getPermId() +
         '_in_' +
-        node.id,
-      text: experiment.getCode() + (filter ? ' (collection)' : ''),
+        node.parent.id,
+      text: experiment.getCode(),
       object: {
         type: objectType.COLLECTION,
         id: experiment.getPermId().getPermId()
       },
-      canHaveChildren: true,
-      sortings: SORTINGS,
-      sortingId: 'code_asc'
+      canHaveChildren: true
     }))
 
     return {
@@ -381,33 +491,34 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchSamples(params) {
-    const { node, filter, offset, limit } = params
+    const { node, offset, limit } = params
 
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.object.type === 'root') {
-      if (filter) {
-        criteria.withCode().thatContains(filter)
-      } else {
-        criteria.withoutSpace()
-        criteria.withoutProject()
-        criteria.withoutExperiment()
-      }
-    }
-    if (node.object.type === objectType.SPACE) {
-      criteria.withSpace().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === 'root') {
+      criteria.withoutSpace()
       criteria.withoutProject()
-    }
-    if (node.object.type === objectType.PROJECT) {
-      criteria.withProject().withPermId().thatEquals(node.object.id)
       criteria.withoutExperiment()
     }
-    if (node.object.type === objectType.COLLECTION) {
-      criteria.withExperiment().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.SPACE) {
+      criteria.withSpace().withPermId().thatEquals(node.parent.object.id)
+      criteria.withoutProject()
     }
-    if (node.object.type === objectType.OBJECT) {
-      criteria.withParents().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.PROJECT) {
+      criteria.withProject().withPermId().thatEquals(node.parent.object.id)
+      criteria.withoutExperiment()
+    }
+    if (node.parent.object.type === objectType.COLLECTION) {
+      criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
+    }
+    if (node.parent.object.type === objectType.OBJECT) {
+      if (node.object.type === 'objectChildren') {
+        criteria.withParents().withPermId().thatEquals(node.parent.object.id)
+      }
+      if (node.object.type === 'objectComponents') {
+        criteria.withContainer().withPermId().thatEquals(node.parent.object.id)
+      }
     }
 
     const fetchOptions = new openbis.SampleFetchOptions()
@@ -428,15 +539,13 @@ export default class DatabaseBrowserController extends BrowserController {
         '_' +
         sample.getPermId().getPermId() +
         '_in_' +
-        node.id,
-      text: sample.getCode() + (filter ? ' (object)' : ''),
+        node.parent.id,
+      text: sample.getCode(),
       object: {
         type: objectType.OBJECT,
         id: sample.getPermId().getPermId()
       },
-      canHaveChildren: true,
-      sortings: SORTINGS,
-      sortingId: 'code_asc'
+      canHaveChildren: true
     }))
 
     return {
@@ -446,20 +555,25 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchDataSets(params) {
-    const { node, filter, offset, limit } = params
+    const { node, offset, limit } = params
 
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.object.type === 'root' && filter) {
-      criteria.withCode().thatContains(filter)
-    }
-    if (node.object.type === objectType.COLLECTION) {
-      criteria.withExperiment().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.COLLECTION) {
+      criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutSample()
     }
-    if (node.object.type === objectType.OBJECT) {
-      criteria.withSample().withPermId().thatEquals(node.object.id)
+    if (node.parent.object.type === objectType.OBJECT) {
+      criteria.withSample().withPermId().thatEquals(node.parent.object.id)
+    }
+    if (node.parent.object.type === objectType.DATA_SET) {
+      if (node.object.type === 'dataSetChildren') {
+        criteria.withParents().withPermId().thatEquals(node.parent.object.id)
+      }
+      if (node.object.type === 'dataSetComponents') {
+        criteria.withContainer().withPermId().thatEquals(node.parent.object.id)
+      }
     }
 
     const fetchOptions = new openbis.DataSetFetchOptions()
@@ -480,12 +594,13 @@ export default class DatabaseBrowserController extends BrowserController {
         '_' +
         dataSet.getPermId().getPermId() +
         '_in_' +
-        node.id,
-      text: dataSet.getCode() + (filter ? ' (dataset)' : ''),
+        node.parent.id,
+      text: dataSet.getCode(),
       object: {
         type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
-      }
+      },
+      canHaveChildren: true
     }))
 
     return {
