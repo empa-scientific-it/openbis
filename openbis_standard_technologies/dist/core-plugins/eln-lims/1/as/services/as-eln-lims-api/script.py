@@ -619,7 +619,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
-                    raise UserFailureException("Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
+                    raise UserFailureException("You entered an existing box position - Box Name: " + str(storageBoxName) + " Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass
