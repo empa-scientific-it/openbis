@@ -147,12 +147,11 @@ export default class BrowserTreeController {
             loadedNode.object &&
             _.isEqual(loadedNode.object, state.selectedObject),
           expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
-          sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId
+          sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId,
+          children: []
         }
 
-        if (_.isEmpty(loadedNode.children)) {
-          loadedNode.children = []
-        } else {
+        if (!_.isEmpty(loadedNode.children)) {
           this._doProcessLoadedNodes(
             state,
             loadedNode.id,
