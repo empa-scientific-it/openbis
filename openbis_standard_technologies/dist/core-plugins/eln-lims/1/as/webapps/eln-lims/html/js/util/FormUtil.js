@@ -2592,66 +2592,90 @@ var FormUtil = new function() {
 
     this.deleteSamples = function(samplePermIds, updateTree, callbackToNextViewOnSuccess, reason, deleteDescendants) {
             var _this = this;
-            var doDelete = function(samplesToDelete, reason) {
-                Util.blockUI();
-                mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(response) {
-                    if(response.error) {
-                        Util.showError(response.error.message);
-                    } else {
-                        Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
-                        if(updateTree) {
-                            for(var sIdx = 0; sIdx < samplesToDelete.length; sIdx++) {
-                                mainController.sideMenu.deleteNodeByEntityPermId(samplesToDelete[sIdx], true);
-                            }
-                        }
-                        callbackToNextViewOnSuccess();
-                    }
-                });
-            };
-
-            if (deleteDescendants) {
-                require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
-                    function(SamplePermId, SampleFetchOptions) {
-                        var samplePermIdsAsIds = []
-                        for(var sIdx = 0; sIdx < samplePermIds.length; sIdx++) {
-                            samplePermIdsAsIds.push(new SamplePermId(samplePermIds[sIdx]));
-                        }
-                        var fetchOptions = new SampleFetchOptions();
-                        fetchOptions.withChildrenUsing(fetchOptions);
-                        mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(map) {
-                            var samplesToDelete = [];
-                            for(key in map) {
-                                var sample = map[key];
-                                _this.gatherAllDescendants(samplesToDelete, sample);
-                            }
-                            doDelete(samplesToDelete, reason);
-                        });
-                    });
-            } else { // Storage positions always SHOULD be deleted anyway
-                require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
-                    function(SamplePermId, SampleFetchOptions) {
-                        var samplePermIdsAsIds = []
-                        for(var sIdx = 0; sIdx < samplePermIds.length; sIdx++) {
-                            samplePermIdsAsIds.push(new SamplePermId(samplePermIds[sIdx]));
-                        }
-                        var fetchOptions = new SampleFetchOptions();
-                        fetchOptions.withChildren();
-                        mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(map) {
-                            var samplesToDelete = [];
-                            for(key in map) {
-                                var sample = map[key];
-                                samplesToDelete.push(sample.getPermId().getPermId());
-                                for(var idx = 0; idx < sample.children.length; idx++) {
-                                    var child = sample.children[idx];
-                                    if (child.sampleTypeCode === "STORAGE_POSITION") {
-                                        samplesToDelete.push(child.permId);
-                                    }
+            var doDelete = function(samplesToDelete, sampleStoragesToDelete, reason) {
+                var toDeleteFinal = function(samplesToDelete, reason) {
+                    mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(response) {
+                        if(response.error) {
+                            Util.showError(response.error.message);
+                        } else {
+                            Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
+                            if(updateTree) {
+                                for(var sIdx = 0; sIdx < samplesToDelete.length; sIdx++) {
+                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesToDelete[sIdx], true);
                                 }
                             }
-                            doDelete(samplesToDelete, reason);
-                        });
+                            callbackToNextViewOnSuccess();
+                        }
                     });
-            }
+                }
+
+                if(sampleStoragesToDelete.length > 0) {
+                    var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                    var warningText = "Storages where found: " + JSON.stringify(sampleStoragesToDelete) + ". Deleting them will also delete their storage positions.";
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $window.append($warning);
+                    var css = {
+                        'text-align' : 'left',
+                        'top' : '15%',
+                        'width' : '70%',
+                        'left' : '15%',
+                        'right' : '20%',
+                        'overflow' : 'hidden'
+                    };
+                    var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+                    $btnAccept.click(function() {
+                        toDeleteFinal(samplesToDelete, reason);
+                    });
+                    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                    $btnCancel.click(function() {
+                        Util.unblockUI();
+                    });
+                    $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+                    Util.blockUI($window, css);
+                } else {
+                    Util.blockUI();
+                    toDeleteFinal(samplesToDelete, reason);
+                }
+            };
+
+            require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+            function(SamplePermId, SampleFetchOptions) {
+                var samplePermIdsAsIds = []
+                for(var sIdx = 0; sIdx < samplePermIds.length; sIdx++) {
+                    samplePermIdsAsIds.push(new SamplePermId(samplePermIds[sIdx]));
+                }
+
+                var fetchOptions = new SampleFetchOptions();
+                fetchOptions.withType();
+                if (deleteDescendants) {
+                    fetchOptions.withChildrenUsing(fetchOptions);
+                } else {
+                    fetchOptions.withChildren().withType();
+                }
+                mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(map) {
+                    var samplesToDelete = [];
+                    var sampleStoragesToDelete = [];
+                    for(key in map) {
+                        var sample = map[key];
+                        if (deleteDescendants) {
+                            _this.gatherAllDescendants(samplesToDelete, sample);
+                        } else { // Storage positions always SHOULD be deleted anyway
+                            samplesToDelete.push(sample.getPermId().getPermId());
+                            for(var idx = 0; idx < sample.children.length; idx++) {
+                                var child = sample.children[idx];
+                                if (child.getType().getCode() === "STORAGE_POSITION") {
+                                    samplesToDelete.push(child.getPermId().getPermId());
+                                }
+                            }
+                        }
+                        if(sample.getType().getCode() == "STORAGE") {
+                            sampleStoragesToDelete.push(sample.getCode());
+                        }
+                    }
+                    doDelete(samplesToDelete, sampleStoragesToDelete, reason);
+                });
+            });
         }
 
         this.gatherAllDescendants = function(samplePermIds, sample) {
