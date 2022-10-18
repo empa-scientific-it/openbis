@@ -186,19 +186,11 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      await this.context.setState({
-        loading: true
-      })
-
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doLoadNode(newState, node.id, node.loadedCount, LOAD_LIMIT)
       this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
-
-      await this.context.setState({
-        loading: false
-      })
     }
   }
 
@@ -207,20 +199,11 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      await this.context.setState({
-        loading: true
-      })
-
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doExpandNode(newState, nodeId)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
-
-      await this.context.setState({
-        loading: false
-      })
-
       this._saveSettings()
     }
   }
@@ -261,10 +244,6 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      await this.context.setState({
-        loading: true
-      })
-
       const newState = { ...state }
       newState.nodes = { ...newState.nodes }
 
@@ -282,10 +261,6 @@ export default class BrowserTreeController {
       }
 
       await this.context.setState(newState)
-      await this.context.setState({
-        loading: false
-      })
-
       this._saveSettings()
     }
   }
@@ -363,10 +338,6 @@ export default class BrowserTreeController {
       return
     }
 
-    await this.context.setState({
-      loading: true
-    })
-
     const _this = this
     const newState = { ...state }
     const path = [root.object, ...pathWithoutRoot]
@@ -429,10 +400,6 @@ export default class BrowserTreeController {
     }
 
     await this.context.setState(newState)
-    await this.context.setState({
-      loading: false
-    })
-
     this._saveSettings()
   }
 
@@ -441,10 +408,6 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      await this.context.setState({
-        loading: true
-      })
-
       await this._setNodeLoading(nodeId, true)
       const newState = { ...state }
       newState.nodes = { ...newState.nodes }
@@ -457,10 +420,6 @@ export default class BrowserTreeController {
       await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
-
-      await this.context.setState({
-        loading: false
-      })
 
       this._saveSettings()
     }
