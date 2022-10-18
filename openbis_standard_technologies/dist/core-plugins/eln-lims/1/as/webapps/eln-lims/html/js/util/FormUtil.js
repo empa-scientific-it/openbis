@@ -2625,7 +2625,23 @@ var FormUtil = new function() {
                     };
                     var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
                     $btnAccept.click(function() {
-                        toDeleteFinal(samplesToDelete, reason);
+                        Util.blockUI();
+                        require([ "as/dto/sample/search/SampleSearchCriteria",
+                                    "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+                                    function(SampleSearchCriteria, SampleFetchOptions) {
+                            var searchCriteria = new SampleSearchCriteria();
+                            searchCriteria.withOrOperator();
+                            for(var ssIdx=0; ssIdx < sampleStoragesToDelete.length; ssIdx++) {
+                                searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesToDelete[ssIdx]);
+                            }
+                            var fetchOptions = new SampleFetchOptions();
+                            mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {
+                                for(var oIdx = 0; oIdx < results.objects.length; oIdx++) {
+                                    samplesToDelete.push(results.objects[oIdx].getPermId().getPermId());
+                                }
+                                toDeleteFinal(samplesToDelete, reason);
+                            });
+                        });
                     });
                     var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
                     $btnCancel.click(function() {
