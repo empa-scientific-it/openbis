@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
@@ -156,8 +157,17 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async doLoadNodes(params) {
-    const { node } = params
+    const { filter } = params
 
+    if (filter) {
+      return await this.doLoadFilteredNodes(params)
+    } else {
+      return await this.doLoadUnfilteredNodes(params)
+    }
+  }
+
+  async doLoadUnfilteredNodes(params) {
+    const { node } = params
     if (!node) {
       return {
         nodes: [
@@ -618,5 +628,508 @@ export default class DatabaseBrowserController extends BrowserController {
       nodes: nodes,
       totalCount: result.getTotalCount()
     }
+  }
+
+  async doLoadFilteredNodes(params) {
+    function addSpace(entities, space) {
+      const existingSpace = entities.spaces[space.getCode()]
+      if (!existingSpace) {
+        const newSpace = {
+          code: space.getCode(),
+          projects: {},
+          samples: {}
+        }
+        entities.spaces[space.getCode()] = newSpace
+        return newSpace
+      } else {
+        return existingSpace
+      }
+    }
+
+    function addProject(entities, project) {
+      const existingProject = entities.projects[project.getPermId().getPermId()]
+      if (!existingProject) {
+        const newProject = {
+          code: project.getCode(),
+          permId: project.getPermId().getPermId(),
+          experiments: {},
+          samples: {}
+        }
+        const space = addSpace(entities, project.getSpace())
+        space.projects[newProject.permId] = newProject
+        entities.projects[newProject.permId] = newProject
+        return newProject
+      } else {
+        return existingProject
+      }
+    }
+
+    function addExperiment(entities, experiment) {
+      const existingExperiment =
+        entities.experiments[experiment.getPermId().getPermId()]
+      if (!existingExperiment) {
+        const newExperiment = {
+          code: experiment.getCode(),
+          permId: experiment.getPermId().getPermId(),
+          samples: {},
+          dataSets: {}
+        }
+        const project = addProject(entities, experiment.getProject())
+        project.experiments[newExperiment.permId] = newExperiment
+        entities.experiments[newExperiment.permId] = newExperiment
+        return newExperiment
+      } else {
+        return existingExperiment
+      }
+    }
+
+    function addSample(entities, sample) {
+      const existingSample = entities.samples[sample.getPermId().getPermId()]
+      if (!existingSample) {
+        const newSample = {
+          code: sample.getCode(),
+          permId: sample.getPermId().getPermId(),
+          dataSets: {}
+        }
+        if (sample.getExperiment()) {
+          const experiment = addExperiment(entities, sample.getExperiment())
+          experiment.samples[newSample.permId] = newSample
+        } else if (sample.getProject()) {
+          const project = addProject(entities, sample.getProject())
+          project.samples[newSample.permId] = newSample
+        } else if (sample.getSpace()) {
+          const space = addSpace(entities, sample.getSpace())
+          space.samples[newSample.permId] = newSample
+        } else {
+          entities.sharedSamples[newSample.permId] = newSample
+        }
+        entities.samples[newSample.permId] = newSample
+        return newSample
+      } else {
+        return existingSample
+      }
+    }
+
+    function addDataSet(entities, dataSet) {
+      const existingDataSet = entities.dataSets[dataSet.getCode()]
+      if (!existingDataSet) {
+        const newDataSet = {
+          code: dataSet.getCode()
+        }
+        if (dataSet.getSample()) {
+          const sample = addSample(entities, dataSet.getSample())
+          sample.dataSets[newDataSet.code] = newDataSet
+        } else if (dataSet.getExperiment()) {
+          const experiment = addExperiment(entities, dataSet.getExperiment())
+          experiment.dataSets[newDataSet.code] = newDataSet
+        }
+        entities.dataSets[newDataSet.code] = newDataSet
+        return newDataSet
+      } else {
+        return existingDataSet
+      }
+    }
+
+    function createSpacesNode(spaces, parent) {
+      const spacesNode = {
+        id: 'spaces_in_' + parent.id,
+        text: 'Spaces',
+        object: {
+          type: 'spaces'
+        },
+        canHaveChildren: true,
+        children: { nodes: [], totalCount: 0 },
+        sortings: SORTINGS,
+        sortingId: 'code_asc',
+        expanded: true
+      }
+
+      spaces.forEach(space => {
+        const spaceNode = {
+          id: objectType.SPACE + '_' + space.code + '_in_' + spacesNode.id,
+          text: space.code + (space.matching ? ' (*)' : ''),
+          object: {
+            type: objectType.SPACE,
+            id: space.code
+          },
+          children: { nodes: [], totalCount: 0 },
+          expanded: true
+        }
+
+        spacesNode.children.nodes.push(spaceNode)
+        spacesNode.children.totalCount++
+
+        if (!_.isEmpty(space.projects)) {
+          const projectsNode = createProjectsNode(
+            Object.values(space.projects),
+            spaceNode
+          )
+          spaceNode.canHaveChildren = true
+          spaceNode.children.nodes.push(projectsNode)
+          spaceNode.children.totalCount++
+        }
+
+        if (!_.isEmpty(space.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(space.samples),
+            spaceNode
+          )
+          spaceNode.canHaveChildren = true
+          spaceNode.children.nodes.push(samplesNode)
+          spaceNode.children.totalCount++
+        }
+      })
+
+      return spacesNode
+    }
+
+    function createProjectsNode(projects, parent) {
+      const projectsNode = {
+        id: 'projects_in_' + parent.id,
+        text: 'Projects',
+        object: {
+          type: 'projects'
+        },
+        canHaveChildren: true,
+        children: { nodes: [], totalCount: 0 },
+        sortings: SORTINGS,
+        sortingId: 'code_asc',
+        expanded: true
+      }
+
+      projects.forEach(project => {
+        const projectNode = {
+          id:
+            objectType.PROJECT +
+            '_' +
+            project.permId +
+            '_in_' +
+            projectsNode.id,
+          text: project.code + (project.matching ? ' (*)' : ''),
+          object: {
+            type: objectType.PROJECT,
+            id: project.permId
+          },
+          children: { nodes: [], totalCount: 0 },
+          expanded: true
+        }
+
+        projectsNode.children.nodes.push(projectNode)
+        projectsNode.children.totalCount++
+
+        if (!_.isEmpty(project.experiments)) {
+          const experimentsNode = createExperimentsNode(
+            Object.values(project.experiments),
+            projectNode
+          )
+          projectNode.canHaveChildren = true
+          projectNode.children.nodes.push(experimentsNode)
+          projectNode.children.totalCount++
+        }
+
+        if (!_.isEmpty(project.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(project.samples),
+            projectNode
+          )
+          projectNode.canHaveChildren = true
+          projectNode.children.nodes.push(samplesNode)
+          projectNode.children.totalCount++
+        }
+      })
+
+      return projectsNode
+    }
+
+    function createExperimentsNode(experiments, parent) {
+      const experimentsNode = {
+        id: 'collections_in_' + parent.id,
+        text: 'Collections',
+        object: {
+          type: 'collections'
+        },
+        canHaveChildren: true,
+        children: { nodes: [], totalCount: 0 },
+        sortings: SORTINGS,
+        sortingId: 'code_asc',
+        expanded: true
+      }
+
+      experiments.forEach(experiment => {
+        const experimentNode = {
+          id:
+            objectType.COLLECTION +
+            '_' +
+            experiment.permId +
+            '_in_' +
+            experimentsNode.id,
+          text: experiment.code + (experiment.matching ? ' (*)' : ''),
+          object: {
+            type: objectType.COLLECTION,
+            id: experiment.permId
+          },
+          children: { nodes: [], totalCount: 0 },
+          expanded: true
+        }
+
+        experimentsNode.children.nodes.push(experimentNode)
+        experimentsNode.children.totalCount++
+
+        if (!_.isEmpty(experiment.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(experiment.samples),
+            experimentNode
+          )
+          experimentNode.canHaveChildren = true
+          experimentNode.children.nodes.push(samplesNode)
+          experimentNode.children.totalCount++
+        }
+
+        if (!_.isEmpty(experiment.dataSets)) {
+          const dataSetsNode = createDataSetsNode(
+            Object.values(experiment.dataSets),
+            experimentNode
+          )
+          experimentNode.canHaveChildren = true
+          experimentNode.children.nodes.push(dataSetsNode)
+          experimentNode.children.totalCount++
+        }
+      })
+
+      return experimentsNode
+    }
+
+    function createSamplesNode(samples, parent) {
+      const samplesNode = {
+        id: 'objects_in_' + parent.id,
+        text: 'Objects',
+        object: {
+          type: 'objects'
+        },
+        canHaveChildren: true,
+        children: { nodes: [], totalCount: 0 },
+        sortings: SORTINGS,
+        sortingId: 'code_asc',
+        expanded: true
+      }
+
+      samples.forEach(sample => {
+        const sampleNode = {
+          id: objectType.OBJECT + '_' + sample.permId + '_in_' + samplesNode.id,
+          text: sample.code + (sample.matching ? ' (*)' : ''),
+          object: {
+            type: objectType.OBJECT,
+            id: sample.permId
+          },
+          children: { nodes: [], totalCount: 0 },
+          expanded: true
+        }
+
+        samplesNode.children.nodes.push(sampleNode)
+        samplesNode.children.totalCount++
+
+        if (!_.isEmpty(sample.dataSets)) {
+          const dataSetsNode = createDataSetsNode(
+            Object.values(sample.dataSets),
+            sampleNode
+          )
+          sampleNode.canHaveChildren = true
+          sampleNode.children.nodes.push(dataSetsNode)
+          sampleNode.children.totalCount++
+        }
+      })
+
+      return samplesNode
+    }
+
+    function createDataSetsNode(dataSets, parent) {
+      const dataSetsNode = {
+        id: 'datasets_in_' + parent.id,
+        text: 'Data Sets',
+        object: {
+          type: 'dataSets'
+        },
+        canHaveChildren: true,
+        children: { nodes: [], totalCount: 0 },
+        sortings: SORTINGS,
+        sortingId: 'code_asc',
+        expanded: true
+      }
+
+      dataSets.forEach(dataSet => {
+        const dataSetNode = {
+          id:
+            objectType.DATA_SET + '_' + dataSet.code + '_in_' + dataSetsNode.id,
+          text: dataSet.code + (dataSet.matching ? ' (*)' : ''),
+          object: {
+            type: objectType.DATA_SET,
+            id: dataSet.code
+          },
+          children: { nodes: [], totalCount: 0 },
+          expanded: true
+        }
+
+        dataSetsNode.children.nodes.push(dataSetNode)
+        dataSetsNode.children.totalCount++
+      })
+
+      return dataSetsNode
+    }
+
+    const root = {
+      id: 'root',
+      object: {
+        id: 'root',
+        type: 'root'
+      },
+      children: { nodes: [], totalCount: 0 }
+    }
+
+    const entities = {
+      spaces: {},
+      projects: {},
+      experiments: {},
+      samples: {},
+      sharedSamples: {},
+      dataSets: {}
+    }
+
+    const spaces = await this.searchSpacesFiltered(params)
+    spaces.forEach(space => {
+      const addedSpace = addSpace(entities, space)
+      addedSpace.matching = true
+    })
+
+    const projects = await this.searchProjectsFiltered(params)
+    projects.forEach(project => {
+      const addedProject = addProject(entities, project)
+      addedProject.matching = true
+    })
+
+    const experiments = await this.searchExperimentsFiltered(params)
+    experiments.forEach(experiment => {
+      const addedExperiment = addExperiment(entities, experiment)
+      addedExperiment.matching = true
+    })
+
+    const samples = await this.searchSamplesFiltered(params)
+    samples.forEach(sample => {
+      const addedSample = addSample(entities, sample)
+      addedSample.matching = true
+    })
+
+    const dataSets = await this.searchDataSetsFiltered(params)
+    dataSets.forEach(dataSet => {
+      const addedDataSet = addDataSet(entities, dataSet)
+      addedDataSet.matching = true
+    })
+
+    if (!_.isEmpty(entities.spaces)) {
+      const spacesNode = createSpacesNode(Object.values(entities.spaces), root)
+      root.canHaveChildren = true
+      root.children.nodes.push(spacesNode)
+      root.children.totalCount++
+    }
+
+    if (!_.isEmpty(entities.sharedSamples)) {
+      const sharedSamplesNode = createSamplesNode(
+        Object.values(entities.sharedSamples),
+        root
+      )
+      root.canHaveChildren = true
+      root.children.nodes.push(sharedSamplesNode)
+      root.children.totalCount++
+    }
+
+    const result = {
+      nodes: [root],
+      totalCount: 1
+    }
+
+    return result
+  }
+
+  async searchSpacesFiltered(params) {
+    const { filter, offset, limit } = params
+
+    const criteria = new openbis.SpaceSearchCriteria()
+    criteria.withCode().thatContains(filter)
+    const fetchOptions = new openbis.SpaceFetchOptions()
+    fetchOptions.sortBy().code().asc()
+    fetchOptions.from(offset)
+    fetchOptions.count(limit)
+
+    const result = await openbis.searchSpaces(criteria, fetchOptions)
+
+    return result.getObjects()
+  }
+
+  async searchProjectsFiltered(params) {
+    const { filter, offset, limit } = params
+
+    const criteria = new openbis.ProjectSearchCriteria()
+    criteria.withCode().thatContains(filter)
+    const fetchOptions = new openbis.ProjectFetchOptions()
+    fetchOptions.withSpace()
+    fetchOptions.sortBy().code().asc()
+    fetchOptions.from(offset)
+    fetchOptions.count(limit)
+
+    const result = await openbis.searchProjects(criteria, fetchOptions)
+
+    return result.getObjects()
+  }
+
+  async searchExperimentsFiltered(params) {
+    const { filter, offset, limit } = params
+
+    const criteria = new openbis.ExperimentSearchCriteria()
+    criteria.withCode().thatContains(filter)
+    const fetchOptions = new openbis.ExperimentFetchOptions()
+    fetchOptions.withProject().withSpace()
+    fetchOptions.sortBy().code().asc()
+    fetchOptions.from(offset)
+    fetchOptions.count(limit)
+
+    const result = await openbis.searchExperiments(criteria, fetchOptions)
+
+    return result.getObjects()
+  }
+
+  async searchSamplesFiltered(params) {
+    const { filter, offset, limit } = params
+
+    const criteria = new openbis.SampleSearchCriteria()
+    criteria.withCode().thatContains(filter)
+    const fetchOptions = new openbis.SampleFetchOptions()
+    fetchOptions.withSpace()
+    fetchOptions.withProject().withSpace()
+    fetchOptions.withExperiment().withProject().withSpace()
+    fetchOptions.sortBy().code().asc()
+    fetchOptions.from(offset)
+    fetchOptions.count(limit)
+
+    const result = await openbis.searchSamples(criteria, fetchOptions)
+
+    return result.getObjects()
+  }
+
+  async searchDataSetsFiltered(params) {
+    const { filter, offset, limit } = params
+
+    const criteria = new openbis.DataSetSearchCriteria()
+    criteria.withCode().thatContains(filter)
+    const fetchOptions = new openbis.DataSetFetchOptions()
+    fetchOptions.withExperiment().withProject().withSpace()
+    fetchOptions.withSample().withSpace()
+    fetchOptions.withSample().withProject().withSpace()
+    fetchOptions.withSample().withExperiment().withProject().withSpace()
+    fetchOptions.sortBy().code().asc()
+    fetchOptions.from(offset)
+    fetchOptions.count(limit)
+
+    const result = await openbis.searchDataSets(criteria, fetchOptions)
+
+    return result.getObjects()
   }
 }
