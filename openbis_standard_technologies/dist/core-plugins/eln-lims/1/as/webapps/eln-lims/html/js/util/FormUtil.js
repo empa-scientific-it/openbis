@@ -2592,16 +2592,16 @@ var FormUtil = new function() {
 
     this.deleteSamples = function(samplePermIds, updateTree, callbackToNextViewOnSuccess, reason, deleteDescendants) {
             var _this = this;
-            var doDelete = function(samplesToDelete, sampleStoragesToDelete, reason) {
-                var toDeleteFinal = function(samplesToDelete, reason) {
-                    mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(response) {
+            var doDelete = function(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason) {
+                var toDeleteFinal = function(samplesPermIdsToDelete, reason) {
+                    mainController.serverFacade.deleteSamples(samplesPermIdsToDelete, reason, function(response) {
                         if(response.error) {
                             Util.showError(response.error.message);
                         } else {
                             Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
                             if(updateTree) {
-                                for(var sIdx = 0; sIdx < samplesToDelete.length; sIdx++) {
-                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesToDelete[sIdx], true);
+                                for(var sIdx = 0; sIdx < samplesPermIdsToDelete.length; sIdx++) {
+                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesPermIdsToDelete[sIdx], true);
                                 }
                             }
                             callbackToNextViewOnSuccess();
@@ -2609,50 +2609,65 @@ var FormUtil = new function() {
                     });
                 }
 
-                if(sampleStoragesToDelete.length > 0) {
-                    var $window = $('<form>', { 'action' : 'javascript:void(0);' });
-                    var warningText = "Storages where found: " + JSON.stringify(sampleStoragesToDelete) + ". Deleting them will also delete their storage positions.";
+                var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                $window.append($('<legend>').append('These items will be Deleted'));
+
+                if(sampleStoragesCodesToDelete.length > 0) {
+                    var warningText = "Storages where found: " + JSON.stringify(sampleStoragesCodesToDelete) + ". Deleting them will also delete their storage positions.";
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
                     $window.append($warning);
-                    var css = {
-                        'text-align' : 'left',
-                        'top' : '15%',
-                        'width' : '70%',
-                        'left' : '15%',
-                        'right' : '20%',
-                        'overflow' : 'hidden'
-                    };
-                    var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
-                    $btnAccept.click(function() {
-                        Util.blockUI();
-                        require([ "as/dto/sample/search/SampleSearchCriteria",
-                                    "as/dto/sample/fetchoptions/SampleFetchOptions" ],
-                                    function(SampleSearchCriteria, SampleFetchOptions) {
-                            var searchCriteria = new SampleSearchCriteria();
-                            searchCriteria.withOrOperator();
-                            for(var ssIdx=0; ssIdx < sampleStoragesToDelete.length; ssIdx++) {
-                                searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesToDelete[ssIdx]);
-                            }
-                            var fetchOptions = new SampleFetchOptions();
-                            mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {
-                                for(var oIdx = 0; oIdx < results.objects.length; oIdx++) {
-                                    samplesToDelete.push(results.objects[oIdx].getPermId().getPermId());
-                                }
-                                toDeleteFinal(samplesToDelete, reason);
-                            });
-                        });
-                    });
-                    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-                    $btnCancel.click(function() {
-                        Util.unblockUI();
-                    });
-                    $window.append($btnAccept).append('&nbsp;').append($btnCancel);
-                    Util.blockUI($window, css);
-                } else {
-                    Util.blockUI();
-                    toDeleteFinal(samplesToDelete, reason);
                 }
+
+                var $list = $("<lu>");
+                for(var lIdx=0; lIdx < samplesList.length; lIdx++) {
+                    if(samplesList[lIdx].getType().getCode() !== "STORAGE_POSITION") {
+                        $list.append($("<li>").text(Util.getDisplayNameForEntity(samplesList[lIdx])));
+                    }
+                }
+                var $container = $("<div>", { 'style' : 'padding-left: 10px;' });
+                $window.append($container.append($list));
+
+                var css = {
+                    'text-align' : 'left',
+                    'top' : '15%',
+                    'width' : '70%',
+                    'left' : '15%',
+                    'right' : '20%',
+                    'max-height' : '50%',
+                    'overflow' : 'auto'
+                };
+
+                var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+                $btnAccept.click(function() {
+                        Util.blockUI();
+                        if(sampleStoragesCodesToDelete.length > 0) {
+                            require([ "as/dto/sample/search/SampleSearchCriteria",
+                                        "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+                                        function(SampleSearchCriteria, SampleFetchOptions) {
+                                var searchCriteria = new SampleSearchCriteria();
+                                searchCriteria.withOrOperator();
+                                for(var ssIdx=0; ssIdx < sampleStoragesCodesToDelete.length; ssIdx++) {
+                                    searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
+                                }
+                                var fetchOptions = new SampleFetchOptions();
+                                mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {
+                                    for(var oIdx = 0; oIdx < results.objects.length; oIdx++) {
+                                        samplesPermIdsToDelete.push(results.objects[oIdx].getPermId().getPermId());
+                                    }
+                                    toDeleteFinal(samplesPermIdsToDelete, reason);
+                                });
+                            });
+                        } else {
+                            toDeleteFinal(samplesPermIdsToDelete, reason);
+                        }
+                });
+                var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                $btnCancel.click(function() {
+                    Util.unblockUI();
+                });
+                $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+                Util.blockUI($window, css);
             };
 
             require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
@@ -2664,39 +2679,44 @@ var FormUtil = new function() {
 
                 var fetchOptions = new SampleFetchOptions();
                 fetchOptions.withType();
+                fetchOptions.withProperties();
                 if (deleteDescendants) {
                     fetchOptions.withChildrenUsing(fetchOptions);
                 } else {
                     fetchOptions.withChildren().withType();
                 }
-                mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(map) {
-                    var samplesToDelete = [];
-                    var sampleStoragesToDelete = [];
-                    for(key in map) {
-                        var sample = map[key];
+                mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(samplesByPermId) {
+                    var samplesPermIdsToDelete = [];
+                    var samplesList = [];
+                    var sampleStoragesCodesToDelete = [];
+                    for(permId in samplesByPermId) {
+                        var sample = samplesByPermId[permId];
                         if (deleteDescendants) {
-                            _this.gatherAllDescendants(samplesToDelete, sample);
+                            _this.gatherAllDescendants(samplesPermIdsToDelete, sample, samplesList);
                         } else { // Storage positions always SHOULD be deleted anyway
-                            samplesToDelete.push(sample.getPermId().getPermId());
+                            samplesPermIdsToDelete.push(sample.getPermId().getPermId());
+                            samplesList.push(sample);
                             for(var idx = 0; idx < sample.children.length; idx++) {
                                 var child = sample.children[idx];
                                 if (child.getType().getCode() === "STORAGE_POSITION") {
-                                    samplesToDelete.push(child.getPermId().getPermId());
+                                    samplesPermIdsToDelete.push(child.getPermId().getPermId());
+                                    samplesList.push(child);
                                 }
                             }
                         }
                         if(sample.getType().getCode() == "STORAGE") {
-                            sampleStoragesToDelete.push(sample.getCode());
+                            sampleStoragesCodesToDelete.push(sample.getCode());
                         }
                     }
-                    doDelete(samplesToDelete, sampleStoragesToDelete, reason);
+                    doDelete(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason);
                 });
             });
         }
 
-        this.gatherAllDescendants = function(samplePermIds, sample) {
+        this.gatherAllDescendants = function(samplePermIds, sample, samplesList) {
             samplePermIds.push(sample.getPermId().getPermId());
-            sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child));
+            samplesList.push(sample);
+            sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child, samplesList));
         }
 
 }
