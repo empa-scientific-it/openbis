@@ -293,6 +293,7 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        cell_index = _create_cell(row, cell_index, header_style, "Children")
         attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
