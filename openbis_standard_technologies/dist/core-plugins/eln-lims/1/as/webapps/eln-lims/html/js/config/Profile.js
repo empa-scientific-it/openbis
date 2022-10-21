@@ -309,6 +309,23 @@ $.extend(DefaultProfile.prototype, {
 		this.hideSpacesPostFixes = ["ELN_SETTINGS", "STORAGE"];
 		this.hideSpaces = ["NAGIOS"];
 
+        this.isSystemSpace = function(settingsSpaceCode, spaceCode) {
+            var prefix = this.getSettingsSpacePrefix(settingsSpaceCode);
+            for(var sIdx = 0; sIdx < this.inventorySpacesPostFixes.length; sIdx++) {
+                var inventorySpacesPostFix = this.inventorySpacesPostFixes[sIdx];
+                if(spaceCode == (prefix + inventorySpacesPostFix)) {
+                    return true;
+                }
+            }
+            for(var sIdx = 0; sIdx < this.inventorySpacesReadOnlyPostFixes.length; sIdx++) {
+                var inventorySpacesReadOnlyPostFix = this.inventorySpacesReadOnlyPostFixes[sIdx];
+                if(spaceCode == (prefix + inventorySpacesReadOnlyPostFix)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 		this.initSpaces = function(callback) {
 			var _this = this;
 			var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };

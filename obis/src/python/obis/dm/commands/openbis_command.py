@@ -130,16 +130,15 @@ class OpenbisCommand(object):
         return CommandResult(returncode=0, output="")
 
     def login(self):
+        """ Restore session token if available. """
+        if 'config' in self.config_dict.keys():
+            if 'openbis_token' in self.config_dict['config'].keys():
+                self.openbis.set_token(self.config_dict['config']['openbis_token'], True)
         """ Checks for valid session and asks user for password
         if login is needed. """
         user = self.user()
-        if self.openbis_token():
-            try:
-                self.openbis.set_token(self.openbis_token())
-            except ValueError:
-                pass
         if self.openbis.is_session_active():
-            if self.openbis.token.startswith(user):
+            if self.openbis.token.startswith(user) or self.openbis.token.startswith('$pat-' + user):
                 return CommandResult(returncode=0, output="")
             else:
                 self.openbis.logout()

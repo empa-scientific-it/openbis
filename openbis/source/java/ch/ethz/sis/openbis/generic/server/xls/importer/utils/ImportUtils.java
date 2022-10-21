@@ -8,11 +8,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.IdentifierVariable;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 import java.util.UUID;
 
 public class ImportUtils
 {
+    private static final boolean isProjectSamplesEnabled;
+
+    static {
+        isProjectSamplesEnabled = CommonServiceProvider.getCommonServer().isProjectSamplesEnabled(null);
+    }
+
     public static boolean isInternalNamespace(String property)
     {
         return property.startsWith("$");
@@ -23,6 +30,17 @@ public class ImportUtils
         if (identifier == null || identifier.isEmpty())
         {
             return null;
+        }
+
+        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
+        {
+            String[] identifierParts = identifier.split("/");
+            if (identifierParts.length == 4) {
+                String spaceCode = identifierParts[1];
+                String projectCode = identifierParts[2];
+                String sampleCode = identifierParts[3];
+                identifier = "/" + spaceCode + "/" + sampleCode;
+            }
         }
         return new SampleIdentifier(identifier);
 
@@ -39,6 +57,11 @@ public class ImportUtils
         {
             project = project.split("/")[2];
         } else
+        {
+            project = null;
+        }
+
+        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
         {
             project = null;
         }
@@ -69,6 +92,11 @@ public class ImportUtils
             if (projectId != null)
             {
                 project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[1];
+            }
+
+            if (isProjectSamplesEnabled == false) // If a project code is found => remove it
+            {
+                project = null;
             }
             return new SampleIdentifier(space, project, null, sampleCreation.getCode());
         }

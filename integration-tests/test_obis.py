@@ -152,7 +152,7 @@ class TestCase(systemtest.testcase.TestCase):
             with cd("data1"):
                 cmd("touch file")
                 result = cmd("obis status")
-                assert "? file" in result
+                assert ("? ./file" in result) or ("? file" in result)
                 cmd("obis object set id=/OBIS_TEST_1/SAMPLE_1")
                 result = cmd("obis commit -m 'commit-message'")
                 settings = get_settings()
@@ -281,7 +281,7 @@ class TestCase(systemtest.testcase.TestCase):
                     in result
                 )
                 result = cmd("obis status")
-                assert "? file" in result
+                assert ("? ./file" in result) or ("? file" in result)
                 cmd("obis object set id=/OBIS_TEST_1/SAMPLE_1")
                 result = cmd("obis commit -m 'commit-message'")
                 settings = get_settings()
@@ -677,7 +677,7 @@ def create_repository_and_commit(tmpdir, o, repo_name, object_id):
     with cd(repo_name):
         cmd("touch file")
         result = cmd("obis status")
-        assert "? file" in result
+        assert ("? ./file" in result) or ("? file" in result)
         cmd("obis object set id=" + object_id)
         result = cmd("obis commit -m 'commit-message'")
         settings = get_settings()
@@ -699,7 +699,7 @@ def commit_new_change(tmpdir, o, repo_name):
         filename = "file" + str(randrange(100000))
         cmd("touch " + filename)
         result = cmd("obis status")
-        assert "? " + filename in result
+        assert ("? " + filename in result) or ("? ./" + filename in result)
         result = cmd("obis commit -m 'commit-message'")
         settings = get_settings()
         assert settings["repository"]["external_dms_id"].startswith(

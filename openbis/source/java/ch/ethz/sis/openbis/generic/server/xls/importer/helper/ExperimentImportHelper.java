@@ -93,7 +93,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             lineIndex++;
         } catch (Exception e)
         {
-            throw new UserFailureException("Exception at page " + pageIndex + " and line " + lineIndex + " with message: " + e.getMessage());
+            throw new UserFailureException("sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
         }
 
         // and then import experiments

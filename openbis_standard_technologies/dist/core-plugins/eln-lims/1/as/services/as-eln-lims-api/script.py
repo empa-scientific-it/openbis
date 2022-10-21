@@ -293,6 +293,7 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        cell_index = _create_cell(row, cell_index, header_style, "Children")
         attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
@@ -538,7 +539,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
 
     # 4. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX
     # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4");
-    if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
+    if storageBoxName is not None:
         # 4.1 Check that a box with the same name only exist on the given storage and rack position
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1");
         searchCriteriaOtherBox = SampleSearchCriteria();
@@ -553,6 +554,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
             if (result.getProperty("$STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
                 raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("$STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN"));
 
+    if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
         # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.2");
         searchCriteriaStorageRack = SampleSearchCriteria();
@@ -619,7 +621,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
-                    raise UserFailureException("Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
+                    raise UserFailureException("You entered an existing box position - Box Name: " + str(storageBoxName) + " Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass

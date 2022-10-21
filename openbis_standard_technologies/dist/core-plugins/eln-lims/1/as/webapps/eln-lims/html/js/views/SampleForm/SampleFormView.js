@@ -144,54 +144,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			if (_this._allowedToDelete()) {
 				//Delete
-                var maxNumToShow = 10
-                var $component = $("<div>");
-                var childSamples = this._sampleFormModel.sample.children.filter(c => c.sampleTypeCode !== "STORAGE_POSITION");
-                if (childSamples.length > 0) {
-                    var warningText = "The " + ELNDictionary.sample + " has " + childSamples.length
-                            + " children " + ELNDictionary.sample + "s, these relationships will be broken "
-                            + " but the children will remain:";
-                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
-                        warningText += "\n" + Util.getDisplayNameForEntity(childSamples[cIdx]);
-                    }
-                    if (maxNumToShow < childSamples.length) {
-                        warningText += "\n...";
-                    }
-                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
-                    $warning.css('color', FormUtil.warningColor);
-                    $component.append($warning);
-                    var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants"),
-                            "Delete also all descendant " + ELNDictionary.sample
-                            + "s (i.e. children, grand children etc.) including their data sets", null, true);
-                    $component.append($ddf);
-                }
-                if (this._sampleFormModel.datasets.length > 0) {
-                    var warningText = "The " + ELNDictionary.sample + " has "
-                            + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the "
-                            + ELNDictionary.sample + ":";
-                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
-                        warningText += "\n" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
-                    }
-                    if (maxNumToShow < childSamples.length) {
-                        warningText += "\n...";
-                    }
-                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
-                    $warning.css('color', FormUtil.warningColor);
-                    $component.append($warning);
-                }
                 if(toolbarConfig.DELETE) {
                     dropdownOptionsModel.push({
                         label : "Delete",
                         action : function() {
-                            var modalView = new DeleteEntityController(function(reason) {
-                                var deleteDescendants = false;
-                                var inputs = $component.find("input");
-                                if (inputs.length > 0) {
-                                    deleteDescendants = inputs[0].checked;
-                                }
-                                _this._sampleFormController.deleteSample(reason, deleteDescendants);
-                            }, true, null, $component);
-                            modalView.init();
+                            FormUtil.showDeleteSamples([_this._sampleFormModel.sample.permId],
+                                    _this._sampleFormModel.isELNSample,
+                                    function() {
+                                    mainController.changeView('showSamplesPage',  encodeURIComponent('["' +
+                                                            		_this._sampleFormModel.sample.experimentIdentifierOrNull + '",false]'));
+                                    });
                         }
                     });
 				}

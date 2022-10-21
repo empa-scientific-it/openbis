@@ -2572,4 +2572,151 @@ var FormUtil = new function() {
         })
     }
 
+    this.showDeleteSamples = function(samplePermIds, updateTree, callbackToNextViewOnSuccess) {
+        var _this = this;
+        var $component = $("<div>");
+        var help = "Delete also all descendant " + ELNDictionary.sample + "(s) (i.e. children, grand children etc.) including their data sets, if they exist.";
+        var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants", help), null, null, true);
+        $component.append($ddf);
+
+        var modalView = new DeleteEntityController(function(reason) {
+            var deleteDescendants = false;
+            var inputs = $component.find("input");
+            if (inputs.length > 0) {
+                deleteDescendants = inputs[0].checked;
+            }
+            _this.deleteSamples(samplePermIds, updateTree, callbackToNextViewOnSuccess, reason, deleteDescendants);
+        }, true, null, $component);
+        modalView.init();
+    }
+
+    this.deleteSamples = function(samplePermIds, updateTree, callbackToNextViewOnSuccess, reason, deleteDescendants) {
+            var _this = this;
+            var doDelete = function(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason) {
+                var toDeleteFinal = function(samplesPermIdsToDelete, reason) {
+                    mainController.serverFacade.deleteSamples(samplesPermIdsToDelete, reason, function(response) {
+                        if(response.error) {
+                            Util.showError(response.error.message);
+                        } else {
+                            Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
+                            if(updateTree) {
+                                for(var sIdx = 0; sIdx < samplesPermIdsToDelete.length; sIdx++) {
+                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesPermIdsToDelete[sIdx], true);
+                                }
+                            }
+                            callbackToNextViewOnSuccess();
+                        }
+                    });
+                }
+
+                var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                $window.append($('<legend>').append('These items will be deleted'));
+
+                if(sampleStoragesCodesToDelete.length > 0) {
+                    var warningText = "Storages found: " + JSON.stringify(sampleStoragesCodesToDelete) + ". Deleting them will also delete their storage positions.";
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $window.append($warning);
+                }
+
+                var $list = $("<lu>");
+                for(var lIdx=0; lIdx < samplesList.length; lIdx++) {
+                    if(samplesList[lIdx].getType().getCode() !== "STORAGE_POSITION") {
+                        $list.append($("<li>").text(Util.getDisplayNameForEntity(samplesList[lIdx])));
+                    }
+                }
+                var $container = $("<div>", { 'style' : 'padding-left: 10px;' });
+                $window.append($container.append($list));
+
+                var css = {
+                    'text-align' : 'left',
+                    'top' : '15%',
+                    'width' : '70%',
+                    'left' : '15%',
+                    'right' : '20%',
+                    'max-height' : '50%',
+                    'overflow' : 'auto'
+                };
+
+                var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+                $btnAccept.click(function() {
+                        Util.blockUI();
+                        if(sampleStoragesCodesToDelete.length > 0) {
+                            require([ "as/dto/sample/search/SampleSearchCriteria",
+                                        "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+                                        function(SampleSearchCriteria, SampleFetchOptions) {
+                                var searchCriteria = new SampleSearchCriteria();
+                                searchCriteria.withOrOperator();
+                                for(var ssIdx=0; ssIdx < sampleStoragesCodesToDelete.length; ssIdx++) {
+                                    searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
+                                }
+                                var fetchOptions = new SampleFetchOptions();
+                                mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {
+                                    for(var oIdx = 0; oIdx < results.objects.length; oIdx++) {
+                                        samplesPermIdsToDelete.push(results.objects[oIdx].getPermId().getPermId());
+                                    }
+                                    toDeleteFinal(samplesPermIdsToDelete, reason);
+                                });
+                            });
+                        } else {
+                            toDeleteFinal(samplesPermIdsToDelete, reason);
+                        }
+                });
+                var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                $btnCancel.click(function() {
+                    Util.unblockUI();
+                });
+                $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+                Util.blockUI($window, css);
+            };
+
+            require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+            function(SamplePermId, SampleFetchOptions) {
+                var samplePermIdsAsIds = []
+                for(var sIdx = 0; sIdx < samplePermIds.length; sIdx++) {
+                    samplePermIdsAsIds.push(new SamplePermId(samplePermIds[sIdx]));
+                }
+
+                var fetchOptions = new SampleFetchOptions();
+                fetchOptions.withType();
+                fetchOptions.withProperties();
+                if (deleteDescendants) {
+                    fetchOptions.withChildrenUsing(fetchOptions);
+                } else {
+                    fetchOptions.withChildren().withType();
+                }
+                mainController.openbisV3.getSamples(samplePermIdsAsIds, fetchOptions).done(function(samplesByPermId) {
+                    var samplesPermIdsToDelete = [];
+                    var samplesList = [];
+                    var sampleStoragesCodesToDelete = [];
+                    for(permId in samplesByPermId) {
+                        var sample = samplesByPermId[permId];
+                        if (deleteDescendants) {
+                            _this.gatherAllDescendants(samplesPermIdsToDelete, sample, samplesList);
+                        } else { // Storage positions always SHOULD be deleted anyway
+                            samplesPermIdsToDelete.push(sample.getPermId().getPermId());
+                            samplesList.push(sample);
+                            for(var idx = 0; idx < sample.children.length; idx++) {
+                                var child = sample.children[idx];
+                                if (child.getType().getCode() === "STORAGE_POSITION") {
+                                    samplesPermIdsToDelete.push(child.getPermId().getPermId());
+                                    samplesList.push(child);
+                                }
+                            }
+                        }
+                        if(sample.getType().getCode() == "STORAGE") {
+                            sampleStoragesCodesToDelete.push(sample.getCode());
+                        }
+                    }
+                    doDelete(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason);
+                });
+            });
+        }
+
+        this.gatherAllDescendants = function(samplePermIds, sample, samplesList) {
+            samplePermIds.push(sample.getPermId().getPermId());
+            samplesList.push(sample);
+            sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child, samplesList));
+        }
+
 }

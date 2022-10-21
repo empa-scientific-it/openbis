@@ -91,7 +91,7 @@ public abstract class BasicImportHelper extends AbstractImportHelper
         } catch (Exception e)
         {
             UserFailureException userFailureException = new UserFailureException(
-                    "Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with class " + e.getClass().getSimpleName() + "message: " + e.getMessage());
+                    "sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
             userFailureException.setStackTrace(e.getStackTrace());
             throw userFailureException;
         }

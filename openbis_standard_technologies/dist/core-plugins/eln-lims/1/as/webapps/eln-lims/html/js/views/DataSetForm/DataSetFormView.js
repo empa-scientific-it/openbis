@@ -710,6 +710,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	this._repaintMetadata = function(dataSetType) {
 		var _this = this;
 		$("#metadataContainer").empty();
+		if(dataSetType == null) {
+		    return;
+		}
 		var $wrapper = $("<div>");
 		var dataSetTypeV3 = null;
 		for(var i = 0; i < _this._dataSetFormModel.dataSetTypesV3.length; i++) {
