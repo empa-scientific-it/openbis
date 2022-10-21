@@ -39,6 +39,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -157,11 +158,23 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY = "wait-for-sanity-check-max-waiting-time";
 
+    public static final String WAIT_FOR_UNARCHIVING_KEY = "wait-for-unarchiving";
+
+    public static final String WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME_KEY = "wait-for-unarchiving-initial-waiting-time";
+
+    public static final String WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME_KEY = "wait-for-unarchiving-max-waiting-time";
+
     public static final boolean DEFAULT_WAIT_FOR_SANITY_CHECK = false;
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME = 10 * 1000;
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
+
+    public static final boolean DEFAULT_WAIT_FOR_UNARCHIVING = false;
+
+    public static final long DEFAULT_WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME = 10 * 1000;
+
+    public static final long DEFAULT_WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME = 6 * DateUtils.MILLIS_PER_HOUR;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
@@ -189,13 +202,19 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final boolean finalizerSanityCheck;
 
+    private final boolean finalizerWaitForTFlag;
+
     private final boolean waitForSanityCheck;
 
     private final long waitForSanityCheckInitialWaitingTime;
 
     private final long waitForSanityCheckMaxWaitingTime;
 
-    private final boolean finalizerWaitForTFlag;
+    private final boolean waitForUnarchiving;
+
+    private final long waitForUnarchivingInitialWaitingTime;
+
+    private final long waitForUnarchivingMaxWaitingTime;
 
     private final Properties cleanerProperties;
 
@@ -238,6 +257,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
         waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
                 DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
+        waitForUnarchiving = PropertyUtils.getBoolean(properties, WAIT_FOR_UNARCHIVING_KEY, DEFAULT_WAIT_FOR_UNARCHIVING);
+        waitForUnarchivingInitialWaitingTime =
+                DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME_KEY,
+                        DEFAULT_WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME);
+        waitForUnarchivingMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME_KEY,
+                DEFAULT_WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME);
 
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();
@@ -726,10 +751,59 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         IMultiDataSetFileOperationsManager operations = getFileOperations();
         for (Long containerId : containerIds)
         {
-            MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
-            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+            RetryCaller<Status, RuntimeException> unarchiveCaller =
+                    new RetryCaller<Status, RuntimeException>(waitForUnarchivingInitialWaitingTime, waitForUnarchivingMaxWaitingTime,
+                            new Log4jSimpleLogger(operationLog))
+                    {
+                        @Override protected Status call()
+                        {
+                            MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
+                            File containerFile = new File(operations.getOriginalArchiveFilePath(container.getPath()));
+
+                            if (MultiDataSetArchivingUtils.isTFlagSet(containerFile, operationLog, machineLog))
+                            {
+                                operationLog.info("Unarchiving file: " + containerFile.getAbsolutePath() + " with T flag set.");
+                            } else
+                            {
+                                operationLog.info("Unarchiving file: " + containerFile.getAbsolutePath() + " without T flag set.");
+                            }
+
+                            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+
+                            if (status.isError())
+                            {
+                                // throw an exception to trigger the retry logic but keep the original error status
+                                throw new ExceptionWithStatus(status);
+                            } else
+                            {
+                                return status;
+                            }
+                        }
+                    };
+
+            Status status = null;
+
+            try
+            {
+                if (waitForUnarchiving)
+                {
+                    status = unarchiveCaller.callWithRetry();
+                } else
+                {
+                    status = unarchiveCaller.call();
+                }
+            } catch (ExceptionWithStatus e)
+            {
+                // retrieve the original error status
+                status = e.getStatus();
+            } catch (Exception e)
+            {
+                status = Status.createError(e.getMessage());
+            }
+
             if (status.isError())
             {
+                operationLog.error("Unarchiving failed for containerId: " + containerId + " with status: " + status);
                 result.addResult(dataSets, status, Operation.UNARCHIVE);
                 return result;
             }

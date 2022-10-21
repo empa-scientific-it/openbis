@@ -17,18 +17,24 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
@@ -109,4 +115,41 @@ class MultiDataSetArchivingUtils
         }
         return shares.get(0);
     }
+
+    static boolean isTFlagSet(File file, Logger operationLog, Logger machineLog)
+    {
+        File shell = OSUtilities.findExecutable("sh");
+
+        if (shell == null)
+        {
+            throw new RuntimeException("Could not check if T flag is set on file '" + file.getAbsolutePath()
+                    + "' because 'sh' command needed for the check could not be found in the following locations: " + OSUtilities.getSafeOSPath());
+        }
+
+        List<String> command =
+                Arrays.asList(shell.getAbsolutePath(), "-c", String.format("ls -l '%s' | awk '{printf substr($1,10,1)}'", file.getAbsolutePath()));
+
+        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog);
+
+        if (result.isOK())
+        {
+            String output = result.getOutput().get(0);
+
+            if (output != null && output.trim().equalsIgnoreCase("T"))
+            {
+                operationLog.info("T flag is set on file '" + file.getAbsolutePath() + "'");
+                return true;
+            } else
+            {
+                operationLog.info("T flag is not set on file '" + file.getAbsolutePath() + "'");
+                return false;
+            }
+        } else
+        {
+            Throwable exception = result.getProcessIOResult().tryGetException();
+            operationLog.warn("Could not check if T flag is set on file '" + file.getAbsolutePath() + "'", exception);
+            return false;
+        }
+    }
+
 }

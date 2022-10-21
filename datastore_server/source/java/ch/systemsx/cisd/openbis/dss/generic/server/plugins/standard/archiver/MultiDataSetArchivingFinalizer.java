@@ -20,7 +20,6 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -39,8 +37,6 @@ import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.IWaitingCondition;
@@ -298,7 +294,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
                 if (parameters.isWaitForTFlag())
                 {
-                    if (!isTFlagSet(replicatedFile))
+                    if (!MultiDataSetArchivingUtils.isTFlagSet(replicatedFile, operationLog, machineLog))
                     {
                         operationLog.info("Waiting for T flag to be set on the replicated file.");
                         return false;
@@ -386,42 +382,6 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             return true;
         } else
         {
-            return false;
-        }
-    }
-
-    private boolean isTFlagSet(File file)
-    {
-        File shell = OSUtilities.findExecutable("sh");
-
-        if (shell == null)
-        {
-            throw new RuntimeException("Could not check if T flag is set on file '" + file.getAbsolutePath()
-                    + "' because 'sh' command needed for the check could not be found in the following locations: " + OSUtilities.getSafeOSPath());
-        }
-
-        List<String> command =
-                Arrays.asList(shell.getAbsolutePath(), "-c", String.format("ls -l '%s' | awk '{printf substr($1,10,1)}'", file.getAbsolutePath()));
-
-        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog);
-
-        if (result.isOK())
-        {
-            String output = result.getOutput().get(0);
-
-            if (output != null && output.trim().equalsIgnoreCase("T"))
-            {
-                operationLog.info("T flag is set on file '" + file.getAbsolutePath() + "'");
-                return true;
-            } else
-            {
-                operationLog.info("T flag is not set on file '" + file.getAbsolutePath() + "'");
-                return false;
-            }
-        } else
-        {
-            Throwable exception = result.getProcessIOResult().tryGetException();
-            operationLog.warn("Could not check if T flag is set on file '" + file.getAbsolutePath() + "'", exception);
             return false;
         }
     }
