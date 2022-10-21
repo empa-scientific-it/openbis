@@ -2610,10 +2610,10 @@ var FormUtil = new function() {
                 }
 
                 var $window = $('<form>', { 'action' : 'javascript:void(0);' });
-                $window.append($('<legend>').append('These items will be Deleted'));
+                $window.append($('<legend>').append('These items will be deleted'));
 
                 if(sampleStoragesCodesToDelete.length > 0) {
-                    var warningText = "Storages where found: " + JSON.stringify(sampleStoragesCodesToDelete) + ". Deleting them will also delete their storage positions.";
+                    var warningText = "Storages found: " + JSON.stringify(sampleStoragesCodesToDelete) + ". Deleting them will also delete their storage positions.";
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
                     $window.append($warning);
