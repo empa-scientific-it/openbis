@@ -154,15 +154,11 @@ export default class BrowserController {
   }
 
   async selectObject(nodeObject) {
-    if (this.isFilteredTreeVisible()) {
-      await this.fullTreeController.selectObject(nodeObject)
-      await this.filteredTreeController.selectObject(nodeObject)
-    } else {
-      const { autoShowSelectedObject } = this.context.getState()
-      await this.fullTreeController.selectObject(nodeObject)
-      if (autoShowSelectedObject) {
-        await this.fullTreeController.showSelectedObject()
-      }
+    const { autoShowSelectedObject } = this.context.getState()
+    await this.fullTreeController.selectObject(nodeObject)
+    await this.filteredTreeController.selectObject(nodeObject)
+    if (autoShowSelectedObject) {
+      await this._getTreeController().showSelectedObject()
     }
   }
 

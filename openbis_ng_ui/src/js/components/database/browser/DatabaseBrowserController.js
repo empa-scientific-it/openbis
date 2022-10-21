@@ -35,7 +35,7 @@ export default class DatabaseBrowserController extends BrowserController {
     const { object } = params
 
     if (object.type === objectType.SPACE) {
-      return [object]
+      return [{ type: 'spaces' }, object]
     } else if (object.type === objectType.PROJECT) {
       const id = new openbis.ProjectPermId(object.id)
       const fetchOptions = new openbis.ProjectFetchOptions()
@@ -52,7 +52,7 @@ export default class DatabaseBrowserController extends BrowserController {
           }
         })
         if (spacePath) {
-          return [...spacePath, object]
+          return [...spacePath, { type: 'projects' }, object]
         }
       }
     } else if (object.type === objectType.COLLECTION) {
@@ -71,7 +71,7 @@ export default class DatabaseBrowserController extends BrowserController {
           }
         })
         if (projectPath) {
-          return [...projectPath, object]
+          return [...projectPath, { type: 'collections' }, object]
         }
       }
     } else if (object.type === objectType.OBJECT) {
@@ -93,7 +93,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (experimentPath) {
-            return [...experimentPath, object]
+            return [...experimentPath, { type: 'objects' }, object]
           }
         } else if (sample.getProject()) {
           const projectPath = await this.doLoadNodePath({
@@ -103,7 +103,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (projectPath) {
-            return [...projectPath, object]
+            return [...projectPath, { type: 'objects' }, object]
           }
         } else if (sample.getSpace()) {
           const spacePath = await this.doLoadNodePath({
@@ -113,7 +113,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (spacePath) {
-            return [...spacePath, object]
+            return [...spacePath, { type: 'objects' }, object]
           }
         } else {
           return [object]
@@ -137,7 +137,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (samplePath) {
-            return [...samplePath, object]
+            return [...samplePath, { type: 'dataSets' }, object]
           }
         } else if (dataSet.getExperiment()) {
           const experimentPath = await this.doLoadNodePath({
@@ -147,7 +147,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (experimentPath) {
-            return [...experimentPath, object]
+            return [...experimentPath, { type: 'dataSets' }, object]
           }
         }
       }
