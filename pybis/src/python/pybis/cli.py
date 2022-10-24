@@ -2,9 +2,6 @@ import os
 import syslog
 from datetime import datetime
 
-# import logging
-# import logging.handlers
-
 import click
 from dateutil.relativedelta import relativedelta
 from tabulate import tabulate
@@ -12,10 +9,6 @@ from tabulate import tabulate
 from . import pybis
 
 syslog.openlog("pyBIS")
-# pybis_logger = logging.getLogger("pyBIS")
-# pybis_logger.setLevel(logging.INFO)
-# handler = logging.handlers.SysLogHandler(address="/dev/log")
-# pybis_logger.addHandler(handler)
 
 
 def openbis_conn_options(func):
@@ -112,6 +105,7 @@ def get_openbis(
 
 
 @click.group()
+@click.version_option()
 def cli():
     """pybis - command line access to openBIS"""
 
