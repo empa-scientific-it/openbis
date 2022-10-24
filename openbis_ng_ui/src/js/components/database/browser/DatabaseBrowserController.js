@@ -772,7 +772,7 @@ export default class DatabaseBrowserController extends BrowserController {
       spaces.forEach(space => {
         const spaceNode = {
           id: objectType.SPACE + '_' + space.code + '_in_' + spacesNode.id,
-          text: space.code + (space.matching ? ' (*)' : ''),
+          text: space.code,
           object: {
             type: objectType.SPACE,
             id: space.code
@@ -830,7 +830,7 @@ export default class DatabaseBrowserController extends BrowserController {
             project.permId +
             '_in_' +
             projectsNode.id,
-          text: project.code + (project.matching ? ' (*)' : ''),
+          text: project.code,
           object: {
             type: objectType.PROJECT,
             id: project.permId
@@ -888,7 +888,7 @@ export default class DatabaseBrowserController extends BrowserController {
             experiment.permId +
             '_in_' +
             experimentsNode.id,
-          text: experiment.code + (experiment.matching ? ' (*)' : ''),
+          text: experiment.code,
           object: {
             type: objectType.COLLECTION,
             id: experiment.permId
@@ -941,7 +941,7 @@ export default class DatabaseBrowserController extends BrowserController {
       samples.forEach(sample => {
         const sampleNode = {
           id: objectType.OBJECT + '_' + sample.permId + '_in_' + samplesNode.id,
-          text: sample.code + (sample.matching ? ' (*)' : ''),
+          text: sample.code,
           object: {
             type: objectType.OBJECT,
             id: sample.permId
@@ -985,7 +985,7 @@ export default class DatabaseBrowserController extends BrowserController {
         const dataSetNode = {
           id:
             objectType.DATA_SET + '_' + dataSet.code + '_in_' + dataSetsNode.id,
-          text: dataSet.code + (dataSet.matching ? ' (*)' : ''),
+          text: dataSet.code,
           object: {
             type: objectType.DATA_SET,
             id: dataSet.code
