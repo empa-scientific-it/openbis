@@ -28,7 +28,7 @@ def openbis_definitions(entity):
         "project": {
             "attrs_new": "code description space attachments".split(),
             "attrs_up": "description space attachments freeze freezeForExperiments freezeForSamples".split(),
-            "attrs": "code description permId identifier space leader registrator registrationDate modifier modificationDate attachments frozen frozenForExperiments frozenForSamples".split(),
+            "attrs": "code permId identifier space description leader registrator registrationDate modifier modificationDate attachments frozen frozenForExperiments frozenForSamples".split(),
             "multi": "".split(),
             "identifier": "projectId",
             "create": {"@type": "as.dto.project.create.ProjectCreation"},
