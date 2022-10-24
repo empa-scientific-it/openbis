@@ -19,7 +19,6 @@ setup(
     name="obis",
     version="0.3.2",
     description="Local data management with assistance from OpenBIS.",
-    name="obis",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://sissource.ethz.ch/sispub/openbis/tree/master/obis",
