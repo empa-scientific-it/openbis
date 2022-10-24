@@ -997,19 +997,19 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
-        if (
-            token is not None
-        ):  # We try to set the token, during initialisation instead of errors, a message is printed
+        if token is not None:
             try:
                 self.set_token(token)
-            except:
-                pass
+            except ValueError:
+                raise ValueError(
+                    "This token is no longer valid. Please provide an valid token or use the login method."
+                )
         else:
+            # We try to set the saved token, during initialisation instead of errors, a message is printed
             try:
                 token = self._get_saved_token()
                 self.token = token
             except ValueError:
-                print(token)
                 pass
 
     def _get_username(self):
@@ -2246,6 +2246,7 @@ class Openbis:
         fetchopts = get_fetchoption_for_entity("space")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
+        fetchopts["registrator"] = get_fetchoption_for_entity("registrator")
         request = {
             "method": method,
             "params": [
@@ -2255,9 +2256,19 @@ class Openbis:
             ],
         }
         resp = self._post_request(self.as_v3, request)
+        parse_jackson(resp)
 
         def create_data_frame(attrs, props, response):
-            attrs = ["code", "description", "registrationDate", "modificationDate"]
+            attrs = [
+                "code",
+                "description",
+                "registrationDate",
+                "registrator",
+                "modificationDate",
+                "frozen",
+                "frozenForProjects",
+                "frozenForSamples",
+            ]
             if len(resp["objects"]) == 0:
                 spaces = DataFrame(columns=attrs)
             else:
@@ -2268,6 +2279,7 @@ class Openbis:
                 spaces["modificationDate"] = spaces["modificationDate"].map(
                     format_timestamp
                 )
+                spaces["registrator"] = spaces["registrator"].map(extract_userId)
             return spaces[attrs]
 
         return Things(
