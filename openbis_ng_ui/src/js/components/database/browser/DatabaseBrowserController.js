@@ -116,7 +116,7 @@ export default class DatabaseBrowserController extends BrowserController {
             return [...spacePath, { type: 'objects' }, object]
           }
         } else {
-          return [object]
+          return [{ type: 'objects' }, object]
         }
       }
     } else if (object.type === objectType.DATA_SET) {
