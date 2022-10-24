@@ -1,3 +1,7 @@
+## Changes with pybis-1.34.0
+
+- add experimental support for datasets via cli
+
 ## Changes with pybis-1.33.2
 
 - fix openbis.support.email key error

@@ -130,17 +130,49 @@ def dataset(ctx):
 @click.argument("permid", required=True)
 def get_dataset(permid, **kwargs):
     """get a dataset by its permId"""
-    print(permid)
-    print(kwargs)
     openbis = get_openbis(**kwargs)
-    print(openbis)
+    ds = openbis.get_dataset(permid)
+    click.echo(ds.__repr__())
+    click.echo("")
+    click.echo("Files in this dataset")
+    click.echo("---------------------")
+    click.echo(ds.get_files())
 
 
 @dataset.command("download")
+@openbis_conn_options
 @click.argument("permid", required=True)
-def download_dataset(permid, **kwargs):
+@click.argument("fileno", nargs=-1)
+@click.option(
+    "--destination",
+    "-d",
+    type=click.Path(exists=True),
+    help="where to download your dataset",
+)
+def download_dataset(permid, destination, fileno, **kwargs):
     """download a dataset by permId"""
-    click.echo(permid)
+    openbis = get_openbis(**kwargs)
+    try:
+        ds = openbis.get_dataset(permid)
+    except ValueError as exc:
+        raise click.ClickException(exc)
+
+    create_default_folders = False if destination else True
+    if fileno:
+        all_files = ds.get_files()
+        files = []
+        for loc in fileno:
+            files.append(all_files.loc[int(loc)]["pathInDataSet"])
+        print(files)
+        ds.download(
+            destination=destination,
+            create_default_folders=create_default_folders,
+            files=files,
+        )
+    else:
+        ds.download(
+            destination=destination, create_default_folders=create_default_folders
+        )
 
 
 @cli.command("local", context_settings=dict(ignore_unknown_options=True))
