@@ -83,6 +83,15 @@ export default class BrowserController {
     })
 
     this.settings = await this._loadSettings()
+
+    if (!_.isEmpty(this.settings)) {
+      this.context.setState(state => {
+        const newState = { ...state }
+        _.merge(newState, this.settings.common)
+        return newState
+      })
+    }
+
     await this.fullTreeController.load()
     await this.fullTreeController.expandNode(
       this.fullTreeController.getRoot().id
@@ -173,6 +182,8 @@ export default class BrowserController {
     if (autoShowSelectedObject) {
       await this.fullTreeController.showSelectedObject()
     }
+
+    this._saveSettings()
   }
 
   async changeSorting(nodeId, sortingId) {
@@ -245,14 +256,46 @@ export default class BrowserController {
       return {}
     }
 
-    return loaded
+    const settings = {
+      common: {},
+      fullTree: {},
+      filteredTree: {}
+    }
+
+    if (_.isObject(loaded.common)) {
+      const common = {}
+
+      if (_.isBoolean(loaded.common.autoShowSelectedObject)) {
+        common.autoShowSelectedObject = loaded.common.autoShowSelectedObject
+      }
+
+      settings.common = common
+    }
+
+    if (_.isObject(loaded.fullTree)) {
+      settings.fullTree = loaded.fullTree
+    }
+
+    if (_.isObject(loaded.filteredTree)) {
+      settings.filteredTree = loaded.filteredTree
+    }
+
+    return settings
   }
 
   async _saveSettings() {
     const { onSettingsChange } = this.context.getProps()
 
     if (onSettingsChange) {
-      onSettingsChange(this.settings || {})
+      const state = this.context.getState()
+
+      const settings = {
+        common: { autoShowSelectedObject: state.autoShowSelectedObject },
+        fullTree: this.settings.fullTree || {},
+        filteredTree: this.settings.filteredTree || {}
+      }
+
+      onSettingsChange(settings)
     }
   }
 }
