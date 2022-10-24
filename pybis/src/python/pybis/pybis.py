@@ -3157,13 +3157,18 @@ class Openbis:
 
         def create_data_frame(attrs, props, response):
             attrs = [
+                "code",
                 "identifier",
                 "permId",
+                "description",
                 "leader",
                 "registrator",
                 "registrationDate",
                 "modifier",
                 "modificationDate",
+                "frozen",
+                "frozenForExperiments",
+                "frozenForSamples",
             ]
             objects = response["objects"]
             if len(objects) == 0:
