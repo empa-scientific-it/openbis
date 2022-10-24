@@ -5333,8 +5333,8 @@ class ServerInformation:
         ]:
             if int_field in info:
                 info[int_field] = int(info[int_field])
-        info["openbis-support-email"] = info["openbis.support.email"]
-        del info["openbis.support.email"]
+        info["openbis-support-email"] = info.get("openbis.support.email", "")
+        info.pop("openbis.support.email", "")
         return info
 
     def __dir__(self):
