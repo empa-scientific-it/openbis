@@ -5,8 +5,6 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser2/BrowserNodeAutoShowSelected.jsx'
-import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
-import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 
@@ -145,24 +143,10 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
-            {controller.isFullTreeVisible() && (
-              <div className={classes.filterButton}>
-                <BrowserNodeAutoShowSelected
-                  value={controller.isAutoShowSelectedObject()}
-                  onClick={controller.changeAutoShowSelectedObject}
-                />
-              </div>
-            )}
             <div className={classes.filterButton}>
-              <BrowserNodeCollapseAll
-                node={controller.getRoot()}
-                onClick={controller.collapseAllNodes}
-              />
-            </div>
-            <div className={classes.filterButton}>
-              <BrowserNodeSortings
-                node={controller.getRoot()}
-                onChange={controller.changeSorting}
+              <BrowserNodeAutoShowSelected
+                value={controller.isAutoShowSelectedObject()}
+                onClick={controller.changeAutoShowSelectedObject}
               />
             </div>
           </div>

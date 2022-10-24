@@ -213,15 +213,15 @@ class BrowserNodeClass extends React.PureComponent {
     return (
       <div className={classes.options}>
         <div className={classes.option}>
-          <BrowserNodeCollapseAll
-            node={node}
-            onClick={this.handleCollapseAll}
-          />
-        </div>
-        <div className={classes.option}>
           <BrowserNodeSortings
             node={node}
             onChange={this.handleSortingChange}
+          />
+        </div>
+        <div className={classes.option}>
+          <BrowserNodeCollapseAll
+            node={node}
+            onClick={this.handleCollapseAll}
           />
         </div>
       </div>

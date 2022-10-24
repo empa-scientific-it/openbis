@@ -3,7 +3,8 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
-import CenterFocusWeak from '@material-ui/icons/CenterFocusWeak'
+import MyLocation from '@material-ui/icons/MyLocation'
+import LocationDisabled from '@material-ui/icons/LocationDisabled'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -29,7 +30,7 @@ class BrowserNodeAutoShowSelected extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'BrowserNodeAutoShowSelected.render')
 
-    const { classes } = this.props
+    const { value, classes } = this.props
 
     return (
       <Tooltip title={messages.get(messages.AUTO_SHOW_SELECTED)}>
@@ -38,7 +39,11 @@ class BrowserNodeAutoShowSelected extends React.PureComponent {
           onClick={this.handleClick}
           classes={{ root: classes.button }}
         >
-          <CenterFocusWeak fontSize='small' />
+          {value ? (
+            <MyLocation fontSize='small' />
+          ) : (
+            <LocationDisabled fontSize='small' />
+          )}
         </IconButton>
       </Tooltip>
     )
