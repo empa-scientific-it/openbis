@@ -346,6 +346,11 @@ export default class DatabaseBrowserController extends BrowserController {
       }
     } else if (node.object.type === objectType.DATA_SET) {
       return {
+        nodes: [],
+        totalCount: 0
+      }
+      /*
+      return {
         nodes: [
           {
             id: 'children_in_' + node.id,
@@ -374,6 +379,7 @@ export default class DatabaseBrowserController extends BrowserController {
         ],
         totalCount: 2
       }
+      */
     } else if (node.object.type === 'spaces') {
       return this.searchSpaces(params)
     } else if (node.object.type === 'projects') {
@@ -521,17 +527,25 @@ export default class DatabaseBrowserController extends BrowserController {
       criteria.withoutSpace()
       criteria.withoutProject()
       criteria.withoutExperiment()
+      criteria.withoutContainer()
+      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.SPACE) {
       criteria.withSpace().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutProject()
+      criteria.withoutContainer()
+      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.PROJECT) {
       criteria.withProject().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutExperiment()
+      criteria.withoutContainer()
+      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
+      criteria.withoutContainer()
+      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.OBJECT) {
       if (node.object.type === 'objectChildren') {
@@ -584,10 +598,20 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.parent.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutSample()
+      // TODO add criteria.withoutParents() when available in V3 API
+      // TODO add criteria.withoutContainer() when available in V3 API
     }
     if (node.parent.object.type === objectType.OBJECT) {
       criteria.withSample().withPermId().thatEquals(node.parent.object.id)
+      // TODO add criteria.withoutParents() when available in V3 API
+      // TODO add criteria.withoutContainer() when available in V3 API
     }
+    /*
+    TODO fix needed for criteria.withContainer() in V3 API (currently when a given 
+    data set which is set as container in the search criteria does not have any 
+    contained data sets then a list of all data sets available in the system is returned 
+    instead of an empty list)
+
     if (node.parent.object.type === objectType.DATA_SET) {
       if (node.object.type === 'dataSetChildren') {
         criteria.withParents().withPermId().thatEquals(node.parent.object.id)
@@ -596,6 +620,7 @@ export default class DatabaseBrowserController extends BrowserController {
         criteria.withContainer().withPermId().thatEquals(node.parent.object.id)
       }
     }
+    */
 
     const fetchOptions = new openbis.DataSetFetchOptions()
     if (node.sortings && node.sortingId) {
@@ -620,8 +645,8 @@ export default class DatabaseBrowserController extends BrowserController {
       object: {
         type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
-      },
-      canHaveChildren: true
+      }
+      //canHaveChildren: true
     }))
 
     return {
