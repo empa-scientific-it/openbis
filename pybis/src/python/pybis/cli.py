@@ -1,4 +1,5 @@
 import os
+<<<<<<< HEAD
 import syslog
 from datetime import datetime
 
@@ -9,6 +10,13 @@ from tabulate import tabulate
 from . import pybis
 
 syslog.openlog("pyBIS")
+=======
+import click
+from tabulate import tabulate
+from . import pybis
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+>>>>>>> 033729a6ad (add cli)
 
 
 def openbis_conn_options(func):
@@ -17,10 +25,17 @@ def openbis_conn_options(func):
         click.option("-u", "--username", help="Username OPENBIS_USERNAME"),
         click.option("-p", "--password", help="Password OPENBIS_PASSWORD"),
         click.option(
+<<<<<<< HEAD
             "--ignore-certificate",
             is_flag=True,
             default=True,
             help="Ignore SSL certificate of openBIS host",
+=======
+            "--verify-certificate",
+            is_flag=True,
+            default=True,
+            help="Verify SSL certificate of openBIS host",
+>>>>>>> 033729a6ad (add cli)
         ),
     ]
     # we use reversed(options) to keep the options order in --help
@@ -33,10 +48,17 @@ def login_options(func):
     options = [
         click.argument("hostname"),
         click.option(
+<<<<<<< HEAD
             "--ignore-certificate",
             is_flag=True,
             default=True,
             help="Ignore SSL certificate of openBIS host",
+=======
+            "--verify-certificate",
+            is_flag=True,
+            default=True,
+            help="Verify SSL certificate of openBIS host",
+>>>>>>> 033729a6ad (add cli)
         ),
     ]
     # we use reversed(options) to keep the options order in --help
@@ -49,7 +71,11 @@ def get_openbis(
     hostname=None,
     username=None,
     password=None,
+<<<<<<< HEAD
     ignore_certificate=False,
+=======
+    verify_certificate=True,
+>>>>>>> 033729a6ad (add cli)
     session_token_needed=False,
 ):
     """Order of priorities:
@@ -68,14 +94,22 @@ def get_openbis(
     if not hostname:
         hostname = config.get("hostname")
     if not hostname:
+<<<<<<< HEAD
         hostname = click.prompt("openBIS hostname")
+=======
+        hostname = click.prompt("openBIS hostname:")
+>>>>>>> 033729a6ad (add cli)
 
     token = pybis.get_token_for_hostname(
         hostname, session_token_needed=session_token_needed
     )
     openbis = pybis.Openbis(
         url=hostname,
+<<<<<<< HEAD
         verify_certificates=not ignore_certificate,
+=======
+        verify_certificates=verify_certificate,
+>>>>>>> 033729a6ad (add cli)
     )
     if token:
         try:
@@ -105,13 +139,17 @@ def get_openbis(
 
 
 @click.group()
+<<<<<<< HEAD
 @click.version_option()
+=======
+>>>>>>> 033729a6ad (add cli)
 def cli():
     """pybis - command line access to openBIS"""
 
 
 @cli.group()
 @click.pass_obj
+<<<<<<< HEAD
 def space(ctx):
     """manage spaces"""
     pass
@@ -265,6 +303,8 @@ def download_dataset_in_collection(identifier, **kwargs):
 
 @cli.group()
 @click.pass_obj
+=======
+>>>>>>> 033729a6ad (add cli)
 def sample(ctx):
     """manage samples"""
     pass
@@ -274,6 +314,7 @@ def sample(ctx):
 @openbis_conn_options
 @click.argument("identifier", required=True)
 def get_sample(identifier, **kwargs):
+<<<<<<< HEAD
     """get sample by its identifier or permId"""
     openbis = get_openbis(**kwargs)
     try:
@@ -341,6 +382,9 @@ def download_datasets_in_sample(identifier, **kwargs):
             syslog.LOG_INFO,
             f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
         )
+=======
+    """get a sample by its identifier or permId"""
+>>>>>>> 033729a6ad (add cli)
 
 
 @cli.group()
@@ -354,6 +398,7 @@ def dataset(ctx):
 @openbis_conn_options
 @click.argument("permid", required=True)
 def get_dataset(permid, **kwargs):
+<<<<<<< HEAD
     """get dataset meta-information by its permId"""
     openbis = get_openbis(**kwargs)
     try:
@@ -405,6 +450,20 @@ def download_dataset(permid, destination, fileno, **kwargs):
         syslog.LOG_INFO,
         f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
     )
+=======
+    """get a dataset by its permId"""
+    print(permid)
+    print(kwargs)
+    openbis = get_openbis(**kwargs)
+    print(openbis)
+
+
+@dataset.command("download")
+@click.argument("permid", required=True)
+def download_dataset(permid, **kwargs):
+    """download a dataset by permId"""
+    click.echo(permid)
+>>>>>>> 033729a6ad (add cli)
 
 
 @cli.command("local", context_settings=dict(ignore_unknown_options=True))
