@@ -239,6 +239,11 @@ class Transaction:
         }
         """
 
+        if entity_obj.entity == "dataSet" and entity_obj.is_new:
+            raise ValueError(
+                "pyBIS currently does not support transactions for new dataSets yet."
+            )
+
         if not entity_obj.entity in self.entities:
             self.entities[entity_obj.entity] = defaultdict(list)
 
