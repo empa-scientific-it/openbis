@@ -1,3 +1,9 @@
+## Changes with pybis-1.33.2
+
+- fix openbis.support.email key error
+- raise error if invalid token is passed to constructor
+- show more attributes for spaces and projects
+
 ## Changes with pybis-1.33.0
 
 - add support for personal access tokens (PAT)
