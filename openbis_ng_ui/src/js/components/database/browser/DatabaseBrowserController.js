@@ -997,7 +997,8 @@ export default class DatabaseBrowserController extends BrowserController {
         id: 'root',
         type: 'root'
       },
-      children: { nodes: [], totalCount: 0 }
+      children: { nodes: [], totalCount: 0 },
+      canHaveChildren: true
     }
 
     const entities = {
@@ -1041,7 +1042,6 @@ export default class DatabaseBrowserController extends BrowserController {
 
     if (!_.isEmpty(entities.spaces)) {
       const spacesNode = createSpacesNode(Object.values(entities.spaces), root)
-      root.canHaveChildren = true
       root.children.nodes.push(spacesNode)
       root.children.totalCount++
     }
@@ -1051,7 +1051,6 @@ export default class DatabaseBrowserController extends BrowserController {
         Object.values(entities.sharedSamples),
         root
       )
-      root.canHaveChildren = true
       root.children.nodes.push(sharedSamplesNode)
       root.children.totalCount++
     }
