@@ -764,8 +764,6 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
-        sortings: SORTINGS,
-        sortingId: 'code_asc',
         expanded: true
       }
 
@@ -817,8 +815,6 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
-        sortings: SORTINGS,
-        sortingId: 'code_asc',
         expanded: true
       }
 
@@ -875,8 +871,6 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
-        sortings: SORTINGS,
-        sortingId: 'code_asc',
         expanded: true
       }
 
@@ -933,8 +927,6 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
-        sortings: SORTINGS,
-        sortingId: 'code_asc',
         expanded: true
       }
 
@@ -976,8 +968,6 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
-        sortings: SORTINGS,
-        sortingId: 'code_asc',
         expanded: true
       }
 
