@@ -46,6 +46,26 @@ class Facade {
     return this.promise(this.v3.logout())
   }
 
+  getSpaces(ids, fo) {
+    return this.promise(this.v3.getSpaces(ids, fo))
+  }
+
+  getProjects(ids, fo) {
+    return this.promise(this.v3.getProjects(ids, fo))
+  }
+
+  getExperiments(ids, fo) {
+    return this.promise(this.v3.getExperiments(ids, fo))
+  }
+
+  getSamples(ids, fo) {
+    return this.promise(this.v3.getSamples(ids, fo))
+  }
+
+  getDataSets(ids, fo) {
+    return this.promise(this.v3.getDataSets(ids, fo))
+  }
+
   getPlugins(ids, fo) {
     return this.promise(this.v3.getPlugins(ids, fo))
   }

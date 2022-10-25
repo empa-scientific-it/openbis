@@ -32,7 +32,8 @@ const styles = theme => ({
     lineHeight: '0.7rem',
     '& svg': {
       color: theme.palette.hint.main
-    }
+    },
+    cursor: 'pointer'
   },
   errorDefault: {
     fontSize: theme.typography.label.fontSize,
