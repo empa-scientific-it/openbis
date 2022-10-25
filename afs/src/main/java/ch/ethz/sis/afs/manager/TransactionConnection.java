@@ -215,6 +215,7 @@ public class TransactionConnection implements TransactionalFileSystem {
     public List<File> list(String source, boolean recursively) throws Exception {
         source = getSafePath(OperationName.List, source);
         validateOperationAndPaths(OperationName.List, source, null);
+        validateWritten(OperationName.List, source);
         if (IOUtils.getFile(source).getDirectory()) {
             List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
             boolean locksObtained = lockManager.add(locks);
@@ -242,6 +243,7 @@ public class TransactionConnection implements TransactionalFileSystem {
     public byte[] read(String source, long offset, int limit) throws Exception {
         source = getSafePath(OperationName.Read, source);
         validateOperationAndPaths(OperationName.Read, source, null);
+        validateWritten(OperationName.Read, source);
         if (IOUtils.getFile(source).getDirectory()) {
             AFSExceptions.throwInstance(AFSExceptions.PathIsDirectory, OperationName.Read.name(), source);
         }
@@ -354,6 +356,18 @@ public class TransactionConnection implements TransactionalFileSystem {
             AFSExceptions.throwInstance(AFSExceptions.PathNotStartWithRoot, operationName.name(), source);
         }
         return OperationExecutor.getRealPath(transaction, source);
+    }
+
+    private void validateWritten(OperationName operationName, String finalSource) {
+        List<String> sourceSubPaths = null;
+        if (finalSource != null) {
+            sourceSubPaths = PathLockFinder.getParentSubPaths(finalSource);
+        }
+        for (String source:safe(sourceSubPaths)) {
+            if (written.contains(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeReadAfterWritten, operationName.name(), source);
+            }
+        }
     }
 
     private void validateOperationAndPaths(OperationName operationName, String finalSource, String finalTarget) {
