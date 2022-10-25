@@ -157,10 +157,8 @@ def calculateBuildInfo() {
         def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at'], '../' + project.name)
         project.ext.revisionNumber = Integer.parseInt(gitlogoutput[0])
         def tag = 'git tag -l --points-at HEAD'.execute().text.trim()
-        if (tag == null || tag.isEmpty()) {
+        if (tag == null || tag.isEmpty() || tag.contains('pybis')) {
             project.ext.versionNumber = 'SNAPSHOT'
-        } else if (tag.contains('pybis')) {
-           throw new GradleException("project must contain a readme file")
         } else {
            project.ext.versionNumber = tag
         }
