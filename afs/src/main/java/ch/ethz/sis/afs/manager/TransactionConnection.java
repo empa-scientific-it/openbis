@@ -219,12 +219,16 @@ public class TransactionConnection implements TransactionalFileSystem {
             List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
             boolean locksObtained = lockManager.add(locks);
             if (locksObtained) {
-                List<File> files = IOUtils.list(source, recursively);
-                List<File> filesFromRoot = new ArrayList<>();
-                for (File file : files) {
-                    filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+                try {
+                    List<File> files = IOUtils.list(source, recursively);
+                    List<File> filesFromRoot = new ArrayList<>();
+                    for (File file : files) {
+                        filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+                    }
+                    return filesFromRoot;
+                } finally {
+                    lockManager.remove(locks);
                 }
-                return filesFromRoot;
             } else {
                 AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.List, source);
             }
@@ -244,9 +248,12 @@ public class TransactionConnection implements TransactionalFileSystem {
         List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
         boolean locksObtained = lockManager.add(locks);
         if (locksObtained) {
-            byte[] result = IOUtils.read(source, offset, limit);
-            lockManager.remove(locks);
-            return result;
+            try {
+                byte[] result = IOUtils.read(source, offset, limit);
+                return result;
+            } finally {
+                lockManager.remove(locks);
+            }
         } else {
             AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.Read, source);
         }
