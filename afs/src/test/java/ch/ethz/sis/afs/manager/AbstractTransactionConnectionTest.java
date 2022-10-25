@@ -49,10 +49,14 @@ public abstract class AbstractTransactionConnectionTest extends AbstractTest {
     public static final String FILE_A = "A.txt";
     public static final byte[] DATA = "ABCD".getBytes();
     public static final String FILE_B = "B.txt";
+    public static final String DIR_BC = "B/C";
+    public static final String FILE_C = "C.txt";
     public static final String DIR_A_PATH = IOUtils.PATH_SEPARATOR + getPath(DIR_A);
     public static final String DIR_B_PATH = IOUtils.PATH_SEPARATOR + getPath(DIR_B);
+    public static final String DIR_BC_PATH = IOUtils.PATH_SEPARATOR + getPath(DIR_BC);
     public static final String FILE_A_PATH = getPath(DIR_A_PATH, FILE_A);
     public static final String FILE_B_PATH = getPath(DIR_B_PATH, FILE_B);
+    public static final String FILE_C_PATH = getPath(DIR_BC_PATH, FILE_C);
 
     @Before
     public void setupTransaction() throws Exception {
@@ -72,6 +76,9 @@ public abstract class AbstractTransactionConnectionTest extends AbstractTest {
         IOUtils.write(getPath(baseDir, DIR_A, FILE_A), 0, DATA);
         createDirectory(getPath(baseDir, DIR_B));
         createFile(getPath(baseDir, DIR_B, FILE_B));
+        createDirectory(getPath(baseDir, DIR_BC));
+        createFile(getPath(baseDir, DIR_BC, FILE_C));
+        IOUtils.write(getPath(baseDir, DIR_BC, FILE_C), 0, DATA);
     }
 
 

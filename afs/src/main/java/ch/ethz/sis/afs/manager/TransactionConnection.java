@@ -38,6 +38,8 @@ import ch.ethz.sis.afs.manager.operation.WriteOperationExecutor;
 
 import java.util.*;
 
+import static ch.ethz.sis.shared.collection.List.safe;
+
 public class TransactionConnection implements TransactionalFileSystem {
 
     private static final Map<OperationName, OperationExecutor> operationExecutors;
@@ -214,12 +216,18 @@ public class TransactionConnection implements TransactionalFileSystem {
         source = getSafePath(OperationName.List, source);
         validateOperationAndPaths(OperationName.List, source, null);
         if (IOUtils.getFile(source).getDirectory()) {
-            List<File> files = IOUtils.list(source, recursively);
-            List<File> filesFromRoot = new ArrayList<>();
-            for (File file : files) {
-                filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+            List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
+            boolean locksObtained = lockManager.add(locks);
+            if (locksObtained) {
+                List<File> files = IOUtils.list(source, recursively);
+                List<File> filesFromRoot = new ArrayList<>();
+                for (File file : files) {
+                    filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+                }
+                return filesFromRoot;
+            } else {
+                AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.List, source);
             }
-            return filesFromRoot;
         } else {
             AFSExceptions.throwInstance(AFSExceptions.PathNotDirectory, OperationName.List, source);
         }
@@ -341,30 +349,52 @@ public class TransactionConnection implements TransactionalFileSystem {
         return OperationExecutor.getRealPath(transaction, source);
     }
 
-    private void validateOperationAndPaths(OperationName operationName, String source, String target) {
+    private void validateOperationAndPaths(OperationName operationName, String finalSource, String finalTarget) {
+        List<String> sourceSubPaths = null;
+        if (finalSource != null) {
+            sourceSubPaths = PathLockFinder.getParentSubPaths(finalSource);
+        }
+        List<String> targetSubPaths = null;
+        if (finalTarget != null) {
+            targetSubPaths = PathLockFinder.getParentSubPaths(finalTarget);
+        }
         if (state != State.Begin) {
             AFSExceptions.throwInstance(AFSExceptions.OperationNotAddedDueToState, operationName.name(), state, State.Begin);
         }
-        if (source != null && deleted.contains(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (deleted.contains(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), source);
+            }
         }
-        if (target != null && deleted.contains(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (deleted.contains(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), target);
+            }
         }
-        if (source != null && movedSourceToTarget.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (movedSourceToTarget.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+            }
         }
-        if (target != null && movedSourceToTarget.containsKey(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (movedSourceToTarget.containsKey(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+            }
         }
-        if (source != null && movedTargetToSource.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (movedTargetToSource.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+            }
         }
-        if (target != null && movedTargetToSource.containsKey(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (movedTargetToSource.containsKey(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+            }
         }
-        if (source != null && copiedTargetToSource.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterCopied, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (copiedTargetToSource.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterCopied, operationName.name(), source);
+            }
         }
     }
 

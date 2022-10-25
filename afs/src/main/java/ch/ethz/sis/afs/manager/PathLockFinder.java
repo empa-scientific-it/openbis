@@ -40,7 +40,7 @@ class PathLockFinder implements HierarchicalLockFinder<UUID, String> {
         return hierarchicallyExclusiveLocks;
     }
 
-    public List<String> getParentSubPaths(String path) {
+    static List<String> getParentSubPaths(String path) {
         String[] pathParts = path.split(IOUtils.PATH_SEPARATOR_AS_STRING);
         List<String> subPaths = new ArrayList<>();
 

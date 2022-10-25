@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.afs.manager.operation;
 
+import ch.ethz.sis.shared.exception.ThrowableReason;
+import ch.ethz.sis.shared.io.File;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -66,5 +69,14 @@ public class ReadTransactionOperationTest extends AbstractTransactionOperationTe
     public void operation_readOver_exception() throws Exception {
         begin();
         read(FILE_B_PATH, 0, 1);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void operation_read_after_delete_exception() throws Exception {
+        begin();
+        delete(DIR_B_PATH);
+        List<File> list = list(DIR_BC_PATH, true);
+        assertEquals(1, list.size());
+        byte[] read = read(FILE_C_PATH, 0, Math.toIntExact(list.get(0).getSize()));
     }
 }
