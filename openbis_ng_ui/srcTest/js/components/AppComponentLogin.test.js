@@ -40,6 +40,10 @@ async function testLogin() {
     menu: {
       tabs: [
         {
+          label: 'Database',
+          selected: false
+        },
+        {
           label: 'Types',
           selected: true
         },
