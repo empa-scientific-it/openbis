@@ -146,7 +146,11 @@ export default class BrowserTreeController {
           selected:
             loadedNode.object &&
             _.isEqual(loadedNode.object, state.selectedObject),
-          expanded: !!state.expandedIds[loadedNode.id] || loadedNode.expanded,
+          expandedOnLoad: !!loadedNode.expanded,
+          expanded:
+            state.expandedIds[loadedNode.id] !== undefined
+              ? state.expandedIds[loadedNode.id]
+              : !!loadedNode.expanded,
           sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId,
           children: []
         }
@@ -247,16 +251,17 @@ export default class BrowserTreeController {
       newState.nodes = { ...newState.nodes }
 
       if (nodeId === newState.rootId) {
+        newState.expandedIds = {}
         const root = newState.nodes[newState.rootId]
         if (root && root.children) {
           root.children.forEach(childId => {
             this._doCollapseNode(newState, childId, true)
+            this._doCollapseNode(newState, childId, false)
           })
         }
-        newState.expandedIds = {}
       } else {
-        newState.expandedIds = { ...newState.expandedIds }
         this._doCollapseNode(newState, node.id, true)
+        this._doCollapseNode(newState, node.id, false)
       }
 
       await this.context.setState(newState)
@@ -268,14 +273,21 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      state.nodes = { ...state.nodes }
-      state.nodes[nodeId] = {
-        ...state.nodes[nodeId],
-        expanded: false
+      const newNode = {
+        ...node
       }
 
+      if (recursive) {
+        newNode.expanded = node.expandedOnLoad
+      } else {
+        newNode.expanded = false
+      }
+
+      state.nodes = { ...state.nodes }
+      state.nodes[nodeId] = newNode
+
       state.expandedIds = { ...state.expandedIds }
-      state.expandedIds[nodeId] = false
+      state.expandedIds[nodeId] = newNode.expanded
 
       if (recursive && !_.isEmpty(node.children)) {
         node.children.forEach(child => {
