@@ -16,6 +16,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -115,6 +117,12 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                         .collect(Collectors.toList()),
                 HashMap::new));
         return permIdToEntityTypeMap.values();
+    }
+
+    @Override
+    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
+    {
+        return null;
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -64,8 +64,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
+    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken,
+            final String permId)
     {
         return getDataSetType(api, sessionToken, permId);
     }

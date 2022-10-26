@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -87,13 +86,6 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
-    }
-
-    @Override
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
-    {
-        return null;
     }
 
 }

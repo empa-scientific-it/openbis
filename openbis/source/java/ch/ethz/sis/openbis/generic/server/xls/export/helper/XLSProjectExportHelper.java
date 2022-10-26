@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
@@ -41,13 +40,6 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
         final ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withSpace();
         return api.getProjects(sessionToken, projectPermIds, fetchOptions).values();
-    }
-
-    @Override
-    public IPropertyAssignmentsHolder getPropertyAssignmentsHolder(final IApplicationServerApi api,
-            final String sessionToken, final String permId)
-    {
-        return null;
     }
 
 }

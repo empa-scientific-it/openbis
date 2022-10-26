@@ -87,6 +87,10 @@ class SampleTypeWithSamplePropertyExpectations extends Expectations
         final PluginFetchOptions pluginFetchOptions = propertyAssignmentFetchOptions.withPlugin();
         pluginFetchOptions.withScript();
 
+        final Plugin validationPlugin = new Plugin();
+        validationPlugin.setScript("test.py");
+        validationPlugin.setFetchOptions(pluginFetchOptions);
+
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[2];
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
@@ -108,20 +112,18 @@ class SampleTypeWithSamplePropertyExpectations extends Expectations
         propertyAssignments[1].getPropertyType().setLabel("Last name");
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Last name");
+        propertyAssignments[1].setPlugin(validationPlugin);
 
         return Arrays.asList(propertyAssignments);
     }
 
     private List<PropertyAssignment> getCoursePropertyAssignments(final SampleTypeFetchOptions fetchOptions)
     {
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions =
-                fetchOptions.withPropertyAssignments();
-        final PropertyTypeFetchOptions propertyTypeFetchOptions =
-                propertyAssignmentFetchOptions.withPropertyType();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        final PropertyTypeFetchOptions propertyTypeFetchOptions = propertyAssignmentFetchOptions.withPropertyType();
         propertyTypeFetchOptions.withVocabulary();
 
-        final PluginFetchOptions pluginFetchOptions = propertyAssignmentFetchOptions.withPlugin();
-        pluginFetchOptions.withScript();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
 
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[5];
 

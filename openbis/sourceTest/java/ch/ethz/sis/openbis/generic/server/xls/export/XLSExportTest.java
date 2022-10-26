@@ -70,6 +70,7 @@ public class XLSExportTest
         return new Object[][] {
                 {
                         "export-vocabulary.xlsx",
+                        Set.of(),
                         VocabularyExpectations.class,
                         Collections.singletonList(new ExportablePermId(VOCABULARY,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
@@ -77,6 +78,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type.xlsx",
+                        Set.of("test.py", "test-dynamic.py"),
                         SampleTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
@@ -84,6 +86,7 @@ public class XLSExportTest
                 },
                 {
                         "export-experiment-type.xlsx",
+                        Set.of("test.py"),
                         ExperimentTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
@@ -105,6 +108,7 @@ public class XLSExportTest
 //                },
                 {
                         "export-data-set-type.xlsx",
+                        Set.of(),
                         DataSetTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(DATASET_TYPE,
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
@@ -112,6 +116,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
+                        Set.of(),
                         SampleTypeWithVocabularyPropertyExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -120,6 +125,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
+                        Set.of(),
                         SampleTypeWithVocabularyPropertyExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -128,6 +134,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-sample-property.xlsx",
+                        Set.of("date_range_validation.py", "test.py"),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -135,6 +142,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
+                        Set.of("date_range_validation.py"),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -142,6 +150,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
+                        Set.of("date_range_validation.py"),
                         SampleTypeWithChainedSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -149,6 +158,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
+                        Set.of("date_range_validation.py"),
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -156,6 +166,7 @@ public class XLSExportTest
                 },
                 {
                         "export-space.xlsx",
+                        Set.of(),
                         SpaceExpectations.class,
                         List.of(
                                 new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
@@ -166,6 +177,7 @@ public class XLSExportTest
                 },
                 {
                         "export-project.xlsx",
+                        Set.of(),
                         ProjectExpectations.class,
                         List.of(
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
@@ -175,6 +187,7 @@ public class XLSExportTest
                 },
                 {
                         "export-experiment.xlsx",
+                        Set.of(),
                         ExperimentExpectations.class,
                         List.of(
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
@@ -185,6 +198,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample.xlsx",
+                        Set.of(),
                         SampleExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
@@ -197,6 +211,7 @@ public class XLSExportTest
                 },
                 {
                         "export-data-set.xlsx",
+                        Set.of(),
                         DataSetExpectations.class,
                         List.of(
                                 new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
@@ -382,8 +397,9 @@ public class XLSExportTest
      * @param expectationsClass this class is a generator of mockup data.
      */
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
-    public void testXlsExport(final String expectedResultFileName, final Class<IApplicationServerApi> expectationsClass,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws Exception
+    public void testXlsExport(final String expectedResultFileName, final Set<String> expectedScriptFileNames,
+            final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
+            final boolean exportReferred) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
                 boolean.class).newInstance(api, exportReferred);
@@ -391,8 +407,12 @@ public class XLSExportTest
 
         try
         {
-            final Workbook actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
+            final XLSExport.ExportResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
                     exportReferred);
+            final Workbook actualResultWorkbook = actualResult.getWorkbook();
+            final Set<String> actualScriptFileNames = actualResult.getScripts();
+
+            assertEquals(actualScriptFileNames, expectedScriptFileNames);
 
             final InputStream stream = getClass().getClassLoader().getResourceAsStream(
                     "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
@@ -402,7 +422,7 @@ public class XLSExportTest
             }
             final Workbook expectedResult = new XSSFWorkbook(stream);
 
-            assertWorkbooksEqual(actualResult, expectedResult);
+            assertWorkbooksEqual(actualResultWorkbook, expectedResult);
         } catch (final UserFailureException e)
         {
             // When the file name is not specified we expect a UserFailureException to be thrown.
@@ -412,6 +432,22 @@ public class XLSExportTest
             }
         }
     }
+
+//    public void testXlsExportScripts() throws Exception
+//    {
+//        final XLSExport.ExportResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
+//                true);
+//        final Workbook actualResultWorkbook = actualResult.getWorkbook();
+//        final File[] scripts = actualResult.getScripts();
+//
+//        final InputStream stream = getClass().getClassLoader().getResourceAsStream(
+//                "ch/ethz/sis/openbis/generic/server/xls/export/resources/export-scripts.xlsx");
+//        if (stream == null)
+//        {
+//            throw new IllegalArgumentException("File not found.");
+//        }
+//        final Workbook expectedResult = new XSSFWorkbook(stream);
+//    }
 
     private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {

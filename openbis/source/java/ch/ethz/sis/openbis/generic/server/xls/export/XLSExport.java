@@ -27,9 +27,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -74,15 +76,24 @@ public class XLSExport
     public ByteArrayOutputStream export(final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
-        try (final Workbook wb = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred))
+        final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
+
+        if (exportResult.getScripts().isEmpty())
         {
-            final ByteArrayOutputStream result = new ByteArrayOutputStream();
-            wb.write(result);
-            return result;
+            try (final Workbook wb = exportResult.getWorkbook())
+            {
+                final ByteArrayOutputStream result = new ByteArrayOutputStream();
+                wb.write(result);
+                return result;
+            }
+        } else
+        {
+            // TODO: implement zipping
+            return null;
         }
     }
 
-    Workbook prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
+    ExportResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
         if (!isValid(exportablePermIds))
@@ -101,16 +112,36 @@ public class XLSExport
         final Workbook wb = new XSSFWorkbook();
         wb.createSheet();
         int rowNumber = 0;
+        final Set<String> scripts = new HashSet<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
-            final IXLSExportHelper helper = getHelper(exportablePermIdGroup.iterator().next().getExportableKind());
+            final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
+            final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
             rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber);
+            final IEntityType entityType = helper.getEntityType(api, sessionToken,
+                    exportablePermId.getPermId().getPermId());
+
+            if (entityType != null)
+            {
+                final Plugin validationPlugin = entityType.getValidationPlugin();
+                if (validationPlugin != null && validationPlugin.getScript() != null)
+                {
+                    scripts.add(validationPlugin.getScript());
+                }
+
+                final Set<String> propertyAssignmentPluginScripts = entityType.getPropertyAssignments().stream()
+                        .filter(propertyAssignment -> propertyAssignment.getPlugin() != null
+                                && propertyAssignment.getPlugin().getScript() != null)
+                        .map(propertyAssignment -> propertyAssignment.getPlugin().getScript())
+                        .collect(Collectors.toSet());
+                scripts.addAll(propertyAssignmentPluginScripts);
+            }
         }
 
-        return wb;
+        return new ExportResult(wb, scripts);
     }
 
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
@@ -132,7 +163,7 @@ public class XLSExport
         if (helper != null)
         {
             final IPropertyAssignmentsHolder propertyAssignmentsHolder = helper
-                    .getPropertyAssignmentsHolder(api, sessionToken, exportablePermId.getPermId().getPermId());
+                    .getEntityType(api, sessionToken, exportablePermId.getPermId().getPermId());
 
             if (propertyAssignmentsHolder != null)
             {
@@ -416,6 +447,31 @@ public class XLSExport
         {
             os.writeTo(fileOutputStream);
         }
+    }
+
+    public static class ExportResult
+    {
+
+        private final Workbook workbook;
+
+        private final Set<String> scripts;
+
+        public ExportResult(final Workbook workbook, final Set<String> scripts)
+        {
+            this.workbook = workbook;
+            this.scripts = scripts;
+        }
+
+        public Workbook getWorkbook()
+        {
+            return workbook;
+        }
+
+        public Set<String> getScripts()
+        {
+            return scripts;
+        }
+
     }
 
 }

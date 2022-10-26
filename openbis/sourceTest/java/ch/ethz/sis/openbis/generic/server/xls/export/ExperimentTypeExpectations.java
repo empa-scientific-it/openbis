@@ -45,16 +45,7 @@ class ExperimentTypeExpectations extends Expectations
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();
-                validationPlugin.setScript("def getRenderedProperty(entity, property):\n"
-                        + "    value = entity.property(property)\n"
-                        + "    if value is not None:\n"
-                        + "        return value.renderedValue()\n"
-                        + "\n"
-                        + "def validate(entity, isNew):\n"
-                        + "    start_date = getRenderedProperty(entity, \"START_DATE\")\n"
-                        + "    end_date = getRenderedProperty(entity, \"END_DATE\")\n"
-                        + "    if start_date is not None and end_date is not None and start_date > end_date:\n"
-                        + "        return \"End date cannot be before start date!\"\n");
+                validationPlugin.setScript("test.py");
                 validationPlugin.setFetchOptions(pluginFetchOptions);
 
                 experimentType.setValidationPlugin(validationPlugin);

@@ -98,7 +98,7 @@ class SampleTypeExpectations extends Expectations
                 propertyAssignments[2].getPropertyType().setLabel("Annotations State");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[2].getPropertyType().setDescription("Annotations State");
-                propertyAssignments[2].getPlugin().setScript("print(\"Hello world\");");
+                propertyAssignments[2].getPlugin().setScript("test-dynamic.py");
 
                 return Arrays.asList(propertyAssignments);
             }
