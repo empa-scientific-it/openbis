@@ -186,7 +186,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'spaces_in_' + node.id,
+            id: node.id + '__spaces',
             text: 'Spaces',
             object: {
               type: 'spaces'
@@ -198,7 +198,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'objects_in_' + node.id,
+            id: node.id + '__objects',
             text: 'Objects',
             object: {
               type: 'objects'
@@ -216,7 +216,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'projects_in_' + node.id,
+            id: node.id + '__projects',
             text: 'Projects',
             object: {
               type: 'projects'
@@ -228,7 +228,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'objects_in_' + node.id,
+            id: node.id + '__objects',
             text: 'Objects',
             object: {
               type: 'objects'
@@ -246,7 +246,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'collections_in_' + node.id,
+            id: node.id + '__collections',
             text: 'Collections',
             object: {
               type: 'collections'
@@ -258,7 +258,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'objects_in_' + node.id,
+            id: node.id + '__objects',
             text: 'Objects',
             object: {
               type: 'objects'
@@ -276,7 +276,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'objects_in_' + node.id,
+            id: node.id + '__objects',
             text: 'Objects',
             object: {
               type: 'objects'
@@ -288,7 +288,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'datasets_in_' + node.id,
+            id: node.id + '__datasets',
             text: 'Data Sets',
             object: {
               type: 'dataSets'
@@ -306,7 +306,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'children_in_' + node.id,
+            id: node.id + '__children',
             text: 'Children',
             object: {
               type: 'objectChildren'
@@ -318,7 +318,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'components_in_' + node.id,
+            id: node.id + '__components',
             text: 'Components',
             object: {
               type: 'objectComponents'
@@ -330,7 +330,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'datasets_in_' + node.id,
+            id: node.id + '__datasets',
             text: 'Data Sets',
             object: {
               type: 'dataSets'
@@ -353,7 +353,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return {
         nodes: [
           {
-            id: 'children_in_' + node.id,
+            id: node.id + '__children',
             text: 'Children',
             object: {
               type: 'dataSetChildren'
@@ -365,7 +365,7 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: 'components_in_' + node.id,
+            id: node.id + '__components',
             text: 'Components',
             object: {
               type: 'dataSetComponents'
@@ -420,7 +420,7 @@ export default class DatabaseBrowserController extends BrowserController {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(space => ({
-      id: objectType.SPACE + '_' + space.getCode() + '_in_' + node.parent.id,
+      id: node.id + '__' + objectType.SPACE + '_' + space.getCode(),
       text: space.getCode(),
       object: {
         type: objectType.SPACE,
@@ -457,11 +457,11 @@ export default class DatabaseBrowserController extends BrowserController {
 
     const nodes = result.getObjects().map(project => ({
       id:
+        node.id +
+        '__' +
         objectType.PROJECT +
         '_' +
-        project.getPermId().getPermId() +
-        '_in_' +
-        node.parent.id,
+        project.getPermId().getPermId(),
       text: project.getCode(),
       object: {
         type: objectType.PROJECT,
@@ -498,11 +498,11 @@ export default class DatabaseBrowserController extends BrowserController {
 
     const nodes = result.getObjects().map(experiment => ({
       id:
+        node.id +
+        '__' +
         objectType.COLLECTION +
         '_' +
-        experiment.getPermId().getPermId() +
-        '_in_' +
-        node.parent.id,
+        experiment.getPermId().getPermId(),
       text: experiment.getCode(),
       object: {
         type: objectType.COLLECTION,
@@ -570,11 +570,11 @@ export default class DatabaseBrowserController extends BrowserController {
 
     const nodes = result.getObjects().map(sample => ({
       id:
+        node.id +
+        '__' +
         objectType.OBJECT +
         '_' +
-        sample.getPermId().getPermId() +
-        '_in_' +
-        node.parent.id,
+        sample.getPermId().getPermId(),
       text: sample.getCode(),
       object: {
         type: objectType.OBJECT,
@@ -636,11 +636,11 @@ export default class DatabaseBrowserController extends BrowserController {
 
     const nodes = result.getObjects().map(dataSet => ({
       id:
+        node.id +
+        '__' +
         objectType.DATA_SET +
         '_' +
-        dataSet.getPermId().getPermId() +
-        '_in_' +
-        node.parent.id,
+        dataSet.getPermId().getPermId(),
       text: dataSet.getCode(),
       object: {
         type: objectType.DATA_SET,
@@ -757,7 +757,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createSpacesNode(spaces, parent) {
       const spacesNode = {
-        id: 'spaces_in_' + parent.id,
+        id: parent.id + '__spaces',
         text: 'Spaces',
         object: {
           type: 'spaces'
@@ -769,7 +769,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
       spaces.forEach(space => {
         const spaceNode = {
-          id: objectType.SPACE + '_' + space.code + '_in_' + spacesNode.id,
+          id: spacesNode.id + '__' + objectType.SPACE + '_' + space.code,
           text: space.code,
           object: {
             type: objectType.SPACE,
@@ -808,7 +808,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createProjectsNode(projects, parent) {
       const projectsNode = {
-        id: 'projects_in_' + parent.id,
+        id: parent.id + '__projects',
         text: 'Projects',
         object: {
           type: 'projects'
@@ -821,11 +821,7 @@ export default class DatabaseBrowserController extends BrowserController {
       projects.forEach(project => {
         const projectNode = {
           id:
-            objectType.PROJECT +
-            '_' +
-            project.permId +
-            '_in_' +
-            projectsNode.id,
+            projectsNode.id + '__' + objectType.PROJECT + '_' + project.permId,
           text: project.code,
           object: {
             type: objectType.PROJECT,
@@ -864,7 +860,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createExperimentsNode(experiments, parent) {
       const experimentsNode = {
-        id: 'collections_in_' + parent.id,
+        id: parent.id + '__collections',
         text: 'Collections',
         object: {
           type: 'collections'
@@ -877,11 +873,11 @@ export default class DatabaseBrowserController extends BrowserController {
       experiments.forEach(experiment => {
         const experimentNode = {
           id:
+            experimentsNode.id +
+            '__' +
             objectType.COLLECTION +
             '_' +
-            experiment.permId +
-            '_in_' +
-            experimentsNode.id,
+            experiment.permId,
           text: experiment.code,
           object: {
             type: objectType.COLLECTION,
@@ -920,7 +916,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createSamplesNode(samples, parent) {
       const samplesNode = {
-        id: 'objects_in_' + parent.id,
+        id: parent.id + '__objects',
         text: 'Objects',
         object: {
           type: 'objects'
@@ -932,7 +928,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
       samples.forEach(sample => {
         const sampleNode = {
-          id: objectType.OBJECT + '_' + sample.permId + '_in_' + samplesNode.id,
+          id: samplesNode.id + '__' + objectType.OBJECT + '_' + sample.permId,
           text: sample.code,
           object: {
             type: objectType.OBJECT,
@@ -961,7 +957,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createDataSetsNode(dataSets, parent) {
       const dataSetsNode = {
-        id: 'datasets_in_' + parent.id,
+        id: parent.id + '__datasets',
         text: 'Data Sets',
         object: {
           type: 'dataSets'
@@ -973,8 +969,7 @@ export default class DatabaseBrowserController extends BrowserController {
 
       dataSets.forEach(dataSet => {
         const dataSetNode = {
-          id:
-            objectType.DATA_SET + '_' + dataSet.code + '_in_' + dataSetsNode.id,
+          id: dataSetsNode.id + '__' + objectType.DATA_SET + '_' + dataSet.code,
           text: dataSet.code,
           object: {
             type: objectType.DATA_SET,

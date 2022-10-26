@@ -141,6 +141,18 @@ export default class BrowserTreeController {
 
     if (!_.isEmpty(loadedNodes.nodes)) {
       loadedNodes.nodes.forEach(loadedNode => {
+        if (
+          !loadedNode.id ||
+          (nodeId !== INTERNAL_ROOT_ID && !loadedNode.id.startsWith(nodeId))
+        ) {
+          alert(
+            'ERROR: Child node id should start with parent node id. Parent id: ' +
+              nodeId +
+              ', child id: ' +
+              loadedNode.id
+          )
+        }
+
         state.nodes[loadedNode.id] = {
           ...loadedNode,
           selected:
@@ -219,14 +231,20 @@ export default class BrowserTreeController {
         await this._doLoadNode(state, nodeId, 0, LOAD_LIMIT)
       }
 
-      state.nodes = { ...state.nodes }
-      state.nodes[nodeId] = {
+      const newNode = {
         ...state.nodes[nodeId],
         expanded: true
       }
 
+      state.nodes = { ...state.nodes }
+      state.nodes[nodeId] = newNode
+
       state.expandedIds = { ...state.expandedIds }
-      state.expandedIds[nodeId] = true
+      if (newNode.expanded !== newNode.expandedOnLoad) {
+        state.expandedIds[nodeId] = newNode.expanded
+      } else {
+        delete state.expandedIds[nodeId]
+      }
     }
   }
 
@@ -260,6 +278,14 @@ export default class BrowserTreeController {
           })
         }
       } else {
+        newState.expandedIds = { ...newState.expandedIds }
+
+        Object.keys(newState.expandedIds).forEach(expandedId => {
+          if (expandedId.startsWith(nodeId)) {
+            delete newState.expandedIds[expandedId]
+          }
+        })
+
         this._doCollapseNode(newState, node.id, true)
         this._doCollapseNode(newState, node.id, false)
       }
@@ -287,7 +313,11 @@ export default class BrowserTreeController {
       state.nodes[nodeId] = newNode
 
       state.expandedIds = { ...state.expandedIds }
-      state.expandedIds[nodeId] = newNode.expanded
+      if (newNode.expanded !== newNode.expandedOnLoad) {
+        state.expandedIds[nodeId] = newNode.expanded
+      } else {
+        delete state.expandedIds[nodeId]
+      }
 
       if (recursive && !_.isEmpty(node.children)) {
         node.children.forEach(child => {
