@@ -7,6 +7,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -73,45 +74,44 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
-    public OutputStream export(final String spreadsheetFileName, final OutputStream os, final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
-            final boolean exportReferred) throws IOException
+    public OutputStream export(final String spreadsheetFileName, final String zipFileName,
+            final IApplicationServerApi api, final String sessionToken,
+            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
         final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
-
         final Map<String, String> scripts = exportResult.getScripts();
-        final ZipOutputStream zos;
-//        if (scripts.isEmpty())
-//        {
-//            try (final Workbook wb = exportResult.getWorkbook())
-//            {
-//                final ByteArrayOutputStream result = new ByteArrayOutputStream();
-//                wb.write(result);
-//                return result;
-//            }
-//        } else
-//        {
+        if (scripts.isEmpty())
+        {
+            final ByteArrayOutputStream baos;
             try (final Workbook wb = exportResult.getWorkbook())
             {
-                zos = new ZipOutputStream(os);
+                baos = new ByteArrayOutputStream();
+                wb.write(baos);
+            }
+            return baos;
+        } else
+        {
+            final ZipOutputStream zos;
+            try (final Workbook wb = exportResult.getWorkbook())
+            {
+                zos = new ZipOutputStream(new FileOutputStream(zipFileName));
 
-                final ZipEntry zipEntry = new ZipEntry(spreadsheetFileName);
-                zos.putNextEntry(zipEntry);
+                for (final Map.Entry<String, String> script : scripts.entrySet())
+                {
+                    zos.putNextEntry(new ZipEntry(String.format("scripts/%s.py", script.getKey())));
+                    zos.write(script.getValue().getBytes());
+                    zos.closeEntry();
+                }
+
+                zos.putNextEntry(new ZipEntry(spreadsheetFileName));
 
                 try (final BufferedOutputStream bos = new BufferedOutputStream(zos))
                 {
                     wb.write(bos);
                 }
-
-//                for (final String script : scripts)
-//                {
-//                    api.getPropertyTypes().get(0).get
-//                    api.getSampleTypes().get(0).getValidationPlugin().get
-//                }
-
             }
             return zos;
-        //        }
+        }
     }
 
     ExportResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
@@ -455,7 +455,7 @@ public class XLSExport
         exportablePermIds.addAll(spaces);
         exportablePermIds.addAll(experiments);
 
-        try (final OutputStream os = xlsExport.export("export.xlsx", new FileOutputStream("test.zip"),
+        try (final OutputStream os = xlsExport.export("export.xlsx", "test.zip",
                 applicationServerApi, sessionToken, exportablePermIds, true))
         {
         }
