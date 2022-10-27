@@ -7,6 +7,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,8 +73,7 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
-    public void export(final String spreadsheetFileName, final String zipFileName,
-            final IApplicationServerApi api, final String sessionToken,
+    public byte[] export(final String spreadsheetFileName, final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
         final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
@@ -82,16 +82,19 @@ public class XLSExport
         {
             try (
                     final Workbook wb = exportResult.getWorkbook();
-                    final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(spreadsheetFileName))
+                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    final BufferedOutputStream bos = new BufferedOutputStream(baos)
             )
             {
                 wb.write(bos);
+                return baos.toByteArray();
             }
         } else
         {
             try (
                     final Workbook wb = exportResult.getWorkbook();
-                    final ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFileName));
+                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    final ZipOutputStream zos = new ZipOutputStream(baos);
                     final BufferedOutputStream bos = new BufferedOutputStream(zos)
             )
             {
@@ -105,6 +108,8 @@ public class XLSExport
 
                 zos.putNextEntry(new ZipEntry(spreadsheetFileName));
                 wb.write(bos);
+
+                return baos.toByteArray();
             }
         }
     }
@@ -450,7 +455,12 @@ public class XLSExport
         exportablePermIds.addAll(spaces);
         exportablePermIds.addAll(experiments);
 
-        xlsExport.export("export.xlsx", "test.zip", applicationServerApi, sessionToken, exportablePermIds, true);
+        final byte[] bytes = xlsExport.export("export.xlsx", applicationServerApi, sessionToken,
+                exportablePermIds, true);
+        try (final FileOutputStream fos = new FileOutputStream("test.zip"))
+        {
+            fos.write(bytes);
+        }
     }
 
     public static class ExportResult
