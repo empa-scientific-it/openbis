@@ -35,7 +35,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
 
             final Plugin validationPlugin = dataSetType.getValidationPlugin();
             final String script = validationPlugin != null
-                    ? (validationPlugin.getScript() != null ? validationPlugin.getScript() : "") : "";
+                    ? (validationPlugin.getName() != null ? validationPlugin.getName() : "") : "";
 
             addRow(wb, rowNumber++, false, "1", dataSetType.getCode(), script != null ? script : "");
 

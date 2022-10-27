@@ -80,7 +80,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                     propertyType.getLabel(), getFullDataTypeString(propertyType),
                     String.valueOf(vocabulary != null ? vocabulary.getCode() : ""), propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
-                    plugin != null ? (plugin.getScript() != null ? plugin.getScript() : "") : "");
+                    plugin != null ? (plugin.getName() != null ? plugin.getName() : "") : "");
         }
         return rowNumber;
     }

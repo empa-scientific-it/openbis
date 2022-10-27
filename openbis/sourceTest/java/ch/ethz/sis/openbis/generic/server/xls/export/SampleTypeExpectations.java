@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest.TEST_SCRIPT_CONTENT;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +49,8 @@ class SampleTypeExpectations extends Expectations
                 sampleType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();
-                validationPlugin.setScript("test.py");
+                validationPlugin.setName("test.py");
+                validationPlugin.setScript(TEST_SCRIPT_CONTENT);
                 validationPlugin.setFetchOptions(pluginFetchOptions);
 
                 sampleType.setValidationPlugin(validationPlugin);
@@ -98,7 +101,8 @@ class SampleTypeExpectations extends Expectations
                 propertyAssignments[2].getPropertyType().setLabel("Annotations State");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[2].getPropertyType().setDescription("Annotations State");
-                propertyAssignments[2].getPlugin().setScript("test-dynamic.py");
+                propertyAssignments[2].getPlugin().setName("test-dynamic.py");
+                propertyAssignments[2].getPlugin().setScript(TEST_SCRIPT_CONTENT);
 
                 return Arrays.asList(propertyAssignments);
             }

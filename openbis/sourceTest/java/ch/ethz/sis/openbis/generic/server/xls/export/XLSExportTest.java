@@ -6,7 +6,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPER
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROPERTY_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
@@ -24,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -56,6 +56,17 @@ public class XLSExportTest
 
     static final String SESSION_TOKEN = "test-token";
 
+    static final String TEST_SCRIPT_CONTENT =
+            "def getRenderedProperty(entity, property):\n" +
+            "    entity.property(property).renderedValue()";
+
+    static final String DATE_RANGE_VALIDATION_SCRIPT_CONTENT =
+            "def validate(entity, isNew):\n" +
+            "    start_date = getRenderedProperty(entity, \"START_DATE\")\n" +
+            "    end_date = getRenderedProperty(entity, \"END_DATE\")\n" +
+            "    if start_date is not None and end_date is not None and start_date > end_date:\n" +
+            "        return \"End date cannot be before start date!\"";
+
     private static final String XLS_EXPORT_DATA_PROVIDER = "xlsExportData";
 
     private final XLSExport xlsExport = new XLSExport();
@@ -70,7 +81,7 @@ public class XLSExportTest
         return new Object[][] {
                 {
                         "export-vocabulary.xlsx",
-                        Set.of(),
+                        Map.of(),
                         VocabularyExpectations.class,
                         Collections.singletonList(new ExportablePermId(VOCABULARY,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
@@ -78,7 +89,10 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type.xlsx",
-                        Set.of("test.py", "test-dynamic.py"),
+                        Map.of(
+                                "test.py", TEST_SCRIPT_CONTENT,
+                                "test-dynamic.py", TEST_SCRIPT_CONTENT
+                        ),
                         SampleTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
@@ -86,29 +100,15 @@ public class XLSExportTest
                 },
                 {
                         "export-experiment-type.xlsx",
-                        Set.of("test.py"),
+                        Map.of("test.py", TEST_SCRIPT_CONTENT),
                         ExperimentTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                         true
                 },
-//                {
-//                        "export-property-type.xlsx",
-//                        PropertyTypeExpectations.class,
-//                        List.of(
-//                                new ExportablePermId(PROPERTY_TYPE,
-//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.COMMENTS")),
-//                                new ExportablePermId(PROPERTY_TYPE,
-//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.QUANTITY")),
-//                                new ExportablePermId(PROPERTY_TYPE,
-//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_ANNOTATION")),
-//                                new ExportablePermId(PROPERTY_TYPE,
-//                                        new PropertyTypePermId("ANNOTATION.SYSTEM.PLASMID_RELATIONSHIP"))),
-//                        true
-//                },
                 {
                         "export-data-set-type.xlsx",
-                        Set.of(),
+                        Map.of(),
                         DataSetTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(DATASET_TYPE,
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
@@ -116,7 +116,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
-                        Set.of(),
+                        Map.of(),
                         SampleTypeWithVocabularyPropertyExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -125,7 +125,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
-                        Set.of(),
+                        Map.of(),
                         SampleTypeWithVocabularyPropertyExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
@@ -134,7 +134,10 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-sample-property.xlsx",
-                        Set.of("date_range_validation.py", "test.py"),
+                        Map.of(
+                                "date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT,
+                                "test.py", TEST_SCRIPT_CONTENT
+                        ),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -142,7 +145,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
-                        Set.of("date_range_validation.py"),
+                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -150,7 +153,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
-                        Set.of("date_range_validation.py"),
+                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithChainedSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -158,7 +161,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
-                        Set.of("date_range_validation.py"),
+                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -166,7 +169,7 @@ public class XLSExportTest
                 },
                 {
                         "export-space.xlsx",
-                        Set.of(),
+                        Map.of(),
                         SpaceExpectations.class,
                         List.of(
                                 new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
@@ -177,7 +180,7 @@ public class XLSExportTest
                 },
                 {
                         "export-project.xlsx",
-                        Set.of(),
+                        Map.of(),
                         ProjectExpectations.class,
                         List.of(
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
@@ -187,7 +190,7 @@ public class XLSExportTest
                 },
                 {
                         "export-experiment.xlsx",
-                        Set.of(),
+                        Map.of(),
                         ExperimentExpectations.class,
                         List.of(
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
@@ -198,7 +201,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample.xlsx",
-                        Set.of(),
+                        Map.of(),
                         SampleExpectations.class,
                         List.of(
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
@@ -211,7 +214,7 @@ public class XLSExportTest
                 },
                 {
                         "export-data-set.xlsx",
-                        Set.of(),
+                        Map.of(),
                         DataSetExpectations.class,
                         List.of(
                                 new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
@@ -254,11 +257,6 @@ public class XLSExportTest
                         new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
                         new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
                         new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3"))
-                ),
-                List.of(
-                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT1")),
-                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT2")),
-                        new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT3"))
                 ),
                 List.of(
                         new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
@@ -329,9 +327,6 @@ public class XLSExportTest
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3")),
-                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT1")),
-                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT2")),
-                new ExportablePermId(PROPERTY_TYPE, new ObjectPermId("PT3")),
                 new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
                 new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
                 new ExportablePermId(VOCABULARY, new ObjectPermId("V3")),
@@ -397,7 +392,7 @@ public class XLSExportTest
      * @param expectationsClass this class is a generator of mockup data.
      */
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
-    public void testXlsExport(final String expectedResultFileName, final Set<String> expectedScriptFileNames,
+    public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferred) throws Exception
     {
@@ -410,9 +405,9 @@ public class XLSExportTest
             final XLSExport.ExportResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
                     exportReferred);
             final Workbook actualResultWorkbook = actualResult.getWorkbook();
-            final Set<String> actualScriptFileNames = actualResult.getScripts();
+            final Map<String, String> actualScripts = actualResult.getScripts();
 
-            assertEquals(actualScriptFileNames, expectedScriptFileNames);
+            assertEquals(actualScripts, expectedScripts);
 
             final InputStream stream = getClass().getClassLoader().getResourceAsStream(
                     "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);

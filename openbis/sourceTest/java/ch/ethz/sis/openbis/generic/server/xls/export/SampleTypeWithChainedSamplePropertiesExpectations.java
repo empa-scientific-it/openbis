@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest.DATE_RANGE_VALIDATION_SCRIPT_CONTENT;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -88,7 +90,8 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
                 sampleType.setPropertyAssignments(getCoursePropertyAssignments(fetchOptions));
                 final Plugin validationPlugin = new Plugin();
                 validationPlugin.setFetchOptions(fetchOptions.withValidationPlugin());
-                validationPlugin.setScript("date_range_validation.py");
+                validationPlugin.setName("date_range_validation.py");
+                validationPlugin.setScript(DATE_RANGE_VALIDATION_SCRIPT_CONTENT);
                 sampleType.setValidationPlugin(validationPlugin);
                 return Collections.singletonMap(sampleType.getPermId(), sampleType);
             }

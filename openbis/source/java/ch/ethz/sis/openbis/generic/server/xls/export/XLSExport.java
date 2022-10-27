@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -45,7 +47,6 @@ import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExport
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSProjectExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSPropertyTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
@@ -60,8 +61,6 @@ public class XLSExport
     private static final IXLSExportHelper EXPERIMENT_TYPE_EXPORT_HELPER = new XLSExperimentTypeExportHelper();
 
     private static final IXLSExportHelper DATA_SET_TYPE_EXPORT_HELPER = new XLSDataSetTypeExportHelper();
-
-    private static final IXLSExportHelper PROPERTY_TYPE_EXPORT_HELPER = new XLSPropertyTypeExportHelper();
 
     private static final IXLSExportHelper VOCABULARY_EXPORT_HELPER = new XLSVocabularyExportHelper();
 
@@ -80,7 +79,7 @@ public class XLSExport
     {
         final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
 
-        final Set<String> scripts = exportResult.getScripts();
+        final Map<String, String> scripts = exportResult.getScripts();
         final ZipOutputStream zos;
 //        if (scripts.isEmpty())
 //        {
@@ -104,12 +103,11 @@ public class XLSExport
                     wb.write(bos);
                 }
 
-//                int len;
-//                final byte[] buffer = new byte[1024];
-//                while ((len = fis.read(buffer)) > 0) {
-//                    zos.write(buffer, 0, len);
+//                for (final String script : scripts)
+//                {
+//                    api.getPropertyTypes().get(0).get
+//                    api.getSampleTypes().get(0).getValidationPlugin().get
 //                }
-//                zos.closeEntry();
 
             }
             return zos;
@@ -135,7 +133,7 @@ public class XLSExport
         final Workbook wb = new XSSFWorkbook();
         wb.createSheet();
         int rowNumber = 0;
-        final Set<String> scripts = new HashSet<>();
+        final Map<String, String> scripts = new HashMap<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -152,15 +150,16 @@ public class XLSExport
                 final Plugin validationPlugin = entityType.getValidationPlugin();
                 if (validationPlugin != null && validationPlugin.getScript() != null)
                 {
-                    scripts.add(validationPlugin.getScript());
+                    scripts.put(validationPlugin.getName(), validationPlugin.getScript());
                 }
 
-                final Set<String> propertyAssignmentPluginScripts = entityType.getPropertyAssignments().stream()
+                final Map<String, String> propertyAssignmentPluginScripts = entityType.getPropertyAssignments().stream()
                         .filter(propertyAssignment -> propertyAssignment.getPlugin() != null
                                 && propertyAssignment.getPlugin().getScript() != null)
-                        .map(propertyAssignment -> propertyAssignment.getPlugin().getScript())
-                        .collect(Collectors.toSet());
-                scripts.addAll(propertyAssignmentPluginScripts);
+                        .map(PropertyAssignment::getPlugin)
+                        .collect(Collectors.toMap(Plugin::getName, Plugin::getScript));
+
+                scripts.putAll(propertyAssignmentPluginScripts);
             }
         }
 
@@ -248,10 +247,6 @@ public class XLSExport
             case DATASET_TYPE:
             {
                 return DATA_SET_TYPE_EXPORT_HELPER;
-            }
-            case PROPERTY_TYPE:
-            {
-                return PROPERTY_TYPE_EXPORT_HELPER;
             }
             case VOCABULARY:
             {
@@ -378,11 +373,6 @@ public class XLSExport
                     isValid = exportablePermId.getPermId() instanceof SpacePermId;
                     break;
                 }
-                case PROPERTY_TYPE:
-                {
-                    isValid = exportablePermId.getPermId() instanceof PropertyTypePermId;
-                    break;
-                }
             }
 
             if (isValid == false)
@@ -476,9 +466,9 @@ public class XLSExport
 
         private final Workbook workbook;
 
-        private final Set<String> scripts;
+        private final Map<String, String> scripts;
 
-        public ExportResult(final Workbook workbook, final Set<String> scripts)
+        public ExportResult(final Workbook workbook, final Map<String, String> scripts)
         {
             this.workbook = workbook;
             this.scripts = scripts;
@@ -489,7 +479,7 @@ public class XLSExport
             return workbook;
         }
 
-        public Set<String> getScripts()
+        public Map<String, String> getScripts()
         {
             return scripts;
         }

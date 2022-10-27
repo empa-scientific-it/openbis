@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest.TEST_SCRIPT_CONTENT;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +47,8 @@ class ExperimentTypeExpectations extends Expectations
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();
-                validationPlugin.setScript("test.py");
+                validationPlugin.setName("test.py");
+                validationPlugin.setScript(TEST_SCRIPT_CONTENT);
                 validationPlugin.setFetchOptions(pluginFetchOptions);
 
                 experimentType.setValidationPlugin(validationPlugin);

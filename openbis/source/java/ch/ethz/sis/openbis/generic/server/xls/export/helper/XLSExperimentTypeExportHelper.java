@@ -35,7 +35,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
 
             final Plugin validationPlugin = experimentType.getValidationPlugin();
             final String script = validationPlugin != null
-                    ? (validationPlugin.getScript() != null ? validationPlugin.getScript() : "") : "";
+                    ? (validationPlugin.getName() != null ? validationPlugin.getName() : "") : "";
 
             addRow(wb, rowNumber++, false, "1", experimentType.getCode(), script != null ? script : "");
 
