@@ -90,8 +90,8 @@ public class XLSExportTest
                 {
                         "export-sample-type.xlsx",
                         Map.of(
-                                "test.py", TEST_SCRIPT_CONTENT,
-                                "test-dynamic.py", TEST_SCRIPT_CONTENT
+                                "test", TEST_SCRIPT_CONTENT,
+                                "test-dynamic", TEST_SCRIPT_CONTENT
                         ),
                         SampleTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
@@ -100,7 +100,7 @@ public class XLSExportTest
                 },
                 {
                         "export-experiment-type.xlsx",
-                        Map.of("test.py", TEST_SCRIPT_CONTENT),
+                        Map.of("test", TEST_SCRIPT_CONTENT),
                         ExperimentTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
@@ -135,8 +135,8 @@ public class XLSExportTest
                 {
                         "export-sample-type-with-sample-property.xlsx",
                         Map.of(
-                                "date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT,
-                                "test.py", TEST_SCRIPT_CONTENT
+                                "date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT,
+                                "test", TEST_SCRIPT_CONTENT
                         ),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
@@ -145,7 +145,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
-                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
+                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -153,7 +153,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
-                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
+                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithChainedSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -161,7 +161,7 @@ public class XLSExportTest
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
-                        Map.of("date_range_validation.py", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
+                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
@@ -428,22 +428,6 @@ public class XLSExportTest
         }
     }
 
-//    public void testXlsExportScripts() throws Exception
-//    {
-//        final XLSExport.ExportResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
-//                true);
-//        final Workbook actualResultWorkbook = actualResult.getWorkbook();
-//        final File[] scripts = actualResult.getScripts();
-//
-//        final InputStream stream = getClass().getClassLoader().getResourceAsStream(
-//                "ch/ethz/sis/openbis/generic/server/xls/export/resources/export-scripts.xlsx");
-//        if (stream == null)
-//        {
-//            throw new IllegalArgumentException("File not found.");
-//        }
-//        final Workbook expectedResult = new XSSFWorkbook(stream);
-//    }
-
     private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {
         final int sheetsCount = expected.getNumberOfSheets();
@@ -508,7 +492,7 @@ public class XLSExportTest
 
     private static void assertCellsEqual(final Cell actual, final Cell expected)
     {
-        assertEquals(getStringValue(actual), getStringValue(expected), getErrorMessage(actual, "Values"));
+        assertEquals(getStringValue(actual), getStringValue(expected), getErrorMessage(actual));
     }
 
     private static String getStringValue(final Cell cell)
@@ -550,9 +534,9 @@ public class XLSExportTest
         }
     }
 
-    private static String getErrorMessage(final Cell cell, final String what)
+    private static String getErrorMessage(final Cell cell)
     {
-        return String.format(what + " are not compatible at %c:%d.", 'A' + cell.getColumnIndex(),
+        return String.format("Values are not compatible at %c:%d.", 'A' + cell.getColumnIndex(),
                 cell.getRowIndex() + 1);
     }
 

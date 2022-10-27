@@ -47,7 +47,7 @@ class ExperimentTypeExpectations extends Expectations
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();
-                validationPlugin.setName("test.py");
+                validationPlugin.setName("test");
                 validationPlugin.setScript(TEST_SCRIPT_CONTENT);
                 validationPlugin.setFetchOptions(pluginFetchOptions);
 

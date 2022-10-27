@@ -35,9 +35,9 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
 
             final Plugin validationPlugin = dataSetType.getValidationPlugin();
             final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() : "") : "";
+                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            addRow(wb, rowNumber++, false, "1", dataSetType.getCode(), script != null ? script : "");
+            addRow(wb, rowNumber++, false, "1", dataSetType.getCode(), script);
 
             rowNumber = addEntityTypePropertyAssignments(wb, rowNumber, dataSetType.getPropertyAssignments());
             return rowNumber + 1;

@@ -38,7 +38,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
@@ -74,8 +73,9 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
-    public OutputStream export(final OutputStream os, final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
+    public OutputStream export(final String spreadsheetFileName, final OutputStream os, final IApplicationServerApi api,
+            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final boolean exportReferred) throws IOException
     {
         final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
 
@@ -95,7 +95,7 @@ public class XLSExport
             {
                 zos = new ZipOutputStream(os);
 
-                final ZipEntry zipEntry = new ZipEntry("sheet-test.xlsx");
+                final ZipEntry zipEntry = new ZipEntry(spreadsheetFileName);
                 zos.putNextEntry(zipEntry);
 
                 try (final BufferedOutputStream bos = new BufferedOutputStream(zos))
@@ -455,8 +455,8 @@ public class XLSExport
         exportablePermIds.addAll(spaces);
         exportablePermIds.addAll(experiments);
 
-        try (final OutputStream os = xlsExport.export(new FileOutputStream("test.zip"), applicationServerApi,
-                sessionToken, exportablePermIds, true))
+        try (final OutputStream os = xlsExport.export("export.xlsx", new FileOutputStream("test.zip"),
+                applicationServerApi, sessionToken, exportablePermIds, true))
         {
         }
     }

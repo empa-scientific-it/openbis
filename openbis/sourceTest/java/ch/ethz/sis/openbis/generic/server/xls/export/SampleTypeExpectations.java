@@ -49,7 +49,7 @@ class SampleTypeExpectations extends Expectations
                 sampleType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();
-                validationPlugin.setName("test.py");
+                validationPlugin.setName("test");
                 validationPlugin.setScript(TEST_SCRIPT_CONTENT);
                 validationPlugin.setFetchOptions(pluginFetchOptions);
 
@@ -101,7 +101,7 @@ class SampleTypeExpectations extends Expectations
                 propertyAssignments[2].getPropertyType().setLabel("Annotations State");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[2].getPropertyType().setDescription("Annotations State");
-                propertyAssignments[2].getPlugin().setName("test-dynamic.py");
+                propertyAssignments[2].getPlugin().setName("test-dynamic");
                 propertyAssignments[2].getPlugin().setScript(TEST_SCRIPT_CONTENT);
 
                 return Arrays.asList(propertyAssignments);

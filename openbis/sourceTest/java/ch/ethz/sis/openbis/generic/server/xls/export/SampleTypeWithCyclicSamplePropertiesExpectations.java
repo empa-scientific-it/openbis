@@ -90,7 +90,7 @@ class SampleTypeWithCyclicSamplePropertiesExpectations extends Expectations
                 sampleType.setPropertyAssignments(getCoursePropertyAssignments(fetchOptions));
                 final Plugin validationPlugin = new Plugin();
                 validationPlugin.setFetchOptions(fetchOptions.withValidationPlugin());
-                validationPlugin.setName("date_range_validation.py");
+                validationPlugin.setName("date_range_validation");
                 validationPlugin.setScript(DATE_RANGE_VALIDATION_SCRIPT_CONTENT);
                 sampleType.setValidationPlugin(validationPlugin);
                 return Collections.singletonMap(sampleType.getPermId(), sampleType);

@@ -35,9 +35,9 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
 
             final Plugin validationPlugin = experimentType.getValidationPlugin();
             final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() : "") : "";
+                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            addRow(wb, rowNumber++, false, "1", experimentType.getCode(), script != null ? script : "");
+            addRow(wb, rowNumber++, false, "1", experimentType.getCode(), script);
 
             rowNumber = addEntityTypePropertyAssignments(wb, rowNumber, experimentType.getPropertyAssignments());
             return rowNumber + 1;
