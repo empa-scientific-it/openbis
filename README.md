@@ -8,8 +8,9 @@
 git clone https://sissource.ethz.ch/sispub/openbis.git
 cd installation/
 ./gradlew clean
-./gradlew build -x test
+./gradlew build -x test "-Dorg.gradle.jvmargs=--add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
 ```
+
 ## Where the build is found?
 ```
 ./installation/targets/gradle/distributions/openBIS-installation-standard-technologies-SNAPSHOT-rXXXXXXXXXX.tar.gz
@@ -26,6 +27,7 @@ cd openbis_standard_technologies/
 ./gradlew clean
 ./gradlew buildCoreUIPackageUsingJDK8 -x test
 ```
+
 ## How to compile the V3 JS bundle used by the new Admin UI in production?
 ```
 git clone https://sissource.ethz.ch/sispub/openbis.git
