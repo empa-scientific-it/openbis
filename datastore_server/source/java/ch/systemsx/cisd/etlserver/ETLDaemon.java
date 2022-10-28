@@ -688,9 +688,8 @@ public final class ETLDaemon
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
-            QueueingPathRemoverService.start(
-                    DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()),
-                    shredderQueueFile);
+            File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
+            QueueingPathRemoverService.start(storeRootDir, shredderQueueFile);
         }
         if (QueueingDataSetStatusUpdaterService.isRunning() == false)
         {
@@ -712,6 +711,7 @@ public final class ETLDaemon
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
 
+        QueueingDataSetStatusUpdaterService.enable(); // Enable after server has finished startup procedure to avoid errors
         operationLog.info("Data Store Server ready and waiting for data.");
     }
 

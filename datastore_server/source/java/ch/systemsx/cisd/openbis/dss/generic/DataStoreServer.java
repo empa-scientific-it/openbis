@@ -112,7 +112,6 @@ public class DataStoreServer
         QueueingPathRemoverService.start(storeRootDir, ETLDaemon.shredderQueueFile);
         QueueingDataSetStatusUpdaterService.start(ETLDaemon.updaterQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
-        QueueingDataSetStatusUpdaterService.enable(); // Enable after server has finished startup procedure to avoid errors
         ETLDaemon.main(args);
     }
 
