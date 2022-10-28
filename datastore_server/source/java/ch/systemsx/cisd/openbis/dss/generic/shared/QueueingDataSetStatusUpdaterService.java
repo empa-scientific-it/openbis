@@ -20,10 +20,9 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -83,11 +82,6 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
-        if (isRunning()) {
-            operationLog.info("QueueingDataSetStatusUpdaterService already started");
-            return; // Prevent double initialization
-        }
-
         final PersistentExtendedBlockingQueueDecorator<DataSetCodesWithStatus> persistentQueue =
                 PersistentExtendedBlockingQueueFactory.createSmartPersist(queueFile);
         queue = persistentQueue;
@@ -103,7 +97,8 @@ public class QueueingDataSetStatusUpdaterService
                         while (true)
                         {
                             final DataSetCodesWithStatus dataSets = queue.peekWait();
-                            try {
+                            try
+                            {
                                 updater.updateDataSetStatuses(dataSets.getDataSetCodes(),
                                         dataSets.getStatus(), dataSets.isPresentInArchive());
                                 // Note: this is the only consumer of this queue.
@@ -112,7 +107,15 @@ public class QueueingDataSetStatusUpdaterService
                                 // that failed before will work too so we can reduce sleep time
                                 // for next failures.
                                 Sleeper.resetSleepTime();
-                            } catch (UserFailureException ex) {
+                            } catch (RemoteAccessException ex)
+                            {
+                                // If connection with openBIS fails it is possible that
+                                // the same problem will occur for other updates in the queue,
+                                // so we just retry after increasing time.
+                                notifyUpdateFailure(dataSets, ex);
+                                Sleeper.sleepAndIncreaseSleepTime();
+                            } catch (UserFailureException ex)
+                            {
                                 // OpenBIS failure occurred - the problem may be connected with
                                 // certain data set so move this item to the end of the queue and
                                 // try to update other data sets before retrying.
@@ -120,12 +123,6 @@ public class QueueingDataSetStatusUpdaterService
                                 Sleeper.sleepAndIncreaseSleepTime();
                                 queue.add(dataSets);
                                 queue.remove();
-                            } catch (Exception ex) {
-                                // If other problems occur it is possible that
-                                // the same problem will occur for other updates in the queue,
-                                // so we just retry after increasing time.
-                                notifyUpdateFailure(dataSets, ex);
-                                Sleeper.sleepAndIncreaseSleepTime();
                             }
                         }
                     } catch (InterruptedException ex)
@@ -149,13 +146,7 @@ public class QueueingDataSetStatusUpdaterService
                 }
             }, "Updater Queue");
         thread.setDaemon(true);
-        // Delayed startup to allow DSS to finish boot process
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                thread.start();
-            }
-        }, 10000);
+        thread.start();
     }
 
     private static IDataSetStatusUpdater createDataSetStatusUpdater()
