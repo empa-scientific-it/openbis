@@ -97,6 +97,7 @@ public class QueueingPathRemoverService
             TimingParameters parameters)
     {
         if (isRunning()) {
+            operationLog.info("QueueingPathRemoverService already started");
             return; // Prevent double initialization
         }
         final ISimpleLogger logger = new Log4jSimpleLogger(operationLog);

@@ -64,8 +64,6 @@ public class QueueingDataSetStatusUpdaterService
 
     private static IDataSetStatusUpdater updater = null;
 
-    private static boolean enable = false;
-
     /**
      * Initializes the updater thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
@@ -76,10 +74,6 @@ public class QueueingDataSetStatusUpdaterService
         start(queueFile, TimingParameters.getDefaultParameters());
     }
 
-    public static final void enable() {
-        enable = true;
-    }
-
     /**
      * Initializes the updater thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
@@ -88,6 +82,7 @@ public class QueueingDataSetStatusUpdaterService
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
         if (isRunning()) {
+            operationLog.info("QueueingDataSetStatusUpdaterService already started");
             return; // Prevent double initialization
         }
 
@@ -105,35 +100,30 @@ public class QueueingDataSetStatusUpdaterService
                     {
                         while (true)
                         {
-                            if (!enable) {
-                                notificationLog.info("Updater waiting startup procedure to be finished.");
-                                Thread.sleep(2000);
-                            } else {
-                                final DataSetCodesWithStatus dataSets = queue.peekWait();
-                                try {
-                                    updater.updateDataSetStatuses(dataSets.getDataSetCodes(),
-                                            dataSets.getStatus(), dataSets.isPresentInArchive());
-                                    // Note: this is the only consumer of this queue.
-                                    queue.take();
-                                    // If update succeeded than it is possible that other updates
-                                    // that failed before will work too so we can reduce sleep time
-                                    // for next failures.
-                                    Sleeper.resetSleepTime();
-                                } catch (UserFailureException ex) {
-                                    // OpenBIS failure occurred - the problem may be connected with
-                                    // certain data set so move this item to the end of the queue and
-                                    // try to update other data sets before retrying.
-                                    notifyUpdateFailure(dataSets, ex);
-                                    Sleeper.sleepAndIncreaseSleepTime();
-                                    queue.add(dataSets);
-                                    queue.remove();
-                                } catch (Exception ex) {
-                                    // If other problems occur it is possible that
-                                    // the same problem will occur for other updates in the queue,
-                                    // so we just retry after increasing time.
-                                    notifyUpdateFailure(dataSets, ex);
-                                    Sleeper.sleepAndIncreaseSleepTime();
-                                }
+                            final DataSetCodesWithStatus dataSets = queue.peekWait();
+                            try {
+                                updater.updateDataSetStatuses(dataSets.getDataSetCodes(),
+                                        dataSets.getStatus(), dataSets.isPresentInArchive());
+                                // Note: this is the only consumer of this queue.
+                                queue.take();
+                                // If update succeeded than it is possible that other updates
+                                // that failed before will work too so we can reduce sleep time
+                                // for next failures.
+                                Sleeper.resetSleepTime();
+                            } catch (UserFailureException ex) {
+                                // OpenBIS failure occurred - the problem may be connected with
+                                // certain data set so move this item to the end of the queue and
+                                // try to update other data sets before retrying.
+                                notifyUpdateFailure(dataSets, ex);
+                                Sleeper.sleepAndIncreaseSleepTime();
+                                queue.add(dataSets);
+                                queue.remove();
+                            } catch (Exception ex) {
+                                // If other problems occur it is possible that
+                                // the same problem will occur for other updates in the queue,
+                                // so we just retry after increasing time.
+                                notifyUpdateFailure(dataSets, ex);
+                                Sleeper.sleepAndIncreaseSleepTime();
                             }
                         }
                     } catch (InterruptedException ex)
