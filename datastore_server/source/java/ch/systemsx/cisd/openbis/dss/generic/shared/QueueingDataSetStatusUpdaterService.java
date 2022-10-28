@@ -20,6 +20,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
@@ -147,7 +149,13 @@ public class QueueingDataSetStatusUpdaterService
                 }
             }, "Updater Queue");
         thread.setDaemon(true);
-        thread.start();
+        // Delayed startup to allow DSS to finish boot process
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                thread.start();
+            }
+        }, 10000);
     }
 
     private static IDataSetStatusUpdater createDataSetStatusUpdater()
