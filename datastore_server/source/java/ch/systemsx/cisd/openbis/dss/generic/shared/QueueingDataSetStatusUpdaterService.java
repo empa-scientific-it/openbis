@@ -107,7 +107,7 @@ public class QueueingDataSetStatusUpdaterService
                         {
                             if (!enable) {
                                 notificationLog.info("Updater waiting startup procedure to be finished.");
-                                Sleeper.sleepAndIncreaseSleepTime();
+                                Thread.sleep(2000);
                             } else {
                                 final DataSetCodesWithStatus dataSets = queue.peekWait();
                                 try {
