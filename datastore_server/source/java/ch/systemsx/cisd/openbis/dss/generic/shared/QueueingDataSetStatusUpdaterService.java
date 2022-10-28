@@ -87,6 +87,10 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
+        if (isRunning()) {
+            return; // Prevent double initialization
+        }
+
         final PersistentExtendedBlockingQueueDecorator<DataSetCodesWithStatus> persistentQueue =
                 PersistentExtendedBlockingQueueFactory.createSmartPersist(queueFile);
         queue = persistentQueue;

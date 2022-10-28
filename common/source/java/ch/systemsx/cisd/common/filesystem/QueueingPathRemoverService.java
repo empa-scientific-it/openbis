@@ -96,6 +96,9 @@ public class QueueingPathRemoverService
     public static synchronized final void start(final File storeRootOrNull, final File queueFileOrNull,
             TimingParameters parameters)
     {
+        if (isRunning()) {
+            return; // Prevent double initialization
+        }
         final ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
         final IFileRemover monitoringProxy = FileOperations.createMonitoredInstance(parameters);
         deepRemover = new LoggingPathRemoverDecorator(monitoringProxy, logger, false);
