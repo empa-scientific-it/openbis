@@ -402,7 +402,7 @@ public class XLSExportTest
 
         try
         {
-            final XLSExport.ExportResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
+            final XLSExport.PrepareWorkbookResult actualResult = xlsExport.prepareWorkbook(api, SESSION_TOKEN, exportablePermIds,
                     exportReferred);
             final Workbook actualResultWorkbook = actualResult.getWorkbook();
             final Map<String, String> actualScripts = actualResult.getScripts();

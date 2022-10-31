@@ -28,15 +28,23 @@ def export(context, parameters):
         :return: Openbis's execute operations result string. It should contain report on what was created.
     """
     try:
+        file_name = parameters.get("file_name")
         vocabularies = map(lambda id: ExportablePermId(ExportableKind.valueOf(id.get("exportable_kind")),
-                                                                              id.get("perm_id")),
+                                                       id.get("perm_id")),
                            parameters.get("ids", {}))
 
         session_token = context.getSessionToken()
         api = context.getApplicationService()
         xls_export = XLSExport()
-        bytes = xls_export.export("export.xlsx", api, session_token, vocabularies,
+        export_result = xls_export.export(file_name, api, session_token, vocabularies,
                                   parameters.get("export_referred", False))
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    return {"status": "OK", "result": bytes}
+    return {
+        "status": "OK",
+        "result": {
+            "file_name": file_name,
+            "file_type": export_result.getFileType().toString().lower(),
+            "content": export_result.getBytes()
+        }
+    }

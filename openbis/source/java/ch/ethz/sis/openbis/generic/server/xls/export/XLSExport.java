@@ -8,6 +8,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCAB
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,10 +74,10 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
-    public byte[] export(final String spreadsheetFileName, final IApplicationServerApi api, final String sessionToken,
+    public ExportResult export(final String spreadsheetFileName, final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
-        final ExportResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
+        final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
         final Map<String, String> scripts = exportResult.getScripts();
         if (scripts.isEmpty())
         {
@@ -87,7 +88,7 @@ public class XLSExport
             )
             {
                 wb.write(bos);
-                return baos.toByteArray();
+                return new ExportResult(FileType.XLSX, baos.toByteArray());
             }
         } else
         {
@@ -109,12 +110,12 @@ public class XLSExport
                 zos.putNextEntry(new ZipEntry(spreadsheetFileName));
                 wb.write(bos);
 
-                return baos.toByteArray();
+                return new ExportResult(FileType.ZIP, baos.toByteArray());
             }
         }
     }
 
-    ExportResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
+    PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
         if (!isValid(exportablePermIds))
@@ -163,7 +164,7 @@ public class XLSExport
             }
         }
 
-        return new ExportResult(wb, scripts);
+        return new PrepareWorkbookResult(wb, scripts);
     }
 
     private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
@@ -456,21 +457,21 @@ public class XLSExport
         exportablePermIds.addAll(experiments);
 
         final byte[] bytes = xlsExport.export("export.xlsx", applicationServerApi, sessionToken,
-                exportablePermIds, true);
+                exportablePermIds, true).getBytes();
         try (final FileOutputStream fos = new FileOutputStream("test.zip"))
         {
             fos.write(bytes);
         }
     }
 
-    public static class ExportResult
+    public static class PrepareWorkbookResult
     {
 
         private final Workbook workbook;
 
         private final Map<String, String> scripts;
 
-        public ExportResult(final Workbook workbook, final Map<String, String> scripts)
+        public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts)
         {
             this.workbook = workbook;
             this.scripts = scripts;
@@ -486,6 +487,36 @@ public class XLSExport
             return scripts;
         }
 
+    }
+
+    public static class ExportResult
+    {
+
+        private final FileType fileType;
+
+        private final byte[] bytes;
+
+        public ExportResult(final FileType fileType, final byte[] bytes)
+        {
+            this.fileType = fileType;
+            this.bytes = bytes;
+        }
+
+        public FileType getFileType()
+        {
+            return fileType;
+        }
+
+        public byte[] getBytes()
+        {
+            return bytes;
+        }
+
+    }
+
+    public enum FileType
+    {
+        ZIP, XLSX
     }
 
 }
