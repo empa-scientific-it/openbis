@@ -261,7 +261,7 @@ def download_dataset_in_collection(identifier, **kwargs):
         click.echo(f" {dest}")
         syslog.syslog(
             syslog.LOG_INFO,
-            f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+            f"{openbis.hostname} | {openbis.token} | {dataset.permId}",
         )
 
 
@@ -341,7 +341,7 @@ def download_datasets_in_sample(identifier, **kwargs):
         click.echo(f" {dest}")
         syslog.syslog(
             syslog.LOG_INFO,
-            f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+            f"{openbis.hostname} | {openbis.token} | {dataset.permId}",
         )
 
 
@@ -433,7 +433,7 @@ def download_dataset(permid, destination, fileno, **kwargs):
         )
     syslog.syslog(
         syslog.LOG_INFO,
-        f"{openbis.hostname} | {openbis.username} | {dataset.permId}",
+        f"{openbis.hostname} | {openbis.token} | {dataset.permId}",
     )
 
 
