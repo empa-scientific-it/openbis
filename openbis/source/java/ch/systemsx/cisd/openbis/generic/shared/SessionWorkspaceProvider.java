@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -145,6 +146,27 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
         {
             operationLog.warn("Session workspace could not be shredded", e);
         }
+    }
+
+    @Override
+    public void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    @Override
+    public InputStream read(String sessionToken, String relativePathToFile) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        return Files.newInputStream(targetFile.toPath());
+    }
+
+    @Override
+    public void delete(String sessionToken, String relativePathToFile) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        Files.delete(targetFile.toPath());
     }
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)

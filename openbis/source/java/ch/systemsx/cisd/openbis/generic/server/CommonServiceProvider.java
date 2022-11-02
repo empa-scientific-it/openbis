@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import org.springframework.context.ApplicationContext;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IImportService;
@@ -48,6 +50,10 @@ public class CommonServiceProvider
     {
         return (ICommonServerForInternalUse) applicationContext
                 .getBean(ResourceNames.COMMON_SERVER);
+    }
+
+    public static ISessionWorkspaceProvider getSessionWorkspaceProvider() {
+        return (ISessionWorkspaceProvider) CommonServiceProvider.getApplicationContext().getBean(SessionWorkspaceProvider.INTERNAL_SERVICE_NAME);
     }
 
     public static IImportService getImportService()
