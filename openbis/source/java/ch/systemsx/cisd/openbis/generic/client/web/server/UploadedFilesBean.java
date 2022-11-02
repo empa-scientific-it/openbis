@@ -57,10 +57,27 @@ public final class UploadedFilesBean
 
     public final void addMultipartFile(String sessionToken, final MultipartFile multipartFile, ISessionWorkspaceProvider sessionWorkspaceProvider)
     {
+        addMultipartFile(sessionToken, multipartFile, sessionWorkspaceProvider, false);
+    }
+
+    public final void addMultipartFile(String sessionToken, final MultipartFile multipartFile, ISessionWorkspaceProvider sessionWorkspaceProvider, boolean keepOriginalFileName)
+    {
         assert multipartFile != null : "Unspecified multipart file.";
         try
         {
-            final File tempFile = createTempFile(sessionToken, sessionWorkspaceProvider);
+            File tempFile = null;
+            if (keepOriginalFileName) {
+                File sessionWorkspaceFolder = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
+                tempFile = new File(sessionWorkspaceFolder, multipartFile.getOriginalFilename());
+                if (tempFile.exists()) {
+                    tempFile.delete();
+                }
+                tempFile.createNewFile();
+                tempFile.deleteOnExit();
+            } else {
+                tempFile = createTempFile(sessionToken, sessionWorkspaceProvider);
+            }
+
             multipartFile.transferTo(tempFile);
 
             operationLog.info("Uploaded file '" + multipartFile.getOriginalFilename() + "' to session workspace");

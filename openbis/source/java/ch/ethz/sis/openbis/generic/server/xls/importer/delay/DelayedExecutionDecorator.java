@@ -158,8 +158,8 @@ public class DelayedExecutionDecorator
             }
             for (DelayedExecution delayedExecution : delayedExecutionsAsList)
             {
-                errors.add("page: " + (delayedExecution.getPage() + 1) + " line: " + (delayedExecution.getLine() + 1) + " failed waiting on the creation of "
-                        + delayedExecution.getDependencies());
+                errors.add("sheet: " + (delayedExecution.getPage() + 1) + " line: " + (delayedExecution.getLine() + 1) + " message: Entity "
+                        + delayedExecution.getDependencies() + " could not be found. Either you forgot to register it or mistyped the identifier.");
             }
             throw new UserFailureException(errors.toString());
         }
@@ -559,9 +559,9 @@ public class DelayedExecutionDecorator
         List<String> assignmentsToRemove = new ArrayList<>();
         for (String propertyCode : properties.keySet())
         {
-            if (isKeySamplePropertyCode(propertyCode))
+            String propertyValue = properties.get(propertyCode);
+            if (propertyValue != null && isKeySamplePropertyCode(propertyCode))
             {
-                String propertyValue = properties.get(propertyCode);
                 if (propertyValue.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
                 {
                     IdentifierVariable identifierVariable = new IdentifierVariable(propertyValue);

@@ -149,7 +149,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 				return jsonObject[1];
 			} else {
 				var array = [];
-				var jsonType = jsonType ? jsonType["arguments"][0] : null;
+				var jsonType = (jsonType && jsonType["arguments"] && jsonType["arguments"].length > 0) ? jsonType["arguments"][0] : null;
 
 				jsonObject.forEach(function(item, index) {
 					var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, item, objectMap, modulesMap);

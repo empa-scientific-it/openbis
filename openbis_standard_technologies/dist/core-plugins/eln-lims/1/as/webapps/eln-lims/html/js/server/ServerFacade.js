@@ -131,7 +131,7 @@ function ServerFacade(openbisServer) {
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)
-        });
+        }, true);
     }
 
     this.deleteSpace = function(code, reason, callback) {
@@ -153,7 +153,7 @@ function ServerFacade(openbisServer) {
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)
-        });
+        }, true);
     }
 
     this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
@@ -987,6 +987,7 @@ function ServerFacade(openbisServer) {
 		formData.append("sessionKeysNumber", 1);
 		formData.append("sessionKey_0", "sample-file-upload");
 		formData.append("sample-file-upload", file);
+		formData.append("keepOriginalFileName", "True");
 		formData.append("sessionID", this.openbisServer.getSession());
 
 		$.ajax({
@@ -1169,8 +1170,8 @@ function ServerFacade(openbisServer) {
 		callbackFunction(error, result);
 	};
 
-	this.customELNASAPI = function(parameters, callbackFunction) {
-		this.customASService(parameters, callbackFunction, "as-eln-lims-api");
+	this.customELNASAPI = function(parameters, callbackFunction, async) {
+		this.customASService(parameters, callbackFunction, "as-eln-lims-api", null, async);
 	}
 
 	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
@@ -3572,9 +3573,14 @@ function ServerFacade(openbisServer) {
 	}
 
 	// errorHandler: optional. if present, it is called instead of showing the error and the callbackFunction is not called
-	this.customASService = function(parameters, callbackFunction, serviceCode, errorHandler) {
-		require([ "as/dto/service/id/CustomASServiceCode", "as/dto/service/CustomASServiceExecutionOptions" ],
-			   function(CustomASServiceCode, CustomASServiceExecutionOptions) {
+	this.customASService = function(parameters, callbackFunction, serviceCode, errorHandler, async) {
+		require([   "as/dto/service/execute/ExecuteCustomASServiceOperation",
+		            "as/dto/service/id/CustomASServiceCode",
+		            "as/dto/service/CustomASServiceExecutionOptions",
+		             "as/dto/operation/AsynchronousOperationExecutionOptions",
+		             "as/dto/operation/fetchoptions/OperationExecutionFetchOptions"],
+			   function(ExecuteCustomASServiceOperation, CustomASServiceCode, CustomASServiceExecutionOptions,
+			            AsynchronousOperationExecutionOptions, OperationExecutionFetchOptions) {
 				   var id = new CustomASServiceCode(serviceCode);
 				   var options = new CustomASServiceExecutionOptions();
 
@@ -3584,19 +3590,46 @@ function ServerFacade(openbisServer) {
 					   }
 				   }
 
-				   mainController.openbisV3.executeCustomASService(id, options).done(function(result) {
-					   callbackFunction(result);
-				   }).fail(function(result) {
-					    if (errorHandler) {
-							errorHandler(result);
-					    } else {
-                            var msg = result.message;
-                            if (!msg) {
-                                msg = "Call failed to server: " + JSON.stringify(result);
+                var failureHander = function(result) {
+                            if (errorHandler) {
+                                errorHandler(result);
+                            } else {
+                                var msg = result.message;
+                                if (!msg) {
+                                    msg = "Call failed to server: " + JSON.stringify(result);
+                                }
+                                Util.showError(msg);
                             }
-                            Util.showError(msg);
-						}
-				   });
+                       };
+
+                   if(async) {
+                        var executeCustomASServiceOperation = new ExecuteCustomASServiceOperation(id, options);
+                        var asyncOptions = new AsynchronousOperationExecutionOptions();
+                        mainController.openbisV3.executeOperations([executeCustomASServiceOperation], asyncOptions).done(function(asyncResult) {
+                           var asyncExecutionId = asyncResult.executionId;
+                           var asyncOptions = new OperationExecutionFetchOptions();
+                           asyncOptions.withDetails().withResults();
+                           asyncOptions.withDetails().withError();
+                           var waitUntilDone = null;
+                                waitUntilDone = function() {
+                                mainController.openbisV3.getOperationExecutions([asyncExecutionId], asyncOptions).done(function(asyncWaitResults) {
+                                    var asyncWaitResult = asyncWaitResults[asyncExecutionId.permId];
+                                    if(asyncWaitResult.details.error !== null) {
+                                        Util.showError(asyncWaitResult.details.error.message);
+                                    } else if(asyncWaitResult.details.results !== null) {
+                                        callbackFunction(asyncWaitResult.details.results[0]);
+                                    } else {
+                                        setTimeout(waitUntilDone, 1000);
+                                    }
+                                }).fail(failureHander);
+                           }
+                           waitUntilDone();
+                        }).fail(failureHander);
+                   } else {
+                       mainController.openbisV3.executeCustomASService(id, options).done(function(result) {
+                           callbackFunction(result);
+                       }).fail(failureHander);
+                   }
 		});
 	}
 

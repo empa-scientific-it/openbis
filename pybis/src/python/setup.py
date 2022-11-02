@@ -13,7 +13,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="PyBIS",
-    version="1.33.0",
+    version="1.34.0",
     author="Swen Vermeul • ID SIS • ETH Zürich",
     author_email="swen@ethz.ch",
     description="openBIS connection and interaction, optimized for using with Jupyter",
@@ -37,4 +37,9 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
+    entry_points={
+        "console_scripts": [
+            "pybis=pybis.cli:cli",
+        ]
+    },
 )

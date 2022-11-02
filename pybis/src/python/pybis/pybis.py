@@ -997,19 +997,19 @@ class Openbis:
         self.use_cache = use_cache
         self.cache = {}
         self.server_information = None
-        if (
-            token is not None
-        ):  # We try to set the token, during initialisation instead of errors, a message is printed
+        if token is not None:
             try:
                 self.set_token(token)
-            except:
-                pass
+            except ValueError:
+                raise ValueError(
+                    "This token is no longer valid. Please provide an valid token or use the login method."
+                )
         else:
+            # We try to set the saved token, during initialisation instead of errors, a message is printed
             try:
                 token = self._get_saved_token()
                 self.token = token
             except ValueError:
-                print(token)
                 pass
 
     def _get_username(self):
@@ -1259,16 +1259,24 @@ class Openbis:
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
 
-        resp = requests.post(
-            full_url, json.dumps(request), verify=self.verify_certificates
-        )
-
+        try:
+            resp = requests.post(
+                full_url, json.dumps(request), verify=self.verify_certificates
+            )
+        except requests.exceptions.SSLError as exc:
+            raise requests.exceptions.SSLError(
+                "Certificate validation failed. Use o=Openbis(url, verify_certificates=False) if you are using self-signed certificates."
+            ) from exc
+        except requests.ConnectionError as exc:
+            raise requests.ConnectionError(
+                "Could not connecto to the openBIS server. Please check your internet connection, the specified hostname and port."
+            ) from exc
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
-                if "Session token" in resp["error"]["message"]:
-                    print(json.dumps(request))
-                    raise ValueError(resp["error"]["message"])
+                # print(full_url)
+                print(json.dumps(request))
+                raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
             else:
@@ -2246,6 +2254,7 @@ class Openbis:
         fetchopts = get_fetchoption_for_entity("space")
         fetchopts["from"] = start_with
         fetchopts["count"] = count
+        fetchopts["registrator"] = get_fetchoption_for_entity("registrator")
         request = {
             "method": method,
             "params": [
@@ -2255,9 +2264,19 @@ class Openbis:
             ],
         }
         resp = self._post_request(self.as_v3, request)
+        parse_jackson(resp)
 
         def create_data_frame(attrs, props, response):
-            attrs = ["code", "description", "registrationDate", "modificationDate"]
+            attrs = [
+                "code",
+                "description",
+                "registrationDate",
+                "registrator",
+                "modificationDate",
+                "frozen",
+                "frozenForProjects",
+                "frozenForSamples",
+            ]
             if len(resp["objects"]) == 0:
                 spaces = DataFrame(columns=attrs)
             else:
@@ -2268,6 +2287,7 @@ class Openbis:
                 spaces["modificationDate"] = spaces["modificationDate"].map(
                     format_timestamp
                 )
+                spaces["registrator"] = spaces["registrator"].map(extract_userId)
             return spaces[attrs]
 
         return Things(
@@ -3076,9 +3096,10 @@ class Openbis:
                 "as.dto.project.fetchoptions.ProjectFetchOptions",
             )
             resp = self._post_request(self.as_v3, request)
+            if len(resp) == 0:
+                raise ValueError("No such project: %s" % projectId)
             if only_data:
                 return resp[projectId]
-
             project = Project(openbis_obj=self, type=None, data=resp[projectId])
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
@@ -3145,13 +3166,18 @@ class Openbis:
 
         def create_data_frame(attrs, props, response):
             attrs = [
+                "code",
                 "identifier",
                 "permId",
+                "description",
                 "leader",
                 "registrator",
                 "registrationDate",
                 "modifier",
                 "modificationDate",
+                "frozen",
+                "frozenForExperiments",
+                "frozenForSamples",
             ]
             objects = response["objects"]
             if len(objects) == 0:
@@ -4322,10 +4348,7 @@ class Openbis:
             "method": "isSessionActive",
             "params": [token],
         }
-        try:
-            resp = self._post_request(self.as_v3, request)
-        except Exception:
-            return False
+        resp = self._post_request(self.as_v3, request)
         return resp
 
     def get_session_info(self, token=None):
@@ -5333,8 +5356,8 @@ class ServerInformation:
         ]:
             if int_field in info:
                 info[int_field] = int(info[int_field])
-        info["openbis-support-email"] = info["openbis.support.email"]
-        del info["openbis.support.email"]
+        info["openbis-support-email"] = info.get("openbis.support.email", "")
+        info.pop("openbis.support.email", "")
         return info
 
     def __dir__(self):

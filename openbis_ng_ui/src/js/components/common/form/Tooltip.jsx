@@ -13,10 +13,13 @@ class Tooltip extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Tooltip.render')
 
-    const { children, classes, title } = this.props
+    const { children, classes, title, delay = 1000 } = this.props
 
     return (
-      <MaterialTooltip title={<span className={classes.title}>{title}</span>}>
+      <MaterialTooltip
+        enterDelay={delay}
+        title={<span className={classes.title}>{title}</span>}
+      >
         {children}
       </MaterialTooltip>
     )

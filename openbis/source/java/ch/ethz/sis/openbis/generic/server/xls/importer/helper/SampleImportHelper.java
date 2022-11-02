@@ -108,7 +108,7 @@ public class SampleImportHelper extends BasicImportHelper
             lineIndex++;
         } catch (Exception e)
         {
-            throw new UserFailureException("Exception at page " + (pageIndex + 1) + " and line " + (lineIndex + 1) + " with message: " + e.getMessage());
+            throw new UserFailureException("sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
         }
 
         // and then import samples

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 ETH Zürich, SIS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ch.ethz.sis.afs.manager;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
@@ -21,6 +37,8 @@ import ch.ethz.sis.afs.manager.operation.OperationExecutor;
 import ch.ethz.sis.afs.manager.operation.WriteOperationExecutor;
 
 import java.util.*;
+
+import static ch.ethz.sis.shared.collection.List.safe;
 
 public class TransactionConnection implements TransactionalFileSystem {
 
@@ -197,13 +215,24 @@ public class TransactionConnection implements TransactionalFileSystem {
     public List<File> list(String source, boolean recursively) throws Exception {
         source = getSafePath(OperationName.List, source);
         validateOperationAndPaths(OperationName.List, source, null);
+        validateWritten(OperationName.List, source);
         if (IOUtils.getFile(source).getDirectory()) {
-            List<File> files = IOUtils.list(source, recursively);
-            List<File> filesFromRoot = new ArrayList<>();
-            for (File file : files) {
-                filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+            List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
+            boolean locksObtained = lockManager.add(locks);
+            if (locksObtained) {
+                try {
+                    List<File> files = IOUtils.list(source, recursively);
+                    List<File> filesFromRoot = new ArrayList<>();
+                    for (File file : files) {
+                        filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
+                    }
+                    return filesFromRoot;
+                } finally {
+                    lockManager.remove(locks);
+                }
+            } else {
+                AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.List, source);
             }
-            return filesFromRoot;
         } else {
             AFSExceptions.throwInstance(AFSExceptions.PathNotDirectory, OperationName.List, source);
         }
@@ -214,15 +243,19 @@ public class TransactionConnection implements TransactionalFileSystem {
     public byte[] read(String source, long offset, int limit) throws Exception {
         source = getSafePath(OperationName.Read, source);
         validateOperationAndPaths(OperationName.Read, source, null);
+        validateWritten(OperationName.Read, source);
         if (IOUtils.getFile(source).getDirectory()) {
             AFSExceptions.throwInstance(AFSExceptions.PathIsDirectory, OperationName.Read.name(), source);
         }
         List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
         boolean locksObtained = lockManager.add(locks);
         if (locksObtained) {
-            byte[] result = IOUtils.read(source, offset, limit);
-            lockManager.remove(locks);
-            return result;
+            try {
+                byte[] result = IOUtils.read(source, offset, limit);
+                return result;
+            } finally {
+                lockManager.remove(locks);
+            }
         } else {
             AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.Read, source);
         }
@@ -325,30 +358,64 @@ public class TransactionConnection implements TransactionalFileSystem {
         return OperationExecutor.getRealPath(transaction, source);
     }
 
-    private void validateOperationAndPaths(OperationName operationName, String source, String target) {
+    private void validateWritten(OperationName operationName, String finalSource) {
+        List<String> sourceSubPaths = null;
+        if (finalSource != null) {
+            sourceSubPaths = PathLockFinder.getParentSubPaths(finalSource);
+        }
+        for (String source:safe(sourceSubPaths)) {
+            if (written.contains(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeReadAfterWritten, operationName.name(), source);
+            }
+        }
+    }
+
+    private void validateOperationAndPaths(OperationName operationName, String finalSource, String finalTarget) {
+        List<String> sourceSubPaths = null;
+        if (finalSource != null) {
+            sourceSubPaths = PathLockFinder.getParentSubPaths(finalSource);
+        }
+        List<String> targetSubPaths = null;
+        if (finalTarget != null) {
+            targetSubPaths = PathLockFinder.getParentSubPaths(finalTarget);
+        }
         if (state != State.Begin) {
             AFSExceptions.throwInstance(AFSExceptions.OperationNotAddedDueToState, operationName.name(), state, State.Begin);
         }
-        if (source != null && deleted.contains(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (deleted.contains(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), source);
+            }
         }
-        if (target != null && deleted.contains(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (deleted.contains(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterDeleted, operationName.name(), target);
+            }
         }
-        if (source != null && movedSourceToTarget.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (movedSourceToTarget.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+            }
         }
-        if (target != null && movedSourceToTarget.containsKey(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (movedSourceToTarget.containsKey(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+            }
         }
-        if (source != null && movedTargetToSource.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (movedTargetToSource.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), source);
+            }
         }
-        if (target != null && movedTargetToSource.containsKey(target)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+        for (String target:safe(targetSubPaths)) {
+            if (movedTargetToSource.containsKey(target)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterMoved, operationName.name(), target);
+            }
         }
-        if (source != null && copiedTargetToSource.containsKey(source)) {
-            AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterCopied, operationName.name(), source);
+        for (String source:safe(sourceSubPaths)) {
+            if (copiedTargetToSource.containsKey(source)) {
+                AFSExceptions.throwInstance(AFSExceptions.PathCantBeOperatedAfterCopied, operationName.name(), source);
+            }
         }
     }
 

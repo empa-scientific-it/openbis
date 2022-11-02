@@ -295,9 +295,16 @@ public final class UploadServiceServlet extends AbstractController
                 if (fileName.startsWith(sessionKey))
                 {
                     final MultipartFile multipartFile = multipartRequest.getFile(fileName);
+
+                    boolean keepOriginalFilename = false;
+                    if (multipartRequest.getParameter("keepOriginalFileName") != null &&
+                            multipartRequest.getParameter("keepOriginalFileName").equals("True")) {
+                        keepOriginalFilename = true;
+                    }
+
                     if (multipartFile.isEmpty() == false)
                     {
-                        uploadedFiles.addMultipartFile(sessionToken, multipartFile, sessionWorkspaceProvider);
+                        uploadedFiles.addMultipartFile(sessionToken, multipartFile, sessionWorkspaceProvider, keepOriginalFilename);
                         fileUploaded = true;
                     }
                 }

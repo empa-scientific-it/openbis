@@ -40,6 +40,9 @@ public abstract class AbstractDatastorePlugin implements Serializable
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDatastorePlugin.class);
 
+    static protected final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            AbstractDatastorePlugin.class);
+
     static protected final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractDatastorePlugin.class);
 

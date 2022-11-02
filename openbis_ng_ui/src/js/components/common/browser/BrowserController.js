@@ -143,6 +143,10 @@ export default class BrowserController {
     })
   }
 
+  filterClear() {
+    this.filterChange('')
+  }
+
   nodeExpand(nodeId) {
     const { nodes } = this.context.getState()
 

@@ -44,6 +44,8 @@ var BarcodeUtil = new function() {
             }
             if(event.key === "Clear") {
                 barcodeReader = "";
+            } else if(event.key === "Enter") {
+                // Ignore the enter character
             } else {
                 barcodeReader += event.key;
             }
@@ -249,6 +251,14 @@ var BarcodeUtil = new function() {
         }
     }
 
+    this.preventFormSubmit = function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    }
+
     this.readBarcodeMulti = function(actionLabel, action) {
         var _this = this;
         var $readed = $('<div>');
@@ -276,12 +286,13 @@ var BarcodeUtil = new function() {
         var barcodeReaderLocalEventListener = barcodeReaderEventListener(gatherReaded);
         document.addEventListener('keyup', barcodeReaderLocalEventListener);
 
-
         var $window = $('<form>', {
             'action' : 'javascript:void(0);'
         });
+        $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : actionLabel });
+        $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.click(function(event) {
             // Swap event listeners
             document.removeEventListener('keyup', barcodeReaderLocalEventListener);
@@ -291,6 +302,7 @@ var BarcodeUtil = new function() {
         });
 
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
+        $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
             // Swap event listeners
             document.removeEventListener('keyup', barcodeReaderLocalEventListener);
@@ -323,8 +335,10 @@ var BarcodeUtil = new function() {
         var $window = $('<form>', {
             'action' : 'javascript:void(0);'
         });
+        $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode' });
+        $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.prop("disabled",false);
 
         var $barcodeReaders = [];
@@ -408,6 +422,7 @@ var BarcodeUtil = new function() {
         });
 
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
+        $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
             Util.unblockUI();
         });

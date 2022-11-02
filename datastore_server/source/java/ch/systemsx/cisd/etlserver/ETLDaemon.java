@@ -688,9 +688,8 @@ public final class ETLDaemon
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
-            QueueingPathRemoverService.start(
-                    DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()),
-                    shredderQueueFile);
+            File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
+            QueueingPathRemoverService.start(storeRootDir, shredderQueueFile);
         }
         if (QueueingDataSetStatusUpdaterService.isRunning() == false)
         {

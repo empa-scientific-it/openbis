@@ -69,11 +69,11 @@ public abstract class RetryCaller<T, E extends Throwable>
             {
                 if (System.currentTimeMillis() < waitUntil)
                 {
-                    logger.log(LogLevel.WARN, "Call failed - will retry");
+                    logger.log(LogLevel.WARN, "Call failed - will retry", e);
                     waitForRetry();
                 } else
                 {
-                    logger.log(LogLevel.WARN, "Call failed - will NOT retry");
+                    logger.log(LogLevel.WARN, "Call failed - will NOT retry", e);
                     throw e;
                 }
             }

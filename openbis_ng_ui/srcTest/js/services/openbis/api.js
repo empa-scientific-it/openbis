@@ -31,6 +31,7 @@ const searchPersons = jest.fn()
 const searchPlugins = jest.fn()
 const searchQueries = jest.fn()
 const searchQueryDatabases = jest.fn()
+const searchSpaces = jest.fn()
 const searchProjects = jest.fn()
 const searchPropertyAssignments = jest.fn()
 const searchPropertyTypes = jest.fn()
@@ -138,6 +139,18 @@ const mockSearchPersonalAccessTokens = pats => {
   searchPersonalAccessTokens.mockReturnValue(Promise.resolve(searchResult))
 }
 
+const mockSearchSpaces = spaces => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(spaces)
+  searchSpaces.mockReturnValue(Promise.resolve(searchResult))
+}
+
+const mockSearchSamples = samples => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(samples)
+  searchSamples.mockReturnValue(Promise.resolve(searchResult))
+}
+
 export default {
   init,
   login,
@@ -170,6 +183,7 @@ export default {
   searchPlugins,
   searchQueries,
   searchQueryDatabases,
+  searchSpaces,
   searchProjects,
   searchPropertyAssignments,
   searchPropertyTypes,
@@ -196,5 +210,7 @@ export default {
   mockSearchPlugins,
   mockSearchQueries,
   mockSearchQueryDatabases,
-  mockSearchPersonalAccessTokens
+  mockSearchPersonalAccessTokens,
+  mockSearchSpaces,
+  mockSearchSamples
 }

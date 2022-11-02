@@ -8,6 +8,8 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator 
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
 import ch.systemsx.cisd.common.logging.LogCategory as LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory as LogFactory;
+from java.nio.file import Files
+from java.io import File
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -293,6 +295,7 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        cell_index = _create_cell(row, cell_index, header_style, "Children")
         attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
@@ -330,21 +333,18 @@ def _create_cell(row, cell_index, style, value):
     return cell_index + 1
 
 def importSamples(context, parameters):
-    from org.apache.commons.io import IOUtils
-
     sessionKey = parameters.get("sessionKey")
     allowedSampleTypes = parameters.get("allowedSampleTypes")
     experimentsByType = parameters.get("experimentsByType", {})
     spacesByType = parameters.get("spacesByType", {})
     mode = parameters.get("mode")
     barcodeValidationInfo = json.loads(parameters.get("barcodeValidationInfo"))
-    contextProvider = CommonServiceProvider.getApplicationContext().getBean("request-context-provider")
-    uploadedFiles = contextProvider.getHttpServletRequest().getSession(False).getAttribute(sessionKey)
-    results = []
-    for file in uploadedFiles.iterable():
-        file_name = file.getOriginalFilename()
-        bytes = IOUtils.toByteArray(file.getInputStream())
-        results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
+    sessionManager = CommonServiceProvider.getApplicationContext().getBean("session-manager")
+    sessionWorkspaceProvider = CommonServiceProvider.getApplicationContext().getBean("session-workspace-provider")
+    workspaceFolder = sessionWorkspaceProvider.getSessionWorkspace(context.getSessionToken())
+    uploadedFile = File(workspaceFolder, sessionKey)
+    bytes = Files.readAllBytes(uploadedFile.toPath())
+    results = importData(context, bytes, sessionKey, experimentsByType, spacesByType, mode, False)
     return results
 
 def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space):
@@ -538,7 +538,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
 
     # 4. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= BOX
     # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4");
-    if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
+    if storageBoxName is not None:
         # 4.1 Check that a box with the same name only exist on the given storage and rack position
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1");
         searchCriteriaOtherBox = SampleSearchCriteria();
@@ -553,6 +553,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
             if (result.getProperty("$STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
                 raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("$STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN"));
 
+    if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
         # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.2");
         searchCriteriaStorageRack = SampleSearchCriteria();
@@ -619,7 +620,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
                         and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
-                    raise UserFailureException("Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
+                    raise UserFailureException("You entered an existing box position - Box Name: " + str(storageBoxName) + " Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass

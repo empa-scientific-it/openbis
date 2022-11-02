@@ -1014,6 +1014,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var $tr = $("<tr>");
 		$tbody.append($tr);
 		var $extraRow = null;
+        var rowIndex = tableModel.rows.indexOf(tableModelRow);
 
 		// add expand / collapse for extra
 		if ($extra) {
@@ -1047,7 +1048,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var $widget = tableModelRow[column.label];
 			$td.append($widget);
 			// disbale widget if in view mode
-			if (this._settingsFormModel.mode === FormMode.VIEW) {
+			if (this._settingsFormModel.mode === FormMode.VIEW || (canRemoveFunction && !canRemoveFunction(tableModel.rows[rowIndex]))) {
 				$widget.prop("disabled", true);
 			}
 		}
@@ -1058,7 +1059,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (this._settingsFormModel.mode === FormMode.VIEW) {
 				$removeButton.addClass("disabled");
 			} else {
-			    var rowIndex = tableModel.rows.indexOf(tableModelRow);
 			    if(!canRemoveFunction || canRemoveFunction(tableModel.rows[rowIndex])) {
                     $removeButton.on("click", function() {
                         $tr.remove();

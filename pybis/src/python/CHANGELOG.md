@@ -1,3 +1,14 @@
+## Changes with pybis-1.34.0
+
+- better error handling when connecting to openBIS server
+- add experimental support for datasets via cli
+
+## Changes with pybis-1.33.2
+
+- fix openbis.support.email key error
+- raise error if invalid token is passed to constructor
+- show more attributes for spaces and projects
+
 ## Changes with pybis-1.33.0
 
 - add support for personal access tokens (PAT)

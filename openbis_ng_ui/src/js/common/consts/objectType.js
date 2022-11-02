@@ -9,8 +9,13 @@ const NEW_DYNAMIC_PROPERTY_PLUGIN = 'newDynamicPropertyPlugin'
 const NEW_ENTITY_VALIDATION_PLUGIN = 'newEntityValidationPlugin'
 const NEW_QUERY = 'newQuery'
 
+const SPACE = 'space'
+const PROJECT = 'project'
+const OBJECT = 'object'
 const OBJECT_TYPE = 'objectType'
+const COLLECTION = 'collection'
 const COLLECTION_TYPE = 'collectionType'
+const DATA_SET = 'dataSet'
 const DATA_SET_TYPE = 'dataSetType'
 const MATERIAL_TYPE = 'materialType'
 const VOCABULARY_TYPE = 'vocabularyType'
@@ -39,8 +44,13 @@ export default {
   NEW_DYNAMIC_PROPERTY_PLUGIN,
   NEW_ENTITY_VALIDATION_PLUGIN,
   NEW_QUERY,
+  SPACE,
+  PROJECT,
+  OBJECT,
   OBJECT_TYPE,
+  COLLECTION,
   COLLECTION_TYPE,
+  DATA_SET,
   DATA_SET_TYPE,
   MATERIAL_TYPE,
   VOCABULARY_TYPE,
