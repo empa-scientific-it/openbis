@@ -1,5 +1,6 @@
 ## Changes with pybis-1.34.0
 
+- better error handling when connecting to openBIS server
 - add experimental support for datasets via cli
 
 ## Changes with pybis-1.33.2
