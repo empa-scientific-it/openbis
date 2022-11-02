@@ -139,7 +139,7 @@ def get_spaces(**kwargs):
         spaces = openbis.get_spaces()
     except ValueError as exc:
         raise click.ClickException(exc)
-    click.echo(spaces.__repr__())
+    click.echo(spaces.__repr__(sort_by="modificationDate"))
 
 
 @cli.group()
@@ -172,7 +172,7 @@ def get_projects(space, **kwargs):
         projects = openbis.get_projects(space=space)
     except ValueError as exc:
         raise click.ClickException(exc)
-    click.echo(projects.__repr__())
+    click.echo(projects.__repr__(sort_by="modificationDate"))
 
 
 @cli.group()
@@ -209,7 +209,7 @@ def get_collections(identifier, **kwargs):
         except ValueError as exc:
             raise click.ClickException(f"No space or project found for {identifier}")
     colls = entity.get_collections()
-    click.echo(colls.__repr__())
+    click.echo(colls.__repr__(sort_by="modificationDate"))
 
 
 @collection.command("get")
@@ -236,7 +236,7 @@ def list_datasets_in_collection(identifier, **kwargs):
     except ValueError as exc:
         raise click.ClickException(exc)
     datasets = coll.get_datasets()
-    click.echo(datasets.__repr__())
+    click.echo(datasets.__repr__(sort_by="modificationDate"))
 
 
 @collection.command("download")
@@ -302,7 +302,7 @@ def get_samples(identifier, **kwargs):
                     f"could not find any space, project or collection for {identifier}"
                 )
     samples = entity.get_samples()
-    click.echo(samples.__repr__())
+    click.echo(samples.__repr__(sort_by="modificationDate"))
 
 
 @sample.command("datasets")
@@ -316,7 +316,7 @@ def list_datasets_in_sample(identifier, **kwargs):
     except ValueError as exc:
         raise click.ClickException(exc)
     datasets = sample.get_datasets()
-    click.echo(datasets.__repr__())
+    click.echo(datasets.__repr__(sort_by="modificationDate"))
 
 
 @sample.command("download")
@@ -348,6 +348,34 @@ def download_datasets_in_sample(identifier, **kwargs):
 def dataset(ctx):
     """manage dataset"""
     pass
+
+
+@dataset.command("list")
+@openbis_conn_options
+@click.argument("identifier", required=True)
+def get_datasets(identifier, **kwargs):
+    """list all datasets of a given project, collection or sample"""
+    openbis = get_openbis(**kwargs)
+    try:
+        entity = openbis.get_space(identifier)
+        raise click.ClickException(
+            f"Identifier {identifier} is a space. Please provide a project, collection or sample identifier."
+        )
+    except ValueError as exc:
+        try:
+            entity = openbis.get_project(identifier)
+        except ValueError as exc:
+            try:
+                entity = openbis.get_collection(identifier)
+            except ValueError as exc:
+                try:
+                    entity = openbis.get_sample(identifier)
+                except ValueError as exc:
+                    raise click.ClickException(
+                        f"could not find any space, project or collection for {identifier}"
+                    ) from exc
+    datasets = entity.get_datasets()
+    click.echo(datasets.__repr__(sort_by="modificationDate"))
 
 
 @dataset.command("get")
