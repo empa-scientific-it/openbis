@@ -8,6 +8,8 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator 
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
 import ch.systemsx.cisd.common.logging.LogCategory as LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory as LogFactory;
+from java.nio.file import Files
+from java.io import File
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -331,21 +333,18 @@ def _create_cell(row, cell_index, style, value):
     return cell_index + 1
 
 def importSamples(context, parameters):
-    from org.apache.commons.io import IOUtils
-
     sessionKey = parameters.get("sessionKey")
     allowedSampleTypes = parameters.get("allowedSampleTypes")
     experimentsByType = parameters.get("experimentsByType", {})
     spacesByType = parameters.get("spacesByType", {})
     mode = parameters.get("mode")
     barcodeValidationInfo = json.loads(parameters.get("barcodeValidationInfo"))
-    contextProvider = CommonServiceProvider.getApplicationContext().getBean("request-context-provider")
-    uploadedFiles = contextProvider.getHttpServletRequest().getSession(False).getAttribute(sessionKey)
-    results = []
-    for file in uploadedFiles.iterable():
-        file_name = file.getOriginalFilename()
-        bytes = IOUtils.toByteArray(file.getInputStream())
-        results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
+    sessionManager = CommonServiceProvider.getApplicationContext().getBean("session-manager")
+    sessionWorkspaceProvider = CommonServiceProvider.getApplicationContext().getBean("session-workspace-provider")
+    workspaceFolder = sessionWorkspaceProvider.getSessionWorkspace(context.getSessionToken())
+    uploadedFile = File(workspaceFolder, sessionKey)
+    bytes = Files.readAllBytes(uploadedFile.toPath())
+    results = importData(context, bytes, sessionKey, experimentsByType, spacesByType, mode, False)
     return results
 
 def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space):
