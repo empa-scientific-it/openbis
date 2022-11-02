@@ -147,6 +147,45 @@ def is_personal_access_token(token: str):
     return token.startswith("$pat")
 
 
+def save_config(config_filepath: Path, config: dict) -> dict:
+    with open(config_filepath, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(config))
+
+
+def read_config(config_filepath: Path) -> dict:
+    config = {}
+    if config_filepath.exists():
+        with open(config_filepath, "r") as fh:
+            config = json.load(fh)
+        return config
+
+
+def get_global_config():
+    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_global_config(hostname=None, token=None):
+    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=global_openbis, config=config)
+    return
+
+
+def get_local_config():
+    config_filepath = Path.cwd() / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_local_config(hostname=None, token=None):
+    local_openbis = Path.cwd() / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=local_openbis, config=config)
+    return
+
+
 def get_saved_tokens():
     tokens = {}
     for filepath in PYBIS_FOLDER.glob("*.token"):
