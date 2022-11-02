@@ -131,7 +131,7 @@ function ServerFacade(openbisServer) {
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)
-        }, false);
+        }, true);
     }
 
     this.deleteSpace = function(code, reason, callback) {
@@ -153,7 +153,7 @@ function ServerFacade(openbisServer) {
             "sessionKey" : sessionKey
         }, function(result) {
             callback(result)
-        }, false);
+        }, true);
     }
 
     this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
@@ -987,6 +987,7 @@ function ServerFacade(openbisServer) {
 		formData.append("sessionKeysNumber", 1);
 		formData.append("sessionKey_0", "sample-file-upload");
 		formData.append("sample-file-upload", file);
+		formData.append("keepOriginalFileName", "True");
 		formData.append("sessionID", this.openbisServer.getSession());
 
 		$.ajax({
@@ -3616,10 +3617,9 @@ function ServerFacade(openbisServer) {
                                     if(asyncWaitResult.details.error !== null) {
                                         Util.showError(asyncWaitResult.details.error.message);
                                     } else if(asyncWaitResult.details.results !== null) {
-                                        callbackFunction(result);
+                                        callbackFunction(asyncWaitResult.details.results[0]);
                                     } else {
-                                        console.log("waitUntilDone");
-                                        setTimeout(waitUntilDone, 200);
+                                        setTimeout(waitUntilDone, 1000);
                                     }
                                 }).fail(failureHander);
                            }

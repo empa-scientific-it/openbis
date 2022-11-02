@@ -175,7 +175,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
                 mainController.serverFacade.registerSamples(selectedSampleTypes, experimentsByType, spacesByType,
-                        _this.getBarcodeValidationInfo(), "sample-file-upload", 
+                        _this.getBarcodeValidationInfo(), file.name,
                 function(result) {
                     _this._handleResult(result, "created", experimentIdentifier);
                 });
@@ -198,7 +198,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
             Util.blockUI();
             mainController.serverFacade.fileUpload(file, function() {
                 mainController.serverFacade.updateSamples(selectedSampleTypes,
-                        _this.getBarcodeValidationInfo(), "sample-file-upload", 
+                        _this.getBarcodeValidationInfo(), file.name,
                         function(result) {
                     _this._handleResult(result, "updated", experimentIdentifier);
                 });
@@ -227,7 +227,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
     }
 
     this._handleResult = function(result, verb, experimentIdentifier) {
-        Util.showSuccess(result[0].length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
+        Util.showSuccess(result.result.length + " " + ELNDictionary.Samples + " successfully " + verb, function() {
             Util.unblockUI();
             var expIdOrNull = experimentIdentifier ? '"' + experimentIdentifier + '"' : null;
             mainController.changeView('showSamplesPage', encodeURIComponent('[' + expIdOrNull + ',false]'));
