@@ -1259,10 +1259,18 @@ class Openbis:
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
 
-        resp = requests.post(
-            full_url, json.dumps(request), verify=self.verify_certificates
-        )
-
+        try:
+            resp = requests.post(
+                full_url, json.dumps(request), verify=self.verify_certificates
+            )
+        except requests.exceptions.SSLError as exc:
+            raise requests.exceptions.SSLError(
+                "Certificate validation failed. Use o=Openbis(url, verify_certificates=False) if you are using self-signed certificates."
+            ) from exc
+        except requests.ConnectionError as exc:
+            raise requests.ConnectionError(
+                "Could not connecto to the openBIS server. Please check your internet connection, the specified hostname and port."
+            ) from exc
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
@@ -3088,9 +3096,10 @@ class Openbis:
                 "as.dto.project.fetchoptions.ProjectFetchOptions",
             )
             resp = self._post_request(self.as_v3, request)
+            if len(resp) == 0:
+                raise ValueError("No such project: %s" % projectId)
             if only_data:
                 return resp[projectId]
-
             project = Project(openbis_obj=self, type=None, data=resp[projectId])
             if self.use_cache:
                 self._object_cache(entity="project", code=projectId, value=project)
@@ -4339,10 +4348,7 @@ class Openbis:
             "method": "isSessionActive",
             "params": [token],
         }
-        try:
-            resp = self._post_request(self.as_v3, request)
-        except Exception:
-            return False
+        resp = self._post_request(self.as_v3, request)
         return resp
 
     def get_session_info(self, token=None):
