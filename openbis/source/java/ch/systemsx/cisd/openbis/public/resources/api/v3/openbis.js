@@ -128,6 +128,10 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			}
 		}
 
+		this._createUrlWithParameters = function(dataStore, servlet, parameters) {
+			return dataStore.downloadUrl + "/datastore_server/" + servlet + parameters;
+		}
+
 		this._createUrl = function(dataStore) {
 			return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
 		}
@@ -286,7 +290,39 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
-	}
+    this.createFileUpload = function(file) {
+    			var thisFacade = this;
+
+                var getUUID = function() {
+                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                    );
+                };
+
+                //File
+                var sessionID = facade._private.sessionToken
+                var id = 0;
+                var filename = file.name;
+                var startByte = 0;
+                var endByte = file.size;
+
+    			return this._getDataStores().then(function(dataStores) {
+    				if (dataStores.length > 1) {
+    					var dfd = jquery.Deferred();
+    					dfd.reject("Please specify exactly one data store");
+    					return dfd.promise();
+    				}
+
+                    var parameters = "?sessionID=" + sessionID + "&filename=" + encodeURIComponent(filename) + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte;
+    				return facade._private.ajaxRequest({
+    					url : thisFacade._createUrlWithParameters(dataStores[0], "session_workspace_file_upload", parameters),
+                        contentType: "multipart/form-data",
+                        data: file
+    				});
+    			});
+    }
+
+}
 
 	var facade = function(openbisUrl) {
 
