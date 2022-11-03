@@ -15,13 +15,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber)
+            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
     {
         final Collection<DataSet> dataSets = getDataSets(api, sessionToken, permIds);
 
@@ -57,7 +58,9 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         List.of(dataSet.getCode(), identifierHolder.getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = dataSet.getProperties();
-                dataSetValues.addAll(propertyCodes.stream().map(properties::get).collect(Collectors.toList()));
+                dataSetValues.addAll(propertyCodes.stream()
+                        .map(getPropertiesMappingFunction(textFormatting, properties))
+                        .collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, dataSetValues.toArray(String[]::new));
             }

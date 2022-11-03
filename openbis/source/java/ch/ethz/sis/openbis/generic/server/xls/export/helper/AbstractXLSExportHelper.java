@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
@@ -123,6 +125,15 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
     public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {
         return null;
+    }
+
+    protected static Function<String, String> getPropertiesMappingFunction(
+            final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
+    {
+        return textFormatting == XLSExport.TextFormatting.PLAIN
+                ? propertyCode -> properties.get(propertyCode) != null
+                        ? properties.get(propertyCode).replaceAll("<[^>]+>", "") : null
+                : properties::get;
     }
 
 }

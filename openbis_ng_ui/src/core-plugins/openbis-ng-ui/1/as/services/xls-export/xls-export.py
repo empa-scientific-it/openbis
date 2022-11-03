@@ -23,9 +23,10 @@ def export(context, parameters):
                                 perm_id: permId of the exportable
                             }]
 
-                            export_referred: whether the referred entities should be exported as well
+                            export_referred: whether the referred vocabularies and sample properties should be exported as well
                         }
-        :return: Openbis's execute operations result string. It should contain report on what was created.
+        :return: Openbis's execute operations result string. Contains either the error message or the exported file name
+            in the session workspace.
     """
     try:
         file_name = parameters.get("file_name")
@@ -33,14 +34,14 @@ def export(context, parameters):
                                                        id.get("perm_id")),
                            parameters.get("ids", {}))
 
+        # export_properties = parameters.get("export_properties", None)
         session_token = context.getSessionToken()
         api = context.getApplicationService()
-        xls_export = XLSExport()
-        full_file_name = xls_export.export(file_name, api, session_token, vocabularies,
-                                  parameters.get("export_referred", False))
+        text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
+        full_file_name = XLSExport.export(file_name, api, session_token, vocabularies,
+                                          parameters.get("export_referred"),
+                                          # export_properties,
+                                          text_formatting)
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    return {
-        "status": "OK",
-        "result": full_file_name
-    }
+    return {"status": "OK", "result": full_file_name}

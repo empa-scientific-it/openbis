@@ -16,13 +16,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber)
+            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final ExperimentType experimentType = getExperimentType(api, sessionToken, permIds.iterator().next());
