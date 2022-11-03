@@ -30,6 +30,7 @@ setup(
         "click",
         "texttable",
         "tabulate",
+        "python-dateutil",
     ],
     python_requires=">=3.6",
     classifiers=[
