@@ -8,12 +8,14 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCAB
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +53,8 @@ import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleExportHelpe
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 public class XLSExport
 {
@@ -74,25 +77,58 @@ public class XLSExport
 
     private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
 
-    public ExportResult export(final String spreadsheetFileName, final IApplicationServerApi api, final String sessionToken,
+    private static final String XLSX_EXTENSION = ".xlsx";
+
+    private static final String ZIP_EXTENSION = ".zip";
+
+    public String export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
     {
-        final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds, exportReferred);
+        final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
+                exportReferred);
         final Map<String, String> scripts = exportResult.getScripts();
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
+        try (final PipedInputStream pis = new PipedInputStream())
+        {
+            new Thread(() ->
+            {
+                try (final PipedOutputStream pos = new PipedOutputStream(pis))
+                {
+                    baos.writeTo(pos);
+                } catch (final IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            final String fullFileName = filePrefix + "." +
+                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
+                    (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
+            sessionWorkspaceProvider.write(sessionToken, fullFileName, pis);
+            return fullFileName;
+        }
+    }
+
+    private static ByteArrayOutputStream getByteArrayOutputStream(final String outputFileName,
+            final PrepareWorkbookResult exportResult, final Map<String, String> scripts) throws IOException
+    {
         if (scripts.isEmpty())
         {
-            try (
+            try
+            (
                     final Workbook wb = exportResult.getWorkbook();
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final BufferedOutputStream bos = new BufferedOutputStream(baos)
             )
             {
                 wb.write(bos);
-                return new ExportResult(FileType.XLSX, baos.toByteArray());
+                return baos;
             }
         } else
         {
-            try (
+            try
+            (
                     final Workbook wb = exportResult.getWorkbook();
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final ZipOutputStream zos = new ZipOutputStream(baos);
@@ -107,10 +143,9 @@ public class XLSExport
                     zos.closeEntry();
                 }
 
-                zos.putNextEntry(new ZipEntry(spreadsheetFileName));
+                zos.putNextEntry(new ZipEntry(outputFileName + XLSX_EXTENSION));
                 wb.write(bos);
-
-                return new ExportResult(FileType.ZIP, baos.toByteArray());
+                return baos;
             }
         }
     }
@@ -385,85 +420,6 @@ public class XLSExport
         return isValid;
     }
 
-    public static void main(String[] args) throws IOException
-    {
-        final XLSExport xlsExport = new XLSExport();
-
-        final OpenBisServiceV3Factory openBisServiceV3Factory =
-                new OpenBisServiceV3Factory("http://localhost:8888/");
-        final IApplicationServerApi applicationServerApi = openBisServiceV3Factory.createService();
-        final String sessionToken = applicationServerApi.login("admin", "changeit");
-
-        final Collection<ExportablePermId> vocabularies = Stream.of("STORAGE_FORMAT", "DEFAULT_COLLECTION_VIEWS",
-                        "SUPPLIER.PREFERRED_ORDER_METHOD", "$STORAGE_POSITION.STORAGE_BOX_SIZE",
-                        "ORDER.ORDER_STATUS", "SUPPLIER.LANGUAGE", "WELL.COLOR_ENCODED_ANNOTATIONS",
-                        "PRODUCT.CURRENCY", "$STORAGE.STORAGE_VALIDATION_LEVEL", "ANTIBODY.DETECTION",
-                        "YEAST.BACKGROUND_SPECIFIC_MARKERS", "MEDIA.ORGANISM", "RNA.RNA_BACKBONE", "OLIGO.DIRECTION",
-                        "ANTIBODY.CLONALITY", "YEAST.GENETIC_BACKGROUND", "YEAST.MATING_TYPE", "PLASMID.BACKBONE",
-                        "ORIGIN", "ANNOTATION.PLASMID_RELATIONSHIP", "CELL_LINE.YES_NO_CHOICE", "RNA.STRAND",
-                        "CELL_LINE.CELL_MEDIUM", "ANTIBODY.HOST", "RNA.RNA_TYPE", "CELL_LINE.SPECIES", "STERILIZATION",
-                        "LIFE_SCIENCES_TYPES.VERSION", "PLASMID.MARKER", "YEAST.COMMON_MARKERS",
-                        "PCR_PROTOCOL.TEMPLATE", "PLASMID.BACTERIAL_ANTIBIOTIC_RESISTANCE", "$STORAGE_CONDITIONS",
-                        "YEAST.ENDOGENOUS_PLASMID", "CHECK", "CELL_LINE.CELL_TYPE",
-                        "WESTERN_BLOTTING_PROTOCOL.MEMBRANE")
-                .map(code -> new ExportablePermId(ExportableKind.VOCABULARY, new VocabularyPermId(code)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> sampleTypes = Stream.of("UNKNOWN", "STORAGE", "ENTRY", "PUBLICATION",
-                        "STORAGE_POSITION", "SUPPLIER", "ORDER", "REQUEST", "PRODUCT", "GENERAL_ELN_SETTINGS",
-                        "GENERAL_PROTOCOL", "EXPERIMENTAL_STEP", "BACTERIA", "PCR_PROTOCOL", "RNA", "PLASMID", "OLIGO",
-                        "ANTIBODY", "WESTERN_BLOTTING_PROTOCOL", "SOLUTION_BUFFER", "YEAST", "PLANT_SPECIES", "FLY",
-                        "CELL_LINE", "ENZYME", "MEDIA", "CHEMICAL")
-                .map(code -> new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId(code, SAMPLE)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> experimentTypes = Stream.of("UNKNOWN", "COLLECTION", "DEFAULT_EXPERIMENT")
-                .map(code -> new ExportablePermId(ExportableKind.EXPERIMENT_TYPE,
-                        new EntityTypePermId(code, EXPERIMENT)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> dataSetTypes = Stream.of("UNKNOWN", "ATTACHMENT", "ANALYSIS_NOTEBOOK",
-                        "RAW_DATA", "PUBLICATION_DATA", "OTHER_DATA", "SOURCE_CODE", "PROCESSED_DATA", "ANALYZED_DATA",
-                        "ELN_PREVIEW", "SEQ_FILE")
-                .map(code -> new ExportablePermId(ExportableKind.DATASET_TYPE,
-                        new EntityTypePermId(code, DATA_SET)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> spaces = Stream.of("DEFAULT", "DEFAULT_LAB_NOTEBOOK", "ELN_SETTINGS")
-                .map(permId -> new ExportablePermId(ExportableKind.SPACE, new SpacePermId(permId)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> samples = Stream.of("20220921142846885-1", "20220921142853426-4")
-                .map(permId -> new ExportablePermId(ExportableKind.SAMPLE, new ObjectPermId(permId)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> projects = Stream.of("20220921142846885-1", "20220921142853426-6")
-                .map(permId -> new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId(permId)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> experiments = Stream.of("20220921142846885-1", "20220921142853426-14",
-                        "20220921142853426-2")
-                .map(permId -> new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId(permId)))
-                .collect(Collectors.toList());
-
-        final Collection<ExportablePermId> exportablePermIds = new ArrayList<>();
-        exportablePermIds.addAll(projects);
-        exportablePermIds.addAll(samples);
-        exportablePermIds.addAll(vocabularies);
-        exportablePermIds.addAll(sampleTypes);
-        exportablePermIds.addAll(experimentTypes);
-        exportablePermIds.addAll(dataSetTypes);
-        exportablePermIds.addAll(spaces);
-        exportablePermIds.addAll(experiments);
-
-        final byte[] bytes = xlsExport.export("export.xlsx", applicationServerApi, sessionToken,
-                exportablePermIds, true).getBytes();
-        try (final FileOutputStream fos = new FileOutputStream("test.zip"))
-        {
-            fos.write(bytes);
-        }
-    }
-
     public static class PrepareWorkbookResult
     {
 
@@ -487,36 +443,6 @@ public class XLSExport
             return scripts;
         }
 
-    }
-
-    public static class ExportResult
-    {
-
-        private final FileType fileType;
-
-        private final byte[] bytes;
-
-        public ExportResult(final FileType fileType, final byte[] bytes)
-        {
-            this.fileType = fileType;
-            this.bytes = bytes;
-        }
-
-        public FileType getFileType()
-        {
-            return fileType;
-        }
-
-        public byte[] getBytes()
-        {
-            return bytes;
-        }
-
-    }
-
-    public enum FileType
-    {
-        ZIP, XLSX
     }
 
 }
