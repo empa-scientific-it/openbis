@@ -16,13 +16,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber)
+            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final DataSetType dataSetType = getDataSetType(api, sessionToken, permIds.iterator().next());

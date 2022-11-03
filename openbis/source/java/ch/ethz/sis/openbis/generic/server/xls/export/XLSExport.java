@@ -81,11 +81,13 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
-    public String export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
+    public static String export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
+            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+//            final Map<ExportableKind, Map<String, Collection<String>>> exportProperties,
+            final TextFormatting textFormatting) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferred);
+                exportReferred, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
@@ -150,8 +152,9 @@ public class XLSExport
         }
     }
 
-    PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
-            Collection<ExportablePermId> exportablePermIds, final boolean exportReferred) throws IOException
+    static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
+            Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+            final TextFormatting textFormatting)
     {
         if (!isValid(exportablePermIds))
         {
@@ -177,7 +180,7 @@ public class XLSExport
             final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber);
+            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber, textFormatting);
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId());
 
@@ -202,7 +205,7 @@ public class XLSExport
         return new PrepareWorkbookResult(wb, scripts);
     }
 
-    private Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
+    private static Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
     {
         return exportablePermIds.stream().flatMap(exportablePermId ->
@@ -213,7 +216,7 @@ public class XLSExport
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
+    private static Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
             final String sessionToken, final ExportablePermId exportablePermId,
             final Set<ExportablePermId> processedIds)
     {
@@ -268,7 +271,7 @@ public class XLSExport
         return Stream.empty();
     }
 
-    private IXLSExportHelper getHelper(final ExportableKind exportableKind)
+    private static IXLSExportHelper getHelper(final ExportableKind exportableKind)
     {
         switch (exportableKind)
         {
@@ -315,7 +318,7 @@ public class XLSExport
         }
     }
 
-    Collection<Collection<ExportablePermId>> group(final Collection<ExportablePermId> exportablePermIds)
+    static Collection<Collection<ExportablePermId>> group(final Collection<ExportablePermId> exportablePermIds)
     {
         final Map<ExportableKind, Collection<ExportablePermId>> groupMap = new EnumMap<>(ExportableKind.class);
         final Collection<Collection<ExportablePermId>> result = new ArrayList<>(exportablePermIds.size());
@@ -348,7 +351,7 @@ public class XLSExport
         return result;
     }
 
-    Collection<Collection<ExportablePermId>> putVocabulariesFirst(
+    static Collection<Collection<ExportablePermId>> putVocabulariesFirst(
             final Collection<Collection<ExportablePermId>> exportablePermIds)
     {
         final List<Collection<ExportablePermId>> result = new ArrayList<>(exportablePermIds.size());
@@ -374,7 +377,7 @@ public class XLSExport
         return result;
     }
 
-    private boolean isValid(final Collection<ExportablePermId> exportablePermIds)
+    private static boolean isValid(final Collection<ExportablePermId> exportablePermIds)
     {
         boolean isValid = true;
         for (final ExportablePermId exportablePermId : exportablePermIds)
@@ -443,6 +446,11 @@ public class XLSExport
             return scripts;
         }
 
+    }
+
+    public enum TextFormatting
+    {
+        PLAIN, RICH
     }
 
 }

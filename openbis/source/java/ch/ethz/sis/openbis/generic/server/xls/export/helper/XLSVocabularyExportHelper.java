@@ -13,13 +13,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber)
+            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.iterator().next());

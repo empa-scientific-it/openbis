@@ -14,13 +14,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSSampleExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber)
+            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Sample> samples = getSamples(api, sessionToken, permIds);
 
@@ -62,7 +63,9 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                                 sample.getExperiment().getIdentifier().getIdentifier(),
                                 "FALSE", parents, children));
 
-                sampleValues.addAll(propertyCodes.stream().map(sample.getProperties()::get)
+                final Map<String, String> properties = sample.getProperties();
+                sampleValues.addAll(propertyCodes.stream()
+                        .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, sampleValues.toArray(String[]::new));
