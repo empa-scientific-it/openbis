@@ -40,6 +40,8 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
             final List<String> headers = new ArrayList<>(List.of("Identifier", "Code", "Project"));
             final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
+            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
+                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -51,7 +53,7 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                                 experiment.getProject().getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = experiment.getProperties();
-                experimentValues.addAll(propertyNames.stream().map(properties::get).collect(Collectors.toList()));
+                experimentValues.addAll(propertyCodes.stream().map(properties::get).collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, experimentValues.toArray(String[]::new));
             }

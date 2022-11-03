@@ -42,6 +42,8 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
             final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
+            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
+                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -55,7 +57,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         List.of(dataSet.getCode(), identifierHolder.getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = dataSet.getProperties();
-                dataSetValues.addAll(propertyNames.stream().map(properties::get).collect(Collectors.toList()));
+                dataSetValues.addAll(propertyCodes.stream().map(properties::get).collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, dataSetValues.toArray(String[]::new));
             }
