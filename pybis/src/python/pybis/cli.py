@@ -72,9 +72,13 @@ def get_openbis(
     if not hostname:
         hostname = click.prompt("openBIS hostname")
 
-    token = pybis.get_token_for_hostname(
-        hostname, session_token_needed=session_token_needed
-    )
+    token = os.getenv("OPENBIS_TOKEN")
+    if not token:
+        token = config_local.get("token", config_global.get("token"))
+    if not token:
+        token = pybis.get_token_for_hostname(
+            hostname, session_token_needed=session_token_needed
+        )
     openbis = pybis.Openbis(
         url=hostname,
         verify_certificates=not ignore_certificate,
@@ -83,7 +87,7 @@ def get_openbis(
         try:
             openbis.set_token(token)
             return openbis
-        except Exception:
+        except ValueError:
             pass
 
     if not username:
