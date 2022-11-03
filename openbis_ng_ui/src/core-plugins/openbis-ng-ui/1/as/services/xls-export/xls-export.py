@@ -36,15 +36,11 @@ def export(context, parameters):
         session_token = context.getSessionToken()
         api = context.getApplicationService()
         xls_export = XLSExport()
-        export_result = xls_export.export(file_name, api, session_token, vocabularies,
+        full_file_name = xls_export.export(file_name, api, session_token, vocabularies,
                                   parameters.get("export_referred", False))
     except Exception as e:
         return {"status": "error", "message": str(e)}
     return {
         "status": "OK",
-        "result": {
-            "file_name": file_name,
-            "file_type": export_result.getFileType().toString().lower(),
-            "content": export_result.getBytes()
-        }
+        "result": full_file_name
     }
