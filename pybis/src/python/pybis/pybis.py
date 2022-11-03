@@ -153,11 +153,12 @@ def save_config(config_filepath: Path, config: dict) -> dict:
 
 
 def read_config(config_filepath: Path) -> dict:
-    config = {}
     if config_filepath.exists():
         with open(config_filepath, "r") as fh:
             config = json.load(fh)
         return config
+    else:
+        return {}
 
 
 def get_global_config():
