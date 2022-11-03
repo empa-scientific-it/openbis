@@ -41,6 +41,8 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                     "Experiment", "Auto generate code", "Parents", "Children"));
             final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
+            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
+                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -60,7 +62,7 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                                 sample.getExperiment().getIdentifier().getIdentifier(),
                                 "FALSE", parents, children));
 
-                sampleValues.addAll(propertyNames.stream().map(sample.getProperties()::get)
+                sampleValues.addAll(propertyCodes.stream().map(sample.getProperties()::get)
                         .collect(Collectors.toList()));
                 
                 addRow(wb, rowNumber++, false, sampleValues.toArray(String[]::new));
