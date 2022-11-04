@@ -15,6 +15,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSDataSetExportHelper extends AbstractXLSExportHelper
@@ -41,10 +44,12 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
             final List<String> headers = new ArrayList<>(List.of("Code",
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
-            final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
+            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
+            final List<String> propertyNames = propertyAssignments.stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
-            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
-                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
+            final Map<String, DataType> propertyCodeToTypeMap = propertyAssignments.stream()
+                    .map(PropertyAssignment::getPropertyType)
+                    .collect(Collectors.toMap(PropertyType::getCode, PropertyType::getDataType));
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -58,7 +63,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         List.of(dataSet.getCode(), identifierHolder.getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = dataSet.getProperties();
-                dataSetValues.addAll(propertyCodes.stream()
+                dataSetValues.addAll(propertyCodeToTypeMap.entrySet().stream()
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 

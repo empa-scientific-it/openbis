@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
@@ -127,13 +128,16 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         return null;
     }
 
-    protected static Function<String, String> getPropertiesMappingFunction(
+    protected static Function<Map.Entry<String, DataType>, String> getPropertiesMappingFunction(
             final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
-                ? propertyCode -> properties.get(propertyCode) != null
-                        ? properties.get(propertyCode).replaceAll("<[^>]+>", "") : null
-                : properties::get;
+                ? codeToTypeEntry -> codeToTypeEntry.getValue() == DataType.MULTILINE_VARCHAR
+                        ? properties.get(codeToTypeEntry.getKey()) != null
+                                ? properties.get(codeToTypeEntry.getKey()).replaceAll("<[^>]+>", "")
+                                : null
+                        : properties.get(codeToTypeEntry.getKey())
+                : codeToTypeEntry -> properties.get(codeToTypeEntry.getKey());
     }
-
+    
 }
