@@ -35,6 +35,16 @@ dataset_definitions = openbis_definitions("dataSet")
 dss_endpoint = "/datastore_server/rmi-data-store-server-v3.json"
 
 
+def signed_to_unsigned(sig_int):
+    """openBIS delivers crc32 checksums as signed integers.
+    If the number is negative, we just have to add 2**32
+    We display the hex number to match with the classic UI
+    """
+    if sig_int < 0:
+        sig_int += 2**32
+    return "%x" % (sig_int & 0xFFFFFFFF)
+
+
 class DataSet(
     OpenBisObject,
     entity="dataSet",
@@ -421,6 +431,12 @@ class DataSet(
                 dataSetFiles = DataFrame(objects)
                 dataSetFiles["downloadUrl"] = dataSetFiles["dataStore"].map(
                     extract_downloadUrl
+                )
+                dataSetFiles["checksumCRC32"] = (
+                    dataSetFiles["checksumCRC32"]
+                    .fillna(0.0)
+                    .astype(int)
+                    .map(signed_to_unsigned)
                 )
                 dataSetFiles["dataStore"] = dataSetFiles["dataStore"].map(extract_code)
                 dataSetFiles["dataSetPermId"] = dataSetFiles["dataSetPermId"].map(
