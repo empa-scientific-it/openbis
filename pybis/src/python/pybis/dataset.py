@@ -529,8 +529,8 @@ class DataSet(
         with DataSetDownloadQueue(workers=workers) as queue:
             # get file list and start download
             for filename in files:
-                file_info = self.get_file_list(start_folder=filename)
-                file_size = file_info[0]["fileSize"]
+                fi_df = self.get_dataset_files().df
+                file_size = fi_df[fi_df["path"] == filename]["fileLength"].values[0]
                 download_url = base_url + filename + "?sessionID=" + self.openbis.token
                 download_url = quote(download_url, safe=":/?=")
                 filename_dest = ""
@@ -586,8 +586,8 @@ class DataSet(
             content_copy = self.data["linkedData"]["contentCopies"][content_copy_index]
 
             for filename in files:
-                file_info = self.get_file_list(start_folder=filename)
-                file_size = file_info[0]["fileSize"]
+                fi_df = self.get_dataset_files().df
+                file_size = fi_df[fi_df["path"] == filename]["fileLength"].values[0]
 
                 download_url = linked_dataset_fileservice_url
                 download_url += "?sessionToken=" + self.openbis.token
@@ -645,13 +645,8 @@ class DataSet(
         if self.is_new:
             return self.files
         else:
-            files = []
-            for file in self.get_file_list(recursive=True):
-                if file["isDirectory"]:
-                    pass
-                else:
-                    files.append(file["pathInDataSet"])
-            return files
+            fl = self.get_dataset_files().df
+            return fl[fl["directory"] == False]["path"].to_list()
 
     @property
     def file_links(self):
@@ -697,29 +692,21 @@ class DataSet(
 
     def get_files(self, start_folder="/"):
         """Returns a DataFrame of all files in this dataset"""
-
-        def createRelativePath(pathInDataSet):
-            if self.shareId is None:
-                return ""
-            else:
-                return os.path.join(self.shareId, self.location, pathInDataSet)
-
-        def signed_to_unsigned(sig_int):
-            """openBIS delivers crc32 checksums as signed integers.
-            If the number is negative, we just have to add 2**32
-            We display the hex number to match with the classic UI
-            """
-            if sig_int < 0:
-                sig_int += 2**32
-            return "%x" % (sig_int & 0xFFFFFFFF)
-
-        files = self.get_file_list(start_folder=start_folder)
-        df = DataFrame(files)
-        df["relativePath"] = df["pathInDataSet"].map(createRelativePath)
-        df["crc32Checksum"] = (
-            df["crc32Checksum"].fillna(0.0).astype(int).map(signed_to_unsigned)
+        if start_folder.startswith("/"):
+            start_folder = start_folder[1:]
+        file_list = self.get_dataset_files().df
+        file_list[file_list["path"].str.startswith(start_folder)]
+        new_file_list = file_list[
+            ["directory", "path", "fileLength", "checksumCRC32"]
+        ].rename(
+            columns={
+                "directory": "isDirectory",
+                "path": "pathInDataSet",
+                "fileLength": "fileSize",
+                "checksumCRC32": "crc32Checksum",
+            }
         )
-        return df[["isDirectory", "pathInDataSet", "fileSize", "crc32Checksum"]]
+        return new_file_list
 
     def _get_download_url(self):
         download_url = ""
@@ -736,6 +723,7 @@ class DataSet(
         By default, all directories and their containing files are listed recursively. You can
         turn off this option by setting recursive=False.
         """
+        print("This method is deprecated. Consider using get_files() instead")
         request = {
             "method": "listFilesForDataSet",
             "params": [
