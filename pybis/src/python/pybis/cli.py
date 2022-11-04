@@ -248,7 +248,13 @@ def list_datasets_in_collection(identifier, **kwargs):
 @collection.command("download")
 @openbis_conn_options
 @click.argument("identifier", required=True)
-def download_dataset_in_collection(identifier, **kwargs):
+@click.option(
+    "--destination",
+    "-d",
+    type=click.Path(exists=True),
+    help="where to download your dataset",
+)
+def download_dataset_in_collection(identifier, destination, **kwargs):
     """download all datasets of a given collection"""
     openbis = get_openbis(**kwargs)
     try:
@@ -261,7 +267,7 @@ def download_dataset_in_collection(identifier, **kwargs):
         if dataset.status != "AVAILABLE":
             click.echo(f"dataset is not AVAILABLE: {dataset.status}")
             continue
-        dest = dataset.download()
+        dest = dataset.download(destination=destination)
         click.echo(f" {dest}")
         syslog.syslog(
             syslog.LOG_INFO,
@@ -328,7 +334,13 @@ def list_datasets_in_sample(identifier, **kwargs):
 @sample.command("download")
 @openbis_conn_options
 @click.argument("identifier", required=True)
-def download_datasets_in_sample(identifier, **kwargs):
+@click.option(
+    "--destination",
+    "-d",
+    type=click.Path(exists=True),
+    help="where to download your dataset",
+)
+def download_datasets_in_sample(identifier, destination, **kwargs):
     """download all datasets of a sample"""
     openbis = get_openbis(**kwargs)
     try:
@@ -341,7 +353,7 @@ def download_datasets_in_sample(identifier, **kwargs):
         if dataset.status != "AVAILABLE":
             click.echo(f"dataset is not AVAILABLE: {dataset.status}")
             continue
-        dest = dataset.download()
+        dest = dataset.download(destination=destination)
         click.echo(f" {dest}")
         syslog.syslog(
             syslog.LOG_INFO,
