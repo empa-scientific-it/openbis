@@ -34,14 +34,12 @@ def export(context, parameters):
                                                        id.get("perm_id")),
                            parameters.get("ids", {}))
 
-        # export_properties = parameters.get("export_properties", None)
+        export_properties = parameters.get("export_properties", None)
         session_token = context.getSessionToken()
         api = context.getApplicationService()
         text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
         full_file_name = XLSExport.export(file_name, api, session_token, vocabularies,
-                                          parameters.get("export_referred"),
-                                          # export_properties,
-                                          text_formatting)
+                                          parameters.get("export_referred"), export_properties, text_formatting)
     except Exception as e:
         return {"status": "error", "message": str(e)}
     return {"status": "OK", "result": full_file_name}

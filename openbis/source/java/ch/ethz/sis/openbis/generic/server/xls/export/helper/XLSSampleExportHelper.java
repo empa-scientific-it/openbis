@@ -5,12 +5,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -24,7 +24,9 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Sample> samples = getSamples(api, sessionToken, permIds);
 
@@ -37,18 +39,22 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
         for (final Map.Entry<SampleType, List<Sample>> entry : groupedSamples)
         {
+            final String typePermId = entry.getKey().getPermId().getPermId();
+            final Collection<String> propertiesToInclude = entityTypeExportPropertiesMap == null
+                    ? null
+                    : entityTypeExportPropertiesMap.get(typePermId);
+            final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
+
             addRow(wb, rowNumber++, true, "SAMPLE");
             addRow(wb, rowNumber++, true, "Sample type");
-            addRow(wb, rowNumber++, false, entry.getKey().getPermId().getPermId());
+            addRow(wb, rowNumber++, false, typePermId);
 
             final List<String> headers = new ArrayList<>(List.of("$", "Identifier", "Code", "Space", "Project",
                     "Experiment", "Auto generate code", "Parents", "Children"));
-            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
-            final List<String> propertyNames = propertyAssignments.stream().map(
-                    assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
-            final Map<String, DataType> propertyCodeToTypeMap = propertyAssignments.stream()
-                    .map(PropertyAssignment::getPropertyType)
-                    .collect(Collectors.toMap(PropertyType::getCode, PropertyType::getDataType));
+            final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
+                    .map(PropertyAssignment::getPropertyType).collect(Collectors.toList());
+            final List<String> propertyNames = propertyTypes.stream().filter(propertiesFilterFunction)
+                    .map(PropertyType::getLabel).collect(Collectors.toList());
 
             headers.addAll(propertyNames);
 
@@ -70,7 +76,8 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                                 "FALSE", parents, children));
 
                 final Map<String, String> properties = sample.getProperties();
-                sampleValues.addAll(propertyCodeToTypeMap.entrySet().stream()
+                sampleValues.addAll(propertyTypes.stream()
+                        .filter(propertiesFilterFunction)
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 

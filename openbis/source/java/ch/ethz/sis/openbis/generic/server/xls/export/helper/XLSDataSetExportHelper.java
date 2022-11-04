@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -25,7 +26,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
     {
         final Collection<DataSet> dataSets = getDataSets(api, sessionToken, permIds);
 
@@ -38,18 +39,23 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
         for (final Map.Entry<DataSetType, List<DataSet>> entry : groupedDataSets)
         {
+            final String typePermId = entry.getKey().getPermId().getPermId();
+            final Collection<String> propertiesToInclude = entityTypeExportPropertiesMap == null
+                    ? null
+                    : entityTypeExportPropertiesMap.get(typePermId);
+            final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
+
             addRow(wb, rowNumber++, true, "DATASET");
             addRow(wb, rowNumber++, true, "Dataset type");
-            addRow(wb, rowNumber++, false, entry.getKey().getPermId().getPermId());
+            addRow(wb, rowNumber++, false, typePermId);
 
             final List<String> headers = new ArrayList<>(List.of("Code",
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
-            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
-            final List<String> propertyNames = propertyAssignments.stream().map(
-                    assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
-            final Map<String, DataType> propertyCodeToTypeMap = propertyAssignments.stream()
-                    .map(PropertyAssignment::getPropertyType)
-                    .collect(Collectors.toMap(PropertyType::getCode, PropertyType::getDataType));
+            final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
+                    .map(PropertyAssignment::getPropertyType).collect(Collectors.toList());
+            final List<String> propertyNames = propertyTypes.stream().filter(propertiesFilterFunction)
+                    .map(PropertyType::getLabel).collect(Collectors.toList());
+
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -63,7 +69,8 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         List.of(dataSet.getCode(), identifierHolder.getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = dataSet.getProperties();
-                dataSetValues.addAll(propertyCodeToTypeMap.entrySet().stream()
+                dataSetValues.addAll(propertyTypes.stream()
+                        .filter(propertiesFilterFunction)
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 

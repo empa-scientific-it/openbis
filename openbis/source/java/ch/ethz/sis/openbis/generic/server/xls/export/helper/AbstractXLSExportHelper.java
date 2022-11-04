@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,16 +129,23 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         return null;
     }
 
-    protected static Function<Map.Entry<String, DataType>, String> getPropertiesMappingFunction(
+    protected static Predicate<PropertyType> getPropertiesFilterFunction(final Collection<String> propertiesToInclude)
+    {
+        return propertiesToInclude == null
+                ? propertyType -> true
+                : propertyType -> propertiesToInclude.contains(propertyType.getCode());
+    }
+
+    protected static Function<PropertyType, String> getPropertiesMappingFunction(
             final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
-                ? codeToTypeEntry -> codeToTypeEntry.getValue() == DataType.MULTILINE_VARCHAR
-                        ? properties.get(codeToTypeEntry.getKey()) != null
-                                ? properties.get(codeToTypeEntry.getKey()).replaceAll("<[^>]+>", "")
+                ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
+                        ? properties.get(propertyType.getCode()) != null
+                                ? properties.get(propertyType.getCode()).replaceAll("<[^>]+>", "")
                                 : null
-                        : properties.get(codeToTypeEntry.getKey())
-                : codeToTypeEntry -> properties.get(codeToTypeEntry.getKey());
+                        : properties.get(propertyType.getCode())
+                : propertyType -> properties.get(propertyType.getCode());
     }
-    
+
 }

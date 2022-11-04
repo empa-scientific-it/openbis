@@ -2,6 +2,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -17,7 +18,7 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
 
     @Override
     public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
 

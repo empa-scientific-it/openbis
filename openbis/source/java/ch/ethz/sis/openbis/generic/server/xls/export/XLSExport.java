@@ -32,13 +32,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -83,11 +80,11 @@ public class XLSExport
 
     public static String export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
-//            final Map<ExportableKind, Map<String, Collection<String>>> exportProperties,
+            final Map<String, Map<String, Collection<String>>> exportProperties,
             final TextFormatting textFormatting) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferred, textFormatting);
+                exportReferred, exportProperties, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
@@ -154,7 +151,7 @@ public class XLSExport
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
-            final TextFormatting textFormatting)
+            final Map<String, Map<String, Collection<String>>> exportProperties, final TextFormatting textFormatting)
     {
         if (!isValid(exportablePermIds))
         {
@@ -180,7 +177,11 @@ public class XLSExport
             final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber, textFormatting);
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap = exportProperties == null
+                    ? null
+                    : exportProperties.get(exportablePermId.getExportableKind().toString());
+            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber, entityTypeExportPropertiesMap,
+                    textFormatting);
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId());
 
