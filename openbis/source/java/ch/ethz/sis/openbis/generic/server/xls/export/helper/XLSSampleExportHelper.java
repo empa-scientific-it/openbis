@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -40,10 +43,13 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
             final List<String> headers = new ArrayList<>(List.of("$", "Identifier", "Code", "Space", "Project",
                     "Experiment", "Auto generate code", "Parents", "Children"));
-            final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
+            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
+            final List<String> propertyNames = propertyAssignments.stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
-            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
-                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
+            final Map<String, DataType> propertyCodeToTypeMap = propertyAssignments.stream()
+                    .map(PropertyAssignment::getPropertyType)
+                    .collect(Collectors.toMap(PropertyType::getCode, PropertyType::getDataType));
+
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -64,7 +70,7 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                                 "FALSE", parents, children));
 
                 final Map<String, String> properties = sample.getProperties();
-                sampleValues.addAll(propertyCodes.stream()
+                sampleValues.addAll(propertyCodeToTypeMap.entrySet().stream()
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 

@@ -14,6 +14,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSExperimentExportHelper extends AbstractXLSExportHelper
@@ -39,10 +42,12 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
             addRow(wb, rowNumber++, false, entry.getKey().getPermId().getPermId());
 
             final List<String> headers = new ArrayList<>(List.of("Identifier", "Code", "Project"));
-            final List<String> propertyNames = entry.getKey().getPropertyAssignments().stream().map(
+            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
+            final List<String> propertyNames = propertyAssignments.stream().map(
                     assignment -> assignment.getPropertyType().getLabel()).collect(Collectors.toList());
-            final List<String> propertyCodes = entry.getKey().getPropertyAssignments().stream().map(
-                    assignment -> assignment.getPropertyType().getCode()).collect(Collectors.toList());
+            final Map<String, DataType> propertyCodeToTypeMap = propertyAssignments.stream()
+                    .map(PropertyAssignment::getPropertyType)
+                    .collect(Collectors.toMap(PropertyType::getCode, PropertyType::getDataType));
             headers.addAll(propertyNames);
 
             addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
@@ -54,7 +59,7 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                                 experiment.getProject().getIdentifier().getIdentifier()));
 
                 final Map<String, String> properties = experiment.getProperties();
-                experimentValues.addAll(propertyCodes.stream()
+                experimentValues.addAll(propertyCodeToTypeMap.entrySet().stream()
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
