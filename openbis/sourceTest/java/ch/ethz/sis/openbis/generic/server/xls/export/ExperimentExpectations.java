@@ -59,8 +59,8 @@ class ExperimentExpectations extends Expectations
                 experiments[0].setCode("STORAGES_COLLECTION");
                 experiments[0].setProject(projects[0]);
                 experiments[0].setType(experimentTypes[0]);
-                experiments[0].setProperty("Name", "Storages Collection");
-                experiments[0].setProperty("Default object type", "EXPERIMENTAL_STEP");
+                experiments[0].setProperty("$NAME", "Storages Collection");
+                experiments[0].setProperty("$DEFAULT_OBJECT_TYPE", "EXPERIMENTAL_STEP");
 
                 experiments[1] = new Experiment();
                 experiments[1].setFetchOptions(fetchOptions);
@@ -69,8 +69,8 @@ class ExperimentExpectations extends Expectations
                 experiments[1].setCode("DEFAULT");
                 experiments[1].setProject(projects[1]);
                 experiments[1].setType(experimentTypes[1]);
-                experiments[1].setProperty("Name", "Default");
-                experiments[1].setProperty("Experiment completed", "FALSE");
+                experiments[1].setProperty("$NAME", "Default");
+                experiments[1].setProperty("FINISHED_FLAG", "FALSE");
 
                 experiments[2] = new Experiment();
                 experiments[2].setFetchOptions(fetchOptions);
@@ -79,8 +79,8 @@ class ExperimentExpectations extends Expectations
                 experiments[2].setCode("TEST");
                 experiments[2].setProject(projects[2]);
                 experiments[2].setType(experimentTypes[0]);
-                experiments[2].setProperty("Name", "Test");
-                experiments[2].setProperty("Default object type", "DEFAULT_SAMPLE");
+                experiments[2].setProperty("$NAME", "Test");
+                experiments[2].setProperty("$DEFAULT_OBJECT_TYPE", "DEFAULT_SAMPLE");
 
                 return Arrays.stream(experiments).collect(Collectors.toMap(Experiment::getIdentifier,
                         Function.identity(), (experiment1, experiment2) -> experiment2, LinkedHashMap::new));

@@ -101,8 +101,8 @@ class SampleExpectations extends Expectations
                 samples[0].setSpace(space);
                 samples[0].setProject(project);
                 samples[0].setExperiment(experiment);
-                samples[0].setProperty("Name", "Bench");
-                samples[0].setProperty("Number of Boxes", "9999");
+                samples[0].setProperty("$NAME", "Bench");
+                samples[0].setProperty("$STORAGE.BOX_NUM", "9999");
 
                 samples[1] = new Sample();
                 samples[1].setType(sampleType);
@@ -114,8 +114,8 @@ class SampleExpectations extends Expectations
                 samples[1].setSpace(space);
                 samples[1].setProject(project);
                 samples[1].setExperiment(experiment);
-                samples[1].setProperty("Name", "Default Storage");
-                samples[1].setProperty("Number of Boxes", "1111");
+                samples[1].setProperty("$NAME", "Default Storage");
+                samples[1].setProperty("$STORAGE.BOX_NUM", "1111");
 
                 samples[2] = new Sample();
                 samples[2].setType(defaultSampleType);
@@ -127,7 +127,7 @@ class SampleExpectations extends Expectations
                 samples[2].setSpace(defaultSpace);
                 samples[2].setProject(defaultProject);
                 samples[2].setExperiment(defaultExperiment);
-                samples[2].setProperty("Name", "Default");
+                samples[2].setProperty("$NAME", "Default");
 
                 samples[3] = new Sample();
                 samples[3].setType(sampleType);
@@ -139,8 +139,8 @@ class SampleExpectations extends Expectations
                 samples[3].setSpace(space);
                 samples[3].setProject(project);
                 samples[3].setExperiment(experiment);
-                samples[3].setProperty("Name", "Child 1");
-                samples[3].setProperty("Number of Boxes", "1");
+                samples[3].setProperty("$NAME", "Child 1");
+                samples[3].setProperty("$STORAGE.BOX_NUM", "1");
 
                 samples[4] = new Sample();
                 samples[4].setType(sampleType);
@@ -152,8 +152,8 @@ class SampleExpectations extends Expectations
                 samples[4].setSpace(space);
                 samples[4].setProject(project);
                 samples[4].setExperiment(experiment);
-                samples[4].setProperty("Name", "Child 2");
-                samples[4].setProperty("Number of Boxes", "2");
+                samples[4].setProperty("$NAME", "Child 2");
+                samples[4].setProperty("$STORAGE.BOX_NUM", "2");
 
                 samples[0].setChildren(List.of(samples[3], samples[4]));
                 samples[1].setChildren(List.of(samples[3], samples[4]));

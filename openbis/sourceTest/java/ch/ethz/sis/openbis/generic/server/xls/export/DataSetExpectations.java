@@ -50,7 +50,6 @@ class DataSetExpectations extends Expectations
             {
                 final DataSetFetchOptions fetchOptions = (DataSetFetchOptions) invocation.getParameter(2);
                 final DataSetType[] dataSetTypes = getDataSetTypes(fetchOptions.withType());
-                final Space[] spaces = getSpaces();
 
                 final Sample[] samples = new Sample[2];
 
@@ -72,8 +71,8 @@ class DataSetExpectations extends Expectations
                 dataSets[0].setCode("TEST_1");
                 dataSets[0].setType(dataSetTypes[1]);
                 dataSets[0].setExperiment(experiment);
-                dataSets[0].setProperty("Name", "Test 1");
-                dataSets[0].setProperty("Notes", "This is\nmultiline\ntext.");
+                dataSets[0].setProperty("$NAME", "Test 1");
+                dataSets[0].setProperty("NOTES", "This is\nmultiline\ntext.");
 
                 dataSets[1] = new DataSet();
                 dataSets[1].setFetchOptions(fetchOptions);
@@ -81,8 +80,8 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setCode("TEST_2");
                 dataSets[1].setSample(samples[0]);
                 dataSets[1].setType(dataSetTypes[0]);
-                dataSets[1].setProperty("Name", "Test 2");
-                dataSets[1].setProperty("Attachment", "file1.bin");
+                dataSets[1].setProperty("$NAME", "Test 2");
+                dataSets[1].setProperty("$ATTACHMENT", "file1.bin");
 
                 dataSets[2] = new DataSet();
                 dataSets[2].setFetchOptions(fetchOptions);
@@ -90,39 +89,11 @@ class DataSetExpectations extends Expectations
                 dataSets[2].setCode("TEST_3");
                 dataSets[2].setSample(samples[1]);
                 dataSets[2].setType(dataSetTypes[0]);
-                dataSets[2].setProperty("Name", "Test 3");
-                dataSets[2].setProperty("Attachment", "file2.bin");
+                dataSets[2].setProperty("$NAME", "Test 3");
+                dataSets[2].setProperty("$ATTACHMENT", "file2.bin");
 
                 return Arrays.stream(dataSets).collect(Collectors.toMap(DataSet::getPermId,
                         Function.identity(), (dataSet1, dataSet2) -> dataSet2, LinkedHashMap::new));
-            }
-
-            private Project[] getProjects(final Space[] spaces)
-            {
-                final Project[] projects = new Project[3];
-
-                projects[0] = new Project();
-                projects[0].setPermId(new ProjectPermId("200001010000000-0001"));
-                projects[0].setIdentifier(new ProjectIdentifier("/ELN_SETTINGS/STORAGES"));
-                projects[0].setCode("STORAGES");
-                projects[0].setDescription("Storages");
-                projects[0].setSpace(spaces[0]);
-
-                projects[1] = new Project();
-                projects[1].setPermId(new ProjectPermId("200001010000000-0002"));
-                projects[1].setIdentifier(new ProjectIdentifier("/DEFAULT/DEFAULT"));
-                projects[1].setCode("DEFAULT");
-                projects[1].setDescription("Default");
-                projects[1].setSpace(spaces[1]);
-
-                projects[2] = new Project();
-                projects[2].setPermId(new ProjectPermId("200001010000000-0003"));
-                projects[2].setIdentifier(new ProjectIdentifier("/TEST/TEST"));
-                projects[2].setCode("TEST");
-                projects[2].setDescription("Test");
-                projects[2].setSpace(spaces[2]);
-
-                return projects;
             }
 
             private Space[] getSpaces()

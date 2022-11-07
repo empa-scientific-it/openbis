@@ -69,8 +69,6 @@ public class XLSExportTest
 
     private static final String XLS_EXPORT_DATA_PROVIDER = "xlsExportData";
 
-    private final XLSExport xlsExport = new XLSExport();
-
     private Mockery mockery;
 
     private IApplicationServerApi api;
@@ -297,7 +295,7 @@ public class XLSExportTest
 
         Collections.shuffle(permIds);
 
-        final Collection<Collection<ExportablePermId>> reorderedPermIds = xlsExport.putVocabulariesFirst(permIds);
+        final Collection<Collection<ExportablePermId>> reorderedPermIds = XLSExport.putVocabulariesFirst(permIds);
         boolean nonVocabularyFound = false;
 
         assertEquals(reorderedPermIds.size(), permIds.size(), "The size after reordering should not change.");
@@ -349,7 +347,7 @@ public class XLSExportTest
 
         Collections.shuffle(permIds);
 
-        final Collection<Collection<ExportablePermId>> groupedPermIds = xlsExport.group(permIds);
+        final Collection<Collection<ExportablePermId>> groupedPermIds = XLSExport.group(permIds);
 
         final Set<ExportableKind> checkedExportableKinds = EnumSet.noneOf(ExportableKind.class);
         groupedPermIds.forEach(permIdGroup ->
@@ -396,38 +394,38 @@ public class XLSExportTest
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferred) throws Exception
     {
-//        final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
-//                boolean.class).newInstance(api, exportReferred);
-//        mockery.checking(expectations);
-//
-//        try
-//        {
-//            // TODO: add some tests!!!!!!!!!!!
-//            final XLSExport.PrepareWorkbookResult actualResult = xlsExport.prepareWorkbook(
-//                    api, SESSION_TOKEN, exportablePermIds,
-//                    exportReferred);
-//            final Workbook actualResultWorkbook = actualResult.getWorkbook();
-//            final Map<String, String> actualScripts = actualResult.getScripts();
-//
-//            assertEquals(actualScripts, expectedScripts);
-//
-//            final InputStream stream = getClass().getClassLoader().getResourceAsStream(
-//                    "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
-//            if (stream == null)
-//            {
-//                throw new IllegalArgumentException("File not found.");
-//            }
-//            final Workbook expectedResult = new XSSFWorkbook(stream);
-//
-//            assertWorkbooksEqual(actualResultWorkbook, expectedResult);
-//        } catch (final UserFailureException e)
-//        {
-//            // When the file name is not specified we expect a UserFailureException to be thrown.
-//            if (expectedResultFileName != null)
-//            {
-//                throw e;
-//            }
-//        }
+        final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
+                boolean.class).newInstance(api, exportReferred);
+        mockery.checking(expectations);
+
+        try
+        {
+            // TODO: add some tests!!!!!!!!!!!
+            final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
+                    api, SESSION_TOKEN, exportablePermIds, exportReferred, null,
+                    XLSExport.TextFormatting.PLAIN);
+            final Workbook actualResultWorkbook = actualResult.getWorkbook();
+            final Map<String, String> actualScripts = actualResult.getScripts();
+
+            assertEquals(actualScripts, expectedScripts);
+
+            final InputStream stream = getClass().getClassLoader().getResourceAsStream(
+                    "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
+            if (stream == null)
+            {
+                throw new IllegalArgumentException("File not found.");
+            }
+            final Workbook expectedResult = new XSSFWorkbook(stream);
+
+            assertWorkbooksEqual(actualResultWorkbook, expectedResult);
+        } catch (final UserFailureException e)
+        {
+            // When the file name is not specified we expect a UserFailureException to be thrown.
+            if (expectedResultFileName != null)
+            {
+                throw e;
+            }
+        }
     }
 
     private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
