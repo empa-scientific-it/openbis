@@ -75,12 +75,12 @@ public class XLSExportTest
                         "RAW_DATA", List.of("$NAME", "NOTES")
                     ),
                     EXPERIMENT.toString(), Map.of(
-                            "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                            "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
+                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
+                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
                     ),
                     SAMPLE.toString(), Map.of(
-                            "DEFAULT", List.of(),
-                            "STORAGE", List.of("$STORAGE.BOX_NUM")
+                        "DEFAULT", List.of(),
+                        "STORAGE", List.of("$STORAGE.BOX_NUM")
                     )
             );
 
@@ -248,7 +248,7 @@ public class XLSExportTest
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                         ),
                         true,
-                        Map.<String, Map<String, List<String>>>of(
+                        Map.of(
                                 DATASET.toString(), Map.of(
                                     "ATTACHMENT", List.of("$ATTACHMENT"),
                                     "RAW_DATA", List.of("$NAME", "NOTES")
@@ -271,7 +271,7 @@ public class XLSExportTest
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                         ),
                         true,
-                        Map.<String, Map<String, List<String>>>of(
+                        Map.of(
                                 DATASET.toString(), Map.of(
                                     "ATTACHMENT", List.of("$ATTACHMENT"),
                                     "RAW_DATA", List.of("$NAME", "NOTES")
