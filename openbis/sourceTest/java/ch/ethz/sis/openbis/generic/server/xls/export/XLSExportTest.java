@@ -83,7 +83,9 @@ public class XLSExportTest
                         VocabularyExpectations.class,
                         Collections.singletonList(new ExportablePermId(VOCABULARY,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type.xlsx",
@@ -94,7 +96,9 @@ public class XLSExportTest
                         SampleTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-experiment-type.xlsx",
@@ -102,7 +106,9 @@ public class XLSExportTest
                         ExperimentTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-data-set-type.xlsx",
@@ -110,7 +116,9 @@ public class XLSExportTest
                         DataSetTypeExpectations.class,
                         Collections.singletonList(new ExportablePermId(DATASET_TYPE,
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
@@ -119,7 +127,9 @@ public class XLSExportTest
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
@@ -128,7 +138,9 @@ public class XLSExportTest
                         List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
-                        false
+                        false,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-sample-property.xlsx",
@@ -139,7 +151,9 @@ public class XLSExportTest
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
@@ -147,7 +161,9 @@ public class XLSExportTest
                         SampleTypeWithSamplePropertyExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        false
+                        false,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
@@ -155,7 +171,9 @@ public class XLSExportTest
                         SampleTypeWithChainedSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
@@ -163,7 +181,9 @@ public class XLSExportTest
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
                         Collections.singletonList(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-space.xlsx",
@@ -174,7 +194,9 @@ public class XLSExportTest
                                 new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
                                 new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
                         ),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-project.xlsx",
@@ -184,7 +206,9 @@ public class XLSExportTest
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
                                 new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
                         ),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-experiment.xlsx",
@@ -195,7 +219,9 @@ public class XLSExportTest
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                         ),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
                         "export-sample.xlsx",
@@ -208,10 +234,12 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                         ),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
                 },
                 {
-                        "export-data-set.xlsx",
+                        "export-data-set-plain-text.xlsx",
                         Map.of(),
                         DataSetExpectations.class,
                         List.of(
@@ -219,7 +247,22 @@ public class XLSExportTest
                                 new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                 new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                         ),
-                        true
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN
+                },
+                {
+                        "export-data-set-rich-text.xlsx",
+                        Map.of(),
+                        DataSetExpectations.class,
+                        List.of(
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
+                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
+                        ),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.RICH
                 },
         };
     }
@@ -392,7 +435,8 @@ public class XLSExportTest
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
-            final boolean exportReferred) throws Exception
+            final boolean exportReferred, final Map<String, Map<String, Collection<String>>> exportProperties,
+            final XLSExport.TextFormatting textFormatting) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
                 boolean.class).newInstance(api, exportReferred);
@@ -402,8 +446,8 @@ public class XLSExportTest
         {
             // TODO: add some tests!!!!!!!!!!!
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
-                    api, SESSION_TOKEN, exportablePermIds, exportReferred, null,
-                    XLSExport.TextFormatting.PLAIN);
+                    api, SESSION_TOKEN, exportablePermIds, exportReferred, exportProperties,
+                    textFormatting);
             final Workbook actualResultWorkbook = actualResult.getWorkbook();
             final Map<String, String> actualScripts = actualResult.getScripts();
 

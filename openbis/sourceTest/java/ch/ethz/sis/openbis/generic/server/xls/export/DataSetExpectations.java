@@ -71,8 +71,8 @@ class DataSetExpectations extends Expectations
                 dataSets[0].setCode("TEST_1");
                 dataSets[0].setType(dataSetTypes[1]);
                 dataSets[0].setExperiment(experiment);
-                dataSets[0].setProperty("$NAME", "Test 1");
-                dataSets[0].setProperty("NOTES", "This is\nmultiline\ntext.");
+                dataSets[0].setProperty("$NAME", "<b>Test 1</b>");
+                dataSets[0].setProperty("NOTES", "<body><p><i>This is></i><br/>\n<b>multi</b>line<br/>\n<u>text</u>.</p></body>");
 
                 dataSets[1] = new DataSet();
                 dataSets[1].setFetchOptions(fetchOptions);
@@ -80,7 +80,7 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setCode("TEST_2");
                 dataSets[1].setSample(samples[0]);
                 dataSets[1].setType(dataSetTypes[0]);
-                dataSets[1].setProperty("$NAME", "Test 2");
+                dataSets[1].setProperty("$NAME", "<i>Test 2</i>");
                 dataSets[1].setProperty("$ATTACHMENT", "file1.bin");
 
                 dataSets[2] = new DataSet();
