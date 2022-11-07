@@ -104,6 +104,7 @@ class PropertyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
+        exportable={false}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

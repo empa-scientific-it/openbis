@@ -1,6 +1,7 @@
 import React from 'react'
 import autoBind from 'auto-bind'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import openbis from '@src/js/services/openbis.js'
 import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
@@ -22,6 +23,8 @@ export default class GridWithSettings extends React.PureComponent {
         {...this.props}
         loadSettings={this.loadSettings}
         onSettingsChange={this.onSettingsChange}
+        scheduleExport={this.props.exportable ? this.scheduleExport : null}
+        loadExported={this.props.exportable ? this.loadExported : null}
       />
     )
   }
@@ -59,4 +62,27 @@ export default class GridWithSettings extends React.PureComponent {
 
     await openbis.updatePersons([update])
   }
+
+  async scheduleExport({ exportedIds, exportedProperties, exportedValues }) {
+    const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
+
+    const serviceOptions = new openbis.CustomASServiceExecutionOptions()
+    serviceOptions.withParameter('method', 'export')
+    serviceOptions.withParameter('file_name', this.props.id)
+    serviceOptions.withParameter('ids', exportedIds)
+    serviceOptions.withParameter('export_referred', true)
+    serviceOptions.withParameter('export_properties', exportedProperties)
+
+    if (exportedValues === GridExportOptions.PLAIN_TEXT) {
+      serviceOptions.withParameter('text_formatting', 'PLAIN')
+    } else if (exportedValues === GridExportOptions.RICH_TEXT) {
+      serviceOptions.withParameter('text_formatting', 'RICH')
+    } else {
+      throw Error('Unsupported text formatting ' + exportedValues)
+    }
+
+    return await openbis.executeService(serviceId, serviceOptions)
+  }
+
+  async loadExported() {}
 }

@@ -1,5 +1,7 @@
 // app
 const WEB_APP_ID = 'openbis_ng_ui'
+const WEB_APP_SERVICE = 'openbis-ng-ui-service'
+const EXPORT_SERVICE = 'xls-export'
 
 // grids
 const OBJECT_TYPES_GRID_ID = 'object_types_grid'
@@ -30,6 +32,10 @@ const DATABASE_BROWSER_ID = 'database_browser'
 export default {
   // app
   WEB_APP_ID,
+
+  // service,
+  WEB_APP_SERVICE,
+  EXPORT_SERVICE,
 
   // grids
   OBJECT_TYPES_GRID_ID,

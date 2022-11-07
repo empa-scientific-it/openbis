@@ -224,13 +224,17 @@ class Grid extends React.PureComponent {
   }
 
   renderExports() {
-    const { id, multiselectable } = this.props
+    const { id, exportable, multiselectable } = this.props
     const { rows, exportOptions } = this.state
+
+    if (!exportable) {
+      return null
+    }
 
     return (
       <GridExports
         id={id}
-        disabled={rows.length === 0}
+        disabled={!exportable || rows.length === 0}
         exportOptions={exportOptions}
         multiselectable={multiselectable}
         onExport={this.controller.handleExport}

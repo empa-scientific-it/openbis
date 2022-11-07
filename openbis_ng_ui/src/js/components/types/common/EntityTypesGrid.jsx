@@ -10,8 +10,14 @@ class EntityTypesGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'EntityTypesGrid.render')
 
-    const { id, rows, selectedRowId, onSelectedRowChange, controllerRef } =
-      this.props
+    const {
+      id,
+      rows,
+      exportable,
+      selectedRowId,
+      onSelectedRowChange,
+      controllerRef
+    } = this.props
 
     return (
       <GridWithSettings
@@ -21,6 +27,7 @@ class EntityTypesGrid extends React.PureComponent {
         columns={this.getColumns()}
         rows={rows}
         sort='code'
+        exportable={exportable}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

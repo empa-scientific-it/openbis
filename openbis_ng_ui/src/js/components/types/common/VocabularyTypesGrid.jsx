@@ -38,6 +38,7 @@ class VocabularyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
+        exportable={true}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

@@ -73,6 +73,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'SAMPLE_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         subcodeUnique: _.get(object, 'subcodeUnique', false),
@@ -103,6 +107,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'EXPERIMENT_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         validationPlugin: _.get(object, 'validationPlugin.name')
@@ -130,6 +138,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'DATASET_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         validationPlugin: _.get(object, 'validationPlugin.name'),
@@ -184,6 +196,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: object.code,
+        exportableId: {
+          exportable_kind: 'VOCABULARY',
+          perm_id: object.getPermId().getPermId()
+        },
         code: object.code,
         description: object.description,
         urlTemplate: object.urlTemplate
@@ -382,6 +398,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.SAMPLE}
             rows={this.state.objectTypes}
+            exportable={true}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
             )}
@@ -407,6 +424,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.EXPERIMENT}
             rows={this.state.collectionTypes}
+            exportable={true}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
             )}
@@ -430,6 +448,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.DATA_SET}
             rows={this.state.dataSetTypes}
+            exportable={true}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE
             )}
@@ -455,6 +474,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.MATERIAL}
             rows={this.state.materialTypes}
+            exportable={false}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.MATERIAL_TYPE
             )}
