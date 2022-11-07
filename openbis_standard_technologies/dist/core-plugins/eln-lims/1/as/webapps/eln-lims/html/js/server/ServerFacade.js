@@ -2681,8 +2681,8 @@ function ServerFacade(openbisServer) {
 			"sampleTypeCode" : sampleType,
 			"sampleCode" : sampleCode,
 			"withProperties" : true,
-			"withAncestors" : includeAncestorsAndDescendants,
-			"withDescendants" : includeAncestorsAndDescendants
+			"withAncestors" : includeAncestorsAndDescendants === true,
+			"withDescendants" : includeAncestorsAndDescendants === true
 		}, callbackFunction);
 	}
 
