@@ -52,7 +52,7 @@ ELNDictionary.settingsView = {
 		},
 		inventorySpaces : {
 			title : "Inventory Spaces",
-			info : "By default all new spaces created in openBIS are shown under the Lab Notebook in the main menu. Spaces ending with postfixes listed here are shown under the Inventory.",
+			info : "Spaces listed here are shown under the Inventory.",
 		},
 		dataSetTypeForFileName : {
 			title : "Dataset types for filenames",
