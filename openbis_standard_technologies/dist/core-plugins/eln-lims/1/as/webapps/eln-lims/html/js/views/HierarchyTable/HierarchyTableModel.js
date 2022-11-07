@@ -16,7 +16,9 @@
 
 function HierarchyTableModel(entity) {
 	this.entity = entity;
-	
+	this.ancestorPermIds = null;
+	this.descendentPermIds = null;
+    this.dataList = null;
 	if(this.entity["@type"] === "as.dto.sample.Sample") {  // V3 Sample
 		profile.deleteSampleConnectionsByType(this.entity);
 	}
@@ -24,11 +26,16 @@ function HierarchyTableModel(entity) {
 	this.relationShipsMap = HierarchyUtil.createRelationShipsMap(entity);
 	
 	this.getData = function(dataList) {
-		var dataList = [];
-		this._addRow(dataList, this.entity, 0, "");
-		this._addAncestorData(dataList, this.entity, 0, "");
-		this._addDescendentData(dataList, this.entity, 0, "");
-		dataList.sort(function (e1, e2) {
+		if(this.dataList !== null) {
+			return this.dataList;
+		}
+		this.dataList = [];
+		this.ancestorPermIds = {};
+		this.descendentPermIds = {};
+		this._addRow(this.dataList, this.entity, 0, "");
+		this._addAncestorData(this.dataList, this.entity, 0, "");
+		this._addDescendentData(this.dataList, this.entity, 0, "");
+		this.dataList.sort(function (e1, e2) {
 			var l1 = e1.level;
 			var p1 = e1.identifier + e1.path;
 			var l2 = e2.level;
@@ -38,29 +45,43 @@ function HierarchyTableModel(entity) {
 			}
 			return p1 < p2 ? -1 : (p1 > p2 ? 1 : 0);
 		});
-		return dataList;
+		return this.dataList;
 	}
-	
+
 	this._addAncestorData = function(dataList, entity, level, path) {
 		if (entity.parents) {
 			for (var i = 0; i < entity.parents.length; i++) {
 				var parent = entity.parents[i];
-				var newPath = " → " + entity.code + path;
+				var parentPermId = parent.getPermId().getPermId();
+				var isCycle = this.ancestorPermIds[parentPermId] === true;
+				var cyclePrefix = (isCycle)?"<REPEATED>":"";
+				var newPath = cyclePrefix + " → " + entity.code + path;
 				var newLevel = level - 1;
 				this._addRow(dataList, parent, newLevel, newPath);
-				this._addAncestorData(dataList, parent, newLevel, newPath);
+				if(!isCycle) {
+					this.ancestorPermIds[parentPermId] = true;
+					this._addAncestorData(dataList, parent, newLevel, newPath);
+				}
 			}
 		}
 	}
-	
+
+
+
 	this._addDescendentData = function(dataList, entity, level, path) {
 		if (entity.children) {
 			for (var i = 0; i < entity.children.length; i++) {
 				var child = entity.children[i];
-				var newPath = " ← " + entity.code + path;
+				var childPermId = child.getPermId().getPermId();
+				var isCycle = this.descendentPermIds[childPermId] === true;
+				var cyclePrefix = (isCycle)?"<REPEATED>":"";
+				var newPath = cyclePrefix + " ← " + entity.code + path;
 				var newLevel = level + 1;
 				this._addRow(dataList, child, newLevel, newPath);
-				this._addDescendentData(dataList, child, newLevel, newPath);
+				if(!isCycle) {
+					this.descendentPermIds[childPermId] = true;
+					this._addDescendentData(dataList, child, newLevel, newPath);
+				}
 			}
 		}
 	}
@@ -83,7 +104,7 @@ function HierarchyTableModel(entity) {
 		}
 		
 		dataList.push({
-			id: entity.permId.permId,
+			id: entity.permId.permId + "-" + dataList.length,
 			level : level,
 			registrationDate : Util.getFormatedDate(new Date(entity.registrationDate)),
 			type : entity.type.code,
