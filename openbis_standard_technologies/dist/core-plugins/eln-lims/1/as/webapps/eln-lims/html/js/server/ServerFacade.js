@@ -2681,8 +2681,8 @@ function ServerFacade(openbisServer) {
 			"sampleTypeCode" : sampleType,
 			"sampleCode" : sampleCode,
 			"withProperties" : true,
-			"withAncestors" : includeAncestorsAndDescendants,
-			"withDescendants" : includeAncestorsAndDescendants
+			"withAncestors" : includeAncestorsAndDescendants === true,
+			"withDescendants" : includeAncestorsAndDescendants === true
 		}, callbackFunction);
 	}
 
@@ -2708,9 +2708,9 @@ function ServerFacade(openbisServer) {
 		var advancedFetchOptions = {
 		    "escapeWildcards" : true,
 			"withProperties" : true,
-			"withAncestors" : isComplete,
-			"withDescendants" : isComplete,
-			"withParents" : withParents,
+			"withAncestors" : isComplete === true,
+			"withDescendants" : isComplete === true,
+			"withParents" : withParents === true,
 			"withChildren" : false
 		}
 
