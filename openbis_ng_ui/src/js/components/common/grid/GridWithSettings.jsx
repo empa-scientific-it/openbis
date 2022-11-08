@@ -1,6 +1,7 @@
 import React from 'react'
 import autoBind from 'auto-bind'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
@@ -63,17 +64,38 @@ export default class GridWithSettings extends React.PureComponent {
   }
 
   async scheduleExport({ exportedIds, exportedProperties, exportedValues }) {
-    const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
+    try {
+      AppController.getInstance().loadingChange(true)
 
-    const serviceOptions = new openbis.CustomASServiceExecutionOptions()
-    serviceOptions.withParameter('method', 'export')
-    serviceOptions.withParameter('file_name', this.props.id)
-    serviceOptions.withParameter('ids', exportedIds)
-    serviceOptions.withParameter('export_referred', true)
-    serviceOptions.withParameter('export_properties', exportedProperties)
-    serviceOptions.withParameter('text_formatting', exportedValues)
+      const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
 
-    return await openbis.executeService(serviceId, serviceOptions)
+      const serviceOptions = new openbis.CustomASServiceExecutionOptions()
+      serviceOptions.withParameter('method', 'export')
+      serviceOptions.withParameter('file_name', this.props.id)
+      serviceOptions.withParameter('ids', exportedIds)
+      serviceOptions.withParameter('export_referred', true)
+      serviceOptions.withParameter('export_properties', exportedProperties)
+      serviceOptions.withParameter('text_formatting', exportedValues)
+
+      const result = await openbis.executeService(serviceId, serviceOptions)
+
+      if (result.status === 'OK') {
+        let downloadUrl =
+          '/openbis/download/?sessionID=' +
+          encodeURIComponent(AppController.getInstance().getSessionToken()) +
+          '&filePath=' +
+          encodeURIComponent(result.result)
+        window.open(downloadUrl, '_blank').focus()
+      } else if (result.status === 'error') {
+        AppController.getInstance().errorChange(result.message)
+      } else {
+        AppController.getInstance().errorChange(JSON.stringify(result))
+      }
+    } catch (error) {
+      AppController.getInstance().errorChange(JSON.stringify(error))
+    } finally {
+      AppController.getInstance().loadingChange(false)
+    }
   }
 
   async loadExported() {}
