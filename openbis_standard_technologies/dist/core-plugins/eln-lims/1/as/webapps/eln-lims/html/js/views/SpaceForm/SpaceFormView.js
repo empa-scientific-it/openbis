@@ -173,6 +173,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                         $fullCodeField.val(_this._spaceFormModel.space);
                     }
                 });
+                $identificationInfo.append(FormUtil.getInfoText("When assigning a group to a space, the group settings are applied to it."));
                 $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($prefixDropdown, "Group"));
             }
             var $textField = FormUtil._getInputField('text', "space-code-id", "Space Code", null, true);
@@ -194,7 +195,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($fullCodeField, "Full Code"));
             }
             if (_this._spaceFormModel.isInventory) {
-                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory");
+                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory", "Indicates if writing the she space should be disabled for non admin users.");
                 $readOnlyField.change(function() {
                     _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
                 });
