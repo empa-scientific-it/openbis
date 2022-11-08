@@ -1075,14 +1075,17 @@ export default class GridController {
     } else if (
       state.exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS
     ) {
-      const { newAllColumns } = await this._loadColumns(
-        exportedRows,
-        state.columnsVisibility,
-        state.columnsSorting
-      )
+      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+        await this._loadColumns(
+          exportedRows,
+          state.columnsVisibility,
+          state.columnsSorting
+        )
+
+      this._sortColumns(newAllColumns, newColumnsSorting)
 
       newAllColumns.forEach(column => {
-        if (column.exportableProperty) {
+        if (column.exportableProperty && newColumnsVisibility[column.name]) {
           const propertyCode = column.exportableProperty.code
           const propertyTypesMap = column.exportableProperty.types
 
