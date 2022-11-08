@@ -289,11 +289,23 @@ function DataGridController(
 			"text_formatting" : parameters.exportedValues
 		}
 
-		mainController.serverFacade.customASService(serviceParameters, function() {
-			alert("Export succeeded")
-		}, "xls-export", function(errorResult) {
-			Util.showError("Export failed: " + JSON.stringify(errorResult));
-		});
+		Util.blockUI()
+
+		mainController.serverFacade.customASService(serviceParameters, function(result) {
+			Util.unblockUI()
+
+			if(result.result.status === "OK"){
+				let downloadUrl = "/openbis/download/?sessionID=" + encodeURIComponent(mainController.serverFacade.getSession()) + "&filePath=" + encodeURIComponent(result.result.result)
+				window.open(downloadUrl, '_blank').focus();
+			}else if(result.result.status === "error"){
+				Util.showError(result.result.message)
+			}else{
+				Util.showError("Export failed: " + JSON.stringify(result))
+			}
+		}, "xls-export", function(error) {
+			Util.unblockUI()
+			Util.showError("Export failed: " + JSON.stringify(error));
+		}, true);
 	}
 
     this._loadExported = function () {}
