@@ -1053,7 +1053,10 @@ function MainController(profile) {
 	this._selectSettings = function() {
 		this.serverFacade.searchSamples({ 	"sampleTypeCode" : "GENERAL_ELN_SETTINGS",
 											"withProperties" : false }, (function(settingsObjects) {
-			if(settingsObjects && settingsObjects.length > 0) {
+			if(settingsObjects && settingsObjects.length === 1 && settingsObjects[0].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+                Util.unblockUI();
+                mainController.changeView("showSettingsPage", settingsObjects[0].identifier);
+			} else if(settingsObjects && settingsObjects.length > 0) {
 				settingsObjects.sort(function(a, b) {
 				    if(a.identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") { // Global settings are first on the list
 				    		return 1;
@@ -1064,7 +1067,8 @@ function MainController(profile) {
 				
 				var settingsForDropdown = [];
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
-					settingsForDropdown.push({ label: settingsObjects[sIdx].identifier, value: settingsObjects[sIdx].identifier})
+				    var groupName = Util.getDisplayNameFromCode(SettingsManagerUtils.getSpaceGroupPrefix(settingsObjects[sIdx].spaceCode));
+				    settingsForDropdown.push({ label: groupName + " Group Settings", value: settingsObjects[sIdx].identifier})
 				}
 				
 				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settings");
