@@ -1068,6 +1068,9 @@ function MainController(profile) {
 				var settingsForDropdown = [];
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
 				    var groupName = Util.getDisplayNameFromCode(SettingsManagerUtils.getSpaceGroupPrefix(settingsObjects[sIdx].spaceCode));
+				    if(settingsObjects[sIdx].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+				        groupName = "(no group)";
+				    }
 				    settingsForDropdown.push({ label: groupName, value: settingsObjects[sIdx].identifier})
 				}
 				
