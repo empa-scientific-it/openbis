@@ -128,13 +128,22 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 			
-            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+			var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
 			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
 				return {
 					entityKind: "SAMPLE",
 					entityType: sample.sampleTypeCode
 				}
 			}))
+
+			propertyColumnsToSort.forEach(propertyColumn => {
+				propertyColumn.exportableProperty = {
+					code: propertyColumn.property,
+					types: {
+						"SAMPLE": Object.keys(foundSampleTypes)
+					}
+				}
+			})
 
 			return propertyColumnsToSort;
 		}
@@ -341,7 +350,7 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, true, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;
 	}
@@ -415,8 +424,12 @@ var SampleDataGridUtil = new function() {
 						modificationDate = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
 					}
 					
-					var sampleModel = { 
+					var sampleModel = {
 										'id' : sample.permId,
+										'exportableId' : {
+											exportable_kind: 'SAMPLE',
+											perm_id: sample.permId
+										},
 										'$object' : sample,
 										'identifier' : sample.identifier, 
 										'code' : sample.code,
@@ -658,6 +671,10 @@ var SampleDataGridUtil = new function() {
 				
 				var sampleModel = {
 									'id' : sample.permId,
+									'exportableId' : {
+										exportable_kind: 'SAMPLE',
+										perm_id: sample.permId
+									},
 									'$object' : sample,
 									'identifier' : sample.identifier, 
 									'code' : sample.code,

@@ -1292,7 +1292,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
             var filterModes = isGlobalSearch ? [] : null
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70, filterModes);
+			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, false, 70, filterModes);
 			return dataGrid;
 	}
 

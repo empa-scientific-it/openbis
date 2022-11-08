@@ -108,10 +108,14 @@ var ExperimentDataGridUtil = new function() {
 				var entity = entities[sIdx];
 				var model = {		
 									'id' : entity.permId,
+									'exportableId' : {
+										exportable_kind: 'EXPERIMENT',
+										perm_id: entity.permId
+									},
 									'code' : entity.code,
 									'identifier' : entity.identifier,
 									'permId' : entity.permId,
-                                    'type' : entity.experimentTypeCode,
+									'type' : entity.experimentTypeCode,
 									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),
 									'modifier' : entity.registrationDetails.modifierUserId,
@@ -147,12 +151,22 @@ var ExperimentDataGridUtil = new function() {
                     entityType: entity.type
                 }
             }))
+
+            propertyColumnsToSort.forEach(propertyColumn => {
+                propertyColumn.exportableProperty = {
+                    code: propertyColumn.property,
+                    types: {
+                        "EXPERIMENT": Object.keys(foundExperimentTypes)
+                    }
+                }
+            })
+
             return propertyColumnsToSort;
         }
 			
 		//Create and return a data grid controller
         var configKey = "EXPERIMENT_TABLE";
-        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, heightPercentage);
+        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, true, heightPercentage);
 		dataGridController.setId("experiment-grid")
 		return dataGridController;
 	}

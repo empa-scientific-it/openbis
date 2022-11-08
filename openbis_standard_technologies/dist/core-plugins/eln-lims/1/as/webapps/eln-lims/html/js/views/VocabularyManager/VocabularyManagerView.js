@@ -67,6 +67,10 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 				var codeDiv = "<div id= " + id +">" + vocabulary.code + "</did>";
 				dataList.push({
 					id: vocabulary.code,
+					exportableId : {
+						exportable_kind: 'VOCABULARY',
+						perm_id: vocabulary.code
+					},
 					code : codeDiv,
 					description : vocabulary.description,
 					object : vocabulary
@@ -79,7 +83,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			_this._showVocabulary(e.data.object)
 		}
 		
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, true, 90);
 		dataGrid.setId("vocabulary-grid")
 		dataGrid.init(this._dataGridContainer);
 		
@@ -121,7 +125,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "VOCABULARY_TERMS_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "VOCABULARY_TERMS_TABLE", false, false, 90);
 		dataGrid.setId("vocabulary-terms-table")
 		dataGrid.init(this._dataGridContainer);
 		

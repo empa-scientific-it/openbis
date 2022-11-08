@@ -209,7 +209,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		}
 		
 		var dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, false, 90);
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
 	}
