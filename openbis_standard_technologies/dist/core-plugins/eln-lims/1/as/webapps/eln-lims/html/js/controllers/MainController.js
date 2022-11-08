@@ -1068,12 +1068,12 @@ function MainController(profile) {
 				var settingsForDropdown = [];
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
 				    var groupName = Util.getDisplayNameFromCode(SettingsManagerUtils.getSpaceGroupPrefix(settingsObjects[sIdx].spaceCode));
-				    settingsForDropdown.push({ label: groupName + " Group Settings", value: settingsObjects[sIdx].identifier})
+				    settingsForDropdown.push({ label: groupName, value: settingsObjects[sIdx].identifier})
 				}
 				
-				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settings");
+				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select Group Settings");
 				$dropdown.attr("id", "settingsDropdown");
-				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown);
+				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown, "Group settings only apply to group spaces.");
 				
 				$("#settingsDropdown").on("change", function(event) {
 					var sampleIdentifier = $("#settingsDropdown")[0].value;
