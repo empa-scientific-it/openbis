@@ -63,8 +63,13 @@ var Util = new function() {
 		});
 	}
 	
-	this.showDropdownAndBlockUI = function(id, $dropdown) {
-		Util.blockUI($dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='" + id + "Cancel'>Cancel</a>");
+	this.showDropdownAndBlockUI = function(id, $dropdown, help) {
+        var html = "";
+        if(help) {
+            html = "<div class='glyphicon glyphicon-info-sign'></div><span> " + help + "</span></br></br>";
+        }
+        html += $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='" + id + "Cancel'>Cancel</a>";
+		Util.blockUI(html);
 		$("#" + id).select2({ width: '100%', theme: "bootstrap" });
 	}
 	
