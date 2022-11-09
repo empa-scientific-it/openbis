@@ -1,5 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -38,7 +39,7 @@ class VocabularyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
-        exportable={true}
+        exportable={GridExportOptions.EXPORT_XLS}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

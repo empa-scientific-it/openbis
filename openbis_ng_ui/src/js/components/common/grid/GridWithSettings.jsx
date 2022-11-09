@@ -23,8 +23,7 @@ export default class GridWithSettings extends React.PureComponent {
         {...this.props}
         loadSettings={this.loadSettings}
         onSettingsChange={this.onSettingsChange}
-        scheduleExport={this.props.exportable ? this.scheduleExport : null}
-        loadExported={this.props.exportable ? this.loadExported : null}
+        onExportXLS={this.onExportXLS}
       />
     )
   }
@@ -63,7 +62,7 @@ export default class GridWithSettings extends React.PureComponent {
     await openbis.updatePersons([update])
   }
 
-  async scheduleExport({ exportedIds, exportedProperties, exportedValues }) {
+  async onExportXLS({ exportedIds, exportedProperties, exportedValues }) {
     try {
       AppController.getInstance().loadingChange(true)
 
@@ -97,6 +96,4 @@ export default class GridWithSettings extends React.PureComponent {
       AppController.getInstance().loadingChange(false)
     }
   }
-
-  async loadExported() {}
 }

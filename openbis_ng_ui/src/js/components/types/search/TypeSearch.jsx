@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import AppController from '@src/js/components/AppController.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import EntityTypesGrid from '@src/js/components/types/common/EntityTypesGrid.jsx'
 import VocabularyTypesGrid from '@src/js/components/types/common/VocabularyTypesGrid.jsx'
 import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid.jsx'
@@ -398,7 +399,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.SAMPLE}
             rows={this.state.objectTypes}
-            exportable={true}
+            exportable={GridExportOptions.EXPORT_XLS}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
             )}
@@ -424,7 +425,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.EXPERIMENT}
             rows={this.state.collectionTypes}
-            exportable={true}
+            exportable={GridExportOptions.EXPORT_XLS}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
             )}
@@ -448,7 +449,7 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.DATA_SET}
             rows={this.state.dataSetTypes}
-            exportable={true}
+            exportable={GridExportOptions.EXPORT_XLS}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE
             )}
@@ -474,7 +475,6 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.MATERIAL}
             rows={this.state.materialTypes}
-            exportable={false}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.MATERIAL_TYPE
             )}
