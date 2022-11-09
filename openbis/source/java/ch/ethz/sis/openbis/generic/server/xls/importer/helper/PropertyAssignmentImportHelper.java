@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
@@ -14,6 +15,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -26,6 +28,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         Version("Version", true),
         Code("Code", true),
         Mandatory("Mandatory", true),
+        DefaultValue("Default Value", false),
         ShowInEditViews("Show in edit views", true),
         Section("Section", true),
         PropertyLabel("Property label", true),
@@ -99,6 +103,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
     {
         String code = getValueByColumnName(headers, values, Attribute.Code);
         String mandatory = getValueByColumnName(headers, values, Attribute.Mandatory);
+        String defaultValue = getValueByColumnName(headers, values, Attribute.DefaultValue);
         String showInEditViews = getValueByColumnName(headers, values, Attribute.ShowInEditViews);
         String section = getValueByColumnName(headers, values, Attribute.Section);
         String script = getValueByColumnName(headers, values, Attribute.DynamicScript);
@@ -106,6 +111,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
         creation.setMandatory(Boolean.parseBoolean(mandatory));
+        creation.setInitialValueForExistingEntities(defaultValue);
         creation.setShowInEditView(Boolean.parseBoolean(showInEditViews));
         creation.setSection(section);
         if (script != null && !script.isEmpty())
@@ -113,39 +119,99 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
             creation.setPluginId(new PluginPermId(ImportUtils.getScriptName(code, script)));
         }
 
+        ListUpdateValue newAssignments = new ListUpdateValue();
         if (!this.existingCodes.contains(creation.getPropertyTypeId().toString()))
         {
-            // update property assignments
-            ListUpdateValue newAssignments = new ListUpdateValue();
+            // Add property assignment
             newAssignments.add(creation);
+        } else {
+            // Update property assignment
+            ArrayList<PropertyAssignmentCreation> propertyAssignmentsForUpdate = getPropertyAssignmentsForUpdate();
+            int index = indexOf(creation.getPropertyTypeId(), propertyAssignmentsForUpdate);
+            propertyAssignmentsForUpdate.set(index, creation);
+            newAssignments.set(propertyAssignmentsForUpdate);
+        }
 
-            switch (importTypes)
-            {
-                case EXPERIMENT_TYPE:
-                    ExperimentTypeUpdate experimentTypeUpdate = new ExperimentTypeUpdate();
-                    experimentTypeUpdate.setTypeId(this.permId);
-                    experimentTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
-                    delayedExecutor.updateExperimentType(experimentTypeUpdate, page, line);
-                    break;
-                case SAMPLE_TYPE:
-                    SampleTypeUpdate sampleTypeUpdate = new SampleTypeUpdate();
-                    sampleTypeUpdate.setTypeId(this.permId);
-                    sampleTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
-                    delayedExecutor.updateSampleType(sampleTypeUpdate, page, line);
-                    break;
-                case DATASET_TYPE:
-                    DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
-                    dataSetTypeUpdate.setTypeId(this.permId);
-                    dataSetTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
-                    delayedExecutor.updateDataSetType(dataSetTypeUpdate, page, line);
-                    break;
+        switch (importTypes)
+        {
+            case EXPERIMENT_TYPE:
+                ExperimentTypeUpdate experimentTypeUpdate = new ExperimentTypeUpdate();
+                experimentTypeUpdate.setTypeId(this.permId);
+                experimentTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
+                delayedExecutor.updateExperimentType(experimentTypeUpdate, page, line);
+                break;
+            case SAMPLE_TYPE:
+                SampleTypeUpdate sampleTypeUpdate = new SampleTypeUpdate();
+                sampleTypeUpdate.setTypeId(this.permId);
+                sampleTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
+                delayedExecutor.updateSampleType(sampleTypeUpdate, page, line);
+                break;
+            case DATASET_TYPE:
+                DataSetTypeUpdate dataSetTypeUpdate = new DataSetTypeUpdate();
+                dataSetTypeUpdate.setTypeId(this.permId);
+                dataSetTypeUpdate.setPropertyAssignmentActions(newAssignments.getActions());
+                delayedExecutor.updateDataSetType(dataSetTypeUpdate, page, line);
+                break;
+        }
+    }
+
+    private int indexOf(IPropertyTypeId permId, ArrayList<PropertyAssignmentCreation> creations) {
+        for (int index = 0; index < creations.size(); index++) {
+            PropertyAssignmentCreation creation = creations.get(index);
+            if (creation.getPropertyTypeId().equals(permId)) {
+                return index;
             }
         }
+        return -1;
+    }
+
+    private ArrayList<PropertyAssignmentCreation> getPropertyAssignmentsForUpdate() {
+        IEntityType entityType = null;
+        switch (importTypes)
+        {
+            case EXPERIMENT_TYPE:
+                ExperimentTypeFetchOptions eOptions = new ExperimentTypeFetchOptions();
+                eOptions.withPropertyAssignments();
+                eOptions.withPropertyAssignments().withPropertyType();
+                eOptions.withPropertyAssignments().withPlugin();
+                entityType = delayedExecutor.getExperimentType(this.permId, eOptions);
+                break;
+            case SAMPLE_TYPE:
+                SampleTypeFetchOptions sOptions = new SampleTypeFetchOptions();
+                sOptions.withPropertyAssignments();
+                sOptions.withPropertyAssignments().withPropertyType();
+                sOptions.withPropertyAssignments().withPlugin();
+                entityType = delayedExecutor.getSampleType(this.permId, sOptions);
+                break;
+            case DATASET_TYPE:
+                DataSetTypeFetchOptions dOptions = new DataSetTypeFetchOptions();
+                dOptions.withPropertyAssignments();
+                dOptions.withPropertyAssignments().withPropertyType();
+                dOptions.withPropertyAssignments().withPlugin();
+                entityType = delayedExecutor.getDataSetType(this.permId, dOptions);
+                break;
+        }
+
+        ArrayList<PropertyAssignmentCreation> newPropertyAssignmentCreations = new ArrayList<>();
+        for (PropertyAssignment propertyAssignment:entityType.getPropertyAssignments()) {
+            PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
+            creation.setPropertyTypeId(propertyAssignment.getPropertyType().getPermId());
+            if (propertyAssignment.getPlugin() != null) {
+                creation.setPluginId(propertyAssignment.getPlugin().getPermId());
+            }
+            creation.setMandatory(propertyAssignment.isMandatory());
+            creation.setOrdinal(propertyAssignment.getOrdinal());
+            creation.setSection(propertyAssignment.getSection());
+            creation.setShowInEditView(propertyAssignment.isShowInEditView());
+            newPropertyAssignmentCreations.add(creation);
+        }
+        return newPropertyAssignmentCreations;
     }
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
-        // do only create
+        // Create and Update are equivalent
+        createObject(header, values, page, line);
     }
 
     private Set<String> generateExistingCodes(IEntityTypeId permId)
