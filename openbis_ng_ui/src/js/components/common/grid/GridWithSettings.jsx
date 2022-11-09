@@ -95,8 +95,8 @@ export default class GridWithSettings extends React.PureComponent {
       } else {
         AppController.getInstance().errorChange(JSON.stringify(result))
       }
-    } catch (error) {
-      AppController.getInstance().errorChange(JSON.stringify(error))
+    } catch (e) {
+      AppController.getInstance().errorChange(JSON.stringify(e.message))
     } finally {
       AppController.getInstance().loadingChange(false)
     }

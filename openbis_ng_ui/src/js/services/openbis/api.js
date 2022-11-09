@@ -255,9 +255,9 @@ class Facade {
       const execution = executions[executionId]
 
       if (!execution) {
-        throw Error('Execution id: ' + executionId + ' not found.')
+        throw new Error('Execution id: ' + executionId + ' not found.')
       } else if (execution.details.error !== null) {
-        throw Error(execution.details.error.message)
+        throw new Error(execution.details.error.message)
       } else if (
         execution.details.results !== null &&
         execution.details.results.length > 0
