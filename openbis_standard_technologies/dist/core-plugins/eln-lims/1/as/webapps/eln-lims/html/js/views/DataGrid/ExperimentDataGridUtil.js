@@ -166,7 +166,10 @@ var ExperimentDataGridUtil = new function() {
 			
 		//Create and return a data grid controller
         var configKey = "EXPERIMENT_TABLE";
-        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, true, heightPercentage);
+        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, {
+            fileFormat: 'XLS',
+            filePrefix: 'collections'
+        }, heightPercentage);
 		dataGridController.setId("experiment-grid")
 		return dataGridController;
 	}

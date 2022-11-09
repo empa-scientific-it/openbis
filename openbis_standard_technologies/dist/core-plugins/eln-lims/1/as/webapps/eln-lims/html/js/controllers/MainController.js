@@ -1542,7 +1542,10 @@ function MainController(profile) {
 									}
 								}
 								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, false, 90);
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
+									fileFormat: 'TSV',
+									filePrefix: 'search-' + searchDomainLabel
+								}, 90);
 								localReference.currentView = dataGrid;
 								var content = localReference._getBackwardsCompatibleMainContainer();
 								dataGrid.init(content);
@@ -1670,7 +1673,10 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, false, 90);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
+										fileFormat: 'TSV',
+										filePrefix: 'search-' + searchDomainLabel
+									}, 90);
 									localReference.currentView = dataGrid;
 									var content = localReference._getBackwardsCompatibleMainContainer();
 									dataGrid.init(content);
@@ -1843,7 +1849,10 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, false, 90);
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, {
+				fileFormat: 'TSV',
+				filePrefix: 'search'
+			}, 90);
 			localReference.currentView = dataGrid;
 			var content = localReference._getBackwardsCompatibleMainContainer();
 			dataGrid.init(content);

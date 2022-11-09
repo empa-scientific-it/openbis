@@ -23,8 +23,8 @@ function DataGridController(
     rowClickEventHandler,
     showAllColumns,
     configKey,
-    isMultiselectable,
-    isExportable,
+    multiselectable,
+    exportable,
     heightPercentage,
     filterModes
 ) {
@@ -74,11 +74,10 @@ function DataGridController(
                     loadRows: _this._loadRows,
                     onSettingsChange: _this._onSettingsChange,
                     onRowClick: rowClickEventHandler,
-                    exportable: isExportable,
-                    scheduleExport: _this._scheduleExport,
-                    loadExported: _this._loadExported,
+                    exportable: exportable,
+                    onExportXLS: _this._onExportXLS,
                     selectable: false,
-                    multiselectable: isMultiselectable,
+                    multiselectable: multiselectable,
                     actions: _this._actions(extraOptions),
                 })
             )
@@ -279,10 +278,10 @@ function DataGridController(
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
 
-	this._scheduleExport = function (parameters) {
+	this._onExportXLS = function (parameters) {
 		let serviceParameters = {
 			"method" : "export",
-			"file_name" : "test",
+			"file_name" : parameters.exportedFilePrefix,
 			"ids" : parameters.exportedIds,
 			"export_referred" : true,
 			"export_properties" : parameters.exportedProperties,
@@ -307,8 +306,6 @@ function DataGridController(
 			Util.showError("Export failed: " + JSON.stringify(error));
 		}, true);
 	}
-
-    this._loadExported = function () {}
 
     this.refresh = function () {
         if (_this.controller) {

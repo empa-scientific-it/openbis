@@ -350,7 +350,10 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, true, heightPercentage);
+		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, {
+			fileFormat: 'XLS',
+			filePrefix: 'objects'
+		}, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;
 	}
