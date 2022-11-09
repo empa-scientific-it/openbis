@@ -1053,7 +1053,10 @@ function MainController(profile) {
 	this._selectSettings = function() {
 		this.serverFacade.searchSamples({ 	"sampleTypeCode" : "GENERAL_ELN_SETTINGS",
 											"withProperties" : false }, (function(settingsObjects) {
-			if(settingsObjects && settingsObjects.length > 0) {
+			if(settingsObjects && settingsObjects.length === 1 && settingsObjects[0].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+                Util.unblockUI();
+                mainController.changeView("showSettingsPage", settingsObjects[0].identifier);
+			} else if(settingsObjects && settingsObjects.length > 0) {
 				settingsObjects.sort(function(a, b) {
 				    if(a.identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") { // Global settings are first on the list
 				    		return 1;
@@ -1064,12 +1067,16 @@ function MainController(profile) {
 				
 				var settingsForDropdown = [];
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
-					settingsForDropdown.push({ label: settingsObjects[sIdx].identifier, value: settingsObjects[sIdx].identifier})
+				    var groupName = Util.getDisplayNameFromCode(SettingsManagerUtils.getSpaceGroupPrefix(settingsObjects[sIdx].spaceCode));
+				    if(settingsObjects[sIdx].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+				        groupName = "(no group)";
+				    }
+				    settingsForDropdown.push({ label: groupName, value: settingsObjects[sIdx].identifier})
 				}
 				
-				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settings");
+				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select Group Settings");
 				$dropdown.attr("id", "settingsDropdown");
-				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown);
+				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown, "Group settings only apply to group spaces.");
 				
 				$("#settingsDropdown").on("change", function(event) {
 					var sampleIdentifier = $("#settingsDropdown")[0].value;

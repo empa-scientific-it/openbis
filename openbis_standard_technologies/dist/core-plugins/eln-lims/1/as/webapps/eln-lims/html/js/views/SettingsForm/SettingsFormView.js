@@ -609,7 +609,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			    showOnNav = false;
 			}
 			tableModel.addRow({
-                name : "Show in main menu",
+                name : "Show in lab notebook main menu",
                 enabled : showOnNav
             });
 		} else { // default values
@@ -626,7 +626,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
                 enabled : false
             });
             tableModel.addRow({
-                name : "Show in main menu",
+                name : "Show in lab notebook main menu",
                 enabled : false
             });
 		}
@@ -640,7 +640,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					settings["ENABLE_STORAGE"] = rowValues["enabled"];
 				} else if (rowValues["Options"] === "Show in drop downs") {
 					settings["SHOW"] = rowValues["enabled"];
-				} else if (rowValues["Options"] === "Show in main menu") {
+				} else if (rowValues["Options"] === "Show in lab notebook main menu") {
                     settings["SHOW_ON_NAV"] = rowValues["enabled"];
                 }
 			}
