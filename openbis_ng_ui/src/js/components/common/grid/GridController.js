@@ -1024,14 +1024,16 @@ export default class GridController {
   async handleExport() {
     const exportable = this.getExportable()
 
-    if (exportable === GridExportOptions.EXPORT_TSV) {
-      await this.handleExportTSV()
-    } else if (exportable === GridExportOptions.EXPORT_XLS) {
-      await this.handleExportXLS()
+    if (!exportable) {
+      return
+    } else if (exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT) {
+      await this.handleExportTSV(exportable)
+    } else if (exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT) {
+      await this.handleExportXLS(exportable)
     }
   }
 
-  async handleExportTSV() {
+  async handleExportTSV(exportable) {
     const { exportOptions } = this.context.getState()
 
     function _stringToUtf16ByteArray(str) {
@@ -1043,6 +1045,36 @@ export default class GridController {
         bytes.push((charCode & 0xff00) >>> 8) //high byte (might be 0)
       }
       return bytes
+    }
+
+    function _getFileName(prefix) {
+      const now = new Date()
+      const year = String(now.getFullYear()).padStart(4, '0')
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const seconds = String(now.getSeconds()).padStart(2, '0')
+      const millis = String(now.getMilliseconds()).padStart(3, '0')
+
+      return (
+        prefix +
+        '.' +
+        year +
+        '-' +
+        month +
+        '-' +
+        day +
+        '-' +
+        hours +
+        '-' +
+        minutes +
+        '-' +
+        seconds +
+        '-' +
+        millis +
+        '.tsv'
+      )
     }
 
     function _exportColumnsFromData(namePrefix, rows, columns) {
@@ -1095,7 +1127,7 @@ export default class GridController {
           var blob = new Blob([utf16bytesArray], {
             type: 'text/tsv;charset=UTF-16LE;'
           })
-          FileSaver.saveAs(blob, 'exportedTable' + namePrefix + '.tsv')
+          FileSaver.saveAs(blob, _getFileName(exportable.filePrefix))
         }
       )
     }
@@ -1150,7 +1182,7 @@ export default class GridController {
     }
   }
 
-  async handleExportXLS() {
+  async handleExportXLS(exportable) {
     const state = this.context.getState()
     const props = this.context.getProps()
 
@@ -1244,6 +1276,7 @@ export default class GridController {
     const exportedIds = exportedRows.map(row => row.exportableId)
 
     props.onExportXLS({
+      exportedFilePrefix: exportable.filePrefix,
       exportedIds: exportedIds,
       exportedProperties: exportedProperties,
       exportedValues: state.exportOptions.values
@@ -1378,7 +1411,12 @@ export default class GridController {
 
   getExportable() {
     const { exportable } = this.context.getProps()
-    return exportable !== undefined ? exportable : GridExportOptions.EXPORT_TSV
+
+    if (exportable !== undefined) {
+      return exportable
+    } else {
+      return null
+    }
   }
 
   _getCachedValue(key, newValue) {

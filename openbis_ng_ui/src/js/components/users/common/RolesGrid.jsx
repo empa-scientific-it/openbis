@@ -3,6 +3,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -56,6 +57,7 @@ class RolesGrid extends React.PureComponent {
         columns={columns}
         rows={rows}
         sort={this.getSort()}
+        exportable={this.getExportable()}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
@@ -89,6 +91,32 @@ class RolesGrid extends React.PureComponent {
       return 'inheritedFrom'
     } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
       return 'level'
+    }
+  }
+
+  getExportable() {
+    const { id } = this.props
+
+    if (id === ids.ROLES_OF_USERS_GRID_ID) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'users-roles'
+      }
+    } else if (id === ids.ROLES_OF_GROUPS_GRID_ID) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'groups-roles'
+      }
+    } else if (id === ids.ROLES_OF_USER_GRID_ID) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'user-roles'
+      }
+    } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'group-roles'
+      }
     }
   }
 

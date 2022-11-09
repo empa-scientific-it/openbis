@@ -1,5 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -37,6 +38,10 @@ export default class GroupsGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'groups'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

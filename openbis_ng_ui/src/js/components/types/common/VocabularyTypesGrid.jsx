@@ -39,7 +39,10 @@ class VocabularyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
-        exportable={GridExportOptions.EXPORT_XLS}
+        exportable={{
+          fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+          filePrefix: 'vocabulary-types'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

@@ -1,5 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
@@ -104,6 +105,10 @@ class PropertyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'property-types'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

@@ -236,7 +236,7 @@ class Grid extends React.PureComponent {
     return (
       <GridExports
         id={id}
-        disabled={!exportable || rows.length === 0}
+        disabled={rows.length === 0}
         exportOptions={exportOptions}
         multiselectable={multiselectable}
         onExport={this.controller.handleExport}

@@ -62,7 +62,12 @@ export default class GridWithSettings extends React.PureComponent {
     await openbis.updatePersons([update])
   }
 
-  async onExportXLS({ exportedIds, exportedProperties, exportedValues }) {
+  async onExportXLS({
+    exportedFilePrefix,
+    exportedIds,
+    exportedProperties,
+    exportedValues
+  }) {
     try {
       AppController.getInstance().loadingChange(true)
 
@@ -70,7 +75,7 @@ export default class GridWithSettings extends React.PureComponent {
 
       const serviceOptions = new openbis.CustomASServiceExecutionOptions()
       serviceOptions.withParameter('method', 'export')
-      serviceOptions.withParameter('file_name', this.props.id)
+      serviceOptions.withParameter('file_name', exportedFilePrefix)
       serviceOptions.withParameter('ids', exportedIds)
       serviceOptions.withParameter('export_referred', true)
       serviceOptions.withParameter('export_properties', exportedProperties)

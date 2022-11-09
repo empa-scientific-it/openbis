@@ -3,6 +3,7 @@ import autoBind from 'auto-bind'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import VocabularyTypeFormController from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormController.js'
@@ -107,6 +108,10 @@ class VocabularyTypeForm extends React.PureComponent {
           columns={columns}
           rows={terms}
           sort='code'
+          exportable={{
+            fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+            filePrefix: 'vocabulary-terms'
+          }}
           selectable={true}
           selectedRowId={
             selection && selection.type === VocabularyTypeFormSelectionType.TERM

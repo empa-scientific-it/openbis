@@ -1,5 +1,6 @@
 import React from 'react'
 import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import QueryLink from '@src/js/components/common/link/QueryLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import QueryType from '@src/js/components/common/dto/QueryType.js'
@@ -63,6 +64,10 @@ class QueriesGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'queries'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

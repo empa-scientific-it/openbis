@@ -1,6 +1,7 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({})
@@ -15,6 +16,10 @@ class QueryFormExecuteResultsGrid extends React.PureComponent {
       <Grid
         columns={this.getColumns(tableModel)}
         rows={this.getRows(tableModel)}
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'query-results'
+        }}
         selectable={true}
       />
     )
