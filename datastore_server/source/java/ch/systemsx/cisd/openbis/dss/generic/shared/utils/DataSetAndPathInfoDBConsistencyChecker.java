@@ -91,17 +91,15 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         for (IDatasetLocation location : datasets)
         {
-        	String dataSetCode = location.getDataSetCode();
-			if (location instanceof DatasetDescription)
-        	{
+			String dataSetCode = location.getDataSetCode();
+			if (location instanceof DatasetDescription) {
 				DatasetDescription dataSet = (DatasetDescription) location;
 				checkDataSet(dataSetCode, dataSet.isH5Folders(), dataSet.isH5arFolders());
-			} else
-			{
+			} else {
 				checkDataSet(dataSetCode);
 			}
-        }
-    }
+		}
+	}
 
     public void checkDataSet(String dataSetCode)
     {
