@@ -104,8 +104,8 @@ public class ImportExperimentTypesTest extends AbstractImportTest
         PropertyAssignment defaultObjectTypeProperty = propertyAssignments.get(1);
         // THEN
         // Property Assignment updates are not supported, no change here between updates.
-        assertFalse(nameProperty.isMandatory());
-        assertTrue(nameProperty.isShowInEditView());
+        assertTrue(nameProperty.isMandatory());
+        assertFalse(nameProperty.isShowInEditView());
         assertEquals(nameProperty.getSection(), "General information");
         assertEquals(nameProperty.getPropertyType().getDescription(), "NameUpdateDescription");
         assertEquals(nameProperty.getPropertyType().getLabel(), "NameUpdate");

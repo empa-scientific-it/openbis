@@ -126,8 +126,8 @@ public class ImportDatasetTypesTest extends AbstractImportTest
         PropertyAssignment notesProperty = propertyAssignments.get(1);
         // THEN
         // Property Assignment updates are not supported, no change here between updates.
-        assertFalse(nameProperty.isMandatory());
-        assertTrue(nameProperty.isShowInEditView());
+        assertTrue(nameProperty.isMandatory());
+        assertFalse(nameProperty.isShowInEditView());
         assertEquals(nameProperty.getSection(), "General information");
         assertEquals(nameProperty.getPropertyType().getLabel(), "NameUpdate");
         assertEquals(nameProperty.getPropertyType().getDataType(), DataType.VARCHAR);
