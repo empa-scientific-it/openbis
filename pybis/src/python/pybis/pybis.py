@@ -10,18 +10,18 @@ Work with openBIS using Python.
 
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import time
-from xml.dom import NotSupportedErr
 import zlib
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from pathlib import Path
+from typing import List
 from urllib.parse import quote, urljoin, urlparse
 
 import requests
 import urllib3
+from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
 
 from . import data_set as pbds
@@ -41,9 +41,9 @@ from .entity_type import (
     MaterialType,
     SampleType,
 )
-from .experiment import Experiment
 from .group import Group
 from .openbis_object import OpenBisObject, Transaction
+from .experiment import Experiment
 from .person import Person
 from .project import Project
 from .role_assignment import RoleAssignment
@@ -2062,7 +2062,7 @@ class Openbis:
         try:
             resp = self._post_request(self.as_v3, request)
         except ValueError as exc:
-            raise NotSupportedErr(
+            raise NotImplementedError(
                 "Your openBIS instance does not support personal access tokens. Please upgrade your server and activate them."
             )
         try:
@@ -2113,7 +2113,7 @@ class Openbis:
         try:
             resp = self._post_request(self.as_v3, request)
         except ValueError:
-            raise NotSupportedErr(
+            raise NotImplementedError(
                 "This method is not supported by your openBIS instance."
             )
 
