@@ -1650,16 +1650,9 @@ class Openbis:
             self.datastores = datastores[attrs]
             return datastores[attrs]
 
-    def gen_code(self, entity, prefix=""):
-        """Get the next sequence number for a Sample, Experiment, DataSet and Material. Other entities are currently not supported.
-        Usage::
-            gen_code('SAMPLE', 'SAM-')
-            gen_code('EXPERIMENT', 'EXP-')
-            gen_code('DATASET', '')
-            gen_code('MATERIAL', 'MAT-')
-        """
-
+    def gen_codes(self, entity: str, prefix: str = "", count: int = 1) -> List[str]:
         entity = entity.upper()
+
         entity2enum = {
             "DATASET": "DATA_SET",
             "OBJECT": "SAMPLE",
@@ -1675,13 +1668,22 @@ class Openbis:
             )
 
         request = {
-            "method": "generateCode",
-            "params": [self.token, prefix, entity2enum[entity]],
+            "method": "createCodes",
+            "params": [self.token, prefix, entity2enum[entity], count],
         }
         try:
-            return self._post_request(self.as_v1, request)
+            return self._post_request(self.as_v3, request)
         except Exception as e:
-            raise ValueError(f"Could not generate a code for {entity}: {e}")
+            raise ValueError(f"Could not generate a code(s) for {entity}: {e}")
+
+    def gen_code(self, entity, prefix="") -> str:
+        """Get the next sequence number for a Sample, Experiment, DataSet and Material. Other entities are currently not supported.
+        Usage::
+            gen_code('sample', 'SAM-')
+            gen_code('collection', 'COL-')
+            gen_code('dataset', '')
+        """
+        return self.gen_codes(entity=entity, prefix=prefix)[0]
 
     def gen_permId(self, count=1):
         """Generate a permId (or many permIds) for a dataSet"""
