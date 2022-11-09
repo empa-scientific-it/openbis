@@ -129,7 +129,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
             ArrayList<PropertyAssignmentCreation> propertyAssignmentsForUpdate = getPropertyAssignmentsForUpdate();
             int index = indexOf(creation.getPropertyTypeId(), propertyAssignmentsForUpdate);
             propertyAssignmentsForUpdate.set(index, creation);
-            newAssignments.set(propertyAssignmentsForUpdate);
+            newAssignments.set(propertyAssignmentsForUpdate.toArray());
         }
 
         switch (importTypes)
