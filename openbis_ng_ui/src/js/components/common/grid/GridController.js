@@ -1077,7 +1077,7 @@ export default class GridController {
       )
     }
 
-    function _exportColumnsFromData(namePrefix, rows, columns) {
+    function _exportColumnsFromData(rows, columns) {
       const arrayOfRowArrays = []
 
       const headers = columns.map(column => column.name)
@@ -1137,14 +1137,11 @@ export default class GridController {
 
     var data = []
     var columns = []
-    var prefix = ''
 
     if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
       columns = this.getAllColumns()
-      prefix += 'AllColumns'
     } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
       columns = this.getVisibleColumns()
-      prefix += 'VisibleColumns'
     } else {
       throw Error('Unsupported columns option: ' + exportOptions.columns)
     }
@@ -1165,18 +1162,15 @@ export default class GridController {
         data = loadedResult.rows
       }
 
-      prefix += 'AllPages'
-      _exportColumnsFromData(prefix, data, columns)
+      _exportColumnsFromData(data, columns)
     } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
       data = state.rows
-      prefix += 'CurrentPage'
-      _exportColumnsFromData(prefix, data, columns)
+      _exportColumnsFromData(data, columns)
     } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
       data = Object.values(state.multiselectedRows).map(
         selectedRow => selectedRow.data
       )
-      prefix += 'SelectedRows'
-      _exportColumnsFromData(prefix, data, columns)
+      _exportColumnsFromData(data, columns)
     } else {
       throw Error('Unsupported rows option: ' + exportOptions.columns)
     }
