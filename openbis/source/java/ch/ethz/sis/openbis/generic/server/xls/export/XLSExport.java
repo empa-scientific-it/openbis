@@ -78,7 +78,7 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
-    public static String export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
+    public static ExportResult export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
             final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
             final Map<String, Map<String, Collection<String>>> exportProperties,
             final TextFormatting textFormatting) throws IOException
@@ -105,7 +105,8 @@ public class XLSExport
                     new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                     (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
             sessionWorkspaceProvider.write(sessionToken, fullFileName, pis);
-            return fullFileName;
+            // TODO: implement warnings.
+            return new ExportResult(fullFileName, exportResult.getWarnings());
         }
     }
 
@@ -170,6 +171,7 @@ public class XLSExport
         wb.createSheet();
         int rowNumber = 0;
         final Map<String, String> scripts = new HashMap<>();
+        final Collection<String> warnings = new ArrayList<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -180,8 +182,11 @@ public class XLSExport
             final Map<String, Collection<String>> entityTypeExportPropertiesMap = exportProperties == null
                     ? null
                     : exportProperties.get(exportablePermId.getExportableKind().toString());
-            rowNumber = helper.add(api, sessionToken, wb, permIds, rowNumber, entityTypeExportPropertiesMap,
-                    textFormatting);
+            final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
+                    entityTypeExportPropertiesMap, textFormatting);
+            rowNumber = additionResult.getRowNumber();
+            warnings.addAll(additionResult.getWarnings());
+
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId());
 
@@ -203,7 +208,7 @@ public class XLSExport
             }
         }
 
-        return new PrepareWorkbookResult(wb, scripts);
+        return new PrepareWorkbookResult(wb, scripts, warnings);
     }
 
     private static Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
@@ -431,10 +436,14 @@ public class XLSExport
 
         private final Map<String, String> scripts;
 
-        public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts)
+        final Collection<String> warnings;
+
+        public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts,
+                final Collection<String> warnings)
         {
             this.workbook = workbook;
             this.scripts = scripts;
+            this.warnings = warnings;
         }
 
         public Workbook getWorkbook()
@@ -447,11 +456,41 @@ public class XLSExport
             return scripts;
         }
 
+        public Collection<String> getWarnings()
+        {
+            return warnings;
+        }
+
     }
 
     public enum TextFormatting
     {
         PLAIN, RICH
+    }
+
+    public static class ExportResult
+    {
+
+        final String fileName;
+
+        final Collection<String> warnings;
+
+        public ExportResult(final String fileName, final Collection<String> warnings)
+        {
+            this.fileName = fileName;
+            this.warnings = warnings;
+        }
+
+        public String getFileName()
+        {
+            return fileName;
+        }
+
+        public Collection<String> getWarnings()
+        {
+            return warnings;
+        }
+
     }
 
 }

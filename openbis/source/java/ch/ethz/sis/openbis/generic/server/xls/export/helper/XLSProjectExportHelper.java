@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,27 +12,33 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSProjectExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
-    public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);
+        final Collection<String> warnings = new ArrayList<>();
 
-        addRow(wb, rowNumber++, true, "PROJECT");
-        addRow(wb, rowNumber++, true, "Identifier", "Code", "Description", "Space");
+        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.PROJECT, null, "PROJECT"));
+        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.PROJECT, null, "Identifier", "Code", "Description",
+                "Space"));
 
         for (final Project project : projects)
         {
-            addRow(wb, rowNumber++, false, project.getIdentifier().getIdentifier(), project.getCode(),
-                    project.getDescription(), project.getSpace().getCode());
+            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.PROJECT, project.getPermId().getPermId(),
+                    project.getIdentifier().getIdentifier(), project.getCode(), project.getDescription(),
+                    project.getSpace().getCode()));
         }
 
-        return rowNumber + 1;
+        return new AdditionResult(rowNumber + 1, warnings);
     }
 
     private Collection<Project> getProjects(final IApplicationServerApi api, final String sessionToken,

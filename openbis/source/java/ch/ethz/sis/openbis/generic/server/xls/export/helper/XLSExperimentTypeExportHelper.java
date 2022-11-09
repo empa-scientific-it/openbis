@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,35 +17,43 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
-    public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final ExperimentType experimentType = getExperimentType(api, sessionToken, permIds.iterator().next());
+        final Collection<String> warnings = new ArrayList<>();
 
         if (experimentType != null)
         {
-
-            addRow(wb, rowNumber++, true, "EXPERIMENT_TYPE");
-            addRow(wb, rowNumber++, true, "Version", "Code", "Validation script");
+            final String permId = experimentType.getPermId().getPermId();
+            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
+            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
+                    "Validation script"));
 
             final Plugin validationPlugin = experimentType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            addRow(wb, rowNumber++, false, "1", experimentType.getCode(), script);
+            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
+                    experimentType.getCode(), script));
 
-            rowNumber = addEntityTypePropertyAssignments(wb, rowNumber, experimentType.getPropertyAssignments());
-            return rowNumber + 1;
+            final AdditionResult additionResult = addEntityTypePropertyAssignments(wb, rowNumber,
+                    experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId);
+            warnings.addAll(additionResult.getWarnings());
+            rowNumber = additionResult.getRowNumber();
+
+            return new AdditionResult(rowNumber + 1, warnings);
         } else
         {
-            return rowNumber;
+            return new AdditionResult(rowNumber, warnings);
         }
     }
 

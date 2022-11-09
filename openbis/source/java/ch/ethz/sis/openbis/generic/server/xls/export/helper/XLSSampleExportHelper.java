@@ -17,18 +17,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSSampleExportHelper extends AbstractXLSExportHelper
 {
 
     @Override
-    public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
             final Map<String, Collection<String>> entityTypeExportPropertiesMap,
             final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Sample> samples = getSamples(api, sessionToken, permIds);
+        final Collection<String> warnings = new ArrayList<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.
@@ -45,9 +47,9 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            addRow(wb, rowNumber++, true, "SAMPLE");
-            addRow(wb, rowNumber++, true, "Sample type");
-            addRow(wb, rowNumber++, false, typePermId);
+            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "SAMPLE"));
+            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "Sample type"));
+            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.SAMPLE_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("$", "Identifier", "Code", "Space", "Project",
                     "Experiment", "Auto generate code", "Parents", "Children"));
@@ -58,7 +60,8 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
+            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId,
+                    headers.toArray(String[]::new)));
 
             for (final Sample sample : entry.getValue())
             {
@@ -81,13 +84,14 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
-                addRow(wb, rowNumber++, false, sampleValues.toArray(String[]::new));
+                warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.SAMPLE, sample.getPermId().getPermId(),
+                        sampleValues.toArray(String[]::new)));
             }
 
             rowNumber++;
         }
 
-        return rowNumber;
+        return new AdditionResult(rowNumber, warnings);
     }
 
     private Collection<Sample> getSamples(final IApplicationServerApi api, final String sessionToken,

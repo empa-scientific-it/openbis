@@ -38,8 +38,11 @@ def export(context, parameters):
         session_token = context.getSessionToken()
         api = context.getApplicationService()
         text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
-        full_file_name = XLSExport.export(file_name, api, session_token, vocabularies,
+        xls_import_result = XLSExport.export(file_name, api, session_token, vocabularies,
                                           parameters.get("export_referred"), export_properties, text_formatting)
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    return {"status": "OK", "result": full_file_name}
+    return {"status": "OK", "result": {
+        "file_name": xls_import_result.getFileName(),
+        "warnings": xls_import_result.getWarnings()
+    }}
