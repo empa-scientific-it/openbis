@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.Hdf5AwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGeneric
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBOnlyHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -90,11 +91,24 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         for (IDatasetLocation location : datasets)
         {
-            checkDataSet(location.getDataSetCode());
+        	String dataSetCode = location.getDataSetCode();
+			if (location instanceof DatasetDescription)
+        	{
+				DatasetDescription dataSet = (DatasetDescription) location;
+				checkDataSet(dataSetCode, dataSet.isH5Folders(), dataSet.isH5arFolders());
+			} else
+			{
+				checkDataSet(dataSetCode);
+			}
         }
     }
 
     public void checkDataSet(String dataSetCode)
+    {
+    	checkDataSet(dataSetCode, false, true);
+    }
+    
+    public void checkDataSet(String dataSetCode, boolean h5Folders, boolean h5arFolders)
     {
         dataSets.add(dataSetCode);
         IHierarchicalContent fileContent = null;
@@ -102,7 +116,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
         try
         {
-            fileContent = tryGetContent(getFileProvider(), dataSetCode);
+            fileContent = tryGetContent(getFileProvider(h5Folders, h5arFolders), dataSetCode);
             pathInfoContent = tryGetContent(getPathInfoProvider(), dataSetCode);
 
             List<Difference> datasetDifferences = new ArrayList<Difference>();
@@ -641,7 +655,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
         }
     }
 
-    private IHierarchicalContentProvider getFileProvider()
+    private IHierarchicalContentProvider getFileProvider(boolean h5Folders, boolean h5arFolders)
     {
         if (fileProvider == null)
         {
@@ -649,7 +663,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
                     new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                             ServiceProvider.getShareIdManager(),
                             ServiceProvider.getConfigProvider(), ServiceProvider.getContentCache(),
-                            new DefaultFileBasedHierarchicalContentFactory(), getServiceFactory(),
+                            new Hdf5AwareHierarchicalContentFactory(h5Folders, h5arFolders), getServiceFactory(),
                             null, null);
         }
         return fileProvider;
