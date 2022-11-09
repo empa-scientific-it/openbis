@@ -1223,7 +1223,7 @@ class Openbis:
 
         lastIndexOfMinus = len(self.token) - "".join(reversed(self.token)).index("-") - 1
         token_user_name = session[0:lastIndexOfMinus]
-        if token_user_name.startswith("$pat-")
+        if token_user_name.startswith("$pat-"):
             token_user_name = token_user_name[5:]
         from pwd import getpwnam
 
