@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
@@ -118,9 +118,12 @@ class HistoryGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
+    const id = this.getId()
+
     return (
-      <GridWithSettings
-        id={this.getId()}
+      <GridWithOpenbis
+        id={id}
+        settingsId={id}
         filterModes={[GridFilterOptions.COLUMN_FILTERS]}
         header={this.getHeader()}
         columns={[

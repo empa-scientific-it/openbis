@@ -1,5 +1,5 @@
 import React from 'react'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import messages from '@src/js/common/messages.js'
@@ -13,8 +13,9 @@ class VocabularyTypesGrid extends React.PureComponent {
       this.props
 
     return (
-      <GridWithSettings
+      <GridWithOpenbis
         id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={messages.get(messages.VOCABULARY_TYPES)}
         columns={[

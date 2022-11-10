@@ -2,7 +2,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
@@ -99,10 +99,13 @@ class VocabularyTypeForm extends React.PureComponent {
   renderMainPanel() {
     const { terms, selection } = this.state
 
+    const id = ids.VOCABULARY_TERMS_GRID_ID
+
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <GridWithSettings
-          id={ids.VOCABULARY_TERMS_GRID_ID}
+        <GridWithOpenbis
+          id={id}
+          settingsId={id}
           controllerRef={this.handleGridControllerRef}
           header={messages.get(messages.TERMS)}
           columns={columns}

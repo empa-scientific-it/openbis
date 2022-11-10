@@ -76,6 +76,7 @@ function DataGridController(
                     onRowClick: rowClickEventHandler,
                     exportable: exportable,
                     onExportXLS: _this._onExportXLS,
+                    onExportTSV: _this._onExportTSV,
                     selectable: false,
                     multiselectable: multiselectable,
                     actions: _this._actions(extraOptions),
@@ -294,17 +295,37 @@ function DataGridController(
 			Util.unblockUI()
 
 			if(result.result.status === "OK"){
-				let downloadUrl = "/openbis/download/?sessionID=" + encodeURIComponent(mainController.serverFacade.getSession()) + "&filePath=" + encodeURIComponent(result.result.result)
-				window.open(downloadUrl, '_blank').focus();
+				const filePath = result.result.result
+				const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
+				const fileUrl =
+				  '/openbis/download/?sessionID=' +
+				  encodeURIComponent(mainController.serverFacade.getSession()) +
+				  '&filePath=' +
+				  encodeURIComponent(filePath)
+
+				const link = document.createElement('a')
+				link.href = fileUrl
+				link.download = fileName
+				link.click()
 			}else if(result.result.status === "error"){
 				Util.showError(result.result.message)
 			}else{
-				Util.showError("Export failed: " + JSON.stringify(result))
+				Util.showError(JSON.stringify(result))
 			}
 		}, "xls-export", function(error) {
 			Util.unblockUI()
-			Util.showError("Export failed: " + JSON.stringify(error));
+			Util.showError(JSON.stringify(error));
 		}, true);
+	}
+
+	this._onExportTSV = function (parameters) {
+		Util.blockUI()
+		parameters.exportedFileDownload().then(function(){
+			Util.unblockUI()
+		}, function(error){
+			Util.unblockUI()
+			Util.showError(JSON.stringify(error))
+		})
 	}
 
     this.refresh = function () {

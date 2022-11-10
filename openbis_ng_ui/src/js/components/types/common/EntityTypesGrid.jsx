@@ -1,5 +1,5 @@
 import React from 'react'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -20,8 +20,9 @@ class EntityTypesGrid extends React.PureComponent {
     } = this.props
 
     return (
-      <GridWithSettings
+      <GridWithOpenbis
         id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         columns={this.getColumns()}

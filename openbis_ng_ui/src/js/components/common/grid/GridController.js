@@ -1034,7 +1034,19 @@ export default class GridController {
   }
 
   async handleExportTSV(exportable) {
-    const { exportOptions } = this.context.getState()
+    const _this = this
+    const state = this.context.getState()
+    const props = this.context.getProps()
+
+    const { onExportTSV } = props
+    const { exportOptions } = state
+
+    if (!onExportTSV) {
+      console.error(
+        'Missing onExportTSV callback function for grid with id: ' + props.id
+      )
+      return
+    }
 
     function _stringToUtf16ByteArray(str) {
       var bytes = []
@@ -1132,53 +1144,62 @@ export default class GridController {
       )
     }
 
-    const state = this.context.getState()
-    const props = this.context.getProps()
+    async function _exportedFileDownload() {
+      var data = []
+      var columns = []
 
-    var data = []
-    var columns = []
-
-    if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
-      columns = this.getAllColumns()
-    } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
-      columns = this.getVisibleColumns()
-    } else {
-      throw Error('Unsupported columns option: ' + exportOptions.columns)
-    }
-
-    columns = columns.filter(column => column.exportable)
-
-    if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
-      if (state.local) {
-        data = state.sortedRows
-      } else if (props.loadRows) {
-        const loadedResult = await props.loadRows({
-          filters: state.filters,
-          globalFilter: state.globalFilter,
-          page: 0,
-          pageSize: 1000000,
-          sortings: state.sortings
-        })
-        data = loadedResult.rows
+      if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+        columns = _this.getAllColumns()
+      } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+        columns = _this.getVisibleColumns()
+      } else {
+        throw Error('Unsupported columns option: ' + exportOptions.columns)
       }
 
-      _exportColumnsFromData(data, columns)
-    } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
-      data = state.rows
-      _exportColumnsFromData(data, columns)
-    } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
-      data = Object.values(state.multiselectedRows).map(
-        selectedRow => selectedRow.data
-      )
-      _exportColumnsFromData(data, columns)
-    } else {
-      throw Error('Unsupported rows option: ' + exportOptions.columns)
+      columns = columns.filter(column => column.exportable)
+
+      if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
+        if (state.local) {
+          data = state.sortedRows
+        } else if (props.loadRows) {
+          const loadedResult = await props.loadRows({
+            filters: state.filters,
+            globalFilter: state.globalFilter,
+            page: 0,
+            pageSize: 1000000,
+            sortings: state.sortings
+          })
+          data = loadedResult.rows
+        }
+        _exportColumnsFromData(data, columns)
+      } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+        data = state.rows
+        _exportColumnsFromData(data, columns)
+      } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+        data = Object.values(state.multiselectedRows).map(
+          selectedRow => selectedRow.data
+        )
+        _exportColumnsFromData(data, columns)
+      } else {
+        throw Error('Unsupported rows option: ' + exportOptions.columns)
+      }
     }
+
+    onExportTSV({
+      exportedFileDownload: _exportedFileDownload
+    })
   }
 
   async handleExportXLS(exportable) {
     const state = this.context.getState()
     const props = this.context.getProps()
+
+    if (!props.onExportXLS) {
+      console.error(
+        'Missing onExportXLS callback function for grid with id: ' + props.id
+      )
+      return
+    }
 
     let exportedRows = []
 
