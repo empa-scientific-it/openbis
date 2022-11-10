@@ -6,7 +6,6 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Code',
 			property : 'code',
-			isExportable: false,
 			sortable : true,
 			render : function(data, grid) {
 				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
@@ -24,7 +23,6 @@ var ExperimentDataGridUtil = new function() {
         columns.push({
             label : 'Name',
             property : '$NAME',
-            isExportable: true,
             sortable : true,
             render : function(data) {
                 var nameToUse = "";
@@ -38,7 +36,6 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Identifier',
 			property : 'identifier',
-			isExportable: true,
 			sortable : true,
 			render : function(data) {
 				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
@@ -57,21 +54,18 @@ var ExperimentDataGridUtil = new function() {
         columns.push({
             label : 'Type',
             property : 'type',
-            isExportable: true,
             sortable : true
         });
         
 		columns.push({
 			label : 'Registrator',
 			property : 'registrator',
-			isExportable: false,
 			sortable : true
 		});
 		
 		columns.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
-			isExportable: false,
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
@@ -84,14 +78,12 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Modifier',
 			property : 'modifier',
-			isExportable: false,
 			sortable : true
 		});
 
 		columns.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
-			isExportable: false,
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
