@@ -38,18 +38,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSExperimentTypeExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSProjectExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSampleTypeExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSSpaceExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
@@ -231,9 +223,11 @@ public class XLSExport
                                 }
                                 case SAMPLE:
                                 {
+                                    final SampleType sampleType = propertyType.getSampleType();
                                     final ExportablePermId samplePropertyExportablePermId =
                                             new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                                            new EntityTypePermId(propertyType.getSampleType().getCode(), SAMPLE));
+                                                    new EntityTypePermId(sampleType.getCode(),
+                                                            SAMPLE));
 
                                     if (processedIds.contains(samplePropertyExportablePermId))
                                     {

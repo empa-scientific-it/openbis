@@ -78,9 +78,10 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                         .collect(Collectors.joining("\n"));
                 final List<String> sampleValues = new ArrayList<>(
                         List.of("", sample.getIdentifier().getIdentifier(), sample.getCode(),
-                                sample.getSpace().getPermId().getPermId(),
-                                sample.getProject().getIdentifier().getIdentifier(),
-                                sample.getExperiment().getIdentifier().getIdentifier(),
+                                sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "",
+                                sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "",
+                                sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier()
+                                        : "",
                                 "FALSE", parents, children));
 
                 final Map<String, String> properties = sample.getProperties();

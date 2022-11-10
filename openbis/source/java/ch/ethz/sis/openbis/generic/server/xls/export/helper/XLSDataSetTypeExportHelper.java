@@ -70,6 +70,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
         propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
+        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
         propertyAssignmentFetchOptions.withPlugin().withScript();
         final Map<IEntityTypeId, DataSetType> dataSetTypes = api.getDataSetTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.DATA_SET)), fetchOptions);

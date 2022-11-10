@@ -71,6 +71,8 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
         propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
+        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
         propertyAssignmentFetchOptions.withPlugin().withScript();
         final Map<IEntityTypeId, ExperimentType> experimentTypes = api.getExperimentTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.EXPERIMENT)), fetchOptions);
