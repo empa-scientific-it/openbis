@@ -48,7 +48,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
             warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "DATASET"));
             warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "Dataset type"));
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId));
+            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("Code",
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));

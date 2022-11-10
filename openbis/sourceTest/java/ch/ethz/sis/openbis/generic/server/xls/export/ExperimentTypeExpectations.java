@@ -43,6 +43,7 @@ class ExperimentTypeExpectations extends Expectations
 
                 final ExperimentType experimentType = new ExperimentType();
                 experimentType.setFetchOptions(fetchOptions);
+                experimentType.setPermId(new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT));
                 experimentType.setCode("DEFAULT_EXPERIMENT");
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 

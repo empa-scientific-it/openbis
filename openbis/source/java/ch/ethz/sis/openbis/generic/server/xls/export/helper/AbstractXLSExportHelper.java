@@ -71,7 +71,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         for (int i = 0; i < values.length; i++)
         {
             final Cell cell = row.createCell(i);
-            final String value = values[i];
+            final String value = values[i] != null ? values[i] : "";
 
             if (value.length() <= Short.MAX_VALUE)
             {

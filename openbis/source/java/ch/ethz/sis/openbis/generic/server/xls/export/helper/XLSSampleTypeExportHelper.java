@@ -25,7 +25,9 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
 
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final SampleType sampleType = getSampleType(api, sessionToken, permIds.iterator().next());

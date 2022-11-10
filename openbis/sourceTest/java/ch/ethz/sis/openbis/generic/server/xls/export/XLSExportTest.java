@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -686,7 +687,7 @@ public class XLSExportTest
 
     private static void assertRowsEqual(final Row actual, final Row expected)
     {
-        if (expected != null && actual != null)
+        if (rowContainsValues(expected) && rowContainsValues(actual))
         {
             final int firstCellNum = Math.min(actual.getFirstCellNum(), expected.getFirstCellNum());
             final int lastCellNum = Math.max(actual.getLastCellNum(), expected.getLastCellNum());
@@ -695,18 +696,12 @@ public class XLSExportTest
                 assertCellsEqual(actual.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK),
                         expected.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
             }
-        } else if (expected == null)
+        } else if (rowContainsValues(expected))
         {
-            if (rowContainsValues(actual))
-            {
-                fail(String.format("Actual row #%d (1 based) is not empty.", actual.getRowNum() + 1));
-            }
-        } else
+            fail(String.format("Actual row #%d (1 based) is empty.", expected.getRowNum() + 1));
+        } else if (rowContainsValues(actual))
         {
-            if (rowContainsValues(expected))
-            {
-                fail(String.format("Actual row #%d (1 based) is empty.", expected.getRowNum() + 1));
-            }
+            fail(String.format("Actual row #%d (1 based) is not empty.", actual.getRowNum() + 1));
         }
     }
 
@@ -719,7 +714,7 @@ public class XLSExportTest
             for (int i = firstCellNum; i < lastCellNum; i++)
             {
                 final Cell cell = row.getCell(i);
-                if (cell != null && cell.getStringCellValue().length() > 0)
+                if (cell != null && !StringUtils.isEmpty(getStringValue(cell)))
                 {
                     return true;
                 }
