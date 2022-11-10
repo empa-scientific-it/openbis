@@ -23,6 +23,11 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSSampleExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSSampleExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
@@ -47,9 +52,9 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "SAMPLE"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "Sample type"));
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.SAMPLE_TYPE, typePermId, typePermId));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "SAMPLE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "Sample type"));
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("$", "Identifier", "Code", "Space", "Project",
                     "Experiment", "Auto generate code", "Parents", "Children"));
@@ -60,7 +65,7 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId,
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId,
                     headers.toArray(String[]::new)));
 
             for (final Sample sample : entry.getValue())
@@ -84,7 +89,7 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
-                warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.SAMPLE, sample.getPermId().getPermId(),
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE, sample.getPermId().getPermId(),
                         sampleValues.toArray(String[]::new)));
             }
 

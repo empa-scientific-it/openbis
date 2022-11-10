@@ -39,6 +39,34 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
 
+    final Workbook wb;
+    
+    final CellStyle normalCellStyle;
+    
+    final CellStyle boldCellStyle;
+
+    final CellStyle errorCellStyle;
+
+    public AbstractXLSExportHelper(final Workbook wb)
+    {
+        this.wb = wb;
+        
+        normalCellStyle = wb.createCellStyle();
+        boldCellStyle = wb.createCellStyle();
+        errorCellStyle = wb.createCellStyle();
+        
+        final Font boldFont = wb.createFont();
+        boldFont.setBold(true);
+        boldCellStyle.setFont(boldFont);
+        
+        final Font normalFont = wb.createFont();
+        normalFont.setBold(false);
+        normalCellStyle.setFont(normalFont);
+        
+        errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
+        errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    }
+
     protected String mapToJSON(final Map<?, ?> map)
     {
         if (map == null || map.isEmpty())
@@ -56,19 +84,10 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         }
     }
 
-    protected Collection<String> addRow(final Workbook wb, final int rowNumber, final boolean bold,
+    protected Collection<String> addRow(final int rowNumber, final boolean bold,
             final ExportableKind exportableKind, final String permId, final String... values)
     {
-        // TODO: do these font creations in constructor.
-        
         final Collection<String> warnings = new ArrayList<>();
-        final CellStyle cellStyle = wb.createCellStyle();
-        final CellStyle errorCellStyle = wb.createCellStyle();
-        final Font font = wb.createFont();
-        font.setBold(bold);
-        cellStyle.setFont(font);
-        errorCellStyle.setFillForegroundColor(new HSSFColor.RED().getIndex());
-        errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
@@ -78,7 +97,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
 
             if (value.length() <= Short.MAX_VALUE)
             {
-                cell.setCellStyle(cellStyle);
+                cell.setCellStyle(bold ? boldCellStyle : normalCellStyle);
                 cell.setCellValue(value);
             } else
             {
@@ -92,18 +111,18 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         return warnings;
     }
 
-    protected AdditionResult addEntityTypePropertyAssignments(final Workbook wb, int rowNumber,
+    protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
             final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
             final String permId)
     {
         final Collection<String> warnings = new ArrayList<>(
-                addRow(wb, rowNumber++, true, exportableKind, permId, ENTITY_ASSIGNMENT_COLUMNS));
+                addRow(rowNumber++, true, exportableKind, permId, ENTITY_ASSIGNMENT_COLUMNS));
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {
             final PropertyType propertyType = propertyAssignment.getPropertyType();
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
-            warnings.addAll(addRow(wb, rowNumber++, false, exportableKind, permId, "1",
+            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, "1",
                     propertyType.getCode(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),

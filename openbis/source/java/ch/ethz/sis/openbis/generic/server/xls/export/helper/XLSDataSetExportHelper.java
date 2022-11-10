@@ -24,9 +24,16 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSDataSetExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<DataSet> dataSets = getDataSets(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
@@ -46,9 +53,9 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "DATASET"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "Dataset type"));
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId, typePermId));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "DATASET"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "Dataset type"));
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("Code",
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
@@ -59,7 +66,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId,
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId,
                     headers.toArray(String[]::new)));
 
             for (final DataSet dataSet : entry.getValue())
@@ -76,7 +83,7 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
-                warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.DATASET, dataSet.getPermId().getPermId(),
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET, dataSet.getPermId().getPermId(),
                         dataSetValues.toArray(String[]::new)));
             }
 

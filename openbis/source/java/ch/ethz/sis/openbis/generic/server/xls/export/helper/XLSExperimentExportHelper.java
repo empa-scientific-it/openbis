@@ -23,9 +23,16 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSExperimentExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSExperimentExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Experiment> experiments = getExperiments(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
@@ -45,10 +52,10 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId, "EXPERIMENT"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId, "EXPERIMENT"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
                     "Experiment type"));
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, typePermId, typePermId));
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("Identifier", "Code", "Project"));
             final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
@@ -58,7 +65,7 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
                     headers.toArray(String[]::new)));
 
             for (final Experiment experiment : entry.getValue())
@@ -73,7 +80,7 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
 
-                warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.EXPERIMENT,
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT,
                         experiment.getPermId().getPermId(), experimentValues.toArray(String[]::new)));
             }
 

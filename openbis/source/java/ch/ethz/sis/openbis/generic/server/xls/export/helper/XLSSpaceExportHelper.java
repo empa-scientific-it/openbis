@@ -18,19 +18,26 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSSpaceExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSSpaceExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
 
-        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SPACE, null, "SPACE"));
-        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.SPACE, null, "Code", "Description"));
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "SPACE"));
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "Code", "Description"));
 
         for (final Space space : spaces)
         {
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.SPACE, space.getPermId().getPermId(),
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.SPACE, space.getPermId().getPermId(),
                     space.getCode(), space.getDescription()));
         }
 

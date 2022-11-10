@@ -56,24 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 public class XLSExport
 {
 
-    private static final IXLSExportHelper SAMPLE_TYPE_EXPORT_HELPER = new XLSSampleTypeExportHelper();
-
-    private static final IXLSExportHelper EXPERIMENT_TYPE_EXPORT_HELPER = new XLSExperimentTypeExportHelper();
-
-    private static final IXLSExportHelper DATA_SET_TYPE_EXPORT_HELPER = new XLSDataSetTypeExportHelper();
-
-    private static final IXLSExportHelper VOCABULARY_EXPORT_HELPER = new XLSVocabularyExportHelper();
-
-    private static final IXLSExportHelper SPACE_EXPORT_HELPER = new XLSSpaceExportHelper();
-
-    private static final IXLSExportHelper PROJECT_EXPORT_HELPER = new XLSProjectExportHelper();
-
-    private static final IXLSExportHelper EXPERIMENT_EXPORT_HELPER = new XLSExperimentExportHelper();
-
-    private static final IXLSExportHelper SAMPLE_EXPORT_HELPER = new XLSSampleExportHelper();
-
-    private static final IXLSExportHelper DATA_SET_EXPORT_HELPER = new XLSDataSetExportHelper();
-
     private static final String XLSX_EXTENSION = ".xlsx";
 
     private static final String ZIP_EXTENSION = ".zip";
@@ -158,16 +140,19 @@ public class XLSExport
             throw new IllegalArgumentException();
         }
 
+        final Workbook wb = new XSSFWorkbook();
+        wb.createSheet();
+
+        final ExportHelperFactory exportHelperFactory = new ExportHelperFactory(wb);
+
         if (exportReferred)
         {
-            exportablePermIds = expandReference(api, sessionToken, exportablePermIds);
+            exportablePermIds = expandReference(api, sessionToken, exportablePermIds, exportHelperFactory);
         }
 
         final Collection<Collection<ExportablePermId>> groupedExportablePermIds =
                 putVocabulariesFirst(group(exportablePermIds));
 
-        final Workbook wb = new XSSFWorkbook();
-        wb.createSheet();
         int rowNumber = 0;
         final Map<String, String> scripts = new HashMap<>();
         final Collection<String> warnings = new ArrayList<>();
@@ -175,7 +160,7 @@ public class XLSExport
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
             final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
-            final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
+            final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
             final Map<String, Collection<String>> entityTypeExportPropertiesMap = exportProperties == null
@@ -211,21 +196,22 @@ public class XLSExport
     }
 
     private static Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds)
+            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final ExportHelperFactory exportHelperFactory)
     {
         return exportablePermIds.stream().flatMap(exportablePermId ->
         {
             final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
-                    exportablePermId, new HashSet<>(Collections.singletonList(exportablePermId)));
+                    exportablePermId, new HashSet<>(Collections.singletonList(exportablePermId)), exportHelperFactory);
             return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
             final String sessionToken, final ExportablePermId exportablePermId,
-            final Set<ExportablePermId> processedIds)
+            final Set<ExportablePermId> processedIds, final ExportHelperFactory exportHelperFactory)
     {
-        final IXLSExportHelper helper = getHelper(exportablePermId.getExportableKind());
+        final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
         if (helper != null)
         {
             final IPropertyAssignmentsHolder propertyAssignmentsHolder = helper
@@ -258,7 +244,8 @@ public class XLSExport
 
                                         final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
                                                 getExpandedExportablePermIds(api, sessionToken,
-                                                        samplePropertyExportablePermId, processedIds);
+                                                        samplePropertyExportablePermId, processedIds,
+                                                        exportHelperFactory);
 
                                         return Stream.concat(samplePropertyExpandedExportablePermIds,
                                                 Stream.of(samplePropertyExportablePermId));
@@ -274,53 +261,6 @@ public class XLSExport
         }
 
         return Stream.empty();
-    }
-
-    private static IXLSExportHelper getHelper(final ExportableKind exportableKind)
-    {
-        switch (exportableKind)
-        {
-            case SAMPLE_TYPE:
-            {
-                return SAMPLE_TYPE_EXPORT_HELPER;
-            }
-            case EXPERIMENT_TYPE:
-            {
-                return EXPERIMENT_TYPE_EXPORT_HELPER;
-            }
-            case DATASET_TYPE:
-            {
-                return DATA_SET_TYPE_EXPORT_HELPER;
-            }
-            case VOCABULARY:
-            {
-                return VOCABULARY_EXPORT_HELPER;
-            }
-            case SPACE:
-            {
-                return SPACE_EXPORT_HELPER;
-            }
-            case PROJECT:
-            {
-                return PROJECT_EXPORT_HELPER;
-            }
-            case EXPERIMENT:
-            {
-                return EXPERIMENT_EXPORT_HELPER;
-            }
-            case SAMPLE:
-            {
-                return SAMPLE_EXPORT_HELPER;
-            }
-            case DATASET:
-            {
-                return DATA_SET_EXPORT_HELPER;
-            }
-            default:
-            {
-                throw new IllegalArgumentException(String.format("Not supported exportable kind %s.", exportableKind));
-            }
-        }
     }
 
     static Collection<Collection<ExportablePermId>> group(final Collection<ExportablePermId> exportablePermIds)

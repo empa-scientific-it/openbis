@@ -23,9 +23,16 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSExperimentTypeExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final ExperimentType experimentType = getExperimentType(api, sessionToken, permIds.iterator().next());
@@ -34,18 +41,18 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
         if (experimentType != null)
         {
             final String permId = experimentType.getPermId().getPermId();
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
                     "Validation script"));
 
             final Plugin validationPlugin = experimentType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
                     experimentType.getCode(), script));
 
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(wb, rowNumber,
+            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
                     experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId);
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();

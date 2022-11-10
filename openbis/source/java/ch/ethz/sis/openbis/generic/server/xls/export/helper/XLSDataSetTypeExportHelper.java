@@ -23,9 +23,16 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSDataSetTypeExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final DataSetType dataSetType = getDataSetType(api, sessionToken, permIds.iterator().next());
@@ -34,18 +41,18 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
         if (dataSetType != null)
         {
             final String permId = dataSetType.getPermId().getPermId();
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATA_SET_TYPE"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATA_SET_TYPE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
                     "Validation script"));
 
             final Plugin validationPlugin = dataSetType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.DATASET_TYPE, permId, "1",
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, permId, "1",
                     dataSetType.getCode(), script));
 
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(wb, rowNumber,
+            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
                     dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId);
             warnings.addAll(additionResult.getWarnings());
 

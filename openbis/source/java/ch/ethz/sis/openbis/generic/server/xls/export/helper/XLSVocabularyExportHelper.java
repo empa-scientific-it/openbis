@@ -20,9 +20,16 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSVocabularyExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.iterator().next());
@@ -31,19 +38,19 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
         if (vocabulary != null)
         {
             final String permId = vocabulary.getPermId().getPermId();
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.VOCABULARY, permId, "VOCABULARY_TYPE"));
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.VOCABULARY, permId, "Version", "Code",
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY, permId, "VOCABULARY_TYPE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY, permId, "Version", "Code",
                     "Description"));
 
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.VOCABULARY, permId, "1", vocabulary.getCode(),
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY, permId, "1", vocabulary.getCode(),
                     vocabulary.getDescription()));
 
-            warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.VOCABULARY, permId, "Version", "Code", "Label",
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY, permId, "Version", "Code", "Label",
                     "Description"));
 
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
-                warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.VOCABULARY,
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY,
                         permId, "1", vocabularyTerm.getCode(),
                         vocabularyTerm.getLabel(), vocabularyTerm.getDescription()));
             }

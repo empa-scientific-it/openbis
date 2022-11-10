@@ -18,6 +18,11 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSProjectExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSProjectExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
@@ -27,13 +32,13 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
 
-        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.PROJECT, null, "PROJECT"));
-        warnings.addAll(addRow(wb, rowNumber++, true, ExportableKind.PROJECT, null, "Identifier", "Code", "Description",
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, "PROJECT"));
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, "Identifier", "Code", "Description",
                 "Space"));
 
         for (final Project project : projects)
         {
-            warnings.addAll(addRow(wb, rowNumber++, false, ExportableKind.PROJECT, project.getPermId().getPermId(),
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, project.getPermId().getPermId(),
                     project.getIdentifier().getIdentifier(), project.getCode(), project.getDescription(),
                     project.getSpace().getCode()));
         }
