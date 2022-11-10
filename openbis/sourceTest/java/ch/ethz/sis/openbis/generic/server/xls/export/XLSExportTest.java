@@ -85,6 +85,14 @@ public class XLSExportTest
                     )
             );
 
+    private static final List<String> EXPERIMENT_IMPORT_WARNINGS = List.of(
+            "The value of the exportable with the perm ID '200001010000000-0001' " +
+                    "of the kind EXPERIMENT exceeds " +
+                    "the maximum value supported by Excel: 32767.",
+            "The value of the exportable with the perm ID '200001010000000-0003' " +
+                    "of the kind EXPERIMENT exceeds " +
+                    "the maximum value supported by Excel: 32767.");
+
     private Mockery mockery;
 
     private IApplicationServerApi api;
@@ -101,7 +109,8 @@ public class XLSExportTest
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type.xlsx",
@@ -114,7 +123,8 @@ public class XLSExportTest
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-experiment-type.xlsx",
@@ -124,7 +134,8 @@ public class XLSExportTest
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-data-set-type.xlsx",
@@ -134,7 +145,8 @@ public class XLSExportTest
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
@@ -145,7 +157,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
@@ -156,7 +169,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
                         false,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-sample-property.xlsx",
@@ -169,7 +183,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
@@ -179,7 +194,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         false,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
@@ -189,7 +205,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
@@ -199,7 +216,8 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-space.xlsx",
@@ -212,7 +230,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-project.xlsx",
@@ -224,7 +243,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-experiment.xlsx",
@@ -237,7 +257,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        EXPERIMENT_IMPORT_WARNINGS
                 },
                 {
                         "export-experiment.xlsx",
@@ -260,7 +281,8 @@ public class XLSExportTest
                                     "STORAGE", List.of("$STORAGE.BOX_NUM")
                                 )
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        EXPERIMENT_IMPORT_WARNINGS
                 },
                 {
                         "export-experiment.xlsx",
@@ -282,7 +304,8 @@ public class XLSExportTest
                                     "STORAGE", List.of("$STORAGE.BOX_NUM")
                                 )
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        EXPERIMENT_IMPORT_WARNINGS
                 },
                 {
                         "export-experiment-filtered-properties.xlsx",
@@ -295,7 +318,8 @@ public class XLSExportTest
                         ),
                         true,
                         EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample.xlsx",
@@ -310,7 +334,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample.xlsx",
@@ -335,7 +360,8 @@ public class XLSExportTest
                                 ),
                                 SAMPLE.toString(), Map.of()
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample.xlsx",
@@ -359,7 +385,8 @@ public class XLSExportTest
                                         "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
                                 )
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-sample-filtered-properties.xlsx",
@@ -374,7 +401,8 @@ public class XLSExportTest
                         ),
                         true,
                         EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-data-set-rich-text.xlsx",
@@ -387,7 +415,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.RICH
+                        XLSExport.TextFormatting.RICH,
+                        List.of()
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -400,7 +429,8 @@ public class XLSExportTest
                         ),
                         true,
                         null,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -423,7 +453,8 @@ public class XLSExportTest
                                         "STORAGE", List.of("$STORAGE.BOX_NUM")
                                 )
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -445,7 +476,8 @@ public class XLSExportTest
                                         "STORAGE", List.of("$STORAGE.BOX_NUM")
                                 )
                         ),
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
                 {
                         "export-data-set-filtered-properties.xlsx",
@@ -458,7 +490,8 @@ public class XLSExportTest
                         ),
                         true,
                         EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
                 },
         };
     }
@@ -632,7 +665,7 @@ public class XLSExportTest
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferred, final Map<String, Map<String, Collection<String>>> exportProperties,
-            final XLSExport.TextFormatting textFormatting) throws Exception
+            final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
                 boolean.class).newInstance(api, exportReferred);
@@ -643,10 +676,8 @@ public class XLSExportTest
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
                     api, SESSION_TOKEN, exportablePermIds, exportReferred, exportProperties,
                     textFormatting);
-            final Workbook actualResultWorkbook = actualResult.getWorkbook();
-            final Map<String, String> actualScripts = actualResult.getScripts();
-
-            assertEquals(actualScripts, expectedScripts);
+            assertEquals(actualResult.getScripts(), expectedScripts);
+            assertEquals(new HashSet<>(actualResult.getWarnings()), new HashSet<>(expectedWarnings));
 
             final InputStream stream = getClass().getClassLoader().getResourceAsStream(
                     "ch/ethz/sis/openbis/generic/server/xls/export/resources/" + expectedResultFileName);
@@ -656,7 +687,7 @@ public class XLSExportTest
             }
             final Workbook expectedResult = new XSSFWorkbook(stream);
 
-            assertWorkbooksEqual(actualResultWorkbook, expectedResult);
+            assertWorkbooksEqual(actualResult.getWorkbook(), expectedResult);
         } catch (final UserFailureException e)
         {
             // When the file name is not specified we expect a UserFailureException to be thrown.
@@ -725,7 +756,11 @@ public class XLSExportTest
 
     private static void assertCellsEqual(final Cell actual, final Cell expected)
     {
-        assertEquals(getStringValue(actual), getStringValue(expected), getErrorMessage(actual));
+        assertEquals(getStringValue(actual), getStringValue(expected), getErrorMessage(actual, "Values"));
+        assertEquals(actual.getCellStyle().getFillPatternEnum(), expected.getCellStyle().getFillPatternEnum(),
+                getErrorMessage(actual, "Fill patterns"));
+        assertEquals(actual.getCellStyle().getFillForegroundColor(), expected.getCellStyle().getFillForegroundColor(),
+                getErrorMessage(actual, "Fill foreground colors"));
     }
 
     private static String getStringValue(final Cell cell)
@@ -767,9 +802,9 @@ public class XLSExportTest
         }
     }
 
-    private static String getErrorMessage(final Cell cell)
+    private static String getErrorMessage(final Cell cell, final String prefix)
     {
-        return String.format("Values are not compatible at %c:%d.", 'A' + cell.getColumnIndex(),
+        return String.format("%s are not compatible at %c:%d.", prefix, 'A' + cell.getColumnIndex(),
                 cell.getRowIndex() + 1);
     }
 

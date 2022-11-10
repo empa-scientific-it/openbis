@@ -16,17 +16,53 @@ def export(context, parameters):
         Excel export AS service.
         :param context: Standard Openbis AS Service context object
         :param parameters: Contains the following elements:
-                        {
-                            ids: [{
-                                exportable_kind: [SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY | SPACE |
-                                    PROJECT | SAMPLE | EXPERIMENT | DATASET] - entity kind to export
-                                perm_id: permId of the exportable
-                            }]
-
-                            export_referred: whether the referred vocabularies and sample properties should be exported as well
-                        }
+            {
+                "method": "export",
+                "file_name": "<file name>", - prefix of the file name to be exported
+                "ids": [
+                    {
+                        "exportable_kind": "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY |
+                SPACE | PROJECT | SAMPLE | EXPERIMENT | DATASET>", - entity kind to export
+                        "perm_id": "<permID>" - permId of the exportable
+                    },
+                    ...
+                ],
+                "export_referred": true | false, - whether to export referred vocabularies and sample properties
+                "export_properties": { - everything in this section is optional
+                    "SAMPLE": {
+                        "<typePermID>": ["<property code>", ...] - properties of each sample type
+                            to be exported, if the list is empty no properties will be exported
+                            for the sample type
+                    },
+                    "EXPERIMENT": {
+                        "<typePermID>": ["<property code>", ...] - properties of each experiment type
+                            to be exported, if the list is empty no properties will be exported
+                            for the experiment type
+                    },
+                    "DATASET": {
+                        "<typePermID>": ["<property code>", ...] - properties of each data set type
+                            to be exported, if the list is empty no properties will be exported
+                            for the data set type
+                    }
+                },
+                "text_formatting": "<PLAIN, RICH>" - if PLAIN, XML tags will be removed from all properties
+                    of type MULTILINE_VARCHAR
+            }
         :return: Openbis's execute operations result string. Contains either the error message or the exported file name
             in the session workspace.
+            Success result:
+            {
+                "status": "OK",
+                "result": {
+                    "file_name": <file name>, - name of the file in the session workspace
+                    "warnings": [<message 1>, ...] - warnings produced by the import
+                }
+            }
+            Error result:
+            {
+                "status": "error",
+                "message": <message> - error message produced by the import
+            }
     """
     try:
         file_name = parameters.get("file_name")
@@ -39,7 +75,7 @@ def export(context, parameters):
         api = context.getApplicationService()
         text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
         xls_import_result = XLSExport.export(file_name, api, session_token, vocabularies,
-                                          parameters.get("export_referred"), export_properties, text_formatting)
+                                             parameters.get("export_referred"), export_properties, text_formatting)
     except Exception as e:
         return {"status": "error", "message": str(e)}
     return {"status": "OK", "result": {

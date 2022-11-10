@@ -10,8 +10,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -65,7 +67,8 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         final Font font = wb.createFont();
         font.setBold(bold);
         cellStyle.setFont(font);
-        errorCellStyle.setFillBackgroundColor((short) 0xFF0000);
+        errorCellStyle.setFillForegroundColor(new HSSFColor.RED().getIndex());
+        errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)

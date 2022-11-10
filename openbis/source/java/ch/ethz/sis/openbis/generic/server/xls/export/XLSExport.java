@@ -105,7 +105,6 @@ public class XLSExport
                     new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                     (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
             sessionWorkspaceProvider.write(sessionToken, fullFileName, pis);
-            // TODO: implement warnings.
             return new ExportResult(fullFileName, exportResult.getWarnings());
         }
     }
