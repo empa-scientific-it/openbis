@@ -72,6 +72,13 @@ export default class GridController {
       heights: {},
       sortings: sortings,
       totalCount: 0,
+      exportState: {
+        loading: false,
+        warnings: null,
+        error: null,
+        fileName: null,
+        filePath: null
+      },
       exportOptions: {
         columns: GridExportOptions.VISIBLE_COLUMNS,
         rows: GridExportOptions.CURRENT_PAGE,
@@ -1022,7 +1029,21 @@ export default class GridController {
   }
 
   async handleExport() {
-    const { exportOptions } = this.context.getState()
+    const exportable = this.getExportable()
+
+    if (!exportable) {
+      return
+    } else if (exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT) {
+      await this.handleExportTSV(exportable)
+    } else if (exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT) {
+      await this.handleExportXLS(exportable)
+    }
+  }
+
+  async handleExportTSV(exportable) {
+    const _this = this
+    const state = this.context.getState()
+    const props = this.context.getProps()
 
     function _stringToUtf16ByteArray(str) {
       var bytes = []
@@ -1035,10 +1056,95 @@ export default class GridController {
       return bytes
     }
 
-    function _exportColumnsFromData(namePrefix, rows, columns) {
-      const arrayOfRowArrays = []
+    function _getFileName(prefix) {
+      const now = new Date()
+      const year = String(now.getFullYear()).padStart(4, '0')
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const seconds = String(now.getSeconds()).padStart(2, '0')
+      const millis = String(now.getMilliseconds()).padStart(3, '0')
+
+      return (
+        prefix +
+        '.' +
+        year +
+        '-' +
+        month +
+        '-' +
+        day +
+        '-' +
+        hours +
+        '-' +
+        minutes +
+        '-' +
+        seconds +
+        '-' +
+        millis +
+        '.tsv'
+      )
+    }
+
+    async function _getExportedRows() {
+      const { exportOptions } = state
+
+      var exportedRows = []
+
+      if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
+        if (state.local) {
+          exportedRows = state.sortedRows
+        } else if (props.loadRows) {
+          const loadedResult = await props.loadRows({
+            filters: state.filters,
+            globalFilter: state.globalFilter,
+            page: 0,
+            pageSize: 1000000,
+            sortings: state.sortings
+          })
+          exportedRows = loadedResult.rows
+        }
+      } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+        exportedRows = state.rows
+      } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+        exportedRows = Object.values(state.multiselectedRows).map(
+          selectedRow => selectedRow.data
+        )
+      } else {
+        throw Error('Unsupported rows option: ' + exportOptions.rows)
+      }
+
+      return exportedRows
+    }
+
+    async function _getExportedColumns(exportedRows) {
+      const { exportOptions } = state
+
+      var exportedColumns = []
+
+      if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+        exportedColumns = _this.getAllColumns()
+      } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+        const { newAllColumns, newColumnsSorting } = await _this._loadColumns(
+          exportedRows,
+          state.columnsVisibility,
+          state.columnsSorting
+        )
+        _this._sortColumns(newAllColumns, newColumnsSorting)
+        exportedColumns = newAllColumns
+      } else {
+        throw Error('Unsupported columns option: ' + exportOptions.columns)
+      }
+
+      return exportedColumns.filter(column => column.exportable)
+    }
+
+    function _exportTSV(rows, columns) {
+      const { exportOptions } = state
 
       const headers = columns.map(column => column.name)
+
+      const arrayOfRowArrays = []
       arrayOfRowArrays.push(headers)
 
       rows.forEach(row => {
@@ -1085,59 +1191,221 @@ export default class GridController {
           var blob = new Blob([utf16bytesArray], {
             type: 'text/tsv;charset=UTF-16LE;'
           })
-          FileSaver.saveAs(blob, 'exportedTable' + namePrefix + '.tsv')
+          FileSaver.saveAs(blob, _getFileName(exportable.filePrefix))
         }
       )
     }
 
+    try {
+      this.context.setState({
+        exportState: {
+          loading: true
+        }
+      })
+
+      const exportedRows = await _getExportedRows()
+      const exportedColumns = await _getExportedColumns(exportedRows)
+
+      _exportTSV(exportedRows, exportedColumns)
+
+      this.context.setState({
+        exportState: null
+      })
+    } catch (e) {
+      this.context.setState({
+        exportState: {
+          error: e
+        }
+      })
+    }
+  }
+
+  async handleExportXLS(exportable) {
+    const _this = this
     const state = this.context.getState()
     const props = this.context.getProps()
 
-    var data = []
-    var columns = []
-    var prefix = ''
-
-    if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
-      columns = this.getAllColumns()
-      prefix += 'AllColumns'
-    } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
-      columns = this.getVisibleColumns()
-      prefix += 'VisibleColumns'
-    } else {
-      throw Error('Unsupported columns option: ' + exportOptions.columns)
+    if (!props.exportXLS) {
+      console.error(
+        'Missing exportXLS callback function for grid with id: ' + props.id
+      )
+      return
     }
 
-    columns = columns.filter(column => column.exportable)
+    async function _getExportedRows() {
+      const { exportOptions } = state
 
-    if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
-      if (state.local) {
-        data = state.sortedRows
-      } else if (props.loadRows) {
-        const loadedResult = await props.loadRows({
-          filters: state.filters,
-          globalFilter: state.globalFilter,
-          page: 0,
-          pageSize: 1000000,
-          sortings: state.sortings
-        })
-        data = loadedResult.rows
+      let exportedRows = []
+
+      if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
+        if (state.local) {
+          exportedRows = state.sortedRows
+        } else if (props.loadRows) {
+          const columns = {}
+
+          state.allColumns.forEach(column => {
+            columns[column.name] = column
+          })
+
+          const loadedResult = await props.loadRows({
+            columns: columns,
+            filterMode: state.filterMode,
+            filters: state.filters,
+            globalFilter: state.globalFilter,
+            page: 0,
+            pageSize: 1000000,
+            sortings: state.sortings
+          })
+          exportedRows = loadedResult.rows
+        }
+      } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+        exportedRows = state.rows
+      } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+        exportedRows = Object.values(state.multiselectedRows).map(
+          selectedRow => selectedRow.data
+        )
+      } else {
+        throw Error('Unsupported rows option: ' + exportOptions.columns)
       }
 
-      prefix += 'AllPages'
-      _exportColumnsFromData(prefix, data, columns)
-    } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
-      data = state.rows
-      prefix += 'CurrentPage'
-      _exportColumnsFromData(prefix, data, columns)
-    } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
-      data = Object.values(state.multiselectedRows).map(
-        selectedRow => selectedRow.data
-      )
-      prefix += 'SelectedRows'
-      _exportColumnsFromData(prefix, data, columns)
-    } else {
-      throw Error('Unsupported rows option: ' + exportOptions.columns)
+      if (exportedRows.some(row => _.isEmpty(row.exportableId))) {
+        throw Error(
+          "Some of the rows to be exported do not have 'exportableId' set."
+        )
+      }
+
+      return exportedRows
     }
+
+    async function _getExportedProperties(exportedRows) {
+      const { exportOptions } = state
+
+      let exportedProperties = {}
+
+      if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+        exportedProperties = {}
+      } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+          await _this._loadColumns(
+            exportedRows,
+            state.columnsVisibility,
+            state.columnsSorting
+          )
+
+        _this._sortColumns(newAllColumns, newColumnsSorting)
+
+        newAllColumns.forEach(column => {
+          if (column.exportableProperty && newColumnsVisibility[column.name]) {
+            const propertyCode = column.exportableProperty.code
+            const propertyTypesMap = column.exportableProperty.types
+
+            Object.keys(propertyTypesMap).forEach(kind => {
+              const propertyTypesForKind = propertyTypesMap[kind]
+
+              propertyTypesForKind.forEach(propertyTypePermId => {
+                let exportedPropertiesForKind = exportedProperties[kind]
+
+                if (!exportedPropertiesForKind) {
+                  exportedProperties[kind] = exportedPropertiesForKind = {}
+                }
+
+                let exportedPropertiesForKindAndType =
+                  exportedPropertiesForKind[propertyTypePermId]
+
+                if (!exportedPropertiesForKindAndType) {
+                  exportedPropertiesForKind[propertyTypePermId] =
+                    exportedPropertiesForKindAndType = []
+                }
+
+                exportedPropertiesForKindAndType.push(propertyCode)
+              })
+            })
+          }
+        })
+      } else {
+        throw Error('Unsupported columns option: ' + exportOptions.columns)
+      }
+
+      return exportedProperties
+    }
+
+    try {
+      this.context.setState({
+        exportState: {
+          loading: true
+        }
+      })
+
+      const exportedRows = await _getExportedRows()
+      const exportedProperties = await _getExportedProperties(exportedRows)
+      const exportedIds = exportedRows.map(row => row.exportableId)
+
+      const { sessionToken, exportResult } = await props.exportXLS({
+        exportedFilePrefix: exportable.filePrefix,
+        exportedIds: exportedIds,
+        exportedProperties: exportedProperties,
+        exportedValues: state.exportOptions.values
+      })
+
+      if (exportResult.status === 'OK') {
+        const filePath = exportResult.result
+        const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
+        const fileUrl =
+          '/openbis/download/?sessionID=' +
+          encodeURIComponent(sessionToken) +
+          '&filePath=' +
+          encodeURIComponent(filePath)
+
+        if (exportResult.warnings) {
+          this.context.setState({
+            exportState: {
+              warnings: exportResult.warnings,
+              fileName,
+              fileUrl
+            }
+          })
+        } else {
+          this.context.setState({
+            exportState: null
+          })
+          this.handleExportDownload(fileName, fileUrl)
+        }
+      } else if (exportResult.status === 'error') {
+        this.context.setState({
+          exportState: {
+            error: exportResult.message
+          }
+        })
+      } else {
+        this.context.setState({
+          exportState: {
+            error: JSON.stringify(exportResult)
+          }
+        })
+      }
+    } catch (e) {
+      this.context.setState({
+        exportState: {
+          error: e
+        }
+      })
+    }
+  }
+
+  handleExportDownload(fileName, fileUrl) {
+    this.context.setState({
+      exportState: null
+    })
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = fileName
+    link.click()
+  }
+
+  handleExportCancel() {
+    this.context.setState({
+      exportState: null
+    })
   }
 
   async handleExportOptionsChange(exportOptions) {
@@ -1264,6 +1532,16 @@ export default class GridController {
   getTotalCount() {
     const { totalCount } = this.context.getState()
     return totalCount
+  }
+
+  getExportable() {
+    const { exportable } = this.context.getProps()
+
+    if (exportable !== undefined) {
+      return exportable
+    } else {
+      return null
+    }
   }
 
   _getCachedValue(key, newValue) {

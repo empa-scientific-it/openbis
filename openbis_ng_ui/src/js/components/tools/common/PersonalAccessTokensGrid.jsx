@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
@@ -25,9 +26,12 @@ class PersonalAccessTokensGrid extends React.PureComponent {
     const { rows, selectedRowId, onSelectedRowChange, controllerRef } =
       this.props
 
+    const id = ids.PERSONAL_ACCESS_TOKEN_GRID_ID
+
     return (
-      <GridWithSettings
-        id={ids.PERSONAL_ACCESS_TOKEN_GRID_ID}
+      <GridWithOpenbis
+        id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={messages.get(messages.PERSONAL_ACCESS_TOKENS)}
         columns={[
@@ -248,6 +252,10 @@ class PersonalAccessTokensGrid extends React.PureComponent {
           { columnName: 'validFromDate' }
         ]}
         selectable={true}
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'personal-access-tokens'
+        }}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
       />

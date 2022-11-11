@@ -124,7 +124,10 @@ function UserManagerView(userManagerController, userManagerModel) {
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, {
+			fileFormat: 'TSV',
+			filePrefix: 'users'
+		}, 90);
 		dataGrid.setId("user-grid")
 		dataGrid.init(dataGridContainer);
 		

@@ -159,11 +159,11 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 			}
 		} else if (jsonObject instanceof Object) {
 			if (jsonObject["@id"] && jsonObject["@type"]) {
-			    var jsonTypeArguments = jsonType ? jsonType["arguments"] : null
+			    var jsonTypeArguments = (jsonType && jsonType["arguments"]) ? jsonType["arguments"] : null
 				return fromJsonObjectWithType(jsonTypeArguments, jsonObject, objectMap, modulesMap)
 			} else {
 				var map = {};
-				var jsonType = jsonType ? jsonType["arguments"][1] : null;
+				var jsonType = (jsonType && jsonType["arguments"] && jsonType["arguments"].length > 1) ? jsonType["arguments"][1] : null;
 
 				Object.keys(jsonObject).forEach(function(key) {
 					var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, jsonObject[key], objectMap, modulesMap);

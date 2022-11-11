@@ -11,7 +11,6 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Code',
 			property : 'code',
-			isExportable: false,
 			filterable: true,
 			sortable : true,
 			render : function(data, grid) {
@@ -51,7 +50,6 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Name',
 			property : '$NAME',
-			isExportable: true,
 			filterable: true,
 			sortable : true,
 			render : function(data) {
@@ -67,7 +65,6 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Identifier',
 			property : 'identifier',
-			isExportable: true,
 			filterable : true,
 			sortable : true,
 			render : function(data, grid) {
@@ -110,7 +107,6 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : '---------------',
 			property : null,
-			isExportable: false,
 			sortable : false
 		});
 		
@@ -128,13 +124,22 @@ var SampleDataGridUtil = new function() {
 				}
 			}
 			
-            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+			var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
 			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
 				return {
 					entityKind: "SAMPLE",
 					entityType: sample.sampleTypeCode
 				}
 			}))
+
+			propertyColumnsToSort.forEach(propertyColumn => {
+				propertyColumn.exportableProperty = {
+					code: propertyColumn.property,
+					types: {
+						"SAMPLE": Object.keys(foundSampleTypes)
+					}
+				}
+			})
 
 			return propertyColumnsToSort;
 		}
@@ -143,13 +148,11 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
         			label : '---------------',
         			property : null,
-        			isExportable: false,
         			sortable : false
         });
 		columnsLast.push({
 			label : 'Type',
 			property : 'sampleTypeCode',
-			isExportable: false,
 			filterable : true,
 			sortable : true,
 		    render : function(data, grid) {
@@ -160,7 +163,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Space',
 			property : 'default_space',
-			isExportable: true,
 			filterable: true,
 			sortable : true
 		});
@@ -169,7 +171,6 @@ var SampleDataGridUtil = new function() {
 			columnsLast.push({
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
-				isExportable: true,
 				filterable: true,
 				sortable : false
 			});
@@ -179,7 +180,6 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Parents',
                 property : 'parents',
-                isExportable: true,
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -197,7 +197,6 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Children',
                 property : 'children',
-                isExportable: false,
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -216,7 +215,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Storage',
 			property : 'storage',
-			isExportable: false,
 			filterable: false,
 			sortable : false,
 			render : function(data) {
@@ -242,7 +240,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Preview',
 			property : 'preview',
-			isExportable: false,
 			filterable: false,
 			sortable : false,
 			render : function(data) {
@@ -279,14 +276,12 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : '---------------',
 			property : null,
-			isExportable: false,
 			sortable : false
 		});
 		
 		columnsLast.push({
 			label : 'Registrator',
 			property : 'registrator',
-			isExportable: false,
 			filterable: true,
 			sortable : false
 		});
@@ -294,7 +289,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
-			isExportable: false,
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -305,7 +299,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modifier',
 			property : 'modifier',
-			isExportable: false,
 			filterable: true,
 			sortable : false,
 		});
@@ -313,7 +306,6 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
-			isExportable: false,
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -341,7 +333,10 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
+		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, {
+			fileFormat: 'XLS',
+			filePrefix: 'objects'
+		}, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;
 	}
@@ -415,8 +410,12 @@ var SampleDataGridUtil = new function() {
 						modificationDate = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
 					}
 					
-					var sampleModel = { 
+					var sampleModel = {
 										'id' : sample.permId,
+										'exportableId' : {
+											exportable_kind: 'SAMPLE',
+											perm_id: sample.permId
+										},
 										'$object' : sample,
 										'identifier' : sample.identifier, 
 										'code' : sample.code,
@@ -658,6 +657,10 @@ var SampleDataGridUtil = new function() {
 				
 				var sampleModel = {
 									'id' : sample.permId,
+									'exportableId' : {
+										exportable_kind: 'SAMPLE',
+										perm_id: sample.permId
+									},
 									'$object' : sample,
 									'identifier' : sample.identifier, 
 									'code' : sample.code,
@@ -699,7 +702,6 @@ var SampleDataGridUtil = new function() {
 		return {
 			label : "Operations",
 			property : 'operations',
-			isExportable: false,
 			sortable : false,
             filterable: false,
 			render : function(data) {
@@ -784,7 +786,6 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        isExportable: true,
                         filterable : true,
                         sortable : false,
                         metadata: {
@@ -812,7 +813,6 @@ var SampleDataGridUtil = new function() {
                         return {
                             label : propertyType.label,
                             property : propertyType.code,
-                            isExportable: true,
                             filterable: true,
                             sortable : true,
                             metadata: {
@@ -856,7 +856,6 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        isExportable: true,
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -873,7 +872,6 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        isExportable: true,
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -905,7 +903,6 @@ var SampleDataGridUtil = new function() {
                 propertyColumnsToSort.push({
                     label : propertyType.label,
                     property : propertyType.code,
-                    isExportable: true,
                     filterable : true,
                     sortable : propertyType.dataType !== "XML",
                     truncate: true,

@@ -46,12 +46,11 @@ class ErrorDialog extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'ErrorDialog.render')
 
-    const { error, onClose } = this.props
+    const { error } = this.props
 
     return (
       <Dialog
         open={!!error}
-        onClose={onClose}
         title={messages.get(messages.ERROR)}
         content={this.renderContent()}
         actions={this.renderButtons()}

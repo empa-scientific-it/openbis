@@ -2462,6 +2462,7 @@ var FormUtil = new function() {
 
     this.renderDateRangeGridFilter = function(params, dataType){
         return React.createElement(window.NgUiGrid.default.DateRangeField, {
+            variant: "standard",
             value: params.value,
             onChange: params.onChange,
             dateTime: dataType === "TIMESTAMP"

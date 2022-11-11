@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
@@ -117,9 +118,12 @@ class HistoryGrid extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'HistoryGrid.render')
 
+    const id = this.getId()
+
     return (
-      <GridWithSettings
-        id={this.getId()}
+      <GridWithOpenbis
+        id={id}
+        settingsId={id}
         filterModes={[GridFilterOptions.COLUMN_FILTERS]}
         header={this.getHeader()}
         columns={[
@@ -235,6 +239,7 @@ class HistoryGrid extends React.PureComponent {
         loadRows={this.load}
         sort='registrationDate'
         sortDirection='desc'
+        exportable={this.getExportable()}
         selectable={true}
       />
     )
@@ -247,6 +252,22 @@ class HistoryGrid extends React.PureComponent {
       return ids.HISTORY_OF_DELETION_GRID_ID
     } else if (eventType === openbis.EventType.FREEZING) {
       return ids.HISTORY_OF_FREEZING_GRID_ID
+    }
+  }
+
+  getExportable() {
+    const { eventType } = this.props
+
+    if (eventType === openbis.EventType.DELETION) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'deletion-history'
+      }
+    } else if (eventType === openbis.EventType.FREEZING) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'freezing-history'
+      }
     }
   }
 

@@ -3615,7 +3615,7 @@ function ServerFacade(openbisServer) {
                                 mainController.openbisV3.getOperationExecutions([asyncExecutionId], asyncOptions).done(function(asyncWaitResults) {
                                     var asyncWaitResult = asyncWaitResults[asyncExecutionId.permId];
                                     if(asyncWaitResult.details.error !== null) {
-                                        Util.showError(asyncWaitResult.details.error.message);
+                                        failureHander(asyncWaitResult.details.error.message);
                                     } else if(asyncWaitResult.details.results !== null) {
                                         callbackFunction(asyncWaitResult.details.results[0]);
                                     } else {

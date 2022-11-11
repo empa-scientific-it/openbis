@@ -2,7 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -22,8 +23,9 @@ class UsersGrid extends React.PureComponent {
       this.props
 
     return (
-      <GridWithSettings
+      <GridWithOpenbis
         id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={messages.get(messages.USERS)}
         sort='userId'
@@ -64,6 +66,10 @@ class UsersGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        exportable={{
+          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          filePrefix: 'users'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
