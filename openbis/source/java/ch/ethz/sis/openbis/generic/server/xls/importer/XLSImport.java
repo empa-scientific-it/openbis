@@ -132,40 +132,6 @@ public class XLSImport
                         scripts.put(scriptFileName, scriptContent);
                     } else if (entryName.endsWith(".xlsx"))
                     {
-                        ids = importXLS(bis.readAllBytes());
-                    }
-                    zis.closeEntry();
-                }
-            }
-        }
-        return new ImportZipResult(ids, scripts);
-    }
-
-    public List<IObjectId> importXLS(byte[] xls)
-    public ImportZipResult importZip(byte[] zip) throws IOException
-    {
-        final Map<String, String> scripts = new HashMap<>();
-        List<IObjectId> ids = null;
-        try
-        (
-                final ByteArrayInputStream bais = new ByteArrayInputStream(zip);
-                final ZipInputStream zis = new ZipInputStream(bais);
-                final BufferedInputStream bis = new BufferedInputStream(zis);
-        )
-        {
-            while (zis.available() > 0)
-            {
-                final ZipEntry zipEntry = zis.getNextEntry();
-                if (zipEntry != null)
-                {
-                    final String entryName = zipEntry.getName();
-                    if (entryName.startsWith("scripts/"))
-                    {
-                        final String scriptFileName = entryName.substring(8);
-                        final String scriptContent = new String(bis.readAllBytes());
-                        scripts.put(scriptFileName, scriptContent);
-                    } else if (entryName.endsWith(".xlsx"))
-                    {
                         if (ids == null)
                         {
                             ids = importXLS(bis.readAllBytes());
