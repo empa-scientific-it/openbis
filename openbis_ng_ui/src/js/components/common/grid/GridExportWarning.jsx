@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -34,19 +35,19 @@ class GridExportWarning extends React.PureComponent {
     return (
       <Dialog
         open={open}
-        title='Warning'
+        title={messages.get(messages.WARNING)}
         content={<Message type='warning'>{message}</Message>}
         actions={
           <div>
             <Button
               name='download'
-              label='Download'
+              label={messages.get(messages.DOWNLOAD)}
               styles={{ root: classes.button }}
               onClick={this.handleDownload}
             />
             <Button
               name='cancel'
-              label='Cancel'
+              label={messages.get(messages.CANCEL)}
               styles={{ root: classes.button }}
               onClick={this.handleCancel}
             />
