@@ -16,19 +16,27 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSDataSetExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
-    public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<DataSet> dataSets = getDataSets(api, sessionToken, permIds);
+        final Collection<String> warnings = new ArrayList<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.
@@ -45,9 +53,9 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            addRow(wb, rowNumber++, true, "DATASET");
-            addRow(wb, rowNumber++, true, "Dataset type");
-            addRow(wb, rowNumber++, false, typePermId);
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "DATASET"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "Dataset type"));
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("Code",
                     entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
@@ -58,7 +66,8 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId,
+                    headers.toArray(String[]::new)));
 
             for (final DataSet dataSet : entry.getValue())
             {
@@ -74,13 +83,14 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
-                addRow(wb, rowNumber++, false, dataSetValues.toArray(String[]::new));
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET, dataSet.getPermId().getPermId(),
+                        dataSetValues.toArray(String[]::new)));
             }
 
             rowNumber++;
         }
 
-        return rowNumber;
+        return new AdditionResult(rowNumber, warnings);
     }
 
     private Collection<DataSet> getDataSets(final IApplicationServerApi api, final String sessionToken,

@@ -15,19 +15,27 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSExperimentExportHelper extends AbstractXLSExportHelper
 {
 
+    public XLSExperimentExportHelper(final Workbook wb)
+    {
+        super(wb);
+    }
+
     @Override
-    public int add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber, final Map<String, Collection<String>> entityTypeExportPropertiesMap, final XLSExport.TextFormatting textFormatting)
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+            final Collection<String> permIds, int rowNumber,
+            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final XLSExport.TextFormatting textFormatting)
     {
         final Collection<Experiment> experiments = getExperiments(api, sessionToken, permIds);
+        final Collection<String> warnings = new ArrayList<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.
@@ -44,9 +52,10 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                     : entityTypeExportPropertiesMap.get(typePermId);
             final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
 
-            addRow(wb, rowNumber++, true, "EXPERIMENT");
-            addRow(wb, rowNumber++, true, "Experiment type");
-            addRow(wb, rowNumber++, false, typePermId);
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId, "EXPERIMENT"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
+                    "Experiment type"));
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, typePermId, typePermId));
 
             final List<String> headers = new ArrayList<>(List.of("Identifier", "Code", "Project"));
             final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
@@ -56,7 +65,8 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
 
             headers.addAll(propertyNames);
 
-            addRow(wb, rowNumber++, true, headers.toArray(String[]::new));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, typePermId,
+                    headers.toArray(String[]::new)));
 
             for (final Experiment experiment : entry.getValue())
             {
@@ -69,14 +79,15 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                         .filter(propertiesFilterFunction)
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
-                
-                addRow(wb, rowNumber++, false, experimentValues.toArray(String[]::new));
+
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT,
+                        experiment.getPermId().getPermId(), experimentValues.toArray(String[]::new)));
             }
 
             rowNumber++;
         }
 
-        return rowNumber;
+        return new AdditionResult(rowNumber, warnings);
     }
 
     private Collection<Experiment> getExperiments(final IApplicationServerApi api, final String sessionToken,

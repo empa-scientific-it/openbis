@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +10,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -26,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 abstract class AbstractXLSExportHelper implements IXLSExportHelper
@@ -34,6 +38,34 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
+
+    final Workbook wb;
+    
+    final CellStyle normalCellStyle;
+    
+    final CellStyle boldCellStyle;
+
+    final CellStyle errorCellStyle;
+
+    public AbstractXLSExportHelper(final Workbook wb)
+    {
+        this.wb = wb;
+        
+        normalCellStyle = wb.createCellStyle();
+        boldCellStyle = wb.createCellStyle();
+        errorCellStyle = wb.createCellStyle();
+        
+        final Font boldFont = wb.createFont();
+        boldFont.setBold(true);
+        boldCellStyle.setFont(boldFont);
+        
+        final Font normalFont = wb.createFont();
+        normalFont.setBold(false);
+        normalCellStyle.setFont(normalFont);
+        
+        errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
+        errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    }
 
     protected String mapToJSON(final Map<?, ?> map)
     {
@@ -52,41 +84,56 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         }
     }
 
-    protected void addRow(final Workbook wb, final int rowNumber, final boolean bold, final String... values)
+    protected Collection<String> addRow(final int rowNumber, final boolean bold,
+            final ExportableKind exportableKind, final String permId, final String... values)
     {
-        final CellStyle cellStyle = wb.createCellStyle();
-        final Font font = wb.createFont();
-        font.setBold(bold);
-        cellStyle.setFont(font);
+        final Collection<String> warnings = new ArrayList<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
         {
             final Cell cell = row.createCell(i);
-            cell.setCellStyle(cellStyle);
-            cell.setCellValue(values[i]);
+            final String value = values[i] != null ? values[i] : "";
+
+            if (value.length() <= Short.MAX_VALUE)
+            {
+                cell.setCellStyle(bold ? boldCellStyle : normalCellStyle);
+                cell.setCellValue(value);
+            } else
+            {
+                warnings.add(String.format("The value of the exportable with the perm ID '%s' of the kind %s exceeds " +
+                        "the maximum value supported by Excel: %d.", permId, exportableKind.toString(),
+                        Short.MAX_VALUE));
+                cell.setCellStyle(errorCellStyle);
+            }
         }
+
+        return warnings;
     }
 
-    protected int addEntityTypePropertyAssignments(final Workbook wb, int rowNumber,
-            final Collection<PropertyAssignment> propertyAssignments)
+    protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
+            final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
+            final String permId)
     {
-        addRow(wb, rowNumber++, true, ENTITY_ASSIGNMENT_COLUMNS);
+        final Collection<String> warnings = new ArrayList<>(
+                addRow(rowNumber++, true, exportableKind, permId, ENTITY_ASSIGNMENT_COLUMNS));
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {
             final PropertyType propertyType = propertyAssignment.getPropertyType();
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
-            addRow(wb, rowNumber++, false, "1", propertyType.getCode(),
+            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, "1",
+                    propertyType.getCode(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
-                    propertyAssignment.getSection(),
-                    propertyType.getLabel(), getFullDataTypeString(propertyType),
-                    String.valueOf(vocabulary != null ? vocabulary.getCode() : ""), propertyType.getDescription(),
+                    propertyAssignment.getSection(), propertyType.getLabel(),
+                    getFullDataTypeString(propertyType), String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
+                    propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
-                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "");
+                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "")
+            );
         }
-        return rowNumber;
+        return new AdditionResult(rowNumber, warnings);
     }
 
     private String getFullDataTypeString(final PropertyType propertyType)
